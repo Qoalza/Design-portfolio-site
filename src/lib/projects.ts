@@ -12,6 +12,10 @@ export type Project = {
   tags: string[];
 };
 
+export type ProjectWithContent = Project & {
+  content: string;
+};
+
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -42,9 +46,9 @@ function readTags(value: unknown): string[] {
   return value;
 }
 
-function readProject(fileName: string): Project {
+function readProject(fileName: string): ProjectWithContent {
   const filePath = path.join(projectsDirectory, fileName);
-  const { data } = matter(readFileSync(filePath, "utf8"));
+  const { content, data } = matter(readFileSync(filePath, "utf8"));
 
   if (!isRecord(data)) {
     throw new Error(`Project frontmatter in "${fileName}" must be an object.`);
@@ -58,16 +62,33 @@ function readProject(fileName: string): Project {
     year: readYear(data.year),
     status: readString(data.status, "status"),
     tags: readTags(data.tags),
+    content,
+  };
+}
+
+function getProjectFileNames(): string[] {
+  return readdirSync(projectsDirectory).filter((fileName) => fileName.endsWith(".mdx"));
+}
+
+function withoutContent(project: ProjectWithContent): Project {
+  return {
+    title: project.title,
+    slug: project.slug,
+    description: project.description,
+    role: project.role,
+    year: project.year,
+    status: project.status,
+    tags: project.tags,
   };
 }
 
 export function getAllProjects(): Project[] {
-  return readdirSync(projectsDirectory)
-    .filter((fileName) => fileName.endsWith(".mdx"))
+  return getProjectFileNames()
     .map(readProject)
+    .map(withoutContent)
     .sort((firstProject, secondProject) => secondProject.year - firstProject.year);
 }
 
-export function getProjectBySlug(slug: string): Project | undefined {
-  return getAllProjects().find((project) => project.slug === slug);
+export function getProjectBySlug(slug: string): ProjectWithContent | undefined {
+  return getProjectFileNames().map(readProject).find((project) => project.slug === slug);
 }
