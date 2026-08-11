@@ -2,37 +2,42 @@
 
 Дата: 2026-08-11
 
-## Итог
+## Текущий статус
 
-`PASSED` — блокирующих визуальных или функциональных расхождений с Figma node `262:2382` не осталось.
+`READY_FOR_USER_REVIEW`.
 
-## Доказательства
+Это не статус `PASSED`: пересобранная главная ожидает пользовательского принятия. Предыдущие статусы `REJECTED_BY_USER`, `IMPLEMENTATION_INCOMPLETE`, `STRUCTURAL_MISMATCH`, `VISUAL_QA_INVALID` относятся к старой реализации; её comparison остаётся недействительным.
 
-- Эталон Figma: `design-reference/homepage-figma-1440x5976.png`.
-- Production-снимок реализации: `design-reference/homepage-implementation-1440x5976.png`.
-- Финальное сравнение side-by-side: `design-reference/homepage-comparison-final.jpg`.
-- Контрольный viewport: `1440 × 5976 px`.
-- Проверка широкого desktop: viewport `1680 px`, внешний контейнер `1280 px` центрирован (`x = 200 px`), внутренний Figma-контент `1200 px` центрирован, горизонтального overflow нет.
+## Источник проверки
 
-## Проходы
+- Figma: node `262:2382`, frame `Test design`, `1440 × 5976 px`.
+- Актуальный экспорт Figma совпадает с `design-reference/homepage-figma-1440x5976.png`.
+- Production DOM: `1440 × 5976 px`, без горизонтального переполнения.
+- Полная инвентаризация: `design-inventory.md`.
 
-1. Каркас, hero и проекты: исправлены размеры, вертикальный ритм, композиция проектных изображений и локальные шрифты.
-2. Процесс, AI и резюме: восстановлен порядок «текст / изображение» из Figma, перестроена сетка опыта, высота страницы сведена к `5976 px`.
-3. Production-проход: проверены локальные SVG/PNG, иконки, WOFF2-шрифты, контентный контейнер, маршруты и отсутствие dev-индикаторов.
+## Посекционные comparison 1:1
 
-## Проверенные поверхности
+| Секция | Размер | Figma | Production |
+|---|---:|---|---|
+| Шапка | `1440 × 80` | [header-figma.png](design-reference/homepage-qa-rebuild/header-figma.png) | [header-implementation.jpg](design-reference/homepage-qa-rebuild/header-implementation.jpg) |
+| Hero | `1440 × 924` | [hero-figma.png](design-reference/homepage-qa-rebuild/hero-figma.png) | [hero-implementation.jpg](design-reference/homepage-qa-rebuild/hero-implementation.jpg) |
+| Проекты | `1440 × 1332` | [projects-figma.png](design-reference/homepage-qa-rebuild/projects-figma.png) | [projects-implementation.jpg](design-reference/homepage-qa-rebuild/projects-implementation.jpg) |
+| Процесс | `1440 × 1884` | [process-figma.png](design-reference/homepage-qa-rebuild/process-figma.png) | [process-implementation.jpg](design-reference/homepage-qa-rebuild/process-implementation.jpg) |
+| AI | `1440 × 616` | [ai-figma.png](design-reference/homepage-qa-rebuild/ai-figma.png) | [ai-implementation.jpg](design-reference/homepage-qa-rebuild/ai-implementation.jpg) |
+| Резюме | `1440 × 1080` | [resume-figma.png](design-reference/homepage-qa-rebuild/resume-figma.png) | [resume-implementation.jpg](design-reference/homepage-qa-rebuild/resume-implementation.jpg) |
+| Footer | `1440 × 60` | [footer-figma.png](design-reference/homepage-qa-rebuild/footer-figma.png) | [footer-implementation.jpg](design-reference/homepage-qa-rebuild/footer-implementation.jpg) |
 
-- Типографика: Google Sans, Onest и Source Code Pro, веса `400` и `500`; начертания загружаются локально.
-- Layout и spacing: header `80 px`, hero `924 px`, границы секций и footer совпадают с вертикальным ритмом эталона.
-- Цвета и состояния: сохранены утверждённые цвета, активная «Главная», приглушённые недоступные «Блог» и «Лаборатория», временно недоступные CV и файл второго кейса.
-- Изображения: использованы только выгруженные Figma-ассеты; временных Figma URL, CSS-рисунков и текстовых заменителей иконок нет.
-- Контент: заголовки, подписи, опыт, контакты и проектные описания сверены с макетом.
-- Интеракции: работают переход к проектам, `/projects`, `/projects/example-project`, email-, phone- и внешние ссылки.
-- Доступность: семантические секции и заголовки, один `h1`, `lang="ru"`, skip-link, видимый focus-ring, декоративные `alt=""`, содержательные alt у процессных иллюстраций.
+## Результат технической проверки
 
-## Известные границы
+- Размеры всех секций и их последовательность совпадают с Figma; общая высота — `5976 px`.
+- Восстановлены отсутствовавшие SVG, составные логотипы, полный контент и точная структура process/experience.
+- `npm run lint` — успешно.
+- `npm run build` — успешно; первая попытка в песочнице упала на запрете локального порта Turbopack, та же команда в разрешённом локальном контексте прошла.
+- Production route smoke: `/`, `/projects`, `/projects/example-project`, `/mdx-test` — `200`; неизвестный маршрут — `404`.
+- DOM audit: один `h1`, корректные landmarks, `lang="ru"`, уникальные ID, все изображения имеют `alt`, битых изображений и пустых ссылок нет.
+- Read-only web-quality review не выявил новых Critical/High дефектов. Зафиксированные конфликты контраста и desktop-only reflow перечислены в `ACCESSIBILITY_EXCEPTIONS.md` и сохранены по политике приоритета Figma.
 
-- Релиз desktop-only; reflow ниже `1080 px` не входит в текущую задачу.
-- Telegram URL и CV PDF не предоставлены. В интерфейсе сохранены точные точки подключения без выдуманных адресов.
-- Контрастные расхождения, продиктованные Figma, перечислены в `ACCESSIBILITY_EXCEPTIONS.md`.
-- Незначительная разница сглаживания шрифтов и сжатия растров между Figma-export и Chromium не меняет композицию или иерархию.
+## Исторические недействительные материалы
+
+- `design-reference/homepage-implementation-1440x5976.png` — отклонённая реализация.
+- `design-reference/homepage-comparison-final.jpg` — `INVALID`, не использовать как доказательство текущей версии.
