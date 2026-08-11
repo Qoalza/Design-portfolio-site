@@ -42,16 +42,13 @@
 
 .homeIcon { color: #1d8be3; -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
 .lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
-.downloadIcon { -webkit-mask-image: url("/assets/homepage/download.svg"); mask-image: url("/assets/homepage/download.svg"); }
-.chevronRightIcon { -webkit-mask-image: url("/assets/homepage/arrow-right.svg"); mask-image: url("/assets/homepage/arrow-right.svg"); }
-.shareIcon { -webkit-mask-image: url("/assets/homepage/project-share.svg"); mask-image: url("/assets/homepage/project-share.svg"); }
 .refreshIcon { -webkit-mask-image: url("/assets/homepage/project-refresh.svg"); mask-image: url("/assets/homepage/project-refresh.svg"); }
-.infoIcon { -webkit-mask-image: url("/assets/homepage/project-info.svg"); mask-image: url("/assets/homepage/project-info.svg"); }
 .jobStoriesIcon { -webkit-mask-image: url("/assets/homepage/process-job-stories.svg"); mask-image: url("/assets/homepage/process-job-stories.svg"); }
 .userFlowIcon { -webkit-mask-image: url("/assets/homepage/process-user-flow.svg"); mask-image: url("/assets/homepage/process-user-flow.svg"); }
 .cjmIcon { -webkit-mask-image: url("/assets/homepage/process-cjm.svg"); mask-image: url("/assets/homepage/process-cjm.svg"); }
-.chevronDownIcon { -webkit-mask-image: url("/assets/homepage/chevron-down.svg"); mask-image: url("/assets/homepage/chevron-down.svg"); }
 .briefcaseIcon { -webkit-mask-image: url("/assets/homepage/experience-briefcase.svg"); mask-image: url("/assets/homepage/experience-briefcase.svg"); }
+
+.buttonIcon { display: block; width: 16px; height: 16px; flex: 0 0 16px; }
 
 .header {
   position: relative;
@@ -163,7 +160,7 @@
   white-space: nowrap;
 }
 
-.primaryButton { min-width: 96px; padding: 4px 20px; background: #1d8be3; color: #fbfbfb; letter-spacing: .14px; }
+.primaryButton { min-width: 96px; padding: 4px 20px; background: #1d8be3; color: #fbfbfb; letter-spacing: .3px; }
 
 .hero {
   position: relative;
@@ -328,6 +325,7 @@
   align-items: center;
   gap: 64px;
   padding-bottom: 80px;
+  scroll-margin-top: 48px;
 }
 
 .projectsIntro { display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
@@ -408,13 +406,18 @@
 .deliveryRow { height: 366px; grid-template-columns: 48px 1fr 503px; padding: 48px 0 48px 32px; }
 
 .timeline { display: flex; min-height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 8px; overflow: hidden; font-family: "Source Code Pro", monospace; }
-.timelineLead { width: 1px; height: 45px; background: repeating-linear-gradient(to bottom, #d7dee3 0 3px, transparent 3px 7px); }
-.timelineDot { width: 10px; height: 10px; border: 1px solid currentColor; border-radius: 50%; background: #fcfcfd; }
+.timelineLead { width: 1px; height: 45px; background: linear-gradient(#dde0e2, #dde0e2) 0 30px / 1px 15px no-repeat, repeating-linear-gradient(to bottom, #dde0e2 0 8px, transparent 8px 16px) 0 0 / 1px 30px no-repeat; }
+.timelineDot { position: relative; width: 10px; height: 10px; border-radius: 50%; }
+.timelineDot::after { position: absolute; inset: -.5px; border: 1px solid currentColor; border-radius: 50%; content: ""; }
+.timelineNumberLine { width: 1px; height: 19px; background: currentColor; }
 .timelineNumber { display: flex; width: 48px; align-items: center; justify-content: center; color: currentColor; font-size: 20px; line-height: 28px; letter-spacing: -.5px; }
-.timelineTail { min-height: 64px; flex: 1 1 auto; width: 1px; background: repeating-linear-gradient(to bottom, currentColor 0 3px, transparent 3px 7px); opacity: .45; }
-.blueTimeline { color: #0489f4; }
-.orangeTimeline { color: #e5a22c; }
-.greenTimeline { color: #0eb04c; }
+.timelineTail { width: 1px; height: calc(var(--timeline-solid-length) + 64px); flex: 0 0 auto; background: linear-gradient(#dde0e2, #dde0e2), repeating-linear-gradient(to bottom, #dde0e2 0 8px, transparent 8px 16px); background-position: 0 0, 0 var(--timeline-solid-length); background-repeat: no-repeat; background-size: 1px var(--timeline-solid-length), 1px 64px; }
+.blueTimeline { --timeline-solid-length: 442px; color: #0489f4; }
+.orangeTimeline { --timeline-solid-length: 180px; color: #e5a22c; }
+.greenTimeline { --timeline-solid-length: 72px; color: #0eb04c; }
+.blueTimeline .timelineDot { background: #e6f1fa; }
+.orangeTimeline .timelineDot { background: rgba(245, 166, 30, .09); }
+.greenTimeline .timelineDot { background: rgba(47, 173, 91, .09); }
 
 .processCopy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 26px; padding: 40px; padding-left: 32px; }
 .designRow .processCopy { height: 368px; align-self: start; padding-right: 24px; }
@@ -449,14 +452,16 @@
 .toolTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #e6e9ea; border-radius: 8px; background: #f6f8f8; color: #4d5962; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.6px; white-space: nowrap; }
 
 .ai { width: 100%; padding: 80px 0; }
-.aiGrid { display: grid; width: 100%; grid-template-columns: 1fr 1fr; align-items: flex-start; }
+.aiGrid { position: relative; display: grid; width: 100%; grid-template-columns: 1fr 1fr; align-items: flex-start; }
+.aiGrid::after { position: absolute; top: 48px; bottom: 48px; left: 50%; width: 1px; background: #ecedee; content: ""; }
 .aiGrid article { display: flex; min-height: 304px; flex-direction: column; align-items: flex-start; gap: 20px; padding: 70px 70px 70px 40px; }
-.aiGrid article + article { padding-left: 70px; border-left: 1px solid #e1e6e9; }
+.aiGrid article + article { padding-left: 70px; }
 .aiGrid article > div { display: flex; width: 100%; flex-direction: column; gap: 8px; }
 
 .resume { width: 100%; padding: 80px 0; }
 .resumeIntro { display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
 .resumeIntro .sectionHeading { width: auto; }
+.resumeIntro .sectionHeading h2 { letter-spacing: -.1px; }
 .contacts { display: flex; align-items: center; justify-content: center; gap: 12px; color: #5c6a77; font-size: 18px; line-height: 24px; letter-spacing: -.1px; white-space: nowrap; }
 .contacts a { text-decoration: none; }
 .cvButton { gap: 8px; padding: 4px 20px; background: #f6f7f7; color: #4f4f4f; letter-spacing: .14px; }
@@ -480,7 +485,7 @@
 .freelanceExperience > p:not(.inlineRole),
 .shortExperiences article > p { margin: 0; color: #545e67; font-size: 16px; line-height: 24px; letter-spacing: -.1px; }
 .inlineRole { display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin: 0; color: #767b80; font-size: 16px; line-height: 20px; letter-spacing: .16px; white-space: nowrap; }
-.inlineRole strong { color: #313940; font-weight: 500; }
+.inlineRole strong { color: #313940; font-weight: 450; }
 .eyeconTags { display: flex; width: 100%; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
 .eyeconTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #e6e9ea; border-radius: 8px; background: #f2f2f2; color: #4d5962; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.7px; white-space: nowrap; }
 .experienceStar { position: absolute; bottom: 166px; left: 52px; }
@@ -507,7 +512,7 @@
 .freelanceTitle .maskIcon { width: 24px; height: 24px; }
 .freelanceTitle > div { display: flex; flex-direction: column; gap: 4px; }
 .freelanceTitle p { margin: 0; color: #9ba8b4; font-size: 16px; line-height: 20px; letter-spacing: .1px; }
-.freelanceTags { display: flex; align-items: flex-start; justify-content: center; gap: 12px; color: #75848f; font-family: "Source Code Pro", monospace; font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: -.2px; white-space: nowrap; }
+.freelanceTags { display: flex; align-items: flex-start; justify-content: center; gap: 12px; color: #75848f; font-family: "Source Code Pro", monospace; font-size: 12px; font-weight: 450; line-height: 16px; letter-spacing: -.2px; white-space: nowrap; }
 .freelanceTenure { color: #313a41; font-family: "Google Sans", sans-serif; font-size: 20px; font-weight: 400; line-height: 28px; letter-spacing: .2px; }
 .shortExperiences { display: flex; width: 600px; flex-direction: column; align-items: flex-start; padding-left: 24px; }
 .shortExperiences article { display: flex; width: 100%; height: 184px; flex-direction: column; align-items: flex-start; gap: 20px; padding: 24px 40px 40px 32px; border-bottom: 1px solid #e9eaeb; }

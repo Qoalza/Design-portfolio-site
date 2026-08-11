@@ -8,6 +8,10 @@ function MaskIcon({ className = "" }: { className?: string }) {
   return <span aria-hidden="true" className={`${styles.maskIcon} ${className}`} />;
 }
 
+function ButtonIcon({ name }: { name: "arrow-right" | "chevron-down" | "download" | "project-info" | "project-share" }) {
+  return <Image className={styles.buttonIcon} src={`${assetRoot}/${name}.svg`} alt="" width={16} height={16} />;
+}
+
 function SectionHeading({
   id,
   title,
@@ -113,6 +117,7 @@ function Timeline({ number, tone }: { number: string; tone: "blue" | "orange" | 
     <div className={`${styles.timeline} ${styles[`${tone}Timeline`]}`} aria-hidden="true">
       <span className={styles.timelineLead} />
       <span className={styles.timelineDot} />
+      <span className={styles.timelineNumberLine} />
       <span className={styles.timelineNumber}>{number}</span>
       <span className={styles.timelineTail} />
     </div>
@@ -181,7 +186,7 @@ export default function Home() {
               </div>
               <div className={styles.heroActions}>
                 <a className={styles.darkButton} href="#projects">Мои работы</a>
-                <span className={styles.secondaryButton} aria-disabled="true">CV <MaskIcon className={styles.downloadIcon} /></span>
+                <span className={styles.secondaryButton} aria-disabled="true">CV <ButtonIcon name="download" /></span>
               </div>
             </div>
           </section>
@@ -191,7 +196,7 @@ export default function Home() {
               <SectionHeading id="projects-title" title="То, над чем я работал" centered>
                 <p>Здесь собрал рабочие проекты, тестовые задания.<br />Где можно увидеть мой подход к задаче и результат.</p>
               </SectionHeading>
-              <Link className={styles.textButton} href="/projects">Все работы <MaskIcon className={styles.chevronRightIcon} /></Link>
+              <Link className={styles.textButton} href="/projects">Все работы <ButtonIcon name="arrow-right" /></Link>
             </div>
 
             <article className={styles.projectRow}>
@@ -209,7 +214,7 @@ export default function Home() {
                 <div className={styles.projectActions}>
                   <div className={styles.projectActionButtons}>
                     <Link className={styles.detailsButton} href="/projects/example-project">Подробнее</Link>
-                    <span className={styles.figmaButton} aria-disabled="true">Figma <MaskIcon className={styles.shareIcon} /></span>
+                    <span className={styles.figmaButton} aria-disabled="true">Figma <ButtonIcon name="project-share" /></span>
                   </div>
                   <span className={styles.actionDivider} />
                   <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено 13.05.2026</span>
@@ -233,7 +238,7 @@ export default function Home() {
                 <div className={styles.projectActions}>
                   <div className={styles.projectActionButtons}>
                     <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>
-                    <span className={styles.unavailableButton} aria-disabled="true">Файл недоступен <MaskIcon className={styles.infoIcon} /></span>
+                    <span className={styles.unavailableButton} aria-disabled="true">Файл недоступен <ButtonIcon name="project-info" /></span>
                   </div>
                   <span className={styles.actionDivider} />
                   <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено 13.05.2026</span>
@@ -263,7 +268,7 @@ export default function Home() {
                       <MethodRow iconClass={styles.userFlowIcon} title="User Flow">Последовательность действий пользователя для достижения цели</MethodRow>
                       <MethodRow iconClass={styles.cjmIcon} title="CJM">Путь пользователя с шагами, проблемами и ожиданиями</MethodRow>
                     </ul>
-                    <span className={styles.showMore} aria-disabled="true">Показать еще (3) <MaskIcon className={styles.chevronDownIcon} /></span>
+                    <span className={styles.showMore} aria-disabled="true">Показать еще (3) <ButtonIcon name="chevron-down" /></span>
                   </div>
                 </div>
                 <div className={styles.analyticsMedia}>
@@ -314,7 +319,7 @@ export default function Home() {
 
           <section className={styles.resume} aria-labelledby="resume-title">
             <div className={styles.resumeIntro}>
-              <SectionHeading id="resume-title" title="Чуть больше, чем резюме" centered>
+              <SectionHeading id="resume-title" title="Резюме" centered>
                 <div className={styles.contacts}>
                   <a href="mailto:Qoalza01@gmail.com">Qoalza01@gmail.com</a>
                   <Image src={`${assetRoot}/separator.svg`} alt="" width={6} height={10} />
@@ -323,7 +328,7 @@ export default function Home() {
                   <a href="tel:+79613247899">+7 (961) 324 78 99</a>
                 </div>
               </SectionHeading>
-              <span className={styles.cvButton} aria-disabled="true">Скачать полное CV <MaskIcon className={styles.downloadIcon} /></span>
+              <span className={styles.cvButton} aria-disabled="true">Скачать полное CV <ButtonIcon name="download" /></span>
             </div>
 
             <div className={styles.experienceList}>
@@ -352,7 +357,7 @@ export default function Home() {
                     <div><h3>Фриланс</h3><p>Сайт отсутствует</p></div>
                   </div>
                   <p className={styles.inlineRole}><strong>Product Designer</strong><Image src={`${assetRoot}/experience-meta-separator.svg`} alt="" width={4} height={7} /><span>Ноябрь 2019 – Декабрь 2023</span></p>
-                  <p>Проектировал веб- и мобильные продукты для разных отраслей: от стартапов и SaaS до корпоративных систем. Прорабатывал бизнес-задачи и пользовательские сценарии, создавал прототипы и готовые интерфейсы, формировал визуальный язык и разрабатывал дизайн-системы.</p>
+                  <p>Проектировал веб и мобильные продукты для разных отраслей: от стартапов и SaaS до корпоративных систем. Прорабатывал бизнес-задачи и пользовательские сценарии, создавал прототипы и готовые интерфейсы, формировал визуальный язык и разрабатывал дизайн-системы.</p>
                   <div className={styles.freelanceTags}><span><b>#</b> iOS</span><i>/</i><span><b>#</b> Andoid</span><i>/</i><span><b>#</b> Web</span></div>
                   <strong className={styles.freelanceTenure}>4 года, 2 месяца</strong>
                 </article>
