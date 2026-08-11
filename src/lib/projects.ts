@@ -10,6 +10,13 @@ export type Project = {
   year: number;
   status: string;
   tags: string[];
+  subtitle?: string;
+  updatedAt?: string;
+  platforms?: string[];
+  visibility?: string;
+  ndaNote?: string;
+  figmaUrl?: string;
+  logo?: string;
 };
 
 export type ProjectWithContent = Project & {
@@ -46,6 +53,30 @@ function readTags(value: unknown): string[] {
   return value;
 }
 
+function readOptionalString(value: unknown, field: keyof Project): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`Project frontmatter field "${field}" must be a non-empty string when provided.`);
+  }
+
+  return value;
+}
+
+function readOptionalStringArray(value: unknown, field: keyof Project): string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.trim().length === 0)) {
+    throw new Error(`Project frontmatter field "${field}" must be an array of non-empty strings when provided.`);
+  }
+
+  return value;
+}
+
 function readProject(fileName: string): ProjectWithContent {
   const filePath = path.join(projectsDirectory, fileName);
   const { content, data } = matter(readFileSync(filePath, "utf8"));
@@ -62,6 +93,13 @@ function readProject(fileName: string): ProjectWithContent {
     year: readYear(data.year),
     status: readString(data.status, "status"),
     tags: readTags(data.tags),
+    subtitle: readOptionalString(data.subtitle, "subtitle"),
+    updatedAt: readOptionalString(data.updatedAt, "updatedAt"),
+    platforms: readOptionalStringArray(data.platforms, "platforms"),
+    visibility: readOptionalString(data.visibility, "visibility"),
+    ndaNote: readOptionalString(data.ndaNote, "ndaNote"),
+    figmaUrl: readOptionalString(data.figmaUrl, "figmaUrl"),
+    logo: readOptionalString(data.logo, "logo"),
     content,
   };
 }
@@ -79,6 +117,13 @@ function withoutContent(project: ProjectWithContent): Project {
     year: project.year,
     status: project.status,
     tags: project.tags,
+    subtitle: project.subtitle,
+    updatedAt: project.updatedAt,
+    platforms: project.platforms,
+    visibility: project.visibility,
+    ndaNote: project.ndaNote,
+    figmaUrl: project.figmaUrl,
+    logo: project.logo,
   };
 }
 

@@ -213,7 +213,7 @@ export default function Home() {
                 </dl>
                 <div className={styles.projectActions}>
                   <div className={styles.projectActionButtons}>
-                    <Link className={styles.detailsButton} href="/projects/example-project">Подробнее</Link>
+                    <Link className={styles.detailsButton} href="/projects/corvo">Подробнее</Link>
                     <span className={styles.figmaButton} aria-disabled="true">Figma <ButtonIcon name="project-share" /></span>
                   </div>
                   <span className={styles.actionDivider} />
