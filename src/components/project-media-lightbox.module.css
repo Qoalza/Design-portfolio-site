@@ -1,0 +1,41 @@
+.trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: zoom-in;
+}
+
+.trigger:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline-offset: -4px;
+}
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: rgba(21, 29, 35, 0.88);
+  cursor: zoom-out;
+}
+
+.expandedImage {
+  display: block;
+  width: auto;
+  max-width: min(100%, 1600px);
+  height: auto;
+  max-height: calc(100dvh - 96px);
+  object-fit: contain;
+  cursor: default;
+}

@@ -1,7 +1,7 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Mask">
 <g id="Light / Devices / Desktop">
-<path id="Vector" d="M15 21H9M20.3333 18H3.66667C2.74619 18 2 17.2538 2 16.3333V4.66667C2 3.74619 2.74619 3 3.66667 3H20.3333C21.2538 3 22 3.74619 22 4.66667V16.3333C22 17.2538 21.2538 18 20.3333 18Z" stroke="#E2E2EC" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector" d="M12.5 17.5H7.5M16.9444 15H3.05556C2.28849 15 1.66667 14.3782 1.66667 13.6111V3.88889C1.66667 3.12183 2.28849 2.5 3.05556 2.5H16.9444C17.7115 2.5 18.3333 3.12183 18.3333 3.88889V13.6111C18.3333 14.3782 17.7115 15 16.9444 15Z" stroke="#E2E2EC" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 </g>
 </svg>

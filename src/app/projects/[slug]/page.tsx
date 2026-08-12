@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
 import { ProjectShareButton } from "../../../components/project-share-button";
 import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
 import styles from "./page.module.css";
@@ -50,7 +51,7 @@ function ProjectMedia({
 }: ProjectMediaProps) {
   return (
     <figure className={`${styles.projectMedia} ${styles[variant]}`}>
-      <Image src={src} alt={alt} width={width} height={height} sizes="720px" />
+      <ProjectMediaLightbox src={src} alt={alt} width={width} height={height} />
       {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>
   );
@@ -69,7 +70,7 @@ function SiteHeader() {
       </Link>
 
       <nav className={styles.nav} aria-label="Основная навигация">
-        <Link className={styles.navActive} href="/">
+        <Link className={styles.navHome} href="/">
           <MaskIcon className={styles.homeIcon} />
           Главная
         </Link>
@@ -149,9 +150,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               <Link className={styles.backButton} href="/" aria-label="Вернуться на главную">
                 <MaskIcon className={styles.backIcon} />
               </Link>
-              <Link href="/">Главная</Link>
-              <span aria-hidden="true">/</span>
-              <span>{project.title}</span>
+              <div className={styles.breadcrumbTrail}>
+                <Link href="/">Главная</Link>
+                <span aria-hidden="true">/</span>
+                <span>{project.title}</span>
+              </div>
             </div>
 
             <div className={styles.toolbarActions}>
@@ -179,9 +182,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {project.subtitle ? <p className={styles.projectSubtitle}>{project.subtitle}</p> : null}
             {project.platforms?.length ? (
               <ul className={styles.platforms} aria-label="Платформы">
-                {project.platforms.map((platform, index) => (
+                {project.platforms.map((platform) => (
                   <li key={platform}>
-                    {index > 0 ? <span className={styles.metaSeparator} aria-hidden="true">/</span> : null}
                     <MaskIcon className={platform === "Mobile" ? styles.mobileIcon : styles.desktopIcon} />
                     {platform}
                   </li>

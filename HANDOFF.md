@@ -202,6 +202,7 @@
 9. `not_started` — развернуть проверенный commit после одобрения merge/deploy.
 10. `not_started` — выполнить production smoke-check и записать URL, commit и результат сюда.
 11. `done` — реализовать `/projects/corvo` и переиспользуемый MDX project shell, провести Figma comparison, accessibility/web-quality/code checks, lint, build и production route smoke.
+12. `done` — синхронизировать Corvo со свежим Figma node `321:29865`: исправить neutral header home, breadcrumbs, back, platforms, заменить process asset и добавить общий доступный lightbox для `ProjectMedia`.
 
 ## Стоп-линии
 
@@ -240,6 +241,12 @@
 
 ## Последнее подтверждённое действие
 
+По повторно полученному 2026-08-12 `get_design_context` Figma node `321:29865` страница Corvo обновлена в существующей ветке и PR #9. «Главная» в project header имеет нейтральное состояние без `aria-current`; breadcrumbs используют Google Sans `16/20`; back — `44 × 40 px` без border; Desktop/Mobile используют свежие SVG `20 × 20 px` и вертикальный separator `#e1e8ed`. Production `process-flow.png` заменён свежим оригиналом Figma `1960 × 546`.
+
+Добавлен переиспользуемый клиентский lightbox для всех `ProjectMedia`: четыре изображения Corvo открываются, сохраняют aspect ratio и quality, overlay закрывается `Escape` и кликом по свободному фону, клик по изображению не закрывает его, background scroll блокируется без скачка, scroll position и focus возвращаются. Семантика: `role="dialog"`, `aria-modal="true"`, доступное имя. Содержимое кейса, порядок секций, главная и адаптив ниже `1280 px` не изменялись.
+
+Свежий Figma export, browser capture, full/focus comparisons и два открытых lightbox находятся в `design-reference/corvo-fresh/`; `design-qa.md` имеет `final result: passed`, а внешний статус остаётся `READY_FOR_USER_REVIEW`. `npm run lint`, `npm run build` и production route smoke пройдены; browser console ошибок и hydration warnings не содержит. Merge, deploy, VPS, DNS и production не затрагивались.
+
 По свежему Figma node `262:2382` выполнена точечная доработка текущей реализации в PR #8:
 
 - проверены типографические роли Google Sans, Onest и Source Code Pro; `@font-face` описывает variable-диапазон `400 500`, синтетические начертания отключены, роли Freelance используют точный промежуточный вес `450`;
@@ -260,4 +267,4 @@
 
 ## Следующий шаг
 
-Выполнить push и создать отдельный Pull Request ветки `feature/project-corvo` в `main`, затем открыть свежий локальный `/projects/corvo?review=<sha>` во встроенном браузере Codex и передать пользователю статус `READY_FOR_USER_REVIEW`. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
+Создать commit текущих исправлений Corvo, push в существующую ветку `feature/project-corvo`, обновить PR #9 и открыть свежий `/projects/corvo?review=<sha>` во встроенном браузере Codex. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.

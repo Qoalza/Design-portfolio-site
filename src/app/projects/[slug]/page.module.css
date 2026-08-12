@@ -41,12 +41,12 @@
   mask-size: contain;
 }
 
-.homeIcon { color: #1d8be3; -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
+.homeIcon { color: #656769; -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
 .lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
 .backIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/back.svg"); mask-image: url("/assets/projects/corvo/back.svg"); }
 .externalIcon { -webkit-mask-image: url("/assets/projects/corvo/external-link.svg"); mask-image: url("/assets/projects/corvo/external-link.svg"); }
-.desktopIcon { width: 24px; height: 24px; -webkit-mask-image: url("/assets/projects/corvo/desktop.svg"); mask-image: url("/assets/projects/corvo/desktop.svg"); }
-.mobileIcon { width: 24px; height: 24px; -webkit-mask-image: url("/assets/projects/corvo/mobile.svg"); mask-image: url("/assets/projects/corvo/mobile.svg"); }
+.desktopIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/desktop.svg"); mask-image: url("/assets/projects/corvo/desktop.svg"); }
+.mobileIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/mobile.svg"); mask-image: url("/assets/projects/corvo/mobile.svg"); }
 
 .header {
   display: flex;
@@ -98,7 +98,7 @@
   text-decoration: none;
 }
 
-.navActive { color: #202931; background: #edf2f5; letter-spacing: .42px; }
+.navHome { color: #202931; background: transparent; letter-spacing: .42px; }
 .nav > span { color: #a2acb5; letter-spacing: .42px; }
 .nav > span:last-child { letter-spacing: -.1px; }
 
@@ -153,23 +153,27 @@
 }
 
 .breadcrumbs,
+.breadcrumbTrail,
 .toolbarActions {
   display: flex;
   align-items: center;
 }
 
 .breadcrumbs {
+  gap: 24px;
+}
+
+.breadcrumbTrail {
   gap: 12px;
-  color: #313a41;
   font-family: "Google Sans", sans-serif;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 20px;
   letter-spacing: .2px;
 }
 
-.breadcrumbs a { text-decoration: none; }
-.breadcrumbs > span:last-child { color: #88949c; }
+.breadcrumbTrail a { color: #415e74; text-decoration: none; }
+.breadcrumbTrail > span { color: #a7b1b8; }
 
 .backButton {
   display: inline-flex;
@@ -177,10 +181,11 @@
   height: 40px;
   align-items: center;
   justify-content: center;
-  margin-right: 4px;
-  border: 1px solid #dfe3e6;
+  padding: 0;
+  border: 0;
   border-radius: 8px;
-  color: #495660;
+  background: #f5f6f7;
+  color: #415e74;
 }
 
 .toolbarActions { gap: 12px; }
@@ -227,16 +232,29 @@
 }
 
 .platforms {
-  gap: 20px;
+  gap: 0;
   padding-left: 76px;
-  color: #495660;
-  font-size: 16px;
+  color: #75848f;
+  font-family: "Onest", sans-serif;
+  font-size: 14px;
   line-height: 20px;
   letter-spacing: -.1px;
 }
 
 .platforms li { display: flex; align-items: center; gap: 8px; }
-.metaSeparator { margin-right: 12px; color: #a2acb5; font-family: "Source Code Pro", monospace; font-size: 12px; }
+.platforms li + li {
+  position: relative;
+  margin-left: 25px;
+}
+.platforms li + li::before {
+  position: absolute;
+  top: 0;
+  left: -13px;
+  width: 1px;
+  height: 20px;
+  background: #e1e8ed;
+  content: "";
+}
 
 .projectLabels {
   flex-wrap: wrap;
@@ -331,15 +349,15 @@
   background: #f7f8f9;
 }
 
-.projectMedia img { display: block; width: 100%; height: auto; }
+.projectMedia button > img { display: block; width: 100%; height: auto; }
 .projectMedia figcaption { padding: 12px 16px; color: #6c7d86; font-size: 14px; line-height: 20px; }
 
 .projectMedia.standard { height: 467px; }
-.projectMedia.standard img { height: 467px; object-fit: cover; }
+.projectMedia.standard button > img { height: 467px; object-fit: cover; }
 .projectMedia.flow { height: 145px; border: 0; border-radius: 0; background: transparent; }
-.projectMedia.flow img { width: 113.56%; max-width: none; height: 156.9%; object-fit: fill; transform: translate(-5.4%, -17.6%); }
+.projectMedia.flow button > img { width: 113.56%; max-width: none; height: 156.9%; object-fit: fill; transform: translate(-5.4%, -17.6%); }
 .projectMedia.result { height: 554px; }
-.projectMedia.result img { height: 554px; object-fit: cover; }
+.projectMedia.result button > img { height: 554px; object-fit: cover; }
 
 .contentDivider { width: 100%; border: 0; border-top: 1px solid #e8ebed; }
 
