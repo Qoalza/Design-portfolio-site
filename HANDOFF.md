@@ -244,7 +244,7 @@
 
 Глобальное поведение прокрутки исправлено на уровне root layout. Причина дефекта — сочетание `html { scroll-behavior: smooth }`, отсутствия `data-scroll-behavior="smooth"` для штатного Next.js route-scroll и браузерного `history.scrollRestoration = "auto"`, которое при App Router history traversal восстанавливало сохранённую позицию другого маршрута. `NavigationScrollController` выставляет manual restoration и синхронно сбрасывает новый pathname без hash в `0` с временным `scroll-behavior: auto`; hash-переходы остаются под штатной якорной навигацией и сохраняют `scroll-margin`.
 
-В dev и production проверены: главная → Corvo, back-кнопка, breadcrumb, browser Back/Forward, прямое открытие Corvo, `#projects` (`48 px` от верха), lightbox без маршрутного reset. Все обычные межстраничные переходы завершились с `scrollY = 0`, console errors/hydration warnings отсутствуют. `npm run lint` и `npm run build` прошли. Merge, deploy, VPS, DNS и production не затрагивались.
+В dev и production проверены: главная → Corvo, back-кнопка, breadcrumb, browser Back/Forward, прямое открытие Corvo, `#projects` (`48 px` от верха), lightbox без маршрутного reset. Все обычные межстраничные переходы завершились с `scrollY = 0`, console errors/hydration warnings отсутствуют. `npm run lint` и `npm run build` прошли. Commit реализации: `3d313c0`. Merge, deploy, VPS, DNS и production не затрагивались.
 
 По повторно полученному 2026-08-12 `get_design_context` Figma node `321:29865` страница Corvo обновлена в существующей ветке и PR #9. «Главная» в project header имеет нейтральное состояние без `aria-current`; breadcrumbs используют Google Sans `16/20`; back — `44 × 40 px` без border; Desktop/Mobile используют свежие SVG `20 × 20 px` и вертикальный separator `#e1e8ed`. Production `process-flow.png` заменён свежим оригиналом Figma `1960 × 546`.
 
@@ -272,4 +272,4 @@
 
 ## Следующий шаг
 
-Создать commit глобального scroll-controller, push в `feature/project-corvo`, обновить PR #9 и открыть свежий `/projects/corvo?review=<sha>`. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
+Открыть свежий `/projects/corvo?review=<final-sha>` из финального HEAD и передать результат пользователю. PR #9 обновлён. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
