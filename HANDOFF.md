@@ -245,7 +245,7 @@
 
 Добавлен переиспользуемый клиентский lightbox для всех `ProjectMedia`: четыре изображения Corvo открываются, сохраняют aspect ratio и quality, overlay закрывается `Escape` и кликом по свободному фону, клик по изображению не закрывает его, background scroll блокируется без скачка, scroll position и focus возвращаются. Семантика: `role="dialog"`, `aria-modal="true"`, доступное имя. Содержимое кейса, порядок секций, главная и адаптив ниже `1280 px` не изменялись.
 
-Свежий Figma export, browser capture, full/focus comparisons и два открытых lightbox находятся в `design-reference/corvo-fresh/`; `design-qa.md` имеет `final result: passed`, а внешний статус остаётся `READY_FOR_USER_REVIEW`. `npm run lint`, `npm run build` и production route smoke пройдены; browser console ошибок и hydration warnings не содержит. Merge, deploy, VPS, DNS и production не затрагивались.
+Свежий Figma export, browser capture, full/focus comparisons и два открытых lightbox находятся в `design-reference/corvo-fresh/`; `design-qa.md` имеет `final result: passed`, а внешний статус остаётся `READY_FOR_USER_REVIEW`. `npm run lint`, `npm run build` и production route smoke пройдены; browser console ошибок и hydration warnings не содержит. Commit исправлений: `ae73278`. Merge, deploy, VPS, DNS и production не затрагивались.
 
 По свежему Figma node `262:2382` выполнена точечная доработка текущей реализации в PR #8:
 
@@ -267,4 +267,4 @@
 
 ## Следующий шаг
 
-Создать commit текущих исправлений Corvo, push в существующую ветку `feature/project-corvo`, обновить PR #9 и открыть свежий `/projects/corvo?review=<sha>` во встроенном браузере Codex. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
+Открыть свежий `/projects/corvo?review=ae73278` во встроенном браузере Codex и передать пользователю статус `READY_FOR_USER_REVIEW`. PR #9 обновлён. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
