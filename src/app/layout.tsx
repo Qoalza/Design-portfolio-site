@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { NavigationScrollController } from "../components/navigation-scroll-controller";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,8 +15,11 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="ru">
-      <body>{children}</body>
+    <html lang="ru" data-scroll-behavior="smooth">
+      <body>
+        <NavigationScrollController />
+        {children}
+      </body>
     </html>
   );
 }

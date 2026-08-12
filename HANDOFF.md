@@ -203,6 +203,7 @@
 10. `not_started` — выполнить production smoke-check и записать URL, commit и результат сюда.
 11. `done` — реализовать `/projects/corvo` и переиспользуемый MDX project shell, провести Figma comparison, accessibility/web-quality/code checks, lint, build и production route smoke.
 12. `done` — синхронизировать Corvo со свежим Figma node `321:29865`: исправить neutral header home, breadcrumbs, back, platforms, заменить process asset и добавить общий доступный lightbox для `ProjectMedia`.
+13. `done` — централизовать scroll policy: новый pathname без hash открывается с `scrollY = 0`, browser Back/Forward используют manual restoration, а явные hash-ссылки сохраняют якорную навигацию и `scroll-margin`.
 
 ## Стоп-линии
 
@@ -241,6 +242,10 @@
 
 ## Последнее подтверждённое действие
 
+Глобальное поведение прокрутки исправлено на уровне root layout. Причина дефекта — сочетание `html { scroll-behavior: smooth }`, отсутствия `data-scroll-behavior="smooth"` для штатного Next.js route-scroll и браузерного `history.scrollRestoration = "auto"`, которое при App Router history traversal восстанавливало сохранённую позицию другого маршрута. `NavigationScrollController` выставляет manual restoration и синхронно сбрасывает новый pathname без hash в `0` с временным `scroll-behavior: auto`; hash-переходы остаются под штатной якорной навигацией и сохраняют `scroll-margin`.
+
+В dev и production проверены: главная → Corvo, back-кнопка, breadcrumb, browser Back/Forward, прямое открытие Corvo, `#projects` (`48 px` от верха), lightbox без маршрутного reset. Все обычные межстраничные переходы завершились с `scrollY = 0`, console errors/hydration warnings отсутствуют. `npm run lint` и `npm run build` прошли. Merge, deploy, VPS, DNS и production не затрагивались.
+
 По повторно полученному 2026-08-12 `get_design_context` Figma node `321:29865` страница Corvo обновлена в существующей ветке и PR #9. «Главная» в project header имеет нейтральное состояние без `aria-current`; breadcrumbs используют Google Sans `16/20`; back — `44 × 40 px` без border; Desktop/Mobile используют свежие SVG `20 × 20 px` и вертикальный separator `#e1e8ed`. Production `process-flow.png` заменён свежим оригиналом Figma `1960 × 546`.
 
 Добавлен переиспользуемый клиентский lightbox для всех `ProjectMedia`: четыре изображения Corvo открываются, сохраняют aspect ratio и quality, overlay закрывается `Escape` и кликом по свободному фону, клик по изображению не закрывает его, background scroll блокируется без скачка, scroll position и focus возвращаются. Семантика: `role="dialog"`, `aria-modal="true"`, доступное имя. Содержимое кейса, порядок секций, главная и адаптив ниже `1280 px` не изменялись.
@@ -267,4 +272,4 @@
 
 ## Следующий шаг
 
-Открыть свежий `/projects/corvo?review=ae73278` во встроенном браузере Codex и передать пользователю статус `READY_FOR_USER_REVIEW`. PR #9 обновлён. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
+Создать commit глобального scroll-controller, push в `feature/project-corvo`, обновить PR #9 и открыть свежий `/projects/corvo?review=<sha>`. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
