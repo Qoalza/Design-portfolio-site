@@ -19,7 +19,7 @@
   position: fixed;
   top: 16px;
   left: 16px;
-  z-index: 20;
+  z-index: 100;
   transform: translateY(-180%);
   padding: 10px 14px;
   border-radius: 8px;
@@ -45,8 +45,6 @@
   mask-size: contain;
 }
 
-.homeIcon { color: #1d8be3; -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
-.lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
 .refreshIcon { -webkit-mask-image: url("/assets/homepage/project-refresh.svg"); mask-image: url("/assets/homepage/project-refresh.svg"); }
 .jobStoriesIcon { -webkit-mask-image: url("/assets/homepage/process-job-stories.svg"); mask-image: url("/assets/homepage/process-job-stories.svg"); }
 .userFlowIcon { -webkit-mask-image: url("/assets/homepage/process-user-flow.svg"); mask-image: url("/assets/homepage/process-user-flow.svg"); }
@@ -55,98 +53,6 @@
 
 .buttonIcon { display: block; width: 16px; height: 16px; flex: 0 0 16px; }
 
-.header {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  width: 1200px;
-  height: 80px;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: hidden;
-  margin: 0 auto;
-}
-
-.brand {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  text-decoration: none;
-}
-
-.brand > img { transform: rotate(180deg) scaleY(-1); }
-
-.brand > span {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  white-space: nowrap;
-  font-family: "Google Sans", sans-serif;
-}
-
-.brand strong { color: #202931; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: .48px; }
-.brand small { color: #6c7d86; font-size: 12px; line-height: 12px; letter-spacing: .36px; }
-
-.nav {
-  display: flex;
-  flex: 1 1 0;
-  height: 80px;
-  min-width: 0;
-  align-items: center;
-  gap: 12px;
-  overflow: hidden;
-  padding: 4px 48px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.nav a,
-.nav > span {
-  display: inline-flex;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.navActive { color: #202931; background: #edf2f5; letter-spacing: .42px; }
-.nav > span { color: #a2acb5; letter-spacing: .42px; }
-.nav > span:last-child { letter-spacing: -.1px; }
-
-.headerActions {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  overflow: hidden;
-  padding: 16px;
-  font-family: "Google Sans", sans-serif;
-}
-
-.availability {
-  display: inline-flex;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 8px 16px;
-  color: #495660;
-  font-size: 16px;
-  line-height: 20px;
-  letter-spacing: .48px;
-  white-space: nowrap;
-}
-
-.primaryButton,
 .darkButton,
 .secondaryButton,
 .detailsButton,
@@ -165,8 +71,6 @@
   text-decoration: none;
   white-space: nowrap;
 }
-
-.primaryButton { min-width: 96px; padding: 4px 20px; background: #1d8be3; color: #fbfbfb; letter-spacing: .3px; }
 
 .hero {
   position: relative;
@@ -315,7 +219,7 @@
   align-items: center;
   gap: 64px;
   padding-bottom: 80px;
-  scroll-margin-top: 48px;
+  scroll-margin-top: 128px;
 }
 
 .projectsIntro { display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }

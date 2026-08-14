@@ -17,6 +17,7 @@ export type Project = {
   platforms?: ProjectPlatform[];
   visibility?: string;
   ndaNote?: string;
+  figmaAvailable: boolean;
   figmaUrl?: string;
   logo?: string;
 };
@@ -81,12 +82,32 @@ function readOptionalPlatforms(value: unknown): ProjectPlatform[] | undefined {
   return value as ProjectPlatform[];
 }
 
+function readFigmaAvailability(value: unknown): boolean {
+  if (value === undefined) {
+    return false;
+  }
+
+  if (typeof value !== "boolean") {
+    throw new Error('Project frontmatter field "figmaAvailable" must be a boolean when provided.');
+  }
+
+  return value;
+}
+
 function readProject(fileName: string): ProjectWithContent {
   const filePath = path.join(projectsDirectory, fileName);
   const { content, data } = matter(readFileSync(filePath, "utf8"));
 
   if (!isRecord(data)) {
     throw new Error(`Project frontmatter in "${fileName}" must be an object.`);
+  }
+
+  const updatedAt = readOptionalString(data.updatedAt, "updatedAt");
+  const figmaAvailable = readFigmaAvailability(data.figmaAvailable);
+  const figmaUrl = readOptionalString(data.figmaUrl, "figmaUrl");
+
+  if (figmaAvailable && (!figmaUrl || !updatedAt)) {
+    throw new Error(`Project frontmatter in "${fileName}" must provide "figmaUrl" and "updatedAt" when "figmaAvailable" is true.`);
   }
 
   return {
@@ -98,11 +119,12 @@ function readProject(fileName: string): ProjectWithContent {
     status: readString(data.status, "status"),
     tags: readTags(data.tags),
     subtitle: readOptionalString(data.subtitle, "subtitle"),
-    updatedAt: readOptionalString(data.updatedAt, "updatedAt"),
+    updatedAt,
     platforms: readOptionalPlatforms(data.platforms),
     visibility: readOptionalString(data.visibility, "visibility"),
     ndaNote: readOptionalString(data.ndaNote, "ndaNote"),
-    figmaUrl: readOptionalString(data.figmaUrl, "figmaUrl"),
+    figmaAvailable,
+    figmaUrl,
     logo: readOptionalString(data.logo, "logo"),
     content,
   };
@@ -126,6 +148,7 @@ function withoutContent(project: ProjectWithContent): Project {
     platforms: project.platforms,
     visibility: project.visibility,
     ndaNote: project.ndaNote,
+    figmaAvailable: project.figmaAvailable,
     figmaUrl: project.figmaUrl,
     logo: project.logo,
   };

@@ -1,16 +1,15 @@
 import { evaluate } from "@mdx-js/mdx";
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
+import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
 import { getAllProjects, getProjectBySlug, type ProjectPlatform } from "../../../lib/projects";
 import styles from "./page.module.css";
-
-const homeAssetRoot = "/assets/homepage";
 
 const platformIconClass: Record<ProjectPlatform, string> = {
   Desktop: styles.desktopIcon,
@@ -67,34 +66,6 @@ function MdxHeading({ children, ...props }: ComponentPropsWithoutRef<"h2">) {
   return <h2 {...props}>{children}</h2>;
 }
 
-function SiteHeader() {
-  return (
-    <header className={styles.header}>
-      <Link className={styles.brand} href="/" aria-label="На главную">
-        <Image src={`${homeAssetRoot}/logo.svg`} alt="" width={48} height={48} priority />
-        <span><strong>ART</strong><small>Design</small></span>
-      </Link>
-
-      <nav className={styles.nav} aria-label="Основная навигация">
-        <Link className={styles.navHome} href="/">
-          <MaskIcon className={styles.homeIcon} />
-          Главная
-        </Link>
-        <span aria-disabled="true"><MaskIcon className={styles.lockIcon} />Блог</span>
-        <span aria-disabled="true"><MaskIcon className={styles.lockIcon} />Лаборатория</span>
-      </nav>
-
-      <div className={styles.headerActions}>
-        <span className={styles.availability}>
-          <Image src={`${homeAssetRoot}/status.svg`} alt="" width={6} height={8} />
-          Открыт к предложениям
-        </span>
-        <span className={styles.primaryButton} aria-disabled="true">Связаться</span>
-      </div>
-    </header>
-  );
-}
-
 export function generateStaticParams() {
   return getAllProjects().map(({ slug }) => ({ slug }));
 }
@@ -139,22 +110,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     <div className={styles.page}>
       <div className={styles.shell}>
         <a className={styles.skipLink} href="#project-content">Перейти к содержимому</a>
-        <SiteHeader />
+        <SiteHeader breadcrumbLabel={project.title} />
 
         <main id="project-content">
-          <div className={styles.projectToolbar}>
-            <div className={styles.breadcrumbs}>
-              <Link className={styles.backButton} href="/" aria-label="Вернуться на главную">
-                <MaskIcon className={styles.backIcon} />
-              </Link>
-              <div className={styles.breadcrumbTrail}>
-                <Link href="/">Главная</Link>
-                <span aria-hidden="true">/</span>
-                <span>{project.title}</span>
-              </div>
-            </div>
-          </div>
-
           <header className={styles.projectHero}>
             <div className={styles.projectTitleRow}>
               {project.logo ? <Image src={project.logo} alt="" width={52} height={52} priority /> : null}
@@ -192,6 +150,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               }}
             />
           </article>
+
+          <ProjectActionBar
+            title={project.title}
+            figmaAvailable={project.figmaAvailable}
+            figmaUrl={project.figmaUrl}
+            updatedAt={project.updatedAt}
+          />
         </main>
 
         <SiteFooter />

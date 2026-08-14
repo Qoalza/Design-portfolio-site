@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import styles from "./page.module.css";
 
@@ -182,29 +183,7 @@ export default function Home() {
       <div className={styles.shell}>
         <a className={styles.skipLink} href="#main-content">Перейти к содержимому</a>
 
-        <header className={styles.header}>
-          <Link className={styles.brand} href="/" aria-label="На главную">
-            <Image src={`${assetRoot}/logo.svg`} alt="" width={48} height={48} priority />
-            <span><strong>ART</strong><small>Design</small></span>
-          </Link>
-
-          <nav className={styles.nav} aria-label="Основная навигация">
-            <Link className={styles.navActive} href="/" aria-current="page">
-              <MaskIcon className={styles.homeIcon} />
-              Главная
-            </Link>
-            <span aria-disabled="true"><MaskIcon className={styles.lockIcon} />Блог</span>
-            <span aria-disabled="true"><MaskIcon className={styles.lockIcon} />Лаборатория</span>
-          </nav>
-
-          <div className={styles.headerActions}>
-            <span className={styles.availability}>
-              <Image src={`${assetRoot}/status.svg`} alt="" width={6} height={8} />
-              Открыт к предложениям
-            </span>
-            <span className={styles.primaryButton} aria-disabled="true">Связаться</span>
-          </div>
-        </header>
+        <SiteHeader homeActive />
 
         <main id="main-content">
           <section className={styles.hero} aria-labelledby="hero-title">

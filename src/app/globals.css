@@ -49,5 +49,5 @@ html::-webkit-scrollbar { display: none; }
 body { margin: 0; background: #fcfcfd; color: #313a41; }
 a { color: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-:focus-visible { outline: 3px solid #1d8be3; outline-offset: 3px; }
+:focus-visible { outline: 3px solid #1d8be3; outline-offset: 3px; scroll-margin-top: 176px; scroll-margin-bottom: 132px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; border: 0; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }

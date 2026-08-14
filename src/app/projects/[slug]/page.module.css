@@ -20,7 +20,7 @@
   position: fixed;
   top: 16px;
   left: 16px;
-  z-index: 20;
+  z-index: 100;
   transform: translateY(-180%);
   padding: 10px 14px;
   border-radius: 8px;
@@ -46,150 +46,9 @@
   mask-size: contain;
 }
 
-.homeIcon { color: #656769; -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
-.lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
-.backIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/back.svg"); mask-image: url("/assets/projects/corvo/back.svg"); }
 .desktopIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/desktop.svg"); mask-image: url("/assets/projects/corvo/desktop.svg"); }
 .tabletIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/tablet.svg"); mask-image: url("/assets/projects/corvo/tablet.svg"); }
 .mobileIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/mobile.svg"); mask-image: url("/assets/projects/corvo/mobile.svg"); }
-
-.header {
-  display: flex;
-  width: 1200px;
-  height: 80px;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: hidden;
-  margin: 0 auto;
-}
-
-.brand {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  text-decoration: none;
-}
-
-.brand > img { transform: rotate(180deg) scaleY(-1); }
-.brand > span { display: flex; flex-direction: column; justify-content: center; gap: 2px; white-space: nowrap; font-family: "Google Sans", sans-serif; }
-.brand strong { color: #202931; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: .48px; }
-.brand small { color: #6c7d86; font-size: 12px; line-height: 12px; letter-spacing: .36px; }
-
-.nav {
-  display: flex;
-  flex: 1 1 0;
-  height: 80px;
-  min-width: 0;
-  align-items: center;
-  gap: 12px;
-  overflow: hidden;
-  padding: 4px 48px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.nav a,
-.nav > span {
-  display: inline-flex;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.navHome { color: #202931; background: transparent; letter-spacing: .42px; }
-.nav > span { color: #a2acb5; letter-spacing: .42px; }
-.nav > span:last-child { letter-spacing: -.1px; }
-
-.headerActions {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  overflow: hidden;
-  padding: 16px;
-  font-family: "Google Sans", sans-serif;
-}
-
-.availability {
-  display: inline-flex;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 8px 16px;
-  color: #495660;
-  font-size: 16px;
-  line-height: 20px;
-  letter-spacing: .48px;
-  white-space: nowrap;
-}
-
-.primaryButton {
-  display: inline-flex;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 8px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.primaryButton { min-width: 96px; padding: 4px 20px; background: #1d8be3; color: #fbfbfb; letter-spacing: .3px; }
-
-.projectToolbar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 24px;
-}
-
-.breadcrumbs,
-.breadcrumbTrail {
-  display: flex;
-  align-items: center;
-}
-
-.breadcrumbs {
-  gap: 24px;
-}
-
-.breadcrumbTrail {
-  gap: 12px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: .2px;
-}
-
-.breadcrumbTrail a { color: #415e74; text-decoration: none; }
-.breadcrumbTrail > span { color: #a7b1b8; }
-
-.backButton {
-  display: inline-flex;
-  width: 32px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: #f5f6f7;
-  color: #415e74;
-}
 
 .projectHero {
   padding: 24px 16px 40px;
