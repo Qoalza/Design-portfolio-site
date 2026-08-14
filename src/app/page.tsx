@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SiteFooter } from "../components/site-footer";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
@@ -40,29 +41,47 @@ function SectionHeading({
   );
 }
 
-function HeroOrbit() {
+function HeroBackground() {
   return (
-    <div className={styles.heroOrbit} aria-hidden="true">
-      <Image className={styles.outerRing} src={`${assetRoot}/hero-ring-outer.svg`} alt="" width={1466} height={1466} priority />
-      <Image className={styles.outerDashedRing} src={`${assetRoot}/hero-ring-outer-dashed.svg`} alt="" width={1177} height={1177} priority />
-      <span className={styles.outerAccentRing}>
-        <Image src={`${assetRoot}/hero-ring-outer-accent.svg`} alt="" fill sizes="511px" priority />
-      </span>
-      <Image className={styles.innerDashedRing} src={`${assetRoot}/hero-ring-inner-dashed.svg`} alt="" width={890} height={890} priority />
-      <span className={styles.innerAccentRing}>
-        <Image src={`${assetRoot}/hero-ring-inner-accent.svg`} alt="" fill sizes="208px" priority />
-      </span>
-      <Image className={styles.heroGlowSmall} src={`${assetRoot}/hero-glow-small.svg`} alt="" width={749} height={749} priority />
-      <Image className={styles.heroGlowLarge} src={`${assetRoot}/hero-glow-large.svg`} alt="" width={1023} height={1023} priority />
+    <div className={styles.heroBackground} aria-hidden="true">
+      <Image src={`${assetRoot}/hero-background.png`} alt="" width={1440} height={1431} priority />
+    </div>
+  );
+}
 
-      <span className={`${styles.orbitNode} ${styles.orbitOne}`}><MaskIcon className={styles.heroStackIcon} /></span>
-      <span className={`${styles.orbitNode} ${styles.orbitTwo}`}><MaskIcon className={styles.heroInstrumentIcon} /></span>
-      <span className={`${styles.orbitNode} ${styles.orbitThree}`}><MaskIcon className={styles.heroBrushIcon} /></span>
-      <span className={`${styles.orbitNode} ${styles.orbitFour}`}><MaskIcon className={styles.heroUnderlineIcon} /></span>
-      <span className={`${styles.orbitNode} ${styles.orbitFive}`}><MaskIcon className={styles.heroComponentIcon} /></span>
-      <span className={`${styles.orbitNode} ${styles.orbitSix}`}><MaskIcon className={styles.heroBooleanIcon} /></span>
-      <span className={`${styles.orbitNode} ${styles.orbitSeven}`}><MaskIcon className={styles.heroUserIcon} /></span>
-      <span className={`${styles.orbitNode} ${styles.orbitEight}`}><MaskIcon className={styles.heroTextIcon} /></span>
+type ProjectActionsProps = {
+  detailHref?: string;
+  figmaHref?: string;
+  updatedAt?: string;
+};
+
+function ProjectActions({ detailHref, figmaHref, updatedAt }: ProjectActionsProps) {
+  const hasFigma = Boolean(figmaHref);
+
+  return (
+    <div className={styles.projectActions}>
+      <div className={styles.projectActionButtons}>
+        {detailHref ? (
+          <Link className={styles.detailsButton} href={detailHref}>Подробнее</Link>
+        ) : (
+          <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>
+        )}
+        {hasFigma ? (
+          <a className={styles.figmaButton} href={figmaHref} target="_blank" rel="noreferrer">
+            Figma <ButtonIcon name="project-share" />
+          </a>
+        ) : (
+          <span className={styles.unavailableButton} aria-disabled="true">
+            <ButtonIcon name="project-info" /> Файл пока недоступен
+          </span>
+        )}
+      </div>
+      {hasFigma && updatedAt ? (
+        <>
+          <span className={styles.actionDivider} />
+          <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено {updatedAt}</span>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -168,14 +187,14 @@ export default function Home() {
 
         <main id="main-content">
           <section className={styles.hero} aria-labelledby="hero-title">
-            <HeroOrbit />
+            <HeroBackground />
             <div className={styles.heroBody}>
               <div className={styles.heroText}>
                 <div className={styles.heroTitleGroup}>
                   <p className={styles.eyebrow}><span>PRODUCT DESIGNER</span></p>
-                  <h1 id="hero-title">Артур Арустамян</h1>
+                  <h1 id="hero-title">Привет, я Артур!</h1>
                 </div>
-                <p className={styles.heroLead}>Систематизирую сложные бизнес-процессы, проектирую интерфейсы и сопровождаю решения от требований до реализации</p>
+                <p className={styles.heroLead}>Я продуктовый дизайнер: разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации</p>
                 <div className={styles.heroTags} aria-label="Направления работы">
                   <span><b>#</b> Design systems</span><i>/</i>
                   <span><b>#</b> Data-heavy</span><i>/</i>
@@ -211,14 +230,11 @@ export default function Home() {
                   <ProjectDetail label="Моя роль">Продуктовый дизайнер</ProjectDetail>
                   <ProjectDetail label="Что делал">Полностью собрал дизайн систему, согласовал с главными стейкхолдерами, выстроил процесс с разработчиками, чтобы они могли спроектировать все это. Еще и весь сервис собрал с 0. Обрабатывал обращения бизнесс-аналитика.</ProjectDetail>
                 </dl>
-                <div className={styles.projectActions}>
-                  <div className={styles.projectActionButtons}>
-                    <Link className={styles.detailsButton} href="/projects/corvo">Подробнее</Link>
-                    <span className={styles.figmaButton} aria-disabled="true">Figma <ButtonIcon name="project-share" /></span>
-                  </div>
-                  <span className={styles.actionDivider} />
-                  <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено 13.05.2026</span>
-                </div>
+                <ProjectActions
+                  detailHref="/projects/corvo"
+                  figmaHref="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82?node-id=373-47103"
+                  updatedAt="13.05.2026"
+                />
               </div>
             </article>
 
@@ -235,14 +251,7 @@ export default function Home() {
                   <ProjectDetail label="Моя роль">Продуктовый дизайнер / Аналитик</ProjectDetail>
                   <ProjectDetail label="Что делал">Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.</ProjectDetail>
                 </dl>
-                <div className={styles.projectActions}>
-                  <div className={styles.projectActionButtons}>
-                    <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>
-                    <span className={styles.unavailableButton} aria-disabled="true">Файл недоступен <ButtonIcon name="project-info" /></span>
-                  </div>
-                  <span className={styles.actionDivider} />
-                  <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено 13.05.2026</span>
-                </div>
+                <ProjectActions />
               </div>
               <RadioVisual />
             </article>
@@ -268,7 +277,7 @@ export default function Home() {
                       <MethodRow iconClass={styles.userFlowIcon} title="User Flow">Последовательность действий пользователя для достижения цели</MethodRow>
                       <MethodRow iconClass={styles.cjmIcon} title="CJM">Путь пользователя с шагами, проблемами и ожиданиями</MethodRow>
                     </ul>
-                    <span className={styles.showMore} aria-disabled="true">Показать еще (3) <ButtonIcon name="chevron-down" /></span>
+                    <p className={styles.moreTools}>И еще множество инструментов...</p>
                   </div>
                 </div>
                 <div className={styles.analyticsMedia}>
@@ -315,6 +324,13 @@ export default function Home() {
               <article><Image src={`${assetRoot}/chatgpt.svg`} alt="" width={32} height={32} /><div><h3>ChatGPT</h3><p>Использую его, чтобы разложить входящие данные, обсудить идею и посмотреть на решение с другой стороны. Проверяю логику сценариев, ищу слабые места, изучаю незнакомые темы, анализирую материалы и привожу в порядок тексты.</p></div></article>
               <article><Image src={`${assetRoot}/codex.svg`} alt="" width={32} height={32} /><div><h3>Codex</h3><p>Подключаю, когда идею хочется проверить не только в макете, но и в работе. С его помощью собираю прототипы, небольшие приложения, скрипты и инструменты, разбираюсь в технической части и постепенно дорабатываю результат через диалог.</p></div></article>
             </div>
+            <aside className={styles.aiFact} aria-label="Интересный факт">
+              <Image src={`${assetRoot}/ai-info.svg`} alt="" width={24} height={24} />
+              <div>
+                <strong>Интересный факт</strong>
+                <span>Вся разработка данного сайта, кроме дизайна, была полностью выполнена в Codex, с нуля</span>
+              </div>
+            </aside>
           </section>
 
           <section className={styles.resume} aria-labelledby="resume-title">
@@ -383,10 +399,7 @@ export default function Home() {
           </section>
         </main>
 
-        <footer className={styles.footer}>
-          <span><Image src={`${assetRoot}/footer-mark.svg`} alt="" width={16} height={16} />Deveploment and design Artur Arustamyan</span>
-          <span>2026</span>
-        </footer>
+        <SiteFooter />
       </div>
     </div>
   );

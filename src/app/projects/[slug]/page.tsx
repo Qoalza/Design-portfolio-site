@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
-import { ProjectShareButton } from "../../../components/project-share-button";
+import { SiteFooter } from "../../../components/site-footer";
 import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
 import styles from "./page.module.css";
 
@@ -89,15 +89,6 @@ function SiteHeader() {
   );
 }
 
-function SiteFooter() {
-  return (
-    <footer className={styles.footer}>
-      <span><Image src={`${homeAssetRoot}/footer-mark.svg`} alt="" width={16} height={16} />Deveploment and design Artur Arustamyan</span>
-      <span>2026</span>
-    </footer>
-  );
-}
-
 export function generateStaticParams() {
   return getAllProjects().map(({ slug }) => ({ slug }));
 }
@@ -155,22 +146,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <span aria-hidden="true">/</span>
                 <span>{project.title}</span>
               </div>
-            </div>
-
-            <div className={styles.toolbarActions}>
-              {project.updatedAt ? <span className={styles.updatedAt}>Обновлен {project.updatedAt}</span> : null}
-              {project.figmaUrl ? (
-                <a className={styles.figmaButton} href={project.figmaUrl} target="_blank" rel="noreferrer">
-                  Figma
-                  <MaskIcon className={styles.externalIcon} />
-                </a>
-              ) : (
-                <span className={styles.figmaButton} aria-disabled="true">
-                  Figma
-                  <MaskIcon className={styles.externalIcon} />
-                </span>
-              )}
-              <ProjectShareButton className={styles.shareButton} title={project.title} />
             </div>
           </div>
 

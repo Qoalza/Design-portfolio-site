@@ -7,6 +7,11 @@
 }
 
 .shell {
+  width: 1280px;
+  margin: 0 auto;
+}
+
+.shell > main {
   width: 1200px;
   margin: 0 auto;
 }
@@ -44,17 +49,17 @@
 .homeIcon { color: #656769; -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
 .lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
 .backIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/back.svg"); mask-image: url("/assets/projects/corvo/back.svg"); }
-.externalIcon { -webkit-mask-image: url("/assets/projects/corvo/external-link.svg"); mask-image: url("/assets/projects/corvo/external-link.svg"); }
 .desktopIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/desktop.svg"); mask-image: url("/assets/projects/corvo/desktop.svg"); }
 .mobileIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/mobile.svg"); mask-image: url("/assets/projects/corvo/mobile.svg"); }
 
 .header {
   display: flex;
-  width: 100%;
+  width: 1200px;
   height: 80px;
   align-items: flex-start;
   justify-content: center;
   overflow: hidden;
+  margin: 0 auto;
 }
 
 .brand {
@@ -127,9 +132,7 @@
   white-space: nowrap;
 }
 
-.primaryButton,
-.figmaButton,
-.shareButton {
+.primaryButton {
   display: inline-flex;
   height: 40px;
   align-items: center;
@@ -148,13 +151,12 @@
 .projectToolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 32px 16px 28px;
+  justify-content: flex-start;
+  padding: 24px;
 }
 
 .breadcrumbs,
-.breadcrumbTrail,
-.toolbarActions {
+.breadcrumbTrail {
   display: flex;
   align-items: center;
 }
@@ -177,8 +179,8 @@
 
 .backButton {
   display: inline-flex;
-  width: 44px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -187,11 +189,6 @@
   background: #f5f6f7;
   color: #415e74;
 }
-
-.toolbarActions { gap: 12px; }
-.updatedAt { margin-right: 12px; color: #88949c; font-family: "Source Code Pro", monospace; font-size: 14px; line-height: 16px; letter-spacing: -.2px; }
-.figmaButton { gap: 8px; padding: 4px 16px; background: #202931; color: #fbfbfb; }
-.shareButton { cursor: pointer; padding: 4px 16px; background: #edf2f5; color: #313a41; }
 
 .projectHero {
   padding: 24px 16px 40px;
@@ -216,7 +213,7 @@
 .projectSubtitle {
   margin: 8px 0 24px;
   padding-left: 76px;
-  color: #495660;
+  color: #354857;
   font-size: 20px;
   line-height: 28px;
   letter-spacing: .3px;
@@ -328,6 +325,7 @@
   padding: 0 16px 0 8px;
   color: #5c6a77;
   font-size: 16px;
+  font-weight: 350;
   line-height: 24px;
   letter-spacing: -.1px;
 }
@@ -335,11 +333,12 @@
 .contentSection ul,
 .contentSection ol { padding-left: 32px; }
 .contentSection strong { color: #313a41; font-weight: 600; }
-.contentSection h2 + p { margin-top: -12px; }
+.contentSection h2 + p { margin-top: -8px; }
 .contentSection p + .projectMedia,
 .contentSection ul + .projectMedia,
 .contentSection ol + .projectMedia { margin-top: 24px; }
-.contentSection li + li { margin-top: 0; }
+.contentSection .projectMedia + .projectMedia { margin-top: 24px; }
+.contentSection li + li { margin-top: 4px; }
 
 .projectMedia {
   width: 720px;
@@ -360,18 +359,3 @@
 .projectMedia.result button > img { height: 554px; object-fit: cover; }
 
 .contentDivider { width: 100%; border: 0; border-top: 1px solid #e8ebed; }
-
-.footer {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  color: #6c7d86;
-  font-family: "Google Sans", sans-serif;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: .36px;
-}
-
-.footer span:first-child { display: inline-flex; align-items: center; gap: 8px; }

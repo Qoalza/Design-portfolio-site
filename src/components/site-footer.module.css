@@ -1,0 +1,58 @@
+.footer {
+  display: flex;
+  width: 1200px;
+  height: 60px;
+  align-items: center;
+  gap: 24px;
+  overflow: hidden;
+  margin: 0 auto;
+  padding: 20px 24px 24px;
+  color: #8c949b;
+  font-family: "Source Code Pro", monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -.4px;
+}
+
+.author,
+.reportContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.author img,
+.reportContent img {
+  flex: 0 0 16px;
+}
+
+.separator {
+  width: 1px;
+  height: 23px;
+  flex: 0 0 1px;
+  background: #e2e4e5;
+}
+
+.report {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+  align-items: center;
+}
+
+.reportButton {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #494b4d;
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: inherit;
+  opacity: 1;
+}
+
+.year {
+  flex: 0 0 auto;
+}
