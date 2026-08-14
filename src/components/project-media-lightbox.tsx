@@ -91,6 +91,7 @@ export function ProjectMediaLightbox({
             width={width}
             height={height}
             sizes="calc(100vw - 96px)"
+            unoptimized
             priority
             onClick={(event) => event.stopPropagation()}
           />

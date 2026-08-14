@@ -3,6 +3,12 @@
 import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
 
+const scrollRestorationScript = `
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+`;
+
 function scrollToTopInstantly(): void {
   const root = document.documentElement;
   const previousScrollBehavior = root.style.scrollBehavior;
@@ -69,5 +75,5 @@ export function NavigationScrollController() {
     }
   }, [pathname]);
 
-  return null;
+  return <script dangerouslySetInnerHTML={{ __html: scrollRestorationScript }} />;
 }

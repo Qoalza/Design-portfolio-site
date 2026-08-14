@@ -4,7 +4,7 @@ import { useState } from "react";
 
 type ProjectShareButtonProps = {
   className: string;
-  title: string;
+  onShare: () => Promise<void>;
 };
 
 async function copyCurrentUrl(): Promise<boolean> {
@@ -33,7 +33,7 @@ async function copyCurrentUrl(): Promise<boolean> {
   }
 }
 
-export function ProjectShareButton({ className, title }: ProjectShareButtonProps) {
+export function useProjectShare(title: string) {
   const [announcement, setAnnouncement] = useState("");
 
   async function handleShare(): Promise<void> {
@@ -56,10 +56,11 @@ export function ProjectShareButton({ className, title }: ProjectShareButtonProps
     }
   }
 
+  return { announcement, handleShare };
+}
+
+export function ProjectShareButton({ className, onShare }: ProjectShareButtonProps) {
   return (
-    <>
-      <button className={className} type="button" onClick={handleShare}>Поделиться</button>
-      <span aria-live="polite" className="visually-hidden">{announcement}</span>
-    </>
+    <button className={className} type="button" data-project-action="share" onClick={onShare}>Поделиться</button>
   );
 }

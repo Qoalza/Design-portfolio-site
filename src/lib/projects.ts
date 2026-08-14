@@ -2,6 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
+export type ProjectPlatform = "Desktop" | "Tablet" | "Mobile";
+
 export type Project = {
   title: string;
   slug: string;
@@ -12,11 +14,17 @@ export type Project = {
   tags: string[];
   subtitle?: string;
   updatedAt?: string;
-  platforms?: string[];
+  platforms?: ProjectPlatform[];
   visibility?: string;
   ndaNote?: string;
+  figmaAvailable: boolean;
   figmaUrl?: string;
   logo?: string;
+  workSummary?: string;
+  catalogRole?: string;
+  catalogVisible: boolean;
+  detailAvailable: boolean;
+  catalogOrder: number;
 };
 
 export type ProjectWithContent = Project & {
@@ -65,13 +73,39 @@ function readOptionalString(value: unknown, field: keyof Project): string | unde
   return value;
 }
 
-function readOptionalStringArray(value: unknown, field: keyof Project): string[] | undefined {
+function readOptionalPlatforms(value: unknown): ProjectPlatform[] | undefined {
   if (value === undefined) {
     return undefined;
   }
 
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.trim().length === 0)) {
-    throw new Error(`Project frontmatter field "${field}" must be an array of non-empty strings when provided.`);
+  const allowedPlatforms: ProjectPlatform[] = ["Desktop", "Tablet", "Mobile"];
+
+  if (!Array.isArray(value) || value.some((item) => !allowedPlatforms.includes(item as ProjectPlatform))) {
+    throw new Error('Project frontmatter field "platforms" must contain only Desktop, Tablet, or Mobile.');
+  }
+
+  return value as ProjectPlatform[];
+}
+
+function readFigmaAvailability(value: unknown): boolean {
+  if (value === undefined) {
+    return false;
+  }
+
+  if (typeof value !== "boolean") {
+    throw new Error('Project frontmatter field "figmaAvailable" must be a boolean when provided.');
+  }
+
+  return value;
+}
+
+function readOptionalBoolean(value: unknown, field: "catalogVisible" | "detailAvailable", fallback: boolean): boolean {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value !== "boolean") {
+    throw new Error(`Project frontmatter field "${field}" must be a boolean when provided.`);
   }
 
   return value;
@@ -85,6 +119,14 @@ function readProject(fileName: string): ProjectWithContent {
     throw new Error(`Project frontmatter in "${fileName}" must be an object.`);
   }
 
+  const updatedAt = readOptionalString(data.updatedAt, "updatedAt");
+  const figmaAvailable = readFigmaAvailability(data.figmaAvailable);
+  const figmaUrl = readOptionalString(data.figmaUrl, "figmaUrl");
+
+  if (figmaAvailable && (!figmaUrl || !updatedAt)) {
+    throw new Error(`Project frontmatter in "${fileName}" must provide "figmaUrl" and "updatedAt" when "figmaAvailable" is true.`);
+  }
+
   return {
     title: readString(data.title, "title"),
     slug: readString(data.slug, "slug"),
@@ -94,12 +136,18 @@ function readProject(fileName: string): ProjectWithContent {
     status: readString(data.status, "status"),
     tags: readTags(data.tags),
     subtitle: readOptionalString(data.subtitle, "subtitle"),
-    updatedAt: readOptionalString(data.updatedAt, "updatedAt"),
-    platforms: readOptionalStringArray(data.platforms, "platforms"),
+    updatedAt,
+    platforms: readOptionalPlatforms(data.platforms),
     visibility: readOptionalString(data.visibility, "visibility"),
     ndaNote: readOptionalString(data.ndaNote, "ndaNote"),
-    figmaUrl: readOptionalString(data.figmaUrl, "figmaUrl"),
+    figmaAvailable,
+    figmaUrl,
     logo: readOptionalString(data.logo, "logo"),
+    workSummary: readOptionalString(data.workSummary, "workSummary"),
+    catalogRole: readOptionalString(data.catalogRole, "catalogRole"),
+    catalogVisible: readOptionalBoolean(data.catalogVisible, "catalogVisible", true),
+    detailAvailable: readOptionalBoolean(data.detailAvailable, "detailAvailable", true),
+    catalogOrder: typeof data.catalogOrder === "number" && Number.isInteger(data.catalogOrder) ? data.catalogOrder : 999,
     content,
   };
 }
@@ -122,8 +170,14 @@ function withoutContent(project: ProjectWithContent): Project {
     platforms: project.platforms,
     visibility: project.visibility,
     ndaNote: project.ndaNote,
+    figmaAvailable: project.figmaAvailable,
     figmaUrl: project.figmaUrl,
     logo: project.logo,
+    workSummary: project.workSummary,
+    catalogRole: project.catalogRole,
+    catalogVisible: project.catalogVisible,
+    detailAvailable: project.detailAvailable,
+    catalogOrder: project.catalogOrder,
   };
 }
 
@@ -132,6 +186,10 @@ export function getAllProjects(): Project[] {
     .map(readProject)
     .map(withoutContent)
     .sort((firstProject, secondProject) => secondProject.year - firstProject.year);
+}
+
+export function getCatalogProjects(): Project[] {
+  return getAllProjects().filter((project) => project.catalogVisible).sort((a, b) => a.catalogOrder - b.catalogOrder);
 }
 
 export function getProjectBySlug(slug: string): ProjectWithContent | undefined {

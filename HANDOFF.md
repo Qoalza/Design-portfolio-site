@@ -1,6 +1,6 @@
 # HANDOFF
 
-Обновлено: 2026-08-12
+Обновлено: 2026-08-14
 
 ## Назначение
 
@@ -24,6 +24,103 @@
 
 Опубликовать на `https://art-des.ru` сайт-портфолио Product Designer с полным видимым соответствием утверждённому макету Figma в desktop-диапазоне.
 
+## Текущий этап: Goal 3 — каталог и error pages
+
+Статус: `READY_FOR_USER_REVIEW`.
+
+- Рабочая ветка: `codex/site-refresh-v2`, база PR: `feature/project-corvo`.
+- Главная: свежий Figma node `262:2382`, контрольный размер `1440 × 6018 px`.
+- Corvo: свежий Figma node `373:47103`, контрольный размер `1440 × 4007 px`.
+- Общий футер: свежий Figma node `378:50597`, размер `1200 × 60 px`.
+- Desktop-правило этапа: внешний shell имеет фиксированную ширину `1280 px` и центрируется; внутренний header/main/footer имеют ширину `1200 px`. Адаптив ниже `1280 px` не реализуется.
+- Главная синхронизирована со свежим hero, состояниями действий проектов, актуальным процессом, AI-фактом и типографикой стажа Eyeconweb. Непрозрачный raster hero удалён из render path и заменён исходной SVG-композицией Figma.
+- Corvo синхронизирован со свежей верхней панелью, breadcrumb/back `32 × 32 px`, Onest weight `350`, актуальным текстом и межблочными интервалами. Платформы формируются из данных как `Desktop / Tablet / Mobile`.
+- Общий футер переиспользуется на главной и Corvo; обе иконки используют точные Figma masks с цветом `#8c949b`.
+- Глобальное правило навигации: новый pathname без hash открывается с `scrollY = 0`; URL с hash сохраняет переход к якорю и его `scroll-margin`.
+- Goal 2 сохранена без изменений: общий flow/fixed header и project action bar продолжают работать. Goal 3 добавляет каталог `/projects`, стандартные App Router 404/500 и точечный размер `14 px` для «Открыт к предложениям».
+- Visual QA: `1280`, `1440`, `1920 px`, масштаб `100%`, включая `DPR=1/2`; шрифты загружены, горизонтального overflow нет, production console чистая. Артефакты Goal 2 и motion sequence: `design-reference/site-refresh-v2-goal2/`.
+- Проверки Goal 2: `npm run lint` — passed; `npm run build` — passed; production header/action-bar/navigation/hash/lightbox/assets/console smoke — passed.
+- Goal 2 implementation commit SHA: `c57c61da8a34a2d402eb56d0e814a91d9ff2e4dc`; следующий documentation-only commit фиксирует эту запись. Merge/deploy запрещены.
+
+## Goal 2: глобальный header и project action bar
+
+Статус: `READY_FOR_USER_REVIEW`.
+
+### Архитектура header
+
+- `SiteHeader` — единый клиентский компонент для главной и project shell. Он рендерит flow-копию и fixed-копию одного `HeaderStack`; проектный вариант включает header и breadcrumbs в общий блок.
+- Абсолютный sentinel расположен у нижней границы flow-header. `IntersectionObserver` с `threshold: 0` показывает fixed-копию только после выхода sentinel выше viewport, то есть после полного выхода обычного header.
+- Fixed header не участвует в document flow и не меняет высоту страницы. Главная использует блок `80 px`, проект — единый двухрядный блок `160 px`.
+- Появление идёт сверху вниз за `300 ms ease-out`, уход — снизу вверх за `300 ms ease-in`; используются только `transform` и `visibility`. При reduced motion длительность `0.01 ms`.
+- Figma: section `373:48009`, header без breadcrumbs `295:3490`, header с breadcrumbs `373:48438`.
+
+### Архитектура project action bar
+
+- `ProjectActionBar` подключён один раз в общем `/projects/[slug]` shell перед footer и не зависит от slug.
+- Inline-копия находится в layout. `IntersectionObserver` с `threshold: 0` переключает состояние при первом пересечении inline-копии с viewport; floating-копия уходит вниз и возвращается при обратном пересечении.
+- Floating bar имеет `width: 760 px`, `bottom: 44 px`, `left: calc(50% - 600px)`. Проверено: `40/120/360 px` при viewport `1280/1440/1920 px`.
+- Первый вход запускается на следующем animation frame, после чего все направления используют один transform-transition: вход `300 ms ease-out`, уход `300 ms ease-in`. Таймеры, motion-библиотеки, fade, scale и blur не используются.
+- Figma: sections `373:47102`, `373:50562`; states `373:47103`, `373:47416`, `373:50563`, `373:50576`; geometry `373:47451`, `373:47531`.
+
+### MDX/frontmatter-контракт
+
+- `figmaAvailable: boolean` определяет вариант независимо от slug; при отсутствии поля используется `false`.
+- Для `figmaAvailable: true` обязательны непустые `figmaUrl` и `updatedAt`; parser завершает сборку ошибкой при нарушении контракта.
+- Доступный вариант содержит Figma link, внешнюю иконку, дату и Share. Недоступный — точную info-иконку и текст `Figma - файл пока недоступен, в процессе подготовки`, без ссылки и даты, с Share справа.
+
+### Accessibility и focus
+
+- В каждой паре только активная копия доступна: неактивная имеет `inert`, `aria-hidden`, `visibility: hidden` и отключённые pointer events.
+- В каждый момент подтверждены один активный navigation landmark и одна активная кнопка Share.
+- Если focus был на Figma/Share во время переключения плашки, он переносится в соответствующее действие новой активной копии через `useLayoutEffect` и `focus({ preventScroll: true })`.
+- Share-состояние и live region общие для обеих копий, поэтому переключение не прерывает share-flow и не создаёт двойных объявлений.
+- Новых конфликтов Figma/WCAG не обнаружено; действуют ранее записанные исключения контраста и desktop-only reflow.
+
+### Проверки Goal 2
+
+- Header top/sticky/return на главной и Corvo; project back и breadcrumb в fixed-состоянии.
+- Bar initial enter, exit, return, быстрые пересечения, focus transfer, Figma variant, unavailable variant, copy fallback и reduced motion.
+- Геометрия `1280 × 900`, `1440 × 900`, `1920 × 1080`; `DPR=1/2`; ширина `760 px`, bottom `44 px`, horizontal overflow `0`.
+- Новый pathname, browser Back/Forward — `scrollY=0`; `#projects` сохраняет gap `48 px`; lightbox сохраняет позицию и возвращает focus.
+- Production assets: главная `44/44`, Corvo `9/9`; fonts `loaded`; console errors и hydration warnings отсутствуют.
+- QA screenshots и покадровое доказательство `0/150/370 ms`: `design-reference/site-refresh-v2-goal2/`.
+- Goal 3 выполнена отдельным этапом ниже; архитектура и проверки Goal 2 не переделывались.
+
+## Goal 3: каталог и страницы ошибок
+
+Статус: `READY_FOR_USER_REVIEW`.
+
+- `/projects` реализован по Figma `373:50236` на существующих `SiteHeader`, `SiteFooter` и MDX-данных; Corvo ведёт на готовый кейс, а Сараффан.Радио и B.Off не создают выдуманных detail-маршрутов.
+- Добавлены стандартные `not-found.tsx` и `error.tsx` по Figma `373:49339` и `373:49732`; безопасный ручной сценарий 500 — `/error-test?trigger=500`.
+- Точные локальные Figma-арты сохранены в `public/assets/errors/` и `public/assets/projects/catalog/`; временных Figma URL в runtime нет.
+- Проверены `1440 px / 100%`: flow/fixed availability `14 px`, главная → `/projects` → Corvo, Back, 404 → главная, 500 → retry, horizontal overflow `0`, изображения загружены, hydration warnings отсутствуют. Ожидаемые console errors возникают только при намеренном trigger 500.
+- `npm run lint` и `npm run build` прошли. QA: `design-reference/site-refresh-v2-goal3/`.
+
+## Закрытие regression fix Goal
+
+### Причины и исправления
+
+1. Блок проектов был в DOM и имел правильные размеры, но его перекрывал полностью непрозрачный `hero-background.png`: изображение выходило из hero stacking context до `y≈1439`, а проекты начинались на `y=1004`. Монолит заменён отдельными SVG-кольцами, свечениями и masks из свежего Figma node `262:2382`; случайные margins/offsets секции не использовались.
+2. Тот же PNG имел intrinsic `1440 × 1431` и на Retina давал около `1x` при полноэкранном выводе. SVG-композиция не зависит от DPR и больше не проходит raster upscale.
+3. Видимый шов был прямоугольной границей полностью непрозрачного PNG. Прозрачные края SVG устранили шов без clipping и без скрытия проектов.
+4. `ai-info.svg` был точным по геометрии, но встроенный `#E2E2EC` выводился напрямую. Реализация повторяет Figma: SVG mask, `#218ee6`, `24 × 24 px`, opacity `1`.
+5. Footer SVG также выводились с `#E2E2EC`; теперь точные author/bug masks имеют `#8c949b`, `16 × 16 px`, без общего opacity.
+6. Frontmatter Corvo не содержал Tablet, а компонент использовал desktop-иконку для любого значения, кроме Mobile. Добавлены строгий `ProjectPlatform`, data-driven mapping и свежие SVG: Desktop `21 × 19`, Tablet `17 × 21`, Mobile `13 × 21`.
+7. Corvo raw PNG побайтно совпали с актуальными Figma assets: `2960 × 1920`, `1960 × 546`, `2960 × 1920`, `2960 × 2278`. Размытие создавал Next Image при повторном lossy-кодировании `q=75`; expanded lightbox теперь отдаёт исходные PNG напрямую. Закрытие, Escape, focus return и scroll lock не менялись и повторно проверены.
+8. Live typography-дефект не подтвердился: `document.fonts.status=loaded`, реально выбраны Google Sans `500`, Onest `350/400`, Source Code Pro `450`; `font-synthesis:none`; transform/filter/backdrop-filter/opacity на текстовых родителях отсутствуют. Размытие создавал QA screenshot path: native Retina `2560 × 1440 PNG` преобразовывался в lossy `1280 × 720 JPEG`. Новые QA-кадры создаются нативным PNG; Figma-цвета и веса CSS не изменялись.
+
+### Проверенные условия
+
+- Проекты: heading `418.695 × 48 px`, Corvo card `1200 × 440 px`, обе области видимы на `1280/1440/1920 px`.
+- Якорь «Мои работы»: `#projects`, `scrollY=956`, верхний отступ heading `48 px`.
+- Главная: высота `6018 px`; Corvo: `3945 px`; horizontal overflow отсутствует.
+- Lightbox проверен на `1440 × 900`, `1920 × 1080` и `DPR=2`; все четыре expanded images получают raw `/assets/projects/corvo/*.png`.
+- AI icon computed color: `rgb(33, 142, 230)`; footer icons: `rgb(140, 148, 155)`; opacity `1`.
+- Console errors, warnings, hydration warnings и asset 404 отсутствуют.
+- Новых accessibility-исключений не добавлено; ранее зафиксированные контрастные исключения остаются открытыми.
+
+Goal 2 со sticky-header и нижней project action bar выполнена. Goal 3 не начата.
+
 ## Текущий релиз
 
 Первый срочный этап главной завершён и находится на пользовательской проверке. Следующий текущий этап — первая открытая страница проекта Corvo и переиспользуемый скелет для будущих проектных кейсов.
@@ -34,19 +131,19 @@
 - File key: `5ZzspE0OrqesDcTP0RRPHr`
 - Node: `262:2382`
 - Имя фрейма: `Test design`
-- Размер Figma-фрейма для контрольного снимка: `1440 × 5976 px`
-- Рабочая область контента: `1200 px`, всегда по центру viewport
-- Внешняя область страницы: резиновая и заполняет доступную ширину
+- Размер Figma-фрейма для контрольного снимка: `1440 × 6018 px`
+- Внешний desktop-shell: `1280 px`, всегда по центру viewport
+- Внутренняя рабочая область контента: `1200 px`, всегда по центру shell
 - Приоритет: визуальное соответствие макету, без самостоятельного изменения дизайна.
 
 Источник дизайна открытого проекта Corvo:
 
-- Figma: <https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82?node-id=321-29865>
+- Figma: <https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82?node-id=373-47103>
 - File key: `5ZzspE0OrqesDcTP0RRPHr`
-- Node: `321:29865`
+- Node: `373:47103`
 - Имя фрейма: `Test open project`
-- Контрольный размер: `1440 × 3917 px`
-- Контентный контейнер: максимум `1200 px`, центрирован; внешние поля фрейма — по `120 px`.
+- Контрольный размер: `1440 × 4007 px`
+- Внешний shell: `1280 px`, центрирован; внутренний контентный контейнер: `1200 px`.
 - Этот фрейм является источником истины для визуала и контента Corvo и временным скелетом будущих открытых проектов.
 - Количество секций, списков и изображений в других проектах может отличаться; реализация не должна жёстко фиксировать структуру только под Corvo.
 
@@ -66,10 +163,10 @@
 
 ## Критерий визуальной готовности
 
-- Контентная область имеет ширину `1200 px` и центрируется на desktop viewport.
-- При viewport `1440 px` ожидаемые внешние поля составляют по `120 px` с каждой стороны.
-- На более широком экране контент остаётся шириной `1200 px`, а внешние поля растут симметрично.
-- Figma-фрейм `1440 × 5976 px` используется как контрольный снимок, а не как фиксированная ширина всей страницы.
+- Внешний shell имеет ширину `1280 px`, внутренний контент — `1200 px`; оба центрируются на desktop viewport.
+- При viewport `1440 px` поля shell составляют по `80 px`, а поля внутреннего контента — по `120 px`.
+- На более широком экране shell остаётся шириной `1280 px`, а внешние поля растут симметрично.
+- Figma-фрейм `1440 × 6018 px` используется как контрольный снимок, а не как фиксированная ширина всей страницы.
 - Реализация и экспорт Figma сравниваются при viewport `1440 px`, желательно наложением.
 - Исправляются видимые расхождения сетки, размеров, отступов, типографики, границ, радиусов, цветов, изображений и переносов.
 - Незначительные различия сглаживания текста между ОС не считаются исправимым дефектом.
@@ -182,6 +279,7 @@
 - исходный commit ветки: `2e2bbe4`;
 - рабочая ветка реализации: `feature/homepage-figma`;
 - текущая рабочая ветка кейса: `feature/project-corvo`, создана от локального homepage HEAD `69dbdbb24c29716e6ff3aad9b45efc959b66a41f` с сохранением всех незакоммиченных изменений;
+- текущая рабочая ветка visual refresh: `codex/site-refresh-v2`, создана от `feature/project-corvo`; Draft PR должен быть направлен в `feature/project-corvo`;
 - исходные незакоммиченные документы `AGENTS.md`, `HANDOFF.md` и `ACCESSIBILITY_EXCEPTIONS.md` сохранены и включены в рабочий объём;
 - эталон Figma и все используемые production-ассеты сохранены локально, временных Figma URL в коде нет.
 
@@ -204,6 +302,9 @@
 11. `done` — реализовать `/projects/corvo` и переиспользуемый MDX project shell, провести Figma comparison, accessibility/web-quality/code checks, lint, build и production route smoke.
 12. `done` — синхронизировать Corvo со свежим Figma node `321:29865`: исправить neutral header home, breadcrumbs, back, platforms, заменить process asset и добавить общий доступный lightbox для `ProjectMedia`.
 13. `done` — централизовать scroll policy: новый pathname без hash открывается с `scrollY = 0`, browser Back/Forward используют manual restoration, а явные hash-ссылки сохраняют якорную навигацию и `scroll-margin`.
+14. `done` — синхронизировать главную, Corvo и общий футер со свежими Figma nodes `262:2382`, `373:47103`, `378:50597`; проверить desktop-layout `1280/1200`, типографику, production-навигацию и lightbox; сохранить секционные QA-кадры со статусом `READY_FOR_USER_REVIEW`.
+15. `done` — реализовать общий flow/fixed header и общую floating/inline project action bar по Figma; проверить motion, focus/a11y, два typed frontmatter-варианта, desktop geometry, navigation/hash/lightbox и production smoke; сохранить QA-кадры со статусом `READY_FOR_USER_REVIEW`.
+16. `done` — реализовать Goal 3: `/projects`, стандартные 404/500, безопасный 500 test route и точечный `14 px` availability; провести компактный production smoke, lint/build и сохранить три QA-кадра.
 
 ## Стоп-линии
 
@@ -242,9 +343,17 @@
 
 ## Последнее подтверждённое действие
 
-Глобальное поведение прокрутки исправлено на уровне root layout. Причина дефекта — сочетание `html { scroll-behavior: smooth }`, отсутствия `data-scroll-behavior="smooth"` для штатного Next.js route-scroll и браузерного `history.scrollRestoration = "auto"`, которое при App Router history traversal восстанавливало сохранённую позицию другого маршрута. `NavigationScrollController` выставляет manual restoration и синхронно сбрасывает новый pathname без hash в `0` с временным `scroll-behavior: auto`; hash-переходы остаются под штатной якорной навигацией и сохраняют `scroll-margin`.
+Goal 2 реализована в commit `c57c61da8a34a2d402eb56d0e814a91d9ff2e4dc`. `SiteHeader` переиспользуется главной и project shell, переключая flow/fixed копии по sentinel `IntersectionObserver`; project variant закрепляет header и breadcrumbs единым блоком. `ProjectActionBar` работает во всех `/projects/[slug]`, получает typed `figmaAvailable`, `figmaUrl`, `updatedAt`, поддерживает доступный и недоступный варианты и переключает floating/inline копии по первому пересечению.
 
-В dev и production проверены: главная → Corvo, back-кнопка, breadcrumb, browser Back/Forward, прямое открытие Corvo, `#projects` (`48 px` от верха), lightbox без маршрутного reset. Все обычные межстраничные переходы завершились с `scrollY = 0`, console errors/hydration warnings отсутствуют. `npm run lint` и `npm run build` прошли. Commit реализации: `3d313c0`. Merge, deploy, VPS, DNS и production не затрагивались.
+Обе механики используют transform/visibility transitions `300 ms`, reduced motion `0.01 ms`, `inert`/`aria-hidden` для неактивных копий и перенос focus между действиями без scroll. Плашка измерена на `1280/1440/1920 px`: left `40/120/360 px`, width `760 px`, bottom `44 px`; `DPR=1/2`, overflow `0`. Навигация, Back/Forward, `#projects`, lightbox, Figma URL, copy fallback, assets, fonts, console и hydration повторно проверены в production. `npm run lint` и `npm run build` прошли. Артефакты: `design-reference/site-refresh-v2-goal2/`. Статус — `READY_FOR_USER_REVIEW`; Goal 3, merge, deploy, VPS, DNS и production не затрагивались.
+
+2026-08-14 устранён подтверждённый дефект внешнего разделителя fixed header: перекрываемый дочерним фоном `inset box-shadow` заменён на отдельную линию внешней оболочки `1 px / #ECEDEE / 100%`. Flow header и внутренний разделитель breadcrumbs не менялись. Production-проверка на `1280/1440/1920 px` подтвердила ширину линии ровно по viewport, неизменные высоты `80/160 px`, отсутствие layout shift, совместное движение с анимацией `300 ms` и чистую console без hydration warnings. Focused screenshots сохранены в `design-reference/site-refresh-v2-goal2/11-home-sticky-divider.png` и `12-corvo-sticky-divider.png`.
+
+Предыдущий этап site refresh v2 завершён локально на ветке `codex/site-refresh-v2`: главная, Corvo и общий футер сверены со свежими Figma nodes `262:2382`, `373:47103`, `378:50597`. Внешний desktop-shell `1280 px`, внутренний контент/footer `1200 px`; адаптив ниже `1280 px` не добавлялся. На Corvo подтверждены Onest weight `350`, toolbar padding `24 px`, back `32 × 32 px` и актуальный сокращённый контент. Свежие production-кадры и протокол находятся в `design-reference/site-refresh-v2/`, статус — `READY_FOR_USER_REVIEW`. На том этапе lint, production build, route/navigation/hash/lightbox smoke и console check прошли; нижняя плашка и sticky-header ещё не выполнялись.
+
+Глобальная политика прокрутки подтверждена и усилена на уровне root layout: каждый новый pathname без hash открывается с `scrollY = 0`, а URL с hash сохраняет штатную якорную навигацию и `scroll-margin`. Причина заметного промежуточного кадра — гонка между ранним браузерным восстановлением history-позиции и клиентской инициализацией App Router при включённом `html { scroll-behavior: smooth }`. `NavigationScrollController` централизованно сбрасывает новый pathname без плавной анимации, а `history.scrollRestoration = "manual"` теперь устанавливается начальным inline-script до гидратации. Атрибут `data-scroll-behavior="smooth"` оставлен для штатного отключения smooth-scroll самим Next.js во время route transition; отдельные ссылки не содержат `window.scrollTo()`.
+
+2026-08-14 в dev и production проверены с предварительной прокруткой: главная → Corvo, внутренняя back-кнопка, breadcrumb, browser Back/Forward, прямое открытие Corvo, `#projects` (`48 px` от верха) и lightbox без маршрутного reset. Все обычные межстраничные переходы завершились с `scrollY = 0`, позиция lightbox сохранилась, console errors и hydration warnings отсутствуют. `npm run lint` и `npm run build` прошли; первый sandboxed build был заблокирован внутренним портом Turbopack, повтор без этого ограничения завершился успешно. Merge, deploy, VPS, DNS и внешний production не затрагивались.
 
 По повторно полученному 2026-08-12 `get_design_context` Figma node `321:29865` страница Corvo обновлена в существующей ветке и PR #9. «Главная» в project header имеет нейтральное состояние без `aria-current`; breadcrumbs используют Google Sans `16/20`; back — `44 × 40 px` без border; Desktop/Mobile используют свежие SVG `20 × 20 px` и вертикальный separator `#e1e8ed`. Production `process-flow.png` заменён свежим оригиналом Figma `1960 × 546`.
 
@@ -272,4 +381,4 @@
 
 ## Следующий шаг
 
-Открыть свежий `/projects/corvo?review=<final-sha>` из финального HEAD и передать результат пользователю. PR #9 обновлён. Merge, deploy и VPS не затрагивать без отдельного разрешения пользователя.
+Передать пользователю cache-busted production-preview Goal 3 из финального HEAD и дождаться проверки. Merge, deploy и VPS не выполнять без отдельного разрешения пользователя.

@@ -7,6 +7,11 @@
 }
 
 .shell {
+  width: 1280px;
+  margin: 0 auto;
+}
+
+.shell > main {
   width: 1200px;
   margin: 0 auto;
 }
@@ -15,7 +20,7 @@
   position: fixed;
   top: 16px;
   left: 16px;
-  z-index: 20;
+  z-index: 100;
   transform: translateY(-180%);
   padding: 10px 14px;
   border-radius: 8px;
@@ -41,157 +46,9 @@
   mask-size: contain;
 }
 
-.homeIcon { color: #656769; -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
-.lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
-.backIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/back.svg"); mask-image: url("/assets/projects/corvo/back.svg"); }
-.externalIcon { -webkit-mask-image: url("/assets/projects/corvo/external-link.svg"); mask-image: url("/assets/projects/corvo/external-link.svg"); }
 .desktopIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/desktop.svg"); mask-image: url("/assets/projects/corvo/desktop.svg"); }
+.tabletIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/tablet.svg"); mask-image: url("/assets/projects/corvo/tablet.svg"); }
 .mobileIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/mobile.svg"); mask-image: url("/assets/projects/corvo/mobile.svg"); }
-
-.header {
-  display: flex;
-  width: 100%;
-  height: 80px;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.brand {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  text-decoration: none;
-}
-
-.brand > img { transform: rotate(180deg) scaleY(-1); }
-.brand > span { display: flex; flex-direction: column; justify-content: center; gap: 2px; white-space: nowrap; font-family: "Google Sans", sans-serif; }
-.brand strong { color: #202931; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: .48px; }
-.brand small { color: #6c7d86; font-size: 12px; line-height: 12px; letter-spacing: .36px; }
-
-.nav {
-  display: flex;
-  flex: 1 1 0;
-  height: 80px;
-  min-width: 0;
-  align-items: center;
-  gap: 12px;
-  overflow: hidden;
-  padding: 4px 48px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.nav a,
-.nav > span {
-  display: inline-flex;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.navHome { color: #202931; background: transparent; letter-spacing: .42px; }
-.nav > span { color: #a2acb5; letter-spacing: .42px; }
-.nav > span:last-child { letter-spacing: -.1px; }
-
-.headerActions {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  overflow: hidden;
-  padding: 16px;
-  font-family: "Google Sans", sans-serif;
-}
-
-.availability {
-  display: inline-flex;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 8px 16px;
-  color: #495660;
-  font-size: 16px;
-  line-height: 20px;
-  letter-spacing: .48px;
-  white-space: nowrap;
-}
-
-.primaryButton,
-.figmaButton,
-.shareButton {
-  display: inline-flex;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 8px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.primaryButton { min-width: 96px; padding: 4px 20px; background: #1d8be3; color: #fbfbfb; letter-spacing: .3px; }
-
-.projectToolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 32px 16px 28px;
-}
-
-.breadcrumbs,
-.breadcrumbTrail,
-.toolbarActions {
-  display: flex;
-  align-items: center;
-}
-
-.breadcrumbs {
-  gap: 24px;
-}
-
-.breadcrumbTrail {
-  gap: 12px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: .2px;
-}
-
-.breadcrumbTrail a { color: #415e74; text-decoration: none; }
-.breadcrumbTrail > span { color: #a7b1b8; }
-
-.backButton {
-  display: inline-flex;
-  width: 44px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: #f5f6f7;
-  color: #415e74;
-}
-
-.toolbarActions { gap: 12px; }
-.updatedAt { margin-right: 12px; color: #88949c; font-family: "Source Code Pro", monospace; font-size: 14px; line-height: 16px; letter-spacing: -.2px; }
-.figmaButton { gap: 8px; padding: 4px 16px; background: #202931; color: #fbfbfb; }
-.shareButton { cursor: pointer; padding: 4px 16px; background: #edf2f5; color: #313a41; }
 
 .projectHero {
   padding: 24px 16px 40px;
@@ -216,7 +73,7 @@
 .projectSubtitle {
   margin: 8px 0 24px;
   padding-left: 76px;
-  color: #495660;
+  color: #354857;
   font-size: 20px;
   line-height: 28px;
   letter-spacing: .3px;
@@ -328,6 +185,7 @@
   padding: 0 16px 0 8px;
   color: #5c6a77;
   font-size: 16px;
+  font-weight: 350;
   line-height: 24px;
   letter-spacing: -.1px;
 }
@@ -335,11 +193,12 @@
 .contentSection ul,
 .contentSection ol { padding-left: 32px; }
 .contentSection strong { color: #313a41; font-weight: 600; }
-.contentSection h2 + p { margin-top: -12px; }
+.contentSection h2 + p { margin-top: -8px; }
 .contentSection p + .projectMedia,
 .contentSection ul + .projectMedia,
 .contentSection ol + .projectMedia { margin-top: 24px; }
-.contentSection li + li { margin-top: 0; }
+.contentSection .projectMedia + .projectMedia { margin-top: 24px; }
+.contentSection li + li { margin-top: 4px; }
 
 .projectMedia {
   width: 720px;
@@ -360,18 +219,3 @@
 .projectMedia.result button > img { height: 554px; object-fit: cover; }
 
 .contentDivider { width: 100%; border: 0; border-top: 1px solid #e8ebed; }
-
-.footer {
-  display: flex;
-  height: 80px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  color: #6c7d86;
-  font-family: "Google Sans", sans-serif;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: .36px;
-}
-
-.footer span:first-child { display: inline-flex; align-items: center; gap: 8px; }
