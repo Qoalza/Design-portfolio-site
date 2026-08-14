@@ -1,6 +1,6 @@
 # HANDOFF
 
-Обновлено: 2026-08-12
+Обновлено: 2026-08-14
 
 ## Назначение
 
@@ -242,9 +242,9 @@
 
 ## Последнее подтверждённое действие
 
-Глобальное поведение прокрутки исправлено на уровне root layout. Причина дефекта — сочетание `html { scroll-behavior: smooth }`, отсутствия `data-scroll-behavior="smooth"` для штатного Next.js route-scroll и браузерного `history.scrollRestoration = "auto"`, которое при App Router history traversal восстанавливало сохранённую позицию другого маршрута. `NavigationScrollController` выставляет manual restoration и синхронно сбрасывает новый pathname без hash в `0` с временным `scroll-behavior: auto`; hash-переходы остаются под штатной якорной навигацией и сохраняют `scroll-margin`.
+Глобальная политика прокрутки подтверждена и усилена на уровне root layout: каждый новый pathname без hash открывается с `scrollY = 0`, а URL с hash сохраняет штатную якорную навигацию и `scroll-margin`. Причина заметного промежуточного кадра — гонка между ранним браузерным восстановлением history-позиции и клиентской инициализацией App Router при включённом `html { scroll-behavior: smooth }`. `NavigationScrollController` централизованно сбрасывает новый pathname без плавной анимации, а `history.scrollRestoration = "manual"` теперь устанавливается начальным inline-script до гидратации. Атрибут `data-scroll-behavior="smooth"` оставлен для штатного отключения smooth-scroll самим Next.js во время route transition; отдельные ссылки не содержат `window.scrollTo()`.
 
-В dev и production проверены: главная → Corvo, back-кнопка, breadcrumb, browser Back/Forward, прямое открытие Corvo, `#projects` (`48 px` от верха), lightbox без маршрутного reset. Все обычные межстраничные переходы завершились с `scrollY = 0`, console errors/hydration warnings отсутствуют. `npm run lint` и `npm run build` прошли. Commit реализации: `3d313c0`. Merge, deploy, VPS, DNS и production не затрагивались.
+2026-08-14 в dev и production проверены с предварительной прокруткой: главная → Corvo, внутренняя back-кнопка, breadcrumb, browser Back/Forward, прямое открытие Corvo, `#projects` (`48 px` от верха) и lightbox без маршрутного reset. Все обычные межстраничные переходы завершились с `scrollY = 0`, позиция lightbox сохранилась, console errors и hydration warnings отсутствуют. `npm run lint` и `npm run build` прошли; первый sandboxed build был заблокирован внутренним портом Turbopack, повтор без этого ограничения завершился успешно. Merge, deploy, VPS, DNS и внешний production не затрагивались.
 
 По повторно полученному 2026-08-12 `get_design_context` Figma node `321:29865` страница Corvo обновлена в существующей ветке и PR #9. «Главная» в project header имеет нейтральное состояние без `aria-current`; breadcrumbs используют Google Sans `16/20`; back — `44 × 40 px` без border; Desktop/Mobile используют свежие SVG `20 × 20 px` и вертикальный separator `#e1e8ed`. Production `process-flow.png` заменён свежим оригиналом Figma `1960 × 546`.
 
