@@ -44,7 +44,28 @@ function SectionHeading({
 function HeroBackground() {
   return (
     <div className={styles.heroBackground} aria-hidden="true">
-      <Image src={`${assetRoot}/hero-background.png`} alt="" width={1440} height={1431} priority />
+      <Image className={styles.heroOuterRing} src={`${assetRoot}/hero-ring-outer.svg`} alt="" width={1466} height={1466} priority />
+      <Image className={styles.heroOuterDashedRing} src={`${assetRoot}/hero-ring-outer-dashed.svg`} alt="" width={1178} height={1178} priority />
+      <Image className={styles.heroOuterAccent} src={`${assetRoot}/hero-ring-outer-accent.svg`} alt="" width={510} height={295} priority />
+      <Image className={styles.heroInnerDashedRing} src={`${assetRoot}/hero-ring-inner-dashed.svg`} alt="" width={891} height={891} priority />
+      <Image className={styles.heroInnerAccent} src={`${assetRoot}/hero-ring-inner-accent.svg`} alt="" width={208} height={271} priority />
+      <Image className={styles.heroGlowSmall} src={`${assetRoot}/hero-glow-small.svg`} alt="" width={750} height={750} priority />
+      <Image className={styles.heroGlowLarge} src={`${assetRoot}/hero-glow-large.svg`} alt="" width={1024} height={1024} priority />
+
+      {[
+        [styles.heroOrbitText, styles.heroIconStack],
+        [styles.heroOrbitUser, styles.heroIconInstrument],
+        [styles.heroOrbitBoolean, styles.heroIconBrush],
+        [styles.heroOrbitComponent, styles.heroIconUnderline],
+        [styles.heroOrbitUnderline, styles.heroIconComponent],
+        [styles.heroOrbitBrush, styles.heroIconBoolean],
+        [styles.heroOrbitInstrument, styles.heroIconUser],
+        [styles.heroOrbitStack, styles.heroIconText],
+      ].map(([positionClass, iconClass]) => (
+        <span key={positionClass} className={`${styles.heroOrbitIcon} ${positionClass}`}>
+          <MaskIcon className={iconClass} />
+        </span>
+      ))}
     </div>
   );
 }
@@ -325,7 +346,7 @@ export default function Home() {
               <article><Image src={`${assetRoot}/codex.svg`} alt="" width={32} height={32} /><div><h3>Codex</h3><p>Подключаю, когда идею хочется проверить не только в макете, но и в работе. С его помощью собираю прототипы, небольшие приложения, скрипты и инструменты, разбираюсь в технической части и постепенно дорабатываю результат через диалог.</p></div></article>
             </div>
             <aside className={styles.aiFact} aria-label="Интересный факт">
-              <Image src={`${assetRoot}/ai-info.svg`} alt="" width={24} height={24} />
+              <span className={styles.aiFactIcon} aria-hidden="true" />
               <div>
                 <strong>Интересный факт</strong>
                 <span>Вся разработка данного сайта, кроме дизайна, была полностью выполнена в Codex, с нуля</span>

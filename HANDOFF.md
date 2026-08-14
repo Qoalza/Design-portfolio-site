@@ -33,14 +33,39 @@
 - Corvo: свежий Figma node `373:47103`, контрольный размер `1440 × 4007 px`.
 - Общий футер: свежий Figma node `378:50597`, размер `1200 × 60 px`.
 - Desktop-правило этапа: внешний shell имеет фиксированную ширину `1280 px` и центрируется; внутренний header/main/footer имеют ширину `1200 px`. Адаптив ниже `1280 px` не реализуется.
-- Главная синхронизирована со свежим hero, состояниями действий проектов, актуальным процессом, AI-фактом и типографикой стажа Eyeconweb.
-- Corvo синхронизирован со свежей верхней панелью, breadcrumb/back `32 × 32 px`, Onest weight `350`, актуальным текстом и межблочными интервалами.
-- Общий футер переиспользуется на главной и Corvo.
+- Главная синхронизирована со свежим hero, состояниями действий проектов, актуальным процессом, AI-фактом и типографикой стажа Eyeconweb. Непрозрачный raster hero удалён из render path и заменён исходной SVG-композицией Figma.
+- Corvo синхронизирован со свежей верхней панелью, breadcrumb/back `32 × 32 px`, Onest weight `350`, актуальным текстом и межблочными интервалами. Платформы формируются из данных как `Desktop / Tablet / Mobile`.
+- Общий футер переиспользуется на главной и Corvo; обе иконки используют точные Figma masks с цветом `#8c949b`.
 - Глобальное правило навигации: новый pathname без hash открывается с `scrollY = 0`; URL с hash сохраняет переход к якорю и его `scroll-margin`.
 - Нижняя плавающая плашка проекта, sticky-header, каталог `/projects`, 404/500, адаптив, merge и deploy в этот этап не входят и не выполнены.
-- Visual QA: `1440 × 900`, масштаб `100%`, шрифты загружены, горизонтального overflow нет, production console чистая. Контрольные кадры и протокол: `design-reference/site-refresh-v2/`.
-- Проверки: `npm run lint` — passed; `npm run build` — passed; production route/navigation/lightbox smoke — passed.
-- Проверенный implementation commit SHA: `e4ac2190733d2c9b7ee27014cd59de181d3beb35`; следующий documentation-only commit фиксирует эту запись. Merge/deploy запрещены.
+- Visual QA: `1280`, `1440`, `1920 px`, масштаб `100%`, включая Retina `DPR=2`; шрифты загружены, горизонтального overflow нет, production console чистая. Свежие exports, focused comparisons и протокол: `design-reference/site-refresh-v2-regression-fix/`.
+- Проверки после regression fix: `npm run lint` — passed; `npm run build` — passed; production route/anchor/lightbox smoke — passed.
+- Проверенный corrective implementation commit SHA будет записан сразу после создания commit в следующем documentation-only commit. Merge/deploy запрещены.
+
+## Закрытие regression fix Goal
+
+### Причины и исправления
+
+1. Блок проектов был в DOM и имел правильные размеры, но его перекрывал полностью непрозрачный `hero-background.png`: изображение выходило из hero stacking context до `y≈1439`, а проекты начинались на `y=1004`. Монолит заменён отдельными SVG-кольцами, свечениями и masks из свежего Figma node `262:2382`; случайные margins/offsets секции не использовались.
+2. Тот же PNG имел intrinsic `1440 × 1431` и на Retina давал около `1x` при полноэкранном выводе. SVG-композиция не зависит от DPR и больше не проходит raster upscale.
+3. Видимый шов был прямоугольной границей полностью непрозрачного PNG. Прозрачные края SVG устранили шов без clipping и без скрытия проектов.
+4. `ai-info.svg` был точным по геометрии, но встроенный `#E2E2EC` выводился напрямую. Реализация повторяет Figma: SVG mask, `#218ee6`, `24 × 24 px`, opacity `1`.
+5. Footer SVG также выводились с `#E2E2EC`; теперь точные author/bug masks имеют `#8c949b`, `16 × 16 px`, без общего opacity.
+6. Frontmatter Corvo не содержал Tablet, а компонент использовал desktop-иконку для любого значения, кроме Mobile. Добавлены строгий `ProjectPlatform`, data-driven mapping и свежие SVG: Desktop `21 × 19`, Tablet `17 × 21`, Mobile `13 × 21`.
+7. Corvo raw PNG побайтно совпали с актуальными Figma assets: `2960 × 1920`, `1960 × 546`, `2960 × 1920`, `2960 × 2278`. Размытие создавал Next Image при повторном lossy-кодировании `q=75`; expanded lightbox теперь отдаёт исходные PNG напрямую. Закрытие, Escape, focus return и scroll lock не менялись и повторно проверены.
+8. Live typography-дефект не подтвердился: `document.fonts.status=loaded`, реально выбраны Google Sans `500`, Onest `350/400`, Source Code Pro `450`; `font-synthesis:none`; transform/filter/backdrop-filter/opacity на текстовых родителях отсутствуют. Размытие создавал QA screenshot path: native Retina `2560 × 1440 PNG` преобразовывался в lossy `1280 × 720 JPEG`. Новые QA-кадры создаются нативным PNG; Figma-цвета и веса CSS не изменялись.
+
+### Проверенные условия
+
+- Проекты: heading `418.695 × 48 px`, Corvo card `1200 × 440 px`, обе области видимы на `1280/1440/1920 px`.
+- Якорь «Мои работы»: `#projects`, `scrollY=956`, верхний отступ heading `48 px`.
+- Главная: высота `6018 px`; Corvo: `3945 px`; horizontal overflow отсутствует.
+- Lightbox проверен на `1440 × 900`, `1920 × 1080` и `DPR=2`; все четыре expanded images получают raw `/assets/projects/corvo/*.png`.
+- AI icon computed color: `rgb(33, 142, 230)`; footer icons: `rgb(140, 148, 155)`; opacity `1`.
+- Console errors, warnings, hydration warnings и asset 404 отсутствуют.
+- Новых accessibility-исключений не добавлено; ранее зафиксированные контрастные исключения остаются открытыми.
+
+Goal 2 со sticky-header/нижней плашкой и Goal 3 не начаты.
 
 ## Текущий релиз
 

@@ -22,10 +22,22 @@
   white-space: nowrap;
 }
 
-.author img,
-.reportContent img {
+.footerIcon {
+  display: block;
+  width: 16px;
+  height: 16px;
   flex: 0 0 16px;
+  background: #8c949b;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 16px 16px;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: 16px 16px;
 }
+
+.authorIcon { -webkit-mask-image: url("/assets/homepage/footer-author.svg"); mask-image: url("/assets/homepage/footer-author.svg"); }
+.reportIcon { -webkit-mask-image: url("/assets/homepage/footer-report.svg"); mask-image: url("/assets/homepage/footer-report.svg"); }
 
 .separator {
   width: 1px;

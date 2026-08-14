@@ -2,6 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
+export type ProjectPlatform = "Desktop" | "Tablet" | "Mobile";
+
 export type Project = {
   title: string;
   slug: string;
@@ -12,7 +14,7 @@ export type Project = {
   tags: string[];
   subtitle?: string;
   updatedAt?: string;
-  platforms?: string[];
+  platforms?: ProjectPlatform[];
   visibility?: string;
   ndaNote?: string;
   figmaUrl?: string;
@@ -65,16 +67,18 @@ function readOptionalString(value: unknown, field: keyof Project): string | unde
   return value;
 }
 
-function readOptionalStringArray(value: unknown, field: keyof Project): string[] | undefined {
+function readOptionalPlatforms(value: unknown): ProjectPlatform[] | undefined {
   if (value === undefined) {
     return undefined;
   }
 
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.trim().length === 0)) {
-    throw new Error(`Project frontmatter field "${field}" must be an array of non-empty strings when provided.`);
+  const allowedPlatforms: ProjectPlatform[] = ["Desktop", "Tablet", "Mobile"];
+
+  if (!Array.isArray(value) || value.some((item) => !allowedPlatforms.includes(item as ProjectPlatform))) {
+    throw new Error('Project frontmatter field "platforms" must contain only Desktop, Tablet, or Mobile.');
   }
 
-  return value;
+  return value as ProjectPlatform[];
 }
 
 function readProject(fileName: string): ProjectWithContent {
@@ -95,7 +99,7 @@ function readProject(fileName: string): ProjectWithContent {
     tags: readTags(data.tags),
     subtitle: readOptionalString(data.subtitle, "subtitle"),
     updatedAt: readOptionalString(data.updatedAt, "updatedAt"),
-    platforms: readOptionalStringArray(data.platforms, "platforms"),
+    platforms: readOptionalPlatforms(data.platforms),
     visibility: readOptionalString(data.visibility, "visibility"),
     ndaNote: readOptionalString(data.ndaNote, "ndaNote"),
     figmaUrl: readOptionalString(data.figmaUrl, "figmaUrl"),

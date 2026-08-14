@@ -50,6 +50,7 @@
 .lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
 .backIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/back.svg"); mask-image: url("/assets/projects/corvo/back.svg"); }
 .desktopIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/desktop.svg"); mask-image: url("/assets/projects/corvo/desktop.svg"); }
+.tabletIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/tablet.svg"); mask-image: url("/assets/projects/corvo/tablet.svg"); }
 .mobileIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/mobile.svg"); mask-image: url("/assets/projects/corvo/mobile.svg"); }
 
 .header {

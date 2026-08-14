@@ -7,10 +7,16 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
 import { SiteFooter } from "../../../components/site-footer";
-import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
+import { getAllProjects, getProjectBySlug, type ProjectPlatform } from "../../../lib/projects";
 import styles from "./page.module.css";
 
 const homeAssetRoot = "/assets/homepage";
+
+const platformIconClass: Record<ProjectPlatform, string> = {
+  Desktop: styles.desktopIcon,
+  Tablet: styles.tabletIcon,
+  Mobile: styles.mobileIcon,
+};
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -159,7 +165,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               <ul className={styles.platforms} aria-label="Платформы">
                 {project.platforms.map((platform) => (
                   <li key={platform}>
-                    <MaskIcon className={platform === "Mobile" ? styles.mobileIcon : styles.desktopIcon} />
+                    <MaskIcon className={platformIconClass[platform]} />
                     {platform}
                   </li>
                 ))}
