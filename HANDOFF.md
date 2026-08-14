@@ -40,7 +40,7 @@
 - Нижняя плавающая плашка проекта, sticky-header, каталог `/projects`, 404/500, адаптив, merge и deploy в этот этап не входят и не выполнены.
 - Visual QA: `1280`, `1440`, `1920 px`, масштаб `100%`, включая Retina `DPR=2`; шрифты загружены, горизонтального overflow нет, production console чистая. Свежие exports, focused comparisons и протокол: `design-reference/site-refresh-v2-regression-fix/`.
 - Проверки после regression fix: `npm run lint` — passed; `npm run build` — passed; production route/anchor/lightbox smoke — passed.
-- Проверенный corrective implementation commit SHA будет записан сразу после создания commit в следующем documentation-only commit. Merge/deploy запрещены.
+- Проверенный corrective implementation commit SHA: `313d5564c4309df7a9f74b3e0b06d0ea5237d923`; следующий documentation-only commit фиксирует эту запись. Merge/deploy запрещены.
 
 ## Закрытие regression fix Goal
 
