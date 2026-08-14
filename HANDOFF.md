@@ -24,7 +24,7 @@
 
 Опубликовать на `https://art-des.ru` сайт-портфолио Product Designer с полным видимым соответствием утверждённому макету Figma в desktop-диапазоне.
 
-## Текущий этап: site refresh v2
+## Текущий этап: Goal 3 — каталог и error pages
 
 Статус: `READY_FOR_USER_REVIEW`.
 
@@ -37,7 +37,7 @@
 - Corvo синхронизирован со свежей верхней панелью, breadcrumb/back `32 × 32 px`, Onest weight `350`, актуальным текстом и межблочными интервалами. Платформы формируются из данных как `Desktop / Tablet / Mobile`.
 - Общий футер переиспользуется на главной и Corvo; обе иконки используют точные Figma masks с цветом `#8c949b`.
 - Глобальное правило навигации: новый pathname без hash открывается с `scrollY = 0`; URL с hash сохраняет переход к якорю и его `scroll-margin`.
-- Goal 2 выполнена: общий flow/fixed header работает на главной и project shell, а общая нижняя project action bar переключается между floating и inline состояниями. Каталог `/projects`, 404/500, адаптив, merge и deploy не выполнялись.
+- Goal 2 сохранена без изменений: общий flow/fixed header и project action bar продолжают работать. Goal 3 добавляет каталог `/projects`, стандартные App Router 404/500 и точечный размер `14 px` для «Открыт к предложениям».
 - Visual QA: `1280`, `1440`, `1920 px`, масштаб `100%`, включая `DPR=1/2`; шрифты загружены, горизонтального overflow нет, production console чистая. Артефакты Goal 2 и motion sequence: `design-reference/site-refresh-v2-goal2/`.
 - Проверки Goal 2: `npm run lint` — passed; `npm run build` — passed; production header/action-bar/navigation/hash/lightbox/assets/console smoke — passed.
 - Goal 2 implementation commit SHA: `c57c61da8a34a2d402eb56d0e814a91d9ff2e4dc`; следующий documentation-only commit фиксирует эту запись. Merge/deploy запрещены.
@@ -84,7 +84,17 @@
 - Новый pathname, browser Back/Forward — `scrollY=0`; `#projects` сохраняет gap `48 px`; lightbox сохраняет позицию и возвращает focus.
 - Production assets: главная `44/44`, Corvo `9/9`; fonts `loaded`; console errors и hydration warnings отсутствуют.
 - QA screenshots и покадровое доказательство `0/150/370 ms`: `design-reference/site-refresh-v2-goal2/`.
-- Goal 3 не начата.
+- Goal 3 выполнена отдельным этапом ниже; архитектура и проверки Goal 2 не переделывались.
+
+## Goal 3: каталог и страницы ошибок
+
+Статус: `READY_FOR_USER_REVIEW`.
+
+- `/projects` реализован по Figma `373:50236` на существующих `SiteHeader`, `SiteFooter` и MDX-данных; Corvo ведёт на готовый кейс, а Сараффан.Радио и B.Off не создают выдуманных detail-маршрутов.
+- Добавлены стандартные `not-found.tsx` и `error.tsx` по Figma `373:49339` и `373:49732`; безопасный ручной сценарий 500 — `/error-test?trigger=500`.
+- Точные локальные Figma-арты сохранены в `public/assets/errors/` и `public/assets/projects/catalog/`; временных Figma URL в runtime нет.
+- Проверены `1440 px / 100%`: flow/fixed availability `14 px`, главная → `/projects` → Corvo, Back, 404 → главная, 500 → retry, horizontal overflow `0`, изображения загружены, hydration warnings отсутствуют. Ожидаемые console errors возникают только при намеренном trigger 500.
+- `npm run lint` и `npm run build` прошли. QA: `design-reference/site-refresh-v2-goal3/`.
 
 ## Закрытие regression fix Goal
 
@@ -294,6 +304,7 @@ Goal 2 со sticky-header и нижней project action bar выполнена.
 13. `done` — централизовать scroll policy: новый pathname без hash открывается с `scrollY = 0`, browser Back/Forward используют manual restoration, а явные hash-ссылки сохраняют якорную навигацию и `scroll-margin`.
 14. `done` — синхронизировать главную, Corvo и общий футер со свежими Figma nodes `262:2382`, `373:47103`, `378:50597`; проверить desktop-layout `1280/1200`, типографику, production-навигацию и lightbox; сохранить секционные QA-кадры со статусом `READY_FOR_USER_REVIEW`.
 15. `done` — реализовать общий flow/fixed header и общую floating/inline project action bar по Figma; проверить motion, focus/a11y, два typed frontmatter-варианта, desktop geometry, navigation/hash/lightbox и production smoke; сохранить QA-кадры со статусом `READY_FOR_USER_REVIEW`.
+16. `done` — реализовать Goal 3: `/projects`, стандартные 404/500, безопасный 500 test route и точечный `14 px` availability; провести компактный production smoke, lint/build и сохранить три QA-кадра.
 
 ## Стоп-линии
 
@@ -370,4 +381,4 @@ Goal 2 реализована в commit `c57c61da8a34a2d402eb56d0e814a91d9ff2e4d
 
 ## Следующий шаг
 
-Передать пользователю cache-busted production-preview исправления Goal 2 из финального HEAD и дождаться проверки. Goal 3, merge, deploy и VPS не начинать без отдельного разрешения пользователя.
+Передать пользователю cache-busted production-preview Goal 3 из финального HEAD и дождаться проверки. Merge, deploy и VPS не выполнять без отдельного разрешения пользователя.

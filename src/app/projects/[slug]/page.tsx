@@ -67,14 +67,14 @@ function MdxHeading({ children, ...props }: ComponentPropsWithoutRef<"h2">) {
 }
 
 export function generateStaticParams() {
-  return getAllProjects().map(({ slug }) => ({ slug }));
+  return getAllProjects().filter(({ detailAvailable }) => detailAvailable).map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
 
-  if (!project) {
+  if (!project || !project.detailAvailable) {
     return {};
   }
 
@@ -88,7 +88,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
 
-  if (!project) {
+  if (!project || !project.detailAvailable) {
     notFound();
   }
 

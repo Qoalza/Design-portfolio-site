@@ -20,6 +20,11 @@ export type Project = {
   figmaAvailable: boolean;
   figmaUrl?: string;
   logo?: string;
+  workSummary?: string;
+  catalogRole?: string;
+  catalogVisible: boolean;
+  detailAvailable: boolean;
+  catalogOrder: number;
 };
 
 export type ProjectWithContent = Project & {
@@ -94,6 +99,18 @@ function readFigmaAvailability(value: unknown): boolean {
   return value;
 }
 
+function readOptionalBoolean(value: unknown, field: "catalogVisible" | "detailAvailable", fallback: boolean): boolean {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value !== "boolean") {
+    throw new Error(`Project frontmatter field "${field}" must be a boolean when provided.`);
+  }
+
+  return value;
+}
+
 function readProject(fileName: string): ProjectWithContent {
   const filePath = path.join(projectsDirectory, fileName);
   const { content, data } = matter(readFileSync(filePath, "utf8"));
@@ -126,6 +143,11 @@ function readProject(fileName: string): ProjectWithContent {
     figmaAvailable,
     figmaUrl,
     logo: readOptionalString(data.logo, "logo"),
+    workSummary: readOptionalString(data.workSummary, "workSummary"),
+    catalogRole: readOptionalString(data.catalogRole, "catalogRole"),
+    catalogVisible: readOptionalBoolean(data.catalogVisible, "catalogVisible", true),
+    detailAvailable: readOptionalBoolean(data.detailAvailable, "detailAvailable", true),
+    catalogOrder: typeof data.catalogOrder === "number" && Number.isInteger(data.catalogOrder) ? data.catalogOrder : 999,
     content,
   };
 }
@@ -151,6 +173,11 @@ function withoutContent(project: ProjectWithContent): Project {
     figmaAvailable: project.figmaAvailable,
     figmaUrl: project.figmaUrl,
     logo: project.logo,
+    workSummary: project.workSummary,
+    catalogRole: project.catalogRole,
+    catalogVisible: project.catalogVisible,
+    detailAvailable: project.detailAvailable,
+    catalogOrder: project.catalogOrder,
   };
 }
 
@@ -159,6 +186,10 @@ export function getAllProjects(): Project[] {
     .map(readProject)
     .map(withoutContent)
     .sort((firstProject, secondProject) => secondProject.year - firstProject.year);
+}
+
+export function getCatalogProjects(): Project[] {
+  return getAllProjects().filter((project) => project.catalogVisible).sort((a, b) => a.catalogOrder - b.catalogOrder);
 }
 
 export function getProjectBySlug(slug: string): ProjectWithContent | undefined {
