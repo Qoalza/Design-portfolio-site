@@ -31,7 +31,13 @@
 .platforms { display: flex; align-items: center; gap: 12px; margin: 0; padding: 0 0 0 20px; list-style: none; }
 .platforms li { display: flex; align-items: center; gap: 8px; color: #75848f; font: 400 14px/20px "Onest", sans-serif; letter-spacing: -.1px; }
 .platforms li + li::before { width: 1px; height: 20px; margin-right: 4px; background: #e1e8ed; content: ""; }
-.platformIcon { display: block; flex: 0 0 auto; }
+.platformIcon {
+  display: block;
+  flex: 0 0 auto;
+  background: currentColor;
+  -webkit-mask: var(--platform-icon) center / 100% 100% no-repeat;
+  mask: var(--platform-icon) center / 100% 100% no-repeat;
+}
 .actions { display: flex; width: 100%; align-items: center; gap: 12px; }
 .detailsButton,.figmaButton,.unavailable { display: inline-flex; height: 40px; align-items: center; justify-content: center; border-radius: 8px; font: 400 14px/16px "Google Sans", sans-serif; letter-spacing: .2px; text-decoration: none; white-space: nowrap; }
 .detailsButton { width: 122px; background: #313940; color: #fbfbfb; }

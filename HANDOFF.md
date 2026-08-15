@@ -24,8 +24,8 @@
 
 - Рабочая ветка: `codex/goal3-regression-fixes`, база: `codex/site-refresh-v2`.
 - Контрольная точка процесса: `feebd75` (`Define optimized workflow and split project context`).
-- Error-layout исправлен в `cf9e161` (`Fix error page viewport layout`).
-- Общий механизм platform-иконок исправлен и ожидает пользовательской визуальной проверки вместе с error pages.
+- Базовый error-layout исправлен в `cf9e161` (`Fix error page viewport layout`); follow-up синхронизирует позиции с актуальными nodes `420:54056`/`420:54081` и отделяет clipping иллюстрации от тени сообщения.
+- Общий механизм platform-иконок использует typed intrinsic-размеры и mask с Figma-цветом `#75848F`; error pages и иконки имеют статус `READY_FOR_REVIEW`.
 - Незавершённый пакет `codex-context-transfer-2026-08-15/` и ZIP остаются отдельными untracked-артефактами; не добавлять и не удалять.
 - Merge в `main` и deploy на VPS не выполнялись.
 
@@ -35,7 +35,7 @@
 - Главная: node `262:2382`, контрольный viewport `1440 px`.
 - Corvo: node `373:47103`.
 - «Все работы»: node `373:50236`.
-- 404/500: section `373:48633`, states `373:49339` и `373:49732`.
+- 404/500: актуальные nodes `420:54056` и `420:54081`.
 - Общий footer: node `378:50597`.
 - Header motion: section `373:48009`.
 - Project action bar: sections `373:47102`, `373:50562`.

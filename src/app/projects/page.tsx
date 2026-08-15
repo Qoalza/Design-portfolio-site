@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { getCatalogProjects, type Project, type ProjectPlatform } from "../../lib/projects";
@@ -15,8 +16,13 @@ const platformIcons = {
 
 function PlatformIcon({ platform }: { platform: ProjectPlatform }) {
   const icon = platformIcons[platform];
+  const style = {
+    "--platform-icon": `url("${icon.src}")`,
+    width: icon.width,
+    height: icon.height,
+  } as CSSProperties & { "--platform-icon": string };
 
-  return <Image className={styles.platformIcon} {...icon} alt="" />;
+  return <span className={styles.platformIcon} style={style} aria-hidden="true" />;
 }
 
 function RadioSymbol() {
