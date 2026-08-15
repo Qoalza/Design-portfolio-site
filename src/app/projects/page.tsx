@@ -7,11 +7,17 @@ import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
 
-const platformIcons: Record<ProjectPlatform, string> = {
-  Desktop: "/assets/projects/corvo/desktop.svg",
-  Tablet: "/assets/projects/corvo/tablet.svg",
-  Mobile: "/assets/projects/corvo/mobile.svg",
-};
+const platformIcons = {
+  Desktop: { src: "/assets/projects/corvo/desktop.svg", width: 21, height: 19 },
+  Tablet: { src: "/assets/projects/corvo/tablet.svg", width: 17, height: 21 },
+  Mobile: { src: "/assets/projects/corvo/mobile.svg", width: 13, height: 21 },
+} satisfies Record<ProjectPlatform, { src: string; width: number; height: number }>;
+
+function PlatformIcon({ platform }: { platform: ProjectPlatform }) {
+  const icon = platformIcons[platform];
+
+  return <Image className={styles.platformIcon} {...icon} alt="" />;
+}
 
 function RadioSymbol() {
   return (
@@ -58,7 +64,7 @@ function ProjectDetails({ project }: { project: Project }) {
       <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Что делал</strong><small>{project.workSummary}</small></span></div>
       {project.platforms?.length ? (
         <ul className={styles.platforms} aria-label="Платформы">
-          {project.platforms.map((platform) => <li key={platform}><Image src={platformIcons[platform]} alt="" width={20} height={20} />{project.slug === "sarafan-radio" ? "Only Desktop" : platform}</li>)}
+          {project.platforms.map((platform) => <li key={platform}><PlatformIcon platform={platform} />{project.slug === "sarafan-radio" ? "Only Desktop" : platform}</li>)}
         </ul>
       ) : null}
     </div>

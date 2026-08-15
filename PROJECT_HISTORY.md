@@ -385,6 +385,10 @@ Goal 2 реализована в commit `c57c61da8a34a2d402eb56d0e814a91d9ff2e4d
 
 Контроль: viewport `1440 × 900`, `deviceScaleFactor: 1`, full page `1440 × 4237`, fonts `loaded`, горизонтального переполнения нет. Эталон, реализация, полный и три фокусных comparison находятся в `design-reference/corvo/`; `design-qa.md` имеет `final result: passed`. `npm run lint`, `npm run build` и production route smoke прошли. Новых Critical/High web-quality или accessibility-дефектов нет; отдельное Figma/WCAG-исключение малых метаданных записано в `ACCESSIBILITY_EXCEPTIONS.md`. Commit реализации: `166ba94`. Merge, deploy, DNS и VPS не затрагивались.
 
+### 2026-08-15 — причина регрессии platform-иконок
+
+На `/projects` tight-bound Figma SVG имели разные intrinsic-размеры (`21×19`, `17×21`, `13×21`) и `preserveAspectRatio="none"`, но React mapping принудительно задавал всем `20×20`. Из-за этого геометрия растягивалась, а различия stroke/fill ошибочно выглядели как отдельные дефекты карточек. Устойчивое правило: рендерить эти ассеты через единый typed mapping с их собственными размерами и не переопределять встроенные `#E2E2EC`, stroke/fill локальным CSS.
+
 ## Следующий шаг
 
 Провести read-only проверку SSH-доступа и состояния VPS, затем после явного подтверждения пользователя настроить минимальный production-стек (`Node.js`, `Git`, `Nginx`, `systemd`, Let's Encrypt), развернуть одобренный commit и выполнить внешний smoke-check `https://art-des.ru`. Известные дефекты Goal 3 во время deploy не исправлять. До публикации отдельно зафиксировать точный deploy SHA и способ отката.
