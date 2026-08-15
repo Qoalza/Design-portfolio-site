@@ -9,6 +9,7 @@ import { ProjectMediaLightbox } from "../../../components/project-media-lightbox
 import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
 import { getAllProjects, getProjectBySlug, type ProjectPlatform } from "../../../lib/projects";
+import { HOME_TRAIL_ITEM } from "../../../lib/navigation-trail";
 import styles from "./page.module.css";
 
 const platformIconClass: Record<ProjectPlatform, string> = {
@@ -105,12 +106,19 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     project.ndaNote,
     String(project.year),
   ].filter((value): value is string => Boolean(value));
+  const projectsTrailItem = { href: "/projects", label: "Работы" };
+  const projectTrailItem = { href: `/projects/${project.slug}`, label: project.title };
 
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
         <a className={styles.skipLink} href="#project-content">Перейти к содержимому</a>
-        <SiteHeader breadcrumbLabel={project.title} />
+        <SiteHeader
+          navigationPage={{
+            item: projectTrailItem,
+            canonicalTrail: [HOME_TRAIL_ITEM, projectsTrailItem, projectTrailItem],
+          }}
+        />
 
         <main id="project-content">
           <header className={styles.projectHero}>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { NavigationTrailProvider } from "../components/contextual-navigation";
 import { NavigationScrollController } from "../components/navigation-scroll-controller";
 import "./globals.css";
 
@@ -26,8 +27,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <NavigationScrollController />
-        {children}
+        <NavigationTrailProvider>
+          <NavigationScrollController />
+          {children}
+        </NavigationTrailProvider>
       </body>
     </html>
   );

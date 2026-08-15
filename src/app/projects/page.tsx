@@ -1,8 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { CSSProperties } from "react";
+import { ContextLink } from "../../components/contextual-navigation";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
+import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import { getCatalogProjects, type Project, type ProjectPlatform } from "../../lib/projects";
 import styles from "./page.module.css";
 
@@ -80,7 +81,7 @@ function ProjectDetails({ project }: { project: Project }) {
 function ProjectActions({ project }: { project: Project }) {
   return (
     <div className={styles.actions}>
-      {project.detailAvailable ? <Link className={styles.detailsButton} href={`/projects/${project.slug}`}>Подробнее</Link> : <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>}
+      {project.detailAvailable ? <ContextLink className={styles.detailsButton} href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ContextLink> : <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>}
       {project.figmaAvailable && project.figmaUrl ? (
         <a className={styles.figmaButton} href={project.figmaUrl} target="_blank" rel="noreferrer">Figma <Image src={`${assetRoot}/project-share.svg`} alt="" width={16} height={16} /></a>
       ) : (
@@ -112,12 +113,18 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
 export default function ProjectsPage() {
   const projects = getCatalogProjects();
   const [corvo, ...compactProjects] = projects;
+  const projectsTrailItem = { href: "/projects", label: "Работы" };
 
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
         <a className={styles.skipLink} href="#projects-content">Перейти к содержимому</a>
-        <SiteHeader breadcrumbLabel="Все работы" />
+        <SiteHeader
+          navigationPage={{
+            item: projectsTrailItem,
+            canonicalTrail: [HOME_TRAIL_ITEM, projectsTrailItem],
+          }}
+        />
         <main id="projects-content" className={styles.main}>
           <header className={styles.intro}><h1>Мои работы</h1><p>Здесь собрал рабочие проекты, тестовые задания,<br />где можно увидеть мой подход к задаче и результат.</p></header>
           <section className={styles.catalog} aria-label="Проекты">
