@@ -1,7 +1,18 @@
-.page { min-width: 1280px; min-height: 960px; background: #fafafa; }
-.shell { display: flex; width: 1200px; min-height: 960px; flex-direction: column; margin: 0 auto; }
-.main { display: flex; min-height: 900px; flex: 1 1 auto; align-items: center; justify-content: center; }
-.stage { position: relative; width: 1200px; height: 900px; overflow: hidden; }
+.page { min-width: 1280px; min-height: 100vh; background: #fafafa; }
+.shell { display: flex; width: 1200px; min-height: 100vh; flex-direction: column; margin: 0 auto; }
+.main { position: relative; min-height: 0; flex: 1 1 auto; }
+.stage {
+  --stage-scale: min(1, calc((100vh - 60px) / 900px));
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1200px;
+  height: 900px;
+  overflow: hidden;
+  transform: translate(-50%, -50%) scale(var(--stage-scale));
+  transform-origin: center;
+}
 .art { position: absolute; max-width: none; height: auto; pointer-events: none; }
 .stage404 .art { top: -520px; left: -414px; width: 1992px; }
 .stage500 .art { top: -585px; left: -996px; width: 2913px; }
