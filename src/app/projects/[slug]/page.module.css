@@ -114,10 +114,11 @@
 }
 
 .projectLabels {
-  flex-wrap: wrap;
-  gap: 8px 12px;
+  width: max-content;
+  max-width: 100%;
+  flex-wrap: nowrap;
+  gap: 12px;
   margin-top: 24px;
-  width: 776px;
   padding: 24px 0 0 8px;
   border-top: 1px solid #e8ebed;
   color: #6c7d86;

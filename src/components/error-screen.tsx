@@ -16,7 +16,9 @@ export function ErrorScreen({ variant, title, children, action }: ErrorScreenPro
       <div className={styles.shell}>
         <main className={styles.main}>
           <div className={`${styles.stage} ${styles[`stage${variant}`]}`}>
-            <Image className={styles.art} src={`/assets/errors/${variant}.png`} alt="" width={variant === "404" ? 3983 : 4096} height={variant === "404" ? 3581 : 2824} unoptimized priority />
+            <div className={styles.artClip}>
+              <Image className={styles.art} src={`/assets/errors/${variant}.png`} alt="" width={variant === "404" ? 3983 : 4096} height={variant === "404" ? 3581 : 2824} unoptimized priority />
+            </div>
             <section className={styles.message} aria-labelledby={`error-${variant}-title`}>
               <div className={styles.messageBody}>
                 <div className={styles.copy}><h1 id={`error-${variant}-title`}>{title}</h1><div>{children}</div></div>

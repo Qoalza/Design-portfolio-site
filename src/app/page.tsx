@@ -1,7 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
+import { ContextLink } from "../components/contextual-navigation";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
+import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
@@ -73,18 +74,19 @@ function HeroBackground() {
 
 type ProjectActionsProps = {
   detailHref?: string;
+  detailLabel?: string;
   figmaHref?: string;
   updatedAt?: string;
 };
 
-function ProjectActions({ detailHref, figmaHref, updatedAt }: ProjectActionsProps) {
+function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: ProjectActionsProps) {
   const hasFigma = Boolean(figmaHref);
 
   return (
     <div className={styles.projectActions}>
       <div className={styles.projectActionButtons}>
         {detailHref ? (
-          <Link className={styles.detailsButton} href={detailHref}>Подробнее</Link>
+          <ContextLink className={styles.detailsButton} href={detailHref} breadcrumbLabel={detailLabel}>Подробнее</ContextLink>
         ) : (
           <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>
         )}
@@ -183,7 +185,11 @@ export default function Home() {
       <div className={styles.shell}>
         <a className={styles.skipLink} href="#main-content">Перейти к содержимому</a>
 
-        <SiteHeader homeActive />
+        <SiteHeader
+          homeActive
+          navigationPage={{ item: HOME_TRAIL_ITEM, canonicalTrail: [HOME_TRAIL_ITEM] }}
+          showBreadcrumbs={false}
+        />
 
         <main id="main-content">
           <section className={styles.hero} aria-labelledby="hero-title">
@@ -204,7 +210,7 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.heroActions}>
-                <a className={styles.darkButton} href="#projects">Мои работы</a>
+                <ContextLink className={styles.darkButton} href="#projects">Мои работы</ContextLink>
                 <span className={styles.secondaryButton} aria-disabled="true">CV <ButtonIcon name="download" /></span>
               </div>
             </div>
@@ -215,7 +221,7 @@ export default function Home() {
               <SectionHeading id="projects-title" title="То, над чем я работал" centered>
                 <p>Здесь собрал рабочие проекты, тестовые задания.<br />Где можно увидеть мой подход к задаче и результат.</p>
               </SectionHeading>
-              <Link className={styles.textButton} href="/projects">Все работы <ButtonIcon name="arrow-right" /></Link>
+              <ContextLink className={styles.textButton} href="/projects" breadcrumbLabel="Работы">Все работы <ButtonIcon name="arrow-right" /></ContextLink>
             </div>
 
             <article className={styles.projectRow}>
@@ -232,6 +238,7 @@ export default function Home() {
                 </dl>
                 <ProjectActions
                   detailHref="/projects/corvo"
+                  detailLabel="Corvo"
                   figmaHref="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82?node-id=373-47103"
                   updatedAt="13.05.2026"
                 />

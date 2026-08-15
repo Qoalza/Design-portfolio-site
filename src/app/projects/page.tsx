@@ -1,17 +1,30 @@
 import Image from "next/image";
-import Link from "next/link";
+import type { CSSProperties } from "react";
+import { ContextLink } from "../../components/contextual-navigation";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
+import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import { getCatalogProjects, type Project, type ProjectPlatform } from "../../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
 
-const platformIcons: Record<ProjectPlatform, string> = {
-  Desktop: "/assets/projects/corvo/desktop.svg",
-  Tablet: "/assets/projects/corvo/tablet.svg",
-  Mobile: "/assets/projects/corvo/mobile.svg",
-};
+const platformIcons = {
+  Desktop: { src: "/assets/projects/corvo/desktop.svg", width: 21, height: 19 },
+  Tablet: { src: "/assets/projects/corvo/tablet.svg", width: 17, height: 21 },
+  Mobile: { src: "/assets/projects/corvo/mobile.svg", width: 13, height: 21 },
+} satisfies Record<ProjectPlatform, { src: string; width: number; height: number }>;
+
+function PlatformIcon({ platform }: { platform: ProjectPlatform }) {
+  const icon = platformIcons[platform];
+  const style = {
+    "--platform-icon": `url("${icon.src}")`,
+    width: icon.width,
+    height: icon.height,
+  } as CSSProperties & { "--platform-icon": string };
+
+  return <span className={styles.platformIcon} style={style} aria-hidden="true" />;
+}
 
 function RadioSymbol() {
   return (
@@ -58,7 +71,7 @@ function ProjectDetails({ project }: { project: Project }) {
       <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Что делал</strong><small>{project.workSummary}</small></span></div>
       {project.platforms?.length ? (
         <ul className={styles.platforms} aria-label="Платформы">
-          {project.platforms.map((platform) => <li key={platform}><Image src={platformIcons[platform]} alt="" width={20} height={20} />{project.slug === "sarafan-radio" ? "Only Desktop" : platform}</li>)}
+          {project.platforms.map((platform) => <li key={platform}><PlatformIcon platform={platform} />{project.slug === "sarafan-radio" ? "Only Desktop" : platform}</li>)}
         </ul>
       ) : null}
     </div>
@@ -68,7 +81,7 @@ function ProjectDetails({ project }: { project: Project }) {
 function ProjectActions({ project }: { project: Project }) {
   return (
     <div className={styles.actions}>
-      {project.detailAvailable ? <Link className={styles.detailsButton} href={`/projects/${project.slug}`}>Подробнее</Link> : <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>}
+      {project.detailAvailable ? <ContextLink className={styles.detailsButton} href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ContextLink> : <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>}
       {project.figmaAvailable && project.figmaUrl ? (
         <a className={styles.figmaButton} href={project.figmaUrl} target="_blank" rel="noreferrer">Figma <Image src={`${assetRoot}/project-share.svg`} alt="" width={16} height={16} /></a>
       ) : (
@@ -100,12 +113,18 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
 export default function ProjectsPage() {
   const projects = getCatalogProjects();
   const [corvo, ...compactProjects] = projects;
+  const projectsTrailItem = { href: "/projects", label: "Работы" };
 
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
         <a className={styles.skipLink} href="#projects-content">Перейти к содержимому</a>
-        <SiteHeader breadcrumbLabel="Все работы" />
+        <SiteHeader
+          navigationPage={{
+            item: projectsTrailItem,
+            canonicalTrail: [HOME_TRAIL_ITEM, projectsTrailItem],
+          }}
+        />
         <main id="projects-content" className={styles.main}>
           <header className={styles.intro}><h1>Мои работы</h1><p>Здесь собрал рабочие проекты, тестовые задания,<br />где можно увидеть мой подход к задаче и результат.</p></header>
           <section className={styles.catalog} aria-label="Проекты">
