@@ -1,0 +1,30 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="24" fill="#1E1E1E"/>
+<g id="Line">
+<rect x="-112" y="-414" width="2177" height="3546" rx="62" fill="#121213"/>
+<g id="Frame 26086093">
+<rect width="2177" height="3312" transform="translate(-112 -180)" fill="#313135"/>
+<g id="Frame 26086078">
+<rect width="1088" height="3312" transform="translate(-112 -180)" fill="#121213"/>
+<g id="Frame 26086079">
+<g id="Frame 26086078_2">
+<g clip-path="url(#clip0_0_1)">
+<g id="Frame 1">
+<rect x="-48" y="-16" width="120" height="100" stroke="#34343D"/>
+<g id="Light / General / Download-cloud-01">
+<path id="Icon" d="M4 16.2422C2.79401 15.435 2 14.0602 2 12.5C2 10.1564 3.79151 8.23129 6.07974 8.01937C6.54781 5.17213 9.02024 3 12 3C14.9798 3 17.4522 5.17213 17.9203 8.01937C20.2085 8.23129 22 10.1564 22 12.5C22 14.0602 21.206 15.435 20 16.2422M16 17L12 21L8 17M12 21V12" stroke="#E2E2EC" stroke-linejoin="round"/>
+</g>
+</g>
+</g>
+<rect x="-47.5" y="-15.5" width="959" height="299" rx="19.5" stroke="#34343D"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_1">
+<rect x="-48" y="-16" width="960" height="300" rx="20" fill="white"/>
+</clipPath>
+</defs>
+</svg>
