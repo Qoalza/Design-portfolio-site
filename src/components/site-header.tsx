@@ -30,8 +30,7 @@ function HeaderRow({ homeActive = false, fixed }: Pick<HeaderStackProps, "homeAc
   return (
     <header className={styles.header}>
       <ContextLink className={styles.brand} href="/" resetBreadcrumbs aria-label="На главную">
-        <Image src={`${assetRoot}/logo.svg`} alt="" width={48} height={48} priority={!fixed} />
-        <span><strong>ART</strong><small>Design</small></span>
+        <Image src={`${assetRoot}/logo.svg`} alt="" width={129} height={80} priority={!fixed} />
       </ContextLink>
 
       <nav className={styles.nav} aria-label="Основная навигация">

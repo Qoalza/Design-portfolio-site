@@ -1,5 +1,5 @@
 {
-  "baselineDate": "2026-08-20T19:13:26Z",
+  "baselineDate": "2026-08-20T21:09:23Z",
   "baselineVersion": "v1",
   "counts": {
     "byFamilyAndWeight": {
@@ -10276,7 +10276,7 @@
       "width": 24
     },
     {
-      "baselineDate": "2026-08-20T19:13:26Z",
+      "baselineDate": "2026-08-20T21:09:23Z",
       "category": "Logo text",
       "componentKey": "aa326e9a39677ef825e0793cbbaa06043f4aec27",
       "exportStatus": "exported",
@@ -10288,14 +10288,14 @@
       "logoRole": "composite-symbol-and-art-design",
       "relativePath": "assets/logo/logo-text/large--aa326e9a.svg",
       "slug": "large",
-      "sourceName": "Property 1=Large",
+      "sourceName": "Size=Large",
       "usesMask": false,
-      "viewBox": "0 0 133 80",
+      "viewBox": "0 0 129 80",
       "weight": null,
-      "width": 133
+      "width": 129
     },
     {
-      "baselineDate": "2026-08-20T19:13:26Z",
+      "baselineDate": "2026-08-20T21:09:23Z",
       "category": "Symbol",
       "componentKey": "957e9348d3b05a6403f09ac1fd13a8eef83f21f3",
       "exportStatus": "exported",

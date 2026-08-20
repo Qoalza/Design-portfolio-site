@@ -68,27 +68,14 @@
 }
 
 .brand {
-  display: flex;
+  display: block;
+  width: 129px;
   height: 80px;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
+  flex: 0 0 129px;
   text-decoration: none;
 }
 
-.brand > img { transform: rotate(180deg) scaleY(-1); }
-
-.brand > span {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  white-space: nowrap;
-  font-family: "Google Sans", sans-serif;
-}
-
-.brand strong { color: #202931; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: .48px; }
-.brand small { color: #6c7d86; font-size: 12px; line-height: 12px; letter-spacing: .36px; }
+.brand > img { display: block; }
 
 .maskIcon {
   display: inline-block;

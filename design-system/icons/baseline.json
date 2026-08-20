@@ -1,5 +1,5 @@
 {
-  "baselineDate": "2026-08-20T19:13:26Z",
+  "baselineDate": "2026-08-20T21:09:23Z",
   "baselineVersion": "v1",
   "components": [
     {
@@ -9662,29 +9662,29 @@
       "componentKey": "aa326e9a39677ef825e0793cbbaa06043f4aec27",
       "family": "logo",
       "figmaNodeId": "30746:393",
-      "geometryFingerprint": "sha256:c808c7c81af901820b3429c5ad03a9e70c7900c7eebce6f5944323e5d0cd10d8",
+      "geometryFingerprint": "sha256:13402e25a3eaaeb7f2f66787317a2d500b73088a627a3450d01ab774fa856982",
       "height": 80,
       "relativePath": "assets/logo/logo-text/large--aa326e9a.svg",
       "slug": "large",
-      "sourceName": "Property 1=Large",
-      "structureFingerprint": "sha256:120e3d4100c4c95f69b2d58ed1f656a5c4125f17e0d3189d296f76b19debe0a4",
-      "svgChecksum": "sha256:e389e5edeb4e71689425edc0720661b55da279e3bc1ae700df2dc7298731d421",
-      "viewBox": "0 0 133 80",
+      "sourceName": "Size=Large",
+      "structureFingerprint": "sha256:0bf104e9128c648b3df275e8e16016f84b512a56672cfdc652e685705592d94f",
+      "svgChecksum": "sha256:b6ae0d9277b56710e3cd39fc4631932e0eadff781355f6a5c10ec4c6d558c8df",
+      "viewBox": "0 0 129 80",
       "weight": null,
-      "width": 133
+      "width": 129
     },
     {
       "category": "Symbol",
       "componentKey": "957e9348d3b05a6403f09ac1fd13a8eef83f21f3",
       "family": "logo",
       "figmaNodeId": "30744:507",
-      "geometryFingerprint": "sha256:5d2e69587f47aeca4e1347312882d404bfd058bc0b39d24296476643b15344df",
+      "geometryFingerprint": "sha256:0547b268502e804de9623c7b5af88ddead218670e542d3df1317ebd83d917850",
       "height": 48,
       "relativePath": "assets/logo/symbol/large--957e9348.svg",
       "slug": "large",
       "sourceName": "Size=Large",
       "structureFingerprint": "sha256:93656a3d89ff3c2870f12615c886d12c5b01097df5bf8ebda65068dcf2d872aa",
-      "svgChecksum": "sha256:2a0db7aa6ff7c58731580b08bb1bf082ac896205699f02131ec0640b9f754453",
+      "svgChecksum": "sha256:a0c3572f4562d90fc8f50e289ce4ec53bfdc9e6d8b5cf3331919b57a50150678",
       "viewBox": "0 0 48 48",
       "weight": null,
       "width": 48
