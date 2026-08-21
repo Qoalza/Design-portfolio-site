@@ -269,55 +269,59 @@
 .designRow { height: 398px; grid-template-columns: 553px 1fr; }
 .deliveryRow { height: 302px; grid-template-columns: 1fr 503px; }
 
-.processCopy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 26px; padding: 40px; }
-.designRow .processCopy { height: 398px; padding-right: 24px; }
-.processEyebrow { display: inline-flex; align-items: center; gap: 12px; color: #0489f4; font: 400 14px/16px "Source Code Pro", monospace; letter-spacing: -.5px; }
+.processCopy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 24px; }
+.analyticsRow .processCopy { padding: 0 40px 0 64px; }
+.designRow .processCopy { height: 398px; padding: 40px 24px 40px 32px; }
+.deliveryRow .processCopy { padding: 40px 80px 40px 64px; }
+.processEyebrow { display: inline-flex; align-items: center; gap: 12px; color: #0489f4; font: 400 16px/20px "Source Code Pro", monospace; letter-spacing: -.6px; }
+.designRow .processEyebrow { color: #c18111; }
+.deliveryRow .processEyebrow { color: #0c9340; }
 .processEyebrow b { font-weight: 400; }
 .processDescription { display: flex; width: 100%; flex-direction: column; gap: 8px; }
 .processDescription h3,
-.aiGrid h3 { margin: 0; color: #313a41; font-family: "Google Sans", sans-serif; font-size: 20px; font-weight: 500; line-height: 28px; letter-spacing: .2px; }
+.aiGrid h3 { margin: 0; color: #45494c; font-family: "Google Sans", sans-serif; font-size: 24px; font-weight: 500; line-height: 32px; letter-spacing: -.1px; }
 .processDescription p,
-.aiGrid p { margin: 0; color: #545e67; font-size: 16px; line-height: 24px; letter-spacing: -.1px; }
+.aiGrid p { margin: 0; color: #606466; font-size: 16px; font-weight: 350; line-height: 24px; }
 
 .methods { display: flex; width: 100%; flex-direction: column; align-items: flex-start; justify-content: center; }
 .methods ul { width: 100%; margin: 0 0 16px; padding: 0; list-style: none; }
 .methodRow { position: relative; display: flex; width: 100%; align-items: flex-start; gap: 16px; padding: 20px 0; }
 .methodRow:nth-child(n + 2) { width: calc(100% - 16px); }
-.methodRow::after { position: absolute; right: -16px; bottom: 0; width: 508px; height: 1px; background: #e9eaeb; content: ""; }
+.methodRow::after { position: absolute; right: -16px; bottom: 0; width: 508px; height: 1px; background: #e2e5e7; content: ""; }
 .methodRow:first-child::after { right: 0; }
 .methodRow:last-child::after { display: none; }
-.methodRow .maskIcon { width: 32px; height: 32px; color: #4c5b67; }
+.methodRow .maskIcon { width: 32px; height: 32px; color: #909498; }
 .methodRow > span:last-child { display: flex; min-width: 0; flex: 1 1 0; flex-direction: column; gap: 4px; line-height: 20px; letter-spacing: -.1px; }
-.methodRow strong { color: #4c5b67; font-family: "Google Sans", sans-serif; font-size: 16px; font-weight: 500; }
-.methodRow small { color: #6a7985; font-size: 14px; }
-.moreTools { margin: 0; color: #aaacad; font-family: "Google Sans", sans-serif; font-size: 14px; line-height: 16px; letter-spacing: .14px; }
+.methodRow strong { color: #45494c; font-family: "Google Sans", sans-serif; font-size: 16px; font-weight: 500; }
+.methodRow small { color: #606466; font-size: 14px; }
+.moreTools { margin: 0; color: #acafb2; font-family: "Google Sans", sans-serif; font-size: 14px; line-height: 16px; }
 .analyticsMedia { display: flex; align-items: flex-start; justify-content: center; }
 .analyticsMedia img { width: 540px; height: 488px; object-fit: cover; }
-.designMedia { width: 553px; height: 378px; }
+.designMedia { width: 553px; height: 378px; margin-top: 20px; }
 .designMedia img { width: 553px; height: 378px; object-fit: cover; }
 .deliveryMedia { width: 503px; height: 302px; min-height: 0; }
 .deliveryMedia img { width: 100%; height: 100%; object-fit: cover; }
 .toolTags { display: flex; width: 100%; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
-.toolTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #e6e9ea; border-radius: 8px; background: #f6f8f8; color: #4d5962; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.6px; white-space: nowrap; }
+.toolTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #f0f1f2; border-radius: 8px; background: #f7f9fa; color: #606466; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.3px; white-space: nowrap; }
 
 .ai { width: 100%; padding: 80px 0; }
 .aiGrid { position: relative; display: grid; width: 100%; grid-template-columns: 1fr 1fr; align-items: flex-start; }
-.aiGrid::after { position: absolute; top: 48px; bottom: 48px; left: 50%; width: 1px; background: #ecedee; content: ""; }
-.aiGrid article { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 70px 70px 40px 40px; }
+.aiGrid::after { position: absolute; top: 44px; bottom: 0; left: 50%; width: 1px; background: #ecedee; content: ""; }
+.aiGrid article { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 68px 70px 40px 40px; }
 .aiGrid article + article { padding-right: 40px; padding-left: 70px; }
 .aiGrid article > div { display: flex; width: 100%; flex-direction: column; gap: 8px; }
-.aiFact { display: flex; align-items: center; gap: 20px; margin: 0 40px; padding: 16px 20px; overflow: hidden; border-radius: 12px; background: #f5f6f7; font-family: "Google Sans", sans-serif; }
+.aiFact { display: flex; align-items: flex-start; gap: 24px; margin: 0; padding: 48px 24px 0 32px; border-top: 1px solid #ecedee; font-family: "Google Sans", sans-serif; }
 .aiFactIcon {
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
   background: #218ee6;
-  -webkit-mask: url("/assets/homepage/ai-info.svg") center / 24px 24px no-repeat;
-  mask: url("/assets/homepage/ai-info.svg") center / 24px 24px no-repeat;
+  -webkit-mask: url("/assets/homepage/ai-info.svg") center / 32px 32px no-repeat;
+  mask: url("/assets/homepage/ai-info.svg") center / 32px 32px no-repeat;
 }
-.aiFact > div { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; white-space: nowrap; }
-.aiFact strong { color: #313a41; font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: .16px; }
-.aiFact span { color: #65717d; font-size: 14px; line-height: 16px; letter-spacing: .14px; }
+.aiFact > div { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; white-space: nowrap; }
+.aiFact strong { color: #45494c; font-size: 24px; font-weight: 500; line-height: 32px; letter-spacing: -.1px; }
+.aiFact span { color: #606466; font-size: 16px; line-height: 20px; }
 
 .resume { width: 100%; padding: 80px 0; }
 .resumeIntro { display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
