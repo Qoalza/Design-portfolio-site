@@ -139,19 +139,19 @@
   align-items: center;
 }
 
-.breadcrumbs { gap: 24px; }
+.breadcrumbs { gap: 16px; }
 
 .breadcrumbTrail {
   gap: 12px;
   font-family: "Google Sans", sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 20px;
-  letter-spacing: .2px;
+  line-height: 16px;
+  letter-spacing: 0;
 }
 
 .breadcrumbTrail a { text-decoration: none; }
-.breadcrumbTrail > span { color: #a7b1b8; }
+.breadcrumbTrail > span { color: #acafb2; }
 
 @media (prefers-reduced-motion: reduce) {
   .fixedHeader,

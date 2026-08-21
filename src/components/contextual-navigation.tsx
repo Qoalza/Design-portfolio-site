@@ -17,14 +17,14 @@ import {
 import {
   appendNavigationTrail,
   HOME_TRAIL_ITEM,
-  isNavigationTrail,
   navigationTrailsEqual,
+  readNavigationTrailFromHistoryState,
+  resolveNavigationTrailForRoute,
   trailEndsAtPathname,
   type NavigationTrailItem,
+  writeNavigationTrailToHistoryState,
 } from "../lib/navigation-trail";
 import { scrollToHash } from "./navigation-scroll-controller";
-
-const historyStateKey = "__portfolioNavigationTrail";
 
 export type NavigationPage = {
   item: NavigationTrailItem;
@@ -33,6 +33,7 @@ export type NavigationPage = {
 
 type NavigationContextValue = {
   trail: NavigationTrailItem[];
+  pendingTrail: NavigationTrailItem[] | null;
   activatePage: (page: NavigationPage) => void;
   prepareNavigation: (
     item: NavigationTrailItem,
@@ -41,32 +42,88 @@ type NavigationContextValue = {
 };
 
 const NavigationContext = createContext<NavigationContextValue | null>(null);
+const reloadTrailStorageKey = "portfolioNavigationTrailForReload";
 
-function readStoredTrail(state: unknown): NavigationTrailItem[] | null {
-  if (typeof state !== "object" || state === null || !(historyStateKey in state)) {
+function readReloadTrail(): NavigationTrailItem[] | null {
+  const navigationEntry = window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+
+  if (navigationEntry?.type !== "reload") {
     return null;
   }
 
-  const value = (state as Record<string, unknown>)[historyStateKey];
-  return isNavigationTrail(value) ? value : null;
+  try {
+    const value: unknown = JSON.parse(window.sessionStorage.getItem(reloadTrailStorageKey) ?? "null");
+    return Array.isArray(value) ? readNavigationTrailFromHistoryState({ __portfolioNavigationTrail: value }) : null;
+  } catch {
+    return null;
+  }
 }
 
 function storeTrail(trail: readonly NavigationTrailItem[]): void {
-  const currentState = typeof window.history.state === "object" && window.history.state !== null
-    ? window.history.state as Record<string, unknown>
-    : {};
+  window.history.replaceState(
+    writeNavigationTrailToHistoryState(window.history.state, trail),
+    "",
+  );
 
-  window.history.replaceState({
-    ...currentState,
-    [historyStateKey]: trail,
-  }, "");
+  try {
+    window.sessionStorage.setItem(reloadTrailStorageKey, JSON.stringify(trail));
+  } catch {
+    // History state remains the primary source when session storage is unavailable.
+  }
 }
 
 export function NavigationTrailProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [trail, setTrail] = useState<NavigationTrailItem[]>([]);
+  const [pendingTrail, setPendingTrail] = useState<NavigationTrailItem[] | null>(null);
   const trailRef = useRef<NavigationTrailItem[]>([]);
   const pendingTrailRef = useRef<NavigationTrailItem[] | null>(null);
+
+  useLayoutEffect(() => {
+    const originalPushState = window.history.pushState.bind(window.history);
+    const originalReplaceState = window.history.replaceState.bind(window.history);
+
+    function trailForDestination(url?: string | URL | null): NavigationTrailItem[] | null {
+      const destinationPathname = new URL(url ?? window.location.href, window.location.href).pathname;
+      const pending = pendingTrailRef.current;
+
+      if (pending && trailEndsAtPathname(pending, destinationPathname)) {
+        return pending;
+      }
+
+      const stored = readNavigationTrailFromHistoryState(window.history.state);
+      return stored && trailEndsAtPathname(stored, destinationPathname) ? stored : null;
+    }
+
+    const pushState: History["pushState"] = (data, unused, url) => {
+      const destinationTrail = trailForDestination(url);
+      originalPushState(
+        destinationTrail ? writeNavigationTrailToHistoryState(data, destinationTrail) : data,
+        unused,
+        url,
+      );
+    };
+    const replaceState: History["replaceState"] = (data, unused, url) => {
+      const destinationTrail = trailForDestination(url);
+      originalReplaceState(
+        destinationTrail ? writeNavigationTrailToHistoryState(data, destinationTrail) : data,
+        unused,
+        url,
+      );
+    };
+
+    window.history.pushState = pushState;
+    window.history.replaceState = replaceState;
+
+    return () => {
+      if (window.history.pushState === pushState) {
+        window.history.pushState = originalPushState;
+      }
+      if (window.history.replaceState === replaceState) {
+        window.history.replaceState = originalReplaceState;
+      }
+    };
+  }, []);
 
   const updateTrail = useCallback((nextTrail: readonly NavigationTrailItem[]) => {
     const copiedTrail = [...nextTrail];
@@ -79,14 +136,16 @@ export function NavigationTrailProvider({ children }: { children: ReactNode }) {
   const activatePage = useCallback((page: NavigationPage) => {
     const currentPathname = window.location.pathname;
     const pendingTrail = pendingTrailRef.current;
-    const storedTrail = readStoredTrail(window.history.state);
-    const nextTrail = pendingTrail && trailEndsAtPathname(pendingTrail, currentPathname)
-      ? pendingTrail
-      : storedTrail && trailEndsAtPathname(storedTrail, currentPathname)
-        ? storedTrail
-        : page.canonicalTrail;
+    const storedTrail = readNavigationTrailFromHistoryState(window.history.state) ?? readReloadTrail();
+    const nextTrail = resolveNavigationTrailForRoute({
+      pathname: currentPathname,
+      pendingTrail,
+      storedTrail,
+      canonicalTrail: page.canonicalTrail,
+    });
 
     pendingTrailRef.current = null;
+    setPendingTrail(null);
     updateTrail(nextTrail);
     storeTrail(nextTrail);
   }, [updateTrail]);
@@ -101,35 +160,52 @@ export function NavigationTrailProvider({ children }: { children: ReactNode }) {
       : appendNavigationTrail(currentTrail, item);
 
     pendingTrailRef.current = nextTrail;
-    updateTrail(nextTrail);
-  }, [updateTrail]);
+    setPendingTrail(nextTrail);
+  }, []);
 
   useLayoutEffect(() => {
     const pendingTrail = pendingTrailRef.current;
-    const storedTrail = readStoredTrail(window.history.state);
-    const nextTrail = pendingTrail && trailEndsAtPathname(pendingTrail, pathname)
-      ? pendingTrail
-      : storedTrail && trailEndsAtPathname(storedTrail, pathname)
-        ? storedTrail
-        : null;
+    const storedTrail = readNavigationTrailFromHistoryState(window.history.state);
 
-    if (nextTrail) {
-      pendingTrailRef.current = null;
-      updateTrail(nextTrail);
-      storeTrail(nextTrail);
+    if (!pendingTrail && !storedTrail) {
+      return;
     }
+
+    const nextTrail = resolveNavigationTrailForRoute({
+      pathname,
+      pendingTrail,
+      storedTrail,
+      canonicalTrail: [],
+    });
+
+    if (nextTrail.length === 0 || !trailEndsAtPathname(nextTrail, pathname)) {
+      return;
+    }
+
+    pendingTrailRef.current = null;
+    updateTrail(nextTrail);
+    storeTrail(nextTrail);
   }, [pathname, updateTrail]);
 
   useLayoutEffect(() => {
     function handlePopState(event: PopStateEvent): void {
       pendingTrailRef.current = null;
-      const storedTrail = readStoredTrail(event.state);
+      setPendingTrail(null);
+      const storedTrail = readNavigationTrailFromHistoryState(event.state);
 
       updateTrail(
         storedTrail && trailEndsAtPathname(storedTrail, window.location.pathname)
           ? storedTrail
           : [],
       );
+
+      if (storedTrail && trailEndsAtPathname(storedTrail, window.location.pathname)) {
+        try {
+          window.sessionStorage.setItem(reloadTrailStorageKey, JSON.stringify(storedTrail));
+        } catch {
+          // The history entry still restores correctly without the reload fallback.
+        }
+      }
     }
 
     window.addEventListener("popstate", handlePopState);
@@ -138,9 +214,10 @@ export function NavigationTrailProvider({ children }: { children: ReactNode }) {
 
   const contextValue = useMemo<NavigationContextValue>(() => ({
     trail,
+    pendingTrail,
     activatePage,
     prepareNavigation,
-  }), [activatePage, prepareNavigation, trail]);
+  }), [activatePage, pendingTrail, prepareNavigation, trail]);
 
   return <NavigationContext.Provider value={contextValue}>{children}</NavigationContext.Provider>;
 }
@@ -158,9 +235,17 @@ export function useNavigationTrail(page: NavigationPage): NavigationTrailItem[] 
     activatePage(page);
   }, [activatePage, page]);
 
-  return trailEndsAtPathname(context.trail, new URL(page.item.href, "https://portfolio.local").pathname)
-    ? context.trail
-    : page.canonicalTrail;
+  const pagePathname = new URL(page.item.href, "https://portfolio.local").pathname;
+
+  if (trailEndsAtPathname(context.trail, pagePathname)) {
+    return context.trail;
+  }
+
+  if (context.pendingTrail && trailEndsAtPathname(context.pendingTrail, pagePathname)) {
+    return context.pendingTrail;
+  }
+
+  return page.canonicalTrail;
 }
 
 type ContextLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
