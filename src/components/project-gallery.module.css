@@ -17,18 +17,16 @@
 
 .viewport {
   width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+  overflow: hidden;
 }
-
-.viewport::-webkit-scrollbar { display: none; }
 
 .track {
   display: flex;
   width: max-content;
   padding: 0 0 48px 56px;
+  transform: translateX(calc(var(--gallery-index) * -744px));
+  transition: transform 250ms cubic-bezier(.42, 0, .58, 1);
+  will-change: transform;
 }
 
 .slide {
@@ -38,7 +36,6 @@
   margin: 0;
   overflow: hidden;
   border-radius: 8px;
-  scroll-snap-align: start;
 }
 
 .slide + .slide { margin-left: 24px; }
@@ -70,6 +67,6 @@
 .arrowPlaceholder { width: 32px; height: 32px; flex: 0 0 32px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .viewport { scroll-behavior: auto; }
+  .track,
   .edgeFade { transition-duration: .01ms; }
 }

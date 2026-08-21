@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { getGalleryTarget, type StepDirection } from "../lib/main-chapter-interactions";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
 import { ControlButton } from "./ui-controls";
@@ -20,7 +20,6 @@ type ProjectGalleryProps = {
 };
 
 export function ProjectGallery({ items, variant = "standard" }: ProjectGalleryProps) {
-  const viewportRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const itemCount = items.length;
   const previous = getGalleryTarget(activeIndex, -1, itemCount);
@@ -38,11 +37,11 @@ export function ProjectGallery({ items, variant = "standard" }: ProjectGalleryPr
     }
 
     setActiveIndex(target.index);
-    viewportRef.current?.scrollTo({
-      left: target.index * viewportRef.current.clientWidth,
-      behavior: "smooth",
-    });
   };
+
+  const trackStyle = {
+    "--gallery-index": activeIndex,
+  } as CSSProperties;
 
   return (
     <div className={`${styles.gallery} ${styles[variant]}`} data-gallery-count={itemCount} data-gallery-index={activeIndex}>
@@ -70,17 +69,8 @@ export function ProjectGallery({ items, variant = "standard" }: ProjectGalleryPr
           ) : <span className={styles.arrowPlaceholder} aria-hidden="true" />}
         </div>
       ) : null}
-      <div
-        ref={viewportRef}
-        className={styles.viewport}
-        onScroll={(event) => {
-          const width = event.currentTarget.clientWidth;
-          if (width > 0) {
-            setActiveIndex(Math.round(event.currentTarget.scrollLeft / width));
-          }
-        }}
-      >
-        <div className={styles.track}>
+      <div className={styles.viewport}>
+        <div className={styles.track} style={trackStyle}>
           {items.map((item, index) => (
             <figure className={styles.slide} key={`${item.src}-${index}`}>
               <ProjectMediaLightbox {...item} />
