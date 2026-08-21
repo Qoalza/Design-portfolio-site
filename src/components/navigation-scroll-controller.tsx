@@ -36,6 +36,13 @@ function scrollToHashInstantly(hash: string): void {
   root.style.scrollBehavior = previousScrollBehavior;
 }
 
+export function scrollToHash(hash: string): void {
+  const targetId = decodeURIComponent(hash.slice(1));
+  const target = document.getElementById(targetId) ?? document.getElementsByName(targetId)[0];
+
+  target?.scrollIntoView();
+}
+
 export function NavigationScrollController() {
   const pathname = usePathname();
   const previousPathnameRef = useRef<string | null>(null);
@@ -46,16 +53,29 @@ export function NavigationScrollController() {
     function handlePopState(): void {
       const { hash } = window.location;
 
-      if (!hash) {
-        scrollToTopInstantly();
+      if (hash) {
+        scrollToHash(hash);
+        return;
+      }
+
+      scrollToTopInstantly();
+    }
+
+    function handleHashChange(): void {
+      const { hash } = window.location;
+
+      if (hash) {
+        scrollToHash(hash);
       }
     }
 
     window.history.scrollRestoration = "manual";
     window.addEventListener("popstate", handlePopState);
+    window.addEventListener("hashchange", handleHashChange);
 
     return () => {
       window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("hashchange", handleHashChange);
       window.history.scrollRestoration = previousScrollRestoration;
     };
   }, []);

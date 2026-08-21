@@ -22,6 +22,7 @@ import {
   trailEndsAtPathname,
   type NavigationTrailItem,
 } from "../lib/navigation-trail";
+import { scrollToHash } from "./navigation-scroll-controller";
 
 const historyStateKey = "__portfolioNavigationTrail";
 
@@ -205,6 +206,23 @@ export function ContextLink({
       || event.shiftKey
       || event.altKey
     ) {
+      return;
+    }
+
+    const destination = new URL(href, window.location.href);
+
+    if (destination.pathname === window.location.pathname && destination.hash) {
+      event.preventDefault();
+
+      if (destination.href !== window.location.href) {
+        const currentState = typeof window.history.state === "object" && window.history.state !== null
+          ? window.history.state as Record<string, unknown>
+          : {};
+
+        window.history.pushState({ ...currentState }, "", destination.href);
+      }
+
+      scrollToHash(destination.hash);
       return;
     }
 
