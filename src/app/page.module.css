@@ -249,7 +249,7 @@
 .projectDivider {
   position: relative;
   width: 100%;
-  height: 0;
+  height: 1px;
 }
 
 .projectDivider::after {
