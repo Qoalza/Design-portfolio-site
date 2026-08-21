@@ -211,7 +211,12 @@ export function ContextLink({
 
     const destination = new URL(href, window.location.href);
 
-    if (destination.pathname === window.location.pathname && destination.hash) {
+    if (
+      destination.origin === window.location.origin
+      && destination.pathname === window.location.pathname
+      && destination.search === window.location.search
+      && destination.hash
+    ) {
       event.preventDefault();
 
       if (destination.href !== window.location.href) {
