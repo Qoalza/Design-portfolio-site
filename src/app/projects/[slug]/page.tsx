@@ -5,18 +5,14 @@ import { notFound } from "next/navigation";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectActionBar } from "../../../components/project-action-bar";
+import { ProjectGallery } from "../../../components/project-gallery";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
+import { ProjectPlatforms } from "../../../components/project-platforms";
 import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
-import { getAllProjects, getProjectBySlug, type ProjectPlatform } from "../../../lib/projects";
+import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
 import { HOME_TRAIL_ITEM } from "../../../lib/navigation-trail";
 import styles from "./page.module.css";
-
-const platformIconClass: Record<ProjectPlatform, string> = {
-  Desktop: styles.desktopIcon,
-  Tablet: styles.tabletIcon,
-  Mobile: styles.mobileIcon,
-};
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -26,19 +22,6 @@ type ProjectSectionProps = {
   children: ReactNode;
 };
 
-type ProjectMediaProps = {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-  caption?: string;
-  variant?: "standard" | "flow" | "result";
-};
-
-function MaskIcon({ className = "" }: { className?: string }) {
-  return <span aria-hidden="true" className={`${styles.maskIcon} ${className}`} />;
-}
-
 function ProjectSection({ children }: ProjectSectionProps) {
   return <section className={styles.contentSection}>{children}</section>;
 }
@@ -47,24 +30,24 @@ function ProjectDivider() {
   return <hr className={styles.contentDivider} />;
 }
 
-function ProjectMedia({
-  src,
-  alt,
-  width,
-  height,
-  caption,
-  variant = "standard",
-}: ProjectMediaProps) {
-  return (
-    <figure className={`${styles.projectMedia} ${styles[variant]}`}>
-      <ProjectMediaLightbox src={src} alt={alt} width={width} height={height} />
-      {caption ? <figcaption>{caption}</figcaption> : null}
-    </figure>
-  );
+function getHeadingId(label: string): string {
+  return label
+    .toLocaleLowerCase("ru")
+    .replace(/ё/g, "е")
+    .replace(/[^a-zа-я0-9]+/gi, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function MdxHeading({ children, ...props }: ComponentPropsWithoutRef<"h2">) {
-  return <h2 {...props}>{children}</h2>;
+  const label = typeof children === "string" ? children : "section";
+  return <h2 id={getHeadingId(label)} {...props}>{children}</h2>;
+}
+
+function getProjectSections(content: string): Array<{ id: string; label: string }> {
+  return [...content.matchAll(/^##\s+(.+)$/gm)].map((match) => ({
+    id: getHeadingId(match[1].trim()),
+    label: match[1].trim(),
+  }));
 }
 
 export function generateStaticParams() {
@@ -108,6 +91,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   ].filter((value): value is string => Boolean(value));
   const projectsTrailItem = { href: "/projects", label: "Работы" };
   const projectTrailItem = { href: `/projects/${project.slug}`, label: project.title };
+  const projectSections = getProjectSections(project.content);
+  const hasHeroImage = Boolean(
+    project.heroImage
+    && project.heroImageAlt
+    && project.heroImageWidth
+    && project.heroImageHeight,
+  );
 
   return (
     <div className={styles.page}>
@@ -128,14 +118,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </div>
             {project.subtitle ? <p className={styles.projectSubtitle}>{project.subtitle}</p> : null}
             {project.platforms?.length ? (
-              <ul className={styles.platforms} aria-label="Платформы">
-                {project.platforms.map((platform) => (
-                  <li key={platform}>
-                    <MaskIcon className={platformIconClass[platform]} />
-                    {platform}
-                  </li>
-                ))}
-              </ul>
+              <div className={styles.heroPlatforms}><ProjectPlatforms platforms={project.platforms} /></div>
             ) : null}
             <ul className={styles.projectLabels} aria-label="Характеристики проекта">
               {projectLabels.map((label, index) => (
@@ -148,16 +131,42 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </ul>
           </header>
 
-          <article className={styles.projectArticle}>
-            <ProjectContent
-              components={{
-                ProjectDivider,
-                ProjectMedia,
-                ProjectSection,
-                h2: MdxHeading,
-              }}
-            />
-          </article>
+          {hasHeroImage ? (
+            <div className={styles.heroPreview}>
+              <div className={styles.heroPreviewImage}>
+                <ProjectMediaLightbox
+                  src={project.heroImage!}
+                  alt={project.heroImageAlt!}
+                  width={project.heroImageWidth!}
+                  height={project.heroImageHeight!}
+                  priority
+                  sizes="1088px"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <div className={styles.projectInformation} data-project-information-start>
+            <nav className={styles.projectNavigation} aria-label="Разделы проекта">
+              {projectSections.map((section, index) => (
+                <a className={index === 0 ? styles.activeNavigationItem : ""} href={`#${section.id}`} key={section.id}>
+                  <span aria-hidden="true" />
+                  {section.label}
+                </a>
+              ))}
+            </nav>
+
+            <article className={styles.projectArticle}>
+              <ProjectContent
+                components={{
+                  ProjectDivider,
+                  ProjectGallery,
+                  ProjectSection,
+                  h2: MdxHeading,
+                }}
+              />
+            </article>
+          </div>
 
           <ProjectActionBar
             title={project.title}
@@ -167,7 +176,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           />
         </main>
 
-        <SiteFooter />
+        <div data-project-footer><SiteFooter /></div>
       </div>
     </div>
   );

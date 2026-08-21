@@ -3,6 +3,7 @@ import { ContextLink } from "../components/contextual-navigation";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { ProjectPlatforms } from "../components/project-platforms";
+import { ProcessStepper } from "../components/process-stepper";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
 import styles from "./page.module.css";
 
@@ -170,18 +171,6 @@ function ProjectTags({ tags }: { tags: string[] }) {
   );
 }
 
-function Timeline({ number, tone }: { number: string; tone: "blue" | "orange" | "green" }) {
-  return (
-    <div className={`${styles.timeline} ${styles[`${tone}Timeline`]}`} aria-hidden="true">
-      <span className={styles.timelineLead} />
-      <span className={styles.timelineDot} />
-      <span className={styles.timelineNumberLine} />
-      <span className={styles.timelineNumber}>{number}</span>
-      <span className={styles.timelineTail} />
-    </div>
-  );
-}
-
 function MethodRow({ iconClass, title, children }: { iconClass: string; title: string; children: React.ReactNode }) {
   return (
     <li className={styles.methodRow}>
@@ -286,11 +275,10 @@ export default function Home() {
               <p>Сначала разбираюсь в продукте, бизнесе и самой задаче. Затем выбираю подходящие методы, собираю решение в систему и довожу его до продакшена.</p>
             </SectionHeading>
 
-            <div className={styles.processRows}>
+            <ProcessStepper>
               <article className={`${styles.processRow} ${styles.analyticsRow}`}>
-                <Timeline number="01" tone="blue" />
                 <div className={styles.processCopy}>
-                  <span className={`${styles.processBadge} ${styles.analyticsBadge}`}>Аналитика</span>
+                  <span className={styles.processEyebrow}><b>01</b>Аналитика</span>
                   <div className={styles.processDescription}>
                     <h3>Погружаюсь в задачу и выбираю подход</h3>
                     <p>Изучаю требования и входящие данные, исследую рынок, конкурентов и процессы пользователей. Затем выбираю только те методы, которые требуются и/или есть запрос бизнеса в конкретной задаче.</p>
@@ -313,9 +301,8 @@ export default function Home() {
                 <div className={styles.designMedia}>
                   <Image src={`${assetRoot}/process-prototype.png`} alt="Схема проектирования интерфейса" width={3128} height={2166} />
                 </div>
-                <Timeline number="02" tone="orange" />
                 <div className={styles.processCopy}>
-                  <span className={`${styles.processBadge} ${styles.designBadge}`}>Проектирование</span>
+                  <span className={styles.processEyebrow}><b>02</b>Проектирование</span>
                   <div className={styles.processDescription}>
                     <h3>Собираю решение в систему</h3>
                     <p>Когда задача и подход определены, перевожу решение в макеты и техническую основу продукта: создаю компоненты, состояния и токены, описываю гайдлайны и выстраиваю понятную структуру больших файлов</p>
@@ -325,9 +312,8 @@ export default function Home() {
               </article>
 
               <article className={`${styles.processRow} ${styles.deliveryRow}`}>
-                <Timeline number="03" tone="green" />
                 <div className={styles.processCopy}>
-                  <span className={`${styles.processBadge} ${styles.deliveryBadge}`}>Финал</span>
+                  <span className={styles.processEyebrow}><b>03</b>Финал</span>
                   <div className={styles.processDescription}>
                     <h3>Довожу решения до продакшена</h3>
                     <p>Работаю вместе с аналитиками, разработчиками и QA: уточняю логику, готовлю макеты к передаче, провожу дизайн-ревью и выстраиваю процессы так, чтобы между дизайном и готовым продуктом ничего не потерялось</p>
@@ -337,7 +323,7 @@ export default function Home() {
                   <Image src={`${assetRoot}/process-delivery.png`} alt="Схема передачи готового решения в разработку" width={3138} height={1944} />
                 </div>
               </article>
-            </div>
+            </ProcessStepper>
           </section>
 
           <section className={styles.ai} aria-labelledby="ai-title">

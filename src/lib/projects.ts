@@ -20,6 +20,10 @@ export type Project = {
   figmaAvailable: boolean;
   figmaUrl?: string;
   logo?: string;
+  heroImage?: string;
+  heroImageAlt?: string;
+  heroImageWidth?: number;
+  heroImageHeight?: number;
   workSummary?: string;
   catalogRole?: string;
   catalogVisible: boolean;
@@ -111,6 +115,18 @@ function readOptionalBoolean(value: unknown, field: "catalogVisible" | "detailAv
   return value;
 }
 
+function readOptionalPositiveInteger(value: unknown, field: "heroImageWidth" | "heroImageHeight"): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+    throw new Error(`Project frontmatter field "${field}" must be a positive integer when provided.`);
+  }
+
+  return value;
+}
+
 function readProject(fileName: string): ProjectWithContent {
   const filePath = path.join(projectsDirectory, fileName);
   const { content, data } = matter(readFileSync(filePath, "utf8"));
@@ -122,9 +138,18 @@ function readProject(fileName: string): ProjectWithContent {
   const updatedAt = readOptionalString(data.updatedAt, "updatedAt");
   const figmaAvailable = readFigmaAvailability(data.figmaAvailable);
   const figmaUrl = readOptionalString(data.figmaUrl, "figmaUrl");
+  const heroImage = readOptionalString(data.heroImage, "heroImage");
+  const heroImageAlt = readOptionalString(data.heroImageAlt, "heroImageAlt");
+  const heroImageWidth = readOptionalPositiveInteger(data.heroImageWidth, "heroImageWidth");
+  const heroImageHeight = readOptionalPositiveInteger(data.heroImageHeight, "heroImageHeight");
 
   if (figmaAvailable && (!figmaUrl || !updatedAt)) {
     throw new Error(`Project frontmatter in "${fileName}" must provide "figmaUrl" and "updatedAt" when "figmaAvailable" is true.`);
+  }
+
+  if ([heroImage, heroImageAlt, heroImageWidth, heroImageHeight].some(Boolean)
+    && ![heroImage, heroImageAlt, heroImageWidth, heroImageHeight].every(Boolean)) {
+    throw new Error(`Project frontmatter in "${fileName}" must provide the complete hero image metadata.`);
   }
 
   return {
@@ -143,6 +168,10 @@ function readProject(fileName: string): ProjectWithContent {
     figmaAvailable,
     figmaUrl,
     logo: readOptionalString(data.logo, "logo"),
+    heroImage,
+    heroImageAlt,
+    heroImageWidth,
+    heroImageHeight,
     workSummary: readOptionalString(data.workSummary, "workSummary"),
     catalogRole: readOptionalString(data.catalogRole, "catalogRole"),
     catalogVisible: readOptionalBoolean(data.catalogVisible, "catalogVisible", true),
@@ -173,6 +202,10 @@ function withoutContent(project: ProjectWithContent): Project {
     figmaAvailable: project.figmaAvailable,
     figmaUrl: project.figmaUrl,
     logo: project.logo,
+    heroImage: project.heroImage,
+    heroImageAlt: project.heroImageAlt,
+    heroImageWidth: project.heroImageWidth,
+    heroImageHeight: project.heroImageHeight,
     workSummary: project.workSummary,
     catalogRole: project.catalogRole,
     catalogVisible: project.catalogVisible,

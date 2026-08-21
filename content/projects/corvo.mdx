@@ -20,6 +20,10 @@ platforms:
 visibility: "Показан частично"
 ndaNote: "UI изменен под NDA"
 logo: "/assets/projects/corvo/logo.svg"
+heroImage: "/assets/projects/corvo/hero-preview.png"
+heroImageAlt: "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний"
+heroImageWidth: 2960
+heroImageHeight: 2400
 figmaUrl: "https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1"
 tags:
   - "B2B"
@@ -37,12 +41,14 @@ Corvo — B2B SaaS-платформа для управления партнёр
 
 Моя роль — ключевой продуктовый дизайнер. Я участвовал в создании продукта с нуля: от анализа требований и построения пользовательских сценариев до готовых интерфейсов, дизайн-системы и передачи решений в разработку.
 
-<ProjectMedia
-  src="/assets/projects/corvo/overview.png"
-  alt="Обзор интерфейса Corvo со статистикой партнёрской программы"
-  width={2960}
-  height={1920}
-/>
+<ProjectGallery items={[
+  {
+    src: "/assets/projects/corvo/overview.png",
+    alt: "Обзор интерфейса Corvo со статистикой партнёрской программы",
+    width: 2960,
+    height: 1920,
+  },
+]} />
 
 </ProjectSection>
 
@@ -67,22 +73,21 @@ Corvo — B2B SaaS-платформа для управления партнёр
 
 Я анализировал требования руководителя проекта и бизнес-аналитика, находил противоречия и переводил бизнес-логику в структуру продукта и понятные пользовательские сценарии.
 
-Основной путь был собран в единый цикл:
-
-<ProjectMedia
-  src="/assets/projects/corvo/process-flow.png"
-  alt="Схема пути от регистрации партнёра до анализа результатов"
-  width={1960}
-  height={546}
-  variant="flow"
-/>
-
-<ProjectMedia
-  src="/assets/projects/corvo/process-interface.png"
-  alt="Интерфейс рассмотрения заявки партнёра в Corvo"
-  width={2960}
-  height={1920}
-/>
+<ProjectGallery items={[
+  {
+    src: "/assets/projects/corvo/process-interface.png",
+    alt: "Интерфейс рассмотрения заявки партнёра в Corvo",
+    width: 2960,
+    height: 1920,
+  },
+  {
+    src: "/assets/projects/corvo/process-flow.png",
+    alt: "Схема пути от регистрации партнёра до анализа результатов",
+    width: 1960,
+    height: 546,
+    fit: "contain",
+  },
+]} />
 
 </ProjectSection>
 
@@ -103,12 +108,13 @@ Corvo — B2B SaaS-платформа для управления партнёр
 
 Подтверждённых количественных метрик по проекту нет, поэтому результат показывается через масштаб спроектированной системы, закрытые продуктовые процессы и готовые интерфейсы по ссылке в Figma.
 
-<ProjectMedia
-  src="/assets/projects/corvo/result-interface.png"
-  alt="Финальный интерфейс статистики рекламных кампаний Corvo"
-  width={2960}
-  height={2278}
-  variant="result"
-/>
+<ProjectGallery items={[
+  {
+    src: "/assets/projects/corvo/result-interface.png",
+    alt: "Финальный интерфейс статистики рекламных кампаний Corvo",
+    width: 2960,
+    height: 2278,
+  },
+]} variant="result" />
 
 </ProjectSection>

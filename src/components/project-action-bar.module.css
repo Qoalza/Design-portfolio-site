@@ -1,66 +1,38 @@
-.inlineBar {
-  width: 760px;
-}
-
-.inlineBar .bar {
-  border: 1px solid #edf0f2;
-}
-
-.floatingBar {
+.actionBar {
   position: fixed;
   z-index: 50;
-  bottom: 44px;
-  left: calc(50% - 600px);
-  width: 760px;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(calc(100% + 100px));
-  transition:
-    transform 300ms ease-in,
-    visibility 0s linear 300ms;
-}
-
-.floatingBarVisible {
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateY(0);
-  transition:
-    transform 300ms ease-out,
-    visibility 0s linear 0s;
-}
-
-.bar {
   display: flex;
-  width: 760px;
-  height: 72px;
+  height: 88px;
   align-items: center;
-  gap: 4px;
+  gap: 16px;
   overflow: hidden;
-  padding: 16px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 4px 50px -20px rgba(31, 42, 51, .3);
+  padding: 24px;
+  border-top: 1px solid #e2e5e7;
+  background: #fcfcfd;
+  transition:
+    left 250ms ease,
+    width 250ms ease,
+    bottom 250ms ease;
 }
 
-.inlineBar .bar { box-shadow: none; }
+.full { left: calc(50% - 600px); width: 1200px; }
+.adaptive { left: calc(50% - 400px); width: 1000px; }
 
-.availableContent,
-.unavailableContent {
+.leadingContent {
   display: flex;
   min-width: 0;
   flex: 1 1 0;
   align-items: center;
+  gap: 16px;
 }
 
-.availableContent { gap: 16px; }
-
 .unavailableContent {
-  height: 40px;
+  display: flex;
+  min-width: 0;
+  align-items: center;
   gap: 8px;
   overflow: hidden;
-  padding: 4px 16px;
-  border-radius: 8px;
-  color: #8b9094;
+  color: #909498;
   font-family: "Google Sans", sans-serif;
   font-size: 14px;
   line-height: 16px;
@@ -83,52 +55,36 @@
   white-space: nowrap;
 }
 
-.figmaLink {
-  gap: 8px;
-  overflow: hidden;
-  background: #313940;
-  color: #fff;
-  letter-spacing: .2px;
-  text-decoration: none;
-}
-
-.shareButton {
-  flex: 0 0 auto;
-  background: #f5f6f7;
-  color: #4f4f4f;
-  cursor: pointer;
-  letter-spacing: .14px;
-}
+.figmaLink { gap: 8px; background: #45494c; color: #fff; text-decoration: none; }
+.shareButton { flex: 0 0 auto; background: #f5f6f7; color: #606466; cursor: pointer; }
 
 .updatedAt {
-  color: #8b8c8d;
+  color: #909498;
   font-family: "Source Code Pro", monospace;
   font-size: 14px;
   line-height: 16px;
-  letter-spacing: -.2px;
+  letter-spacing: -.5px;
   white-space: nowrap;
 }
 
 .icon {
   display: block;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
   background: currentColor;
   -webkit-mask-position: center;
   -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: 16px 16px;
+  -webkit-mask-size: 20px 20px;
   mask-position: center;
   mask-repeat: no-repeat;
-  mask-size: 16px 16px;
+  mask-size: 20px 20px;
 }
 
 .externalIcon { -webkit-mask-image: url("/assets/projects/external-link.svg"); mask-image: url("/assets/projects/external-link.svg"); }
 .infoIcon { -webkit-mask-image: url("/assets/projects/info.svg"); mask-image: url("/assets/projects/info.svg"); }
+.actionBarSpace { height: 88px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .floatingBar,
-  .floatingBarVisible {
-    transition-duration: 0.01ms;
-  }
+  .actionBar { transition-duration: .01ms; }
 }
