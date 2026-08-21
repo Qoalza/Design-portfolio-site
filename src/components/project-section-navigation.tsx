@@ -14,24 +14,32 @@ type ProjectSectionNavigationProps = {
   activeItemClassName: string;
 };
 
-const sectionActivationTop = 156;
-
 export function ProjectSectionNavigation({
   sections,
   className,
   activeItemClassName,
 }: ProjectSectionNavigationProps) {
   const frameRef = useRef<number | null>(null);
+  const navigationRef = useRef<HTMLElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [stickyTop, setStickyTop] = useState(160);
 
   useEffect(() => {
     const update = () => {
       frameRef.current = null;
+      const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
+      const measuredHeaderHeight = fixedHeader?.getBoundingClientRect().height ?? 0;
+      const activationTop = Math.max(0, fixedHeader?.getBoundingClientRect().bottom ?? measuredHeaderHeight);
       const sectionTops = sections.map((section) => (
         document.getElementById(section.id)?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
       ));
 
-      setActiveIndex(getActiveProjectSectionIndex(sectionTops, sectionActivationTop));
+      setStickyTop(measuredHeaderHeight);
+      navigationRef.current?.parentElement?.style.setProperty(
+        "--project-fixed-stack-height",
+        `${measuredHeaderHeight}px`,
+      );
+      setActiveIndex(getActiveProjectSectionIndex(sectionTops, activationTop));
     };
 
     const scheduleUpdate = () => {
@@ -41,12 +49,18 @@ export function ProjectSectionNavigation({
     };
 
     update();
+    const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    if (fixedHeader) {
+      resizeObserver.observe(fixedHeader);
+    }
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
+      resizeObserver.disconnect();
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
       }
@@ -54,7 +68,7 @@ export function ProjectSectionNavigation({
   }, [sections]);
 
   return (
-    <nav className={className} aria-label="Разделы проекта">
+    <nav ref={navigationRef} className={className} aria-label="Разделы проекта" style={{ top: stickyTop }}>
       {sections.map((section, index) => (
         <a
           className={index === activeIndex ? activeItemClassName : undefined}

@@ -20,6 +20,14 @@ test("project navigation has a stable fallback for empty and invalid section lis
   assert.equal(getActiveProjectSectionIndex([Number.NaN, 220], 156), 0);
 });
 
+test("project navigation measures the shared header stack instead of a fixed activation constant", () => {
+  const source = readFileSync(new URL("../src/components/project-section-navigation.tsx", import.meta.url), "utf8");
+
+  assert.doesNotMatch(source, /sectionActivationTop\s*=\s*\d/);
+  assert.match(source, /data-site-header-fixed/);
+  assert.match(source, /ResizeObserver/);
+});
+
 test("process stepper advances exactly one step from an arrow action", () => {
   assert.deepEqual(getProcessStepTarget(0, 1, 3), { consumed: true, index: 1 });
   assert.deepEqual(getProcessStepTarget(1, 1, 3), { consumed: true, index: 2 });
