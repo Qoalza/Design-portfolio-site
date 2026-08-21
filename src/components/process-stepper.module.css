@@ -6,7 +6,6 @@
   overflow: hidden;
   border: 1px solid #e2e5e7;
   background: #f5f6f7;
-  overscroll-behavior: contain;
 }
 
 .track {

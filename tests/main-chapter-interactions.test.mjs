@@ -1,11 +1,10 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   getActionBarVariant,
   getActiveProjectSectionIndex,
   getGalleryTarget,
-  isProcessViewportActive,
-  getProcessWheelDecision,
   getProcessStepTarget,
 } from "../src/lib/main-chapter-interactions.ts";
 
@@ -21,20 +20,7 @@ test("project navigation has a stable fallback for empty and invalid section lis
   assert.equal(getActiveProjectSectionIndex([Number.NaN, 220], 156), 0);
 });
 
-test("process stepper activates from section visibility rather than pointer position", () => {
-  assert.equal(isProcessViewportActive(248, 856, 900), true);
-  assert.equal(isProcessViewportActive(500, 1108, 900), false);
-  assert.equal(isProcessViewportActive(-76, 532, 900), true);
-  assert.equal(isProcessViewportActive(-220, 388, 900), false);
-});
-
-test("process viewport activation handles compact viewports and invalid geometry", () => {
-  assert.equal(isProcessViewportActive(120, 728, 720), true);
-  assert.equal(isProcessViewportActive(720, 720, 720), false);
-  assert.equal(isProcessViewportActive(0, 608, 0), false);
-});
-
-test("process stepper consumes one forward gesture and advances exactly one step", () => {
+test("process stepper advances exactly one step from an arrow action", () => {
   assert.deepEqual(getProcessStepTarget(0, 1, 3), { consumed: true, index: 1 });
   assert.deepEqual(getProcessStepTarget(1, 1, 3), { consumed: true, index: 2 });
 });
@@ -48,17 +34,11 @@ test("process stepper supports the reverse direction without skipping", () => {
   assert.deepEqual(getProcessStepTarget(2, -1, 3), { consumed: true, index: 1 });
 });
 
-test("process stepper keeps residual deltas of a captured gesture away from page scroll", () => {
-  assert.deepEqual(getProcessWheelDecision(2, 1, 3, true), {
-    consumed: true,
-    index: 2,
-    shouldAdvance: false,
-  });
-  assert.deepEqual(getProcessWheelDecision(2, 1, 3, false), {
-    consumed: false,
-    index: 2,
-    shouldAdvance: false,
-  });
+test("process stepper never captures wheel or trackpad scrolling", () => {
+  const source = readFileSync(new URL("../src/components/process-stepper.tsx", import.meta.url), "utf8");
+
+  assert.doesNotMatch(source, /addEventListener\(["']wheel["']/);
+  assert.doesNotMatch(source, /preventDefault\(\)/);
 });
 
 test("gallery navigation is non-looping and hides unavailable directions", () => {
