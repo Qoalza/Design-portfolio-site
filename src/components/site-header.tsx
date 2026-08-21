@@ -133,6 +133,7 @@ export function SiteHeader({ homeActive = false, navigationPage, showBreadcrumbs
 
       <div
         className={`${styles.fixedHeader} ${fixedVisible ? styles.fixedHeaderVisible : ""}`}
+        data-site-header-fixed
         aria-hidden={!fixedVisible || undefined}
         inert={!fixedVisible || undefined}
       >

@@ -72,9 +72,9 @@ test("single-image gallery exposes no navigation", () => {
   assert.deepEqual(getGalleryTarget(0, -1, 1), { available: false, index: 0 });
 });
 
-test("action bar switches at the beginning of project information in both directions", () => {
-  assert.equal(getActionBarVariant(1), "full");
-  assert.equal(getActionBarVariant(0), "adaptive");
-  assert.equal(getActionBarVariant(-1), "adaptive");
-  assert.equal(getActionBarVariant(120), "full");
+test("action bar switches when project information reaches the measured header edge", () => {
+  assert.equal(getActionBarVariant(161, 160), "full");
+  assert.equal(getActionBarVariant(160, 160), "adaptive");
+  assert.equal(getActionBarVariant(159, 160), "adaptive");
+  assert.equal(getActionBarVariant(145, 80), "full");
 });

@@ -1,12 +1,8 @@
 .actionBar {
   position: fixed;
   z-index: 50;
-  display: flex;
   height: 88px;
-  align-items: center;
-  gap: 16px;
   overflow: hidden;
-  padding: 24px;
   border-top: 1px solid #e2e5e7;
   background: #fcfcfd;
   transition:
@@ -15,13 +11,29 @@
     bottom 250ms ease;
 }
 
-.full { left: calc(50% - 600px); width: 1200px; }
+.barContent {
+  position: absolute;
+  top: 0;
+  display: flex;
+  width: 1200px;
+  height: 88px;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  transition:
+    left 250ms ease,
+    width 250ms ease;
+}
+
+.full { left: 0; width: 100vw; }
+.full .barContent { left: calc(50vw - 600px); }
 .adaptive {
   left: calc(50% - 400px);
   width: 1000px;
   border-left: 1px solid #e2e5e7;
   background: #fff;
 }
+.adaptive .barContent { left: 0; width: 1000px; }
 
 .leadingContent {
   display: flex;
@@ -74,5 +86,6 @@
 .actionBarSpace { height: 88px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .actionBar { transition-duration: .01ms; }
+  .actionBar,
+  .barContent { transition-duration: .01ms; }
 }

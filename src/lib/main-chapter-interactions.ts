@@ -89,6 +89,9 @@ export function getGalleryTarget(
   return { available: index !== currentIndex, index };
 }
 
-export function getActionBarVariant(informationStartTop: number): "full" | "adaptive" {
-  return informationStartTop <= 0 ? "adaptive" : "full";
+export function getActionBarVariant(
+  informationStartTop: number,
+  headerBottom: number,
+): "full" | "adaptive" {
+  return informationStartTop <= headerBottom ? "adaptive" : "full";
 }
