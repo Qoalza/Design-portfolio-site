@@ -16,16 +16,17 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## READY_FOR_REVIEW — Goal 1 / Main chapter component reconciliation
+## READY_FOR_REVIEW — Main chapter full reconciliation
 
-Источники: Figma nodes `510:28120` (главная), `373:50236` (`/projects`), `373:47103` и `553:3314` (Corvo), `555:3665` (галерея).
+Источники: Figma nodes `262:2380` и `501:21440` (главная и локальные компоненты), `373:50236` (`/projects`), `373:47103` и `553:3314` (Corvo), `515:31302` (затухание карусели), `555:3665` (кнопки галереи).
 
 - Общие кнопки, текстовые кнопки и Tabs используют единый кодовый контракт с состояниями Default, Hover, Pressed и Disabled без цветовых transition.
 - Header и breadcrumbs используют общий компонентный слой; возврат на главную через логотип сразу скрывает breadcrumb-цепочку и очищает её в navigation history entry.
 - Главная и `/projects` используют общий `MainProjectCard`; Footer приведён к текущему компоненту Figma.
 - Corvo использует нециклическую галерею с актуальными кнопками и edge-fade, одно текущее изображение процесса и варианты action bar `Full` / `Adaptive`.
-- Desktop-проверка при `1440 px`: горизонтальный overflow отсутствует на `/`, `/projects` и `/projects/corvo`; ссылки и контекстные маршруты проходят focused browser-сценарии.
-- Scroll-механики process-блока и финальные scroll-пороги action bar не входят в этот пакет и остаются следующей отдельной Goal.
+- Process-блок использует viewport-driven захват: один жест переключает один этап, края освобождают страницу, обратное прохождение и повторный вход работают.
+- Sticky-навигация Corvo и переход action bar `Full ↔ Adaptive` работают в обе стороны, после reload и при повторной навигации.
+- Focused browser-проверка при `1440 px` пройдена в Chromium и Zen/Firefox; повторный переход `Мои работы`, hash-навигация, breadcrumbs, Back/Forward и возврат через логотип работают без горизонтального overflow.
 
 ## READY_FOR_REVIEW — error pages 404/500
 

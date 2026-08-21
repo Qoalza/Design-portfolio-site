@@ -25,8 +25,8 @@
 
 - Рабочая ветка: `codex/component-system-reconciliation`; merge и deploy не выполнялись.
 - Актуальный production/source commit остаётся `ae1c01c10cf87240212b91a9a6594e239eb4f01e` (`Add contextual breadcrumb navigation`).
-- Desktop-раздел `Main chapter` синхронизирован тремя логическими группами: общая основа `dad819d`, главная и каталог `050ed64`, открытый проект и интерактивы `6c15abd`.
-- Главная использует трёхшаговый scroll-блок: один непрерывный wheel/trackpad-жест переключает один этап, а новый жест на крайнем этапе освобождает прокрутку страницы.
+- Desktop-раздел `Main chapter` полностью синхронизирован с актуальной Figma: общая основа `aee7154`, главная `d86f1a7`, process-механика `33cdb1f`, Corvo `ec6af2a`, sticky-навигация `953690a`, action bar `c07c53b`, кроссбраузерная hash-навигация `a103b8c`.
+- Главная использует трёхшаговый viewport-driven scroll-блок: один отдельный wheel/trackpad-жест переключает один этап, а новый жест на крайнем этапе освобождает прокрутку страницы; прямое и обратное прохождение проверены в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
 - Базовый error-layout исправлен в `cf9e161` (`Fix error page viewport layout`); follow-up синхронизирует позиции с актуальными nodes `420:54056`/`420:54081` и отделяет clipping иллюстрации от тени сообщения.
 - Общий механизм platform-иконок использует typed intrinsic-размеры и mask с Figma-цветом `#75848F`; error pages и иконки имеют статус `READY_FOR_REVIEW`.
@@ -77,6 +77,7 @@
 - Общий `SiteHeader` имеет flow/fixed состояния; project header включает breadcrumbs.
 - Общая project action bar имеет floating/inline состояния и формируется из MDX/frontmatter.
 - Проекты хранятся в MDX; backend для текущего этапа не нужен.
+- Повторная same-page hash-навигация (`Мои работы`, Back/Forward) централизована в `ContextLink` и `NavigationScrollController`; поля `history.state` Next.js сохраняются.
 - Следующий пакет контентных настроек зафиксирован, но ещё не реализован:
   - favicon ожидается от пользователя;
   - title вкладки браузера: `Artur Product` вместо `Артур Арустамян - Product Designer`;
@@ -108,9 +109,9 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Визуально принять Goal 1 desktop `Main chapter`: общие состояния компонентов, главную, `/projects`, Corvo, process-блок, галерею и переход action bar `Full ↔ Adaptive`.
+1. Визуально принять desktop `Main chapter`: общие состояния компонентов, главную, `/projects`, Corvo, process-блок, галерею, sticky-навигацию и переход action bar `Full ↔ Adaptive`.
 2. После принятия отдельно решить вопрос merge; deploy не входит в текущую Goal.
-3. Следующую Goal по scroll-механикам вести отдельно; текущая Goal намеренно не меняет wheel/trackpad-захват и окончательные scroll-пороги.
+3. Глобальное сглаживание прокрутки остаётся отдельным будущим этапом и в этой Goal не внедрялось.
 4. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
 
 Не выполнять merge или следующий deploy без отдельного явного разрешения пользователя.
