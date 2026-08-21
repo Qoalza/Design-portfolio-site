@@ -74,10 +74,12 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
     const resizeObserver = new ResizeObserver(scheduleUpdate);
     measuredElements.forEach((element) => resizeObserver.observe(element));
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("scrollend", update);
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("scrollend", update);
       window.removeEventListener("resize", scheduleUpdate);
       resizeObserver.disconnect();
       if (frameRef.current !== null) {
@@ -89,18 +91,24 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
   return (
     <>
       <div
-        className={`${styles.actionBar} ${styles[variant]}`}
+        className={`${styles.actionBar} ${variant === "adaptive" ? styles.adaptive : ""}`}
         data-project-action-bar
         data-project-action-variant={variant}
         style={{
           bottom: `${footerOffset}px`,
+          left: variant === "adaptive" ? `${layout.adaptiveLeft}px` : "0px",
+          width: variant === "adaptive" ? `${layout.adaptiveWidth}px` : "100vw",
           "--action-full-left": `${layout.fullLeft}px`,
           "--action-full-width": `${layout.fullWidth}px`,
-          "--action-adaptive-left": `${layout.adaptiveLeft}px`,
-          "--action-adaptive-width": `${layout.adaptiveWidth}px`,
         } as CSSProperties}
       >
-        <div className={styles.barContent}>
+        <div
+          className={styles.barContent}
+          style={{
+            left: variant === "adaptive" ? "0px" : `${layout.fullLeft}px`,
+            width: variant === "adaptive" ? `${layout.adaptiveWidth}px` : `${layout.fullWidth}px`,
+          }}
+        >
           <div className={styles.leadingContent}>
             {figmaAvailable && figmaUrl && updatedAt ? (
               <>

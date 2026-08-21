@@ -55,10 +55,12 @@ export function ProjectSectionNavigation({
       resizeObserver.observe(fixedHeader);
     }
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("scrollend", update);
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("scrollend", update);
       window.removeEventListener("resize", scheduleUpdate);
       resizeObserver.disconnect();
       if (frameRef.current !== null) {

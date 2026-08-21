@@ -25,15 +25,10 @@
     width 250ms ease;
 }
 
-.full { left: 0; width: 100vw; }
-.full .barContent { left: var(--action-full-left); }
 .adaptive {
-  left: var(--action-adaptive-left);
-  width: var(--action-adaptive-width);
   border-left: 1px solid #e2e5e7;
   background: #fff;
 }
-.adaptive .barContent { left: 0; width: var(--action-adaptive-width); }
 
 .leadingContent {
   display: flex;

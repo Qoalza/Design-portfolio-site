@@ -73,5 +73,7 @@ test("action bar anchors to the rendered project columns without viewport-center
 
   assert.match(component, /data-project-content-column/);
   assert.match(component, /ResizeObserver/);
+  assert.match(component, /left: variant === "adaptive"/);
+  assert.match(component, /width: variant === "adaptive"/);
   assert.doesNotMatch(styles, /calc\(50%|calc\(50vw/);
 });
