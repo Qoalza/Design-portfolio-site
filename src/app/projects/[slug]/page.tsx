@@ -8,6 +8,7 @@ import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectGallery } from "../../../components/project-gallery";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
 import { ProjectPlatforms } from "../../../components/project-platforms";
+import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
 import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
 import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
@@ -147,14 +148,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           ) : null}
 
           <div className={styles.projectInformation} data-project-information-start>
-            <nav className={styles.projectNavigation} aria-label="Разделы проекта">
-              {projectSections.map((section, index) => (
-                <a className={index === 0 ? styles.activeNavigationItem : ""} href={`#${section.id}`} key={section.id}>
-                  <span aria-hidden="true" />
-                  {section.label}
-                </a>
-              ))}
-            </nav>
+            <ProjectSectionNavigation
+              sections={projectSections}
+              className={styles.projectNavigation}
+              activeItemClassName={styles.activeNavigationItem}
+            />
 
             <article className={styles.projectArticle}>
               <ProjectContent

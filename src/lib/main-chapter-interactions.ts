@@ -16,6 +16,21 @@ export type GalleryTarget = BoundedTarget & {
   available: boolean;
 };
 
+export function getActiveProjectSectionIndex(
+  sectionTops: number[],
+  activationTop: number,
+): number {
+  let activeIndex = 0;
+
+  sectionTops.forEach((top, index) => {
+    if (Number.isFinite(top) && top <= activationTop) {
+      activeIndex = index;
+    }
+  });
+
+  return activeIndex;
+}
+
 const processVisibilityThreshold = 0.75;
 
 export function isProcessViewportActive(

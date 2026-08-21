@@ -1,6 +1,6 @@
 .page {
   min-width: 1280px;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: #fcfcfd;
   color: #313a41;
   font-family: "Onest", sans-serif;
@@ -117,9 +117,20 @@
   font-size: 14px;
   line-height: 16px;
   text-decoration: none;
+  transition:
+    color 250ms ease,
+    font-size 250ms ease,
+    line-height 250ms ease;
 }
 
-.projectNavigation a > span { width: 12px; height: 1px; background: #e2e5e7; }
+.projectNavigation a > span {
+  width: 12px;
+  height: 1px;
+  background: #e2e5e7;
+  transition:
+    width 250ms ease,
+    background-color 250ms ease;
+}
 .projectNavigation .activeNavigationItem { color: #2f3133; font-size: 16px; line-height: 20px; }
 .projectNavigation .activeNavigationItem > span { width: 24px; background: #0489f4; }
 
@@ -181,3 +192,8 @@
 .contentSection:not(:last-child) { padding-bottom: 40px; }
 
 .contentDivider { width: 100%; border: 0; border-top: 1px solid #e2e5e7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .projectNavigation a,
+  .projectNavigation a > span { transition-duration: .01ms; }
+}

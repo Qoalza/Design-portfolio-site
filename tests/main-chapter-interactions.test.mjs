@@ -2,11 +2,24 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   getActionBarVariant,
+  getActiveProjectSectionIndex,
   getGalleryTarget,
   isProcessViewportActive,
   getProcessWheelDecision,
   getProcessStepTarget,
 } from "../src/lib/main-chapter-interactions.ts";
+
+test("project navigation follows the last section that crossed the sticky activation line", () => {
+  assert.equal(getActiveProjectSectionIndex([220, 760, 1280], 156), 0);
+  assert.equal(getActiveProjectSectionIndex([120, 660, 1180], 156), 0);
+  assert.equal(getActiveProjectSectionIndex([-420, 120, 640], 156), 1);
+  assert.equal(getActiveProjectSectionIndex([-980, -440, 120], 156), 2);
+});
+
+test("project navigation has a stable fallback for empty and invalid section lists", () => {
+  assert.equal(getActiveProjectSectionIndex([], 156), 0);
+  assert.equal(getActiveProjectSectionIndex([Number.NaN, 220], 156), 0);
+});
 
 test("process stepper activates from section visibility rather than pointer position", () => {
   assert.equal(isProcessViewportActive(248, 856, 900), true);
