@@ -66,3 +66,12 @@ test("action bar switches when project information reaches the measured header e
   assert.equal(getActionBarVariant(159, 160), "adaptive");
   assert.equal(getActionBarVariant(145, 80), "full");
 });
+
+test("action bar anchors to the rendered project columns without viewport-center formulas", () => {
+  const component = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../src/components/project-action-bar.module.css", import.meta.url), "utf8");
+
+  assert.match(component, /data-project-content-column/);
+  assert.match(component, /ResizeObserver/);
+  assert.doesNotMatch(styles, /calc\(50%|calc\(50vw/);
+});

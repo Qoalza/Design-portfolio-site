@@ -15,7 +15,7 @@
   position: absolute;
   top: 0;
   display: flex;
-  width: 1200px;
+  width: var(--action-full-width);
   height: 88px;
   align-items: center;
   gap: 16px;
@@ -26,14 +26,14 @@
 }
 
 .full { left: 0; width: 100vw; }
-.full .barContent { left: calc(50vw - 600px); }
+.full .barContent { left: var(--action-full-left); }
 .adaptive {
-  left: calc(50% - 400px);
-  width: 1000px;
+  left: var(--action-adaptive-left);
+  width: var(--action-adaptive-width);
   border-left: 1px solid #e2e5e7;
   background: #fff;
 }
-.adaptive .barContent { left: 0; width: 1000px; }
+.adaptive .barContent { left: 0; width: var(--action-adaptive-width); }
 
 .leadingContent {
   display: flex;

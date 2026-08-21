@@ -165,7 +165,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               activeItemClassName={styles.activeNavigationItem}
             />
 
-            <article className={styles.projectArticle}>
+            <article className={styles.projectArticle} data-project-content-column>
               <ProjectContent
                 components={{
                   ProjectDivider,

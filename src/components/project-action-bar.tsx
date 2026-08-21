@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { getActionBarVariant } from "../lib/main-chapter-interactions";
 import { useProjectShare } from "./project-share-button";
 import { ControlButton } from "./ui-controls";
@@ -17,6 +17,7 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
   const frameRef = useRef<number | null>(null);
   const [variant, setVariant] = useState<"full" | "adaptive">("full");
   const [footerOffset, setFooterOffset] = useState(0);
+  const [layout, setLayout] = useState({ fullLeft: 0, fullWidth: 1200, adaptiveLeft: 0, adaptiveWidth: 1000 });
   const { announcement, handleShare } = useProjectShare(title);
 
   useEffect(() => {
@@ -25,10 +26,31 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
       const informationStart = document.querySelector<HTMLElement>("[data-project-information-start]");
       const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
       const footer = document.querySelector<HTMLElement>("[data-project-footer]");
+      const contentColumn = document.querySelector<HTMLElement>("[data-project-content-column]");
+      const main = document.querySelector<HTMLElement>("[data-project-information-start]");
 
       if (informationStart) {
-        const headerBottom = fixedHeader?.getBoundingClientRect().height ?? 0;
+        const headerBottom = Math.max(0, fixedHeader?.getBoundingClientRect().bottom ?? 0);
         setVariant(getActionBarVariant(informationStart.getBoundingClientRect().top, headerBottom));
+      }
+
+      if (contentColumn && main) {
+        const contentRect = contentColumn.getBoundingClientRect();
+        const mainRect = main.getBoundingClientRect();
+        const nextLayout = {
+          fullLeft: mainRect.left,
+          fullWidth: mainRect.width,
+          adaptiveLeft: contentRect.left,
+          adaptiveWidth: contentRect.width,
+        };
+        setLayout((currentLayout) => (
+          currentLayout.fullLeft === nextLayout.fullLeft
+          && currentLayout.fullWidth === nextLayout.fullWidth
+          && currentLayout.adaptiveLeft === nextLayout.adaptiveLeft
+          && currentLayout.adaptiveWidth === nextLayout.adaptiveWidth
+            ? currentLayout
+            : nextLayout
+        ));
       }
 
       if (footer) {
@@ -43,12 +65,21 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
     };
 
     update();
+    const measuredElements = [
+      document.querySelector<HTMLElement>("[data-site-header-fixed]"),
+      document.querySelector<HTMLElement>("[data-project-information-start]"),
+      document.querySelector<HTMLElement>("[data-project-content-column]"),
+      document.querySelector<HTMLElement>("[data-project-footer]"),
+    ].filter((element): element is HTMLElement => Boolean(element));
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    measuredElements.forEach((element) => resizeObserver.observe(element));
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
+      resizeObserver.disconnect();
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
       }
@@ -61,7 +92,13 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         className={`${styles.actionBar} ${styles[variant]}`}
         data-project-action-bar
         data-project-action-variant={variant}
-        style={{ bottom: `${footerOffset}px` }}
+        style={{
+          bottom: `${footerOffset}px`,
+          "--action-full-left": `${layout.fullLeft}px`,
+          "--action-full-width": `${layout.fullWidth}px`,
+          "--action-adaptive-left": `${layout.adaptiveLeft}px`,
+          "--action-adaptive-width": `${layout.adaptiveWidth}px`,
+        } as CSSProperties}
       >
         <div className={styles.barContent}>
           <div className={styles.leadingContent}>
