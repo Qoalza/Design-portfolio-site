@@ -16,6 +16,17 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
+## READY_FOR_REVIEW — Goal 1 / Main chapter component reconciliation
+
+Источники: Figma nodes `510:28120` (главная), `373:50236` (`/projects`), `373:47103` и `553:3314` (Corvo), `555:3665` (галерея).
+
+- Общие кнопки, текстовые кнопки и Tabs используют единый кодовый контракт с состояниями Default, Hover, Pressed и Disabled без цветовых transition.
+- Header и breadcrumbs используют общий компонентный слой; возврат на главную через логотип сразу скрывает breadcrumb-цепочку и очищает её в navigation history entry.
+- Главная и `/projects` используют общий `MainProjectCard`; Footer приведён к текущему компоненту Figma.
+- Corvo использует нециклическую галерею с актуальными кнопками и edge-fade, одно текущее изображение процесса и варианты action bar `Full` / `Adaptive`.
+- Desktop-проверка при `1440 px`: горизонтальный overflow отсутствует на `/`, `/projects` и `/projects/corvo`; ссылки и контекстные маршруты проходят focused browser-сценарии.
+- Scroll-механики process-блока и финальные scroll-пороги action bar не входят в этот пакет и остаются следующей отдельной Goal.
+
 ## READY_FOR_REVIEW — error pages 404/500
 
 Источник: актуальные Figma nodes `420:54056` (404) и `420:54081` (500).

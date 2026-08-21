@@ -23,7 +23,7 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `codex/main-chapter-refresh`; merge и deploy не выполнялись.
+- Рабочая ветка: `codex/component-system-reconciliation`; merge и deploy не выполнялись.
 - Актуальный production/source commit остаётся `ae1c01c10cf87240212b91a9a6594e239eb4f01e` (`Add contextual breadcrumb navigation`).
 - Desktop-раздел `Main chapter` синхронизирован тремя логическими группами: общая основа `dad819d`, главная и каталог `050ed64`, открытый проект и интерактивы `6c15abd`.
 - Главная использует трёхшаговый scroll-блок: один непрерывный wheel/trackpad-жест переключает один этап, а новый жест на крайнем этапе освобождает прокрутку страницы.
@@ -71,6 +71,9 @@
 - Адаптив ниже `1280 px` пока не реализован, но будущая архитектура не должна его блокировать.
 - Новый pathname без hash открывается с `scrollY = 0`; hash-навигация сохраняется.
 - Контекстная цепочка хранится в `history.state` конкретной записи с сохранением внутренних полей Next.js; reload и Back/Forward восстанавливают соответствующий путь без query-параметров.
+- Общий слой `ControlButton` / `TextButton` / `NavigationTab` реализует актуальные Figma-состояния Default, Hover, Pressed и Disabled без переходной анимации; Header, breadcrumbs, проектные действия, галереи и process-stepper используют этот контракт.
+- Общий `MainProjectCard` применяется на главной и `/projects`; актуальный Footer содержит только авторский блок и год из компонентной базы.
+- Corvo использует актуальные нециклические кнопки галереи, edge-fade, одно текущее изображение процесса и варианты action bar `Full` / `Adaptive` с левой границей адаптивного состояния.
 - Общий `SiteHeader` имеет flow/fixed состояния; project header включает breadcrumbs.
 - Общая project action bar имеет floating/inline состояния и формируется из MDX/frontmatter.
 - Проекты хранятся в MDX; backend для текущего этапа не нужен.
@@ -105,8 +108,9 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Визуально принять desktop `Main chapter`: главную, `/projects`, Corvo, scroll-блок, галерею и переход action bar `Full ↔ Adaptive`.
+1. Визуально принять Goal 1 desktop `Main chapter`: общие состояния компонентов, главную, `/projects`, Corvo, process-блок, галерею и переход action bar `Full ↔ Adaptive`.
 2. После принятия отдельно решить вопрос merge; deploy не входит в текущую Goal.
-3. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
+3. Следующую Goal по scroll-механикам вести отдельно; текущая Goal намеренно не меняет wheel/trackpad-захват и окончательные scroll-пороги.
+4. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
 
 Не выполнять merge или следующий deploy без отдельного явного разрешения пользователя.
