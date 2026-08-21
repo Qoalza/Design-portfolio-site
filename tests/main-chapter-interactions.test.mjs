@@ -3,9 +3,23 @@ import test from "node:test";
 import {
   getActionBarVariant,
   getGalleryTarget,
+  isProcessViewportActive,
   getProcessWheelDecision,
   getProcessStepTarget,
 } from "../src/lib/main-chapter-interactions.ts";
+
+test("process stepper activates from section visibility rather than pointer position", () => {
+  assert.equal(isProcessViewportActive(248, 856, 900), true);
+  assert.equal(isProcessViewportActive(500, 1108, 900), false);
+  assert.equal(isProcessViewportActive(-76, 532, 900), true);
+  assert.equal(isProcessViewportActive(-220, 388, 900), false);
+});
+
+test("process viewport activation handles compact viewports and invalid geometry", () => {
+  assert.equal(isProcessViewportActive(120, 728, 720), true);
+  assert.equal(isProcessViewportActive(720, 720, 720), false);
+  assert.equal(isProcessViewportActive(0, 608, 0), false);
+});
 
 test("process stepper consumes one forward gesture and advances exactly one step", () => {
   assert.deepEqual(getProcessStepTarget(0, 1, 3), { consumed: true, index: 1 });

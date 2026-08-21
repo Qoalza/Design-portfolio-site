@@ -16,6 +16,27 @@ export type GalleryTarget = BoundedTarget & {
   available: boolean;
 };
 
+const processVisibilityThreshold = 0.75;
+
+export function isProcessViewportActive(
+  sectionTop: number,
+  sectionBottom: number,
+  viewportHeight: number,
+): boolean {
+  const sectionHeight = sectionBottom - sectionTop;
+
+  if (sectionHeight <= 0 || viewportHeight <= 0) {
+    return false;
+  }
+
+  const visibleHeight = Math.max(
+    0,
+    Math.min(sectionBottom, viewportHeight) - Math.max(sectionTop, 0),
+  );
+
+  return visibleHeight / sectionHeight >= processVisibilityThreshold;
+}
+
 function getBoundedTarget(currentIndex: number, direction: StepDirection, itemCount: number): number {
   const lastIndex = Math.max(0, itemCount - 1);
   return Math.min(lastIndex, Math.max(0, currentIndex + direction));

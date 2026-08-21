@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   getProcessStepTarget,
   getProcessWheelDecision,
+  isProcessViewportActive,
   type StepDirection,
 } from "../lib/main-chapter-interactions";
 import { ControlButton } from "./ui-controls";
@@ -49,6 +50,14 @@ export function ProcessStepper({ children }: { children: ReactNode }) {
         return;
       }
 
+      const bounds = viewport.getBoundingClientRect();
+
+      if (!isProcessViewportActive(bounds.top, bounds.bottom, window.innerHeight)) {
+        lockedRef.current = false;
+        deltaRef.current = 0;
+        return;
+      }
+
       const direction: StepDirection = event.deltaY > 0 ? 1 : -1;
       const decision = getProcessWheelDecision(
         stepRef.current,
@@ -81,10 +90,10 @@ export function ProcessStepper({ children }: { children: ReactNode }) {
       selectStep(decision.index);
     };
 
-    viewport.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
-      viewport.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("wheel", handleWheel);
       if (unlockTimerRef.current) {
         clearTimeout(unlockTimerRef.current);
       }
