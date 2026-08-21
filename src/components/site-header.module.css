@@ -77,25 +77,6 @@
 
 .brand > img { display: block; }
 
-.maskIcon {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 auto;
-  background: currentColor;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  mask-size: contain;
-}
-
-.homeIcon { -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
-.lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
-.backIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/back.svg"); mask-image: url("/assets/projects/corvo/back.svg"); }
-.telegramIcon { -webkit-mask-image: url("/assets/homepage/telegram.svg"); mask-image: url("/assets/homepage/telegram.svg"); }
-
 .nav {
   display: flex;
   height: 80px;
@@ -105,30 +86,7 @@
   gap: 12px;
   overflow: hidden;
   padding: 4px 48px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 20px;
 }
-
-.nav a,
-.nav > span {
-  display: inline-flex;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.navActive { color: #202931; background: #edf2f5; letter-spacing: .42px; }
-.navActive .homeIcon { color: #1d8be3; }
-.navHome { color: #202931; background: transparent; letter-spacing: .42px; }
-.navHome .homeIcon { color: #656769; }
-.nav > span { color: #a2acb5; letter-spacing: .42px; }
-.nav > span:last-child { letter-spacing: -.1px; }
 
 .headerActions {
   display: flex;
@@ -152,25 +110,6 @@
   font-size: 14px;
   line-height: 20px;
   letter-spacing: .48px;
-  white-space: nowrap;
-}
-
-.primaryButton {
-  display: inline-flex;
-  min-width: 116px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 4px 20px;
-  border-radius: 8px;
-  background: #1d8be3;
-  color: #fbfbfb;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-  letter-spacing: .3px;
-  text-decoration: none;
   white-space: nowrap;
 }
 
@@ -211,21 +150,8 @@
   letter-spacing: .2px;
 }
 
-.breadcrumbTrail a { color: #415e74; text-decoration: none; }
+.breadcrumbTrail a { text-decoration: none; }
 .breadcrumbTrail > span { color: #a7b1b8; }
-
-.backButton {
-  display: inline-flex;
-  width: 32px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: #f5f6f7;
-  color: #415e74;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .fixedHeader,
