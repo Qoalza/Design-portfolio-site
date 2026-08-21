@@ -221,11 +221,13 @@ export default function Home() {
 
             <article className={`${styles.projectRow} ${styles.projectRowReverse}`}>
               <div className={styles.projectCopy}>
-                <div className={styles.projectTitle}>
-                  <div><h3>Сараффан.Радио</h3><RadioSymbol /></div>
-                  <p>Платформа для организации мероприятий</p>
+                <div className={styles.projectHeader}>
+                  <div className={styles.projectTitle}>
+                    <div><h3>Сараффан.Радио</h3><RadioSymbol /></div>
+                    <p>Платформа для организации мероприятий</p>
+                  </div>
+                  <ProjectTags tags={["B2B2C", "Тестовое"]} />
                 </div>
-                <ProjectTags tags={["B2B2C", "Тестовое"]} />
                 <dl className={styles.projectDetails}>
                   <ProjectDetail label="Моя роль">Product designer / Product Analyst</ProjectDetail>
                   <ProjectDetail label="Что делал">Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.</ProjectDetail>
