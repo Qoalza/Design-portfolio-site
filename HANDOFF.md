@@ -1,6 +1,6 @@
 # HANDOFF
 
-Обновлено: 2026-08-21
+Обновлено: 2026-08-22
 
 ## Назначение
 
@@ -23,10 +23,10 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `codex/component-system-reconciliation`; merge и deploy не выполнялись.
+- Рабочая ветка: `codex/main-chapter-reconciliation-v2`; база Goal — `fc89d5e641cad9eb112a6a92c8c55a8fd465ffd9`; merge и deploy не выполнялись.
 - Актуальный production/source commit остаётся `ae1c01c10cf87240212b91a9a6594e239eb4f01e` (`Add contextual breadcrumb navigation`).
-- Desktop-раздел `Main chapter` полностью синхронизирован с актуальной Figma: общая основа `aee7154`, главная `d86f1a7`, process-механика `33cdb1f`, Corvo `ec6af2a`, sticky-навигация `953690a`, action bar `c07c53b`, кроссбраузерная hash-навигация `a103b8c`.
-- Главная использует трёхшаговый viewport-driven scroll-блок: один отдельный wheel/trackpad-жест переключает один этап, а новый жест на крайнем этапе освобождает прокрутку страницы; прямое и обратное прохождение проверены в Chromium и Zen/Firefox.
+- Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
+- Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
 - Базовый error-layout исправлен в `cf9e161` (`Fix error page viewport layout`); follow-up синхронизирует позиции с актуальными nodes `420:54056`/`420:54081` и отделяет clipping иллюстрации от тени сообщения.
 - Общий механизм platform-иконок использует typed intrinsic-размеры и mask с Figma-цветом `#75848F`; error pages и иконки имеют статус `READY_FOR_REVIEW`.
@@ -57,7 +57,7 @@
 ## Источники дизайна
 
 - Figma file: `5ZzspE0OrqesDcTP0RRPHr`.
-- Главная: node `262:2382`, контрольный viewport `1440 px`.
+- Главная: node `510:28120`, контрольный viewport `1440 px`.
 - Corvo: node `373:47103`.
 - «Все работы»: node `373:50236`.
 - 404/500: актуальные nodes `420:54056` и `420:54081`.
@@ -67,7 +67,7 @@
 
 ## Действующие решения
 
-- Desktop-shell: `1280 px`, центрирован; внутренний header/main/footer: `1200 px`.
+- Desktop-shell: `1280 px`, центрирован; внутренние колонки и отступы следуют актуальным Figma-экземплярам.
 - Адаптив ниже `1280 px` пока не реализован, но будущая архитектура не должна его блокировать.
 - Новый pathname без hash открывается с `scrollY = 0`; hash-навигация сохраняется.
 - Контекстная цепочка хранится в `history.state` конкретной записи с сохранением внутренних полей Next.js; reload и Back/Forward восстанавливают соответствующий путь без query-параметров.
@@ -75,7 +75,7 @@
 - Общий `MainProjectCard` применяется на главной и `/projects`; актуальный Footer содержит только авторский блок и год из компонентной базы.
 - Corvo использует актуальные нециклические кнопки галереи, edge-fade, одно текущее изображение процесса и варианты action bar `Full` / `Adaptive` с левой границей адаптивного состояния.
 - Общий `SiteHeader` имеет flow/fixed состояния; project header включает breadcrumbs.
-- Общая project action bar имеет floating/inline состояния и формируется из MDX/frontmatter.
+- Общая project action bar имеет варианты `Full` / `Adaptive`, привязанные к измеренным границам header stack, information sentinel, content column и footer.
 - Проекты хранятся в MDX; backend для текущего этапа не нужен.
 - Повторная same-page hash-навигация (`Мои работы`, Back/Forward) централизована в `ContextLink` и `NavigationScrollController`; поля `history.state` Next.js сохраняются.
 - Следующий пакет контентных настроек зафиксирован, но ещё не реализован:
@@ -109,9 +109,10 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Визуально принять desktop `Main chapter`: общие состояния компонентов, главную, `/projects`, Corvo, process-блок, галерею, sticky-навигацию и переход action bar `Full ↔ Adaptive`.
-2. После принятия отдельно решить вопрос merge; deploy не входит в текущую Goal.
-3. Глобальное сглаживание прокрутки остаётся отдельным будущим этапом и в этой Goal не внедрялось.
-4. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
+1. Завершить финальную техническую проверку, поднять production preview из точного итогового HEAD, отправить ветку и обновить один Draft PR.
+2. Передать пользователю desktop `Main chapter` для ручной приёмки: общие состояния компонентов, главную, `/projects`, Corvo, process-блок, галерею, sticky-навигацию и переход action bar `Full ↔ Adaptive`.
+3. После принятия отдельно решить вопрос merge; deploy не входит в текущую Goal.
+4. Глобальное сглаживание прокрутки остаётся отдельным будущим этапом и в этой Goal не внедрялось.
+5. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
 
 Не выполнять merge или следующий deploy без отдельного явного разрешения пользователя.
