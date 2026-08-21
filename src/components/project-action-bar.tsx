@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getActionBarVariant } from "../lib/main-chapter-interactions";
-import { ProjectShareButton, useProjectShare } from "./project-share-button";
+import { useProjectShare } from "./project-share-button";
+import { ControlButton } from "./ui-controls";
 import styles from "./project-action-bar.module.css";
 
 type ProjectActionBarProps = {
@@ -63,10 +64,7 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         <div className={styles.leadingContent}>
           {figmaAvailable && figmaUrl && updatedAt ? (
             <>
-              <a className={styles.figmaLink} data-project-action="figma" href={figmaUrl} target="_blank" rel="noreferrer">
-                Figma
-                <span className={`${styles.icon} ${styles.externalIcon}`} aria-hidden="true" />
-              </a>
+              <ControlButton variant="neutral" dataAction="figma" href={figmaUrl} external iconRight="/assets/projects/external-link.svg">Figma</ControlButton>
               <span className={styles.updatedAt}>Обновлено {updatedAt}</span>
             </>
           ) : (
@@ -77,7 +75,7 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
           )}
         </div>
 
-        <ProjectShareButton className={styles.shareButton} onShare={handleShare} />
+        <ControlButton className={styles.shareButton} variant="light" dataAction="share" onClick={handleShare}>Поделиться</ControlButton>
       </div>
       <div className={styles.actionBarSpace} aria-hidden="true" />
       <span aria-live="polite" className="visually-hidden">{announcement}</span>

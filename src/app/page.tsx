@@ -1,20 +1,18 @@
 import Image from "next/image";
-import { ContextLink } from "../components/contextual-navigation";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
+import { MainProjectCard } from "../components/main-project-card";
 import { ProjectPlatforms } from "../components/project-platforms";
 import { ProcessStepper } from "../components/process-stepper";
+import { ControlButton } from "../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
+import { getCatalogProjects } from "../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
 
 function MaskIcon({ className = "" }: { className?: string }) {
   return <span aria-hidden="true" className={`${styles.maskIcon} ${className}`} />;
-}
-
-function ButtonIcon({ name }: { name: "arrow-right" | "chevron-down" | "download" | "project-info" | "project-share" }) {
-  return <Image className={styles.buttonIcon} src={`${assetRoot}/${name}.svg`} alt="" width={16} height={16} />;
 }
 
 function SectionHeading({
@@ -88,18 +86,14 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
     <div className={styles.projectActions}>
       <div className={styles.projectActionButtons}>
         {detailHref ? (
-          <ContextLink className={styles.detailsButton} href={detailHref} breadcrumbLabel={detailLabel}>Подробнее</ContextLink>
+          <ControlButton className={styles.detailsButton} variant="neutral" href={detailHref} breadcrumbLabel={detailLabel}>Подробнее</ControlButton>
         ) : (
-          <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>
+          <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>
         )}
         {hasFigma ? (
-          <a className={styles.figmaButton} href={figmaHref} target="_blank" rel="noreferrer">
-            Figma <ButtonIcon name="project-share" />
-          </a>
+          <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
         ) : (
-          <span className={styles.unavailableButton} aria-disabled="true">
-            <ButtonIcon name="project-info" /> Файл пока недоступен
-          </span>
+          <ControlButton className={styles.unavailableButton} variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
         )}
       </div>
       {hasFigma && updatedAt ? (
@@ -108,15 +102,6 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
           <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено {updatedAt}</span>
         </>
       ) : null}
-    </div>
-  );
-}
-
-function CorvoVisual() {
-  return (
-    <div className={styles.projectVisual} aria-hidden="true">
-      <Image className={styles.corvoBack} src={`${assetRoot}/corvo-dashboard.png`} alt="" width={2960} height={2400} />
-      <Image className={styles.corvoFront} src={`${assetRoot}/corvo-product.png`} alt="" width={2960} height={2400} />
     </div>
   );
 }
@@ -184,6 +169,8 @@ function MethodRow({ iconClass, title, children }: { iconClass: string; title: s
 }
 
 export default function Home() {
+  const corvo = getCatalogProjects().find((project) => project.slug === "corvo");
+
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
@@ -214,8 +201,8 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.heroActions}>
-                <ContextLink className={styles.darkButton} href="#projects">Мои работы</ContextLink>
-                <a className={styles.secondaryButton} href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" target="_blank" rel="noreferrer">CV <ButtonIcon name="download" /></a>
+                <ControlButton className={styles.darkButton} variant="neutral" href="#projects">Мои работы</ControlButton>
+                <ControlButton className={styles.secondaryButton} variant="light" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>CV</ControlButton>
               </div>
             </div>
           </section>
@@ -225,30 +212,10 @@ export default function Home() {
               <SectionHeading id="projects-title" title="То, над чем я работал" centered>
                 <p>Здесь собрал рабочие проекты, тестовые задания.<br />Где можно увидеть мой подход к задаче и результат.</p>
               </SectionHeading>
-              <ContextLink className={styles.textButton} href="/projects" breadcrumbLabel="Работы">Все работы <ButtonIcon name="arrow-right" /></ContextLink>
+              <ControlButton className={styles.textButton} variant="ghost" href="/projects" breadcrumbLabel="Работы" iconRight={`${assetRoot}/arrow-right.svg`}>Все работы</ControlButton>
             </div>
 
-            <article className={styles.projectRow}>
-              <CorvoVisual />
-              <div className={styles.projectCopy}>
-                <div className={styles.projectTitle}>
-                  <div><h3>Corvo</h3><Image src={`${assetRoot}/corvo-symbol.svg`} alt="" width={28} height={28} /></div>
-                  <p>Система для управления партнёрской программой</p>
-                </div>
-                <ProjectTags tags={["B2B", "SaaS", "В работе"]} />
-                <dl className={styles.projectDetails}>
-                  <ProjectDetail label="Моя роль">Product Designer</ProjectDetail>
-                  <ProjectDetail label="Что делал">Спроектировал сервис с нуля: от дизайн-системы и согласования решений со стейкхолдерами до передачи в разработку. Выстроил процесс работы с командой разработки, сопровождал реализацию и прорабатывал запросы со стороны бизнес-аналитики.</ProjectDetail>
-                </dl>
-                <ProjectPlatforms platforms={["Desktop", "Tablet", "Mobile"]} />
-                <ProjectActions
-                  detailHref="/projects/corvo"
-                  detailLabel="Corvo"
-                  figmaHref="https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1"
-                  updatedAt="13.05.2026"
-                />
-              </div>
-            </article>
+            {corvo ? <MainProjectCard project={corvo} headingLevel="h3" /> : null}
 
             <div className={styles.projectDivider} />
 
@@ -352,7 +319,7 @@ export default function Home() {
                   <a href="https://t.me/Coco_soul" target="_blank" rel="noreferrer">@Coco_soul</a>
                 </div>
               </SectionHeading>
-              <a className={styles.cvButton} href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" target="_blank" rel="noreferrer">Скачать полное CV <ButtonIcon name="download" /></a>
+              <ControlButton className={styles.cvButton} variant="light" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>Скачать полное CV</ControlButton>
             </div>
 
             <div className={styles.experienceList}>
@@ -407,7 +374,7 @@ export default function Home() {
           </section>
         </main>
 
-        <SiteFooter showReport={false} />
+        <SiteFooter />
       </div>
     </div>
   );

@@ -7,11 +7,6 @@
 .intro h1 { margin: 0 0 8px; color: #313a41; font: 500 48px/60px "Google Sans", sans-serif; letter-spacing: -.1px; }
 .intro p { margin: 0 4px; color: #354857; font: 400 20px/28px "Onest", sans-serif; letter-spacing: .3px; }
 .catalog { display: flex; flex-direction: column; gap: 0; padding-top: 24px; }
-.featured { display: grid; min-height: 485px; grid-template-columns: 540px 1fr; align-items: start; gap: 24px; padding: 0; }
-.visual { position: relative; width: 540px; height: 440px; overflow: hidden; border-radius: 4px; }
-.corvoBack,.corvoFront { position: absolute; width: 405px; height: auto; border-radius: 9px; }
-.corvoBack { top: 83px; left: 104px; }
-.corvoFront { top: 27px; left: 30px; box-shadow: 0 20px 100px -10px rgba(18,18,19,.1); }
 .copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 32px; padding: 12px 80px 12px 40px; }
 .titleGroup { display: flex; min-width: 0; flex-direction: column; gap: 8px; }
 .titleLine { display: flex; align-items: center; gap: 8px; }
@@ -27,11 +22,7 @@
 .detail strong { color: #444d55; font: 500 14px/16px "Google Sans", sans-serif; letter-spacing: .1px; }
 .detail small { color: #60717e; font: 400 14px/20px "Onest", sans-serif; letter-spacing: -.1px; }
 .actions { display: flex; width: 100%; align-items: center; gap: 12px; }
-.detailsButton,.figmaButton,.unavailable { display: inline-flex; height: 40px; align-items: center; justify-content: center; border-radius: 8px; font: 400 14px/16px "Google Sans", sans-serif; letter-spacing: .2px; text-decoration: none; white-space: nowrap; }
-.detailsButton { width: 122px; background: #313940; color: #fbfbfb; }
-.detailsButton[aria-disabled="true"] { cursor: default; }
-.figmaButton { gap: 8px; padding: 4px 16px; color: #636e77; }
-.unavailable { gap: 8px; padding: 4px 16px; color: #b2b9bf; }
+.detailsButton { width: 122px; }
 .actionDivider { width: 1px; height: 23px; background: #e2e4e5; }
 .updated { display: inline-flex; align-items: center; gap: 8px; padding-left: 12px; color: #b2b9bf; font: 400 12px/16px "Source Code Pro", monospace; letter-spacing: -.2px; }
 .compactGrid { position: relative; display: grid; grid-template-columns: 600px 600px; padding: 64px 0 40px; border-top: 1px solid #e2e5e7; }

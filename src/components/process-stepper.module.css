@@ -53,25 +53,8 @@
   position: absolute;
   z-index: 3;
   left: 50%;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: transparent;
   cursor: pointer;
   transform: translateX(-50%);
-}
-
-.arrow::before {
-  position: absolute;
-  top: 13px;
-  left: 14px;
-  width: 10px;
-  height: 10px;
-  border-right: 1px solid #606466;
-  border-bottom: 1px solid #606466;
-  content: "";
-  transform: rotate(45deg);
 }
 
 .arrowTop { top: 8px; transform: translateX(-50%) rotate(180deg); }

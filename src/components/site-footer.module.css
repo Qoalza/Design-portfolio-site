@@ -14,8 +14,7 @@
   letter-spacing: -.3px;
 }
 
-.author,
-.reportContent {
+.author {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -39,28 +38,6 @@
 }
 
 .authorIcon { -webkit-mask-image: url("/assets/homepage/footer-author.svg"); mask-image: url("/assets/homepage/footer-author.svg"); }
-.reportIcon { -webkit-mask-image: url("/assets/homepage/footer-report.svg"); mask-image: url("/assets/homepage/footer-report.svg"); }
-
-.separator {
-  width: 1px;
-  height: 23px;
-  flex: 0 0 1px;
-  background: #e2e4e5;
-}
-
-.report {
-  display: flex;
-  min-width: 0;
-  flex: 1 1 0;
-  align-items: center;
-}
-
-.reportButton {
-  color: #494b4d;
-  font-weight: 500;
-  text-decoration: none;
-}
-
 .year {
   flex: 0 0 auto;
 }

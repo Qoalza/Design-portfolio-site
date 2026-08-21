@@ -16,7 +16,12 @@
 }
 
 .full { left: calc(50% - 600px); width: 1200px; }
-.adaptive { left: calc(50% - 400px); width: 1000px; }
+.adaptive {
+  left: calc(50% - 400px);
+  width: 1000px;
+  border-left: 1px solid #e2e5e7;
+  background: #fff;
+}
 
 .leadingContent {
   display: flex;
@@ -40,23 +45,7 @@
   white-space: nowrap;
 }
 
-.figmaLink,
-.shareButton {
-  display: inline-flex;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 20px;
-  border: 0;
-  border-radius: 8px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-  white-space: nowrap;
-}
-
-.figmaLink { gap: 8px; background: #45494c; color: #fff; text-decoration: none; }
-.shareButton { flex: 0 0 auto; background: #f5f6f7; color: #606466; cursor: pointer; }
+.shareButton { flex: 0 0 auto; cursor: pointer; }
 
 .updatedAt {
   color: #909498;
@@ -81,7 +70,6 @@
   mask-size: 20px 20px;
 }
 
-.externalIcon { -webkit-mask-image: url("/assets/projects/external-link.svg"); mask-image: url("/assets/projects/external-link.svg"); }
 .infoIcon { -webkit-mask-image: url("/assets/projects/info.svg"); mask-image: url("/assets/projects/info.svg"); }
 .actionBarSpace { height: 88px; }
 

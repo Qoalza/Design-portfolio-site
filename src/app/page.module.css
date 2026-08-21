@@ -51,27 +51,6 @@
 .cjmIcon { -webkit-mask-image: url("/assets/homepage/process-cjm.svg"); mask-image: url("/assets/homepage/process-cjm.svg"); }
 .briefcaseIcon { -webkit-mask-image: url("/assets/homepage/experience-briefcase.svg"); mask-image: url("/assets/homepage/experience-briefcase.svg"); }
 
-.buttonIcon { display: block; width: 16px; height: 16px; flex: 0 0 16px; }
-
-.darkButton,
-.secondaryButton,
-.detailsButton,
-.figmaButton,
-.unavailableButton,
-.cvButton,
-.textButton {
-  display: inline-flex;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-family: "Google Sans", sans-serif;
-  font-size: 14px;
-  line-height: 16px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
 .hero {
   position: relative;
   z-index: 2;
@@ -200,8 +179,8 @@
 .heroTags i,
 .freelanceTags i { color: #bfcdd9; font-style: normal; }
 .heroActions { display: flex; align-items: flex-start; gap: 8px; }
-.darkButton { width: 156px; padding: 4px 12px; background: #313940; color: #fbfbfb; letter-spacing: .2px; }
-.secondaryButton { width: 84px; gap: 8px; padding: 4px 20px; background: #e9ecf0; color: #4f4f4f; letter-spacing: .14px; }
+.darkButton { width: 156px; }
+.secondaryButton { width: 84px; }
 
 .sectionHeading { display: flex; width: 760px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 12px; }
 .sectionHeading.centered { align-items: center; text-align: center; }
@@ -225,16 +204,10 @@
 .projectsIntro { display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
 .projectsIntro .sectionHeading { width: auto; }
 .projectsIntro .sectionLead { width: 694px; }
-.textButton { gap: 8px; padding: 4px 20px; color: #4f4f4f; letter-spacing: .14px; }
 
 .projectRow { display: grid; width: 100%; height: 440px; grid-template-columns: 540px 1fr; align-items: center; gap: 24px; }
 .projectRowReverse { grid-template-columns: 1fr 540px; }
 .projectVisual { position: relative; width: 540px; height: 440px; border-radius: 4px; }
-
-.corvoBack,
-.corvoFront { position: absolute; border-radius: 9px; object-fit: cover; }
-.corvoBack { top: 83px; left: 104px; width: 405px; height: 329px; }
-.corvoFront { top: 27px; left: 30px; width: 405px; height: 328px; box-shadow: 0 20px 100px -10px rgba(18,18,19,.1); }
 
 .radioDashboard { position: absolute; top: 24px; left: 36px; width: 450px; height: 393px; border: 2px solid #f3f3f3; border-radius: 8px; object-fit: cover; }
 .radioPlayer { position: absolute; top: 253px; left: 18px; width: 265px; height: 96px; box-shadow: 0 20px 100px -10px rgba(18,18,19,.1); }
@@ -269,9 +242,7 @@
 
 .projectActions { display: flex; width: 100%; align-items: center; gap: 16px; }
 .projectActionButtons { display: flex; align-items: flex-start; gap: 12px; }
-.detailsButton { width: 122px; padding: 4px 12px; background: #313940; color: #fbfbfb; letter-spacing: .2px; }
-.figmaButton { gap: 8px; padding: 4px 16px; color: #636e77; letter-spacing: .2px; }
-.unavailableButton { gap: 8px; padding: 4px 16px; color: #b2b9bf; letter-spacing: .2px; }
+.detailsButton { width: 122px; }
 .actionDivider { width: 1px; height: 23px; background: #e2e4e5; }
 .updated { display: inline-flex; align-items: center; gap: 8px; color: #b2b9bf; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.2px; white-space: nowrap; }
 .projectDivider {
@@ -354,7 +325,6 @@
 .resumeIntro .sectionHeading h2 { letter-spacing: -.1px; }
 .contacts { display: flex; align-items: center; justify-content: center; gap: 12px; color: #5c6a77; font-size: 18px; line-height: 24px; letter-spacing: -.1px; white-space: nowrap; }
 .contacts a { text-decoration: none; }
-.cvButton { gap: 8px; padding: 4px 20px; background: #f6f7f7; color: #4f4f4f; letter-spacing: .14px; }
 .experienceList { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 16px; }
 
 .eyeconExperience { position: relative; display: flex; width: 1200px; align-items: center; gap: 56px; padding: 64px 32px 40px; }

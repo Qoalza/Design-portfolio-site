@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { ContextLink } from "../../components/contextual-navigation";
+import { MainProjectCard } from "../../components/main-project-card";
 import { ProjectPlatforms } from "../../components/project-platforms";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
+import { ControlButton } from "../../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import { getCatalogProjects, type Project } from "../../lib/projects";
 import styles from "./page.module.css";
@@ -24,15 +25,6 @@ function RadioSymbol() {
 }
 
 function ProjectVisual({ slug }: { slug: string }) {
-  if (slug === "corvo") {
-    return (
-      <div className={`${styles.visual} ${styles.corvoVisual}`} aria-hidden="true">
-        <Image className={styles.corvoBack} src={`${assetRoot}/corvo-dashboard.png`} alt="" width={2960} height={2400} />
-        <Image className={styles.corvoFront} src={`${assetRoot}/corvo-product.png`} alt="" width={2960} height={2400} />
-      </div>
-    );
-  }
-
   const source = slug === "sarafan-radio"
     ? "/assets/projects/catalog/sarafan-radio.png"
     : "/assets/projects/catalog/boff-transactions.png";
@@ -62,11 +54,11 @@ function ProjectDetails({ project }: { project: Project }) {
 function ProjectActions({ project }: { project: Project }) {
   return (
     <div className={styles.actions}>
-      {project.detailAvailable ? <ContextLink className={styles.detailsButton} href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ContextLink> : <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>}
+      {project.detailAvailable ? <ControlButton className={styles.detailsButton} variant="neutral" href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ControlButton> : <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>}
       {project.figmaAvailable && project.figmaUrl ? (
-        <a className={styles.figmaButton} href={project.figmaUrl} target="_blank" rel="noreferrer">Figma <Image src={`${assetRoot}/project-share.svg`} alt="" width={16} height={16} /></a>
+        <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
       ) : (
-        <span className={styles.unavailable}><Image src={`${assetRoot}/project-info.svg`} alt="" width={16} height={16} />Файл пока недоступен</span>
+        <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
       )}
       {project.figmaAvailable && project.updatedAt ? <><span className={styles.actionDivider} /><span className={styles.updated}><Image src={`${assetRoot}/project-refresh.svg`} alt="" width={16} height={16} />Обновлено {project.updatedAt}</span></> : null}
     </div>
@@ -119,7 +111,7 @@ export default function ProjectsPage() {
         <main id="projects-content" className={styles.main}>
           <header className={styles.intro}><h1>Мои работы</h1><p>Здесь собрал рабочие проекты, тестовые задания,<br />где можно увидеть мой подход к задаче и результат.</p></header>
           <section className={styles.catalog} aria-label="Проекты">
-            {corvo ? <article className={styles.featured}><ProjectVisual slug={corvo.slug} /><ProjectCopy project={corvo} /></article> : null}
+            {corvo ? <MainProjectCard project={corvo} /> : null}
             <div className={styles.compactGrid}>{compactProjects.map((project) => <article className={styles.compactCard} key={project.slug}><ProjectVisual slug={project.slug} /><ProjectCopy project={project} compact /></article>)}</div>
           </section>
         </main>

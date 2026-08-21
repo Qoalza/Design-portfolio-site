@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { getGalleryTarget, type StepDirection } from "../lib/main-chapter-interactions";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
+import { ControlButton } from "./ui-controls";
 import styles from "./project-gallery.module.css";
 
 export type ProjectGalleryItem = {
@@ -45,6 +46,30 @@ export function ProjectGallery({ items, variant = "standard" }: ProjectGalleryPr
 
   return (
     <div className={`${styles.gallery} ${styles[variant]}`} data-gallery-count={itemCount} data-gallery-index={activeIndex}>
+      {itemCount > 1 ? (
+        <div className={styles.controls}>
+          {previous.available ? (
+            <ControlButton
+              className={styles.arrow}
+              variant="ghost"
+              size="small"
+              onClick={() => move(-1)}
+              ariaLabel="Предыдущее изображение"
+              iconLeft="/assets/projects/chevron-left.svg"
+            >{null}</ControlButton>
+          ) : <span className={styles.arrowPlaceholder} aria-hidden="true" />}
+          {next.available ? (
+            <ControlButton
+              className={styles.arrow}
+              variant="ghost"
+              size="small"
+              onClick={() => move(1)}
+              ariaLabel="Следующее изображение"
+              iconLeft="/assets/projects/chevron-right.svg"
+            >{null}</ControlButton>
+          ) : <span className={styles.arrowPlaceholder} aria-hidden="true" />}
+        </div>
+      ) : null}
       <div
         ref={viewportRef}
         className={styles.viewport}
@@ -56,8 +81,8 @@ export function ProjectGallery({ items, variant = "standard" }: ProjectGalleryPr
         }}
       >
         <div className={styles.track}>
-          {items.map((item) => (
-            <figure className={styles.slide} key={item.src}>
+          {items.map((item, index) => (
+            <figure className={styles.slide} key={`${item.src}-${index}`}>
               <ProjectMediaLightbox {...item} />
             </figure>
           ))}
@@ -68,12 +93,6 @@ export function ProjectGallery({ items, variant = "standard" }: ProjectGalleryPr
         <>
           <div className={`${styles.edgeFade} ${styles.edgeFadeLeft} ${previous.available ? styles.visible : ""}`} aria-hidden="true" />
           <div className={`${styles.edgeFade} ${styles.edgeFadeRight} ${next.available ? styles.visible : ""}`} aria-hidden="true" />
-          {previous.available ? (
-            <button className={`${styles.arrow} ${styles.arrowLeft}`} type="button" onClick={() => move(-1)} aria-label="Предыдущее изображение" />
-          ) : null}
-          {next.available ? (
-            <button className={`${styles.arrow} ${styles.arrowRight}`} type="button" onClick={() => move(1)} aria-label="Следующее изображение" />
-          ) : null}
           <span className="visually-hidden" aria-live="polite">Изображение {activeIndex + 1} из {itemCount}</span>
         </>
       ) : null}
