@@ -42,6 +42,7 @@
 .slide button > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .slide button[data-image-fit="contain"] > img { object-fit: contain; }
 
+.result { border-bottom: 0; }
 .result .slide { height: 554px; }
 
 .edgeFade {

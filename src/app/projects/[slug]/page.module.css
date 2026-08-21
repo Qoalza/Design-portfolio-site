@@ -245,6 +245,7 @@
 .contentSection > div:last-child { margin-top: 40px; }
 .contentSection:last-child > div:last-child { margin-top: 40px; }
 .contentSection:not(:last-child) { padding-bottom: 40px; }
+.contentSection:not(:last-child):has(> div:last-child) { padding-bottom: 0; }
 
 .contentDivider { width: 100%; border: 0; border-top: 1px solid #e2e5e7; }
 
