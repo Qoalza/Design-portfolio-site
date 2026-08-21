@@ -262,7 +262,7 @@
   content: "";
 }
 
-.process { width: 100%; padding: 120px 0 80px; }
+.process { width: 100%; padding: 120px 0 0; }
 .process > .sectionHeading { margin-bottom: 80px; }
 .processRow { display: grid; width: 100%; align-items: stretch; }
 
