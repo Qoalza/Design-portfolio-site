@@ -202,7 +202,7 @@ export default function Home() {
               </div>
               <div className={styles.heroActions}>
                 <ControlButton className={styles.darkButton} variant="neutral" href="#projects">Мои работы</ControlButton>
-                <ControlButton className={styles.secondaryButton} variant="light" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>CV</ControlButton>
+                <ControlButton className={styles.secondaryButton} variant="ghost" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>CV</ControlButton>
               </div>
             </div>
           </section>
