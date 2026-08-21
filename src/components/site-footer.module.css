@@ -7,11 +7,11 @@
   overflow: hidden;
   margin: 0 auto;
   padding: 20px 24px 24px;
-  color: #8c949b;
+  color: #909498;
   font-family: "Source Code Pro", monospace;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: -.4px;
+  letter-spacing: -.3px;
 }
 
 .author,
@@ -22,12 +22,14 @@
   white-space: nowrap;
 }
 
+.author { min-width: 0; flex: 1 1 0; }
+
 .footerIcon {
   display: block;
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
-  background: #8c949b;
+  background: #909498;
   -webkit-mask-position: center;
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: 16px 16px;
@@ -54,15 +56,9 @@
 }
 
 .reportButton {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
   color: #494b4d;
-  font: inherit;
   font-weight: 500;
-  letter-spacing: inherit;
-  opacity: 1;
+  text-decoration: none;
 }
 
 .year {

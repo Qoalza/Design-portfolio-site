@@ -47,7 +47,10 @@ function HeaderRow({ homeActive = false, fixed }: Pick<HeaderStackProps, "homeAc
           <Image src={`${assetRoot}/status.svg`} alt="" width={6} height={8} />
           Открыт к предложениям
         </span>
-        <span className={styles.primaryButton} aria-disabled="true">Связаться</span>
+        <a className={styles.primaryButton} href="https://t.me/Coco_soul" target="_blank" rel="noreferrer">
+          Связаться
+          <MaskIcon className={styles.telegramIcon} />
+        </a>
       </div>
     </header>
   );

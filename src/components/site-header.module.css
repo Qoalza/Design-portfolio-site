@@ -94,6 +94,7 @@
 .homeIcon { -webkit-mask-image: url("/assets/homepage/home.svg"); mask-image: url("/assets/homepage/home.svg"); }
 .lockIcon { color: #a2acb5; -webkit-mask-image: url("/assets/homepage/lock.svg"); mask-image: url("/assets/homepage/lock.svg"); }
 .backIcon { width: 20px; height: 20px; -webkit-mask-image: url("/assets/projects/corvo/back.svg"); mask-image: url("/assets/projects/corvo/back.svg"); }
+.telegramIcon { -webkit-mask-image: url("/assets/homepage/telegram.svg"); mask-image: url("/assets/homepage/telegram.svg"); }
 
 .nav {
   display: flex;
@@ -156,10 +157,11 @@
 
 .primaryButton {
   display: inline-flex;
-  min-width: 96px;
+  min-width: 116px;
   height: 40px;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 4px 20px;
   border-radius: 8px;
   background: #1d8be3;
@@ -168,6 +170,7 @@
   font-size: 14px;
   line-height: 16px;
   letter-spacing: .3px;
+  text-decoration: none;
   white-space: nowrap;
 }
 

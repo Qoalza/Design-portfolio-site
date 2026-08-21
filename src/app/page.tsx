@@ -211,7 +211,7 @@ export default function Home() {
               </div>
               <div className={styles.heroActions}>
                 <ContextLink className={styles.darkButton} href="#projects">Мои работы</ContextLink>
-                <span className={styles.secondaryButton} aria-disabled="true">CV <ButtonIcon name="download" /></span>
+                <a className={styles.secondaryButton} href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" target="_blank" rel="noreferrer">CV <ButtonIcon name="download" /></a>
               </div>
             </div>
           </section>
@@ -234,12 +234,12 @@ export default function Home() {
                 </div>
                 <dl className={styles.projectDetails}>
                   <ProjectDetail label="Моя роль">Продуктовый дизайнер</ProjectDetail>
-                  <ProjectDetail label="Что делал">Полностью собрал дизайн систему, согласовал с главными стейкхолдерами, выстроил процесс с разработчиками, чтобы они могли спроектировать все это. Еще и весь сервис собрал с 0. Обрабатывал обращения бизнесс-аналитика.</ProjectDetail>
+                  <ProjectDetail label="Что делал">Спроектировал сервис с нуля: от дизайн-системы и согласования решений со стейкхолдерами до передачи в разработку. Выстроил процесс работы с командой разработки, сопровождал реализацию и прорабатывал запросы со стороны бизнес-аналитики.</ProjectDetail>
                 </dl>
                 <ProjectActions
                   detailHref="/projects/corvo"
                   detailLabel="Corvo"
-                  figmaHref="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82?node-id=373-47103"
+                  figmaHref="https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1"
                   updatedAt="13.05.2026"
                 />
               </div>
@@ -351,7 +351,7 @@ export default function Home() {
                   <a href="tel:+79613247899">+7 (961) 324 78 99</a>
                 </div>
               </SectionHeading>
-              <span className={styles.cvButton} aria-disabled="true">Скачать полное CV <ButtonIcon name="download" /></span>
+              <a className={styles.cvButton} href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" target="_blank" rel="noreferrer">Скачать полное CV <ButtonIcon name="download" /></a>
             </div>
 
             <div className={styles.experienceList}>
@@ -406,7 +406,7 @@ export default function Home() {
           </section>
         </main>
 
-        <SiteFooter />
+        <SiteFooter showReport={false} />
       </div>
     </div>
   );

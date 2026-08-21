@@ -5,7 +5,7 @@ import { NavigationScrollController } from "../components/navigation-scroll-cont
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Артур Арустамян — Product Designer",
+  title: "Artur Product",
   description:
     "Портфолио продуктового дизайнера: B2B, B2E, SaaS и сложные внутренние системы.",
 };
