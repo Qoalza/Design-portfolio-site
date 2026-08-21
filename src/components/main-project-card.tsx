@@ -24,22 +24,23 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
       </div>
 
       <div className={styles.copy}>
-        <div className={styles.titleGroup}>
-          <div className={styles.titleLine}>
-            <Heading>{project.title}</Heading>
-            {project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : null}
+        <div className={styles.headerGroup}>
+          <div className={styles.titleGroup}>
+            <div className={styles.titleLine}>
+              <Heading>{project.title}</Heading>
+              {project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : null}
+            </div>
+            <p>{description}</p>
           </div>
-          <p>{description}</p>
-        </div>
-
-        <div className={styles.tags} aria-label="Теги проекта">
-          {project.tags.map((tag, index) => (
-            <span key={tag}>
-              {index > 0 ? <i aria-hidden="true">/</i> : null}
-              <b aria-hidden="true">#</b>
-              {tag}
-            </span>
-          ))}
+          <div className={styles.tags} aria-label="Теги проекта">
+            {project.tags.map((tag, index) => (
+              <span key={tag}>
+                {index > 0 ? <i aria-hidden="true">/</i> : null}
+                <b aria-hidden="true">#</b>
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
 
         <dl className={styles.details}>
@@ -72,7 +73,6 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
             <>
               <span className={styles.actionDivider} aria-hidden="true" />
               <span className={styles.updated}>
-                <Image src={`${assetRoot}/project-refresh.svg`} alt="" width={16} height={16} />
                 Обновлено {project.updatedAt}
               </span>
             </>

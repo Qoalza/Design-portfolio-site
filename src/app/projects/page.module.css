@@ -7,11 +7,12 @@
 .intro h1 { margin: 0 0 8px; color: #313a41; font: 500 48px/60px "Google Sans", sans-serif; letter-spacing: -.1px; }
 .intro p { margin: 0 4px; color: #354857; font: 400 20px/28px "Onest", sans-serif; letter-spacing: .3px; }
 .catalog { display: flex; flex-direction: column; gap: 0; padding-top: 24px; }
-.copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 32px; padding: 12px 80px 12px 40px; }
-.titleGroup { display: flex; min-width: 0; flex-direction: column; gap: 8px; }
+.copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 32px; padding: 12px 120px 12px 40px; }
+.headerGroup { display: flex; min-width: 0; flex-direction: column; gap: 16px; }
+.titleGroup { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
 .titleLine { display: flex; align-items: center; gap: 8px; }
-.titleLine h2 { margin: 0; color: #444d55; font: 500 24px/32px "Google Sans", sans-serif; letter-spacing: .24px; }
-.titleGroup > p { margin: 0; color: #5c6a77; font: 400 16px/20px "Onest", sans-serif; letter-spacing: -.1px; }
+.titleLine h2 { margin: 0; color: #45494c; font: 500 24px/32px "Google Sans", sans-serif; letter-spacing: .24px; }
+.titleGroup > p { margin: 0; color: #45494c; font: 350 16px/24px "Onest", sans-serif; letter-spacing: -.1px; }
 .projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Source Code Pro", monospace; letter-spacing: -.5px; }
 .projectTags span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .projectTags b { color: #369ff3; font-weight: 400; }
@@ -19,8 +20,8 @@
 .details { display: flex; width: 100%; flex-direction: column; gap: 16px; }
 .detail { display: flex; width: 100%; align-items: flex-start; gap: 8px; }
 .detail > span { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
-.detail strong { color: #444d55; font: 500 14px/16px "Google Sans", sans-serif; letter-spacing: .1px; }
-.detail small { color: #60717e; font: 400 14px/20px "Onest", sans-serif; letter-spacing: -.1px; }
+.detail strong { color: #45494c; font: 500 14px/16px "Google Sans", sans-serif; letter-spacing: .1px; }
+.detail small { color: #606466; font: 400 14px/20px "Onest", sans-serif; letter-spacing: -.1px; }
 .actions { display: flex; width: 100%; align-items: center; gap: 12px; }
 .detailsButton { width: 122px; }
 .actionDivider { width: 1px; height: 23px; background: #e2e4e5; }
@@ -35,8 +36,8 @@
 .browserDots { position: absolute; z-index: 1; top: 0; right: 0; left: 0; display: flex; height: 20px; align-items: center; gap: 4px; padding-left: 12px; background: #f7f7f7; }
 .browserDots i { width: 6px; height: 6px; border-radius: 50%; background: #c9c9c9; }
 .browserDots i:first-child { background: #ff6258; }.browserDots i:nth-child(2) { background: #ffbe2e; }.browserDots i:last-child { background: #29c841; }
-.compactCopy { gap: 32px; padding: 32px 48px 20px 16px; }
-.compactCard:nth-child(2) .compactCopy { padding-right: 16px; padding-left: 80px; }
+.compactCopy { gap: 32px; padding: 32px 8px 20px 16px; }
+.compactCard:nth-child(2) .compactCopy { padding-right: 8px; padding-left: 16px; }
 .compactCopy .details { min-height: 190px; }
 .radioSymbol { position: relative; display: inline-block; width: 28px; height: 28px; overflow: hidden; }
 .radioSymbol span { position: absolute; }.radioA { top: 8px; left: 0; width: 15px; height: 11px; }.radioB { top: 5px; left: 5px; width: 5px; height: 19px; }.radioC { top: 8px; right: 0; width: 15px; height: 11px; }.radioD { top: 5px; right: 5px; width: 5px; height: 19px; }

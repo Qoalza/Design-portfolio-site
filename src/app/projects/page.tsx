@@ -82,11 +82,13 @@ function ProjectTags({ tags }: { tags: string[] }) {
 function ProjectCopy({ project, compact = false }: { project: Project; compact?: boolean }) {
   return (
     <div className={`${styles.copy} ${compact ? styles.compactCopy : ""}`}>
-      <div className={styles.titleGroup}>
-        <div className={styles.titleLine}><h2>{project.title}</h2>{project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : project.slug === "sarafan-radio" ? <RadioSymbol /> : null}</div>
-        <p>{project.subtitle ?? project.description}</p>
+      <div className={styles.headerGroup}>
+        <div className={styles.titleGroup}>
+          <div className={styles.titleLine}><h2>{project.title}</h2>{project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : project.slug === "sarafan-radio" ? <RadioSymbol /> : null}</div>
+          <p>{project.subtitle ?? project.description}</p>
+        </div>
+        <ProjectTags tags={project.tags} />
       </div>
-      <ProjectTags tags={project.tags} />
       <ProjectDetails project={project} />
       <ProjectActions project={project} />
     </div>
@@ -95,7 +97,8 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
 
 export default function ProjectsPage() {
   const projects = getCatalogProjects();
-  const [corvo, ...compactProjects] = projects;
+  const corvo = projects.find((project) => project.slug === "corvo");
+  const compactProjects = projects.filter((project) => project.slug !== "corvo");
   const projectsTrailItem = { href: "/projects", label: "Работы" };
 
   return (
