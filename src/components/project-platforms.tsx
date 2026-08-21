@@ -11,11 +11,12 @@ const platformIcons = {
 type ProjectPlatformsProps = {
   platforms: ProjectPlatform[];
   desktopOnlyLabel?: boolean;
+  variant?: "default" | "projectHero";
 };
 
-export function ProjectPlatforms({ platforms, desktopOnlyLabel = false }: ProjectPlatformsProps) {
+export function ProjectPlatforms({ platforms, desktopOnlyLabel = false, variant = "default" }: ProjectPlatformsProps) {
   return (
-    <ul className={styles.platforms} aria-label="Платформы">
+    <ul className={`${styles.platforms} ${variant === "projectHero" ? styles.projectHero : ""}`} aria-label="Платформы">
       {platforms.map((platform) => {
         const iconStyle = {
           "--platform-icon": `url("${platformIcons[platform]}")`,

@@ -34,3 +34,11 @@
   -webkit-mask: var(--platform-icon) center / contain no-repeat;
   mask: var(--platform-icon) center / contain no-repeat;
 }
+
+.projectHero {
+  padding-left: 0;
+  color: #606466;
+  font-family: "Google Sans", sans-serif;
+  line-height: 16px;
+  letter-spacing: 0;
+}

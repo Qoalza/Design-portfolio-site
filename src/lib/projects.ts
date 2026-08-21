@@ -26,6 +26,7 @@ export type Project = {
   heroImageHeight?: number;
   workSummary?: string;
   catalogRole?: string;
+  detailLabels?: string[];
   catalogVisible: boolean;
   detailAvailable: boolean;
   catalogOrder: number;
@@ -60,6 +61,18 @@ function readYear(value: unknown): number {
 function readTags(value: unknown): string[] {
   if (!Array.isArray(value) || value.some((tag) => typeof tag !== "string")) {
     throw new Error('Project frontmatter field "tags" must be an array of strings.');
+  }
+
+  return value;
+}
+
+function readOptionalStringArray(value: unknown, field: "detailLabels"): string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.trim().length === 0)) {
+    throw new Error(`Project frontmatter field "${field}" must be an array of non-empty strings.`);
   }
 
   return value;
@@ -174,6 +187,7 @@ function readProject(fileName: string): ProjectWithContent {
     heroImageHeight,
     workSummary: readOptionalString(data.workSummary, "workSummary"),
     catalogRole: readOptionalString(data.catalogRole, "catalogRole"),
+    detailLabels: readOptionalStringArray(data.detailLabels, "detailLabels"),
     catalogVisible: readOptionalBoolean(data.catalogVisible, "catalogVisible", true),
     detailAvailable: readOptionalBoolean(data.detailAvailable, "detailAvailable", true),
     catalogOrder: typeof data.catalogOrder === "number" && Number.isInteger(data.catalogOrder) ? data.catalogOrder : 999,
@@ -208,6 +222,7 @@ function withoutContent(project: ProjectWithContent): Project {
     heroImageHeight: project.heroImageHeight,
     workSummary: project.workSummary,
     catalogRole: project.catalogRole,
+    detailLabels: project.detailLabels,
     catalogVisible: project.catalogVisible,
     detailAvailable: project.detailAvailable,
     catalogOrder: project.catalogOrder,

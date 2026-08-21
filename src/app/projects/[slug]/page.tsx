@@ -83,13 +83,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     jsxs,
   });
 
-  const projectLabels = [
+  const projectLabels = project.detailLabels ?? [
     ...project.tags,
     project.role,
-    project.visibility,
-    project.ndaNote,
+    project.status,
     String(project.year),
-  ].filter((value): value is string => Boolean(value));
+  ];
   const projectsTrailItem = { href: "/projects", label: "Работы" };
   const projectTrailItem = { href: `/projects/${project.slug}`, label: project.title };
   const projectSections = getProjectSections(project.content);
@@ -119,7 +118,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </div>
             {project.subtitle ? <p className={styles.projectSubtitle}>{project.subtitle}</p> : null}
             {project.platforms?.length ? (
-              <div className={styles.heroPlatforms}><ProjectPlatforms platforms={project.platforms} /></div>
+              <div className={styles.heroPlatforms}><ProjectPlatforms platforms={project.platforms} variant="projectHero" /></div>
             ) : null}
             <ul className={styles.projectLabels} aria-label="Характеристики проекта">
               {projectLabels.map((label, index) => (
@@ -134,15 +133,27 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
           {hasHeroImage ? (
             <div className={styles.heroPreview}>
-              <div className={styles.heroPreviewImage}>
+              <Image
+                className={styles.heroPreviewBack}
+                src="/assets/homepage/corvo-dashboard.png"
+                alt=""
+                width={2960}
+                height={2400}
+                priority
+                aria-hidden="true"
+              />
+              <div className={styles.heroPreviewFront}>
+                <div className={styles.browserBar} aria-hidden="true"><i /><i /><i /></div>
+                <div className={styles.heroPreviewImage}>
                 <ProjectMediaLightbox
-                  src={project.heroImage!}
+                  src="/assets/homepage/corvo-product.png"
                   alt={project.heroImageAlt!}
-                  width={project.heroImageWidth!}
-                  height={project.heroImageHeight!}
+                  width={2960}
+                  height={2400}
                   priority
-                  sizes="1088px"
+                  sizes="720px"
                 />
+                </div>
               </div>
             </div>
           ) : null}
