@@ -242,16 +242,15 @@
 
 .projectCopy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 32px; padding: 12px 120px 12px 40px; }
 .projectRowReverse .projectCopy { padding-right: 80px; }
-.badges { display: flex; align-items: flex-start; gap: 8px; }
-.badges span { display: inline-flex; height: 30px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid; border-radius: 8px; font-family: "Source Code Pro", monospace; font-size: 12px; font-weight: 500; line-height: 14px; letter-spacing: -.7px; white-space: nowrap; }
-.blueBadge { border-color: rgba(64,148,215,.15) !important; background: rgba(10,125,218,.09); color: #0489f4; }
-.grayBadge { border-color: #dbdde0 !important; background: #f2f3f3; color: #87939f; }
-.orangeBadge { border-color: rgba(230,180,94,.26) !important; background: rgba(245,166,30,.09); color: #c18111; }
-
 .projectTitle { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 8px; }
 .projectTitle > div { display: flex; align-items: center; gap: 8px; }
 .projectTitle h3 { margin: 0; color: #444d55; font-family: "Google Sans", sans-serif; font-size: 24px; font-weight: 500; line-height: 32px; letter-spacing: .24px; }
 .projectTitle p { margin: 0; color: #5c6a77; font-size: 16px; line-height: 20px; letter-spacing: -.1px; }
+
+.projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Source Code Pro", monospace; letter-spacing: -.5px; }
+.projectTags span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.projectTags b { color: #369ff3; font-weight: 400; }
+.projectTags i { margin-right: 6px; color: #acafb2; font-style: normal; }
 
 .radioSymbol { position: relative; display: inline-block; width: 28px; height: 28px; overflow: hidden; }
 .radioSymbol > span { position: absolute; }

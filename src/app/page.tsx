@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ContextLink } from "../components/contextual-navigation";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
+import { ProjectPlatforms } from "../components/project-platforms";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
 import styles from "./page.module.css";
 
@@ -155,6 +156,20 @@ function ProjectDetail({ label, children }: { label: string; children: React.Rea
   );
 }
 
+function ProjectTags({ tags }: { tags: string[] }) {
+  return (
+    <div className={styles.projectTags} aria-label="Теги проекта">
+      {tags.map((tag, index) => (
+        <span key={tag}>
+          {index > 0 ? <i aria-hidden="true">/</i> : null}
+          <b aria-hidden="true">#</b>
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function Timeline({ number, tone }: { number: string; tone: "blue" | "orange" | "green" }) {
   return (
     <div className={`${styles.timeline} ${styles[`${tone}Timeline`]}`} aria-hidden="true">
@@ -227,15 +242,16 @@ export default function Home() {
             <article className={styles.projectRow}>
               <CorvoVisual />
               <div className={styles.projectCopy}>
-                <div className={styles.badges}><span className={styles.blueBadge}>B2B SaaS</span><span className={styles.grayBadge}>Готов частично</span></div>
                 <div className={styles.projectTitle}>
                   <div><h3>Corvo</h3><Image src={`${assetRoot}/corvo-symbol.svg`} alt="" width={28} height={28} /></div>
                   <p>Система для управления партнёрской программой</p>
                 </div>
+                <ProjectTags tags={["B2B", "SaaS", "В работе"]} />
                 <dl className={styles.projectDetails}>
-                  <ProjectDetail label="Моя роль">Продуктовый дизайнер</ProjectDetail>
+                  <ProjectDetail label="Моя роль">Product Designer</ProjectDetail>
                   <ProjectDetail label="Что делал">Спроектировал сервис с нуля: от дизайн-системы и согласования решений со стейкхолдерами до передачи в разработку. Выстроил процесс работы с командой разработки, сопровождал реализацию и прорабатывал запросы со стороны бизнес-аналитики.</ProjectDetail>
                 </dl>
+                <ProjectPlatforms platforms={["Desktop", "Tablet", "Mobile"]} />
                 <ProjectActions
                   detailHref="/projects/corvo"
                   detailLabel="Corvo"
@@ -249,15 +265,16 @@ export default function Home() {
 
             <article className={`${styles.projectRow} ${styles.projectRowReverse}`}>
               <div className={styles.projectCopy}>
-                <div className={styles.badges}><span className={styles.blueBadge}>B2B2C</span><span className={styles.orangeBadge}>Тестовое</span></div>
                 <div className={styles.projectTitle}>
                   <div><h3>Сараффан.Радио</h3><RadioSymbol /></div>
                   <p>Платформа для организации мероприятий</p>
                 </div>
+                <ProjectTags tags={["B2B2C", "Тестовое"]} />
                 <dl className={styles.projectDetails}>
-                  <ProjectDetail label="Моя роль">Продуктовый дизайнер / Аналитик</ProjectDetail>
+                  <ProjectDetail label="Моя роль">Product designer / Product Analyst</ProjectDetail>
                   <ProjectDetail label="Что делал">Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.</ProjectDetail>
                 </dl>
+                <ProjectPlatforms platforms={["Desktop"]} desktopOnlyLabel />
                 <ProjectActions />
               </div>
               <RadioVisual />
@@ -346,9 +363,7 @@ export default function Home() {
                 <div className={styles.contacts}>
                   <a href="mailto:Qoalza01@gmail.com">Qoalza01@gmail.com</a>
                   <Image src={`${assetRoot}/separator.svg`} alt="" width={6} height={10} />
-                  <span>@Coco_soul</span>
-                  <Image src={`${assetRoot}/separator.svg`} alt="" width={6} height={10} />
-                  <a href="tel:+79613247899">+7 (961) 324 78 99</a>
+                  <a href="https://t.me/Coco_soul" target="_blank" rel="noreferrer">@Coco_soul</a>
                 </div>
               </SectionHeading>
               <a className={styles.cvButton} href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" target="_blank" rel="noreferrer">Скачать полное CV <ButtonIcon name="download" /></a>

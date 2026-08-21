@@ -1,30 +1,13 @@
 import Image from "next/image";
-import type { CSSProperties } from "react";
 import { ContextLink } from "../../components/contextual-navigation";
+import { ProjectPlatforms } from "../../components/project-platforms";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
-import { getCatalogProjects, type Project, type ProjectPlatform } from "../../lib/projects";
+import { getCatalogProjects, type Project } from "../../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
-
-const platformIcons = {
-  Desktop: { src: "/assets/projects/corvo/desktop.svg", width: 21, height: 19 },
-  Tablet: { src: "/assets/projects/corvo/tablet.svg", width: 17, height: 21 },
-  Mobile: { src: "/assets/projects/corvo/mobile.svg", width: 13, height: 21 },
-} satisfies Record<ProjectPlatform, { src: string; width: number; height: number }>;
-
-function PlatformIcon({ platform }: { platform: ProjectPlatform }) {
-  const icon = platformIcons[platform];
-  const style = {
-    "--platform-icon": `url("${icon.src}")`,
-    width: icon.width,
-    height: icon.height,
-  } as CSSProperties & { "--platform-icon": string };
-
-  return <span className={styles.platformIcon} style={style} aria-hidden="true" />;
-}
 
 function RadioSymbol() {
   return (
@@ -70,9 +53,7 @@ function ProjectDetails({ project }: { project: Project }) {
       <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Моя роль</strong><small>{project.catalogRole ?? project.role}</small></span></div>
       <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Что делал</strong><small>{project.workSummary}</small></span></div>
       {project.platforms?.length ? (
-        <ul className={styles.platforms} aria-label="Платформы">
-          {project.platforms.map((platform) => <li key={platform}><PlatformIcon platform={platform} />{project.slug === "sarafan-radio" ? "Only Desktop" : platform}</li>)}
-        </ul>
+        <ProjectPlatforms platforms={project.platforms} desktopOnlyLabel={project.slug === "sarafan-radio"} />
       ) : null}
     </div>
   );
@@ -92,18 +73,28 @@ function ProjectActions({ project }: { project: Project }) {
   );
 }
 
-function ProjectCopy({ project, compact = false }: { project: Project; compact?: boolean }) {
-  const title = (
-    <div className={styles.titleGroup}>
-      <div className={styles.titleLine}><h2>{project.title}</h2>{project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : project.slug === "sarafan-radio" ? <RadioSymbol /> : null}</div>
-      <p>{project.subtitle ?? project.description}</p>
+function ProjectTags({ tags }: { tags: string[] }) {
+  return (
+    <div className={styles.projectTags} aria-label="Теги проекта">
+      {tags.map((tag, index) => (
+        <span key={tag}>
+          {index > 0 ? <i aria-hidden="true">/</i> : null}
+          <b aria-hidden="true">#</b>
+          {tag}
+        </span>
+      ))}
     </div>
   );
-  const badges = <div className={styles.badges}>{project.tags.map((tag) => <span className={tag === "В работе" ? styles.grayBadge : tag === "Тестовое" ? styles.orangeBadge : styles.blueBadge} key={tag}>{tag}</span>)}</div>;
+}
 
+function ProjectCopy({ project, compact = false }: { project: Project; compact?: boolean }) {
   return (
     <div className={`${styles.copy} ${compact ? styles.compactCopy : ""}`}>
-      {compact ? <div className={styles.headingRow}>{title}{badges}</div> : <>{badges}{title}</>}
+      <div className={styles.titleGroup}>
+        <div className={styles.titleLine}><h2>{project.title}</h2>{project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : project.slug === "sarafan-radio" ? <RadioSymbol /> : null}</div>
+        <p>{project.subtitle ?? project.description}</p>
+      </div>
+      <ProjectTags tags={project.tags} />
       <ProjectDetails project={project} />
       <ProjectActions project={project} />
     </div>
