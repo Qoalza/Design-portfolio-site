@@ -7,6 +7,7 @@ import {
   type NavigationPage,
   useNavigationTrail,
 } from "./contextual-navigation";
+import { ControlButton, NavigationTab, TextButton } from "./ui-controls";
 import styles from "./site-header.module.css";
 
 const assetRoot = "/assets/homepage";
@@ -20,27 +21,20 @@ type SiteHeaderProps = {
 type HeaderStackProps = Pick<SiteHeaderProps, "homeActive"> & {
   breadcrumbTrail?: ReturnType<typeof useNavigationTrail>;
   fixed: boolean;
+  onHomeNavigate: () => void;
 };
 
-function MaskIcon({ className = "" }: { className?: string }) {
-  return <span aria-hidden="true" className={`${styles.maskIcon} ${className}`} />;
-}
-
-function HeaderRow({ homeActive = false, fixed }: Pick<HeaderStackProps, "homeActive" | "fixed">) {
+function HeaderRow({ homeActive = false, fixed, onHomeNavigate }: Pick<HeaderStackProps, "homeActive" | "fixed" | "onHomeNavigate">) {
   return (
     <header className={styles.header}>
-      <ContextLink className={styles.brand} href="/" resetBreadcrumbs aria-label="На главную">
-        <Image src={`${assetRoot}/logo.svg`} alt="" width={48} height={48} priority={!fixed} />
-        <span><strong>ART</strong><small>Design</small></span>
+      <ContextLink className={styles.brand} href="/" resetBreadcrumbs aria-label="На главную" onClick={onHomeNavigate}>
+        <Image src={`${assetRoot}/logo.svg`} alt="" width={129} height={80} priority={!fixed} />
       </ContextLink>
 
       <nav className={styles.nav} aria-label="Основная навигация">
-        <ContextLink className={homeActive ? styles.navActive : styles.navHome} href="/" resetBreadcrumbs aria-current={homeActive ? "page" : undefined}>
-          <MaskIcon className={styles.homeIcon} />
-          Главная
-        </ContextLink>
-        <span aria-disabled="true"><MaskIcon className={styles.lockIcon} />Блог</span>
-        <span aria-disabled="true"><MaskIcon className={styles.lockIcon} />Лаборатория</span>
+        <NavigationTab active={homeActive} href="/" resetBreadcrumbs iconLeft="/assets/homepage/home.svg" onClick={onHomeNavigate}>Главная</NavigationTab>
+        <NavigationTab disabled iconLeft="/assets/homepage/lock.svg">Блог</NavigationTab>
+        <NavigationTab disabled iconLeft="/assets/homepage/lock.svg">Лаборатория</NavigationTab>
       </nav>
 
       <div className={styles.headerActions}>
@@ -48,7 +42,7 @@ function HeaderRow({ homeActive = false, fixed }: Pick<HeaderStackProps, "homeAc
           <Image src={`${assetRoot}/status.svg`} alt="" width={6} height={8} />
           Открыт к предложениям
         </span>
-        <span className={styles.primaryButton} aria-disabled="true">Связаться</span>
+        <ControlButton variant="accent" href="https://t.me/Coco_soul" external iconRight="/assets/homepage/telegram.svg">Связаться</ControlButton>
       </div>
     </header>
   );
@@ -65,15 +59,16 @@ function Breadcrumbs({ trail }: { trail: ReturnType<typeof useNavigationTrail> }
   return (
     <div className={styles.breadcrumbRow}>
       <div className={styles.breadcrumbs}>
-        <ContextLink
+        <ControlButton
           className={styles.backButton}
+          variant="ghost"
+          size="small"
           href={previousItem.href}
           breadcrumbTrail={previousTrail}
           resetBreadcrumbs={previousTrail.length === 1}
-          aria-label={`Вернуться: ${previousItem.label}`}
-        >
-          <MaskIcon className={styles.backIcon} />
-        </ContextLink>
+          ariaLabel={`Вернуться: ${previousItem.label}`}
+          iconLeft="/assets/projects/corvo/back.svg"
+        >{null}</ControlButton>
         <div className={styles.breadcrumbTrail}>
           {trail.map((item, index) => (
             <Fragment key={`${item.href}-${index}`}>
@@ -81,13 +76,13 @@ function Breadcrumbs({ trail }: { trail: ReturnType<typeof useNavigationTrail> }
               {index === trail.length - 1 ? (
                 <span>{item.label}</span>
               ) : (
-                <ContextLink
+                <TextButton
                   href={item.href}
                   breadcrumbTrail={trail.slice(0, index + 1)}
                   resetBreadcrumbs={index === 0}
                 >
                   {item.label}
-                </ContextLink>
+                </TextButton>
               )}
             </Fragment>
           ))}
@@ -97,10 +92,10 @@ function Breadcrumbs({ trail }: { trail: ReturnType<typeof useNavigationTrail> }
   );
 }
 
-function HeaderStack({ homeActive, breadcrumbTrail, fixed }: HeaderStackProps) {
+function HeaderStack({ homeActive, breadcrumbTrail, fixed, onHomeNavigate }: HeaderStackProps) {
   return (
     <div className={`${styles.stack} ${fixed ? styles.fixedStack : ""}`}>
-      <HeaderRow homeActive={homeActive} fixed={fixed} />
+      <HeaderRow homeActive={homeActive} fixed={fixed} onHomeNavigate={onHomeNavigate} />
       {breadcrumbTrail ? <Breadcrumbs trail={breadcrumbTrail} /> : null}
     </div>
   );
@@ -109,8 +104,10 @@ function HeaderStack({ homeActive, breadcrumbTrail, fixed }: HeaderStackProps) {
 export function SiteHeader({ homeActive = false, navigationPage, showBreadcrumbs = true }: SiteHeaderProps) {
   const sentinelRef = useRef<HTMLSpanElement>(null);
   const [fixedVisible, setFixedVisible] = useState(false);
+  const [hideBreadcrumbs, setHideBreadcrumbs] = useState(false);
   const navigationTrail = useNavigationTrail(navigationPage);
-  const breadcrumbTrail = showBreadcrumbs ? navigationTrail : undefined;
+  const breadcrumbTrail = showBreadcrumbs && !hideBreadcrumbs ? navigationTrail : undefined;
+  const handleHomeNavigate = () => setHideBreadcrumbs(true);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -130,16 +127,17 @@ export function SiteHeader({ homeActive = false, navigationPage, showBreadcrumbs
   return (
     <div className={styles.controller} data-site-header-controller data-fixed-visible={fixedVisible ? "true" : "false"}>
       <div className={styles.flowHeader} aria-hidden={fixedVisible || undefined} inert={fixedVisible || undefined}>
-        <HeaderStack homeActive={homeActive} breadcrumbTrail={breadcrumbTrail} fixed={false} />
+        <HeaderStack homeActive={homeActive} breadcrumbTrail={breadcrumbTrail} fixed={false} onHomeNavigate={handleHomeNavigate} />
         <span ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
       </div>
 
       <div
         className={`${styles.fixedHeader} ${fixedVisible ? styles.fixedHeaderVisible : ""}`}
+        data-site-header-fixed
         aria-hidden={!fixedVisible || undefined}
         inert={!fixedVisible || undefined}
       >
-        <HeaderStack homeActive={homeActive} breadcrumbTrail={breadcrumbTrail} fixed />
+        <HeaderStack homeActive={homeActive} breadcrumbTrail={breadcrumbTrail} fixed onHomeNavigate={handleHomeNavigate} />
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ export const HOME_TRAIL_ITEM: NavigationTrailItem = {
   label: "Главная",
 };
 
+const historyStateKey = "__portfolioNavigationTrail";
+
 function normalizeHref(href: string): string {
   const url = new URL(href, "https://portfolio.local");
   return `${url.pathname}${url.search}`;
@@ -68,4 +70,49 @@ export function navigationTrailsEqual(
   return firstTrail.length === secondTrail.length && firstTrail.every((item, index) => (
     item.href === secondTrail[index]?.href && item.label === secondTrail[index]?.label
   ));
+}
+
+export function readNavigationTrailFromHistoryState(state: unknown): NavigationTrailItem[] | null {
+  if (typeof state !== "object" || state === null || !(historyStateKey in state)) {
+    return null;
+  }
+
+  const value = (state as Record<string, unknown>)[historyStateKey];
+  return isNavigationTrail(value) ? value : null;
+}
+
+export function writeNavigationTrailToHistoryState(
+  state: unknown,
+  trail: readonly NavigationTrailItem[],
+): Record<string, unknown> {
+  const currentState = typeof state === "object" && state !== null
+    ? state as Record<string, unknown>
+    : {};
+
+  return {
+    ...currentState,
+    [historyStateKey]: [...trail],
+  };
+}
+
+export function resolveNavigationTrailForRoute({
+  pathname,
+  pendingTrail,
+  storedTrail,
+  canonicalTrail,
+}: {
+  pathname: string;
+  pendingTrail: readonly NavigationTrailItem[] | null;
+  storedTrail: readonly NavigationTrailItem[] | null;
+  canonicalTrail: readonly NavigationTrailItem[];
+}): NavigationTrailItem[] {
+  if (pendingTrail && trailEndsAtPathname(pendingTrail, pathname)) {
+    return [...pendingTrail];
+  }
+
+  if (storedTrail && trailEndsAtPathname(storedTrail, pathname)) {
+    return [...storedTrail];
+  }
+
+  return [...canonicalTrail];
 }

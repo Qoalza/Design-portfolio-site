@@ -1,6 +1,6 @@
 # DESIGN QA
 
-Обновлено: 2026-08-15
+Обновлено: 2026-08-22
 
 ## Назначение
 
@@ -15,6 +15,19 @@
 - перед исправлением сверять с актуальной Figma, если макет мог измениться.
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
+
+## READY_FOR_REVIEW — Main chapter full reconciliation
+
+Источники: Figma nodes `510:28120` и дочерние блоки главной, `373:50236` (`/projects`), `373:47103` и `553:3314` (Corvo), `515:31302` (затухание process-блока), `555:3665` (кнопки галереи).
+
+- Общие кнопки, текстовые кнопки и Tabs используют единый кодовый контракт с состояниями Default, Hover, Pressed и Disabled без цветовых transition.
+- Header и breadcrumbs используют общий компонентный слой; возврат на главную через логотип сразу скрывает breadcrumb-цепочку и очищает её в navigation history entry.
+- Corvo на главной и `/projects` использует общий Figma-контракт карточки; конструкции Сараффан.Радио и B.Off остаются самостоятельными согласно их экземплярам.
+- Corvo использует нециклическую галерею с актуальными кнопками и edge-fade, одно текущее изображение процесса и варианты action bar `Full` / `Adaptive`.
+- Process-блок управляется только стрелками; wheel/trackpad не перехватывается и продолжает обычную прокрутку страницы.
+- Sticky-навигация Corvo и переход action bar `Full ↔ Adaptive` работают в обе стороны, после reload и при повторной навигации.
+- Focused browser-проверка пройдена в Chromium и Zen/Firefox: H02 и history-сценарии на `1440×900`, sticky-навигация и action bar на `1280×720`, `1440×900`, `1920×1080`; горизонтальный overflow и console/hydration errors отсутствуют.
+- Детальный индекс visual/behavioral evidence: `design-reference/main-chapter-reconciliation-v2/README.md`.
 
 ## READY_FOR_REVIEW — error pages 404/500
 

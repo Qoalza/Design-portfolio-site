@@ -1,30 +1,14 @@
 import Image from "next/image";
-import type { CSSProperties } from "react";
-import { ContextLink } from "../../components/contextual-navigation";
+import { MainProjectCard } from "../../components/main-project-card";
+import { ProjectPlatforms } from "../../components/project-platforms";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
+import { ControlButton } from "../../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
-import { getCatalogProjects, type Project, type ProjectPlatform } from "../../lib/projects";
+import { getCatalogProjects, type Project } from "../../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
-
-const platformIcons = {
-  Desktop: { src: "/assets/projects/corvo/desktop.svg", width: 21, height: 19 },
-  Tablet: { src: "/assets/projects/corvo/tablet.svg", width: 17, height: 21 },
-  Mobile: { src: "/assets/projects/corvo/mobile.svg", width: 13, height: 21 },
-} satisfies Record<ProjectPlatform, { src: string; width: number; height: number }>;
-
-function PlatformIcon({ platform }: { platform: ProjectPlatform }) {
-  const icon = platformIcons[platform];
-  const style = {
-    "--platform-icon": `url("${icon.src}")`,
-    width: icon.width,
-    height: icon.height,
-  } as CSSProperties & { "--platform-icon": string };
-
-  return <span className={styles.platformIcon} style={style} aria-hidden="true" />;
-}
 
 function RadioSymbol() {
   return (
@@ -41,15 +25,6 @@ function RadioSymbol() {
 }
 
 function ProjectVisual({ slug }: { slug: string }) {
-  if (slug === "corvo") {
-    return (
-      <div className={`${styles.visual} ${styles.corvoVisual}`} aria-hidden="true">
-        <Image className={styles.corvoBack} src={`${assetRoot}/corvo-dashboard.png`} alt="" width={2960} height={2400} />
-        <Image className={styles.corvoFront} src={`${assetRoot}/corvo-product.png`} alt="" width={2960} height={2400} />
-      </div>
-    );
-  }
-
   const source = slug === "sarafan-radio"
     ? "/assets/projects/catalog/sarafan-radio.png"
     : "/assets/projects/catalog/boff-transactions.png";
@@ -70,9 +45,7 @@ function ProjectDetails({ project }: { project: Project }) {
       <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Моя роль</strong><small>{project.catalogRole ?? project.role}</small></span></div>
       <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Что делал</strong><small>{project.workSummary}</small></span></div>
       {project.platforms?.length ? (
-        <ul className={styles.platforms} aria-label="Платформы">
-          {project.platforms.map((platform) => <li key={platform}><PlatformIcon platform={platform} />{project.slug === "sarafan-radio" ? "Only Desktop" : platform}</li>)}
-        </ul>
+        <ProjectPlatforms platforms={project.platforms} desktopOnlyLabel={project.slug === "sarafan-radio"} />
       ) : null}
     </div>
   );
@@ -81,29 +54,41 @@ function ProjectDetails({ project }: { project: Project }) {
 function ProjectActions({ project }: { project: Project }) {
   return (
     <div className={styles.actions}>
-      {project.detailAvailable ? <ContextLink className={styles.detailsButton} href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ContextLink> : <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>}
+      {project.detailAvailable ? <ControlButton className={styles.detailsButton} variant="neutral" href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ControlButton> : <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>}
       {project.figmaAvailable && project.figmaUrl ? (
-        <a className={styles.figmaButton} href={project.figmaUrl} target="_blank" rel="noreferrer">Figma <Image src={`${assetRoot}/project-share.svg`} alt="" width={16} height={16} /></a>
+        <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
       ) : (
-        <span className={styles.unavailable}><Image src={`${assetRoot}/project-info.svg`} alt="" width={16} height={16} />Файл пока недоступен</span>
+        <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
       )}
       {project.figmaAvailable && project.updatedAt ? <><span className={styles.actionDivider} /><span className={styles.updated}><Image src={`${assetRoot}/project-refresh.svg`} alt="" width={16} height={16} />Обновлено {project.updatedAt}</span></> : null}
     </div>
   );
 }
 
-function ProjectCopy({ project, compact = false }: { project: Project; compact?: boolean }) {
-  const title = (
-    <div className={styles.titleGroup}>
-      <div className={styles.titleLine}><h2>{project.title}</h2>{project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : project.slug === "sarafan-radio" ? <RadioSymbol /> : null}</div>
-      <p>{project.subtitle ?? project.description}</p>
+function ProjectTags({ tags }: { tags: string[] }) {
+  return (
+    <div className={styles.projectTags} aria-label="Теги проекта">
+      {tags.map((tag, index) => (
+        <span key={tag}>
+          {index > 0 ? <i aria-hidden="true">/</i> : null}
+          <b aria-hidden="true">#</b>
+          {tag}
+        </span>
+      ))}
     </div>
   );
-  const badges = <div className={styles.badges}>{project.tags.map((tag) => <span className={tag === "В работе" ? styles.grayBadge : tag === "Тестовое" ? styles.orangeBadge : styles.blueBadge} key={tag}>{tag}</span>)}</div>;
+}
 
+function ProjectCopy({ project, compact = false }: { project: Project; compact?: boolean }) {
   return (
     <div className={`${styles.copy} ${compact ? styles.compactCopy : ""}`}>
-      {compact ? <div className={styles.headingRow}>{title}{badges}</div> : <>{badges}{title}</>}
+      <div className={styles.headerGroup}>
+        <div className={styles.titleGroup}>
+          <div className={styles.titleLine}><h2>{project.title}</h2>{project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : project.slug === "sarafan-radio" ? <RadioSymbol /> : null}</div>
+          <p>{project.subtitle ?? project.description}</p>
+        </div>
+        <ProjectTags tags={project.tags} />
+      </div>
       <ProjectDetails project={project} />
       <ProjectActions project={project} />
     </div>
@@ -112,7 +97,8 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
 
 export default function ProjectsPage() {
   const projects = getCatalogProjects();
-  const [corvo, ...compactProjects] = projects;
+  const corvo = projects.find((project) => project.slug === "corvo");
+  const compactProjects = projects.filter((project) => project.slug !== "corvo");
   const projectsTrailItem = { href: "/projects", label: "Работы" };
 
   return (
@@ -128,7 +114,7 @@ export default function ProjectsPage() {
         <main id="projects-content" className={styles.main}>
           <header className={styles.intro}><h1>Мои работы</h1><p>Здесь собрал рабочие проекты, тестовые задания,<br />где можно увидеть мой подход к задаче и результат.</p></header>
           <section className={styles.catalog} aria-label="Проекты">
-            {corvo ? <article className={styles.featured}><ProjectVisual slug={corvo.slug} /><ProjectCopy project={corvo} /></article> : null}
+            {corvo ? <MainProjectCard project={corvo} /> : null}
             <div className={styles.compactGrid}>{compactProjects.map((project) => <article className={styles.compactCard} key={project.slug}><ProjectVisual slug={project.slug} /><ProjectCopy project={project} compact /></article>)}</div>
           </section>
         </main>

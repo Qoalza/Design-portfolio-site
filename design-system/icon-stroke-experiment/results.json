@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "download-cloud-01-line-light",
+    "weight": 1,
+    "standard": {
+      "accepted": true,
+      "reason": "штатный экспорт уже использует Stroke"
+    },
+    "candidate": {
+      "pass": true,
+      "errors": []
+    },
+    "metrics": {
+      "figmaToCandidate": {
+        "rmse": 3.8372564466083103,
+        "maxChannelDelta": 203,
+        "changedPixelPercent": 3.43
+      },
+      "standardToCandidate": {
+        "16": {
+          "rmse": 0.707,
+          "changedPixelPercent": 0.78
+        },
+        "24": {
+          "rmse": 1.179,
+          "changedPixelPercent": 0.35
+        },
+        "32": {
+          "rmse": 1.577,
+          "changedPixelPercent": 0.2
+        },
+        "48": {
+          "rmse": 2.397,
+          "changedPixelPercent": 0.09
+        }
+      }
+    }
+  },
+  {
+    "slug": "close-filter-funnel-02-line-medium",
+    "weight": 1.3,
+    "standard": {
+      "accepted": false,
+      "reason": "основная линия превращена в outlined Fill; атрибут stroke отсутствует"
+    },
+    "candidate": {
+      "pass": true,
+      "errors": []
+    },
+    "metrics": {
+      "figmaToCandidate": {
+        "rmse": 2.1700527760692654,
+        "maxChannelDelta": 33,
+        "changedPixelPercent": 5.07
+      },
+      "standardToCandidate": {
+        "16": {
+          "rmse": 0.97,
+          "changedPixelPercent": 0.78
+        },
+        "24": {
+          "rmse": 1.01,
+          "changedPixelPercent": 1.22
+        },
+        "32": {
+          "rmse": 1.175,
+          "changedPixelPercent": 1.17
+        },
+        "48": {
+          "rmse": 0.555,
+          "changedPixelPercent": 0.35
+        }
+      }
+    }
+  },
+  {
+    "slug": "bar-chart-10-plus-duotone-light",
+    "weight": 1,
+    "standard": {
+      "accepted": false,
+      "reason": "основная линия превращена в outlined Fill; атрибут stroke отсутствует"
+    },
+    "candidate": {
+      "pass": true,
+      "errors": []
+    },
+    "metrics": {
+      "figmaToCandidate": {
+        "rmse": 1.1493789838913495,
+        "maxChannelDelta": 23,
+        "changedPixelPercent": 0.85
+      },
+      "standardToCandidate": {
+        "16": {
+          "rmse": 1.185,
+          "changedPixelPercent": 4.3
+        },
+        "24": {
+          "rmse": 1.443,
+          "changedPixelPercent": 2.6
+        },
+        "32": {
+          "rmse": 1.082,
+          "changedPixelPercent": 1.37
+        },
+        "48": {
+          "rmse": 0.175,
+          "changedPixelPercent": 0.04
+        }
+      }
+    }
+  }
+]

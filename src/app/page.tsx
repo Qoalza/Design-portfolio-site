@@ -1,18 +1,18 @@
 import Image from "next/image";
-import { ContextLink } from "../components/contextual-navigation";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
+import { MainProjectCard } from "../components/main-project-card";
+import { ProjectPlatforms } from "../components/project-platforms";
+import { ProcessStepper } from "../components/process-stepper";
+import { ControlButton } from "../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
+import { getCatalogProjects } from "../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
 
 function MaskIcon({ className = "" }: { className?: string }) {
   return <span aria-hidden="true" className={`${styles.maskIcon} ${className}`} />;
-}
-
-function ButtonIcon({ name }: { name: "arrow-right" | "chevron-down" | "download" | "project-info" | "project-share" }) {
-  return <Image className={styles.buttonIcon} src={`${assetRoot}/${name}.svg`} alt="" width={16} height={16} />;
 }
 
 function SectionHeading({
@@ -86,18 +86,14 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
     <div className={styles.projectActions}>
       <div className={styles.projectActionButtons}>
         {detailHref ? (
-          <ContextLink className={styles.detailsButton} href={detailHref} breadcrumbLabel={detailLabel}>Подробнее</ContextLink>
+          <ControlButton className={styles.detailsButton} variant="neutral" href={detailHref} breadcrumbLabel={detailLabel}>Подробнее</ControlButton>
         ) : (
-          <span className={styles.detailsButton} aria-disabled="true">Подробнее</span>
+          <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>
         )}
         {hasFigma ? (
-          <a className={styles.figmaButton} href={figmaHref} target="_blank" rel="noreferrer">
-            Figma <ButtonIcon name="project-share" />
-          </a>
+          <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
         ) : (
-          <span className={styles.unavailableButton} aria-disabled="true">
-            <ButtonIcon name="project-info" /> Файл пока недоступен
-          </span>
+          <ControlButton className={styles.unavailableButton} variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
         )}
       </div>
       {hasFigma && updatedAt ? (
@@ -106,15 +102,6 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
           <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено {updatedAt}</span>
         </>
       ) : null}
-    </div>
-  );
-}
-
-function CorvoVisual() {
-  return (
-    <div className={styles.projectVisual} aria-hidden="true">
-      <Image className={styles.corvoBack} src={`${assetRoot}/corvo-dashboard.png`} alt="" width={2960} height={2400} />
-      <Image className={styles.corvoFront} src={`${assetRoot}/corvo-product.png`} alt="" width={2960} height={2400} />
     </div>
   );
 }
@@ -155,14 +142,16 @@ function ProjectDetail({ label, children }: { label: string; children: React.Rea
   );
 }
 
-function Timeline({ number, tone }: { number: string; tone: "blue" | "orange" | "green" }) {
+function ProjectTags({ tags }: { tags: string[] }) {
   return (
-    <div className={`${styles.timeline} ${styles[`${tone}Timeline`]}`} aria-hidden="true">
-      <span className={styles.timelineLead} />
-      <span className={styles.timelineDot} />
-      <span className={styles.timelineNumberLine} />
-      <span className={styles.timelineNumber}>{number}</span>
-      <span className={styles.timelineTail} />
+    <div className={styles.projectTags} aria-label="Теги проекта">
+      {tags.map((tag, index) => (
+        <span key={tag}>
+          {index > 0 ? <i aria-hidden="true">/</i> : null}
+          <b aria-hidden="true">#</b>
+          {tag}
+        </span>
+      ))}
     </div>
   );
 }
@@ -180,6 +169,8 @@ function MethodRow({ iconClass, title, children }: { iconClass: string; title: s
 }
 
 export default function Home() {
+  const corvo = getCatalogProjects().find((project) => project.slug === "corvo");
+
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
@@ -210,8 +201,8 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.heroActions}>
-                <ContextLink className={styles.darkButton} href="#projects">Мои работы</ContextLink>
-                <span className={styles.secondaryButton} aria-disabled="true">CV <ButtonIcon name="download" /></span>
+                <ControlButton className={styles.darkButton} variant="neutral" href="#projects">Мои работы</ControlButton>
+                <ControlButton className={styles.secondaryButton} variant="ghost" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>CV</ControlButton>
               </div>
             </div>
           </section>
@@ -221,43 +212,27 @@ export default function Home() {
               <SectionHeading id="projects-title" title="То, над чем я работал" centered>
                 <p>Здесь собрал рабочие проекты, тестовые задания.<br />Где можно увидеть мой подход к задаче и результат.</p>
               </SectionHeading>
-              <ContextLink className={styles.textButton} href="/projects" breadcrumbLabel="Работы">Все работы <ButtonIcon name="arrow-right" /></ContextLink>
+              <ControlButton className={styles.textButton} variant="ghost" href="/projects" breadcrumbLabel="Работы" iconRight={`${assetRoot}/arrow-right.svg`}>Все работы</ControlButton>
             </div>
 
-            <article className={styles.projectRow}>
-              <CorvoVisual />
-              <div className={styles.projectCopy}>
-                <div className={styles.badges}><span className={styles.blueBadge}>B2B SaaS</span><span className={styles.grayBadge}>Готов частично</span></div>
-                <div className={styles.projectTitle}>
-                  <div><h3>Corvo</h3><Image src={`${assetRoot}/corvo-symbol.svg`} alt="" width={28} height={28} /></div>
-                  <p>Система для управления партнёрской программой</p>
-                </div>
-                <dl className={styles.projectDetails}>
-                  <ProjectDetail label="Моя роль">Продуктовый дизайнер</ProjectDetail>
-                  <ProjectDetail label="Что делал">Полностью собрал дизайн систему, согласовал с главными стейкхолдерами, выстроил процесс с разработчиками, чтобы они могли спроектировать все это. Еще и весь сервис собрал с 0. Обрабатывал обращения бизнесс-аналитика.</ProjectDetail>
-                </dl>
-                <ProjectActions
-                  detailHref="/projects/corvo"
-                  detailLabel="Corvo"
-                  figmaHref="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82?node-id=373-47103"
-                  updatedAt="13.05.2026"
-                />
-              </div>
-            </article>
+            {corvo ? <MainProjectCard project={corvo} headingLevel="h3" /> : null}
 
             <div className={styles.projectDivider} />
 
             <article className={`${styles.projectRow} ${styles.projectRowReverse}`}>
               <div className={styles.projectCopy}>
-                <div className={styles.badges}><span className={styles.blueBadge}>B2B2C</span><span className={styles.orangeBadge}>Тестовое</span></div>
-                <div className={styles.projectTitle}>
-                  <div><h3>Сараффан.Радио</h3><RadioSymbol /></div>
-                  <p>Платформа для организации мероприятий</p>
+                <div className={styles.projectHeader}>
+                  <div className={styles.projectTitle}>
+                    <div><h3>Сараффан.Радио</h3><RadioSymbol /></div>
+                    <p>Платформа для организации мероприятий</p>
+                  </div>
+                  <ProjectTags tags={["B2B2C", "Тестовое"]} />
                 </div>
                 <dl className={styles.projectDetails}>
-                  <ProjectDetail label="Моя роль">Продуктовый дизайнер / Аналитик</ProjectDetail>
+                  <ProjectDetail label="Моя роль">Product designer / Product Analyst</ProjectDetail>
                   <ProjectDetail label="Что делал">Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.</ProjectDetail>
                 </dl>
+                <ProjectPlatforms platforms={["Desktop"]} desktopOnlyLabel />
                 <ProjectActions />
               </div>
               <RadioVisual />
@@ -269,11 +244,10 @@ export default function Home() {
               <p>Сначала разбираюсь в продукте, бизнесе и самой задаче. Затем выбираю подходящие методы, собираю решение в систему и довожу его до продакшена.</p>
             </SectionHeading>
 
-            <div className={styles.processRows}>
+            <ProcessStepper>
               <article className={`${styles.processRow} ${styles.analyticsRow}`}>
-                <Timeline number="01" tone="blue" />
                 <div className={styles.processCopy}>
-                  <span className={`${styles.processBadge} ${styles.analyticsBadge}`}>Аналитика</span>
+                  <span className={styles.processEyebrow}><b>01</b>Аналитика</span>
                   <div className={styles.processDescription}>
                     <h3>Погружаюсь в задачу и выбираю подход</h3>
                     <p>Изучаю требования и входящие данные, исследую рынок, конкурентов и процессы пользователей. Затем выбираю только те методы, которые требуются и/или есть запрос бизнеса в конкретной задаче.</p>
@@ -296,9 +270,8 @@ export default function Home() {
                 <div className={styles.designMedia}>
                   <Image src={`${assetRoot}/process-prototype.png`} alt="Схема проектирования интерфейса" width={3128} height={2166} />
                 </div>
-                <Timeline number="02" tone="orange" />
                 <div className={styles.processCopy}>
-                  <span className={`${styles.processBadge} ${styles.designBadge}`}>Проектирование</span>
+                  <span className={styles.processEyebrow}><b>02</b>Проектирование</span>
                   <div className={styles.processDescription}>
                     <h3>Собираю решение в систему</h3>
                     <p>Когда задача и подход определены, перевожу решение в макеты и техническую основу продукта: создаю компоненты, состояния и токены, описываю гайдлайны и выстраиваю понятную структуру больших файлов</p>
@@ -308,9 +281,8 @@ export default function Home() {
               </article>
 
               <article className={`${styles.processRow} ${styles.deliveryRow}`}>
-                <Timeline number="03" tone="green" />
                 <div className={styles.processCopy}>
-                  <span className={`${styles.processBadge} ${styles.deliveryBadge}`}>Финал</span>
+                  <span className={styles.processEyebrow}><b>03</b>Финал</span>
                   <div className={styles.processDescription}>
                     <h3>Довожу решения до продакшена</h3>
                     <p>Работаю вместе с аналитиками, разработчиками и QA: уточняю логику, готовлю макеты к передаче, провожу дизайн-ревью и выстраиваю процессы так, чтобы между дизайном и готовым продуктом ничего не потерялось</p>
@@ -320,7 +292,7 @@ export default function Home() {
                   <Image src={`${assetRoot}/process-delivery.png`} alt="Схема передачи готового решения в разработку" width={3138} height={1944} />
                 </div>
               </article>
-            </div>
+            </ProcessStepper>
           </section>
 
           <section className={styles.ai} aria-labelledby="ai-title">
@@ -346,12 +318,10 @@ export default function Home() {
                 <div className={styles.contacts}>
                   <a href="mailto:Qoalza01@gmail.com">Qoalza01@gmail.com</a>
                   <Image src={`${assetRoot}/separator.svg`} alt="" width={6} height={10} />
-                  <span>@Coco_soul</span>
-                  <Image src={`${assetRoot}/separator.svg`} alt="" width={6} height={10} />
-                  <a href="tel:+79613247899">+7 (961) 324 78 99</a>
+                  <a href="https://t.me/Coco_soul" target="_blank" rel="noreferrer">@Coco_soul</a>
                 </div>
               </SectionHeading>
-              <span className={styles.cvButton} aria-disabled="true">Скачать полное CV <ButtonIcon name="download" /></span>
+              <ControlButton className={styles.cvButton} variant="light" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>Скачать полное CV</ControlButton>
             </div>
 
             <div className={styles.experienceList}>

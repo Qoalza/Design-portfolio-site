@@ -1,0 +1,44 @@
+.platforms {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 0 0 0 20px;
+  color: #909498;
+  font: 400 14px/20px "Onest", sans-serif;
+  letter-spacing: -.1px;
+  list-style: none;
+}
+
+.platforms li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.platforms li + li::before {
+  width: 1px;
+  height: 20px;
+  margin-right: 4px;
+  background: #e2e5e7;
+  content: "";
+}
+
+.icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  background: currentColor;
+  -webkit-mask: var(--platform-icon) center / contain no-repeat;
+  mask: var(--platform-icon) center / contain no-repeat;
+}
+
+.projectHero {
+  padding-left: 0;
+  color: #606466;
+  font-family: "Google Sans", sans-serif;
+  line-height: 16px;
+  letter-spacing: 0;
+}

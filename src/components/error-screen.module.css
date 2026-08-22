@@ -2,7 +2,7 @@
 .shell { display: flex; width: 1200px; min-height: 100vh; flex-direction: column; margin: 0 auto; }
 .main { position: relative; min-height: 0; flex: 1 1 auto; }
 .stage {
-  --stage-scale: min(1, calc((100vh - 60px) / 900px));
+  --stage-scale: min(1, tan(atan2(calc(100vh - 60px), 900px)));
 
   position: absolute;
   top: 50%;

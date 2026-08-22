@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ProjectShareButton, useProjectShare } from "./project-share-button";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { getActionBarVariant } from "../lib/main-chapter-interactions";
+import { useProjectShare } from "./project-share-button";
+import { ControlButton } from "./ui-controls";
 import styles from "./project-action-bar.module.css";
 
 type ProjectActionBarProps = {
@@ -11,112 +13,121 @@ type ProjectActionBarProps = {
   updatedAt?: string;
 };
 
-type ActionBarContentProps = Omit<ProjectActionBarProps, "title"> & {
-  onShare: () => Promise<void>;
-};
-
-function ActionBarContent({
-  figmaAvailable,
-  figmaUrl,
-  updatedAt,
-  onShare,
-}: ActionBarContentProps) {
-  return (
-    <div className={styles.bar}>
-      {figmaAvailable && figmaUrl && updatedAt ? (
-        <div className={styles.availableContent}>
-          <a className={styles.figmaLink} data-project-action="figma" href={figmaUrl} target="_blank" rel="noreferrer">
-            Figma
-            <span className={`${styles.icon} ${styles.externalIcon}`} aria-hidden="true" />
-          </a>
-          <span className={styles.updatedAt}>Обновлен {updatedAt}</span>
-        </div>
-      ) : (
-        <div className={styles.unavailableContent}>
-          <span className={`${styles.icon} ${styles.infoIcon}`} aria-hidden="true" />
-          <span>Figma - файл пока недоступен, в процессе подготовки</span>
-        </div>
-      )}
-
-      <ProjectShareButton className={styles.shareButton} onShare={onShare} />
-    </div>
-  );
-}
-
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
-  const inlineRef = useRef<HTMLDivElement>(null);
-  const floatingRef = useRef<HTMLDivElement>(null);
-  const pendingFocusRef = useRef<"figma" | "share" | null>(null);
-  const [inlineVisible, setInlineVisible] = useState(false);
-  const [floatingReady, setFloatingReady] = useState(false);
+  const frameRef = useRef<number | null>(null);
+  const [variant, setVariant] = useState<"full" | "adaptive">("full");
+  const [footerOffset, setFooterOffset] = useState(0);
+  const [layout, setLayout] = useState({ fullLeft: 0, fullWidth: 1200, adaptiveLeft: 0, adaptiveWidth: 1000 });
   const { announcement, handleShare } = useProjectShare(title);
-  const floatingVisible = !inlineVisible;
-  const floatingInteractive = floatingVisible && floatingReady;
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setFloatingReady(true));
-    return () => window.cancelAnimationFrame(frame);
+    const update = () => {
+      frameRef.current = null;
+      const informationStart = document.querySelector<HTMLElement>("[data-project-information-start]");
+      const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
+      const footer = document.querySelector<HTMLElement>("[data-project-footer]");
+      const contentColumn = document.querySelector<HTMLElement>("[data-project-content-column]");
+      const main = document.querySelector<HTMLElement>("[data-project-information-start]");
+
+      if (informationStart) {
+        const headerBottom = Math.max(0, fixedHeader?.getBoundingClientRect().bottom ?? 0);
+        setVariant(getActionBarVariant(informationStart.getBoundingClientRect().top, headerBottom));
+      }
+
+      if (contentColumn && main) {
+        const contentRect = contentColumn.getBoundingClientRect();
+        const mainRect = main.getBoundingClientRect();
+        const nextLayout = {
+          fullLeft: mainRect.left,
+          fullWidth: mainRect.width,
+          adaptiveLeft: contentRect.left,
+          adaptiveWidth: contentRect.width,
+        };
+        setLayout((currentLayout) => (
+          currentLayout.fullLeft === nextLayout.fullLeft
+          && currentLayout.fullWidth === nextLayout.fullWidth
+          && currentLayout.adaptiveLeft === nextLayout.adaptiveLeft
+          && currentLayout.adaptiveWidth === nextLayout.adaptiveWidth
+            ? currentLayout
+            : nextLayout
+        ));
+      }
+
+      if (footer) {
+        setFooterOffset(Math.max(0, window.innerHeight - footer.getBoundingClientRect().top));
+      }
+    };
+
+    const scheduleUpdate = () => {
+      if (frameRef.current === null) {
+        frameRef.current = window.requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    const measuredElements = [
+      document.querySelector<HTMLElement>("[data-site-header-fixed]"),
+      document.querySelector<HTMLElement>("[data-project-information-start]"),
+      document.querySelector<HTMLElement>("[data-project-content-column]"),
+      document.querySelector<HTMLElement>("[data-project-footer]"),
+    ].filter((element): element is HTMLElement => Boolean(element));
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    measuredElements.forEach((element) => resizeObserver.observe(element));
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("scrollend", update);
+    window.addEventListener("resize", scheduleUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("scrollend", update);
+      window.removeEventListener("resize", scheduleUpdate);
+      resizeObserver.disconnect();
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+    };
   }, []);
-
-  useEffect(() => {
-    const inlineBar = inlineRef.current;
-
-    if (!inlineBar) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(([entry]) => {
-      const nextInlineVisible = entry.isIntersecting;
-      const activeContainer = nextInlineVisible ? floatingRef.current : inlineRef.current;
-      const focusedAction = activeContainer?.contains(document.activeElement)
-        ? document.activeElement?.getAttribute("data-project-action")
-        : null;
-
-      pendingFocusRef.current = focusedAction === "figma" || focusedAction === "share" ? focusedAction : null;
-      setInlineVisible(nextInlineVisible);
-    }, { threshold: 0 });
-
-    observer.observe(inlineBar);
-    return () => observer.disconnect();
-  }, []);
-
-  useLayoutEffect(() => {
-    const action = pendingFocusRef.current;
-
-    if (!action) {
-      return;
-    }
-
-    const activeContainer = inlineVisible ? inlineRef.current : floatingRef.current;
-    const target = activeContainer?.querySelector<HTMLElement>(`[data-project-action="${action}"]`);
-
-    target?.focus({ preventScroll: true });
-    pendingFocusRef.current = null;
-  }, [inlineVisible]);
-
-  const contentProps = { figmaAvailable, figmaUrl, updatedAt, onShare: handleShare };
 
   return (
-    <div data-project-action-bar data-floating-visible={floatingVisible ? "true" : "false"}>
+    <>
       <div
-        ref={inlineRef}
-        className={styles.inlineBar}
-        aria-hidden={!inlineVisible || undefined}
-        inert={!inlineVisible || undefined}
+        className={`${styles.actionBar} ${variant === "adaptive" ? styles.adaptive : ""}`}
+        data-project-action-bar
+        data-project-action-variant={variant}
+        style={{
+          bottom: `${footerOffset}px`,
+          left: variant === "adaptive" ? `${layout.adaptiveLeft}px` : "0px",
+          width: variant === "adaptive" ? `${layout.adaptiveWidth}px` : "100vw",
+          "--action-full-left": `${layout.fullLeft}px`,
+          "--action-full-width": `${layout.fullWidth}px`,
+        } as CSSProperties}
       >
-        <ActionBarContent {...contentProps} />
-      </div>
+        <div
+          className={styles.barContent}
+          style={{
+            left: variant === "adaptive" ? "0px" : `${layout.fullLeft}px`,
+            width: variant === "adaptive" ? `${layout.adaptiveWidth}px` : `${layout.fullWidth}px`,
+          }}
+        >
+          <div className={styles.leadingContent}>
+            {figmaAvailable && figmaUrl && updatedAt ? (
+              <>
+                <ControlButton variant="neutral" dataAction="figma" href={figmaUrl} external iconRight="/assets/projects/external-link.svg">Figma</ControlButton>
+                <span className={styles.updatedAt}>Обновлено {updatedAt}</span>
+              </>
+            ) : (
+              <div className={styles.unavailableContent}>
+                <span className={`${styles.icon} ${styles.infoIcon}`} aria-hidden="true" />
+                <span>Figma - файл пока недоступен, в процессе подготовки</span>
+              </div>
+            )}
+          </div>
 
-      <div
-        ref={floatingRef}
-        className={`${styles.floatingBar} ${floatingInteractive ? styles.floatingBarVisible : ""}`}
-        aria-hidden={!floatingInteractive || undefined}
-        inert={!floatingInteractive || undefined}
-      >
-        <ActionBarContent {...contentProps} />
+          <ControlButton className={styles.shareButton} variant="light" dataAction="share" onClick={handleShare}>Поделиться</ControlButton>
+        </div>
       </div>
-
+      <div className={styles.actionBarSpace} aria-hidden="true" />
       <span aria-live="polite" className="visually-hidden">{announcement}</span>
-    </div>
+    </>
   );
 }

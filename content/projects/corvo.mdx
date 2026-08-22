@@ -9,19 +9,28 @@ status: "Готов частично"
 catalogVisible: true
 detailAvailable: true
 catalogOrder: 1
-workSummary: "Полностью собрал дизайн систему, согласовал с главными стейкхолдерами, выстроил процесс с разработчиками, чтобы они могли спроектировать все это. Еще и весь сервис собрал с 0. Обрабатывал обращения бизнесс-аналитика."
-catalogRole: "Продуктовый дизайнер"
+workSummary: "Спроектировал сервис с нуля: от дизайн-системы и согласования решений со стейкхолдерами до передачи в разработку. Выстроил процесс работы с командой разработки, сопровождал реализацию и прорабатывал запросы со стороны бизнес-аналитики."
+catalogRole: "Product Designer"
 updatedAt: "13.05.2026"
 figmaAvailable: true
 platforms:
   - "Desktop"
   - "Tablet"
   - "Mobile"
-visibility: "Показан частично"
-ndaNote: "UI изменен под NDA"
+detailLabels:
+  - "B2B"
+  - "SaaS"
+  - "Product Designer"
+  - "В работе"
+  - "2026"
 logo: "/assets/projects/corvo/logo.svg"
-figmaUrl: "https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82?node-id=321-29865"
+heroImage: "/assets/projects/corvo/hero-preview.png"
+heroImageAlt: "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний"
+heroImageWidth: 2960
+heroImageHeight: 2400
+figmaUrl: "https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1"
 tags:
+  - "B2B"
   - "SaaS"
   - "В работе"
 ---
@@ -30,18 +39,20 @@ tags:
 
 ## О проекте
 
-Corvo — B2B SaaS-платформа для управления партнёрской программой. Она объединяет подключение аффилиатов, управление рекламными кампаниями и условиями сотрудничества, создание ссылок и промокодов и анализ результатов.
+B2B, SaaS-платформа для управления партнёрской программой. Она объединяет подключение аффилиатов, управление рекламными кампаниями и условиями сотрудничества, создание ссылок и промокодов и анализ результатов.
 
 Продуктом пользуются аффилиаты, менеджеры и администраторы партнёрской программы. Для каждой роли предусмотрены свои сценарии и уровень доступа.
 
 Моя роль — ключевой продуктовый дизайнер. Я участвовал в создании продукта с нуля: от анализа требований и построения пользовательских сценариев до готовых интерфейсов, дизайн-системы и передачи решений в разработку.
 
-<ProjectMedia
-  src="/assets/projects/corvo/overview.png"
-  alt="Обзор интерфейса Corvo со статистикой партнёрской программы"
-  width={2960}
-  height={1920}
-/>
+<ProjectGallery items={[
+  {
+    src: "/assets/projects/corvo/overview.png",
+    alt: "Обзор интерфейса Corvo со статистикой партнёрской программы",
+    width: 2960,
+    height: 1920,
+  },
+]} />
 
 </ProjectSection>
 
@@ -66,22 +77,14 @@ Corvo — B2B SaaS-платформа для управления партнёр
 
 Я анализировал требования руководителя проекта и бизнес-аналитика, находил противоречия и переводил бизнес-логику в структуру продукта и понятные пользовательские сценарии.
 
-Основной путь был собран в единый цикл:
-
-<ProjectMedia
-  src="/assets/projects/corvo/process-flow.png"
-  alt="Схема пути от регистрации партнёра до анализа результатов"
-  width={1960}
-  height={546}
-  variant="flow"
-/>
-
-<ProjectMedia
-  src="/assets/projects/corvo/process-interface.png"
-  alt="Интерфейс рассмотрения заявки партнёра в Corvo"
-  width={2960}
-  height={1920}
-/>
+<ProjectGallery items={[
+  {
+    src: "/assets/projects/corvo/process-interface.png",
+    alt: "Интерфейс создания рекламного материала Corvo",
+    width: 2960,
+    height: 1920,
+  },
+]} />
 
 </ProjectSection>
 
@@ -102,12 +105,13 @@ Corvo — B2B SaaS-платформа для управления партнёр
 
 Подтверждённых количественных метрик по проекту нет, поэтому результат показывается через масштаб спроектированной системы, закрытые продуктовые процессы и готовые интерфейсы по ссылке в Figma.
 
-<ProjectMedia
-  src="/assets/projects/corvo/result-interface.png"
-  alt="Финальный интерфейс статистики рекламных кампаний Corvo"
-  width={2960}
-  height={2278}
-  variant="result"
-/>
+<ProjectGallery items={[
+  {
+    src: "/assets/projects/corvo/result-interface.png",
+    alt: "Финальный интерфейс статистики рекламных кампаний Corvo",
+    width: 2960,
+    height: 2278,
+  },
+]} variant="result" />
 
 </ProjectSection>

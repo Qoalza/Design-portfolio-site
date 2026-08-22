@@ -1,0 +1,242 @@
+{
+  "environment": {
+    "hidden": false,
+    "visibility": "visible",
+    "reduced": false,
+    "animations": 0
+  },
+  "h02": {
+    "beforeWheel": {
+      "step": "1",
+      "y": 2353
+    },
+    "afterWheel": {
+      "step": "1",
+      "y": 2653
+    },
+    "step2": {
+      "step": "2",
+      "prev": true,
+      "next": true
+    },
+    "step3": {
+      "step": "3",
+      "prev": true,
+      "next": false
+    }
+  },
+  "n02": [
+    [
+      "Home→Works",
+      {
+        "path": "/projects",
+        "trail": "Главная/Работы"
+      }
+    ],
+    [
+      "Home→Corvo",
+      {
+        "path": "/projects/corvo",
+        "trail": "Главная/Corvo"
+      }
+    ],
+    [
+      "Home→Works→Corvo",
+      {
+        "path": "/projects/corvo",
+        "trail": "Главная/Работы/Corvo"
+      }
+    ],
+    [
+      "Reload",
+      {
+        "path": "/projects/corvo",
+        "trail": "Главная/Работы/Corvo"
+      }
+    ],
+    [
+      "Back",
+      {
+        "path": "/projects",
+        "trail": "Главная/Работы"
+      }
+    ],
+    [
+      "Forward",
+      {
+        "path": "/projects/corvo",
+        "trail": "Главная/Работы/Corvo"
+      }
+    ],
+    [
+      "Direct",
+      {
+        "path": "/projects/corvo",
+        "trail": "Главная/Работы/Corvo"
+      }
+    ],
+    [
+      "Other project",
+      {
+        "path": "/projects/sarafan-radio",
+        "trail": "Главная/Работы/Сараффан.Радио"
+      }
+    ]
+  ],
+  "d03d04": [
+    {
+      "width": 1280,
+      "height": 720,
+      "full": {
+        "variant": "full",
+        "x": 0,
+        "w": 1280,
+        "overflow": 0
+      },
+      "adaptive": {
+        "variant": "adaptive",
+        "className": "project-action-bar-module__AcOuka__actionBar project-action-bar-module__AcOuka__adaptive",
+        "style": "bottom: 0px; left: 240px; width: 1000px; --action-full-left: 40px; --action-full-width: 1200px;",
+        "computedLeft": "240px",
+        "computedWidth": "1000px",
+        "transition": "left 0.25s, width 0.25s, bottom 0.25s",
+        "x": 240,
+        "w": 1000,
+        "columnX": 240,
+        "columnW": 1000,
+        "infoTop": -20,
+        "scrollY": 961,
+        "navTop": 160,
+        "active": "О проекте",
+        "overflow": 0
+      },
+      "states": [
+        {
+          "active": "Задача",
+          "top": 160,
+          "hash": "#%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B0"
+        },
+        {
+          "active": "Процесс",
+          "top": 160,
+          "hash": "#%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81"
+        },
+        {
+          "active": "Результат",
+          "top": 160,
+          "hash": "#%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82"
+        }
+      ],
+      "reverse": "full",
+      "footer": {
+        "actionBottom": 660,
+        "footerTop": 660,
+        "overlap": 0,
+        "lastBorder": "0px"
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "full": {
+        "variant": "full",
+        "x": 0,
+        "w": 1440,
+        "overflow": 0
+      },
+      "adaptive": {
+        "variant": "adaptive",
+        "className": "project-action-bar-module__AcOuka__actionBar project-action-bar-module__AcOuka__adaptive",
+        "style": "bottom: 0px; left: 320px; width: 1000px; --action-full-left: 120px; --action-full-width: 1200px;",
+        "computedLeft": "320px",
+        "computedWidth": "1000px",
+        "transition": "left 0.25s, width 0.25s, bottom 0.25s",
+        "x": 320,
+        "w": 1000,
+        "columnX": 320,
+        "columnW": 1000,
+        "infoTop": -20,
+        "scrollY": 961,
+        "navTop": 160,
+        "active": "О проекте",
+        "overflow": 0
+      },
+      "states": [
+        {
+          "active": "Задача",
+          "top": 160,
+          "hash": "#%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B0"
+        },
+        {
+          "active": "Процесс",
+          "top": 160,
+          "hash": "#%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81"
+        },
+        {
+          "active": "Результат",
+          "top": 160,
+          "hash": "#%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82"
+        }
+      ],
+      "reverse": "full",
+      "footer": {
+        "actionBottom": 840,
+        "footerTop": 840,
+        "overlap": 0,
+        "lastBorder": "0px"
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "full": {
+        "variant": "full",
+        "x": 0,
+        "w": 1920,
+        "overflow": 0
+      },
+      "adaptive": {
+        "variant": "adaptive",
+        "className": "project-action-bar-module__AcOuka__actionBar project-action-bar-module__AcOuka__adaptive",
+        "style": "bottom: 0px; left: 560px; width: 1000px; --action-full-left: 360px; --action-full-width: 1200px;",
+        "computedLeft": "560px",
+        "computedWidth": "1000px",
+        "transition": "left 0.25s, width 0.25s, bottom 0.25s",
+        "x": 560,
+        "w": 1000,
+        "columnX": 560,
+        "columnW": 1000,
+        "infoTop": -20,
+        "scrollY": 961,
+        "navTop": 160,
+        "active": "О проекте",
+        "overflow": 0
+      },
+      "states": [
+        {
+          "active": "Задача",
+          "top": 160,
+          "hash": "#%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B0"
+        },
+        {
+          "active": "Процесс",
+          "top": 160,
+          "hash": "#%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81"
+        },
+        {
+          "active": "Результат",
+          "top": 160,
+          "hash": "#%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82"
+        }
+      ],
+      "reverse": "full",
+      "footer": {
+        "actionBottom": 1020,
+        "footerTop": 1020,
+        "overlap": 0,
+        "lastBorder": "0px"
+      }
+    }
+  ],
+  "console": []
+}

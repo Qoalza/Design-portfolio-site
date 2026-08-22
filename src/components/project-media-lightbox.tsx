@@ -9,6 +9,9 @@ type ProjectMediaLightboxProps = {
   alt: string;
   width: number;
   height: number;
+  fit?: "cover" | "contain";
+  priority?: boolean;
+  sizes?: string;
 };
 
 export function ProjectMediaLightbox({
@@ -16,6 +19,9 @@ export function ProjectMediaLightbox({
   alt,
   width,
   height,
+  fit = "cover",
+  priority = false,
+  sizes = "720px",
 }: ProjectMediaLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -59,9 +65,10 @@ export function ProjectMediaLightbox({
         className={styles.trigger}
         type="button"
         aria-label={`Увеличить изображение: ${alt}`}
+        data-image-fit={fit}
         onClick={() => setIsOpen(true)}
       >
-        <Image src={src} alt={alt} width={width} height={height} sizes="720px" />
+        <Image src={src} alt={alt} width={width} height={height} sizes={sizes} priority={priority} />
       </button>
 
       {isOpen ? (

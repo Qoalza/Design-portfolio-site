@@ -1,0 +1,198 @@
+.control,
+.tab,
+.textControl {
+  --control-container: transparent;
+  --control-label: #606466;
+  --control-icon: #606466;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 0;
+  background: var(--control-container);
+  color: var(--control-label);
+  font-family: "Google Sans", sans-serif;
+  font-weight: 400;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: none;
+}
+
+.textControl {
+  display: inline-flex;
+  align-items: center;
+  color: #606466;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: none;
+}
+
+.textControl:hover { color: #45494c; }
+.textControl:active { color: #2f3133; }
+.textControl[aria-disabled="true"] { color: #acafb2; pointer-events: none; }
+
+.textMedium {
+  gap: 8px;
+  font: 400 14px/16px "Google Sans", sans-serif;
+}
+
+.textSmall {
+  gap: 6px;
+  font: 450 12px/16px "Source Code Pro", monospace;
+  letter-spacing: -.3px;
+}
+
+.control {
+  height: 40px;
+  gap: 4px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.control.small {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.control.medium:has(.label:empty) {
+  width: 40px;
+  padding: 0;
+}
+
+.label {
+  padding: 0 4px;
+}
+
+.small .label,
+.textControl .label {
+  padding: 0;
+}
+
+.tab .label { padding: 0 4px; }
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  background: var(--control-icon);
+  -webkit-mask-image: var(--control-icon-url);
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-image: var(--control-icon-url);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.small .icon,
+.tab .icon,
+.textControl .icon {
+  width: 16px;
+  height: 16px;
+  flex-basis: 16px;
+}
+
+.accent {
+  --control-container: #1d8be3;
+  --control-label: #fff;
+  --control-icon: #fff;
+}
+
+.accent:hover {
+  --control-container: #0776ce;
+}
+
+.accent:active {
+  --control-container: #0e5c9a;
+}
+
+.neutral {
+  --control-container: #45494c;
+  --control-label: #fff;
+  --control-icon: #fff;
+}
+
+.neutral:hover,
+.neutral:active {
+  --control-container: #2f3133;
+}
+
+.light {
+  --control-container: #f5f6f7;
+}
+
+.light:hover,
+.light:active {
+  --control-container: #e2e5e7;
+}
+
+.light:hover {
+  --control-label: #45494c;
+  --control-icon: #45494c;
+}
+
+.light:active {
+  --control-label: #2f3133;
+  --control-icon: #2f3133;
+}
+
+.ghost:hover {
+  --control-container: #e2e5e7;
+  --control-label: #45494c;
+  --control-icon: #45494c;
+}
+
+.ghost:active {
+  --control-container: #d4d7d9;
+  --control-label: #2f3133;
+  --control-icon: #2f3133;
+}
+
+.control[aria-disabled="true"],
+.tab[aria-disabled="true"] {
+  --control-container: #f7f9fa;
+  --control-label: #acafb2;
+  --control-icon: #acafb2;
+  cursor: default;
+  pointer-events: none;
+}
+
+.ghost[aria-disabled="true"] {
+  --control-container: transparent;
+}
+
+.tab[aria-disabled="true"] {
+  --control-container: transparent;
+}
+
+.tab {
+  height: 32px;
+  gap: 4px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.tab:hover {
+  --control-container: #f7f9fa;
+  --control-label: #45494c;
+  --control-icon: #45494c;
+}
+
+.tabActive {
+  --control-container: #f5f6f7;
+  --control-label: #2f3133;
+  --control-icon: #369ff3;
+}
+
+.tabActive:hover {
+  --control-container: #f5f6f7;
+  --control-label: #2f3133;
+  --control-icon: #369ff3;
+}
