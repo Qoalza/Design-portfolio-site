@@ -25,7 +25,7 @@
   border-radius: 8px;
   background: #202931;
   color: #fff;
-  font-family: "Google Sans", sans-serif;
+  font-family: "Onest", sans-serif;
   text-decoration: none;
 }
 
@@ -135,7 +135,7 @@
   gap: 12px;
   margin: 0;
   color: #415e74;
-  font-family: "Google Sans", sans-serif;
+  font-family: "Onest", sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
@@ -159,7 +159,7 @@
   gap: 12px;
   padding-top: 28px;
   color: #75848f;
-  font-family: "Source Code Pro", monospace;
+  font-family: "Onest", sans-serif;
   font-size: 12px;
   line-height: 16px;
   letter-spacing: -.2px;
@@ -221,7 +221,7 @@
 .projectTitle h3 { margin: 0; color: #45494c; font-family: "Google Sans", sans-serif; font-size: 24px; font-weight: 500; line-height: 32px; letter-spacing: .24px; }
 .projectTitle p { margin: 0; color: #45494c; font-size: 16px; font-weight: 350; line-height: 24px; letter-spacing: -.1px; }
 
-.projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Source Code Pro", monospace; letter-spacing: -.5px; }
+.projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Onest", sans-serif; letter-spacing: -.5px; }
 .projectTags span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .projectTags b { color: #369ff3; font-weight: 400; }
 .projectTags i { margin-right: 6px; color: #acafb2; font-style: normal; }
@@ -238,14 +238,14 @@
 .projectDetail { display: flex; width: 100%; align-items: flex-start; gap: 8px; }
 .projectDetail > img { flex: 0 0 auto; }
 .projectDetail > div { display: flex; min-width: 0; flex: 1 1 0; flex-direction: column; gap: 4px; }
-.projectDetail dt { color: #45494c; font-family: "Google Sans", sans-serif; font-size: 14px; font-weight: 400; line-height: 16px; letter-spacing: .1px; }
+.projectDetail dt { color: #45494c; font-family: "Onest", sans-serif; font-size: 14px; font-weight: 400; line-height: 16px; letter-spacing: .1px; }
 .projectDetail dd { margin: 0; color: #606466; font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: -.1px; }
 
 .projectActions { display: flex; width: 100%; align-items: center; gap: 16px; }
 .projectActionButtons { display: flex; align-items: flex-start; gap: 12px; }
 .detailsButton { width: 122px; }
 .actionDivider { width: 1px; height: 23px; background: #e2e4e5; }
-.updated { display: inline-flex; align-items: center; gap: 8px; color: #b2b9bf; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.2px; white-space: nowrap; }
+.updated { display: inline-flex; align-items: center; gap: 8px; color: #b2b9bf; font-family: "Onest", sans-serif; font-size: 12px; line-height: 16px; letter-spacing: -.2px; white-space: nowrap; }
 .projectDivider {
   position: relative;
   width: 100%;
@@ -274,7 +274,7 @@
 .analyticsRow .processCopy { padding: 0 40px 0 64px; }
 .designRow .processCopy { height: 398px; padding: 40px 24px 40px 32px; }
 .deliveryRow .processCopy { padding: 40px 80px 40px 64px; }
-.processEyebrow { display: inline-flex; align-items: center; gap: 12px; color: #0489f4; font: 400 16px/20px "Source Code Pro", monospace; letter-spacing: -.6px; }
+.processEyebrow { display: inline-flex; align-items: center; gap: 12px; color: #0489f4; font: 400 16px/20px "Onest", sans-serif; letter-spacing: -.6px; }
 .designRow .processEyebrow { color: #c18111; }
 .deliveryRow .processEyebrow { color: #0c9340; }
 .processEyebrow b { font-weight: 400; }
@@ -293,9 +293,9 @@
 .methodRow:last-child::after { display: none; }
 .methodRow .maskIcon { width: 32px; height: 32px; color: #909498; }
 .methodRow > span:last-child { display: flex; min-width: 0; flex: 1 1 0; flex-direction: column; gap: 4px; line-height: 20px; letter-spacing: -.1px; }
-.methodRow strong { color: #45494c; font-family: "Google Sans", sans-serif; font-size: 16px; font-weight: 500; }
+.methodRow strong { color: #45494c; font-family: "Onest", sans-serif; font-size: 16px; font-weight: 500; }
 .methodRow small { color: #606466; font-size: 14px; }
-.moreTools { margin: 0; color: #acafb2; font-family: "Google Sans", sans-serif; font-size: 14px; line-height: 16px; }
+.moreTools { margin: 0; color: #acafb2; font-family: "Onest", sans-serif; font-size: 14px; line-height: 16px; }
 .analyticsMedia { display: flex; align-items: flex-start; justify-content: center; }
 .analyticsMedia img { width: 540px; height: 488px; object-fit: cover; }
 .designMedia { width: 553px; height: 378px; margin-top: 20px; }
@@ -303,7 +303,7 @@
 .deliveryMedia { width: 503px; height: 302px; min-height: 0; }
 .deliveryMedia img { width: 100%; height: 100%; object-fit: cover; }
 .toolTags { display: flex; width: 100%; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
-.toolTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #f0f1f2; border-radius: 8px; background: #f7f9fa; color: #606466; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.3px; white-space: nowrap; }
+.toolTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #f0f1f2; border-radius: 8px; background: #f7f9fa; color: #606466; font-family: "Onest", sans-serif; font-size: 12px; line-height: 16px; letter-spacing: -.3px; white-space: nowrap; }
 
 .ai { width: 100%; padding: 120px 0 80px; }
 .aiGrid { position: relative; display: grid; width: 100%; grid-template-columns: 1fr 1fr; align-items: flex-start; }
@@ -334,7 +334,7 @@
 .eyeconExperience { position: relative; display: flex; width: 1200px; min-height: 344px; align-items: center; gap: 56px; padding: 64px 32px 40px; }
 .tenure { display: flex; flex: 0 0 auto; flex-direction: column; align-items: center; gap: 20px; }
 .tenureIcon { position: relative; display: grid; width: 72px; height: 72px; place-items: center; overflow: hidden; border-radius: 1000px; background: #f5f6f7; }
-.tenure > div { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: "Google Sans", sans-serif; letter-spacing: -.1px; white-space: nowrap; }
+.tenure > div { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: "Onest", sans-serif; letter-spacing: -.1px; white-space: nowrap; }
 .tenure strong { color: #45494c; font-size: 24px; font-weight: 500; line-height: 32px; }
 .tenure span { color: #909498; font-size: 24px; font-weight: 400; line-height: 32px; }
 .eyeconContent { display: flex; min-width: 0; flex: 1 1 0; flex-direction: column; gap: 28px; }
@@ -351,7 +351,7 @@
 .inlineRole { display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin: 0; color: #909498; font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: -.2px; white-space: nowrap; }
 .inlineRole strong { color: #45494c; font-weight: 400; }
 .eyeconTags { display: flex; width: 100%; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
-.eyeconTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #f0f1f2; border-radius: 8px; background: #f7f9fa; color: #606466; font-family: "Source Code Pro", monospace; font-size: 12px; line-height: 16px; letter-spacing: -.3px; white-space: nowrap; }
+.eyeconTags span { display: inline-flex; height: 32px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid #f0f1f2; border-radius: 8px; background: #f7f9fa; color: #606466; font-family: "Onest", sans-serif; font-size: 12px; line-height: 16px; letter-spacing: -.3px; white-space: nowrap; }
 .experienceStar { position: absolute; top: 157px; left: 55px; width: 24px; height: 24px; }
 .experienceDivider {
   position: relative;
@@ -376,7 +376,7 @@
 .freelanceTitle .maskIcon { width: 24px; height: 24px; }
 .freelanceTitle > div { display: flex; flex-direction: column; gap: 4px; }
 .freelanceTitle p { margin: 0; color: #acafb2; font-size: 16px; line-height: 20px; letter-spacing: -.2px; }
-.freelanceTags { display: flex; align-items: flex-start; justify-content: center; gap: 12px; color: #606466; font-family: "Source Code Pro", monospace; font-size: 14px; font-weight: 400; line-height: 16px; letter-spacing: -.5px; white-space: nowrap; }
+.freelanceTags { display: flex; align-items: flex-start; justify-content: center; gap: 12px; color: #606466; font-family: "Onest", sans-serif; font-size: 14px; font-weight: 400; line-height: 16px; letter-spacing: -.5px; white-space: nowrap; }
 .freelanceTenure { color: #45494c; font-family: "Onest", sans-serif; font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: -.2px; }
 .shortExperiences { display: flex; width: 600px; flex-direction: column; align-items: flex-start; padding-left: 24px; }
 .shortExperiences article { display: flex; width: 100%; height: 184px; flex-direction: column; align-items: flex-start; gap: 20px; padding: 24px 40px 40px 32px; border-bottom: 1px solid #e2e5e7; }

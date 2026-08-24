@@ -21,8 +21,8 @@
 .stage404 .message { top: 77px; left: 342px; width: 389px; align-items: center; }
 .stage500 .message { top: 122px; left: 2px; width: 630px; filter: drop-shadow(0 134px 80px rgba(0,55,99,.08)); }
 .messageBody { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 32px; padding: 28px 32px; border-radius: 24px; background: #fff; }
-.copy { display: flex; flex-direction: column; gap: 12px; color: #4a6376; font-family: "Google Sans", sans-serif; letter-spacing: .4px; }
+.copy { display: flex; flex-direction: column; gap: 12px; color: #4a6376; font-family: "Onest", sans-serif; letter-spacing: .4px; }
 .copy h1 { margin: 0; color: #203749; font-size: 24px; font-weight: 500; line-height: 32px; }
 .copy div,.copy p { margin: 0; font-size: 20px; line-height: 28px; }
-.message a,.message button { display: inline-flex; min-width: 96px; height: 48px; align-items: center; justify-content: center; padding: 4px 28px; border: 0; border-radius: 12px; background: #1d8be3; color: #fbfbfb; font: 400 16px/20px "Google Sans", sans-serif; letter-spacing: .16px; text-decoration: none; cursor: pointer; }
+.message a,.message button { display: inline-flex; min-width: 96px; height: 48px; align-items: center; justify-content: center; padding: 4px 28px; border: 0; border-radius: 12px; background: #1d8be3; color: #fbfbfb; font: 400 16px/20px "Onest", sans-serif; letter-spacing: .16px; text-decoration: none; cursor: pointer; }
 .tail { width: 27px; height: 20px; margin-left: 101px; }
