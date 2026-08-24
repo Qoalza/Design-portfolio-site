@@ -31,6 +31,45 @@ export type ProjectActionBarState = {
   visibleInformationInBarBand: number;
 };
 
+export const NAVIGATION_WATCHDOG_MS = 2000;
+export const NAVIGATION_ABSOLUTE_LIMIT_MS = 30000;
+
+type NavigationProgressInput = {
+  now: number;
+  startedAt: number;
+  lastProgressAt: number;
+  previousDistance: number;
+  currentDistance: number;
+};
+
+type NavigationProgressState = {
+  outcome: "pending" | "progress" | "watchdog" | "absolute-limit";
+  lastProgressAt: number;
+  lastDistance: number;
+};
+
+export function getNavigationProgressState({
+  now,
+  startedAt,
+  lastProgressAt,
+  previousDistance,
+  currentDistance,
+}: NavigationProgressInput): NavigationProgressState {
+  if (now - startedAt >= NAVIGATION_ABSOLUTE_LIMIT_MS) {
+    return { outcome: "absolute-limit", lastProgressAt, lastDistance: currentDistance };
+  }
+
+  if (previousDistance - currentDistance > 0.5) {
+    return { outcome: "progress", lastProgressAt: now, lastDistance: currentDistance };
+  }
+
+  if (now - lastProgressAt >= NAVIGATION_WATCHDOG_MS) {
+    return { outcome: "watchdog", lastProgressAt, lastDistance: currentDistance };
+  }
+
+  return { outcome: "pending", lastProgressAt, lastDistance: currentDistance };
+}
+
 export function getActiveProjectSectionIndex(
   sectionTops: number[],
   activationTop: number,
