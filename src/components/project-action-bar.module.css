@@ -7,8 +7,7 @@
   background: #fcfcfd;
   transition:
     left 250ms ease,
-    width 250ms ease,
-    bottom 250ms ease;
+    width 250ms ease;
 }
 
 .barContent {
@@ -18,7 +17,7 @@
   width: var(--action-full-width);
   height: 88px;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   padding: 24px;
   transition:
     left 250ms ease,
@@ -27,7 +26,7 @@
 
 .adaptive {
   border-left: 1px solid #e2e5e7;
-  background: #fff;
+  background: #fcfcfd;
 }
 
 .leadingContent {
@@ -35,7 +34,7 @@
   min-width: 0;
   flex: 1 1 0;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 
 .unavailableContent {

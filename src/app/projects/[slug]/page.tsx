@@ -201,6 +201,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </div>
           ) : null}
 
+          <ProjectActionBar
+            title={project.title}
+            figmaAvailable={project.figmaAvailable}
+            figmaUrl={project.figmaUrl}
+            updatedAt={project.updatedAt}
+          />
+
           <div className={styles.projectInformation} data-project-information-start>
             <ProjectSectionNavigation
               sections={projectSections}
@@ -225,12 +232,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <ProjectGallery groups={corvoGalleryGroups} title="Галерея" description="Часть экранов интерфейса" />
           ) : null}
 
-          <ProjectActionBar
-            title={project.title}
-            figmaAvailable={project.figmaAvailable}
-            figmaUrl={project.figmaUrl}
-            updatedAt={project.updatedAt}
-          />
         </main>
 
         <div data-project-footer><SiteFooter /></div>

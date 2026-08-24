@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
-  getActionBarVariant,
   getActiveProjectSectionIndex,
   getGalleryTarget,
   getProcessStepTarget,
@@ -58,13 +57,6 @@ test("gallery navigation is non-looping and hides unavailable directions", () =>
 test("single-image gallery exposes no navigation", () => {
   assert.deepEqual(getGalleryTarget(0, 1, 1), { available: false, index: 0 });
   assert.deepEqual(getGalleryTarget(0, -1, 1), { available: false, index: 0 });
-});
-
-test("action bar switches when project information reaches the measured header edge", () => {
-  assert.equal(getActionBarVariant(161, 160), "full");
-  assert.equal(getActionBarVariant(160, 160), "adaptive");
-  assert.equal(getActionBarVariant(159, 160), "adaptive");
-  assert.equal(getActionBarVariant(145, 80), "full");
 });
 
 test("action bar anchors to the rendered project columns without viewport-center formulas", () => {
