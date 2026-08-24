@@ -206,7 +206,9 @@
   padding: 0 8px;
   border-radius: 8px;
   font-size: 14px;
+  font-family: "Onest", sans-serif;
   line-height: 16px;
+  letter-spacing: -.1px;
 }
 
 .tab:hover {

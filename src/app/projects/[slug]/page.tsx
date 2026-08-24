@@ -7,7 +7,7 @@ import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectGallery } from "../../../components/project-gallery";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
-import { ProjectPlatforms } from "../../../components/project-platforms";
+import { PageHeader } from "../../../components/page-header";
 import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
 import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
@@ -111,25 +111,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         />
 
         <main id="project-content">
-          <header className={styles.projectHero}>
-            <div className={styles.projectTitleRow}>
-              {project.logo ? <Image src={project.logo} alt="" width={52} height={52} priority /> : null}
-              <h1>{project.title}</h1>
-            </div>
-            {project.subtitle ? <p className={styles.projectSubtitle}>{project.subtitle}</p> : null}
-            {project.platforms?.length ? (
-              <div className={styles.heroPlatforms}><ProjectPlatforms platforms={project.platforms} variant="projectHero" /></div>
-            ) : null}
-            <ul className={styles.projectLabels} aria-label="Характеристики проекта">
-              {projectLabels.map((label, index) => (
-                <li key={`${label}-${index}`}>
-                  {index > 0 ? <span aria-hidden="true">/</span> : null}
-                  <b aria-hidden="true">#</b>
-                  {label}
-                </li>
-              ))}
-            </ul>
-          </header>
+          <PageHeader
+            title={project.title}
+            description={project.subtitle ?? project.description}
+            symbol={project.logo}
+            tags={projectLabels}
+            platforms={project.platforms}
+          />
 
           {hasHeroImage ? (
             <div className={styles.heroPreview}>

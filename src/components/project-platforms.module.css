@@ -38,7 +38,15 @@
 .projectHero {
   padding-left: 0;
   color: #606466;
-  font-family: "Google Sans", sans-serif;
+  font-family: "Onest", sans-serif;
   line-height: 16px;
-  letter-spacing: 0;
+  letter-spacing: -.1px;
 }
+
+.projectHero .icon {
+  width: 16px;
+  height: 16px;
+  flex-basis: 16px;
+}
+
+.projectHero li + li::before { height: 16px; }

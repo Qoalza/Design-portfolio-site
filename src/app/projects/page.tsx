@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { MainProjectCard } from "../../components/main-project-card";
+import { PageHeader } from "../../components/page-header";
 import { ProjectPlatforms } from "../../components/project-platforms";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
@@ -112,7 +113,10 @@ export default function ProjectsPage() {
           }}
         />
         <main id="projects-content" className={styles.main}>
-          <header className={styles.intro}><h1>Мои работы</h1><p>Здесь собрал рабочие проекты, тестовые задания,<br />где можно увидеть мой подход к задаче и результат.</p></header>
+          <PageHeader
+            title="Мои работы"
+            description={"Здесь собрал рабочие проекты, тестовые задания,\nгде можно увидеть мой подход к задаче и результат."}
+          />
           <section className={styles.catalog} aria-label="Проекты">
             {corvo ? <MainProjectCard project={corvo} /> : null}
             <div className={styles.compactGrid}>{compactProjects.map((project) => <article className={styles.compactCard} key={project.slug}><ProjectVisual slug={project.slug} /><ProjectCopy project={project} compact /></article>)}</div>
