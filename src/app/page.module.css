@@ -311,18 +311,16 @@
 .aiGrid article { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 68px 70px 40px 40px; }
 .aiGrid article + article { padding-right: 40px; padding-left: 70px; }
 .aiGrid article > div { display: flex; width: 100%; flex-direction: column; gap: 8px; }
-.aiFact { display: flex; align-items: flex-start; gap: 24px; margin: 0; padding: 48px 24px 0 32px; border-top: 1px solid #ecedee; font-family: "Google Sans", sans-serif; }
+.aiFact { display: flex; align-items: flex-start; justify-content: center; gap: 16px; margin: 0; padding: 32px 24px 0 32px; border-top: 1px solid #e2e5e7; }
 .aiFactIcon {
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
   background: #218ee6;
-  -webkit-mask: url("/assets/homepage/ai-info.svg") center / 32px 32px no-repeat;
-  mask: url("/assets/homepage/ai-info.svg") center / 32px 32px no-repeat;
+  -webkit-mask: url("/assets/homepage/ai-info.svg") center / 20px 20px no-repeat;
+  mask: url("/assets/homepage/ai-info.svg") center / 20px 20px no-repeat;
 }
-.aiFact > div { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; white-space: nowrap; }
-.aiFact strong { color: #45494c; font-size: 24px; font-weight: 500; line-height: 32px; letter-spacing: -.1px; }
-.aiFact span { color: #606466; font-size: 16px; line-height: 20px; }
+.aiFact p { margin: 0; color: #606466; font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: -.2px; white-space: nowrap; }
 
 .resume { width: 100%; padding: 120px 0 80px; }
 .resumeIntro { display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }

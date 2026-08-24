@@ -303,12 +303,9 @@ export default function Home() {
               <article><Image src={`${assetRoot}/chatgpt.svg`} alt="" width={32} height={32} /><div><h3>ChatGPT</h3><p>Использую его, чтобы разложить входящие данные, обсудить идею и посмотреть на решение с другой стороны. Проверяю логику сценариев, ищу слабые места, изучаю незнакомые темы, анализирую материалы и привожу в порядок тексты.</p></div></article>
               <article><Image src={`${assetRoot}/codex.svg`} alt="" width={32} height={32} /><div><h3>Codex</h3><p>Подключаю, когда идею хочется проверить не только в макете, но и в работе. С его помощью собираю прототипы, небольшие приложения, скрипты и инструменты, разбираюсь в технической части и постепенно дорабатываю результат через диалог.</p></div></article>
             </div>
-            <aside className={styles.aiFact} aria-label="Интересный факт">
+            <aside className={styles.aiFact} aria-label="О разработке сайта">
               <span className={styles.aiFactIcon} aria-hidden="true" />
-              <div>
-                <strong>Интересный факт</strong>
-                <span>Вся разработка данного сайта, кроме дизайна, была полностью выполнена в Codex, с нуля</span>
-              </div>
+              <p>Вся разработка данного сайта, кроме дизайна, была полностью выполнена в Codex, с нуля</p>
             </aside>
           </section>
 
