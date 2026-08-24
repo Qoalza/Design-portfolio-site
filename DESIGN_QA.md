@@ -16,7 +16,7 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## OPEN — Main Layout & Interaction Follow-up (`MLIR3-*`)
+## READY_FOR_REVIEW — Main Layout & Interaction Follow-up (`MLIR3-*`)
 
 Активный пакет: `WORK_PACKET_FOLLOWUP.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-followup/`.
 
@@ -29,6 +29,8 @@
 - `MLIR3-GAL`, `MLIR3-LBX`, `MLIR3-PRV`: Gallery controls зависят от фактического overflow, lightbox работает в top layer, верхний project preview остаётся неинтерактивным.
 
 Предыдущий MLIR2 runtime `69dc9b7823cebc839482a037e6dbb9abaa6ca182` и каталог `design-reference/main-layout-interaction-reconciliation/` остаются историческим evidence предыдущего состояния. Они не подтверждают MLIR3 и не используются вместо свежих проверок нового `CODE_SHA`.
+
+MLIR3 runtime зафиксирован в `fce9e2288c3a80a28da51479a5668fa33b22fb59`. Focused tests прошли 78/78, lint и production build успешны. Обязательные Chromium и Zen `1.21.15b` matrices прошли 6/6 на свежем evidence из этого `CODE_SHA`; полный отчёт находится в `design-reference/main-layout-interaction-followup/README.md`. `CLOSED` разрешён только после явной пользовательской приёмки.
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Reconciliation v2 (`MLIR2-*`)
 

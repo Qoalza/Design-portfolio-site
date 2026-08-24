@@ -363,4 +363,16 @@ Merge и deploy не выполнять.
 
 Независимый повторный проход подтвердил: pre-paint contract покрывает direct URL, hard reload и client navigation; verification различает wrong variant, blank-frame и layout shift; terminal region всегда равна `48 px + barHeight`; typography mapping семантический; icon rules/evidence находятся в правильных слоях; Chromium не заменяет Zen; верхний preview имеет полный non-interactive contract; Footer требует read-only source evidence; CODE_SHA фиксируется после tests/lint/build; DOC_SHA не выдаётся за runtime SHA; runtime-изменения инвалидируют затронутый evidence; статусы отображаются однозначно; merge и deploy запрещены.
 
-План утверждён пользователем и готов к выполнению без дополнительного подтверждения.
+План утверждён пользователем и выполнен до автоматического статуса `READY_FOR_USER_REVIEW`.
+
+## 24. Результат выполнения
+
+- Все критичные блоки `MLIR3-*` получили `VERIFIED` на runtime `CODE_SHA` `fce9e2288c3a80a28da51479a5668fa33b22fb59`.
+- Focused tests: `78/78 PASS`; `npm run lint`: `PASS`; production `npm run build`: `PASS`.
+- Production preview отдаёт полный `data-build-sha`, равный `CODE_SHA`.
+- Chromium и Zen `1.21.15b` прошли обязательную matrix `6/6`; foundation-проверка выполнена при `1440×900`.
+- Свежие read-only Figma references, measurements и screenshots собраны в `design-reference/main-layout-interaction-followup/README.md`.
+- Промежуточные screenshots не используются как финальное evidence.
+- Documentation/evidence commit не меняет runtime и связывается с указанным `CODE_SHA` отдельным `DOC_SHA`.
+- Work Packet: `READY_FOR_USER_REVIEW`; агрегатный статус `DESIGN_QA.md`: `READY_FOR_REVIEW`.
+- Merge и deploy не выполнялись.

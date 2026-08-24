@@ -1,6 +1,6 @@
 # MLIR3 icon source inventory
 
-Status: `IN_PROGRESS`
+Status: `VERIFIED` for `fce9e2288c3a80a28da51479a5668fa33b22fb59`
 
 Classification is established by mapping each real consumer to its current Figma component/frame. XML checks validate structure but do not, by themselves, prove that a filled path was not produced from an outlined stroke.
 

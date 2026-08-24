@@ -1,0 +1,157 @@
+{
+  "browser": "Chromium (Codex in-app Browser)",
+  "codeSha": "fce9e2288c3a80a28da51479a5668fa33b22fb59",
+  "viewport": "1440x900",
+  "results": [
+    {
+      "route": "home",
+      "url": "http://127.0.0.1:3000/?review=fce9e22",
+      "bodyFont": "Onest, sans-serif",
+      "buildSha": "fce9e2288c3a80a28da51479a5668fa33b22fb59",
+      "footerText": "Deveploment and design Artur A.2026",
+      "horizontalOverflow": false,
+      "sampleFonts": [
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif"
+      ],
+      "title": "Artur Product",
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      },
+      "pass": true
+    },
+    {
+      "route": "projects",
+      "url": "http://127.0.0.1:3000/projects?review=fce9e22",
+      "bodyFont": "Onest, sans-serif",
+      "buildSha": "fce9e2288c3a80a28da51479a5668fa33b22fb59",
+      "footerText": "Deveploment and design Artur A.2026",
+      "horizontalOverflow": false,
+      "sampleFonts": [
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif"
+      ],
+      "title": "Artur Product",
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      },
+      "pass": true
+    },
+    {
+      "route": "corvo",
+      "url": "http://127.0.0.1:3000/projects/corvo?review=fce9e22",
+      "bodyFont": "Onest, sans-serif",
+      "buildSha": "fce9e2288c3a80a28da51479a5668fa33b22fb59",
+      "footerText": "Deveploment and design Artur A.2026",
+      "horizontalOverflow": false,
+      "sampleFonts": [
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif"
+      ],
+      "title": "Corvo — Артур Арустамян",
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      },
+      "pass": true
+    },
+    {
+      "route": "404",
+      "url": "http://127.0.0.1:3000/missing-mlir3?review=fce9e22",
+      "bodyFont": "Onest, sans-serif",
+      "buildSha": "fce9e2288c3a80a28da51479a5668fa33b22fb59",
+      "footerText": "Deveploment and design Artur A.2026",
+      "horizontalOverflow": false,
+      "sampleFonts": [
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif"
+      ],
+      "title": "Artur Product",
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      },
+      "pass": true
+    },
+    {
+      "route": "500",
+      "url": "http://127.0.0.1:3000/error-test?trigger=500&review=fce9e22",
+      "bodyFont": "Onest, sans-serif",
+      "buildSha": "fce9e2288c3a80a28da51479a5668fa33b22fb59",
+      "footerText": "Deveploment and design Artur A.2026",
+      "horizontalOverflow": false,
+      "sampleFonts": [
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif",
+        "Onest, sans-serif"
+      ],
+      "title": "Artur Product",
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      },
+      "pass": true
+    }
+  ]
+}

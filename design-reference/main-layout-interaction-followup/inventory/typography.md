@@ -1,6 +1,6 @@
 # MLIR3 typography inventory
 
-Status: `IN_PROGRESS`
+Status: `VERIFIED` for `fce9e2288c3a80a28da51479a5668fa33b22fb59`
 
 Contract: all visible non-heading UI text uses Onest. Google Sans is limited to typography roles explicitly mapped as headings. Source Code Pro has no visible consumer in MLIR3 scope.
 
