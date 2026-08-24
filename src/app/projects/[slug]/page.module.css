@@ -214,7 +214,6 @@
 }
 
 .contentSection h2 {
-  padding-top: 40px;
   color: #45494c;
   font-family: "Google Sans", sans-serif;
   font-size: 36px;
@@ -225,6 +224,7 @@
 }
 
 .contentSection:first-child h2 { padding-top: 32px; }
+.contentSection:not(:first-child) h2 { padding-top: 40px; }
 .contentSection h3 { color: #45494c; font: 500 24px/32px "Google Sans", sans-serif; }
 
 .contentSection p,
@@ -239,15 +239,67 @@
 }
 
 .contentSection ul,
-.contentSection ol { padding-left: 80px; }
-.contentSection li + li { margin-top: 4px; }
+.contentSection ol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 80px;
+}
+.contentSection li + li { margin-top: 0; }
+.contentSection ul > li { height: 24px; }
 .contentSection strong { color: #313a41; font-weight: 600; }
-.contentSection > div:last-child { margin-top: 40px; }
-.contentSection:last-child > div:last-child { margin-top: 40px; }
-.contentSection:not(:last-child) { padding-bottom: 40px; }
-.contentSection:not(:last-child):has(> div:last-child) { padding-bottom: 0; }
+.contentSection > figure { margin-top: 40px; }
+.contentSection:first-child > p + p { margin-top: 24px; }
+.contentSection:nth-child(2) > p + p { margin-top: 0; }
+.contentSection:nth-child(3) > p + p { margin-top: 24px; }
+.contentSection:nth-child(4) > p:nth-of-type(2) { margin-top: 0; }
+.contentSection:nth-child(4) > p:nth-of-type(3) { margin-top: 24px; }
+.contentSection:last-child > p + p { margin-top: 0; }
+.contentSection:last-child { padding-bottom: 40px; }
+
+.contentSection .projectNotice {
+  display: flex;
+  width: fit-content;
+  max-width: calc(100% - 112px);
+  align-items: flex-start;
+  margin: 16px 56px 0;
+  padding: 12px 20px 12px 12px;
+  border-radius: 12px;
+  background: #f7f9fa;
+}
+
+.contentSection .projectNotice p {
+  width: auto;
+  padding: 0;
+  margin: 0;
+  color: #606466;
+  letter-spacing: 0;
+}
+
+.contentSection .projectNoticeWide {
+  width: 896px;
+  max-width: none;
+  margin-left: 52px;
+  padding: 12px;
+}
+
+.projectNoticeIconFrame {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding: 2px 12px 0 4px;
+}
+
+.projectNoticeIcon {
+  width: 20px;
+  height: 20px;
+  background: #606466;
+  mask: url("/assets/projects/corvo/info-circle.svg") center / 20px 20px no-repeat;
+}
 
 .contentDivider { width: 100%; border: 0; border-top: 1px solid #e2e5e7; }
+.projectNotice + .contentDivider { margin-top: 40px; }
+.contentSection > figure + .contentDivider { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .projectNavigation a,

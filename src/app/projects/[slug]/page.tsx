@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectActionBar } from "../../../components/project-action-bar";
-import { ProjectGallery } from "../../../components/project-gallery";
+import { ProjectCanvas } from "../../../components/project-canvas";
+import { ProjectGallery, type ProjectGalleryGroup } from "../../../components/project-gallery";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
-import { ProjectPlatforms } from "../../../components/project-platforms";
+import { PageHeader } from "../../../components/page-header";
 import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
 import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
@@ -23,12 +24,66 @@ type ProjectSectionProps = {
   children: ReactNode;
 };
 
+type ProjectNoticeProps = ProjectSectionProps & {
+  variant?: "default" | "wide";
+};
+
+const corvoGalleryGroups: ProjectGalleryGroup[] = [
+  {
+    id: "desktop",
+    label: "Desktop",
+    icon: "/assets/projects/corvo/desktop.svg",
+    items: [
+      { src: "/assets/projects/corvo/gallery/desktop-01.png", alt: "Desktop-интерфейс Corvo: экран 1", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-02.png", alt: "Desktop-интерфейс Corvo: экран 2", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-03.png", alt: "Desktop-интерфейс Corvo: экран 3", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-04.png", alt: "Desktop-интерфейс Corvo: экран 4", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-05.png", alt: "Desktop-интерфейс Corvo: экран 5", width: 2960, height: 2048 },
+    ],
+  },
+  {
+    id: "tablet",
+    label: "Tablet",
+    icon: "/assets/projects/corvo/tablet.svg",
+    items: [
+      { src: "/assets/projects/corvo/gallery/tablet-01.png", alt: "Планшетный интерфейс Corvo: экран 1", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-02.png", alt: "Планшетный интерфейс Corvo: экран 2", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-03.png", alt: "Планшетный интерфейс Corvo: экран 3", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-04.png", alt: "Планшетный интерфейс Corvo: экран 4", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-05.png", alt: "Планшетный интерфейс Corvo: экран 5", width: 1600, height: 2266 },
+    ],
+  },
+  {
+    id: "mobile",
+    label: "Mobile",
+    icon: "/assets/projects/corvo/mobile.svg",
+    items: [
+      { src: "/assets/projects/corvo/gallery/mobile-01.png", alt: "Мобильный интерфейс Corvo: экран 1", width: 1080, height: 1920 },
+      { src: "/assets/projects/corvo/gallery/mobile-02.png", alt: "Мобильный интерфейс Corvo: экран 2", width: 1080, height: 1920 },
+      { src: "/assets/projects/corvo/gallery/mobile-03.png", alt: "Мобильный интерфейс Corvo: экран 3", width: 1080, height: 1920 },
+      { src: "/assets/projects/corvo/gallery/mobile-04.png", alt: "Мобильный интерфейс Corvo: экран 4", width: 1080, height: 1920 },
+      { src: "/assets/projects/corvo/gallery/mobile-05.png", alt: "Мобильный интерфейс Corvo: экран 5", width: 1080, height: 1920 },
+    ],
+  },
+];
+
 function ProjectSection({ children }: ProjectSectionProps) {
   return <section className={styles.contentSection}>{children}</section>;
 }
 
 function ProjectDivider() {
   return <hr className={styles.contentDivider} />;
+}
+
+function ProjectNotice({ children, variant = "default" }: ProjectNoticeProps) {
+  return (
+    <div className={`${styles.projectNotice} ${variant === "wide" ? styles.projectNoticeWide : ""}`}>
+      <span className={styles.projectNoticeIconFrame} aria-hidden="true">
+        <span className={styles.projectNoticeIcon} />
+      </span>
+      <p>{children}</p>
+    </div>
+  );
 }
 
 function getHeadingId(label: string): string {
@@ -111,25 +166,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         />
 
         <main id="project-content">
-          <header className={styles.projectHero}>
-            <div className={styles.projectTitleRow}>
-              {project.logo ? <Image src={project.logo} alt="" width={52} height={52} priority /> : null}
-              <h1>{project.title}</h1>
-            </div>
-            {project.subtitle ? <p className={styles.projectSubtitle}>{project.subtitle}</p> : null}
-            {project.platforms?.length ? (
-              <div className={styles.heroPlatforms}><ProjectPlatforms platforms={project.platforms} variant="projectHero" /></div>
-            ) : null}
-            <ul className={styles.projectLabels} aria-label="Характеристики проекта">
-              {projectLabels.map((label, index) => (
-                <li key={`${label}-${index}`}>
-                  {index > 0 ? <span aria-hidden="true">/</span> : null}
-                  <b aria-hidden="true">#</b>
-                  {label}
-                </li>
-              ))}
-            </ul>
-          </header>
+          <PageHeader
+            title={project.title}
+            description={project.subtitle ?? project.description}
+            symbol={project.logo}
+            tags={projectLabels}
+            platforms={project.platforms}
+          />
 
           {hasHeroImage ? (
             <div className={styles.heroPreview}>
@@ -158,6 +201,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </div>
           ) : null}
 
+          <ProjectActionBar
+            title={project.title}
+            figmaAvailable={project.figmaAvailable}
+            figmaUrl={project.figmaUrl}
+            updatedAt={project.updatedAt}
+          />
+
           <div className={styles.projectInformation} data-project-information-start>
             <ProjectSectionNavigation
               sections={projectSections}
@@ -169,7 +219,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               <ProjectContent
                 components={{
                   ProjectDivider,
-                  ProjectGallery,
+                  ProjectCanvas,
+                  ProjectNotice,
                   ProjectSection,
                   h2: MdxHeading,
                 }}
@@ -177,12 +228,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </article>
           </div>
 
-          <ProjectActionBar
-            title={project.title}
-            figmaAvailable={project.figmaAvailable}
-            figmaUrl={project.figmaUrl}
-            updatedAt={project.updatedAt}
-          />
+          {project.slug === "corvo" ? (
+            <ProjectGallery groups={corvoGalleryGroups} title="Галерея" description="Часть экранов интерфейса" />
+          ) : null}
+
         </main>
 
         <div data-project-footer><SiteFooter /></div>

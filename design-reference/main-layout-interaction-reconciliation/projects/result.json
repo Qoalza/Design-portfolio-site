@@ -1,0 +1,69 @@
+{
+  "block": "MLIR2-PRJ",
+  "status": "VERIFIED",
+  "codeSha": "c468b92830e3bc84c0761e97e8df33aa30264a2b",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "route": "http://127.0.0.1:3000/projects?review=69dc9b7",
+  "browser": "Chromium 151.0.0.0",
+  "exactViewport": "1440x900",
+  "figma": {
+    "fileKey": "5ZzspE0OrqesDcTP0RRPHr",
+    "nodes": ["373:50236", "517:33813", "526:36476"]
+  },
+  "geometry": {
+    "contentWidth": 1200,
+    "contentLeftAt1440": 120,
+    "mainProject": [120, 336, 1200, 444],
+    "compactProjects": [120, 824, 1200, 961],
+    "compactColumns": [535.5, 535.5],
+    "compactColumnSeparation": 129,
+    "footer": [120, 1785, 1200, 60]
+  },
+  "layoutSmoke": [
+    {
+      "viewport": "1280x720",
+      "contentLeft": 40,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "result": "PASS"
+    },
+    {
+      "viewport": "1920x1080",
+      "contentLeft": 360,
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "result": "PASS"
+    }
+  ],
+  "behavior": {
+    "corvoLink": "PASS → /projects/corvo",
+    "sarafanLink": "/projects/sarafan-radio",
+    "boffLink": "/projects/boff",
+    "platformRows": "PASS",
+    "disabledFigmaActions": "PASS"
+  },
+  "contentRhythm": {
+    "mainCorvoDetailsHeight": 80,
+    "mainCorvoDetailsToPlatformsGap": 32,
+    "sarafanDetailsHeight": 80,
+    "sarafanDetailsToPlatformsGap": 32,
+    "boffDetailsHeight": 80,
+    "boffDetailsToPlatformsGap": 32,
+    "fixedOrStretchedDetailsHeight": false,
+    "verticalAlignment": "center"
+  },
+  "technicalChecks": {
+    "focusedTests": "PASS (9/9)",
+    "focusedLint": "PASS",
+    "productionBuild": "PASS",
+    "failedImages": [],
+    "horizontalOverflow": false
+  },
+  "evidence": [
+    "figma-projects-373-50236.png",
+    "implementation-projects-1440x900-c468b92.png",
+    "chromium-projects-1440x900-69dc9b7.png",
+    "chromium-projects-compact-1440x900-69dc9b7.png",
+    "chromium-projects-compact-bottom-1440x900-69dc9b7.png"
+  ]
+}

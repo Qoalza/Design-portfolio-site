@@ -1,0 +1,39 @@
+{
+  "block": "MLIR2-PROV",
+  "status": "VERIFIED",
+  "codeSha": "4cd8741e84aa6622e8558a6a56740c63d58ebe3b",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "productionPreview": {
+    "url": "http://127.0.0.1:3000/?review=69dc9b7",
+    "port": 3000,
+    "pid": 33239,
+    "cwd": "/Users/designer/Documents/GitHub/Design-portfolio-site",
+    "htmlBuildSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+    "result": "PASS"
+  },
+  "checks": {
+    "focusedNodeTests": {
+      "command": "node --experimental-strip-types --test tests/build-provenance.test.mjs",
+      "result": "PASS",
+      "cases": [
+        "full SHA",
+        "missing SHA",
+        "empty SHA",
+        "short SHA",
+        "mismatched full SHA"
+      ]
+    },
+    "developmentHtmlWithoutEnvironmentValue": {
+      "result": "PASS",
+      "dataBuildSha": "absent"
+    },
+    "productionBuild": {
+      "command": "NEXT_PUBLIC_BUILD_SHA=<CODE_SHA> npm run build",
+      "result": "PASS"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "result": "PASS"
+    }
+  }
+}

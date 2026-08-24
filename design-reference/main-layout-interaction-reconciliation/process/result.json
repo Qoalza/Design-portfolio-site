@@ -1,0 +1,66 @@
+{
+  "block": "MLIR2-PROC",
+  "status": "VERIFIED",
+  "codeSha": "dcea6ecfced628390a9b916f1f6061f9a7ad0f5c",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "route": "http://127.0.0.1:3000/?review=69dc9b7#process-title",
+  "browser": "Chromium 151.0.0.0",
+  "viewport": "1440x900",
+  "figma": {
+    "fileKey": "5ZzspE0OrqesDcTP0RRPHr",
+    "nodes": ["515:30749", "515:30751", "515:30778"]
+  },
+  "assets": [
+    {
+      "path": "public/assets/homepage/process-discovery-515-30749.png",
+      "pixels": "2372x2284",
+      "figmaSha256": "574b3c54d410a46d58869f1bd54d269aa44896abef88baee8452f93ae54ef7ce"
+    },
+    {
+      "path": "public/assets/homepage/process-prototype-515-30751.png",
+      "pixels": "3128x2166",
+      "figmaSha256": "658db120e94e27f1e655bf7a8aa64ae8b648ef1a3a821f3f837a6b19affef23f"
+    },
+    {
+      "path": "public/assets/homepage/process-delivery-515-30778.png",
+      "pixels": "3138x1944",
+      "figmaSha256": "fe0db99898a33ca1d3d24943972786aba67f346c15acb07c78b3f39ed3368691"
+    }
+  ],
+  "renderedGeometry": [
+    { "step": 1, "image": "540x488" },
+    { "step": 2, "image": "553x378" },
+    { "step": 3, "image": "503x302" }
+  ],
+  "behavior": {
+    "wheelChangesStep": false,
+    "pageScrollDeltaOnWheel": 259.5,
+    "arrowSequence": [1, 2, 3],
+    "edgeButtons": {
+      "step1": ["Следующий этап"],
+      "step2": ["Предыдущий этап", "Следующий этап"],
+      "step3": ["Предыдущий этап"]
+    }
+  },
+  "technicalChecks": {
+    "focusedNodeTests": "PASS (14/14)",
+    "productionBuild": "PASS",
+    "horizontalOverflow": false,
+    "browserCurrentSrcAndIntrinsicDimensions": "PASS",
+    "alphaMin": 0,
+    "cssFilter": "none",
+    "visibleRectangularBackground": false,
+    "consoleErrors": []
+  },
+  "evidence": [
+    "figma-515-30749.png",
+    "figma-515-30751.png",
+    "figma-515-30778.png",
+    "implementation-step1-1440x900-dcea6ec.png",
+    "implementation-step2-1440x900-dcea6ec.png",
+    "implementation-step3-1440x900-dcea6ec.png",
+    "chromium-step1-1440x900-69dc9b7.png",
+    "chromium-step2-1440x900-69dc9b7.png",
+    "chromium-step3-1440x900-69dc9b7.png"
+  ]
+}

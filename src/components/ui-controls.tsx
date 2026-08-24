@@ -7,6 +7,7 @@ import styles from "./ui-controls.module.css";
 
 type FilledButtonVariant = "accent" | "neutral" | "light" | "ghost";
 type ControlSize = "medium" | "small";
+type SquareButtonVariant = "light" | "ghost";
 
 type IconProps = {
   iconLeft?: string;
@@ -41,6 +42,113 @@ function ControlIcon({ source }: { source: string }) {
       className={styles.icon}
       style={{ "--control-icon-url": `url("${source}")` } as ControlIconStyle}
     />
+  );
+}
+
+type SquareButtonBaseProps = {
+  ariaLabel: string;
+  className?: string;
+  dataAction?: string;
+  disabled?: boolean;
+  icon: string;
+  size?: ControlSize;
+  variant?: SquareButtonVariant;
+};
+
+type SquareButtonButtonProps = SquareButtonBaseProps & {
+  kind: "button";
+  buttonType?: "button" | "submit";
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+  breadcrumbLabel?: never;
+  breadcrumbTrail?: never;
+  external?: never;
+  href?: never;
+  rel?: never;
+  resetBreadcrumbs?: never;
+  target?: never;
+};
+
+type SquareButtonLinkProps = SquareButtonBaseProps & {
+  kind: "link";
+  href: string;
+  external?: boolean;
+  breadcrumbLabel?: string;
+  breadcrumbTrail?: readonly NavigationTrailItem[];
+  resetBreadcrumbs?: boolean;
+  buttonType?: never;
+  onClick?: never;
+};
+
+type SquareButtonProps = SquareButtonButtonProps | SquareButtonLinkProps;
+
+export function SquareButton(props: SquareButtonProps) {
+  const {
+    ariaLabel,
+    className = "",
+    dataAction,
+    disabled = false,
+    icon,
+    size = "medium",
+    variant = "light",
+  } = props;
+  const squareClassName = `${styles.squareButton} ${styles[`square${size === "small" ? "Small" : "Medium"}`]} ${styles[variant]} ${className}`;
+  const content = <ControlIcon source={icon} />;
+
+  if (props.kind === "link" && disabled) {
+    return (
+      <span
+        aria-label={ariaLabel}
+        aria-disabled="true"
+        className={squareClassName}
+        data-control-state="disabled"
+        role="link"
+      >
+        {content}
+      </span>
+    );
+  }
+
+  if (props.kind === "button") {
+    return (
+      <button
+        aria-label={ariaLabel}
+        className={squareClassName}
+        data-project-action={dataAction}
+        disabled={disabled}
+        onClick={props.onClick}
+        type={props.buttonType ?? "button"}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  if (props.external) {
+    return (
+      <a
+        aria-label={ariaLabel}
+        className={squareClassName}
+        data-project-action={dataAction}
+        href={props.href}
+        rel="noreferrer"
+        target="_blank"
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <ContextLink
+      aria-label={ariaLabel}
+      breadcrumbLabel={props.breadcrumbLabel}
+      breadcrumbTrail={props.breadcrumbTrail}
+      className={squareClassName}
+      href={props.href}
+      resetBreadcrumbs={props.resetBreadcrumbs}
+    >
+      {content}
+    </ContextLink>
   );
 }
 

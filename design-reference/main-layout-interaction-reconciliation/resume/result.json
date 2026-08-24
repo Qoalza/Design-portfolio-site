@@ -1,0 +1,29 @@
+{
+  "id": "MLIR2-RSM",
+  "status": "VERIFIED",
+  "codeSha": "34ad307ad9cc50edcf194cac7d608b936fc07c30",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "browser": "Chromium 151.0.0.0",
+  "viewport": "1440x900",
+  "figmaNodes": ["510:28260", "517:33604", "510:28277"],
+  "route": "/?review=34ad307",
+  "checks": {
+    "sectionGeometry": "PASS",
+    "composition": "PASS",
+    "typography": "PASS",
+    "dividers": "PASS",
+    "icons": "PASS",
+    "experienceCards": "PASS",
+    "links": "PASS",
+    "consoleAndHydration": "PASS"
+  },
+  "measurements": {
+    "section": { "width": 1200, "height": 1133 },
+    "eyeconExperience": { "height": 344 },
+    "earlierExperience": { "height": 400 },
+    "crest": { "frame": 72, "asset": 44 },
+    "star": { "width": 24, "height": 24, "left": 55, "top": 157 }
+  },
+  "rootCause": "The Resume DOM had the correct broad regions but retained obsolete local dimensions, neutral tokens, tag surfaces and one stale skill tag, so nearly every layer diverged from the current Figma composition.",
+  "change": "Aligned the complete Resume composition and experience-card tokens to the current nodes, restored the slash contact separator and exact six-tag inventory."
+}

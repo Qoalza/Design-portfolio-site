@@ -1,7 +1,7 @@
 "use client";
 
-import { type CSSProperties, useEffect, useRef, useState } from "react";
-import { getActionBarVariant } from "../lib/main-chapter-interactions";
+import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
+import { getProjectActionBarState } from "../lib/main-chapter-interactions";
 import { useProjectShare } from "./project-share-button";
 import { ControlButton } from "./ui-controls";
 import styles from "./project-action-bar.module.css";
@@ -16,22 +16,38 @@ type ProjectActionBarProps = {
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const frameRef = useRef<number | null>(null);
   const [variant, setVariant] = useState<"full" | "adaptive">("full");
+  const [measurementStatus, setMeasurementStatus] = useState<"unmeasured" | "valid" | "invalid">("unmeasured");
   const [footerOffset, setFooterOffset] = useState(0);
   const [layout, setLayout] = useState({ fullLeft: 0, fullWidth: 1200, adaptiveLeft: 0, adaptiveWidth: 1000 });
   const { announcement, handleShare } = useProjectShare(title);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const update = () => {
       frameRef.current = null;
       const informationStart = document.querySelector<HTMLElement>("[data-project-information-start]");
-      const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
+      const gallery = document.querySelector<HTMLElement>("[data-project-gallery]");
       const footer = document.querySelector<HTMLElement>("[data-project-footer]");
       const contentColumn = document.querySelector<HTMLElement>("[data-project-content-column]");
       const main = document.querySelector<HTMLElement>("[data-project-information-start]");
 
-      if (informationStart) {
-        const headerBottom = Math.max(0, fixedHeader?.getBoundingClientRect().bottom ?? 0);
-        setVariant(getActionBarVariant(informationStart.getBoundingClientRect().top, headerBottom));
+      if (informationStart && gallery && footer) {
+        const informationRect = informationStart.getBoundingClientRect();
+        const state = getProjectActionBarState({
+          informationTop: informationRect.top,
+          informationBottom: informationRect.bottom,
+          galleryTop: gallery.getBoundingClientRect().top,
+          footerTop: footer.getBoundingClientRect().top,
+          viewportHeight: window.innerHeight,
+          barHeight: 88,
+          dpr: window.devicePixelRatio || 1,
+        });
+        setVariant(state.variant);
+        setFooterOffset(state.footerOffset);
+        setMeasurementStatus(state.valid ? "valid" : "invalid");
+      } else {
+        setVariant("full");
+        setFooterOffset(0);
+        setMeasurementStatus("invalid");
       }
 
       if (contentColumn && main) {
@@ -53,9 +69,6 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         ));
       }
 
-      if (footer) {
-        setFooterOffset(Math.max(0, window.innerHeight - footer.getBoundingClientRect().top));
-      }
     };
 
     const scheduleUpdate = () => {
@@ -69,10 +82,14 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
       document.querySelector<HTMLElement>("[data-site-header-fixed]"),
       document.querySelector<HTMLElement>("[data-project-information-start]"),
       document.querySelector<HTMLElement>("[data-project-content-column]"),
+      document.querySelector<HTMLElement>("[data-project-gallery]"),
       document.querySelector<HTMLElement>("[data-project-footer]"),
     ].filter((element): element is HTMLElement => Boolean(element));
     const resizeObserver = new ResizeObserver(scheduleUpdate);
     measuredElements.forEach((element) => resizeObserver.observe(element));
+    const pendingImages = [...document.images].filter((image) => !image.complete);
+    pendingImages.forEach((image) => image.addEventListener("load", scheduleUpdate, { once: true }));
+    void document.fonts.ready.then(scheduleUpdate);
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("scrollend", update);
     window.addEventListener("resize", scheduleUpdate);
@@ -82,6 +99,7 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
       window.removeEventListener("scrollend", update);
       window.removeEventListener("resize", scheduleUpdate);
       resizeObserver.disconnect();
+      pendingImages.forEach((image) => image.removeEventListener("load", scheduleUpdate));
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
       }
@@ -94,6 +112,9 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         className={`${styles.actionBar} ${variant === "adaptive" ? styles.adaptive : ""}`}
         data-project-action-bar
         data-project-action-variant={variant}
+        data-project-action-measurement={measurementStatus}
+        inert={measurementStatus === "unmeasured"}
+        aria-hidden={measurementStatus === "unmeasured"}
         style={{
           bottom: `${footerOffset}px`,
           left: variant === "adaptive" ? `${layout.adaptiveLeft}px` : "0px",

@@ -1,3 +1,5 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="17" height="21" viewBox="0 0 17 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path id="Vector" d="M5.5 3.5H11.5M16.5 2.16667V18.8333C16.5 19.7538 15.7837 20.5 14.9 20.5H2.1C1.21634 20.5 0.5 19.7538 0.5 18.8333V2.16667C0.5 1.24619 1.21634 0.5 2.1 0.5H14.9C15.7837 0.5 16.5 1.24619 16.5 2.16667Z" stroke="#E2E2EC" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Light / Devices / Tablet">
+<path id="Vector" d="M9 5H15M20 3.66667V20.3333C20 21.2538 19.2837 22 18.4 22H5.6C4.71634 22 4 21.2538 4 20.3333V3.66667C4 2.74619 4.71634 2 5.6 2H18.4C19.2837 2 20 2.74619 20 3.66667Z" stroke="#E2E2EC" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
 </svg>

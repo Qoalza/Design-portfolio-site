@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { NavigationTrailProvider } from "../components/contextual-navigation";
 import { NavigationScrollController } from "../components/navigation-scroll-controller";
+import { getBuildShaAttribute } from "../lib/build-provenance";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,8 +16,10 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const buildSha = getBuildShaAttribute(process.env.NEXT_PUBLIC_BUILD_SHA);
+
   return (
-    <html lang="ru" data-scroll-behavior="smooth">
+    <html lang="ru" data-scroll-behavior="smooth" data-build-sha={buildSha}>
       <head>
         <link
           rel="preload"

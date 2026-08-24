@@ -3,6 +3,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { MainProjectCard } from "../components/main-project-card";
 import { ProjectPlatforms } from "../components/project-platforms";
+import { ProjectDetailControl } from "../components/project-detail-control";
 import { ProcessStepper } from "../components/process-stepper";
 import { ControlButton } from "../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
@@ -85,10 +86,15 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
   return (
     <div className={styles.projectActions}>
       <div className={styles.projectActionButtons}>
-        {detailHref ? (
-          <ControlButton className={styles.detailsButton} variant="neutral" href={detailHref} breadcrumbLabel={detailLabel}>Подробнее</ControlButton>
+        {detailHref && detailLabel ? (
+          <ProjectDetailControl
+            available
+            href={detailHref}
+            breadcrumbLabel={detailLabel}
+            className={styles.detailsButton}
+          />
         ) : (
-          <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>
+          <ProjectDetailControl available={false} className={styles.detailsButton} />
         )}
         {hasFigma ? (
           <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
@@ -262,13 +268,13 @@ export default function Home() {
                   </div>
                 </div>
                 <div className={styles.analyticsMedia}>
-                  <Image src={`${assetRoot}/process-discovery.png`} alt="Схема аналитической работы над продуктом" width={2372} height={2284} />
+                  <Image src={`${assetRoot}/process-discovery-515-30749.png`} alt="Схема аналитической работы над продуктом" width={2372} height={2284} unoptimized />
                 </div>
               </article>
 
               <article className={`${styles.processRow} ${styles.designRow}`}>
                 <div className={styles.designMedia}>
-                  <Image src={`${assetRoot}/process-prototype.png`} alt="Схема проектирования интерфейса" width={3128} height={2166} />
+                  <Image src={`${assetRoot}/process-prototype-515-30751.png`} alt="Схема проектирования интерфейса" width={3128} height={2166} unoptimized />
                 </div>
                 <div className={styles.processCopy}>
                   <span className={styles.processEyebrow}><b>02</b>Проектирование</span>
@@ -289,7 +295,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className={styles.deliveryMedia}>
-                  <Image src={`${assetRoot}/process-delivery.png`} alt="Схема передачи готового решения в разработку" width={3138} height={1944} />
+                  <Image src={`${assetRoot}/process-delivery-515-30778.png`} alt="Схема передачи готового решения в разработку" width={3138} height={1944} unoptimized />
                 </div>
               </article>
             </ProcessStepper>
@@ -303,12 +309,9 @@ export default function Home() {
               <article><Image src={`${assetRoot}/chatgpt.svg`} alt="" width={32} height={32} /><div><h3>ChatGPT</h3><p>Использую его, чтобы разложить входящие данные, обсудить идею и посмотреть на решение с другой стороны. Проверяю логику сценариев, ищу слабые места, изучаю незнакомые темы, анализирую материалы и привожу в порядок тексты.</p></div></article>
               <article><Image src={`${assetRoot}/codex.svg`} alt="" width={32} height={32} /><div><h3>Codex</h3><p>Подключаю, когда идею хочется проверить не только в макете, но и в работе. С его помощью собираю прототипы, небольшие приложения, скрипты и инструменты, разбираюсь в технической части и постепенно дорабатываю результат через диалог.</p></div></article>
             </div>
-            <aside className={styles.aiFact} aria-label="Интересный факт">
+            <aside className={styles.aiFact} aria-label="О разработке сайта">
               <span className={styles.aiFactIcon} aria-hidden="true" />
-              <div>
-                <strong>Интересный факт</strong>
-                <span>Вся разработка данного сайта, кроме дизайна, была полностью выполнена в Codex, с нуля</span>
-              </div>
+              <p>Вся разработка данного сайта, кроме дизайна, была полностью выполнена в Codex, с нуля</p>
             </aside>
           </section>
 
@@ -317,7 +320,7 @@ export default function Home() {
               <SectionHeading id="resume-title" title="Резюме" centered>
                 <div className={styles.contacts}>
                   <a href="mailto:Qoalza01@gmail.com">Qoalza01@gmail.com</a>
-                  <Image src={`${assetRoot}/separator.svg`} alt="" width={6} height={10} />
+                  <span aria-hidden="true">/</span>
                   <a href="https://t.me/Coco_soul" target="_blank" rel="noreferrer">@Coco_soul</a>
                 </div>
               </SectionHeading>
@@ -336,7 +339,7 @@ export default function Home() {
                     <p className={styles.inlineRole}><strong>Product Designer</strong><Image src={`${assetRoot}/experience-meta-separator.svg`} alt="" width={4} height={7} /><span>Август 2021 — Май 2026</span></p>
                     <p>Проектировал высоконагруженные B2B/B2E и SaaS продукты со сложной бизнес-логикой. Формализовывал требования, выстраивал структуру и сценарии, создавал прототипы, интерфейсы и дизайн-системы, а также налаживал работу между дизайном, разработкой, аналитикой и тестированием.</p>
                   </div>
-                  <div className={styles.eyeconTags}><span>B2B</span><span>Design Systems</span><span>User Flow</span><span>CJM</span><span>Wireframes</span><span>Information Architecture</span><span>UX Research</span></div>
+                  <div className={styles.eyeconTags}><span>B2B</span><span>Design Systems</span><span>User Flow</span><span>CJM</span><span>Wireframes</span><span>UX Research</span></div>
                 </div>
                 <Image className={styles.experienceStar} src={`${assetRoot}/experience-star.svg`} alt="" width={32} height={32} />
               </article>

@@ -1,0 +1,23 @@
+{
+  "id": "MLIR2-HDR",
+  "status": "VERIFIED",
+  "codeSha": "a28372f5c46204d687b72aa72fdc95be0a506ef5",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "browser": "Chromium 151.0.0.0",
+  "viewport": "1440x900",
+  "figmaNodes": ["680:48176", "103:436", "517:33813", "505:23035"],
+  "checks": {
+    "generalHeader": "PASS",
+    "projectsPageHeader": "PASS",
+    "corvoPageHeader": "PASS",
+    "corvoMetadataOrder": "PASS",
+    "horizontalOverflow": "PASS",
+    "consoleAndHydration": "PASS"
+  },
+  "measurements": {
+    "generalHeader": { "width": 1200, "height": 80, "x": 120 },
+    "projectsPageHeader": { "width": 1200, "height": 176, "x": 120 },
+    "corvoPageHeader": { "width": 1200, "height": 209, "x": 120 }
+  },
+  "notes": "The current GeneralHeader instance exposed by the main page is 680:48176; the former 591:33348 node is unavailable. Gecko and fixed-state matrix remains part of final cross-browser verification."
+}

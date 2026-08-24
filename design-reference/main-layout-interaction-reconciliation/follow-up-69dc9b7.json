@@ -1,0 +1,79 @@
+{
+  "scope": [
+    "MLIR2-CNT",
+    "MLIR2-PROC",
+    "MLIR2-PRJ",
+    "MLIR2-META",
+    "MLIR2-ABA",
+    "MLIR2-GAL",
+    "MLIR2-NAV"
+  ],
+  "status": "VERIFIED",
+  "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "preview": {
+    "type": "local production",
+    "pid": 33239,
+    "cwd": "/Users/designer/Documents/GitHub/Design-portfolio-site",
+    "url": "http://127.0.0.1:3000/projects/corvo?review=69dc9b7",
+    "servedBuildSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+    "provenance": "PASS"
+  },
+  "technicalChecks": {
+    "focusedRuntimeTests": "PASS (27/27)",
+    "focusedContentAndNavigationTests": "PASS (11/11)",
+    "lint": "PASS",
+    "productionBuild": "PASS"
+  },
+  "gecko": {
+    "browser": "Zen 1.21.15b",
+    "build": "126.8.18",
+    "engine": "Gecko",
+    "matrix": [
+      "1280x720",
+      "1440x900",
+      "1440x999",
+      "1440x1200",
+      "1440x1356",
+      "1920x1080"
+    ],
+    "machineReadableResult": "gecko/zen-matrix-69dc9b7.json",
+    "behaviorAndMeasurements": "PASS (6/6)",
+    "consoleErrors": 0
+  },
+  "affectedResults": {
+    "MLIR2-CNT": "PASS: exact five-section geometry in Chromium and all six Zen viewports; fresh final-head screenshots saved",
+    "MLIR2-PROC": "PASS: three versioned current-Figma PNG sources have alphaMin=0, exact source hashes and fresh final-head Chromium screenshots",
+    "MLIR2-PRJ": "PASS: intrinsic content rhythm and exact 32px details-to-devices gap measured on final-head Chromium with fresh screenshots",
+    "MLIR2-META": "PASS: shared available/disabled contract verified on final-head Chromium with fresh screenshot",
+    "MLIR2-ABA": "Initial geometry-correct variant, both transitions, footer collision and stable scrollHeight PASS in all six Zen viewports",
+    "MLIR2-GAL": "PASS: full-frame icons, independent groups, no left fade and last-item right-fade removal verified with fresh Chromium and Zen screenshots",
+    "MLIR2-NAV": "All five direct targets and final Gallery state PASS in all six Zen viewports"
+  },
+  "visualEvidence": {
+    "status": "PASS",
+    "reason": null,
+    "freshImplementationScreenshots": [
+      "process/chromium-step1-1440x900-69dc9b7.png",
+      "process/chromium-step2-1440x900-69dc9b7.png",
+      "process/chromium-step3-1440x900-69dc9b7.png",
+      "project-actions/chromium-home-disabled-cta-1440x900-69dc9b7.png",
+      "projects/chromium-projects-1440x900-69dc9b7.png",
+      "projects/chromium-projects-compact-bottom-1440x900-69dc9b7.png",
+      "corvo-content/chromium-about-1440x900-69dc9b7.png",
+      "corvo-content/chromium-task-1440x900-69dc9b7.png",
+      "corvo-content/chromium-process-1440x900-69dc9b7.png",
+      "corvo-content/chromium-system-1440x900-69dc9b7.png",
+      "corvo-content/chromium-result-1440x900-69dc9b7.png",
+      "corvo-gallery/chromium-desktop-first-1440x900-69dc9b7.png",
+      "corvo-gallery/chromium-desktop-last-1440x900-69dc9b7.png",
+      "corvo-gallery/chromium-tablet-first-1440x900-69dc9b7.png",
+      "corvo-gallery/chromium-tablet-last-1440x900-69dc9b7.png",
+      "corvo-gallery/chromium-mobile-first-1440x900-69dc9b7.png",
+      "corvo-gallery/chromium-mobile-last-1440x900-69dc9b7.png",
+      "action-bar/chromium-follow-up-matrix-69dc9b7.json",
+      "gecko/zen-matrix-69dc9b7.json"
+    ],
+    "historicalScreenshotsUsedAsCurrentProof": false
+  },
+  "stopLine": null
+}

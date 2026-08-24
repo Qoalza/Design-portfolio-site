@@ -5,7 +5,7 @@ import {
   getProcessStepTarget,
   type StepDirection,
 } from "../lib/main-chapter-interactions";
-import { ControlButton } from "./ui-controls";
+import { SquareButton } from "./ui-controls";
 import styles from "./process-stepper.module.css";
 
 const stepCount = 3;
@@ -26,10 +26,10 @@ export function ProcessStepper({ children }: { children: ReactNode }) {
       <div className={`${styles.fade} ${styles.fadeTop} ${step > 0 ? styles.visible : ""}`} aria-hidden="true" />
       <div className={`${styles.fade} ${styles.fadeBottom} ${step < stepCount - 1 ? styles.visible : ""}`} aria-hidden="true" />
       {step > 0 ? (
-        <ControlButton className={`${styles.arrow} ${styles.arrowTop}`} variant="ghost" size="small" onClick={() => move(-1)} ariaLabel="Предыдущий этап" iconLeft="/assets/homepage/chevron-down.svg">{null}</ControlButton>
+        <SquareButton kind="button" className={`${styles.arrow} ${styles.arrowTop}`} variant="ghost" size="small" onClick={() => move(-1)} ariaLabel="Предыдущий этап" icon="/assets/homepage/chevron-down.svg" />
       ) : null}
       {step < stepCount - 1 ? (
-        <ControlButton className={`${styles.arrow} ${styles.arrowBottom}`} variant="ghost" size="small" onClick={() => move(1)} ariaLabel="Следующий этап" iconLeft="/assets/homepage/chevron-down.svg">{null}</ControlButton>
+        <SquareButton kind="button" className={`${styles.arrow} ${styles.arrowBottom}`} variant="ghost" size="small" onClick={() => move(1)} ariaLabel="Следующий этап" icon="/assets/homepage/chevron-down.svg" />
       ) : null}
       <span className="visually-hidden" aria-live="polite">Этап {step + 1} из {stepCount}</span>
     </div>

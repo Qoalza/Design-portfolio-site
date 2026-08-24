@@ -1,0 +1,50 @@
+{
+  "block": "MLIR2-GAL",
+  "status": "VERIFIED",
+  "codeSha": "625e763cdee17bc0ae42081e281b324896fb0cad",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "route": "/projects/corvo?review=69dc9b7",
+  "browser": "Chromium 151.0.0.0",
+  "exactViewport": "1440x900",
+  "figma": {
+    "fileKey": "5ZzspE0OrqesDcTP0RRPHr",
+    "galleryNode": "677:44301",
+    "desktopNodes": ["680:48078", "680:48799", "680:48813", "680:48814", "680:48815"],
+    "tabletNodes": ["680:48156", "680:48802", "680:48812", "680:48858", "680:48859"],
+    "mobileNodes": ["680:48159", "680:48803", "680:48805", "680:48860", "680:48861"]
+  },
+  "checks": {
+    "desktopTabletMobileIndependentIndexes": "PASS",
+    "leftFadeAbsentAtEveryIndex": "PASS (15/15 at DPR 1 and 15/15 at DPR 2)",
+    "rightFadeOnlyWithNextItem": "PASS",
+    "rightFadeAbsentOnLastItem": "PASS",
+    "previewOriginalResourceWithoutReencoding": "PASS",
+    "lightboxOriginalResourceWithoutReencoding": "PASS",
+    "allPreviewResourcesAtLeast2x": "PASS (15/15)",
+    "allLightboxResourcesAtLeast2x": "PASS (15/15)",
+    "noBlurPlaceholderOrCssFilter": "PASS",
+    "chromium151": "PASS",
+    "fullFrameDeviceIcons": "PASS",
+    "deviceIconFrame": "PASS: 16x16 rendered from complete 24x24 source frames",
+    "deviceIconGap": "PASS: 8px",
+    "zen1_21_15b": "PASS (6/6)",
+    "consoleAndHydration": "PASS"
+  },
+  "evidence": [
+    "chromium-dpr1-raster-result.json",
+    "chromium-dpr2-raster-result.json",
+    "chromium-desktop-second-right-fade-dpr2-1440x900-2aa76dc.png",
+    "chromium-desktop-last-no-fade-dpr2-1440x900-2aa76dc.png",
+    "chromium-tablet-second-right-fade-dpr2-1440x900-2aa76dc.png",
+    "chromium-tablet-last-no-fade-dpr2-1440x900-2aa76dc.png",
+    "chromium-mobile-second-right-fade-dpr2-1440x900-2aa76dc.png",
+    "chromium-mobile-last-no-fade-dpr2-1440x900-2aa76dc.png",
+    "chromium-desktop-first-1440x900-69dc9b7.png",
+    "chromium-desktop-last-1440x900-69dc9b7.png",
+    "chromium-tablet-first-1440x900-69dc9b7.png",
+    "chromium-tablet-last-1440x900-69dc9b7.png",
+    "chromium-mobile-first-1440x900-69dc9b7.png",
+    "chromium-mobile-last-1440x900-69dc9b7.png",
+    "../gecko/zen-matrix-69dc9b7.json"
+  ]
+}

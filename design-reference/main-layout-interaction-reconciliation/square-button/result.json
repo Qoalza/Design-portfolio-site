@@ -1,0 +1,23 @@
+{
+  "block": "MLIR2-SQB",
+  "status": "VERIFIED",
+  "implementationSha": "9cced86b942c04b2cf8bad9a903896217dd629f2",
+  "figmaNodes": ["73:5324"],
+  "consumers": [
+    "process navigation",
+    "breadcrumb back",
+    "Gallery previous/next"
+  ],
+  "checks": {
+    "discriminatedButtonAndLinkContract": "PASS",
+    "enabledAndDisabledSemantics": "PASS",
+    "closedInventoryMigrated": "PASS",
+    "realPageStates": "PASS"
+  },
+  "evidence": [
+    "figma-73-5324.png",
+    "home-process-1440x900.png",
+    "corvo-breadcrumb-1440x900.png",
+    "../corvo-gallery/chromium-desktop-first-1440x900-69dc9b7.png"
+  ]
+}
