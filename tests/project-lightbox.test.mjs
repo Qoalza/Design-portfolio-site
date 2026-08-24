@@ -17,6 +17,8 @@ test("Gallery lightbox supports explicit, Escape and backdrop dismissal", () => 
   assert.match(lightbox, /event\.target === event\.currentTarget/);
   assert.match(lightbox, />Закрыть<\/button>/);
   assert.match(lightbox, /trigger\?\.focus/);
+  assert.match(lightbox, /scrollPositionRef/);
+  assert.match(lightbox, /window\.scrollTo\(scrollPosition\.x, scrollPosition\.y\)/);
 });
 
 test("upper project preview is a non-interactive image", () => {

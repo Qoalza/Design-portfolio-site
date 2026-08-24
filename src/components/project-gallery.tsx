@@ -32,6 +32,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [offsets, setOffsets] = useState([0]);
   const pointerStartRef = useRef<PointerStart | null>(null);
+  const suppressClickRef = useRef(false);
   const wheelLockedRef = useRef(false);
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -84,6 +85,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    suppressClickRef.current = false;
     pointerStartRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -94,7 +96,11 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (!start || start.id !== event.pointerId) return;
     const deltaX = event.clientX - start.x;
     const deltaY = event.clientY - start.y;
-    if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY)) move(deltaX > 0 ? -1 : 1);
+    if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      suppressClickRef.current = true;
+      move(deltaX > 0 ? -1 : 1);
+      window.setTimeout(() => { suppressClickRef.current = false; }, 0);
+    }
   };
 
   const trackStyle = { "--gallery-offset": `${offsets[activeIndex] ?? 0}px` } as CSSProperties;
@@ -115,6 +121,12 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       <div
         ref={viewportRef}
         className={styles.viewport}
+        onClickCapture={(event) => {
+          if (!suppressClickRef.current) return;
+          event.preventDefault();
+          event.stopPropagation();
+          suppressClickRef.current = false;
+        }}
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
