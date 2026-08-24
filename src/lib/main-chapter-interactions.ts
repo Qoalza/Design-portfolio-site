@@ -12,11 +12,13 @@ export type GalleryTarget = BoundedTarget & {
   available: boolean;
 };
 
+export type GalleryLayout = {
+  offsets: number[];
+  maxOffset: number;
+};
+
 export type ProjectActionBarGeometry = {
   informationTop: number;
-  informationBottom: number;
-  galleryTop: number;
-  footerTop: number;
   viewportHeight: number;
   barHeight: number;
   dpr: number;
@@ -25,10 +27,8 @@ export type ProjectActionBarGeometry = {
 export type ProjectActionBarState = {
   valid: boolean;
   variant: "full" | "adaptive";
-  footerOffset: number;
   barTop: number;
   barBottom: number;
-  visibleInformationInBarBand: number;
 };
 
 export const NAVIGATION_WATCHDOG_MS = 2000;
@@ -73,16 +73,63 @@ export function getNavigationProgressState({
 export function getActiveProjectSectionIndex(
   sectionTops: number[],
   activationTop: number,
+  terminalActivationTop = activationTop,
 ): number {
   let activeIndex = 0;
 
   sectionTops.forEach((top, index) => {
-    if (Number.isFinite(top) && top <= activationTop) {
+    const threshold = index === sectionTops.length - 1 ? terminalActivationTop : activationTop;
+    if (Number.isFinite(top) && top <= threshold) {
       activeIndex = index;
     }
   });
 
   return activeIndex;
+}
+
+export function getTerminalSectionActivationTop(
+  stickyActivationTop: number,
+  actionBarTop: number,
+  terminalSectionHeight: number,
+): number {
+  if (![stickyActivationTop, actionBarTop, terminalSectionHeight].every(Number.isFinite)) {
+    return stickyActivationTop;
+  }
+  return Math.max(stickyActivationTop, actionBarTop - Math.max(0, terminalSectionHeight) / 2);
+}
+
+export function getGalleryLayout(
+  itemStarts: number[],
+  itemWidths: number[],
+  viewportWidth: number,
+  dpr = 1,
+): GalleryLayout {
+  if (
+    itemStarts.length === 0
+    || itemStarts.length !== itemWidths.length
+    || !Number.isFinite(viewportWidth)
+    || viewportWidth <= 0
+    || !Number.isFinite(dpr)
+    || dpr <= 0
+  ) {
+    return { offsets: [0], maxOffset: 0 };
+  }
+
+  const starts = itemStarts.map((value) => normalizePhysicalPixel(value, dpr));
+  const contentEnd = Math.max(...starts.map((start, index) => start + itemWidths[index]));
+  const maxOffset = normalizePhysicalPixel(Math.max(0, contentEnd - viewportWidth), dpr);
+  const offsets = [...new Set(starts.map((start) => Math.min(maxOffset, Math.max(0, start))))];
+
+  if (offsets.at(-1) !== maxOffset) offsets.push(maxOffset);
+  return { offsets, maxOffset };
+}
+
+export function getGalleryOffsetTarget(
+  currentIndex: number,
+  direction: StepDirection,
+  offsets: number[],
+): GalleryTarget {
+  return getGalleryTarget(currentIndex, direction, Math.max(1, offsets.length));
 }
 
 function getBoundedTarget(currentIndex: number, direction: StepDirection, itemCount: number): number {
@@ -117,19 +164,15 @@ export function getProjectActionBarState(
 ): ProjectActionBarState {
   const {
     informationTop,
-    informationBottom,
-    galleryTop,
-    footerTop,
     viewportHeight,
     barHeight,
     dpr,
   } = geometry;
-  const values = [informationTop, informationBottom, galleryTop, footerTop, viewportHeight, barHeight, dpr];
+  const values = [informationTop, viewportHeight, barHeight, dpr];
   const valid = values.every(Number.isFinite)
     && dpr > 0
     && viewportHeight > 0
-    && barHeight > 0
-    && informationBottom >= informationTop;
+    && barHeight > 0;
   const safeViewportHeight = Number.isFinite(viewportHeight) ? Math.max(0, viewportHeight) : 0;
   const safeBarHeight = Number.isFinite(barHeight) ? Math.max(0, barHeight) : 0;
   const invalidBarBottom = safeViewportHeight;
@@ -139,40 +182,22 @@ export function getProjectActionBarState(
     return {
       valid: false,
       variant: "full",
-      footerOffset: 0,
       barTop: invalidBarTop,
       barBottom: invalidBarBottom,
-      visibleInformationInBarBand: 0,
     };
   }
 
   const normalizedViewportHeight = normalizePhysicalPixel(viewportHeight, dpr);
   const normalizedBarHeight = normalizePhysicalPixel(barHeight, dpr);
-  const normalizedFooterTop = normalizePhysicalPixel(footerTop, dpr);
-  const footerOffset = normalizePhysicalPixel(
-    Math.max(0, normalizedViewportHeight - normalizedFooterTop),
-    dpr,
-  );
-  const barBottom = normalizePhysicalPixel(normalizedViewportHeight - footerOffset, dpr);
+  const barBottom = normalizedViewportHeight;
   const barTop = normalizePhysicalPixel(barBottom - normalizedBarHeight, dpr);
   const normalizedInformationTop = normalizePhysicalPixel(informationTop, dpr);
-  const normalizedInformationBottom = normalizePhysicalPixel(informationBottom, dpr);
-  const normalizedGalleryTop = normalizePhysicalPixel(galleryTop, dpr);
-  const visibleInformationInBarBand = normalizePhysicalPixel(Math.max(
-    0,
-    Math.min(normalizedInformationBottom, barBottom) - Math.max(normalizedInformationTop, barTop),
-  ), dpr);
-  const galleryHasEnteredBarBand = normalizedGalleryTop < barBottom;
-  const variant = !galleryHasEnteredBarBand && visibleInformationInBarBand >= normalizedBarHeight
-    ? "adaptive"
-    : "full";
+  const variant = normalizedInformationTop <= barTop ? "adaptive" : "full";
 
   return {
     valid: true,
     variant,
-    footerOffset,
     barTop,
     barBottom,
-    visibleInformationInBarBand,
   };
 }

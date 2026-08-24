@@ -20,8 +20,12 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
   return (
     <article className={styles.card}>
       <div className={styles.visual} aria-hidden="true">
-        <Image className={styles.visualBack} src={`${assetRoot}/corvo-dashboard.png`} alt="" width={2960} height={2400} />
-        <Image className={styles.visualFront} src={`${assetRoot}/corvo-product.png`} alt="" width={2960} height={2400} />
+        <span className={`${styles.visualFrame} ${styles.visualBack}`}>
+          <Image src={`${assetRoot}/corvo-dashboard.png`} alt="" width={2960} height={2400} />
+        </span>
+        <span className={`${styles.visualFrame} ${styles.visualFront}`}>
+          <Image src={`${assetRoot}/corvo-product.png`} alt="" width={2960} height={2400} />
+        </span>
       </div>
 
       <div className={styles.copy}>

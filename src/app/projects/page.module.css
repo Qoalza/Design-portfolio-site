@@ -13,7 +13,7 @@
 .titleLine { display: flex; align-items: center; gap: 8px; }
 .titleLine h2 { margin: 0; color: #444d55; font: 500 24px/32px "Google Sans", sans-serif; letter-spacing: .24px; }
 .titleGroup > p { margin: 0; color: #45494c; font: 350 16px/24px "Onest", sans-serif; letter-spacing: -.1px; }
-.projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Source Code Pro", monospace; letter-spacing: -.5px; }
+.projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Onest", sans-serif; letter-spacing: -.5px; }
 .projectTags span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .projectTags b { color: #369ff3; font-weight: 400; }
 .projectTags i { margin-right: 6px; color: #acafb2; font-style: normal; }
@@ -25,7 +25,7 @@
 .actions { display: flex; width: 100%; align-items: center; gap: 12px; }
 .detailsButton { width: 122px; }
 .actionDivider { width: 1px; height: 23px; background: #e2e4e5; }
-.updated { display: inline-flex; align-items: center; gap: 8px; padding-left: 12px; color: #b2b9bf; font: 400 12px/16px "Source Code Pro", monospace; letter-spacing: -.2px; }
+.updated { display: inline-flex; align-items: center; gap: 8px; padding-left: 12px; color: #b2b9bf; font: 400 12px/16px "Onest", sans-serif; letter-spacing: -.2px; }
 .compactGrid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; column-gap: 129px; padding: 64px 0 40px; border-top: 1px solid #e2e5e7; }
 .compactGrid::after { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: #e2e5e7; content: ""; }
 .compactCard { display: flex; width: auto; min-width: 0; flex-direction: column; }

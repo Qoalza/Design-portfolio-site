@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import styles from "./project-media-lightbox.module.css";
 
 type ProjectMediaLightboxProps = {
@@ -25,15 +26,13 @@ export function ProjectMediaLightbox({
 }: ProjectMediaLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     const trigger = triggerRef.current;
 
-    if (!dialog || !isOpen) {
-      return;
-    }
+    if (!dialog || !isOpen) return;
 
     const root = document.documentElement;
     const body = document.body;
@@ -48,12 +47,21 @@ export function ProjectMediaLightbox({
 
     root.style.overflow = "hidden";
     body.style.overflow = "hidden";
-    dialog.focus({ preventScroll: true });
+    dialog.showModal();
+    const closeFromEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", closeFromEscape, { capture: true });
 
     return () => {
+      window.removeEventListener("keydown", closeFromEscape, { capture: true });
       root.style.overflow = previousRootOverflow;
       body.style.overflow = previousBodyOverflow;
       body.style.paddingRight = previousBodyPaddingRight;
+      if (dialog.open) dialog.close();
       trigger?.focus({ preventScroll: true });
     };
   }, [isOpen]);
@@ -71,38 +79,29 @@ export function ProjectMediaLightbox({
         <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} />
       </button>
 
-      {isOpen ? (
-        <div
+      {isOpen ? createPortal(
+        <dialog
           ref={dialogRef}
           className={styles.dialog}
-          role="dialog"
-          aria-modal="true"
           aria-label={`Увеличенное изображение: ${alt}`}
-          tabIndex={-1}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              setIsOpen(false);
-            }
-
-            if (event.key === "Tab") {
-              event.preventDefault();
-              dialogRef.current?.focus({ preventScroll: true });
-            }
-          }}
-          onClick={() => setIsOpen(false)}
+          onCancel={(event) => { event.preventDefault(); setIsOpen(false); }}
+          onClick={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}
         >
-          <Image
-            className={styles.expandedImage}
-            src={src}
-            alt={alt}
-            width={width}
-            height={height}
-            sizes="calc(100vw - 96px)"
-            unoptimized
-            priority
-            onClick={(event) => event.stopPropagation()}
-          />
-        </div>
+          <div className={styles.dialogContent}>
+            <button className={styles.closeButton} type="button" onClick={() => setIsOpen(false)}>Закрыть</button>
+            <Image
+              className={styles.expandedImage}
+              src={src}
+              alt={alt}
+              width={width}
+              height={height}
+              sizes="calc(100vw - 96px)"
+              unoptimized
+              priority
+            />
+          </div>
+        </dialog>,
+        document.body,
       ) : null}
     </>
   );

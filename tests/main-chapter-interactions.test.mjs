@@ -3,8 +3,11 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   getActiveProjectSectionIndex,
+  getGalleryLayout,
+  getGalleryOffsetTarget,
   getGalleryTarget,
   getProcessStepTarget,
+  getTerminalSectionActivationTop,
 } from "../src/lib/main-chapter-interactions.ts";
 
 test("project navigation follows the last section that crossed the sticky activation line", () => {
@@ -17,6 +20,16 @@ test("project navigation follows the last section that crossed the sticky activa
 test("project navigation has a stable fallback for empty and invalid section lists", () => {
   assert.equal(getActiveProjectSectionIndex([], 156), 0);
   assert.equal(getActiveProjectSectionIndex([Number.NaN, 220], 156), 0);
+});
+
+test("project navigation activates the short terminal section before Gallery", () => {
+  assert.equal(getActiveProjectSectionIndex([-820, 480], 156, 620), 1);
+  assert.equal(getActiveProjectSectionIndex([-820, 680], 156, 620), 0);
+});
+
+test("terminal activation is derived from visible section geometry, not its label", () => {
+  assert.equal(getTerminalSectionActivationTop(156, 812, 240), 692);
+  assert.equal(getTerminalSectionActivationTop(156, 812, 1600), 156);
 });
 
 test("project navigation measures the shared header stack instead of a fixed activation constant", () => {
@@ -59,13 +72,28 @@ test("single-image gallery exposes no navigation", () => {
   assert.deepEqual(getGalleryTarget(0, -1, 1), { available: false, index: 0 });
 });
 
+test("gallery availability follows measured overflow rather than item count", () => {
+  assert.deepEqual(getGalleryLayout([0, 204, 408, 612, 816], [180, 180, 180, 180, 180], 1176), {
+    offsets: [0],
+    maxOffset: 0,
+  });
+  assert.deepEqual(getGalleryOffsetTarget(0, 1, [0]), { available: false, index: 0 });
+});
+
+test("gallery offsets snap to items and clamp at the measured maximum", () => {
+  const layout = getGalleryLayout([0, 764, 1528], [740, 740, 740], 1176);
+  assert.deepEqual(layout, { offsets: [0, 764, 1092], maxOffset: 1092 });
+  assert.deepEqual(getGalleryOffsetTarget(1, 1, layout.offsets), { available: true, index: 2 });
+  assert.deepEqual(getGalleryOffsetTarget(2, 1, layout.offsets), { available: false, index: 2 });
+});
+
 test("action bar anchors to the rendered project columns without viewport-center formulas", () => {
   const component = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
   const styles = readFileSync(new URL("../src/components/project-action-bar.module.css", import.meta.url), "utf8");
 
   assert.match(component, /data-project-content-column/);
   assert.match(component, /ResizeObserver/);
-  assert.match(component, /left: variant === "adaptive"/);
-  assert.match(component, /width: variant === "adaptive"/);
+  assert.match(component, /--action-adaptive-left/);
+  assert.match(component, /--action-adaptive-width/);
   assert.doesNotMatch(styles, /calc\(50%|calc\(50vw/);
 });

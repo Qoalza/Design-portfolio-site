@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
-import { getGalleryTarget, type StepDirection } from "../lib/main-chapter-interactions";
+import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
+import { getGalleryLayout, getGalleryOffsetTarget, type StepDirection } from "../lib/main-chapter-interactions";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
 import { SquareButton } from "./ui-controls";
 import styles from "./project-gallery.module.css";
@@ -30,14 +30,45 @@ type PointerStart = { id: number; x: number; y: number };
 
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [offsets, setOffsets] = useState([0]);
   const pointerStartRef = useRef<PointerStart | null>(null);
   const wheelLockedRef = useRef(false);
-  const itemCount = group.items.length;
-  const previous = getGalleryTarget(activeIndex, -1, itemCount);
-  const next = getGalleryTarget(activeIndex, 1, itemCount);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const previous = getGalleryOffsetTarget(activeIndex, -1, offsets);
+  const next = getGalleryOffsetTarget(activeIndex, 1, offsets);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const track = trackRef.current;
+    if (!viewport || !track) return;
+
+    const measure = () => {
+      const items = [...track.children].filter((node): node is HTMLElement => node instanceof HTMLElement);
+      const layout = getGalleryLayout(
+        items.map((item) => item.offsetLeft),
+        items.map((item) => item.offsetWidth),
+        viewport.clientWidth,
+        window.devicePixelRatio || 1,
+      );
+      setOffsets(layout.offsets);
+      setActiveIndex((index) => Math.min(index, layout.offsets.length - 1));
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewport);
+    observer.observe(track);
+    [...track.children].forEach((item) => observer.observe(item));
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [group.items]);
 
   const move = (direction: StepDirection) => {
-    const target = getGalleryTarget(activeIndex, direction, itemCount);
+    const target = getGalleryOffsetTarget(activeIndex, direction, offsets);
     if (target.available) setActiveIndex(target.index);
   };
 
@@ -66,7 +97,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY)) move(deltaX > 0 ? -1 : 1);
   };
 
-  const trackStyle = { "--gallery-index": activeIndex } as CSSProperties;
+  const trackStyle = { "--gallery-offset": `${offsets[activeIndex] ?? 0}px` } as CSSProperties;
 
   return (
     <section className={`${styles.group} ${styles[group.id]}`} data-gallery-group={group.id} data-gallery-index={activeIndex}>
@@ -82,13 +113,14 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       </div>
 
       <div
+        ref={viewportRef}
         className={styles.viewport}
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerCancel={() => { pointerStartRef.current = null; }}
       >
-        <div className={styles.track} style={trackStyle}>
+        <div ref={trackRef} className={styles.track} style={trackStyle}>
           {group.items.map((item, index) => (
             <figure className={styles.slide} key={item.src}>
               <ProjectMediaLightbox {...item} sizes={`${group.id === "desktop" ? 740 : group.id === "tablet" ? 400 : 180}px`} />
@@ -99,7 +131,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       </div>
 
       {next.available ? <div className={`${styles.edgeFade} ${styles.edgeFadeRight}`} aria-hidden="true" /> : null}
-      <span className="visually-hidden" aria-live="polite">{group.label}: изображение {activeIndex + 1} из {itemCount}</span>
+      <span className="visually-hidden" aria-live="polite">{group.label}: позиция {activeIndex + 1} из {offsets.length}</span>
     </section>
   );
 }

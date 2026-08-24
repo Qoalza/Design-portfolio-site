@@ -46,7 +46,11 @@
 html { scroll-behavior: smooth; font-synthesis: none; }
 html { scrollbar-width: none; }
 html::-webkit-scrollbar { display: none; }
-body { margin: 0; background: #fcfcfd; color: #313a41; }
+body { margin: 0; background: #fcfcfd; color: #313a41; font-family: "Onest", sans-serif; }
+button,
+input,
+textarea,
+select { font-family: inherit; }
 a { color: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid #1d8be3; outline-offset: 3px; scroll-margin-top: 176px; scroll-margin-bottom: 132px; }
