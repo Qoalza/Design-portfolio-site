@@ -98,3 +98,17 @@ test("the Gallery is outside the information article and exposes a geometry anch
   assert.notEqual(informationEnd, -1);
   assert.match(component, /data-project-gallery/);
 });
+
+test("Gallery device labels use complete 24px Figma icon frames with real strokes", async () => {
+  for (const name of ["desktop", "tablet", "mobile"]) {
+    const icon = await source(`public/assets/projects/corvo/${name}.svg`);
+    assert.match(icon, /width="24" height="24" viewBox="0 0 24 24"/);
+    assert.match(icon, /stroke="(?:currentColor|#E2E2EC)"/i);
+    assert.match(icon, /stroke-width="1"|stroke-width='1'|<path[^>]+stroke=/i);
+    assert.doesNotMatch(icon, /preserveAspectRatio="none"/);
+  }
+
+  const css = await source("src/components/project-gallery.module.css");
+  assert.match(css, /\.deviceIcon\s*\{[\s\S]*width:\s*16px;[\s\S]*height:\s*16px;[\s\S]*mask-size:\s*16px 16px;/);
+  assert.match(css, /\.deviceLabel\s*\{[\s\S]*gap:\s*8px;/);
+});
