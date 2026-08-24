@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Project } from "../lib/projects";
 import { ProjectPlatforms } from "./project-platforms";
+import { ProjectDetailControl } from "./project-detail-control";
 import { ControlButton } from "./ui-controls";
 import styles from "./main-project-card.module.css";
 
@@ -59,9 +60,14 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
         <div className={styles.actions}>
           <div className={styles.actionButtons}>
             {project.detailAvailable ? (
-              <ControlButton className={styles.detailsButton} variant="neutral" href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ControlButton>
+              <ProjectDetailControl
+                available
+                href={`/projects/${project.slug}`}
+                breadcrumbLabel={project.title}
+                className={styles.detailsButton}
+              />
             ) : (
-              <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>
+              <ProjectDetailControl available={false} className={styles.detailsButton} />
             )}
             {project.figmaAvailable && project.figmaUrl ? (
               <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>

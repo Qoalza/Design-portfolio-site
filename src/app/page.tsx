@@ -3,6 +3,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { MainProjectCard } from "../components/main-project-card";
 import { ProjectPlatforms } from "../components/project-platforms";
+import { ProjectDetailControl } from "../components/project-detail-control";
 import { ProcessStepper } from "../components/process-stepper";
 import { ControlButton } from "../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
@@ -85,10 +86,15 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
   return (
     <div className={styles.projectActions}>
       <div className={styles.projectActionButtons}>
-        {detailHref ? (
-          <ControlButton className={styles.detailsButton} variant="neutral" href={detailHref} breadcrumbLabel={detailLabel}>Подробнее</ControlButton>
+        {detailHref && detailLabel ? (
+          <ProjectDetailControl
+            available
+            href={detailHref}
+            breadcrumbLabel={detailLabel}
+            className={styles.detailsButton}
+          />
         ) : (
-          <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>
+          <ProjectDetailControl available={false} className={styles.detailsButton} />
         )}
         {hasFigma ? (
           <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>

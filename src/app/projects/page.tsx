@@ -2,6 +2,7 @@ import Image from "next/image";
 import { MainProjectCard } from "../../components/main-project-card";
 import { PageHeader } from "../../components/page-header";
 import { ProjectPlatforms } from "../../components/project-platforms";
+import { ProjectDetailControl } from "../../components/project-detail-control";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { ControlButton } from "../../components/ui-controls";
@@ -57,7 +58,16 @@ function ProjectDetails({ project }: { project: Project }) {
 function ProjectActions({ project }: { project: Project }) {
   return (
     <div className={styles.actions}>
-      {project.detailAvailable ? <ControlButton className={styles.detailsButton} variant="neutral" href={`/projects/${project.slug}`} breadcrumbLabel={project.title}>Подробнее</ControlButton> : <ControlButton className={styles.detailsButton} variant="neutral" disabled>Подробнее</ControlButton>}
+      {project.detailAvailable ? (
+        <ProjectDetailControl
+          available
+          href={`/projects/${project.slug}`}
+          breadcrumbLabel={project.title}
+          className={styles.detailsButton}
+        />
+      ) : (
+        <ProjectDetailControl available={false} className={styles.detailsButton} />
+      )}
       {project.figmaAvailable && project.figmaUrl ? (
         <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
       ) : (
