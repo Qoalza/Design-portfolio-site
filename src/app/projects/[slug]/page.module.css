@@ -239,8 +239,13 @@
 }
 
 .contentSection ul,
-.contentSection ol { padding-left: 80px; }
-.contentSection li + li { margin-top: 4px; }
+.contentSection ol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 80px;
+}
+.contentSection li + li { margin-top: 0; }
 .contentSection strong { color: #313a41; font-weight: 600; }
 .contentSection > figure { margin-top: 40px; }
 .contentSection:first-child > p + p { margin-top: 24px; }
