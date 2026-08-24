@@ -262,13 +262,13 @@ export default function Home() {
                   </div>
                 </div>
                 <div className={styles.analyticsMedia}>
-                  <Image src={`${assetRoot}/process-discovery.png`} alt="Схема аналитической работы над продуктом" width={2372} height={2284} />
+                  <Image src={`${assetRoot}/process-discovery-515-30749.png`} alt="Схема аналитической работы над продуктом" width={2372} height={2284} unoptimized />
                 </div>
               </article>
 
               <article className={`${styles.processRow} ${styles.designRow}`}>
                 <div className={styles.designMedia}>
-                  <Image src={`${assetRoot}/process-prototype.png`} alt="Схема проектирования интерфейса" width={3128} height={2166} />
+                  <Image src={`${assetRoot}/process-prototype-515-30751.png`} alt="Схема проектирования интерфейса" width={3128} height={2166} unoptimized />
                 </div>
                 <div className={styles.processCopy}>
                   <span className={styles.processEyebrow}><b>02</b>Проектирование</span>
@@ -289,7 +289,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className={styles.deliveryMedia}>
-                  <Image src={`${assetRoot}/process-delivery.png`} alt="Схема передачи готового решения в разработку" width={3138} height={1944} />
+                  <Image src={`${assetRoot}/process-delivery-515-30778.png`} alt="Схема передачи готового решения в разработку" width={3138} height={1944} unoptimized />
                 </div>
               </article>
             </ProcessStepper>
