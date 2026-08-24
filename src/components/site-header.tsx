@@ -7,7 +7,7 @@ import {
   type NavigationPage,
   useNavigationTrail,
 } from "./contextual-navigation";
-import { ControlButton, NavigationTab, TextButton } from "./ui-controls";
+import { ControlButton, NavigationTab, SquareButton, TextButton } from "./ui-controls";
 import styles from "./site-header.module.css";
 
 const assetRoot = "/assets/homepage";
@@ -59,7 +59,8 @@ function Breadcrumbs({ trail }: { trail: ReturnType<typeof useNavigationTrail> }
   return (
     <div className={styles.breadcrumbRow}>
       <div className={styles.breadcrumbs}>
-        <ControlButton
+        <SquareButton
+          kind="link"
           className={styles.backButton}
           variant="ghost"
           size="small"
@@ -67,8 +68,8 @@ function Breadcrumbs({ trail }: { trail: ReturnType<typeof useNavigationTrail> }
           breadcrumbTrail={previousTrail}
           resetBreadcrumbs={previousTrail.length === 1}
           ariaLabel={`Вернуться: ${previousItem.label}`}
-          iconLeft="/assets/projects/corvo/back.svg"
-        >{null}</ControlButton>
+          icon="/assets/projects/corvo/back.svg"
+        />
         <div className={styles.breadcrumbTrail}>
           {trail.map((item, index) => (
             <Fragment key={`${item.href}-${index}`}>

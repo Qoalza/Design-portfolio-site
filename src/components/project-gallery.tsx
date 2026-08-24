@@ -3,7 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { getGalleryTarget, type StepDirection } from "../lib/main-chapter-interactions";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
-import { ControlButton } from "./ui-controls";
+import { SquareButton } from "./ui-controls";
 import styles from "./project-gallery.module.css";
 
 export type ProjectGalleryItem = {
@@ -47,26 +47,26 @@ export function ProjectGallery({ items, variant = "standard" }: ProjectGalleryPr
     <div className={`${styles.gallery} ${styles[variant]}`} data-gallery-count={itemCount} data-gallery-index={activeIndex}>
       {itemCount > 1 ? (
         <div className={styles.controls}>
-          {previous.available ? (
-            <ControlButton
-              className={styles.arrow}
-              variant="ghost"
-              size="small"
-              onClick={() => move(-1)}
-              ariaLabel="Предыдущее изображение"
-              iconLeft="/assets/projects/chevron-left.svg"
-            >{null}</ControlButton>
-          ) : <span className={styles.arrowPlaceholder} aria-hidden="true" />}
-          {next.available ? (
-            <ControlButton
-              className={styles.arrow}
-              variant="ghost"
-              size="small"
-              onClick={() => move(1)}
-              ariaLabel="Следующее изображение"
-              iconLeft="/assets/projects/chevron-right.svg"
-            >{null}</ControlButton>
-          ) : <span className={styles.arrowPlaceholder} aria-hidden="true" />}
+          <SquareButton
+            kind="button"
+            className={styles.arrow}
+            variant="ghost"
+            size="small"
+            disabled={!previous.available}
+            onClick={() => move(-1)}
+            ariaLabel="Предыдущее изображение"
+            icon="/assets/projects/chevron-left.svg"
+          />
+          <SquareButton
+            kind="button"
+            className={styles.arrow}
+            variant="ghost"
+            size="small"
+            disabled={!next.available}
+            onClick={() => move(1)}
+            ariaLabel="Следующее изображение"
+            icon="/assets/projects/chevron-right.svg"
+          />
         </div>
       ) : null}
       <div className={styles.viewport}>
