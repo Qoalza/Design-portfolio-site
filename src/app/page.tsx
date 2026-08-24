@@ -317,7 +317,7 @@ export default function Home() {
               <SectionHeading id="resume-title" title="Резюме" centered>
                 <div className={styles.contacts}>
                   <a href="mailto:Qoalza01@gmail.com">Qoalza01@gmail.com</a>
-                  <Image src={`${assetRoot}/separator.svg`} alt="" width={6} height={10} />
+                  <span aria-hidden="true">/</span>
                   <a href="https://t.me/Coco_soul" target="_blank" rel="noreferrer">@Coco_soul</a>
                 </div>
               </SectionHeading>
@@ -336,7 +336,7 @@ export default function Home() {
                     <p className={styles.inlineRole}><strong>Product Designer</strong><Image src={`${assetRoot}/experience-meta-separator.svg`} alt="" width={4} height={7} /><span>Август 2021 — Май 2026</span></p>
                     <p>Проектировал высоконагруженные B2B/B2E и SaaS продукты со сложной бизнес-логикой. Формализовывал требования, выстраивал структуру и сценарии, создавал прототипы, интерфейсы и дизайн-системы, а также налаживал работу между дизайном, разработкой, аналитикой и тестированием.</p>
                   </div>
-                  <div className={styles.eyeconTags}><span>B2B</span><span>Design Systems</span><span>User Flow</span><span>CJM</span><span>Wireframes</span><span>Information Architecture</span><span>UX Research</span></div>
+                  <div className={styles.eyeconTags}><span>B2B</span><span>Design Systems</span><span>User Flow</span><span>CJM</span><span>Wireframes</span><span>UX Research</span></div>
                 </div>
                 <Image className={styles.experienceStar} src={`${assetRoot}/experience-star.svg`} alt="" width={32} height={32} />
               </article>
