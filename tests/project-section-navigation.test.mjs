@@ -59,6 +59,8 @@ test("programmatic navigation replaces targets and supports explicit user cancel
   assert.match(component, /popstate/);
   assert.match(component, /hashchange/);
   assert.match(component, /prefers-reduced-motion/);
+  assert.match(component, /const activationTop = Math\.max\(0, measuredHeaderHeight\)/);
+  assert.doesNotMatch(component, /const activationTop[^;]+fixedHeader\?\.getBoundingClientRect\(\)\.bottom/);
   assert.doesNotMatch(component, /Результат/);
   assert.doesNotMatch(component, /documentElement\.scrollHeight/);
 });

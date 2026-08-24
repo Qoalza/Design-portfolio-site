@@ -56,7 +56,7 @@ export function ProjectSectionNavigation({
     const getGeometry = () => {
       const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
       const measuredHeaderHeight = fixedHeader?.getBoundingClientRect().height ?? 0;
-      const activationTop = Math.max(0, fixedHeader?.getBoundingClientRect().bottom ?? measuredHeaderHeight);
+      const activationTop = Math.max(0, measuredHeaderHeight);
       const sectionElements = sections.map((section) => document.getElementById(section.id));
       const sectionTops = sectionElements.map((section) => (
         section?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
