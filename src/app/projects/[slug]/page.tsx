@@ -7,7 +7,6 @@ import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectCanvas } from "../../../components/project-canvas";
 import { ProjectGallery, type ProjectGalleryGroup } from "../../../components/project-gallery";
-import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
 import { PageHeader } from "../../../components/page-header";
 import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
 import { SiteHeader } from "../../../components/site-header";
@@ -188,7 +187,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               <div className={styles.heroPreviewFront}>
                 <div className={styles.browserBar} aria-hidden="true"><i /><i /><i /></div>
                 <div className={styles.heroPreviewImage}>
-                <ProjectMediaLightbox
+                <Image
                   src="/assets/homepage/corvo-product.png"
                   alt={project.heroImageAlt!}
                   width={2960}
@@ -200,13 +199,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               </div>
             </div>
           ) : null}
-
-          <ProjectActionBar
-            title={project.title}
-            figmaAvailable={project.figmaAvailable}
-            figmaUrl={project.figmaUrl}
-            updatedAt={project.updatedAt}
-          />
 
           <div className={styles.projectInformation} data-project-information-start>
             <ProjectSectionNavigation
@@ -231,6 +223,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           {project.slug === "corvo" ? (
             <ProjectGallery groups={corvoGalleryGroups} title="Галерея" description="Часть экранов интерфейса" />
           ) : null}
+
+          <div className={styles.actionTerminal} data-project-action-terminal aria-hidden="true" />
+
+          <ProjectActionBar
+            title={project.title}
+            figmaAvailable={project.figmaAvailable}
+            figmaUrl={project.figmaUrl}
+            updatedAt={project.updatedAt}
+          />
 
         </main>
 

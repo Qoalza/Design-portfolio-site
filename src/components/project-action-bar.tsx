@@ -13,62 +13,71 @@ type ProjectActionBarProps = {
   updatedAt?: string;
 };
 
+type ActionLayout = {
+  variant: "full" | "adaptive";
+  measurement: "valid" | "invalid";
+  bottom: number;
+  fullLeft: number;
+  fullWidth: number;
+  adaptiveLeft: number;
+  adaptiveWidth: number;
+};
+
+const FALLBACK_LAYOUT: ActionLayout = {
+  variant: "full",
+  measurement: "invalid",
+  bottom: 0,
+  fullLeft: 0,
+  fullWidth: 1200,
+  adaptiveLeft: 0,
+  adaptiveWidth: 1000,
+};
+
+function measureActionLayout(): ActionLayout {
+  if (typeof window === "undefined") return FALLBACK_LAYOUT;
+  const information = document.querySelector<HTMLElement>("[data-project-information-start]");
+  const content = document.querySelector<HTMLElement>("[data-project-content-column]");
+  const terminal = document.querySelector<HTMLElement>("[data-project-action-terminal]");
+  if (!information || !content || !terminal) return FALLBACK_LAYOUT;
+
+  const informationRect = information.getBoundingClientRect();
+  const contentRect = content.getBoundingClientRect();
+  const terminalRect = terminal.getBoundingClientRect();
+  const state = getProjectActionBarState({
+    informationTop: informationRect.top,
+    viewportHeight: window.innerHeight,
+    barHeight: 88,
+    dpr: window.devicePixelRatio || 1,
+  });
+  const values = [informationRect.left, informationRect.width, contentRect.left, contentRect.width, terminalRect.top];
+  if (!state.valid || !values.every(Number.isFinite)) return FALLBACK_LAYOUT;
+
+  const terminalBarTop = terminalRect.top + 48;
+  return {
+    variant: state.variant,
+    measurement: "valid",
+    bottom: Math.max(0, window.innerHeight - terminalBarTop - 88),
+    fullLeft: informationRect.left,
+    fullWidth: informationRect.width,
+    adaptiveLeft: contentRect.left,
+    adaptiveWidth: contentRect.width,
+  };
+}
+
+const ACTION_BAR_BOOTSTRAP = `(()=>{const b=document.querySelector('[data-project-action-bar]'),i=document.querySelector('[data-project-information-start]'),c=document.querySelector('[data-project-content-column]'),t=document.querySelector('[data-project-action-terminal]');if(!b||!i||!c||!t)return;const ir=i.getBoundingClientRect(),cr=c.getBoundingClientRect(),tr=t.getBoundingClientRect(),d=window.devicePixelRatio||1,n=v=>Math.round(v*d)/d,top=n(window.innerHeight-88),variant=n(ir.top)<=top?'adaptive':'full',bottom=Math.max(0,window.innerHeight-(tr.top+48)-88);b.dataset.projectActionVariant=variant;b.dataset.projectActionMeasurement='valid';b.style.setProperty('--action-bottom',bottom+'px');b.style.setProperty('--action-full-left',ir.left+'px');b.style.setProperty('--action-full-width',ir.width+'px');b.style.setProperty('--action-adaptive-left',cr.left+'px');b.style.setProperty('--action-adaptive-width',cr.width+'px')})()`;
+
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const frameRef = useRef<number | null>(null);
-  const [variant, setVariant] = useState<"full" | "adaptive">("full");
-  const [measurementStatus, setMeasurementStatus] = useState<"unmeasured" | "valid" | "invalid">("unmeasured");
-  const [footerOffset, setFooterOffset] = useState(0);
-  const [layout, setLayout] = useState({ fullLeft: 0, fullWidth: 1200, adaptiveLeft: 0, adaptiveWidth: 1000 });
+  const [layout, setLayout] = useState<ActionLayout>(measureActionLayout);
   const { announcement, handleShare } = useProjectShare(title);
 
   useLayoutEffect(() => {
     const update = () => {
       frameRef.current = null;
-      const informationStart = document.querySelector<HTMLElement>("[data-project-information-start]");
-      const gallery = document.querySelector<HTMLElement>("[data-project-gallery]");
-      const footer = document.querySelector<HTMLElement>("[data-project-footer]");
-      const contentColumn = document.querySelector<HTMLElement>("[data-project-content-column]");
-      const main = document.querySelector<HTMLElement>("[data-project-information-start]");
-
-      if (informationStart && gallery && footer) {
-        const informationRect = informationStart.getBoundingClientRect();
-        const state = getProjectActionBarState({
-          informationTop: informationRect.top,
-          informationBottom: informationRect.bottom,
-          galleryTop: gallery.getBoundingClientRect().top,
-          footerTop: footer.getBoundingClientRect().top,
-          viewportHeight: window.innerHeight,
-          barHeight: 88,
-          dpr: window.devicePixelRatio || 1,
-        });
-        setVariant(state.variant);
-        setFooterOffset(state.footerOffset);
-        setMeasurementStatus(state.valid ? "valid" : "invalid");
-      } else {
-        setVariant("full");
-        setFooterOffset(0);
-        setMeasurementStatus("invalid");
-      }
-
-      if (contentColumn && main) {
-        const contentRect = contentColumn.getBoundingClientRect();
-        const mainRect = main.getBoundingClientRect();
-        const nextLayout = {
-          fullLeft: mainRect.left,
-          fullWidth: mainRect.width,
-          adaptiveLeft: contentRect.left,
-          adaptiveWidth: contentRect.width,
-        };
-        setLayout((currentLayout) => (
-          currentLayout.fullLeft === nextLayout.fullLeft
-          && currentLayout.fullWidth === nextLayout.fullWidth
-          && currentLayout.adaptiveLeft === nextLayout.adaptiveLeft
-          && currentLayout.adaptiveWidth === nextLayout.adaptiveWidth
-            ? currentLayout
-            : nextLayout
-        ));
-      }
-
+      const nextLayout = measureActionLayout();
+      setLayout((current) => Object.keys(nextLayout).every((key) => (
+        current[key as keyof ActionLayout] === nextLayout[key as keyof ActionLayout]
+      )) ? current : nextLayout);
     };
 
     const scheduleUpdate = () => {
@@ -82,8 +91,7 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
       document.querySelector<HTMLElement>("[data-site-header-fixed]"),
       document.querySelector<HTMLElement>("[data-project-information-start]"),
       document.querySelector<HTMLElement>("[data-project-content-column]"),
-      document.querySelector<HTMLElement>("[data-project-gallery]"),
-      document.querySelector<HTMLElement>("[data-project-footer]"),
+      document.querySelector<HTMLElement>("[data-project-action-terminal]"),
     ].filter((element): element is HTMLElement => Boolean(element));
     const resizeObserver = new ResizeObserver(scheduleUpdate);
     measuredElements.forEach((element) => resizeObserver.observe(element));
@@ -109,26 +117,21 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
   return (
     <>
       <div
-        className={`${styles.actionBar} ${variant === "adaptive" ? styles.adaptive : ""}`}
+        className={styles.actionBar}
         data-project-action-bar
-        data-project-action-variant={variant}
-        data-project-action-measurement={measurementStatus}
-        inert={measurementStatus === "unmeasured"}
-        aria-hidden={measurementStatus === "unmeasured"}
+        data-project-action-variant={layout.variant}
+        data-project-action-measurement={layout.measurement}
+        suppressHydrationWarning
         style={{
-          bottom: `${footerOffset}px`,
-          left: variant === "adaptive" ? `${layout.adaptiveLeft}px` : "0px",
-          width: variant === "adaptive" ? `${layout.adaptiveWidth}px` : "100vw",
+          "--action-bottom": `${layout.bottom}px`,
           "--action-full-left": `${layout.fullLeft}px`,
           "--action-full-width": `${layout.fullWidth}px`,
+          "--action-adaptive-left": `${layout.adaptiveLeft}px`,
+          "--action-adaptive-width": `${layout.adaptiveWidth}px`,
         } as CSSProperties}
       >
         <div
           className={styles.barContent}
-          style={{
-            left: variant === "adaptive" ? "0px" : `${layout.fullLeft}px`,
-            width: variant === "adaptive" ? `${layout.adaptiveWidth}px` : `${layout.fullWidth}px`,
-          }}
         >
           <div className={styles.leadingContent}>
             {figmaAvailable && figmaUrl && updatedAt ? (
@@ -147,7 +150,7 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
           <ControlButton className={styles.shareButton} variant="light" dataAction="share" onClick={handleShare}>Поделиться</ControlButton>
         </div>
       </div>
-      <div className={styles.actionBarSpace} aria-hidden="true" />
+      <script dangerouslySetInnerHTML={{ __html: ACTION_BAR_BOOTSTRAP }} />
       <span aria-live="polite" className="visually-hidden">{announcement}</span>
     </>
   );

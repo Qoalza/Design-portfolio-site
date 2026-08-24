@@ -5,6 +5,7 @@ import {
   NAVIGATION_ABSOLUTE_LIMIT_MS,
   NAVIGATION_WATCHDOG_MS,
   getActiveProjectSectionIndex,
+  getTerminalSectionActivationTop,
   getNavigationProgressState,
 } from "../lib/main-chapter-interactions";
 
@@ -61,18 +62,25 @@ export function ProjectSectionNavigation({
       const sectionTops = sectionElements.map((section) => (
         section?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
       ));
+      const lastSection = sectionElements.at(-1);
+      const actionBar = document.querySelector<HTMLElement>("[data-project-action-bar]");
+      const terminalActivationTop = getTerminalSectionActivationTop(
+        activationTop,
+        actionBar?.getBoundingClientRect().top ?? window.innerHeight,
+        lastSection?.getBoundingClientRect().height ?? 0,
+      );
 
-      return { activationTop, measuredHeaderHeight, sectionElements, sectionTops };
+      return { activationTop, terminalActivationTop, measuredHeaderHeight, sectionElements, sectionTops };
     };
 
     const applyTrackingGeometry = () => {
-      const { activationTop, measuredHeaderHeight, sectionTops } = getGeometry();
+      const { activationTop, terminalActivationTop, measuredHeaderHeight, sectionTops } = getGeometry();
       setStickyTop(measuredHeaderHeight);
       navigationRef.current?.parentElement?.style.setProperty(
         "--project-fixed-stack-height",
         `${measuredHeaderHeight}px`,
       );
-      setActiveIndex(getActiveProjectSectionIndex(sectionTops, activationTop));
+      setActiveIndex(getActiveProjectSectionIndex(sectionTops, activationTop, terminalActivationTop));
     };
 
     const scheduleTrackingGeometry = () => {
@@ -107,7 +115,11 @@ export function ProjectSectionNavigation({
       const state = navigationStateRef.current;
 
       if (state.mode === "SCROLL_TRACKING") {
-        setActiveIndex(getActiveProjectSectionIndex(geometry.sectionTops, geometry.activationTop));
+        setActiveIndex(getActiveProjectSectionIndex(
+          geometry.sectionTops,
+          geometry.activationTop,
+          geometry.terminalActivationTop,
+        ));
         return;
       }
 

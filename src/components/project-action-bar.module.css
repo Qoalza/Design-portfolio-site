@@ -1,6 +1,9 @@
 .actionBar {
   position: fixed;
   z-index: 50;
+  bottom: var(--action-bottom, 0);
+  left: 0;
+  width: 100vw;
   height: 88px;
   overflow: hidden;
   border-top: 1px solid #e2e5e7;
@@ -10,15 +13,11 @@
     width 250ms ease;
 }
 
-.actionBar[data-project-action-measurement="unmeasured"] {
-  visibility: hidden;
-  pointer-events: none;
-}
-
 .barContent {
   position: absolute;
   top: 0;
   display: flex;
+  left: var(--action-full-left);
   width: var(--action-full-width);
   height: 88px;
   align-items: center;
@@ -29,9 +28,16 @@
     width 250ms ease;
 }
 
-.adaptive {
+.actionBar[data-project-action-variant="adaptive"] {
+  left: var(--action-adaptive-left);
+  width: var(--action-adaptive-width);
   border-left: 1px solid #e2e5e7;
   background: #fcfcfd;
+}
+
+.actionBar[data-project-action-variant="adaptive"] .barContent {
+  left: 0;
+  width: var(--action-adaptive-width);
 }
 
 .leadingContent {
@@ -49,7 +55,7 @@
   gap: 8px;
   overflow: hidden;
   color: #909498;
-  font-family: "Google Sans", sans-serif;
+  font-family: "Onest", sans-serif;
   font-size: 14px;
   line-height: 16px;
   letter-spacing: .2px;
@@ -60,7 +66,7 @@
 
 .updatedAt {
   color: #909498;
-  font-family: "Source Code Pro", monospace;
+  font-family: "Onest", sans-serif;
   font-size: 14px;
   line-height: 16px;
   letter-spacing: -.5px;
@@ -82,8 +88,6 @@
 }
 
 .infoIcon { -webkit-mask-image: url("/assets/projects/info.svg"); mask-image: url("/assets/projects/info.svg"); }
-.actionBarSpace { height: 88px; }
-
 @media (prefers-reduced-motion: reduce) {
   .actionBar,
   .barContent { transition-duration: .01ms; }
