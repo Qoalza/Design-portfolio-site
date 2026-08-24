@@ -260,7 +260,7 @@ type TextButtonProps = IconProps & {
   href?: string;
   external?: boolean;
   disabled?: boolean;
-  size?: "small" | "medium";
+  size?: "small" | "medium" | "large";
   breadcrumbTrail?: readonly NavigationTrailItem[];
   resetBreadcrumbs?: boolean;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
@@ -279,7 +279,8 @@ export function TextButton({
   iconLeft,
   iconRight,
 }: TextButtonProps) {
-  const textClassName = `${styles.textControl} ${styles[`text${size === "small" ? "Small" : "Medium"}`]} ${className}`;
+  const textSizeClass = size === "small" ? styles.textSmall : size === "large" ? styles.textLarge : styles.textMedium;
+  const textClassName = `${styles.textControl} ${textSizeClass} ${className}`;
   const content = <ControlContent iconLeft={iconLeft} iconRight={iconRight}>{children}</ControlContent>;
 
   if (disabled || !href) {
