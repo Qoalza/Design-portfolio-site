@@ -8,6 +8,12 @@ async function source(path) {
   return readFile(new URL(path, root), "utf8");
 }
 
+async function pngSize(path) {
+  const bytes = await readFile(new URL(path, root));
+  assert.equal(bytes.toString("ascii", 1, 4), "PNG");
+  return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+}
+
 test("Corvo exposes the five current Figma information sections in order", async () => {
   const mdx = await source("content/projects/corvo.mdx");
   const headings = [...mdx.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim());
@@ -36,6 +42,7 @@ test("ProjectCanvas keeps the code shell in CSS and mounts four independent Figm
   assert.match(component, /corvo-process\.png/);
   assert.match(component, /corvo-buttons\.png/);
   assert.match(component, /corvo-inputs\.png/);
+  assert.equal((component.match(/unoptimized/g) ?? []).length, 4);
   assert.doesNotMatch(component, /Array\.from|\.map\(/);
 
   assert.match(css, /radial-gradient/);
@@ -46,6 +53,19 @@ test("ProjectCanvas keeps the code shell in CSS and mounts four independent Figm
   assert.match(css, /\.process[\s\S]*height:\s*480px/);
   assert.match(css, /\.controls[\s\S]*height:\s*268px/);
   assert.match(css, /grid-template-columns:\s*448px 1px 551px/);
+});
+
+test("ProjectCanvas raster exports have at least two intrinsic pixels per CSS pixel", async () => {
+  const assets = [
+    ["public/assets/projects/corvo/canvas/corvo-quotes.png", 852, 366],
+    ["public/assets/projects/corvo/canvas/corvo-process.png", 906, 390],
+    ["public/assets/projects/corvo/canvas/corvo-buttons.png", 428, 228],
+    ["public/assets/projects/corvo/canvas/corvo-inputs.png", 531, 228],
+  ];
+
+  for (const [path, cssWidth, cssHeight] of assets) {
+    assert.deepEqual(await pngSize(path), { width: cssWidth * 2, height: cssHeight * 2 });
+  }
 });
 
 test("the project page registers ProjectCanvas for evaluated MDX", async () => {
