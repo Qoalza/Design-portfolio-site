@@ -5,9 +5,11 @@ test("only Corvo exposes an available project detail route", () => {
   const corvo = readFileSync(new URL("../content/projects/corvo.mdx", import.meta.url), "utf8");
   const sarafan = readFileSync(new URL("../content/projects/sarafan-radio.mdx", import.meta.url), "utf8");
   const boff = readFileSync(new URL("../content/projects/boff.mdx", import.meta.url), "utf8");
+  const example = readFileSync(new URL("../content/projects/example-project.mdx", import.meta.url), "utf8");
   assert.match(corvo, /detailAvailable:\s*true/);
   assert.match(sarafan, /detailAvailable:\s*false/);
   assert.match(boff, /detailAvailable:\s*false/);
+  assert.match(example, /detailAvailable:\s*false/);
   const projects = readFileSync(new URL("../src/lib/projects.ts", import.meta.url), "utf8");
   assert.match(projects, /export type ProjectAvailability/);
   assert.match(projects, /detail:\s*detailAvailable \? "available" : "unavailable"/);
