@@ -42,13 +42,15 @@ function ProjectVisual({ slug }: { slug: string }) {
 
 function ProjectDetails({ project }: { project: Project }) {
   return (
-    <div className={styles.details}>
-      <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Моя роль</strong><small>{project.catalogRole ?? project.role}</small></span></div>
-      <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Что делал</strong><small>{project.workSummary}</small></span></div>
+    <>
+      <div className={styles.details}>
+        <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Моя роль</strong><small>{project.catalogRole ?? project.role}</small></span></div>
+        <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Что делал</strong><small>{project.workSummary}</small></span></div>
+      </div>
       {project.platforms?.length ? (
         <ProjectPlatforms platforms={project.platforms} desktopOnlyLabel={project.slug === "sarafan-radio"} />
       ) : null}
-    </div>
+    </>
   );
 }
 
