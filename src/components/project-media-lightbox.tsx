@@ -48,8 +48,16 @@ export function ProjectMediaLightbox({
     root.style.overflow = "hidden";
     body.style.overflow = "hidden";
     dialog.showModal();
+    const closeFromEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", closeFromEscape, { capture: true });
 
     return () => {
+      window.removeEventListener("keydown", closeFromEscape, { capture: true });
       root.style.overflow = previousRootOverflow;
       body.style.overflow = previousBodyOverflow;
       body.style.paddingRight = previousBodyPaddingRight;
