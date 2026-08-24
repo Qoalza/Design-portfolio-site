@@ -88,13 +88,13 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
       <div className={styles.projectActionButtons}>
         {detailHref && detailLabel ? (
           <ProjectDetailControl
-            available
+            availability="available"
             href={detailHref}
             breadcrumbLabel={detailLabel}
             className={styles.detailsButton}
           />
         ) : (
-          <ProjectDetailControl available={false} className={styles.detailsButton} />
+          <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
         )}
         {hasFigma ? (
           <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>

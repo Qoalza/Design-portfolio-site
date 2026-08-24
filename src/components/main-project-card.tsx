@@ -63,23 +63,23 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
 
         <div className={styles.actions}>
           <div className={styles.actionButtons}>
-            {project.detailAvailable ? (
+            {project.availability.detail === "available" ? (
               <ProjectDetailControl
-                available
+                availability="available"
                 href={`/projects/${project.slug}`}
                 breadcrumbLabel={project.title}
                 className={styles.detailsButton}
               />
             ) : (
-              <ProjectDetailControl available={false} className={styles.detailsButton} />
+              <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
             )}
-            {project.figmaAvailable && project.figmaUrl ? (
+            {project.availability.figma === "available" && project.figmaUrl ? (
               <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
             ) : (
               <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
             )}
           </div>
-          {project.figmaAvailable && project.updatedAt ? (
+          {project.availability.figma === "available" && project.updatedAt ? (
             <>
               <span className={styles.actionDivider} aria-hidden="true" />
               <span className={styles.updated}>

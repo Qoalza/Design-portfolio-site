@@ -4,6 +4,11 @@ import matter from "gray-matter";
 
 export type ProjectPlatform = "Desktop" | "Tablet" | "Mobile";
 
+export type ProjectAvailability = {
+  detail: "available" | "unavailable";
+  figma: "available" | "unavailable";
+};
+
 export type Project = {
   title: string;
   slug: string;
@@ -17,7 +22,7 @@ export type Project = {
   platforms?: ProjectPlatform[];
   visibility?: string;
   ndaNote?: string;
-  figmaAvailable: boolean;
+  availability: ProjectAvailability;
   figmaUrl?: string;
   logo?: string;
   heroImage?: string;
@@ -28,7 +33,6 @@ export type Project = {
   catalogRole?: string;
   detailLabels?: string[];
   catalogVisible: boolean;
-  detailAvailable: boolean;
   catalogOrder: number;
 };
 
@@ -150,6 +154,7 @@ function readProject(fileName: string): ProjectWithContent {
 
   const updatedAt = readOptionalString(data.updatedAt, "updatedAt");
   const figmaAvailable = readFigmaAvailability(data.figmaAvailable);
+  const detailAvailable = readOptionalBoolean(data.detailAvailable, "detailAvailable", true);
   const figmaUrl = readOptionalString(data.figmaUrl, "figmaUrl");
   const heroImage = readOptionalString(data.heroImage, "heroImage");
   const heroImageAlt = readOptionalString(data.heroImageAlt, "heroImageAlt");
@@ -178,7 +183,10 @@ function readProject(fileName: string): ProjectWithContent {
     platforms: readOptionalPlatforms(data.platforms),
     visibility: readOptionalString(data.visibility, "visibility"),
     ndaNote: readOptionalString(data.ndaNote, "ndaNote"),
-    figmaAvailable,
+    availability: {
+      detail: detailAvailable ? "available" : "unavailable",
+      figma: figmaAvailable ? "available" : "unavailable",
+    },
     figmaUrl,
     logo: readOptionalString(data.logo, "logo"),
     heroImage,
@@ -189,7 +197,6 @@ function readProject(fileName: string): ProjectWithContent {
     catalogRole: readOptionalString(data.catalogRole, "catalogRole"),
     detailLabels: readOptionalStringArray(data.detailLabels, "detailLabels"),
     catalogVisible: readOptionalBoolean(data.catalogVisible, "catalogVisible", true),
-    detailAvailable: readOptionalBoolean(data.detailAvailable, "detailAvailable", true),
     catalogOrder: typeof data.catalogOrder === "number" && Number.isInteger(data.catalogOrder) ? data.catalogOrder : 999,
     content,
   };
@@ -213,7 +220,7 @@ function withoutContent(project: ProjectWithContent): Project {
     platforms: project.platforms,
     visibility: project.visibility,
     ndaNote: project.ndaNote,
-    figmaAvailable: project.figmaAvailable,
+    availability: project.availability,
     figmaUrl: project.figmaUrl,
     logo: project.logo,
     heroImage: project.heroImage,
@@ -224,7 +231,6 @@ function withoutContent(project: ProjectWithContent): Project {
     catalogRole: project.catalogRole,
     detailLabels: project.detailLabels,
     catalogVisible: project.catalogVisible,
-    detailAvailable: project.detailAvailable,
     catalogOrder: project.catalogOrder,
   };
 }
