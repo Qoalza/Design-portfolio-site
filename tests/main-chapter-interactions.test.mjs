@@ -7,6 +7,7 @@ import {
   getGalleryOffsetTarget,
   getGalleryTarget,
   getProcessStepTarget,
+  getProjectNavigationRailHeight,
   getTerminalSectionActivationTop,
 } from "../src/lib/main-chapter-interactions.ts";
 
@@ -28,8 +29,23 @@ test("project navigation activates the short terminal section before Gallery", (
 });
 
 test("terminal activation is derived from visible section geometry, not its label", () => {
-  assert.equal(getTerminalSectionActivationTop(156, 812, 240), 692);
+  assert.equal(getTerminalSectionActivationTop(156, 812, 240), 156 + (692 - 156) / 3);
   assert.equal(getTerminalSectionActivationTop(156, 812, 1600), 156);
+});
+
+test("navigation rail ends when its last item aligns with the last section anchor", () => {
+  assert.equal(getProjectNavigationRailHeight({
+    informationTop: 1000,
+    terminalSectionTop: 3000,
+    lastItemOffset: 160,
+    navigationHeight: 220,
+  }), 2060);
+  assert.equal(getProjectNavigationRailHeight({
+    informationTop: Number.NaN,
+    terminalSectionTop: 3000,
+    lastItemOffset: 160,
+    navigationHeight: 220,
+  }), 220);
 });
 
 test("project navigation measures the shared header stack instead of a fixed activation constant", () => {

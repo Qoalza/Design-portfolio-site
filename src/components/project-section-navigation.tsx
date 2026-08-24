@@ -5,6 +5,7 @@ import {
   NAVIGATION_ABSOLUTE_LIMIT_MS,
   NAVIGATION_WATCHDOG_MS,
   getActiveProjectSectionIndex,
+  getProjectNavigationRailHeight,
   getTerminalSectionActivationTop,
   getNavigationProgressState,
 } from "../lib/main-chapter-interactions";
@@ -40,11 +41,13 @@ export function ProjectSectionNavigation({
   const frameRef = useRef<number | null>(null);
   const watchdogRef = useRef<number | null>(null);
   const absoluteLimitRef = useRef<number | null>(null);
+  const railRef = useRef<HTMLDivElement>(null);
   const navigationRef = useRef<HTMLElement>(null);
   const navigationStateRef = useRef<NavigationState>({ mode: "SCROLL_TRACKING" });
   const startProgrammaticScrollRef = useRef<(index: number, updateHistory?: boolean) => void>(() => undefined);
   const [activeIndex, setActiveIndex] = useState(0);
   const [stickyTop, setStickyTop] = useState(160);
+  const [railHeight, setRailHeight] = useState<number | null>(null);
 
   useEffect(() => {
     const clearProgrammaticTimers = () => {
@@ -63,20 +66,29 @@ export function ProjectSectionNavigation({
         section?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
       ));
       const lastSection = sectionElements.at(-1);
+      const information = document.querySelector<HTMLElement>("[data-project-information-start]");
+      const lastNavigationItem = navigationRef.current?.lastElementChild as HTMLElement | null;
       const actionBar = document.querySelector<HTMLElement>("[data-project-action-bar]");
       const terminalActivationTop = getTerminalSectionActivationTop(
         activationTop,
         actionBar?.getBoundingClientRect().top ?? window.innerHeight,
         lastSection?.getBoundingClientRect().height ?? 0,
       );
+      const nextRailHeight = getProjectNavigationRailHeight({
+        informationTop: information?.getBoundingClientRect().top ?? Number.NaN,
+        terminalSectionTop: lastSection?.getBoundingClientRect().top ?? Number.NaN,
+        lastItemOffset: lastNavigationItem?.offsetTop ?? Number.NaN,
+        navigationHeight: navigationRef.current?.getBoundingClientRect().height ?? Number.NaN,
+      });
 
-      return { activationTop, terminalActivationTop, measuredHeaderHeight, sectionElements, sectionTops };
+      return { activationTop, terminalActivationTop, measuredHeaderHeight, nextRailHeight, sectionElements, sectionTops };
     };
 
     const applyTrackingGeometry = () => {
-      const { activationTop, terminalActivationTop, measuredHeaderHeight, sectionTops } = getGeometry();
+      const { activationTop, terminalActivationTop, measuredHeaderHeight, nextRailHeight, sectionTops } = getGeometry();
       setStickyTop(measuredHeaderHeight);
-      navigationRef.current?.parentElement?.style.setProperty(
+      setRailHeight(nextRailHeight);
+      railRef.current?.parentElement?.style.setProperty(
         "--project-fixed-stack-height",
         `${measuredHeaderHeight}px`,
       );
@@ -108,7 +120,8 @@ export function ProjectSectionNavigation({
       frameRef.current = null;
       const geometry = getGeometry();
       setStickyTop(geometry.measuredHeaderHeight);
-      navigationRef.current?.parentElement?.style.setProperty(
+      setRailHeight(geometry.nextRailHeight);
+      railRef.current?.parentElement?.style.setProperty(
         "--project-fixed-stack-height",
         `${geometry.measuredHeaderHeight}px`,
       );
@@ -230,9 +243,12 @@ export function ProjectSectionNavigation({
     applyTrackingGeometry();
     const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
     const information = document.querySelector<HTMLElement>("[data-project-information-start]");
+    const terminalSection = sections.length > 0 ? document.getElementById(sections.at(-1)!.id) : null;
     const resizeObserver = new ResizeObserver(scheduleUpdate);
     if (fixedHeader) resizeObserver.observe(fixedHeader);
     if (information) resizeObserver.observe(information);
+    if (terminalSection) resizeObserver.observe(terminalSection);
+    if (navigationRef.current) resizeObserver.observe(navigationRef.current);
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("scrollend", handleScrollEnd);
     window.addEventListener("resize", scheduleUpdate);
@@ -261,22 +277,29 @@ export function ProjectSectionNavigation({
   }, [sections]);
 
   return (
-    <nav ref={navigationRef} className={className} aria-label="Разделы проекта" style={{ top: stickyTop }}>
-      {sections.map((section, index) => (
-        <a
-          className={index === activeIndex ? activeItemClassName : undefined}
-          href={`#${section.id}`}
-          key={section.id}
-          aria-current={index === activeIndex ? "location" : undefined}
-          onClick={(event) => {
-            event.preventDefault();
-            startProgrammaticScrollRef.current(index);
-          }}
-        >
-          <span aria-hidden="true" />
-          {section.label}
-        </a>
-      ))}
-    </nav>
+    <div
+      className={className}
+      data-project-navigation-rail
+      ref={railRef}
+      style={railHeight === null ? undefined : { height: railHeight }}
+    >
+      <nav ref={navigationRef} aria-label="Разделы проекта" style={{ top: stickyTop }}>
+        {sections.map((section, index) => (
+          <a
+            className={index === activeIndex ? activeItemClassName : undefined}
+            href={`#${section.id}`}
+            key={section.id}
+            aria-current={index === activeIndex ? "location" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              startProgrammaticScrollRef.current(index);
+            }}
+          >
+            <span aria-hidden="true" />
+            {section.label}
+          </a>
+        ))}
+      </nav>
+    </div>
   );
 }
