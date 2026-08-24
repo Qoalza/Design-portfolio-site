@@ -8,6 +8,12 @@ async function source(path) {
   return readFile(new URL(path, root), "utf8");
 }
 
+async function pngSize(path) {
+  const bytes = await readFile(new URL(path, root));
+  assert.equal(bytes.toString("ascii", 1, 4), "PNG");
+  return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+}
+
 test("Corvo gallery defines three independent groups with five current assets each", async () => {
   const page = await source("src/app/projects/[slug]/page.tsx");
 
@@ -54,6 +60,34 @@ test("Gallery geometry matches the current Desktop, Tablet and Mobile instances"
   assert.match(css, /--gallery-item-height:\s*320px/);
   assert.match(css, /--gallery-gap:\s*24px/);
   assert.match(css, /width:\s*1176px/);
+});
+
+test("Gallery exposes only the right edge fade while a next item exists", async () => {
+  const component = await source("src/components/project-gallery.tsx");
+  const css = await source("src/components/project-gallery.module.css");
+
+  assert.match(component, /next\.available\s*\?\s*<div className=\{`\$\{styles\.edgeFade\} \$\{styles\.edgeFadeRight\}`\}/);
+  assert.doesNotMatch(component, /edgeFadeLeft|previous\.available\s*\?\s*<div className=\{`\$\{styles\.edgeFade\}/);
+  assert.doesNotMatch(css, /\.edgeFadeLeft/);
+});
+
+test("Gallery previews serve the original high-density Figma exports without another image encode", async () => {
+  const component = await source("src/components/project-media-lightbox.tsx");
+
+  assert.equal((component.match(/unoptimized/g) ?? []).length, 2);
+  assert.doesNotMatch(component, /placeholder=["']blur["']/);
+});
+
+test("Mobile Gallery exports retain two device pixels at the maximum lightbox size", async () => {
+  const page = await source("src/app/projects/[slug]/page.tsx");
+
+  assert.equal((page.match(/width:\s*1080,\s*height:\s*1920/g) ?? []).length, 5);
+  for (let index = 1; index <= 5; index += 1) {
+    assert.deepEqual(
+      await pngSize(`public/assets/projects/corvo/gallery/mobile-0${index}.png`),
+      { width: 1080, height: 1920 },
+    );
+  }
 });
 
 test("the Gallery is outside the information article and exposes a geometry anchor", async () => {

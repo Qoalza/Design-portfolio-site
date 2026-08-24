@@ -98,7 +98,6 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
         </div>
       </div>
 
-      {previous.available ? <div className={`${styles.edgeFade} ${styles.edgeFadeLeft}`} aria-hidden="true" /> : null}
       {next.available ? <div className={`${styles.edgeFade} ${styles.edgeFadeRight}`} aria-hidden="true" /> : null}
       <span className="visually-hidden" aria-live="polite">{group.label}: изображение {activeIndex + 1} из {itemCount}</span>
     </section>

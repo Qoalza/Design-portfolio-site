@@ -68,7 +68,7 @@ export function ProjectMediaLightbox({
         data-image-fit={fit}
         onClick={() => setIsOpen(true)}
       >
-        <Image src={src} alt={alt} width={width} height={height} sizes={sizes} priority={priority} />
+        <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} />
       </button>
 
       {isOpen ? (

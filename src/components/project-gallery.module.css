@@ -62,11 +62,6 @@
   pointer-events: none;
 }
 
-.edgeFadeLeft {
-  left: 0;
-  background: linear-gradient(to right, rgba(252, 252, 253, .88), rgba(252, 252, 253, 0));
-}
-
 .edgeFadeRight {
   right: 0;
   background: linear-gradient(to left, #fcfcfd, rgba(252, 252, 253, 0));
