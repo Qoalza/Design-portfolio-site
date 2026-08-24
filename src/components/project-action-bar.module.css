@@ -10,6 +10,11 @@
     width 250ms ease;
 }
 
+.actionBar[data-project-action-measurement="unmeasured"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .barContent {
   position: absolute;
   top: 0;

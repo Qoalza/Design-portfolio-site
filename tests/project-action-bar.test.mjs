@@ -73,3 +73,15 @@ test("runtime action bar measures information, Gallery and footer without magic 
   assert.doesNotMatch(styles, /\.adaptive[^}]*background:\s*#fff/is);
   assert.ok(page.indexOf("<ProjectActionBar") < page.indexOf("data-project-information-start"));
 });
+
+test("the first user-visible action variant is measured before paint", () => {
+  const component = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../src/components/project-action-bar.module.css", import.meta.url), "utf8");
+
+  assert.match(component, /useLayoutEffect/);
+  assert.match(component, /"unmeasured"\s*\|\s*"valid"\s*\|\s*"invalid"/);
+  assert.match(component, /inert=\{measurementStatus === "unmeasured"\}/);
+  assert.match(component, /aria-hidden=\{measurementStatus === "unmeasured"\}/);
+  assert.match(styles, /\.actionBar\[data-project-action-measurement="unmeasured"\][\s\S]*visibility:\s*hidden;/);
+  assert.match(styles, /\.actionBar\[data-project-action-measurement="unmeasured"\][\s\S]*pointer-events:\s*none;/);
+});

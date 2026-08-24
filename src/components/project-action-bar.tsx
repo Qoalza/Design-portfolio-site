@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
 import { getProjectActionBarState } from "../lib/main-chapter-interactions";
 import { useProjectShare } from "./project-share-button";
 import { ControlButton } from "./ui-controls";
@@ -16,12 +16,12 @@ type ProjectActionBarProps = {
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const frameRef = useRef<number | null>(null);
   const [variant, setVariant] = useState<"full" | "adaptive">("full");
-  const [measurementValid, setMeasurementValid] = useState(false);
+  const [measurementStatus, setMeasurementStatus] = useState<"unmeasured" | "valid" | "invalid">("unmeasured");
   const [footerOffset, setFooterOffset] = useState(0);
   const [layout, setLayout] = useState({ fullLeft: 0, fullWidth: 1200, adaptiveLeft: 0, adaptiveWidth: 1000 });
   const { announcement, handleShare } = useProjectShare(title);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const update = () => {
       frameRef.current = null;
       const informationStart = document.querySelector<HTMLElement>("[data-project-information-start]");
@@ -43,11 +43,11 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         });
         setVariant(state.variant);
         setFooterOffset(state.footerOffset);
-        setMeasurementValid(state.valid);
+        setMeasurementStatus(state.valid ? "valid" : "invalid");
       } else {
         setVariant("full");
         setFooterOffset(0);
-        setMeasurementValid(false);
+        setMeasurementStatus("invalid");
       }
 
       if (contentColumn && main) {
@@ -112,7 +112,9 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         className={`${styles.actionBar} ${variant === "adaptive" ? styles.adaptive : ""}`}
         data-project-action-bar
         data-project-action-variant={variant}
-        data-project-action-measurement={measurementValid ? "valid" : "invalid"}
+        data-project-action-measurement={measurementStatus}
+        inert={measurementStatus === "unmeasured"}
+        aria-hidden={measurementStatus === "unmeasured"}
         style={{
           bottom: `${footerOffset}px`,
           left: variant === "adaptive" ? `${layout.adaptiveLeft}px` : "0px",
