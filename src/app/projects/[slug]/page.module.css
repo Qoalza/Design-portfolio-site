@@ -243,9 +243,51 @@
 .contentSection li + li { margin-top: 4px; }
 .contentSection strong { color: #313a41; font-weight: 600; }
 .contentSection > div:last-child { margin-top: 40px; }
+.contentSection > figure { margin-top: 40px; }
 .contentSection:last-child > div:last-child { margin-top: 40px; }
 .contentSection:not(:last-child) { padding-bottom: 40px; }
 .contentSection:not(:last-child):has(> div:last-child) { padding-bottom: 0; }
+.contentSection:not(:last-child):has(> figure:last-child) { padding-bottom: 0; }
+
+.contentSection .projectNotice {
+  display: flex;
+  width: fit-content;
+  max-width: calc(100% - 112px);
+  align-items: flex-start;
+  margin: 16px 56px 0;
+  padding: 12px 20px 12px 12px;
+  border-radius: 12px;
+  background: #f7f9fa;
+}
+
+.contentSection .projectNotice p {
+  width: auto;
+  padding: 0;
+  margin: 0;
+  color: #606466;
+  letter-spacing: 0;
+}
+
+.contentSection .projectNoticeWide {
+  width: 896px;
+  max-width: none;
+  margin-left: 52px;
+  padding: 12px;
+}
+
+.projectNoticeIconFrame {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding: 2px 12px 0 4px;
+}
+
+.projectNoticeIcon {
+  width: 20px;
+  height: 20px;
+  background: #606466;
+  mask: url("/assets/projects/corvo/info-circle.svg") center / 20px 20px no-repeat;
+}
 
 .contentDivider { width: 100%; border: 0; border-top: 1px solid #e2e5e7; }
 

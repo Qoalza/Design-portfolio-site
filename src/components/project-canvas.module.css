@@ -1,0 +1,27 @@
+.canvas {
+  position: relative;
+  width: 1000px;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 0 8px 8px 0;
+  background-color: #f5f6f7;
+  background-image: radial-gradient(circle, #e3e6e8 1.5px, transparent 1.5px);
+  background-position: 14.5px 14.5px;
+  background-size: 32px 32px;
+}
+
+.canvas img { position: absolute; display: block; max-width: none; }
+.quotes { height: 450px; }
+.quotesAsset { top: 42px; left: 74px; width: 852px; height: 366px; }
+.process { height: 480px; }
+.processAsset { top: 45px; left: 43px; width: 906px; height: 390px; }
+
+.controls {
+  display: grid;
+  height: 268px;
+  grid-template-columns: 448px 1px 551px;
+}
+
+.buttonsAsset { top: 20px; left: 20px; width: 428px; height: 228px; }
+.inputsAsset { top: 20px; left: 469px; width: 531px; height: 228px; }
+.controlsDivider { position: relative; z-index: 1; grid-column: 2; background: #e3e6e8; }

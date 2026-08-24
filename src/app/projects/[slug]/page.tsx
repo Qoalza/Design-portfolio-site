@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectActionBar } from "../../../components/project-action-bar";
+import { ProjectCanvas } from "../../../components/project-canvas";
 import { ProjectGallery } from "../../../components/project-gallery";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
 import { PageHeader } from "../../../components/page-header";
@@ -23,12 +24,27 @@ type ProjectSectionProps = {
   children: ReactNode;
 };
 
+type ProjectNoticeProps = ProjectSectionProps & {
+  variant?: "default" | "wide";
+};
+
 function ProjectSection({ children }: ProjectSectionProps) {
   return <section className={styles.contentSection}>{children}</section>;
 }
 
 function ProjectDivider() {
   return <hr className={styles.contentDivider} />;
+}
+
+function ProjectNotice({ children, variant = "default" }: ProjectNoticeProps) {
+  return (
+    <div className={`${styles.projectNotice} ${variant === "wide" ? styles.projectNoticeWide : ""}`}>
+      <span className={styles.projectNoticeIconFrame} aria-hidden="true">
+        <span className={styles.projectNoticeIcon} />
+      </span>
+      <p>{children}</p>
+    </div>
+  );
 }
 
 function getHeadingId(label: string): string {
@@ -157,7 +173,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               <ProjectContent
                 components={{
                   ProjectDivider,
+                  ProjectCanvas,
                   ProjectGallery,
+                  ProjectNotice,
                   ProjectSection,
                   h2: MdxHeading,
                 }}
