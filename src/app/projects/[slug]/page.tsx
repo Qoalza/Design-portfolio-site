@@ -6,7 +6,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectCanvas } from "../../../components/project-canvas";
-import { ProjectGallery } from "../../../components/project-gallery";
+import { ProjectGallery, type ProjectGalleryGroup } from "../../../components/project-gallery";
 import { ProjectMediaLightbox } from "../../../components/project-media-lightbox";
 import { PageHeader } from "../../../components/page-header";
 import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
@@ -27,6 +27,45 @@ type ProjectSectionProps = {
 type ProjectNoticeProps = ProjectSectionProps & {
   variant?: "default" | "wide";
 };
+
+const corvoGalleryGroups: ProjectGalleryGroup[] = [
+  {
+    id: "desktop",
+    label: "Desktop",
+    icon: "/assets/projects/corvo/desktop.svg",
+    items: [
+      { src: "/assets/projects/corvo/gallery/desktop-01.png", alt: "Desktop-интерфейс Corvo: экран 1", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-02.png", alt: "Desktop-интерфейс Corvo: экран 2", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-03.png", alt: "Desktop-интерфейс Corvo: экран 3", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-04.png", alt: "Desktop-интерфейс Corvo: экран 4", width: 2960, height: 2048 },
+      { src: "/assets/projects/corvo/gallery/desktop-05.png", alt: "Desktop-интерфейс Corvo: экран 5", width: 2960, height: 2048 },
+    ],
+  },
+  {
+    id: "tablet",
+    label: "Tablet",
+    icon: "/assets/projects/corvo/tablet.svg",
+    items: [
+      { src: "/assets/projects/corvo/gallery/tablet-01.png", alt: "Планшетный интерфейс Corvo: экран 1", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-02.png", alt: "Планшетный интерфейс Corvo: экран 2", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-03.png", alt: "Планшетный интерфейс Corvo: экран 3", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-04.png", alt: "Планшетный интерфейс Corvo: экран 4", width: 1600, height: 2266 },
+      { src: "/assets/projects/corvo/gallery/tablet-05.png", alt: "Планшетный интерфейс Corvo: экран 5", width: 1600, height: 2266 },
+    ],
+  },
+  {
+    id: "mobile",
+    label: "Mobile",
+    icon: "/assets/projects/corvo/mobile.svg",
+    items: [
+      { src: "/assets/projects/corvo/gallery/mobile-01.png", alt: "Мобильный интерфейс Corvo: экран 1", width: 720, height: 1280 },
+      { src: "/assets/projects/corvo/gallery/mobile-02.png", alt: "Мобильный интерфейс Corvo: экран 2", width: 720, height: 1280 },
+      { src: "/assets/projects/corvo/gallery/mobile-03.png", alt: "Мобильный интерфейс Corvo: экран 3", width: 720, height: 1280 },
+      { src: "/assets/projects/corvo/gallery/mobile-04.png", alt: "Мобильный интерфейс Corvo: экран 4", width: 720, height: 1280 },
+      { src: "/assets/projects/corvo/gallery/mobile-05.png", alt: "Мобильный интерфейс Corvo: экран 5", width: 720, height: 1280 },
+    ],
+  },
+];
 
 function ProjectSection({ children }: ProjectSectionProps) {
   return <section className={styles.contentSection}>{children}</section>;
@@ -174,7 +213,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 components={{
                   ProjectDivider,
                   ProjectCanvas,
-                  ProjectGallery,
                   ProjectNotice,
                   ProjectSection,
                   h2: MdxHeading,
@@ -182,6 +220,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               />
             </article>
           </div>
+
+          {project.slug === "corvo" ? (
+            <ProjectGallery groups={corvoGalleryGroups} title="Галерея" description="Часть экранов интерфейса" />
+          ) : null}
 
           <ProjectActionBar
             title={project.title}
