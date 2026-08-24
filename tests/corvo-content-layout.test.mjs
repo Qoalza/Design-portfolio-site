@@ -93,5 +93,6 @@ test("all five information sections encode the current Figma vertical rhythm wit
   assert.match(css, /\.contentSection > figure \+ \.contentDivider\s*\{\s*display:\s*none;/);
   assert.match(css, /\.contentSection ul,[\s\S]*display:\s*flex;[\s\S]*gap:\s*4px;/);
   assert.match(css, /\.contentSection li \+ li\s*\{\s*margin-top:\s*0;/);
+  assert.match(css, /\.contentSection ul > li\s*\{\s*height:\s*24px;/);
   assert.doesNotMatch(css, /margin-collapse/);
 });
