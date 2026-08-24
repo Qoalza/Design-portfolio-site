@@ -74,3 +74,22 @@ test("the project page registers ProjectCanvas for evaluated MDX", async () => {
   assert.match(page, /import \{ ProjectCanvas \}/);
   assert.match(page, /ProjectCanvas,/);
 });
+
+test("all five information sections encode the current Figma vertical rhythm without margin collapse", async () => {
+  const css = await source("src/app/projects/[slug]/page.module.css");
+
+  assert.match(css, /\.contentSection\s*\{[\s\S]*display:\s*flex;[\s\S]*flex-direction:\s*column;/);
+  assert.match(css, /\.contentSection:first-child h2\s*\{\s*padding-top:\s*32px;/);
+  assert.match(css, /\.contentSection:not\(:first-child\) h2\s*\{\s*padding-top:\s*40px;/);
+  assert.match(css, /\.contentSection:first-child\s*>?\s*p \+ p\s*\{\s*margin-top:\s*24px;/);
+  assert.match(css, /\.contentSection:nth-child\(2\)\s*>?\s*p \+ p\s*\{\s*margin-top:\s*0;/);
+  assert.match(css, /\.contentSection:nth-child\(3\)\s*>?\s*p \+ p\s*\{\s*margin-top:\s*24px;/);
+  assert.match(css, /\.contentSection:nth-child\(4\)\s*>?\s*p:nth-of-type\(2\)\s*\{\s*margin-top:\s*0;/);
+  assert.match(css, /\.contentSection:nth-child\(4\)\s*>?\s*p:nth-of-type\(3\)\s*\{\s*margin-top:\s*24px;/);
+  assert.match(css, /\.contentSection:last-child\s*>?\s*p \+ p\s*\{\s*margin-top:\s*0;/);
+  assert.match(css, /\.contentSection:last-child\s*\{\s*padding-bottom:\s*40px;/);
+  assert.match(css, /\.projectNotice \+ \.contentDivider\s*\{\s*margin-top:\s*40px;/);
+  assert.match(css, /\.contentSection > figure\s*\{\s*margin-top:\s*40px;/);
+  assert.match(css, /\.contentSection > figure \+ \.contentDivider\s*\{\s*display:\s*none;/);
+  assert.doesNotMatch(css, /margin-collapse/);
+});
