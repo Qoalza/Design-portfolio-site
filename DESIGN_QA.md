@@ -16,6 +16,20 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
+## OPEN — Main Layout & Interaction Polish (`MLIR4-*`)
+
+Активный пакет: `WORK_PACKET_POLISH.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish/`.
+
+- `MLIR4-SYS`: актуальные typography styles, semantic variables, TextButton Large и затронутые icon sources.
+- `MLIR4-HOME`: Hero, Codex attribution и CTA «Полное CV» на главной.
+- `MLIR4-PRJ`: централизованная доступность проектов, disabled CTA и общий Tooltip.
+- `MLIR4-ABA`: geometry-driven Full/Adaptive action bar без неверного первого кадра.
+- `MLIR4-NAV`: уточнённый terminal threshold и sticky/docked section navigation.
+- `MLIR4-GAL`: Gallery lightbox и дискретная overflow-aware пагинация.
+- `MLIR4-SCR`: desktop Lenis через единый `ScrollFrameCoordinator` без конкурирующих animation loops.
+
+MLIR3 runtime `fce9e2288c3a80a28da51479a5668fa33b22fb59` и каталог `design-reference/main-layout-interaction-followup/` остаются историческим evidence предыдущего состояния. Они не подтверждают MLIR4. Статус `IN_PROGRESS` устанавливается после начала runtime-изменений; `READY_FOR_REVIEW` — только после полного нового evidence и финальной проверки; `CLOSED` — только после явной пользовательской приёмки.
+
 ## READY_FOR_REVIEW — Main Layout & Interaction Follow-up (`MLIR3-*`)
 
 Активный пакет: `WORK_PACKET_FOLLOWUP.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-followup/`.
