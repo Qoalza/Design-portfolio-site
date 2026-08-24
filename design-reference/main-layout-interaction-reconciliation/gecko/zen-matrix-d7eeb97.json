@@ -1,0 +1,393 @@
+{
+  "generatedAt": "2026-08-24T13:28:18.545Z",
+  "browser": {
+    "name": "Zen",
+    "version": "1.21.15b",
+    "build": "126.8.18",
+    "engine": "Gecko"
+  },
+  "codeSha": "d7eeb97931ead369ab767089897e7a8680c36a64",
+  "screenshotStatus": "BLOCKED_BY_BROWSER_URL_POLICY",
+  "results": [
+    {
+      "route": "/projects/corvo",
+      "browser": "Zen 1.21.15b",
+      "build": "126.8.18",
+      "viewport": "1440x900",
+      "codeSha": "d7eeb97931ead369ab767089897e7a8680c36a64",
+      "figmaNodes": [
+        "373:47103",
+        "677:44301",
+        "553:3036",
+        "553:3314",
+        "688:52700"
+      ],
+      "initial": {
+        "href": "http://127.0.0.1:3000/projects/corvo?review=d7eeb97",
+        "buildSha": "d7eeb97931ead369ab767089897e7a8680c36a64",
+        "viewport": [
+          1440,
+          900
+        ],
+        "scrollHeight": 6117,
+        "overflowX": 0,
+        "actionFrames": [
+          {
+            "variant": "full",
+            "measurement": "unmeasured",
+            "visibility": "hidden"
+          },
+          {
+            "variant": "full",
+            "measurement": "valid",
+            "visibility": "visible"
+          }
+        ],
+        "action": {
+          "variant": "full",
+          "measurement": "valid",
+          "visibility": "visible",
+          "top": 812
+        },
+        "informationTop": 990,
+        "sections": [
+          {
+            "title": "О проекте",
+            "height": 393,
+            "figureTop": null
+          },
+          {
+            "title": "Задача",
+            "height": 827.5,
+            "figureTop": 377.5
+          },
+          {
+            "title": "Процесс",
+            "height": 792,
+            "figureTop": 312
+          },
+          {
+            "title": "Система",
+            "height": 764,
+            "figureTop": 496
+          },
+          {
+            "title": "Результат",
+            "height": 288,
+            "figureTop": null
+          }
+        ],
+        "galleryIcons": [
+          {
+            "group": "desktop",
+            "index": 0,
+            "iconSize": [
+              16,
+              16
+            ],
+            "gap": "8px",
+            "leftFade": false,
+            "rightFade": true
+          },
+          {
+            "group": "tablet",
+            "index": 0,
+            "iconSize": [
+              16,
+              16
+            ],
+            "gap": "8px",
+            "leftFade": false,
+            "rightFade": true
+          },
+          {
+            "group": "mobile",
+            "index": 0,
+            "iconSize": [
+              16,
+              16
+            ],
+            "gap": "8px",
+            "leftFade": false,
+            "rightFade": true
+          }
+        ]
+      },
+      "actionTransitions": {
+        "start": {
+          "variant": "full",
+          "measurement": "valid",
+          "top": 812,
+          "bottom": 900,
+          "scrollHeight": 6117,
+          "galleryTop": 4070.5
+        },
+        "information": {
+          "variant": "adaptive",
+          "measurement": "valid",
+          "top": 812,
+          "bottom": 900,
+          "scrollHeight": 6117,
+          "galleryTop": 3260.5
+        },
+        "gallery": {
+          "variant": "full",
+          "measurement": "valid",
+          "top": 812,
+          "bottom": 900,
+          "scrollHeight": 6117,
+          "galleryTop": 860.5
+        },
+        "footer": {
+          "variant": "full",
+          "measurement": "valid",
+          "top": 752,
+          "bottom": 840,
+          "scrollHeight": 6117,
+          "galleryTop": -1146.5,
+          "footerTop": 839.5
+        },
+        "returned": {
+          "variant": "full",
+          "measurement": "valid",
+          "top": 812,
+          "bottom": 900,
+          "scrollHeight": 6117,
+          "galleryTop": 4070.5
+        }
+      },
+      "navigation": {
+        "count": 5,
+        "rows": [
+          {
+            "index": 0,
+            "label": "О проекте",
+            "immediate": 0,
+            "final": 0,
+            "distance": 160,
+            "elapsed": 6009,
+            "hash": "#%D0%BE-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5"
+          },
+          {
+            "index": 1,
+            "label": "Задача",
+            "immediate": 1,
+            "final": 1,
+            "distance": 1,
+            "elapsed": 470,
+            "hash": "#%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B0"
+          },
+          {
+            "index": 2,
+            "label": "Процесс",
+            "immediate": 2,
+            "final": 2,
+            "distance": 0.5,
+            "elapsed": 757,
+            "hash": "#%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81"
+          },
+          {
+            "index": 3,
+            "label": "Система",
+            "immediate": 3,
+            "final": 3,
+            "distance": 0.5,
+            "elapsed": 736,
+            "hash": "#%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0"
+          },
+          {
+            "index": 4,
+            "label": "Результат",
+            "immediate": 4,
+            "final": 4,
+            "distance": 0.5,
+            "elapsed": 585,
+            "hash": "#%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82"
+          }
+        ],
+        "activeInGallery": 4,
+        "lastIndex": 4,
+        "last": {
+          "index": 4,
+          "label": "Результат",
+          "immediate": 4,
+          "final": 4,
+          "distance": 0.5,
+          "elapsed": 585,
+          "hash": "#%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82"
+        }
+      },
+      "gallery": [
+        {
+          "group": "desktop",
+          "states": [
+            {
+              "index": 0,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 1,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 2,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 3,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 4,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": false,
+              "nextDisabled": true
+            }
+          ]
+        },
+        {
+          "group": "tablet",
+          "states": [
+            {
+              "index": 0,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 1,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 2,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 3,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 4,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": false,
+              "nextDisabled": true
+            }
+          ]
+        },
+        {
+          "group": "mobile",
+          "states": [
+            {
+              "index": 0,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 1,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 2,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 3,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": true,
+              "nextDisabled": false
+            },
+            {
+              "index": 4,
+              "iconSize": [
+                16,
+                16
+              ],
+              "leftFade": false,
+              "rightFade": false,
+              "nextDisabled": true
+            }
+          ]
+        }
+      ],
+      "consoleErrors": [],
+      "screenshots": [],
+      "status": "FAIL"
+    }
+  ],
+  "overall": "FAIL"
+}

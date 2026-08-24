@@ -1,0 +1,355 @@
+{
+  "generatedAt": "2026-08-24T13:56:46.085Z",
+  "browser": {
+    "name": "Chromium",
+    "version": "151.0.0.0"
+  },
+  "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "figmaNodes": [
+    "373:47103",
+    "677:44301",
+    "553:3036",
+    "553:3314",
+    "688:52700"
+  ],
+  "results": [
+    {
+      "route": "/projects/corvo",
+      "browser": "Chromium",
+      "viewport": "1280x720",
+      "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+      "initial": {
+        "actionTop": 632,
+        "informationTop": 1006,
+        "measurement": "valid",
+        "overflowX": 0,
+        "scrollHeight": 6115,
+        "sha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+        "variant": "full",
+        "visibility": "visible",
+        "expected": "full",
+        "informationStartTop": 990
+      },
+      "navigation": [
+        {
+          "label": "О проекте",
+          "immediate": "О проекте",
+          "final": "О проекте"
+        },
+        {
+          "label": "Задача",
+          "immediate": "Задача",
+          "final": "Задача"
+        },
+        {
+          "label": "Процесс",
+          "immediate": "Процесс",
+          "final": "Процесс"
+        },
+        {
+          "label": "Система",
+          "immediate": "Система",
+          "final": "Система"
+        },
+        {
+          "label": "Результат",
+          "immediate": "Результат",
+          "final": "Результат"
+        }
+      ],
+      "gallery": {
+        "active": "Результат",
+        "galleryTop": -318,
+        "scrollHeight": 6115,
+        "variant": "full"
+      },
+      "screenshots": [
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1280x720-initial-69dc9b7.png",
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1280x720-gallery-69dc9b7.png"
+      ],
+      "status": "PASS"
+    },
+    {
+      "route": "/projects/corvo",
+      "browser": "Chromium",
+      "viewport": "1440x900",
+      "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+      "initial": {
+        "actionTop": 812,
+        "informationTop": 1006,
+        "measurement": "valid",
+        "overflowX": 0,
+        "scrollHeight": 6115,
+        "sha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+        "variant": "full",
+        "visibility": "visible",
+        "expected": "full",
+        "informationStartTop": 990
+      },
+      "navigation": [
+        {
+          "label": "О проекте",
+          "immediate": "О проекте",
+          "final": "О проекте"
+        },
+        {
+          "label": "Задача",
+          "immediate": "Задача",
+          "final": "Задача"
+        },
+        {
+          "label": "Процесс",
+          "immediate": "Процесс",
+          "final": "Процесс"
+        },
+        {
+          "label": "Система",
+          "immediate": "Система",
+          "final": "Система"
+        },
+        {
+          "label": "Результат",
+          "immediate": "Результат",
+          "final": "Результат"
+        }
+      ],
+      "gallery": {
+        "active": "Результат",
+        "galleryTop": -318,
+        "scrollHeight": 6115,
+        "variant": "full"
+      },
+      "screenshots": [
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x900-initial-69dc9b7.png",
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x900-gallery-69dc9b7.png"
+      ],
+      "status": "PASS"
+    },
+    {
+      "route": "/projects/corvo",
+      "browser": "Chromium",
+      "viewport": "1440x999",
+      "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+      "initial": {
+        "actionTop": 911,
+        "informationTop": 1006,
+        "measurement": "valid",
+        "overflowX": 0,
+        "scrollHeight": 6115,
+        "sha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+        "variant": "full",
+        "visibility": "visible",
+        "expected": "full",
+        "informationStartTop": 990
+      },
+      "navigation": [
+        {
+          "label": "О проекте",
+          "immediate": "О проекте",
+          "final": "О проекте"
+        },
+        {
+          "label": "Задача",
+          "immediate": "Задача",
+          "final": "Задача"
+        },
+        {
+          "label": "Процесс",
+          "immediate": "Процесс",
+          "final": "Процесс"
+        },
+        {
+          "label": "Система",
+          "immediate": "Система",
+          "final": "Система"
+        },
+        {
+          "label": "Результат",
+          "immediate": "Результат",
+          "final": "Результат"
+        }
+      ],
+      "gallery": {
+        "active": "Результат",
+        "galleryTop": -318,
+        "scrollHeight": 6115,
+        "variant": "full"
+      },
+      "screenshots": [
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x999-initial-69dc9b7.png",
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x999-gallery-69dc9b7.png"
+      ],
+      "status": "PASS"
+    },
+    {
+      "route": "/projects/corvo",
+      "browser": "Chromium",
+      "viewport": "1440x1200",
+      "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+      "initial": {
+        "actionTop": 1112,
+        "informationTop": 1006,
+        "measurement": "valid",
+        "overflowX": 0,
+        "scrollHeight": 6115,
+        "sha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+        "variant": "adaptive",
+        "visibility": "visible",
+        "expected": "adaptive",
+        "informationStartTop": 990
+      },
+      "navigation": [
+        {
+          "label": "О проекте",
+          "immediate": "О проекте",
+          "final": "О проекте"
+        },
+        {
+          "label": "Задача",
+          "immediate": "Задача",
+          "final": "Задача"
+        },
+        {
+          "label": "Процесс",
+          "immediate": "Процесс",
+          "final": "Процесс"
+        },
+        {
+          "label": "Система",
+          "immediate": "Система",
+          "final": "Система"
+        },
+        {
+          "label": "Результат",
+          "immediate": "Результат",
+          "final": "Результат"
+        }
+      ],
+      "gallery": {
+        "active": "Результат",
+        "galleryTop": -318,
+        "scrollHeight": 6115,
+        "variant": "full"
+      },
+      "screenshots": [
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x1200-initial-69dc9b7.png",
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x1200-gallery-69dc9b7.png"
+      ],
+      "status": "PASS"
+    },
+    {
+      "route": "/projects/corvo",
+      "browser": "Chromium",
+      "viewport": "1440x1356",
+      "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+      "initial": {
+        "actionTop": 1268,
+        "informationTop": 1006,
+        "measurement": "valid",
+        "overflowX": 0,
+        "scrollHeight": 6115,
+        "sha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+        "variant": "adaptive",
+        "visibility": "visible",
+        "expected": "adaptive",
+        "informationStartTop": 990
+      },
+      "navigation": [
+        {
+          "label": "О проекте",
+          "immediate": "О проекте",
+          "final": "О проекте"
+        },
+        {
+          "label": "Задача",
+          "immediate": "Задача",
+          "final": "Задача"
+        },
+        {
+          "label": "Процесс",
+          "immediate": "Процесс",
+          "final": "Процесс"
+        },
+        {
+          "label": "Система",
+          "immediate": "Система",
+          "final": "Система"
+        },
+        {
+          "label": "Результат",
+          "immediate": "Результат",
+          "final": "Результат"
+        }
+      ],
+      "gallery": {
+        "active": "Результат",
+        "galleryTop": -318,
+        "scrollHeight": 6115,
+        "variant": "full"
+      },
+      "screenshots": [
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x1356-initial-69dc9b7.png",
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1440x1356-gallery-69dc9b7.png"
+      ],
+      "status": "PASS"
+    },
+    {
+      "route": "/projects/corvo",
+      "browser": "Chromium",
+      "viewport": "1920x1080",
+      "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+      "initial": {
+        "actionTop": 992,
+        "informationTop": 1006,
+        "measurement": "valid",
+        "overflowX": 0,
+        "scrollHeight": 6115,
+        "sha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+        "variant": "adaptive",
+        "visibility": "visible",
+        "expected": "adaptive",
+        "informationStartTop": 990
+      },
+      "navigation": [
+        {
+          "label": "О проекте",
+          "immediate": "О проекте",
+          "final": "О проекте"
+        },
+        {
+          "label": "Задача",
+          "immediate": "Задача",
+          "final": "Задача"
+        },
+        {
+          "label": "Процесс",
+          "immediate": "Процесс",
+          "final": "Процесс"
+        },
+        {
+          "label": "Система",
+          "immediate": "Система",
+          "final": "Система"
+        },
+        {
+          "label": "Результат",
+          "immediate": "Результат",
+          "final": "Результат"
+        }
+      ],
+      "gallery": {
+        "active": "Результат",
+        "galleryTop": -318,
+        "scrollHeight": 6115,
+        "variant": "full"
+      },
+      "screenshots": [
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1920x1080-initial-69dc9b7.png",
+        "/Users/designer/Documents/GitHub/Design-portfolio-site/design-reference/main-layout-interaction-reconciliation/action-bar/chromium-1920x1080-gallery-69dc9b7.png"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "consoleErrors": [],
+  "overall": "PASS"
+}

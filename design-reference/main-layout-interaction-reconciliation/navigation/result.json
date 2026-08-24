@@ -1,0 +1,21 @@
+{
+  "block": "MLIR2-NAV",
+  "status": "VERIFIED",
+  "implementationSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "figmaNodes": ["373:47103", "553:3314", "526:35799", "526:35796"],
+  "checks": {
+    "fiveDirectTargets": "PASS",
+    "immediateActiveState": "PASS",
+    "noIntermediateActivation": "PASS",
+    "galleryKeepsLastSection": "PASS",
+    "fullFixedStackAnchor": "PASS",
+    "chromiumMatrix": "PASS (6/6)",
+    "zenMatrix": "PASS (6/6)",
+    "consoleErrors": []
+  },
+  "evidence": [
+    "../action-bar/chromium-follow-up-matrix-69dc9b7.json",
+    "../gecko/zen-matrix-69dc9b7.json"
+  ]
+}

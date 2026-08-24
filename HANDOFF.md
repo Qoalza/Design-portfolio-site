@@ -1,6 +1,6 @@
 # HANDOFF
 
-Обновлено: 2026-08-22
+Обновлено: 2026-08-24
 
 ## Назначение
 
@@ -23,11 +23,13 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `codex/main-chapter-reconciliation-v2`; база Goal — `fc89d5e641cad9eb112a6a92c8c55a8fd465ffd9`; merge и deploy не выполнялись.
+- Рабочая ветка: `codex/main-layout-interaction-reconciliation`; текущий runtime HEAD — `69dc9b7823cebc839482a037e6dbb9abaa6ca182`; merge и deploy не выполнялись.
 - Актуальный production/source commit остаётся `ae1c01c10cf87240212b91a9a6594e239eb4f01e` (`Add contextual breadcrumb navigation`).
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
+- Follow-up `MLIR2-CNT/PROC/PRJ/META/ABA/GAL` реализован отдельными логическими commits: восстановлен точный ритм пяти Corvo-секций, добавлены прозрачные versioned process-assets, intrinsic project-card rhythm и общий CTA `Скоро`, исправлены первый кадр action bar и полные device icon frames. Обнаруженная в Zen граница sticky stack исправлена отдельным navigation commit.
+- Полная обязательная Zen `1.21.15b` (build `126.8.18`) matrix на `1280×720`, `1440×900`, `1440×999`, `1440×1200`, `1440×1356`, `1920×1080` прошла для текущего HEAD; focused tests, lint и production build также успешны.
 - Базовый error-layout исправлен в `cf9e161` (`Fix error page viewport layout`); follow-up синхронизирует позиции с актуальными nodes `420:54056`/`420:54081` и отделяет clipping иллюстрации от тени сообщения.
 - Общий механизм platform-иконок использует typed intrinsic-размеры и mask с Figma-цветом `#75848F`; error pages и иконки имеют статус `READY_FOR_REVIEW`.
 - Строка характеристик открытого проекта использует Figma Hug-механику: ширина по содержимому, без desktop-переноса в доступных `1200 px` (`b6f461d`).
@@ -102,6 +104,7 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Открытые ограничения
 
+- `MLIR2-*` runtime и visual/behavioral evidence подтверждены для `69dc9b7823cebc839482a037e6dbb9abaa6ca182`: Chromium и Zen matrices прошли `6/6` со свежими screenshots. До пользовательской приёмки пакет имеет статус `READY_FOR_REVIEW`, не `CLOSED`.
 - Исправления 404/500 и platform-иконок имеют статус `READY_FOR_REVIEW` в `DESIGN_QA.md`; `CLOSED` ставить только после пользовательской проверки.
 - SSH-доступ и read-only аудит VPS подтверждены; сервер до deploy был пустым, неизвестных сайтов и приложений не обнаружено.
 - В `main` находится старая версия; актуальная разработка ещё не слита.
@@ -109,10 +112,11 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Завершить финальную техническую проверку, поднять production preview из точного итогового HEAD, отправить ветку и обновить один Draft PR.
-2. Передать пользователю desktop `Main chapter` для ручной приёмки: общие состояния компонентов, главную, `/projects`, Corvo, process-блок, галерею, sticky-навигацию и переход action bar `Full ↔ Adaptive`.
-3. После принятия отдельно решить вопрос merge; deploy не входит в текущую Goal.
-4. Глобальное сглаживание прокрутки остаётся отдельным будущим этапом и в этой Goal не внедрялось.
-5. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
+1. Создать documentation/evidence commit, подтвердить `DOC_SHA`, выполнить push Goal-ветки и создать либо обновить один Draft PR.
+2. Подтвердить совпадение remote SHA и Draft PR head SHA с `DOC_SHA`, а preview process — с неизменившимся runtime `CODE_SHA`.
+3. Передать пользователю desktop `Main chapter` для ручной приёмки: общие состояния компонентов, главную, `/projects`, Corvo, process-блок, галерею, sticky-навигацию и переход action bar `Full ↔ Adaptive`.
+4. После принятия отдельно решить вопрос merge; deploy не входит в текущую Goal.
+5. Глобальное сглаживание прокрутки остаётся отдельным будущим этапом и в этой Goal не внедрялось.
+6. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
 
 Не выполнять merge или следующий deploy без отдельного явного разрешения пользователя.

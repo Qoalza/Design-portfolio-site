@@ -1,6 +1,6 @@
 # DESIGN QA
 
-Обновлено: 2026-08-22
+Обновлено: 2026-08-24
 
 ## Назначение
 
@@ -16,18 +16,19 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## READY_FOR_REVIEW — Main chapter full reconciliation
+## READY_FOR_REVIEW — Main Layout & Interaction Reconciliation v2 (`MLIR2-*`)
 
-Источники: Figma nodes `510:28120` и дочерние блоки главной, `373:50236` (`/projects`), `373:47103` и `553:3314` (Corvo), `515:31302` (затухание process-блока), `555:3665` (кнопки галереи).
+Активный пакет: `WORK_PACKET.md`. Новое evidence сохраняется в `design-reference/main-layout-interaction-reconciliation/`.
 
-- Общие кнопки, текстовые кнопки и Tabs используют единый кодовый контракт с состояниями Default, Hover, Pressed и Disabled без цветовых transition.
-- Header и breadcrumbs используют общий компонентный слой; возврат на главную через логотип сразу скрывает breadcrumb-цепочку и очищает её в navigation history entry.
-- Corvo на главной и `/projects` использует общий Figma-контракт карточки; конструкции Сараффан.Радио и B.Off остаются самостоятельными согласно их экземплярам.
-- Corvo использует нециклическую галерею с актуальными кнопками и edge-fade, одно текущее изображение процесса и варианты action bar `Full` / `Adaptive`.
-- Process-блок управляется только стрелками; wheel/trackpad не перехватывается и продолжает обычную прокрутку страницы.
-- Sticky-навигация Corvo и переход action bar `Full ↔ Adaptive` работают в обе стороны, после reload и при повторной навигации.
-- Focused browser-проверка пройдена в Chromium и Zen/Firefox: H02 и history-сценарии на `1440×900`, sticky-навигация и action bar на `1280×720`, `1440×900`, `1920×1080`; горизонтальный overflow и console/hydration errors отсутствуют.
-- Детальный индекс visual/behavioral evidence: `design-reference/main-chapter-reconciliation-v2/README.md`.
+- `MLIR2-SQB`: отдельный SquareButton и закрытая миграция icon-only controls.
+- `MLIR2-HDR`: актуальные GeneralHeader и PageHeader.
+- `MLIR2-META`, `MLIR2-RSM`, `MLIR2-AI`, `MLIR2-PROC`, `MLIR2-PRJ`: новые instances главной и `/projects`.
+- `MLIR2-CNT`, `MLIR2-GAL`, `MLIR2-ABA`, `MLIR2-NAV`: актуальный Corvo information layout, Gallery и две layout/scroll state machines.
+- `MLIR2-PROV`: подтверждаемая связь review preview с полным `CODE_SHA`.
+
+Прежний статус `READY_FOR_REVIEW` и evidence `design-reference/main-chapter-reconciliation-v2/README.md` относятся только к предыдущему состоянию Figma и сохраняются как исторический материал. Они не доказывают готовность текущих `MLIR2-*` блоков.
+
+Runtime-исправления follow-up собраны в `69dc9b7823cebc839482a037e6dbb9abaa6ca182`. Обязательные Chromium и Zen `1.21.15b` matrices прошли на шести viewport со свежими screenshots из этого HEAD; focused tests, lint и production build успешны, preview отдаёт тот же полный SHA. Все критичные `MLIR2-*` блоки имеют обязательное evidence в `design-reference/main-layout-interaction-reconciliation/README.md`; старые screenshots не переиспользуются как доказательство нового HEAD. `CLOSED` разрешён только после явной пользовательской приёмки.
 
 ## READY_FOR_REVIEW — error pages 404/500
 

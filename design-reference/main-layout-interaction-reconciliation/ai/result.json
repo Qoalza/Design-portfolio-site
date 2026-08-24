@@ -1,0 +1,25 @@
+{
+  "id": "MLIR2-AI",
+  "status": "VERIFIED",
+  "codeSha": "5e2b4dbe8dd4deb8bf13a53bfb692e53924eb651",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "browser": "Chromium 151.0.0.0",
+  "viewport": "1440x900",
+  "figmaNodes": ["510:28231", "510:28254"],
+  "route": "/?review=5e2b4db",
+  "checks": {
+    "sectionGeometry": "PASS",
+    "twoColumnLayout": "PASS",
+    "dividerGeometry": "PASS",
+    "factPanel": "PASS",
+    "removedLegacyHeading": "PASS",
+    "consoleAndHydration": "PASS"
+  },
+  "measurements": {
+    "section": { "width": 1200, "height": 681 },
+    "factPanel": { "width": 1200, "height": 53, "topPadding": 32 },
+    "factIcon": { "width": 20, "height": 20 }
+  },
+  "rootCause": "The implementation retained the obsolete two-line fact card with a title, 32px icon, 24px gap and 48px top padding after the current Figma instance had replaced it with a single-line information panel.",
+  "change": "Rebuilt the lower panel as the current single-line 20px-icon composition while preserving the two AI columns and section geometry."
+}

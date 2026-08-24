@@ -1,0 +1,26 @@
+{
+  "block": "MLIR2-ABA",
+  "status": "VERIFIED",
+  "implementationSha": "7b5c87ee47b52d584c14d15028fe7fd93890e754",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "figmaNodes": ["576:33195", "528:1540", "553:3036", "553:3314", "688:52700"],
+  "checks": {
+    "initialFull": "PASS",
+    "initialAdaptiveWithoutFlash": "PASS",
+    "fullToAdaptive": "PASS",
+    "adaptiveToFull": "PASS",
+    "footerCollision": "PASS",
+    "stableScrollHeight": "PASS",
+    "chromiumMatrix": "PASS (6/6)",
+    "zenMatrix": "PASS (6/6)",
+    "consoleErrors": []
+  },
+  "evidence": [
+    "chromium-follow-up-matrix-69dc9b7.json",
+    "../gecko/zen-matrix-69dc9b7.json",
+    "chromium-initial-full-1440x900-69dc9b7.png",
+    "chromium-initial-adaptive-1440x1200-69dc9b7.png",
+    "chromium-information-adaptive-1440x1356-69dc9b7.png",
+    "chromium-gallery-full-1440x1356-69dc9b7.png"
+  ]
+}

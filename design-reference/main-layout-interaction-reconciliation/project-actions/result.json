@@ -1,0 +1,37 @@
+{
+  "id": "MLIR2-META",
+  "status": "VERIFIED",
+  "codeSha": "a9f11e240860f74592cdc6e027af82e6669a5987",
+  "verifiedRuntimeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "browser": "Chromium 151.0.0.0",
+  "viewport": "1440x900",
+  "figmaNodes": ["510:28180", "517:34103"],
+  "routes": ["/?review=69dc9b7#projects", "/projects?review=69dc9b7"],
+  "checks": {
+    "sharedComponent": "PASS",
+    "homeConsumer": "PASS",
+    "projectsConsumer": "PASS",
+    "ctaAndFigmaLinks": "PASS",
+    "updateInfoFrame": "PASS",
+    "separator": "PASS",
+    "horizontalOverflow": "PASS",
+    "consoleAndHydration": "PASS",
+    "availableCtaLabel": "PASS: Подробнее",
+    "disabledCtaLabel": "PASS: Скоро",
+    "disabledCtaNavigation": "PASS: no href/navigation"
+  },
+  "measurements": {
+    "card": { "width": 1200, "height": 444 },
+    "actions": { "height": 40 },
+    "separator": { "width": 1, "height": 32 },
+    "updateInfo": { "height": 40, "horizontalPadding": 16 }
+  },
+  "rootCause": "The shared MainProjectCard rendered Update info without its Figma 40px layout frame and 16px horizontal padding, leaving text visually detached beside the separator.",
+  "change": "Restored the shared Update info frame in MainProjectCard, then centralized detail availability so enabled projects show Подробнее and unavailable projects show a non-navigating disabled Скоро control.",
+  "evidence": [
+    "figma-home-main-project-510-28180.png",
+    "figma-projects-main-project-517-34103.png",
+    "chromium-home-disabled-cta-1440x900-69dc9b7.png",
+    "../projects/chromium-projects-1440x900-69dc9b7.png"
+  ]
+}

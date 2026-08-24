@@ -1,0 +1,23 @@
+{
+  "block": "MLIR2-FIN",
+  "status": "VERIFIED",
+  "baseSha": "924f52824eedd29a252b63cdbdcf3402c592cd9a",
+  "codeSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "documentationSha": null,
+  "remoteBranchSha": null,
+  "draftPrHeadSha": null,
+  "previewProcessSha": "69dc9b7823cebc839482a037e6dbb9abaa6ca182",
+  "checks": {
+    "allCriticalBlocksVerified": true,
+    "chromiumMatrix": "PASS (6/6)",
+    "zenMatrix": "PASS (6/6)",
+    "freshScreenshots": "PASS",
+    "focusedTests": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "previewProvenance": "PASS",
+    "merge": false,
+    "deploy": false
+  },
+  "next": "Create the documentation/evidence commit, push the Goal branch, create or update one Draft PR, then record and compare DOC_SHA, remote SHA and PR head SHA."
+}

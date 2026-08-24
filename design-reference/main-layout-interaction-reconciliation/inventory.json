@@ -1,0 +1,82 @@
+{
+  "namespace": "MLIR2",
+  "status": "VERIFIED",
+  "baseSha": "924f52824eedd29a252b63cdbdcf3402c592cd9a",
+  "branch": "codex/main-layout-interaction-reconciliation",
+  "geckoBrowser": {
+    "name": "Zen",
+    "version": "1.21.15b",
+    "build": "126.8.18"
+  },
+  "excludedPaths": [
+    "codex-context-transfer-2026-08-15/",
+    "codex-context-transfer-2026-08-15.zip"
+  ],
+  "figma": {
+    "mainFileKey": "5ZzspE0OrqesDcTP0RRPHr",
+    "libraryFileKey": "CRcI38SOIkr5knjKXeCV5h",
+    "nodes": {
+      "squareButton": "73:5324",
+      "pageHeader": "103:436",
+      "generalHeaderCurrentInstance": "680:48176",
+      "generalHeaderLegacyReferenceUnavailable": "591:33348",
+      "homepage": "510:28120",
+      "resume": "510:28260",
+      "ai": "510:28231",
+      "projects": "373:50236",
+      "corvoPage": "373:47103",
+      "corvoSection": "373:47102",
+      "corvoQuotesCanvas": "651:22762",
+      "corvoProcessCanvas": "656:146519",
+      "corvoButtonsInputsCanvas": "674:36727",
+      "corvoGallery": "677:44301",
+      "actionBarComponentSet": "550:2868",
+      "actionBarFull": "576:33195",
+      "actionBarInitialReference": "553:3036",
+      "actionBarInformationReference": "553:3314",
+      "actionBarGalleryFooterReference": "688:52700",
+      "processDiscovery": "515:30749",
+      "processPrototype": "515:30751",
+      "processDelivery": "515:30778"
+    }
+  },
+  "closedSquareButtonConsumers": [
+    "src/components/process-stepper.tsx#previous-next",
+    "src/components/site-header.tsx#breadcrumb-back",
+    "src/components/project-gallery.tsx#previous-next"
+  ],
+  "sharedProjectMetadataConsumers": [
+    "src/app/page.tsx",
+    "src/app/projects/page.tsx"
+  ],
+  "processAssetBaseline": {
+    "public/assets/homepage/process-discovery.png": {
+      "sha256": "229352df03531b8788a1fa48ff2058d613c1a3ee79556614fafb603281b10d25",
+      "width": 2372,
+      "height": 2284,
+      "alpha": true
+    },
+    "public/assets/homepage/process-prototype.png": {
+      "sha256": "353bfb2b89119889f096f30e0e8b8cbabaa949b7dc255c10eaaeb6c645b63a55",
+      "width": 3128,
+      "height": 2166,
+      "alpha": true
+    },
+    "public/assets/homepage/process-delivery.png": {
+      "sha256": "5e35adeef9714342cacd1d6d739954b37391851e4bd57f023dd7b30a7b4e6b94",
+      "width": 3138,
+      "height": 1944,
+      "alpha": true
+    }
+  },
+  "codeOwners": {
+    "provenance": "src/app/layout.tsx",
+    "controls": "src/components/ui-controls.tsx",
+    "header": "src/components/site-header.tsx",
+    "projectCard": "src/components/main-project-card.tsx",
+    "process": "src/components/process-stepper.tsx",
+    "gallery": "src/components/project-gallery.tsx",
+    "actionBar": "src/components/project-action-bar.tsx",
+    "navigation": "src/components/project-section-navigation.tsx"
+  }
+}
