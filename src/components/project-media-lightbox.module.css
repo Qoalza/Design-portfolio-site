@@ -22,12 +22,40 @@
   position: fixed;
   inset: 0;
   z-index: 100;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 48px;
+  border: 0;
+  background: rgba(21, 29, 35, 0.88);
+  color: #fff;
+}
+
+.dialog::backdrop { background: transparent; }
+
+.dialogContent {
+  position: relative;
   display: flex;
+  width: 100%;
+  height: 100%;
   align-items: center;
   justify-content: center;
-  padding: 48px;
-  background: rgba(21, 29, 35, 0.88);
-  cursor: zoom-out;
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #fcfcfd;
+  color: #45494c;
+  cursor: pointer;
 }
 
 .expandedImage {

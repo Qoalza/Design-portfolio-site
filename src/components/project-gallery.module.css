@@ -45,7 +45,7 @@
   display: flex;
   width: max-content;
   gap: var(--gallery-gap);
-  transform: translateX(calc(var(--gallery-index) * (var(--gallery-item-width) + var(--gallery-gap)) * -1));
+  transform: translateX(calc(var(--gallery-offset) * -1));
   transition: transform 250ms cubic-bezier(.42, 0, .58, 1);
   will-change: transform;
 }
