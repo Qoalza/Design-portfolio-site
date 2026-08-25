@@ -16,6 +16,19 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
+## IN_PROGRESS — Gallery, project components, homepage и 404 (`MLIR6-*`)
+
+Активный пакет: `WORK_PACKET_MLIR6.md`. Новое evidence сохраняется только в `design-reference/gallery-project-error-reconciliation-mlir6/`.
+
+- `MLIR6-GAL`: единый pre-mutation arbiter root Lenis/Gallery, одинаковое первое и последующее движение, один gesture — один step.
+- `MLIR6-LBX`: точные live Gallery frames и DPR-aware lightbox `1.5×` без двойной рамки или потери качества.
+- `MLIR6-PRJ`: Hug CTA, точные tags и card-level `Update info` на главной и `/projects`.
+- `MLIR6-ACT`, `MLIR6-TIP`: точный внутренний action-bar layout, canonical Clipboard Share и полный copy Tooltip contract.
+- `MLIR6-AI`, `MLIR6-PROC`: актуальный AI instance и корректный process/Header stacking.
+- `MLIR6-404`, `MLIR6-500R`: текущая 404 в Chromium/Zen и условная regression 500 при общей зависимости.
+
+Предыдущее MLIR5 и action-bar evidence остаётся историческим и не подтверждает MLIR6 runtime. Принятая action-bar state machine, inclusive threshold `200 px` и terminal geometry `48 + 88 px` являются regression-only контрактом. `READY_FOR_REVIEW` допустим только после fresh evidence всех критичных MLIR6-блоков из одного подтверждённого `CODE_SHA`.
+
 ## OPEN — Main Layout & Interaction Follow-up (`MLIR5-*`)
 
 Активный пакет: `WORK_PACKET_MLIR5.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish-mlir5/`.
