@@ -79,7 +79,7 @@ const ACTION_BAR_BOOTSTRAP = `(()=>{const b=document.querySelector('[data-projec
 
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const [layout, setLayout] = useState<ActionLayout>(() => measureActionLayout("initial"));
-  const [transitionsEnabled, setTransitionsEnabled] = useState(false);
+  const actionBarRef = useRef<HTMLDivElement>(null);
   const initialVariantRef = useRef<ActionLayout["variant"] | null>(
     layout.measurement === "valid" ? layout.variant : null,
   );
@@ -132,7 +132,9 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
   }, []);
 
   useEffect(() => {
-    if (layout.measurement === "valid") setTransitionsEnabled(true);
+    if (layout.measurement === "valid" && actionBarRef.current) {
+      actionBarRef.current.dataset.projectActionTransitions = "true";
+    }
   }, [layout.measurement]);
 
   return (
@@ -142,7 +144,8 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         data-project-action-bar
         data-project-action-variant={layout.variant}
         data-project-action-measurement={layout.measurement}
-        data-project-action-transitions={transitionsEnabled ? "true" : "false"}
+        data-project-action-transitions="false"
+        ref={actionBarRef}
         suppressHydrationWarning
         style={{
           "--action-bottom": `${layout.bottom}px`,
