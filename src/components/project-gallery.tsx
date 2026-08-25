@@ -1,7 +1,7 @@
 "use client";
 
 import Lenis from "lenis";
-import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { galleryInputArbiter } from "../lib/gallery-input-arbiter";
 import { getGalleryLayout, getGalleryOffsetTarget, getGalleryPointerGesture, shouldScheduleGalleryFrame, type StepDirection } from "../lib/main-chapter-interactions";
 import { registerScrollController } from "../lib/scroll-controller";
@@ -57,6 +57,33 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const visibleRef = useRef(true);
   const previous = getGalleryOffsetTarget(activeIndex, -1, offsets);
   const next = getGalleryOffsetTarget(activeIndex, 1, offsets);
+  const move = useCallback((direction: StepDirection) => {
+    const target = getGalleryOffsetTarget(activeIndex, direction, offsets);
+    if (target.available) setActiveIndex(target.index);
+  }, [activeIndex, offsets]);
+
+  const handleWheel = useCallback((event: WheelEvent) => {
+    if (smoothEnabled) {
+      const decision = galleryInputArbiter.classify(event, group.id);
+      if (decision.blockRoot) event.preventDefault();
+      if (decision.galleryStep !== null) move(decision.galleryStep);
+      return;
+    }
+    const isHorizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+    if (!isHorizontalIntent || Math.abs(event.deltaX) < 16) return;
+    event.preventDefault();
+    if (fallbackWheelLockedRef.current) return;
+    fallbackWheelLockedRef.current = true;
+    move(event.deltaX > 0 ? 1 : -1);
+    window.setTimeout(() => { fallbackWheelLockedRef.current = false; }, 300);
+  }, [group.id, move, smoothEnabled]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.addEventListener("wheel", handleWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
@@ -162,27 +189,6 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     }
   }, [activeIndex, group.id, offsets, smoothEnabled]);
 
-  const move = (direction: StepDirection) => {
-    const target = getGalleryOffsetTarget(activeIndex, direction, offsets);
-    if (target.available) setActiveIndex(target.index);
-  };
-
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (smoothEnabled) {
-      const decision = galleryInputArbiter.classify(event.nativeEvent, group.id);
-      if (decision.blockRoot) event.preventDefault();
-      if (decision.galleryStep !== null) move(decision.galleryStep);
-      return;
-    }
-    const isHorizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY);
-    if (!isHorizontalIntent || Math.abs(event.deltaX) < 16) return;
-    event.preventDefault();
-    if (fallbackWheelLockedRef.current) return;
-    fallbackWheelLockedRef.current = true;
-    move(event.deltaX > 0 ? 1 : -1);
-    window.setTimeout(() => { fallbackWheelLockedRef.current = false; }, 300);
-  };
-
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     suppressClickRef.current = false;
@@ -254,7 +260,6 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
           event.stopPropagation();
           suppressClickRef.current = false;
         }}
-        onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
