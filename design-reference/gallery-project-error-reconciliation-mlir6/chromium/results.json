@@ -1,0 +1,422 @@
+{
+  "browser": "Chromium",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "routes": [
+    {
+      "name": "home",
+      "width": 1280,
+      "height": 720,
+      "clientWidth": 1280,
+      "route": "/?review=cca7d77",
+      "scrollHeight": 5139,
+      "scrollWidth": 1280,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "pass": true
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "height": 900,
+      "clientWidth": 1440,
+      "route": "/?review=cca7d77",
+      "scrollHeight": 5139,
+      "scrollWidth": 1440,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "pass": true
+    },
+    {
+      "name": "home",
+      "width": 1920,
+      "height": 1080,
+      "clientWidth": 1920,
+      "route": "/?review=cca7d77",
+      "scrollHeight": 5139,
+      "scrollWidth": 1920,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "pass": true
+    },
+    {
+      "name": "projects",
+      "width": 1280,
+      "height": 720,
+      "clientWidth": 1280,
+      "route": "/projects?review=cca7d77",
+      "scrollHeight": 1841,
+      "scrollWidth": 1280,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "pass": true
+    },
+    {
+      "name": "projects",
+      "width": 1440,
+      "height": 900,
+      "clientWidth": 1440,
+      "route": "/projects?review=cca7d77",
+      "scrollHeight": 1841,
+      "scrollWidth": 1440,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "pass": true
+    },
+    {
+      "name": "projects",
+      "width": 1920,
+      "height": 1080,
+      "clientWidth": 1920,
+      "route": "/projects?review=cca7d77",
+      "scrollHeight": 1841,
+      "scrollWidth": 1920,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1280,
+      "height": 720,
+      "clientWidth": 1280,
+      "route": "/projects/corvo?review=cca7d77",
+      "scrollHeight": 6163,
+      "scrollWidth": 1280,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 900,
+      "clientWidth": 1440,
+      "route": "/projects/corvo?review=cca7d77",
+      "scrollHeight": 6163,
+      "scrollWidth": 1440,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 999,
+      "clientWidth": 1440,
+      "route": "/projects/corvo?review=cca7d77",
+      "scrollHeight": 6163,
+      "scrollWidth": 1440,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        999
+      ],
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 1200,
+      "clientWidth": 1440,
+      "route": "/projects/corvo?review=cca7d77",
+      "scrollHeight": 6163,
+      "scrollWidth": 1440,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 1356,
+      "clientWidth": 1440,
+      "route": "/projects/corvo?review=cca7d77",
+      "scrollHeight": 6163,
+      "scrollWidth": 1440,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        1356
+      ],
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1920,
+      "height": 1080,
+      "clientWidth": 1920,
+      "route": "/projects/corvo?review=cca7d77",
+      "scrollHeight": 6163,
+      "scrollWidth": 1920,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "pass": true
+    },
+    {
+      "name": "404",
+      "width": 1280,
+      "height": 720,
+      "clientWidth": 1280,
+      "route": "/__mlir6-not-found-check__",
+      "scrollHeight": 720,
+      "scrollWidth": 1280,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "pass": true
+    },
+    {
+      "name": "404",
+      "width": 1440,
+      "height": 900,
+      "clientWidth": 1440,
+      "route": "/__mlir6-not-found-check__",
+      "scrollHeight": 900,
+      "scrollWidth": 1440,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "pass": true
+    },
+    {
+      "name": "404",
+      "width": 1920,
+      "height": 1080,
+      "clientWidth": 1920,
+      "route": "/__mlir6-not-found-check__",
+      "scrollHeight": 1080,
+      "scrollWidth": 1920,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "pass": true
+    }
+  ],
+  "gallery": [
+    {
+      "w": 1280,
+      "h": 720,
+      "lb": {
+        "dpr": "1",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "open": true,
+        "scale": "1.109375",
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642"
+      },
+      "gal": {
+        "clientWidth": 1280,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ],
+        "open": false,
+        "scrollWidth": 1280
+      },
+      "pass": true
+    },
+    {
+      "w": 1440,
+      "h": 900,
+      "lb": {
+        "dpr": "1",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "open": true,
+        "scale": "1.4609375",
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642"
+      },
+      "gal": {
+        "clientWidth": 1440,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ],
+        "open": false,
+        "scrollWidth": 1440
+      },
+      "pass": true
+    },
+    {
+      "w": 1440,
+      "h": 1200,
+      "lb": {
+        "dpr": "1",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "open": true,
+        "scale": "1.5",
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642"
+      },
+      "gal": {
+        "clientWidth": 1440,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ],
+        "open": false,
+        "scrollWidth": 1440
+      },
+      "pass": true
+    },
+    {
+      "w": 1920,
+      "h": 1080,
+      "lb": {
+        "dpr": "1",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "open": true,
+        "scale": "1.5",
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642"
+      },
+      "gal": {
+        "clientWidth": 1920,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ],
+        "open": false,
+        "scrollWidth": 1920
+      },
+      "pass": true
+    }
+  ],
+  "arbiter": {
+    "browser": "Chromium",
+    "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+    "viewport": [
+      1440,
+      900
+    ],
+    "before": {
+      "index": "0",
+      "y": 4023
+    },
+    "horizontal": {
+      "index": "1",
+      "y": 4023
+    },
+    "vertical": {
+      "index": "1",
+      "y": 4125
+    },
+    "pass": true
+  },
+  "share": [
+    {
+      "variant": "full",
+      "clipboard": "http://localhost:3000/projects/corvo",
+      "tooltip": "Скопировано",
+      "pass": true
+    },
+    {
+      "variant": "adaptive",
+      "clipboard": "http://localhost:3000/projects/corvo",
+      "tooltip": "Скопировано",
+      "pass": true
+    }
+  ],
+  "console": {
+    "freshProductionErrors": [],
+    "freshProductionWarnings": []
+  },
+  "pass": true
+}

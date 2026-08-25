@@ -1,15 +1,31 @@
 .trigger {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   border: 0;
-  border-radius: inherit;
   background: transparent;
   color: inherit;
   cursor: zoom-in;
+}
+
+.frame {
+  position: relative;
+  border-radius: var(--gallery-frame-radius);
+}
+
+.frameClipped { overflow: hidden; }
+
+.frame::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border: var(--gallery-frame-stroke-width) solid var(--gallery-frame-stroke);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
 }
 
 .trigger:focus-visible {
@@ -27,7 +43,7 @@
   height: 100dvh;
   max-height: none;
   margin: 0;
-  padding: 48px;
+  padding: max(48px, env(safe-area-inset-top)) max(48px, env(safe-area-inset-right)) max(48px, env(safe-area-inset-bottom)) max(48px, env(safe-area-inset-left));
   border: 0;
   background: rgba(21, 29, 35, 0.88);
   color: #fff;
@@ -36,34 +52,34 @@
 .dialog::backdrop { background: transparent; }
 
 .dialogContent {
-  position: relative;
-  display: flex;
+  display: grid;
   width: 100%;
   height: 100%;
+  grid-template-rows: 40px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.closeButton {
+  z-index: 1;
+  justify-self: end;
+}
+
+.mediaArea {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
   align-items: center;
   justify-content: center;
 }
 
-.closeButton {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  height: 40px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 8px;
-  background: #fcfcfd;
-  color: #45494c;
-  cursor: pointer;
+.expandedFrame {
+  flex: 0 0 auto;
 }
 
 .expandedImage {
   display: block;
-  width: auto;
-  max-width: min(100%, 1600px);
-  height: auto;
-  max-height: calc(100dvh - 96px);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   cursor: default;
 }

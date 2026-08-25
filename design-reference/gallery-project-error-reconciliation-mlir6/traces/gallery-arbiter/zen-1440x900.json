@@ -1,0 +1,72 @@
+{
+  "browser": "Zen 1.21.15b",
+  "build": "126.8.18",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "setup": {
+    "x": 720,
+    "y": 372,
+    "smooth": "true",
+    "index": "0",
+    "scrollY": 4101,
+    "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642"
+  },
+  "trace": [
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    },
+    {
+      "scrollY": 4121,
+      "index": "1"
+    }
+  ],
+  "beforeVertical": {
+    "scrollY": 4121,
+    "index": "1"
+  },
+  "afterVertical": {
+    "scrollY": 4311.5,
+    "index": "1"
+  },
+  "pass": true
+}

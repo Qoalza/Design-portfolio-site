@@ -14,14 +14,15 @@ import styles from "./tooltip.module.css";
 
 type TooltipProps = {
   children: ReactNode;
-  content: Omit<TooltipContent, "id">;
+  content: Omit<TooltipContent, "id"> & { iconTone?: "accent" | "inverse" };
   open?: boolean;
+  restartKey?: number;
   triggerMode?: "automatic" | "manual";
 };
 
 type TooltipIconStyle = CSSProperties & { "--tooltip-icon": string };
 
-export function Tooltip({ children, content, open, triggerMode = "automatic" }: TooltipProps) {
+export function Tooltip({ children, content, open, restartKey = 0, triggerMode = "automatic" }: TooltipProps) {
   const reactId = useId();
   const id = `tooltip-${reactId.replace(/:/g, "")}`;
   const triggerRef = useRef<HTMLSpanElement>(null);
@@ -35,11 +36,11 @@ export function Tooltip({ children, content, open, triggerMode = "automatic" }: 
   useEffect(() => {
     if (open === undefined) return;
     const frame = window.requestAnimationFrame(() => {
-      if (open) requestOpen();
+      if (open) setPhase("entering");
       else requestClose();
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [open, requestClose, requestOpen]);
+  }, [open, requestClose, restartKey]);
 
   useLayoutEffect(() => {
     if (!rendered) return;
@@ -133,6 +134,7 @@ export function Tooltip({ children, content, open, triggerMode = "automatic" }: 
       {rendered && typeof document !== "undefined" ? createPortal(
         <div
           className={styles.tooltip}
+          data-icon-tone={content.iconTone ?? "inverse"}
           data-open={phase === "open" ? "true" : "false"}
           id={id}
           onTransitionEnd={(event) => {

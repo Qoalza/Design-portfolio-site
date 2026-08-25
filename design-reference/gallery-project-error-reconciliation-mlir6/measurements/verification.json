@@ -1,0 +1,17 @@
+{
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "projectCards": {
+    "enabledCta": {"runtimeBorderBox":[115.617,40],"figmaBorderBox":[115,40],"toleranceCssPx":1,"pass":true},
+    "updateInfo": {"runtimeBorderBox":[190,40],"figmaBorderBox":[191,40],"toleranceCssPx":1,"pass":true}
+  },
+  "lightbox": [
+    {"viewport":[1280,720],"device":"desktop","naturalPixels":[2960,2048],"dpr":1,"targetScale":1.109375,"pass":true},
+    {"viewport":[1440,900],"device":"desktop","naturalPixels":[2960,2048],"dpr":1,"targetScale":1.4609375,"pass":true},
+    {"viewport":[1440,1200],"device":"desktop","naturalPixels":[2960,2048],"dpr":1,"targetScale":1.5,"pass":true},
+    {"viewport":[1920,1080],"device":"desktop","naturalPixels":[2960,2048],"dpr":1,"targetScale":1.5,"pass":true}
+  ],
+  "errorPages": {
+    "404": "direct navigation and hard reload pass in Chromium and Zen across the required matrix",
+    "500Regression": "shared ErrorStage passes at 1440x900 in Chromium and Zen without horizontal or vertical overflow"
+  }
+}

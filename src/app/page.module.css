@@ -220,7 +220,7 @@
 .projectTitle h3 { margin: 0; color: #45494c; font-family: "Google Sans", sans-serif; font-size: 24px; font-weight: 500; line-height: 32px; letter-spacing: .24px; }
 .projectTitle p { margin: 0; color: #45494c; font-size: 16px; font-weight: 350; line-height: 24px; letter-spacing: -.1px; }
 
-.projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Onest", sans-serif; letter-spacing: -.5px; }
+.projectTags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Source Code Pro", monospace; font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1; letter-spacing: -.5px; }
 .projectTags span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .projectTags b { color: #369ff3; font-weight: 400; }
 .projectTags i { margin-right: 6px; color: #acafb2; font-style: normal; }
@@ -242,9 +242,8 @@
 
 .projectActions { display: flex; width: 100%; align-items: center; gap: 16px; }
 .projectActionButtons { display: flex; align-items: flex-start; gap: 12px; }
-.detailsButton { width: 122px; }
 .actionDivider { width: 1px; height: 23px; background: #e2e4e5; }
-.updated { display: inline-flex; align-items: center; gap: 8px; color: #b2b9bf; font-family: "Onest", sans-serif; font-size: 12px; line-height: 16px; letter-spacing: -.2px; white-space: nowrap; }
+.updated { display: inline-flex; height: 40px; align-items: center; justify-content: center; padding: 0 16px; color: #909498; font: 400 14px/16px "Source Code Pro", monospace; font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1; letter-spacing: -.5px; white-space: nowrap; }
 .projectDivider {
   position: relative;
   width: 100%;

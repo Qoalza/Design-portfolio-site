@@ -1,0 +1,454 @@
+{
+  "browser": "Zen 1.21.15b",
+  "build": "126.8.18",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "results": [
+    {
+      "name": "home",
+      "width": 1280,
+      "height": 720,
+      "route": "/?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 5139,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "height": 900,
+      "route": "/?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 5139,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "home",
+      "width": 1920,
+      "height": 1080,
+      "route": "/?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "scrollHeight": 5139,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "projects",
+      "width": 1280,
+      "height": 720,
+      "route": "/projects?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 1841,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "projects",
+      "width": 1440,
+      "height": 900,
+      "route": "/projects?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 1841,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "projects",
+      "width": 1920,
+      "height": 1080,
+      "route": "/projects?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "scrollHeight": 1841,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1280,
+      "height": 720,
+      "route": "/projects/corvo?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 6163,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 900,
+      "route": "/projects/corvo?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 6163,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 999,
+      "route": "/projects/corvo?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        999
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 6163,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 1200,
+      "route": "/projects/corvo?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 6163,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1440,
+      "height": 1356,
+      "route": "/projects/corvo?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        1356
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 6163,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "corvo-action-initial",
+      "width": 1920,
+      "height": 1080,
+      "route": "/projects/corvo?review=cca7d77",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "scrollHeight": 6163,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "404",
+      "width": 1280,
+      "height": 720,
+      "route": "/__mlir6-not-found-check__",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1280,
+        720
+      ],
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 720,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "404-reload",
+      "width": 1280,
+      "height": 720,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 720,
+      "clientHeight": 720,
+      "pass": true
+    },
+    {
+      "name": "404",
+      "width": 1440,
+      "height": 900,
+      "route": "/__mlir6-not-found-check__",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1440,
+        900
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 900,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "404-reload",
+      "width": 1440,
+      "height": 900,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 900,
+      "clientHeight": 900,
+      "pass": true
+    },
+    {
+      "name": "404",
+      "width": 1920,
+      "height": 1080,
+      "route": "/__mlir6-not-found-check__",
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "scrollHeight": 1080,
+      "pointerFine": true,
+      "pass": true
+    },
+    {
+      "name": "404-reload",
+      "width": 1920,
+      "height": 1080,
+      "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "scrollHeight": 1080,
+      "clientHeight": 1080,
+      "pass": true
+    },
+    {
+      "name": "gallery-lightbox",
+      "width": 1280,
+      "height": 720,
+      "lightbox": {
+        "open": true,
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+        "scale": "1.109375",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "dpr": "1"
+      },
+      "gallery": {
+        "open": false,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ]
+      },
+      "pass": true
+    },
+    {
+      "name": "gallery-lightbox",
+      "width": 1440,
+      "height": 900,
+      "lightbox": {
+        "open": true,
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+        "scale": "1.4609375",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "dpr": "1"
+      },
+      "gallery": {
+        "open": false,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ]
+      },
+      "pass": true
+    },
+    {
+      "name": "gallery-lightbox",
+      "width": 1440,
+      "height": 1200,
+      "lightbox": {
+        "open": true,
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+        "scale": "1.5",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "dpr": "1"
+      },
+      "gallery": {
+        "open": false,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ]
+      },
+      "pass": true
+    },
+    {
+      "name": "gallery-lightbox",
+      "width": 1920,
+      "height": 1080,
+      "lightbox": {
+        "open": true,
+        "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+        "scale": "1.5",
+        "natural": [
+          "2960",
+          "2048"
+        ],
+        "dpr": "1"
+      },
+      "gallery": {
+        "open": false,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "groups": [
+          {
+            "id": "desktop",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "tablet",
+            "index": "0",
+            "smooth": "true"
+          },
+          {
+            "id": "mobile",
+            "index": "0",
+            "smooth": "true"
+          }
+        ]
+      },
+      "pass": true
+    },
+    {
+      "name": "share-full",
+      "x": 1236.0832901000977,
+      "y": 857,
+      "variant": "full",
+      "clipboard": "http://127.0.0.1:3000/projects/corvo",
+      "tooltip": "Скопировано",
+      "opacity": "0.867101",
+      "pass": true
+    },
+    {
+      "name": "share-adaptive",
+      "x": 1237.0832901000977,
+      "y": 857,
+      "variant": "adaptive",
+      "clipboard": "http://127.0.0.1:3000/projects/corvo",
+      "tooltip": "Скопировано",
+      "opacity": "0.84054",
+      "pass": true
+    }
+  ],
+  "relevantLogs": [],
+  "pass": true
+}

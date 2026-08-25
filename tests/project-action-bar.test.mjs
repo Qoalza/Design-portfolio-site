@@ -103,18 +103,22 @@ test("action bar internal layout maps the current Figma component contract", () 
   assert.match(component, /action-bar-external-link\.svg/);
 });
 
-test("project share always copies the current URL and uses the shared Tooltip feedback", () => {
+test("project share copies only canonical origin and pathname and uses Tooltip feedback", () => {
   const actionBar = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
   const share = readFileSync(new URL("../src/components/project-share-button.tsx", import.meta.url), "utf8");
+  const canonical = readFileSync(new URL("../src/lib/project-share.ts", import.meta.url), "utf8");
   const tooltip = readFileSync(new URL("../src/components/tooltip.tsx", import.meta.url), "utf8");
 
   assert.doesNotMatch(share, /navigator\.share/);
   assert.match(share, /navigator\.clipboard\?\.writeText/);
-  assert.match(share, /window\.location\.href/);
+  assert.match(canonical, /location\.origin/);
+  assert.match(canonical, /location\.pathname/);
+  assert.doesNotMatch(share, /window\.location\.href|navigator\.share|execCommand/);
   assert.match(share, /"Скопировано"/);
   assert.match(actionBar, /<Tooltip/);
   assert.match(actionBar, /text: "Скопировано"/);
   assert.match(actionBar, /\/assets\/projects\/check\.svg/);
+  assert.match(actionBar, /restartKey=\{feedbackRevision\}/);
   assert.match(actionBar, /aria-live="polite"/);
   assert.match(tooltip, /triggerMode/);
 });

@@ -1,0 +1,21 @@
+{
+  "browser": "Chromium",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "viewport": [
+    1440,
+    900
+  ],
+  "before": {
+    "index": "0",
+    "y": 4023
+  },
+  "horizontal": {
+    "index": "1",
+    "y": 4023
+  },
+  "vertical": {
+    "index": "1",
+    "y": 4125
+  },
+  "pass": true
+}

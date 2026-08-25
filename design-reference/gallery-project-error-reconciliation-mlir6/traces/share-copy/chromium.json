@@ -1,0 +1,13 @@
+{
+  "browser": "Chromium 151.0.0.0",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "route": "/projects/corvo?review=cca7d77#review-marker",
+  "expectedPayload": "http://localhost:3000/projects/corvo",
+  "states": [
+    {"variant":"full","clipboardPayload":"http://localhost:3000/projects/corvo","tooltip":"Скопировано","navigatorShareCalled":false,"pass":true},
+    {"variant":"adaptive","clipboardPayload":"http://localhost:3000/projects/corvo","tooltip":"Скопировано","navigatorShareCalled":false,"pass":true}
+  ],
+  "rejectionPath": "PASS in focused automated behavior test; success feedback is not created after Clipboard rejection",
+  "repeatAndKeyboard": "PASS in focused automated behavior tests",
+  "pass": true
+}

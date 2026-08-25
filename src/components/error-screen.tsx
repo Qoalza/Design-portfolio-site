@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { ErrorStage } from "./error-stage";
 import { SiteFooter } from "./site-footer";
 import styles from "./error-screen.module.css";
 
@@ -15,7 +16,7 @@ export function ErrorScreen({ variant, title, children, action }: ErrorScreenPro
     <div className={styles.page}>
       <div className={styles.shell}>
         <main className={styles.main}>
-          <div className={`${styles.stage} ${styles[`stage${variant}`]}`}>
+          <ErrorStage className={`${styles.stage} ${styles[`stage${variant}`]}`}>
             <div className={styles.artClip}>
               <Image className={styles.art} src={`/assets/errors/${variant}.png`} alt="" width={variant === "404" ? 3983 : 4096} height={variant === "404" ? 3581 : 2824} unoptimized priority />
             </div>
@@ -26,7 +27,7 @@ export function ErrorScreen({ variant, title, children, action }: ErrorScreenPro
               </div>
               {variant === "404" ? <Image className={styles.tail} src="/assets/errors/speech-tail.svg" alt="" width={27} height={20} /> : null}
             </section>
-          </div>
+          </ErrorStage>
         </main>
         <SiteFooter />
       </div>

@@ -1,10 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
+import { calculateLightboxScale } from "../lib/project-lightbox";
 import { startScrollControllers, stopScrollControllers } from "../lib/scroll-controller";
 import styles from "./project-media-lightbox.module.css";
+import { SquareButton } from "./ui-controls";
+
+type GalleryFrameContract = {
+  clip: boolean;
+  radius: number;
+  strokeColor: string;
+  strokeWidth: number;
+};
+
+type FrameStyle = CSSProperties & {
+  "--gallery-frame-radius": string;
+  "--gallery-frame-stroke": string;
+  "--gallery-frame-stroke-width": string;
+};
 
 type ProjectMediaLightboxProps = {
   src: string;
@@ -14,6 +29,9 @@ type ProjectMediaLightboxProps = {
   fit?: "cover" | "contain";
   priority?: boolean;
   sizes?: string;
+  baseHeight: number;
+  baseWidth: number;
+  frame: GalleryFrameContract;
 };
 
 export function ProjectMediaLightbox({
@@ -24,11 +42,55 @@ export function ProjectMediaLightbox({
   fit = "cover",
   priority = false,
   sizes = "720px",
+  baseHeight,
+  baseWidth,
+  frame,
 }: ProjectMediaLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [intrinsicSize, setIntrinsicSize] = useState({ currentSrc: src, dpr: 1, width, height });
+  const [targetScale, setTargetScale] = useState(1);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const mediaAreaRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef({ x: 0, y: 0 });
+  const frameStyle = {
+    "--gallery-frame-radius": `${frame.radius}px`,
+    "--gallery-frame-stroke": frame.strokeColor,
+    "--gallery-frame-stroke-width": `${frame.strokeWidth}px`,
+  } as FrameStyle;
+
+  useLayoutEffect(() => {
+    const mediaArea = mediaAreaRef.current;
+    if (!isOpen || !mediaArea) return;
+
+    const measure = () => {
+      const rect = mediaArea.getBoundingClientRect();
+      setTargetScale(calculateLightboxScale({
+        availableHeight: rect.height,
+        availableWidth: rect.width,
+        baseHeight,
+        baseWidth,
+        dpr: window.devicePixelRatio || 1,
+        intrinsicHeight: intrinsicSize.height,
+        intrinsicWidth: intrinsicSize.width,
+      }));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(mediaArea);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [baseHeight, baseWidth, intrinsicSize.height, intrinsicSize.width, isOpen]);
+
+  const recordIntrinsicSize = (event: SyntheticEvent<HTMLImageElement>) => {
+    const image = event.currentTarget;
+    if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+      setIntrinsicSize({ currentSrc: image.currentSrc, dpr: window.devicePixelRatio || 1, width: image.naturalWidth, height: image.naturalHeight });
+    }
+  };
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -80,13 +142,14 @@ export function ProjectMediaLightbox({
     <>
       <button
         ref={triggerRef}
-        className={styles.trigger}
+        className={`${styles.trigger} ${styles.frame} ${frame.clip ? styles.frameClipped : ""}`}
+        style={frameStyle}
         type="button"
         aria-label={`Увеличить изображение: ${alt}`}
         data-image-fit={fit}
         onClick={() => setIsOpen(true)}
       >
-        <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} />
+        <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} onLoad={recordIntrinsicSize} />
       </button>
 
       {isOpen ? createPortal(
@@ -97,18 +160,38 @@ export function ProjectMediaLightbox({
           onCancel={(event) => { event.preventDefault(); setIsOpen(false); }}
           onClick={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}
         >
-          <div className={styles.dialogContent}>
-            <button className={styles.closeButton} type="button" onClick={() => setIsOpen(false)}>Закрыть</button>
-            <Image
-              className={styles.expandedImage}
-              src={src}
-              alt={alt}
-              width={width}
-              height={height}
-              sizes="calc(100vw - 96px)"
-              unoptimized
-              priority
+          <div className={styles.dialogContent} onClick={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}>
+            <SquareButton
+              ariaLabel="Закрыть увеличенное изображение"
+              className={styles.closeButton}
+              icon="/assets/projects/corvo/cross.svg"
+              kind="button"
+              onClick={() => setIsOpen(false)}
+              variant="ghost"
             />
+            <div ref={mediaAreaRef} className={styles.mediaArea} onClick={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}>
+              <div
+                className={`${styles.expandedFrame} ${styles.frame} ${frame.clip ? styles.frameClipped : ""}`}
+                data-lightbox-current-src={intrinsicSize.currentSrc}
+                data-lightbox-dpr={intrinsicSize.dpr}
+                data-lightbox-natural-height={intrinsicSize.height}
+                data-lightbox-natural-width={intrinsicSize.width}
+                data-lightbox-target-scale={targetScale}
+                style={{ ...frameStyle, width: `${baseWidth * targetScale}px`, height: `${baseHeight * targetScale}px` }}
+              >
+                <Image
+                  className={styles.expandedImage}
+                  src={src}
+                  alt={alt}
+                  width={width}
+                  height={height}
+                  sizes={`${baseWidth * targetScale}px`}
+                  unoptimized
+                  priority
+                  onLoad={recordIntrinsicSize}
+                />
+              </div>
+            </div>
           </div>
         </dialog>,
         document.body,

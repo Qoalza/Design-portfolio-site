@@ -1,0 +1,21 @@
+{
+  "browser": "Zen 1.21.15b",
+  "build": "126.8.18",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "viewport": [
+    1440,
+    900
+  ],
+  "url": "http://127.0.0.1:3000/error-test?trigger=500&review=cca7d77",
+  "sha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "h1": "Что-то сломалось...",
+  "scroll": [
+    1440,
+    900
+  ],
+  "client": [
+    1440,
+    900
+  ],
+  "pass": true
+}

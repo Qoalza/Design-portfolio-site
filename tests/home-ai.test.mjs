@@ -5,10 +5,11 @@ import test from "node:test";
 const page = readFileSync(new URL("../src/app/page.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../src/app/page.module.css", import.meta.url), "utf8");
 
-test("AI fact uses the current single-line information panel", () => {
+test("AI fact uses the exact current information panel copy", () => {
   const fact = page.match(/<aside className=\{styles\.aiFact\}[\s\S]*?<\/aside>/)?.[0] ?? "";
   assert.doesNotMatch(fact, /Интересный факт/);
-  assert.match(fact, /Вся разработка данного сайта, кроме дизайна, была полностью выполнена мной в Codex, с нуля/);
+  assert.match(fact, /Вся разработка данного сайта, была полностью выполнена мной в Codex, с нуля\. Дизайн был разработан отдельно\./);
+  assert.doesNotMatch(fact, /кроме дизайна/);
   assert.match(fact, /<span className=\{styles\.aiFactIcon\}/);
   assert.match(fact, /className=\{styles\.aiFactDivider\}/);
   const figmaAction = fact.match(/<TextButton[\s\S]*?<\/TextButton>/)?.[0] ?? "";
