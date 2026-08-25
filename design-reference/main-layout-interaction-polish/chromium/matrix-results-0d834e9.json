@@ -1,0 +1,48 @@
+{
+  "browser": "Codex in-app Chromium 151.0.7922.170",
+  "codeSha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+  "route": "/projects/corvo",
+  "viewports": [
+    { "viewport": "1280x720", "initialVariant": "full", "terminalGap": 48, "result": "PASS" },
+    { "viewport": "1440x900", "initialVariant": "full", "terminalGap": 48, "result": "PASS" },
+    { "viewport": "1440x999", "initialVariant": "full", "terminalGap": 48, "result": "PASS" },
+    { "viewport": "1440x1200", "initialVariant": "adaptive", "terminalGap": 48, "result": "PASS" },
+    { "viewport": "1440x1356", "initialVariant": "adaptive", "terminalGap": 48, "result": "PASS" },
+    { "viewport": "1920x1080", "initialVariant": "adaptive", "terminalGap": 48, "result": "PASS" }
+  ],
+  "sharedAssertions": {
+    "buildSha": "PASS",
+    "validFirstPaintMeasurement": "PASS",
+    "horizontalOverflow": "PASS",
+    "terminalScrollHeightStable": "PASS",
+    "terminalNavigation": "PASS",
+    "galleryLeftFadeAbsent": "PASS",
+    "mobilePaginationDisabledWithoutOverflow": "PASS",
+    "desktopDiscreteNextTarget": "PASS",
+    "lightboxTopLayerEscapeFocusAndScrollLock": "PASS",
+    "upperPreviewNonInteractive": "PASS"
+  },
+  "foundation": {
+    "home1440x900": "PASS",
+    "projects1440x900": "PASS",
+    "corvo1440x900": "PASS",
+    "routeResetToZero": "PASS",
+    "hashScrollMarginTop": 128,
+    "touchCoarseLenisDisabled": "PASS",
+    "reducedMotionLenisDisabled": "PASS"
+  },
+  "screenshots": [
+    "home-1440x900-0d834e9.jpg",
+    "projects-1440x900-0d834e9.jpg",
+    "corvo-full-1440x900-0d834e9.jpg",
+    "corvo-adaptive-1440x1200-0d834e9.jpg",
+    "gallery-1440x1200-0d834e9.jpg",
+    "lightbox-1440x1200-0d834e9.jpg",
+    "matrix-1280x720-0d834e9.jpg",
+    "matrix-1440x900-0d834e9.jpg",
+    "matrix-1440x999-0d834e9.jpg",
+    "matrix-1440x1200-0d834e9.jpg",
+    "matrix-1440x1356-0d834e9.jpg",
+    "matrix-1920x1080-0d834e9.jpg"
+  ]
+}

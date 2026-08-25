@@ -1,6 +1,6 @@
 # DESIGN QA
 
-Обновлено: 2026-08-24
+Обновлено: 2026-08-25
 
 ## Назначение
 
@@ -16,7 +16,7 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## OPEN — Main Layout & Interaction Polish (`MLIR4-*`)
+## READY_FOR_REVIEW — Main Layout & Interaction Polish (`MLIR4-*`)
 
 Активный пакет: `WORK_PACKET_POLISH.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish/`.
 
@@ -28,7 +28,9 @@
 - `MLIR4-GAL`: Gallery lightbox и дискретная overflow-aware пагинация.
 - `MLIR4-SCR`: desktop Lenis через единый `ScrollFrameCoordinator` без конкурирующих animation loops.
 
-MLIR3 runtime `fce9e2288c3a80a28da51479a5668fa33b22fb59` и каталог `design-reference/main-layout-interaction-followup/` остаются историческим evidence предыдущего состояния. Они не подтверждают MLIR4. Статус `IN_PROGRESS` устанавливается после начала runtime-изменений; `READY_FOR_REVIEW` — только после полного нового evidence и финальной проверки; `CLOSED` — только после явной пользовательской приёмки.
+MLIR3 runtime `fce9e2288c3a80a28da51479a5668fa33b22fb59` и каталог `design-reference/main-layout-interaction-followup/` остаются историческим evidence предыдущего состояния. Они не подтверждают MLIR4.
+
+MLIR4 runtime зафиксирован в `0d834e9d96f78e34e4e8e4796468446c7ccbad8d`. Focused tests прошли `95/95`, lint и production build успешны, preview отдаёт тот же полный SHA. Обязательные Chromium и Zen `1.21.15b` matrices прошли `6/6`, foundation-маршруты и touch/reduced-motion fallbacks проверены на свежем evidence из этого CODE_SHA; полный индекс — `design-reference/main-layout-interaction-polish/README.md`. `CLOSED` разрешён только после явной пользовательской приёмки.
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Follow-up (`MLIR3-*`)
 

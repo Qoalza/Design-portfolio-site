@@ -1,0 +1,696 @@
+{
+  "session": {
+    "acceptInsecureCerts": false,
+    "browserName": "zen",
+    "browserVersion": "1.21.15b",
+    "platformName": "mac",
+    "setWindowRect": true,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+    "moz:buildID": "20260818101929",
+    "moz:headless": true,
+    "moz:platformVersion": "25.5.0",
+    "moz:processID": 61250,
+    "moz:profile": "/private/tmp/zen-mlir4-profile",
+    "moz:shutdownTimeout": 60000
+  },
+  "codeSha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+  "matrix": [
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1280x720",
+      "initial": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "variant": "full",
+        "measurement": "valid",
+        "bar": {
+          "x": 0,
+          "y": 632,
+          "width": 1280,
+          "height": 88,
+          "top": 632,
+          "right": 1280,
+          "bottom": 720,
+          "left": 0
+        },
+        "info": {
+          "x": 40,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1240,
+          "bottom": 3981,
+          "left": 40
+        },
+        "scrollHeight": 6163,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 632
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "desktopAfter": {
+        "index": "1",
+        "scrollLeft": 0,
+        "rightFades": 1
+      },
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Мобильный интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 660,
+        "footerTop": 660,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x900",
+      "initial": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "variant": "full",
+        "measurement": "valid",
+        "bar": {
+          "x": 0,
+          "y": 812,
+          "width": 1440,
+          "height": 88,
+          "top": 812,
+          "right": 1440,
+          "bottom": 900,
+          "left": 0
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 812
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "desktopAfter": {
+        "index": "1",
+        "scrollLeft": 0,
+        "rightFades": 1
+      },
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Мобильный интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 840,
+        "footerTop": 840,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x999",
+      "initial": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "variant": "full",
+        "measurement": "valid",
+        "bar": {
+          "x": 0,
+          "y": 911,
+          "width": 1440,
+          "height": 88,
+          "top": 911,
+          "right": 1440,
+          "bottom": 999,
+          "left": 0
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 911
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "desktopAfter": {
+        "index": "1",
+        "scrollLeft": 0,
+        "rightFades": 1
+      },
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Мобильный интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 939,
+        "footerTop": 939,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x1200",
+      "initial": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "variant": "adaptive",
+        "measurement": "valid",
+        "bar": {
+          "x": 0,
+          "y": 1112,
+          "width": 1440,
+          "height": 88,
+          "top": 1112,
+          "right": 1440,
+          "bottom": 1200,
+          "left": 0
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 1112
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "desktopAfter": {
+        "index": "1",
+        "scrollLeft": 0,
+        "rightFades": 1
+      },
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Мобильный интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 1140,
+        "footerTop": 1140,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x1356",
+      "initial": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "variant": "adaptive",
+        "measurement": "valid",
+        "bar": {
+          "x": 0,
+          "y": 1268,
+          "width": 1440,
+          "height": 88,
+          "top": 1268,
+          "right": 1440,
+          "bottom": 1356,
+          "left": 0
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 1268
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "desktopAfter": {
+        "index": "1",
+        "scrollLeft": 0,
+        "rightFades": 1
+      },
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Мобильный интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 1296,
+        "footerTop": 1296,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1920x1080",
+      "initial": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "variant": "adaptive",
+        "measurement": "valid",
+        "bar": {
+          "x": 0,
+          "y": 992,
+          "width": 1920,
+          "height": 88,
+          "top": 992,
+          "right": 1920,
+          "bottom": 1080,
+          "left": 0
+        },
+        "info": {
+          "x": 360,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1560,
+          "bottom": 3981,
+          "left": 360
+        },
+        "scrollHeight": 6163,
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 992
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "desktopAfter": {
+        "index": "1",
+        "scrollLeft": 0,
+        "rightFades": 1
+      },
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Мобильный интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 1020,
+        "footerTop": 1020,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    }
+  ],
+  "foundations": [
+    {
+      "route": "/",
+      "result": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "fonts": [
+          "Onest, sans-serif"
+        ],
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "footer": "Deveploment and design Artur A.2026"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "route": "/projects",
+      "result": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "fonts": [
+          "Onest, sans-serif"
+        ],
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "footer": "Deveploment and design Artur A.2026"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "route": "/projects/corvo",
+      "result": {
+        "sha": "0d834e9d96f78e34e4e8e4796468446c7ccbad8d",
+        "fonts": [
+          "Onest, sans-serif"
+        ],
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "footer": "Deveploment and design Artur A.2026"
+      },
+      "console": [],
+      "pass": true
+    }
+  ]
+}

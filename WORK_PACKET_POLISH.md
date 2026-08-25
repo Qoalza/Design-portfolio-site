@@ -489,3 +489,16 @@ Commit boundaries:
 - пользовательская приёмка, merge и deploy не присваиваются автоматически.
 
 План самосогласован, decision-complete и готов для запуска отдельной Codex Goal.
+
+## 15. Execution result
+
+- Internal status: `READY_FOR_USER_REVIEW` после подтверждения remote-ветки и Draft PR на финальном DOC_SHA.
+- BASE_SHA: `12c05c3930d31b96e8481020d1e9ceb026764c6f`.
+- CODE_SHA: `0d834e9d96f78e34e4e8e4796468446c7ccbad8d`.
+- `MLIR4-SYS`, `MLIR4-HOME`, `MLIR4-PRJ`, `MLIR4-ABA`, `MLIR4-NAV`, `MLIR4-GAL`, `MLIR4-SCR`: `VERIFIED`.
+- Focused tests: `95/95 PASS`; lint: `PASS`; production build: `PASS`.
+- Chromium matrix: `6/6 PASS`.
+- Zen `1.21.15b` matrix: `6/6 PASS`; foundation: `3/3 PASS`; page console warnings/errors: `0`.
+- Exact served build provenance matched CODE_SHA before evidence capture.
+- Evidence: `design-reference/main-layout-interaction-polish/README.md`.
+- Figma remained read-only; context-transfer artifacts were not changed or staged; merge and deploy were not performed.
