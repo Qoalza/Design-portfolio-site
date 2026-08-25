@@ -23,7 +23,7 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `codex/action-bar-acceptance-fix`; текущий action-bar runtime `CODE_SHA` — `62152793e8a7d501209f9ed8a257636ef846bcce`; merge и deploy не выполнялись.
+- Рабочая ветка: `codex/action-bar-initial-state-fix`; текущий action-bar runtime `CODE_SHA` — `4a59f8cfd9c61ca710f9a39942303356d99bf5f3`; merge и deploy не выполнялись.
 - Актуальный production/source commit остаётся `ae1c01c10cf87240212b91a9a6594e239eb4f01e` (`Add contextual breadcrumb navigation`).
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
@@ -32,7 +32,7 @@
 - Полная обязательная Zen `1.21.15b` (build `126.8.18`) matrix на `1280×720`, `1440×900`, `1440×999`, `1440×1200`, `1440×1356`, `1920×1080` прошла для текущего HEAD; focused tests, lint и production build также успешны.
 - MLIR3 follow-up системно переводит весь видимый non-heading UI на Onest, закрепляет Figma→code icon contract, синхронизирует Footer с library node `124:4841`, сохраняет внешние тени прозрачных preview, устраняет first-paint flash и terminal overlap action bar, активирует последний короткий раздел по геометрии, делает Gallery overflow-aware и переносит lightbox в top layer. Chromium и Zen `1.21.15b` matrices прошли 6/6 для `fce9e2288c3a80a28da51479a5668fa33b22fb59`; evidence — `design-reference/main-layout-interaction-followup/README.md`.
 - MLIR4 синхронизирует актуальные Body styles/TextButton Large, Hero/Codex/CV, доступность project routes и общий Tooltip; уточняет action bar, sticky navigation и Gallery; desktop/fine-pointer scroll работает через Lenis `1.3.25` и один общий RAF. Focused tests `95/95`, lint и production build успешны; Chromium и Zen `1.21.15b` matrices прошли 6/6 для текущего CODE_SHA. Evidence — `design-reference/main-layout-interaction-polish/README.md`.
-- Изолированный action-bar follow-up устраняет физический `Full → Adaptive` first-frame transition, отделяет initial resolver от последующего порога `200 px`, сохраняет `48 + 88 px` terminal geometry и переводит «Поделиться» на единый copy-current-URL contract. Focused tests `103/103`, lint и production build успешны; Chromium focused checks и Zen `1.21.15b` matrix `6/6` прошли для `62152793e8a7d501209f9ed8a257636ef846bcce`. Evidence — `design-reference/action-bar-acceptance-fix/README.md`.
+- Изолированный action-bar initial-state fix подтвердил причину регрессии: bootstrap/initial resolver включал `Adaptive` при любом пересечении information layout с линией bar, а steady-state resolver требовал `200 px`. Все три пути теперь используют один geometry threshold. Chromium и Zen `1.21.15b` подтвердили direct URL, hard reload, client navigation, границы `199.5/200/200.5 px` и matrix `6/6` для `4a59f8cfd9c61ca710f9a39942303356d99bf5f3`; evidence — `design-reference/action-bar-initial-state-fix/README.md`. Внутренний visual layout остаётся отдельным непринятым backlog: frame `Обновлено…` восстанавливается из точного Figma component, Check в copy-Tooltip использует `Semantic/Element/invers`.
 - Базовый error-layout исправлен в `cf9e161` (`Fix error page viewport layout`); follow-up синхронизирует позиции с актуальными nodes `420:54056`/`420:54081` и отделяет clipping иллюстрации от тени сообщения.
 - Общий механизм platform-иконок использует typed intrinsic-размеры и mask с Figma-цветом `#75848F`; error pages и иконки имеют статус `READY_FOR_REVIEW`.
 - Строка характеристик открытого проекта использует Figma Hug-механику: ширина по содержимому, без desktop-переноса в доступных `1200 px` (`b6f461d`).
@@ -102,6 +102,8 @@
 5. получить подтверждение пользователя;
 6. только после подтверждения выдать финальный промпт.
 
+По умолчанию реализация делится на согласованные логические Git-группы: после каждой группы исполнитель выполняет целевую проверку, создаёт commit, показывает результат и ждёт пользовательского подтверждения. Если пользователь явно пишет `автономно`, те же группы выполняются последовательно без промежуточного ожидания; проверки, commits, evidence и stop-lines сохраняются.
+
 Production, VPS, DNS, SSL, секреты, доступы, миграции и потенциально необратимые операции всегда используют `FULL`, независимо от размера diff.
 
 Подробные правила режимов, проверок и Git находятся в `AGENTS.md`.
@@ -116,8 +118,9 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Передать пользователю action-bar follow-up для ручной приёмки: первый кадр на низком/высоком viewport, порог `200 px`, возврат в `Full` у Gallery, terminal gap и copy-feedback.
-2. После принятия отдельно решить вопрос merge; deploy не входит в текущую Goal.
-3. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
+1. Передать пользователю изолированный initial-state fix для ручной проверки: низкий viewport сразу `Full`, пограничный/высокий сразу `Adaptive`, без flash или blank-frame.
+2. Затем подготовить отдельный Work Packet для оставшегося визуального backlog: точный внутренний layout project action bar и Tooltip, Hug-ширина project CTA, Figma-типографика тегов, одинаково мягкое первое и последующие переключения Gallery, пропорциональный lightbox с корректным закрытием.
+3. После приёмки отдельно решить вопрос merge; deploy не входит в следующую Goal.
+4. Проверку прежних записей 404/500 и platform-иконок вести отдельно от этой Goal.
 
 Не выполнять merge или следующий deploy без отдельного явного разрешения пользователя.

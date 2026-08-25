@@ -68,8 +68,8 @@ async function pointerClick(context, x, y) {
   await send("input.releaseActions", { context });
 }
 
-async function readState(context, scenario) {
-  const result = await evaluate(context, `(()=>{const bar=document.querySelector('[data-project-action-bar]'),information=document.querySelector('[data-project-information-start]'),probe=window.__projectActionInitialProbe;if(!bar||!information)return {missing:true,frames:probe?.frames||[]};const barRect=bar.getBoundingClientRect(),informationRect=information.getBoundingClientRect();return {build:document.documentElement.dataset.buildSha,scrollY,variant:bar.dataset.projectActionVariant,measurement:bar.dataset.projectActionMeasurement,informationTop:informationRect.top,informationBottom:informationRect.bottom,visibleInformation:innerHeight-informationRect.top,barTop:innerHeight-88,rect:{left:barRect.left,width:barRect.width,top:barRect.top,height:barRect.height},frames:probe.frames,shifts:probe.shifts}})()`);
+async function readState(context, scenario, probeName = "__projectActionInitialProbe") {
+  const result = await evaluate(context, `(()=>{const bar=document.querySelector('[data-project-action-bar]'),information=document.querySelector('[data-project-information-start]'),probe=window[${JSON.stringify(probeName)}];if(!bar||!information)return {missing:true,frames:probe?.frames||[]};const barRect=bar.getBoundingClientRect(),informationRect=information.getBoundingClientRect();return {build:document.documentElement.dataset.buildSha,scrollY,variant:bar.dataset.projectActionVariant,measurement:bar.dataset.projectActionMeasurement,informationTop:informationRect.top,informationBottom:informationRect.bottom,visibleInformation:innerHeight-informationRect.top,barTop:innerHeight-88,rect:{left:barRect.left,width:barRect.width,top:barRect.top,height:barRect.height},frames:probe.frames,shifts:probe.shifts}})()`);
   const expected = result.visibleInformation >= 200 && result.informationBottom > result.barTop
     ? "adaptive"
     : "full";
@@ -104,6 +104,7 @@ await send("script.addPreloadScript", {
 
 const tree = await send("browsingContext.getTree", {});
 const context = tree.contexts[0].context;
+await send("browsingContext.activate", { context });
 await send("browsingContext.setViewport", {
   context,
   viewport: { width: 1440, height: 999 },
@@ -128,11 +129,11 @@ await send("browsingContext.navigate", {
   wait: "complete",
 });
 await pause(context, 250);
-await evaluate(context, `(()=>{window.__projectActionInitialProbe={frames:[],shifts:[]};let started=false;const capture=(index)=>{const bar=document.querySelector('[data-project-action-bar]');if(!bar)return false;const rect=bar.getBoundingClientRect(),style=getComputedStyle(bar);window.__projectActionInitialProbe.frames.push({index,source:'raf',t:performance.now(),variant:bar.dataset.projectActionVariant,measurement:bar.dataset.projectActionMeasurement,transitions:bar.dataset.projectActionTransitions,left:rect.left,width:rect.width,top:rect.top,height:rect.height,opacity:style.opacity,visibility:style.visibility,transition:style.transition});return true};const seek=()=>{if(!started&&capture(0)){started=true;let index=1;const sample=()=>{capture(index++);if(index<12)requestAnimationFrame(sample)};requestAnimationFrame(sample)}else if(!started)requestAnimationFrame(seek)};requestAnimationFrame(seek);return true})()`);
+await evaluate(context, `(()=>{window.__projectActionClientProbe={frames:[],shifts:[]};let started=false;const capture=(index,source)=>{const bar=document.querySelector('[data-project-action-bar]');if(!bar)return false;const rect=bar.getBoundingClientRect(),style=getComputedStyle(bar);window.__projectActionClientProbe.frames.push({index,source,t:performance.now(),variant:bar.dataset.projectActionVariant,measurement:bar.dataset.projectActionMeasurement,transitions:bar.dataset.projectActionTransitions,left:rect.left,width:rect.width,top:rect.top,height:rect.height,opacity:style.opacity,visibility:style.visibility,transition:style.transition});return true};const start=()=>{if(started||!capture(0,'mutation'))return;started=true;let index=1;const sample=()=>{capture(index++,'raf');if(index<12)requestAnimationFrame(sample)};requestAnimationFrame(sample)};new MutationObserver(start).observe(document,{subtree:true,childList:true});const seek=()=>{start();if(!started)requestAnimationFrame(seek)};requestAnimationFrame(seek);return true})()`);
 const link = await evaluate(context, `(()=>{const anchor=[...document.querySelectorAll('a')].find(element=>element.textContent.trim()==='Подробнее'&&element.href.includes('/projects/corvo'));anchor.scrollIntoView({block:'center',behavior:'instant'});const rect=anchor.getBoundingClientRect();return {x:rect.left+rect.width/2,y:rect.top+rect.height/2}})()`);
 await pointerClick(context, link.x, link.y);
 await pause(context, 700);
-const clientNavigation = await readState(context, "client-navigation");
+const clientNavigation = await readState(context, "client-navigation", "__projectActionClientProbe");
 
 const output = {
   status: [direct, reload, clientNavigation].every((scenario) => scenario.pass) ? "PASS" : "FAIL",

@@ -1,0 +1,16 @@
+{
+  "status": "CONFIRMED",
+  "oldCodeSha": "62152793e8a7d501209f9ed8a257636ef846bcce",
+  "fixedCodeSha": "4a59f8cfd9c61ca710f9a39942303356d99bf5f3",
+  "route": "/projects/corvo",
+  "viewport": "1440x999",
+  "initialScrollY": 0,
+  "informationTop": 902,
+  "informationBottom": 3981,
+  "actionBarTop": 911,
+  "visibleInformation": 97,
+  "oldInitialResult": "adaptive",
+  "steadyStateResult": "full",
+  "cause": "The bootstrap and initial resolver treated any overlap with the action-bar line as Adaptive, while the steady-state resolver required 200 CSS pixels of visible information content.",
+  "fix": "Bootstrap, initial resolution, and steady-state updates now use one normalized geometry resolver with the same inclusive 200px threshold and information-end guard."
+}
