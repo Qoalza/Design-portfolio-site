@@ -13,6 +13,7 @@ test("AI fact uses the current single-line information panel", () => {
   assert.match(fact, /className=\{styles\.aiFactDivider\}/);
   const figmaAction = fact.match(/<TextButton[\s\S]*?<\/TextButton>/)?.[0] ?? "";
   assert.match(figmaAction, /size="large"/);
+  assert.match(figmaAction, /variant="neutralAccent"/);
   assert.match(figmaAction, />\s*Figma\s*<\/TextButton>/);
 });
 

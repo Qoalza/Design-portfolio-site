@@ -318,6 +318,7 @@ export default function Home() {
                 href="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Концепт?node-id=510-28120"
                 iconRight={`${assetRoot}/project-share.svg`}
                 size="large"
+                variant="neutralAccent"
               >
                 Figma
               </TextButton>

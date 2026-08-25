@@ -8,6 +8,7 @@ import styles from "./ui-controls.module.css";
 type FilledButtonVariant = "accent" | "neutral" | "light" | "ghost";
 type ControlSize = "medium" | "small";
 type SquareButtonVariant = "light" | "ghost";
+export type TextButtonVariant = "neutral" | "neutralAccent";
 
 type IconProps = {
   iconLeft?: string;
@@ -261,6 +262,7 @@ type TextButtonProps = IconProps & {
   external?: boolean;
   disabled?: boolean;
   size?: "small" | "medium" | "large";
+  variant?: TextButtonVariant;
   breadcrumbTrail?: readonly NavigationTrailItem[];
   resetBreadcrumbs?: boolean;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
@@ -273,6 +275,7 @@ export function TextButton({
   external = false,
   disabled = false,
   size = "medium",
+  variant = "neutral",
   breadcrumbTrail,
   resetBreadcrumbs,
   onClick,
@@ -280,7 +283,8 @@ export function TextButton({
   iconRight,
 }: TextButtonProps) {
   const textSizeClass = size === "small" ? styles.textSmall : size === "large" ? styles.textLarge : styles.textMedium;
-  const textClassName = `${styles.textControl} ${textSizeClass} ${className}`;
+  const textVariantClass = variant === "neutralAccent" ? styles.textNeutralAccent : styles.textNeutral;
+  const textClassName = `${styles.textControl} ${textSizeClass} ${textVariantClass} ${className}`;
   const content = <ControlContent iconLeft={iconLeft} iconRight={iconRight}>{children}</ControlContent>;
 
   if (disabled || !href) {
