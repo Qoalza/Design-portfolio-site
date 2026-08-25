@@ -37,6 +37,9 @@ test("Tooltip keeps disabled triggers keyboard-accessible and links content sema
   assert.match(tooltip, /role="tooltip"/);
   assert.match(tooltip, /tabIndex=\{0\}/);
   assert.match(tooltip, /pointerdown/);
-  assert.match(tooltipStyles, /transition:\s*opacity 150ms/);
-  assert.match(tooltipStyles, /flex:\s*0 0 24px/);
+  assert.match(tooltip, /onTransitionEnd/);
+  assert.match(tooltipStyles, /transition:\s*opacity 200ms/);
+  assert.match(tooltipStyles, /width:\s*max-content/);
+  assert.match(tooltipStyles, /white-space:\s*nowrap/);
+  assert.match(tooltipStyles, /flex:\s*0 0 20px/);
 });

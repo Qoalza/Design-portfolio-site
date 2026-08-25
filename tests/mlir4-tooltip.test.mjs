@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getTooltipPlacement } from "../src/lib/tooltip.ts";
+import { getTooltipPlacement, reduceTooltipPhase } from "../src/lib/tooltip.ts";
+
+test("Tooltip lifecycle preserves the exit phase until animation completion", () => {
+  assert.equal(reduceTooltipPhase("closed", "open"), "entering");
+  assert.equal(reduceTooltipPhase("entering", "entered"), "open");
+  assert.equal(reduceTooltipPhase("open", "close"), "exiting");
+  assert.equal(reduceTooltipPhase("exiting", "open"), "entering");
+  assert.equal(reduceTooltipPhase("exiting", "exited"), "closed");
+});
 
 const trigger = { top: 100, right: 220, bottom: 140, left: 100 };
 
