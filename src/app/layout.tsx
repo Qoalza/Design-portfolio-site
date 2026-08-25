@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { NavigationTrailProvider } from "../components/contextual-navigation";
 import { NavigationScrollController } from "../components/navigation-scroll-controller";
+import { SmoothScrollProvider } from "../components/smooth-scroll-provider";
 import { getBuildShaAttribute } from "../lib/build-provenance";
+import "lenis/dist/lenis.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -30,10 +32,12 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <NavigationTrailProvider>
-          <NavigationScrollController />
-          {children}
-        </NavigationTrailProvider>
+        <SmoothScrollProvider>
+          <NavigationTrailProvider>
+            <NavigationScrollController />
+            {children}
+          </NavigationTrailProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );

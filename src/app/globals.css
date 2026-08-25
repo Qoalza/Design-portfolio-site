@@ -51,6 +51,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; font-synthesis: none; }
+html[data-lenis-enabled="true"] { scroll-behavior: auto; }
 html { scrollbar-width: none; }
 html::-webkit-scrollbar { display: none; }
 body { margin: 0; background: #fcfcfd; color: #313a41; font-family: "Onest", sans-serif; }

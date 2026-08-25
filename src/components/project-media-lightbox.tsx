@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { startScrollControllers, stopScrollControllers } from "../lib/scroll-controller";
 import styles from "./project-media-lightbox.module.css";
 
 type ProjectMediaLightboxProps = {
@@ -51,6 +52,7 @@ export function ProjectMediaLightbox({
     root.style.overflow = "hidden";
     root.style.scrollBehavior = "auto";
     body.style.overflow = "hidden";
+    stopScrollControllers();
     dialog.showModal();
     const closeFromEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -69,6 +71,7 @@ export function ProjectMediaLightbox({
       const scrollPosition = scrollPositionRef.current;
       window.scrollTo(scrollPosition.x, scrollPosition.y);
       root.style.scrollBehavior = previousRootScrollBehavior;
+      startScrollControllers();
       trigger?.focus({ preventScroll: true });
     };
   }, [isOpen]);
