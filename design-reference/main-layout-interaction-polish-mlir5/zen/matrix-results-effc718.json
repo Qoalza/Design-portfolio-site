@@ -1,0 +1,1091 @@
+{
+  "session": {
+    "acceptInsecureCerts": false,
+    "browserName": "zen",
+    "browserVersion": "1.21.15b",
+    "platformName": "mac",
+    "setWindowRect": true,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+    "moz:buildID": "20260818101929",
+    "moz:headless": true,
+    "moz:platformVersion": "25.5.0",
+    "moz:processID": 75781,
+    "moz:profile": "/private/tmp/zen-mlir5-profile",
+    "moz:shutdownTimeout": 60000
+  },
+  "codeSha": "effc718663489d433aa801f88ef424347736d801",
+  "matrix": [
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1280x720",
+      "initial": {
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "variant": "full",
+        "measurement": "valid",
+        "transitions": "true",
+        "bar": {
+          "x": 0,
+          "y": 632,
+          "width": 1280,
+          "height": 88,
+          "top": 632,
+          "right": 1280,
+          "bottom": 720,
+          "left": 0
+        },
+        "info": {
+          "x": 40,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1240,
+          "bottom": 3981,
+          "left": 40
+        },
+        "expected": "full",
+        "frames": [
+          {
+            "frame": 0,
+            "variant": "full",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 0,
+              "top": 632,
+              "width": 1280,
+              "height": 88
+            }
+          },
+          {
+            "frame": 1,
+            "variant": "full",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 0,
+              "top": 632,
+              "width": 1280,
+              "height": 88
+            }
+          },
+          {
+            "frame": 2,
+            "variant": "full",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 0,
+              "top": 632,
+              "width": 1280,
+              "height": 88
+            }
+          }
+        ],
+        "scrollHeight": 6163,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 632
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true,
+        "pointer": [
+          {
+            "type": "pointerdown",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "pointerup",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "click",
+            "target": "IMG",
+            "label": null
+          }
+        ]
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 660,
+        "footerTop": 660,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x900",
+      "initial": {
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "variant": "full",
+        "measurement": "valid",
+        "transitions": "true",
+        "bar": {
+          "x": 0,
+          "y": 812,
+          "width": 1440,
+          "height": 88,
+          "top": 812,
+          "right": 1440,
+          "bottom": 900,
+          "left": 0
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "expected": "full",
+        "frames": [
+          {
+            "frame": 0,
+            "variant": "full",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 0,
+              "top": 812,
+              "width": 1440,
+              "height": 88
+            }
+          },
+          {
+            "frame": 1,
+            "variant": "full",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 0,
+              "top": 812,
+              "width": 1440,
+              "height": 88
+            }
+          },
+          {
+            "frame": 2,
+            "variant": "full",
+            "measurement": "valid",
+            "transitions": "true",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 0,
+              "top": 812,
+              "width": 1440,
+              "height": 88
+            }
+          }
+        ],
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 812
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true,
+        "pointer": [
+          {
+            "type": "pointerdown",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "pointerup",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "click",
+            "target": "IMG",
+            "label": null
+          }
+        ]
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 840,
+        "footerTop": 840,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x999",
+      "initial": {
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "variant": "adaptive",
+        "measurement": "valid",
+        "transitions": "true",
+        "bar": {
+          "x": 320,
+          "y": 911,
+          "width": 1000,
+          "height": 88,
+          "top": 911,
+          "right": 1320,
+          "bottom": 999,
+          "left": 320
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "expected": "adaptive",
+        "frames": [
+          {
+            "frame": 0,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 911,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 1,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 911,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 2,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 911,
+              "width": 1000,
+              "height": 88
+            }
+          }
+        ],
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 911
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true,
+        "pointer": [
+          {
+            "type": "pointerdown",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "pointerup",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "click",
+            "target": "IMG",
+            "label": null
+          }
+        ]
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 939,
+        "footerTop": 939,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x1200",
+      "initial": {
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "variant": "adaptive",
+        "measurement": "valid",
+        "transitions": "true",
+        "bar": {
+          "x": 320,
+          "y": 1112,
+          "width": 1000,
+          "height": 88,
+          "top": 1112,
+          "right": 1320,
+          "bottom": 1200,
+          "left": 320
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "expected": "adaptive",
+        "frames": [
+          {
+            "frame": 0,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 1112,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 1,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 1112,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 2,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 1112,
+              "width": 1000,
+              "height": 88
+            }
+          }
+        ],
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 1112
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true,
+        "pointer": [
+          {
+            "type": "pointerdown",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "pointerup",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "click",
+            "target": "IMG",
+            "label": null
+          }
+        ]
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 1140,
+        "footerTop": 1140,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1440x1356",
+      "initial": {
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "variant": "adaptive",
+        "measurement": "valid",
+        "transitions": "true",
+        "bar": {
+          "x": 320,
+          "y": 1268,
+          "width": 1000,
+          "height": 88,
+          "top": 1268,
+          "right": 1320,
+          "bottom": 1356,
+          "left": 320
+        },
+        "info": {
+          "x": 120,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1320,
+          "bottom": 3981,
+          "left": 120
+        },
+        "expected": "adaptive",
+        "frames": [
+          {
+            "frame": 0,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 1268,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 1,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 1268,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 2,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "true",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 320,
+              "top": 1268,
+              "width": 1000,
+              "height": 88
+            }
+          }
+        ],
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 1268
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true,
+        "pointer": [
+          {
+            "type": "pointerdown",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "pointerup",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "click",
+            "target": "IMG",
+            "label": null
+          }
+        ]
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 1296,
+        "footerTop": 1296,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Zen 1.21.15b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "viewport": "1920x1080",
+      "initial": {
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "variant": "adaptive",
+        "measurement": "valid",
+        "transitions": "true",
+        "bar": {
+          "x": 560,
+          "y": 992,
+          "width": 1000,
+          "height": 88,
+          "top": 992,
+          "right": 1560,
+          "bottom": 1080,
+          "left": 560
+        },
+        "info": {
+          "x": 360,
+          "y": 902,
+          "width": 1200,
+          "height": 3079,
+          "top": 902,
+          "right": 1560,
+          "bottom": 3981,
+          "left": 360
+        },
+        "expected": "adaptive",
+        "frames": [
+          {
+            "frame": 0,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 560,
+              "top": 992,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 1,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "false",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 560,
+              "top": 992,
+              "width": 1000,
+              "height": 88
+            }
+          },
+          {
+            "frame": 2,
+            "variant": "adaptive",
+            "measurement": "valid",
+            "transitions": "true",
+            "opacity": "1",
+            "visibility": "visible",
+            "rect": {
+              "left": 560,
+              "top": 992,
+              "width": 1000,
+              "height": 88
+            }
+          }
+        ],
+        "scrollHeight": 6163,
+        "scrollWidth": 1920,
+        "innerWidth": 1920,
+        "lenis": "true",
+        "heroInteractive": 0
+      },
+      "navigation": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "barTop": 992
+      },
+      "galleryBefore": [
+        {
+          "id": "desktop",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 3796,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "tablet",
+          "index": "0",
+          "disabled": [
+            true,
+            false
+          ],
+          "viewport": 1176,
+          "track": 2096,
+          "leftFades": 0,
+          "rightFades": 1
+        },
+        {
+          "id": "mobile",
+          "index": "0",
+          "disabled": [
+            true,
+            true
+          ],
+          "viewport": 1176,
+          "track": 996,
+          "leftFades": 0,
+          "rightFades": 0
+        }
+      ],
+      "lightboxOpen": {
+        "open": true,
+        "parent": "BODY",
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "focusInside": true,
+        "pointer": [
+          {
+            "type": "pointerdown",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "pointerup",
+            "target": "IMG",
+            "label": null
+          },
+          {
+            "type": "click",
+            "target": "IMG",
+            "label": null
+          }
+        ]
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "bodyOverflow": "",
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "gap": 48,
+        "barBottom": 1020,
+        "footerTop": 1020,
+        "scrollHeight": 6163,
+        "current": "Результат",
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    }
+  ],
+  "wheelTraces": [
+    {
+      "route": "/",
+      "profile": "mouse-like",
+      "start": 1199,
+      "end": 1559,
+      "distance": 360
+    },
+    {
+      "route": "/",
+      "profile": "trackpad-like",
+      "start": 1199,
+      "end": 1560,
+      "distance": 361
+    },
+    {
+      "route": "/projects/corvo",
+      "profile": "mouse-like",
+      "start": 1199,
+      "end": 1559,
+      "distance": 360
+    },
+    {
+      "route": "/projects/corvo",
+      "profile": "trackpad-like",
+      "start": 1199,
+      "end": 1560,
+      "distance": 361
+    }
+  ],
+  "tooltip": {
+    "tooltipStart": {
+      "opacity": "0"
+    },
+    "tooltipMiddle": {
+      "opacity": "0.757614",
+      "rect": {
+        "x": 136,
+        "y": 792,
+        "width": 278.933349609375,
+        "height": 46,
+        "top": 792,
+        "right": 414.933349609375,
+        "bottom": 838,
+        "left": 136
+      },
+      "textRect": {
+        "x": 173,
+        "y": 805,
+        "width": 228.93333435058594,
+        "height": 20,
+        "top": 805,
+        "right": 401.93333435058594,
+        "bottom": 825,
+        "left": 173
+      },
+      "lineHeight": "20px",
+      "lineBoxes": 1,
+      "icon": {
+        "x": 149,
+        "y": 805,
+        "width": 20,
+        "height": 20,
+        "top": 805,
+        "right": 169,
+        "bottom": 825,
+        "left": 149
+      }
+    },
+    "tooltipEnd": {
+      "opacity": "1"
+    },
+    "tooltipExitStart": "1",
+    "tooltipExitMiddle": "0.194151",
+    "tooltipExitEnd": false,
+    "pass": true
+  },
+  "aiTextButton": {
+    "sha": "effc718663489d433aa801f88ef424347736d801",
+    "label": "rgb(96, 100, 102)",
+    "icon": "rgb(96, 100, 102)",
+    "font": "16px / 20px Onest, sans-serif",
+    "iconRect": {
+      "x": 1138.199951171875,
+      "y": 3846,
+      "width": 20,
+      "height": 20,
+      "top": 3846,
+      "right": 1158.199951171875,
+      "bottom": 3866,
+      "left": 1138.199951171875
+    },
+    "pass": true
+  }
+}

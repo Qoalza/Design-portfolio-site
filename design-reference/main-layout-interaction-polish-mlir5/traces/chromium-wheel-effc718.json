@@ -1,0 +1,30 @@
+[
+  {
+    "route": "/",
+    "profile": "mouse-like",
+    "start": 1199,
+    "end": 1559.5,
+    "distance": 360.5
+  },
+  {
+    "route": "/",
+    "profile": "trackpad-like",
+    "start": 1199,
+    "end": 1560,
+    "distance": 361
+  },
+  {
+    "route": "/projects/corvo",
+    "profile": "mouse-like",
+    "start": 1199,
+    "end": 1559.5,
+    "distance": 360.5
+  },
+  {
+    "route": "/projects/corvo",
+    "profile": "trackpad-like",
+    "start": 1199,
+    "end": 1560,
+    "distance": 361
+  }
+]

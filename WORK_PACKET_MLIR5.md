@@ -93,5 +93,5 @@ Each runtime block requires a focused guard and browser verification before its 
 
 Stop only the affected block if an obligatory Figma node, Zen real-input path, build provenance, or safe implementation is unavailable. New dependencies, destructive Git operations, Figma writes, merge and deploy are prohibited.
 
-Internal status: `OPEN → IMPLEMENTED → VERIFIED → READY_FOR_USER_REVIEW`.
+Internal status: `READY_FOR_USER_REVIEW` for CODE_SHA `effc718663489d433aa801f88ef424347736d801`.
 `DESIGN_QA.md`: `OPEN → IN_PROGRESS → READY_FOR_REVIEW`; `CLOSED` requires explicit user acceptance.

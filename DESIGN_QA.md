@@ -16,7 +16,7 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## OPEN — Main Layout & Interaction Follow-up (`MLIR5-*`)
+## READY_FOR_REVIEW — Main Layout & Interaction Follow-up (`MLIR5-*`)
 
 Активный пакет: `WORK_PACKET_MLIR5.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish-mlir5/`.
 
@@ -27,6 +27,8 @@
 - `MLIR5-LBX`: реальный Zen pointer click открывает Gallery lightbox, а drag остаётся дискретным.
 
 MLIR4 runtime `0d834e9d96f78e34e4e8e4796468446c7ccbad8d` и `design-reference/main-layout-interaction-polish/` остаются историческим baseline и не подтверждают MLIR5. `CLOSED` разрешён только после явной пользовательской приёмки.
+
+MLIR5 runtime зафиксирован в `effc718663489d433aa801f88ef424347736d801`. Focused tests прошли `102/102`, lint и production build успешны, preview отдаёт тот же полный SHA. Chromium и Zen `1.21.15b` matrices прошли `6/6`; реальные wheel и Zen pointer sequences, Tooltip motion, AI TextButton, initial action bar и terminal docking подтверждены свежим evidence. Полный индекс: `design-reference/main-layout-interaction-polish-mlir5/README.md`.
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Polish (`MLIR4-*`)
 
