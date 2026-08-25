@@ -281,7 +281,6 @@ export function getProjectActionBarInitialState(
 
 export function getProjectActionBarScrollState(
   geometry: ProjectActionBarGeometry,
-  initialVariant: ProjectActionBarState["variant"],
 ): ProjectActionBarState {
   const metrics = getProjectActionBarMetrics(geometry);
   if (!metrics.valid) {
@@ -290,7 +289,7 @@ export function getProjectActionBarScrollState(
   const informationActive = metrics.informationBottom > metrics.barTop;
   const visibleInformation = metrics.barBottom - metrics.informationTop;
   const thresholdPassed = visibleInformation >= 200;
-  const adaptive = informationActive && (initialVariant === "adaptive" || thresholdPassed);
+  const adaptive = informationActive && thresholdPassed;
   return {
     valid: true,
     variant: adaptive ? "adaptive" : "full",

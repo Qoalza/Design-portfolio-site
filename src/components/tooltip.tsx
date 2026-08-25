@@ -15,11 +15,13 @@ import styles from "./tooltip.module.css";
 type TooltipProps = {
   children: ReactNode;
   content: Omit<TooltipContent, "id">;
+  open?: boolean;
+  triggerMode?: "automatic" | "manual";
 };
 
 type TooltipIconStyle = CSSProperties & { "--tooltip-icon": string };
 
-export function Tooltip({ children, content }: TooltipProps) {
+export function Tooltip({ children, content, open, triggerMode = "automatic" }: TooltipProps) {
   const reactId = useId();
   const id = `tooltip-${reactId.replace(/:/g, "")}`;
   const triggerRef = useRef<HTMLSpanElement>(null);
@@ -29,6 +31,15 @@ export function Tooltip({ children, content }: TooltipProps) {
   const rendered = phase !== "closed";
   const requestOpen = useCallback(() => setPhase((current) => reduceTooltipPhase(current, "open")), []);
   const requestClose = useCallback(() => setPhase((current) => reduceTooltipPhase(current, "close")), []);
+
+  useEffect(() => {
+    if (open === undefined) return;
+    const frame = window.requestAnimationFrame(() => {
+      if (open) requestOpen();
+      else requestClose();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, requestClose, requestOpen]);
 
   useLayoutEffect(() => {
     if (!rendered) return;
@@ -85,28 +96,40 @@ export function Tooltip({ children, content }: TooltipProps) {
     return () => document.removeEventListener("pointerdown", closeOutside);
   }, [rendered, requestClose]);
 
+  const trigger = triggerMode === "automatic" ? (
+    <span
+      aria-describedby={rendered ? id : undefined}
+      className={styles.trigger}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) requestClose();
+      }}
+      onFocus={requestOpen}
+      onMouseEnter={requestOpen}
+      onMouseLeave={requestClose}
+      onPointerDown={(event) => {
+        if (event.pointerType === "touch") {
+          event.preventDefault();
+          requestOpen();
+        }
+      }}
+      ref={triggerRef}
+      tabIndex={0}
+    >
+      {children}
+    </span>
+  ) : (
+    <span
+      aria-describedby={rendered ? id : undefined}
+      className={styles.trigger}
+      ref={triggerRef}
+    >
+      {children}
+    </span>
+  );
+
   return (
     <>
-      <span
-        aria-describedby={rendered ? id : undefined}
-        className={styles.trigger}
-        onBlur={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget)) requestClose();
-        }}
-        onFocus={requestOpen}
-        onMouseEnter={requestOpen}
-        onMouseLeave={requestClose}
-        onPointerDown={(event) => {
-          if (event.pointerType === "touch") {
-            event.preventDefault();
-            requestOpen();
-          }
-        }}
-        ref={triggerRef}
-        tabIndex={0}
-      >
-        {children}
-      </span>
+      {trigger}
       {rendered && typeof document !== "undefined" ? createPortal(
         <div
           className={styles.tooltip}

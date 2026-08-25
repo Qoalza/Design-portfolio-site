@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ProjectShareButtonProps = {
   className: string;
@@ -33,30 +33,25 @@ async function copyCurrentUrl(): Promise<boolean> {
   }
 }
 
-export function useProjectShare(title: string) {
+export function useProjectShare() {
   const [announcement, setAnnouncement] = useState("");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+  }, []);
 
   async function handleShare(): Promise<void> {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title, url: window.location.href });
-        setAnnouncement("Ссылка отправлена");
-        return;
-      }
-
-      const copied = await copyCurrentUrl();
-      setAnnouncement(copied ? "Ссылка скопирована" : "Не удалось скопировать ссылку");
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        return;
-      }
-
-      const copied = await copyCurrentUrl();
-      setAnnouncement(copied ? "Ссылка скопирована" : "Не удалось скопировать ссылку");
-    }
+    const copied = await copyCurrentUrl();
+    setAnnouncement(copied ? "Скопировано" : "Не удалось скопировать ссылку");
+    setFeedbackOpen(copied);
+    if (!copied) return;
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => setFeedbackOpen(false), 1600);
   }
 
-  return { announcement, handleShare };
+  return { announcement, feedbackOpen, handleShare };
 }
 
 export function ProjectShareButton({ className, onShare }: ProjectShareButtonProps) {

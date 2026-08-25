@@ -16,7 +16,7 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## READY_FOR_REVIEW — Main Layout & Interaction Follow-up (`MLIR5-*`)
+## OPEN — Main Layout & Interaction Follow-up (`MLIR5-*`)
 
 Активный пакет: `WORK_PACKET_MLIR5.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish-mlir5/`.
 
@@ -28,7 +28,17 @@
 
 MLIR4 runtime `0d834e9d96f78e34e4e8e4796468446c7ccbad8d` и `design-reference/main-layout-interaction-polish/` остаются историческим baseline и не подтверждают MLIR5. `CLOSED` разрешён только после явной пользовательской приёмки.
 
-MLIR5 runtime зафиксирован в `effc718663489d433aa801f88ef424347736d801`. Focused tests прошли `102/102`, lint и production build успешны, preview отдаёт тот же полный SHA. Chromium и Zen `1.21.15b` matrices прошли `6/6`; реальные wheel и Zen pointer sequences, Tooltip motion, AI TextButton, initial action bar и terminal docking подтверждены свежим evidence. Полный индекс: `design-reference/main-layout-interaction-polish-mlir5/README.md`.
+Ручная пользовательская приёмка опровергла прежний общий PASS MLIR5: логический initial variant action bar был `Adaptive`, но первый физический rect оставался `Full` и анимировался к целевой геометрии. Предыдущее evidence сохраняется как диагностический материал и не доказывает готовность исправленного состояния.
+
+Открытый backlog, не входящий в текущую изолированную action-bar реализацию:
+
+- project CTA на главной и `/projects` должны быть Hug, а не `width: 122px`;
+- теги во всех project consumers должны точно использовать Figma component/typography contract;
+- первое и каждое следующее переключение Gallery должны быть одинаково мягкими;
+- lightbox: Desktop/Tablet/Mobile увеличиваются в `1.5×` от собственных базовых отображаемых размеров; общий viewport/quality clamp сохраняет единый коэффициент и не допускает размытия;
+- lightbox сохраняет точные радиусы, не добавляет собственный фон, использует кнопку с крестиком и закрывается кликом по любому свободному месту вне изображения.
+
+Action-bar follow-up имеет отдельный внутренний статус `READY_FOR_USER_REVIEW`: runtime `62152793e8a7d501209f9ed8a257636ef846bcce`, Chromium focused checks и Zen `1.21.15b` matrix `6/6` подтверждают первый физический rect без flash, независимый порог `200 px`, возврат в `Full` у Gallery, terminal gap `48 px`, стабильный `scrollHeight`, точный внутренний layout и copy-current-URL feedback. Evidence — `design-reference/action-bar-acceptance-fix/README.md`. Агрегатная запись MLIR5 остаётся `OPEN` только из-за перечисленного выше backlog вне scope этой Goal; `CLOSED` разрешён после явной пользовательской приёмки соответствующих блоков.
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Polish (`MLIR4-*`)
 
