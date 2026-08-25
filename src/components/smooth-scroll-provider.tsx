@@ -2,6 +2,7 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import { galleryInputArbiter } from "../lib/gallery-input-arbiter";
 import { registerScrollController } from "../lib/scroll-controller";
 import { registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 
@@ -14,6 +15,10 @@ function RootLenisRegistration() {
 
   useEffect(() => {
     if (!lenis) return;
+
+    galleryInputArbiter.setStopRootAtActual(() => {
+      lenis.scrollTo(lenis.actualScroll, { immediate: true, force: true });
+    });
 
     const unregisterFrame = registerScrollFrameSubscriber({
       id: "root-lenis",
@@ -38,6 +43,8 @@ function RootLenisRegistration() {
     });
 
     return () => {
+      galleryInputArbiter.setStopRootAtActual(undefined);
+      galleryInputArbiter.reset();
       unregisterController();
       unregisterFrame();
     };
@@ -85,6 +92,21 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
             lerp: 0.1,
             wheelMultiplier: 1,
             stopInertiaOnNavigate: true,
+            virtualScroll: (data) => {
+              const target = data.event.target;
+              const viewport = target instanceof Element
+                ? target.closest<HTMLElement>("[data-gallery-viewport][data-gallery-arbiter-active='true']")
+                : null;
+              if (!viewport || !(data.event instanceof WheelEvent)) return true;
+
+              const owner = viewport.dataset.galleryArbiterOwner;
+              if (!owner) return true;
+              const decision = galleryInputArbiter.classify(data.event, owner);
+              if (decision.blockRoot) return false;
+              const rootDeltaY = galleryInputArbiter.takeRootDelta(data.event);
+              if (rootDeltaY !== null) data.deltaY = rootDeltaY;
+              return true;
+            },
           }}
         >
           <RootLenisRegistration />

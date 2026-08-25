@@ -2,6 +2,7 @@
 
 import Lenis from "lenis";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
+import { galleryInputArbiter } from "../lib/gallery-input-arbiter";
 import { getGalleryLayout, getGalleryOffsetTarget, getGalleryPointerGesture, shouldScheduleGalleryFrame, type StepDirection } from "../lib/main-chapter-interactions";
 import { registerScrollController } from "../lib/scroll-controller";
 import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
@@ -38,7 +39,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const [offsets, setOffsets] = useState([0]);
   const pointerStartRef = useRef<PointerStart | null>(null);
   const suppressClickRef = useRef(false);
-  const wheelLockedRef = useRef(false);
+  const fallbackWheelLockedRef = useRef(false);
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
@@ -157,13 +158,19 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   };
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (smoothEnabled) {
+      const decision = galleryInputArbiter.classify(event.nativeEvent, group.id);
+      if (decision.blockRoot) event.preventDefault();
+      if (decision.galleryStep !== null) move(decision.galleryStep);
+      return;
+    }
     const isHorizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY);
     if (!isHorizontalIntent || Math.abs(event.deltaX) < 16) return;
     event.preventDefault();
-    if (wheelLockedRef.current) return;
-    wheelLockedRef.current = true;
+    if (fallbackWheelLockedRef.current) return;
+    fallbackWheelLockedRef.current = true;
     move(event.deltaX > 0 ? 1 : -1);
-    window.setTimeout(() => { wheelLockedRef.current = false; }, 300);
+    window.setTimeout(() => { fallbackWheelLockedRef.current = false; }, 300);
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -228,6 +235,9 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       <div
         ref={viewportRef}
         className={styles.viewport}
+        data-gallery-viewport
+        data-gallery-arbiter-active={smoothEnabled ? "true" : "false"}
+        data-gallery-arbiter-owner={group.id}
         onClickCapture={(event) => {
           if (!suppressClickRef.current) return;
           event.preventDefault();
