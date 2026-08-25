@@ -199,9 +199,9 @@ function normalizePhysicalPixel(value: number, dpr: number): number {
   return Math.round(value * dpr) / dpr;
 }
 
-export function getProjectActionBarState(
+function getProjectActionBarMetrics(
   geometry: ProjectActionBarGeometry,
-): ProjectActionBarState {
+): ProjectActionBarState & { informationTop: number; informationBottom: number } {
   const {
     informationTop,
     informationBottom,
@@ -225,6 +225,8 @@ export function getProjectActionBarState(
       variant: "full",
       barTop: invalidBarTop,
       barBottom: invalidBarBottom,
+      informationTop: 0,
+      informationBottom: 0,
     };
   }
 
@@ -234,15 +236,49 @@ export function getProjectActionBarState(
   const barTop = normalizePhysicalPixel(barBottom - normalizedBarHeight, dpr);
   const normalizedInformationTop = normalizePhysicalPixel(informationTop, dpr);
   const normalizedInformationBottom = normalizePhysicalPixel(informationBottom, dpr);
-  const entryTop = normalizePhysicalPixel(barBottom - 160, dpr);
-  const entryPassed = normalizedInformationTop <= entryTop;
-  const informationStillActive = normalizedInformationBottom > barTop;
-  const variant = entryPassed && informationStillActive ? "adaptive" : "full";
-
   return {
     valid: true,
-    variant,
+    variant: "full",
     barTop,
     barBottom,
+    informationTop: normalizedInformationTop,
+    informationBottom: normalizedInformationBottom,
+  };
+}
+
+export function getProjectActionBarInitialState(
+  geometry: ProjectActionBarGeometry,
+): ProjectActionBarState {
+  const metrics = getProjectActionBarMetrics(geometry);
+  if (!metrics.valid) {
+    return { valid: false, variant: "full", barTop: metrics.barTop, barBottom: metrics.barBottom };
+  }
+  const informationVisible = metrics.informationTop <= metrics.barTop
+    && metrics.informationBottom > metrics.barTop;
+  return {
+    valid: true,
+    variant: informationVisible ? "adaptive" : "full",
+    barTop: metrics.barTop,
+    barBottom: metrics.barBottom,
+  };
+}
+
+export function getProjectActionBarScrollState(
+  geometry: ProjectActionBarGeometry,
+  initialVariant: ProjectActionBarState["variant"],
+): ProjectActionBarState {
+  const metrics = getProjectActionBarMetrics(geometry);
+  if (!metrics.valid) {
+    return { valid: false, variant: "full", barTop: metrics.barTop, barBottom: metrics.barBottom };
+  }
+  const informationActive = metrics.informationBottom > metrics.barTop;
+  const visibleInformation = metrics.barBottom - metrics.informationTop;
+  const thresholdPassed = visibleInformation >= 200;
+  const adaptive = informationActive && (initialVariant === "adaptive" || thresholdPassed);
+  return {
+    valid: true,
+    variant: adaptive ? "adaptive" : "full",
+    barTop: metrics.barTop,
+    barBottom: metrics.barBottom,
   };
 }

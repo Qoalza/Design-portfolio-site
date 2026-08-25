@@ -1,7 +1,10 @@
 "use client";
 
-import { type CSSProperties, useLayoutEffect, useState } from "react";
-import { getProjectActionBarState } from "../lib/main-chapter-interactions";
+import { type CSSProperties, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  getProjectActionBarInitialState,
+  getProjectActionBarScrollState,
+} from "../lib/main-chapter-interactions";
 import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { useProjectShare } from "./project-share-button";
 import { ControlButton } from "./ui-controls";
@@ -34,7 +37,10 @@ const FALLBACK_LAYOUT: ActionLayout = {
   adaptiveWidth: 1000,
 };
 
-function measureActionLayout(): ActionLayout {
+function measureActionLayout(
+  mode: "initial" | "scroll",
+  initialVariant: ActionLayout["variant"] = "full",
+): ActionLayout {
   if (typeof window === "undefined") return FALLBACK_LAYOUT;
   const information = document.querySelector<HTMLElement>("[data-project-information-start]");
   const content = document.querySelector<HTMLElement>("[data-project-content-column]");
@@ -44,13 +50,16 @@ function measureActionLayout(): ActionLayout {
   const informationRect = information.getBoundingClientRect();
   const contentRect = content.getBoundingClientRect();
   const terminalRect = terminal.getBoundingClientRect();
-  const state = getProjectActionBarState({
+  const geometry = {
     informationTop: informationRect.top,
     informationBottom: informationRect.bottom,
     viewportHeight: window.innerHeight,
     barHeight: 88,
     dpr: window.devicePixelRatio || 1,
-  });
+  };
+  const state = mode === "initial"
+    ? getProjectActionBarInitialState(geometry)
+    : getProjectActionBarScrollState(geometry, initialVariant);
   const values = [informationRect.left, informationRect.width, informationRect.bottom, contentRect.left, contentRect.width, terminalRect.top];
   if (!state.valid || !values.every(Number.isFinite)) return FALLBACK_LAYOUT;
 
@@ -66,15 +75,24 @@ function measureActionLayout(): ActionLayout {
   };
 }
 
-const ACTION_BAR_BOOTSTRAP = `(()=>{const b=document.querySelector('[data-project-action-bar]'),i=document.querySelector('[data-project-information-start]'),c=document.querySelector('[data-project-content-column]'),t=document.querySelector('[data-project-action-terminal]');if(!b||!i||!c||!t)return;const ir=i.getBoundingClientRect(),cr=c.getBoundingClientRect(),tr=t.getBoundingClientRect(),d=window.devicePixelRatio||1,n=v=>Math.round(v*d)/d,barTop=n(window.innerHeight-88),entryTop=n(window.innerHeight-160),values=[ir.top,ir.bottom,ir.left,ir.width,cr.left,cr.width,tr.top];if(!values.every(Number.isFinite))return;const variant=n(ir.top)<=entryTop&&n(ir.bottom)>barTop?'adaptive':'full',bottom=Math.max(0,window.innerHeight-(tr.top+48)-88);b.dataset.projectActionVariant=variant;b.dataset.projectActionMeasurement='valid';b.style.setProperty('--action-bottom',bottom+'px');b.style.setProperty('--action-full-left',ir.left+'px');b.style.setProperty('--action-full-width',ir.width+'px');b.style.setProperty('--action-adaptive-left',cr.left+'px');b.style.setProperty('--action-adaptive-width',cr.width+'px')})()`;
+const ACTION_BAR_BOOTSTRAP = `(()=>{const b=document.querySelector('[data-project-action-bar]'),i=document.querySelector('[data-project-information-start]'),c=document.querySelector('[data-project-content-column]'),t=document.querySelector('[data-project-action-terminal]');if(!b||!i||!c||!t)return;const ir=i.getBoundingClientRect(),cr=c.getBoundingClientRect(),tr=t.getBoundingClientRect(),d=window.devicePixelRatio||1,n=v=>Math.round(v*d)/d,barTop=n(window.innerHeight-88),values=[ir.top,ir.bottom,ir.left,ir.width,cr.left,cr.width,tr.top];if(!values.every(Number.isFinite))return;const variant=n(ir.top)<=barTop&&n(ir.bottom)>barTop?'adaptive':'full',bottom=Math.max(0,window.innerHeight-(tr.top+48)-88);b.dataset.projectActionVariant=variant;b.dataset.projectActionMeasurement='valid';b.dataset.projectActionTransitions='false';b.style.setProperty('--action-bottom',bottom+'px');b.style.setProperty('--action-full-left',ir.left+'px');b.style.setProperty('--action-full-width',ir.width+'px');b.style.setProperty('--action-adaptive-left',cr.left+'px');b.style.setProperty('--action-adaptive-width',cr.width+'px')})()`;
 
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
-  const [layout, setLayout] = useState<ActionLayout>(measureActionLayout);
+  const [layout, setLayout] = useState<ActionLayout>(() => measureActionLayout("initial"));
+  const [transitionsEnabled, setTransitionsEnabled] = useState(false);
+  const initialVariantRef = useRef<ActionLayout["variant"] | null>(
+    layout.measurement === "valid" ? layout.variant : null,
+  );
   const { announcement, handleShare } = useProjectShare(title);
 
   useLayoutEffect(() => {
     const update = () => {
-      const nextLayout = measureActionLayout();
+      const nextLayout = initialVariantRef.current === null
+        ? measureActionLayout("initial")
+        : measureActionLayout("scroll", initialVariantRef.current);
+      if (initialVariantRef.current === null && nextLayout.measurement === "valid") {
+        initialVariantRef.current = nextLayout.variant;
+      }
       setLayout((current) => Object.keys(nextLayout).every((key) => (
         current[key as keyof ActionLayout] === nextLayout[key as keyof ActionLayout]
       )) ? current : nextLayout);
@@ -113,6 +131,10 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
     };
   }, []);
 
+  useEffect(() => {
+    if (layout.measurement === "valid") setTransitionsEnabled(true);
+  }, [layout.measurement]);
+
   return (
     <>
       <div
@@ -120,6 +142,7 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
         data-project-action-bar
         data-project-action-variant={layout.variant}
         data-project-action-measurement={layout.measurement}
+        data-project-action-transitions={transitionsEnabled ? "true" : "false"}
         suppressHydrationWarning
         style={{
           "--action-bottom": `${layout.bottom}px`,
