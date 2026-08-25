@@ -15,7 +15,8 @@ test("Gallery lightbox mounts a modal dialog in the document top layer", () => {
 test("Gallery lightbox supports explicit, Escape and backdrop dismissal", () => {
   assert.match(lightbox, /event\.key === "Escape"/);
   assert.match(lightbox, /event\.target === event\.currentTarget/);
-  assert.match(lightbox, />Закрыть<\/button>/);
+  assert.match(lightbox, /ariaLabel="Закрыть увеличенное изображение"/);
+  assert.match(lightbox, /icon="\/assets\/projects\/corvo\/cross\.svg"/);
   assert.match(lightbox, /trigger\?\.focus/);
   assert.match(lightbox, /scrollPositionRef/);
   assert.match(lightbox, /window\.scrollTo\(scrollPosition\.x, scrollPosition\.y\)/);

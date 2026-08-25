@@ -16,12 +16,22 @@ export type ProjectGalleryItem = {
   alt: string;
   width: number;
   height: number;
+  frame: ProjectGalleryFrame;
+};
+
+export type ProjectGalleryFrame = {
+  clip: boolean;
+  radius: number;
+  strokeColor: string;
+  strokeWidth: number;
 };
 
 export type ProjectGalleryGroup = {
   id: "desktop" | "tablet" | "mobile";
   label: string;
   icon: string;
+  baseWidth: number;
+  baseHeight: number;
   items: ProjectGalleryItem[];
 };
 
@@ -253,7 +263,13 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
         <div ref={trackRef} className={styles.track} style={trackStyle}>
           {group.items.map((item, index) => (
             <figure className={styles.slide} key={item.src}>
-              <ProjectMediaLightbox {...item} sizes={`${group.id === "desktop" ? 740 : group.id === "tablet" ? 400 : 180}px`} />
+              <ProjectMediaLightbox
+                {...item}
+                baseHeight={group.baseHeight}
+                baseWidth={group.baseWidth}
+                frame={item.frame}
+                sizes={`${group.baseWidth}px`}
+              />
               <span className="visually-hidden">{group.label}: изображение {index + 1}</span>
             </figure>
           ))}
