@@ -1,17 +1,17 @@
 "use client";
 
-import { type CSSProperties, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
 import {
   getProjectActionBarInitialState,
   getProjectActionBarScrollState,
 } from "../lib/main-chapter-interactions";
 import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { useProjectShare } from "./project-share-button";
+import { Tooltip } from "./tooltip";
 import { ControlButton } from "./ui-controls";
 import styles from "./project-action-bar.module.css";
 
 type ProjectActionBarProps = {
-  title: string;
   figmaAvailable: boolean;
   figmaUrl?: string;
   updatedAt?: string;
@@ -74,11 +74,12 @@ function measureActionLayout(
   };
 }
 
-export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
+export function ProjectActionBar({ figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const [layout, setLayout] = useState<ActionLayout>(() => measureActionLayout("initial"));
   const actionBarRef = useRef<HTMLDivElement>(null);
   const scrollTrackingRef = useRef(false);
-  const { announcement, handleShare } = useProjectShare(title);
+  const transitionsReadyRef = useRef(false);
+  const { announcement, feedbackOpen, handleShare } = useProjectShare();
 
   useLayoutEffect(() => {
     const update = () => {
@@ -127,27 +128,37 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const actionBar = actionBarRef.current;
-    if (layout.measurement !== "valid" || !actionBar) return;
+    if (layout.measurement !== "valid" || !actionBar || transitionsReadyRef.current) return;
 
     actionBar.dataset.projectActionTransitions = "false";
     const expectedLeft = layout.variant === "adaptive" ? layout.adaptiveLeft : 0;
     const expectedWidth = layout.variant === "adaptive" ? layout.adaptiveWidth : window.innerWidth;
-    let nextFrame = 0;
-    const stableFrame = window.requestAnimationFrame(() => {
+    let stableFrames = 0;
+    const unregisterFrame = registerScrollFrameSubscriber({
+      id: "project-action-bar-transition-ready",
+      priority: 40,
+      update: () => {
       const rect = actionBar.getBoundingClientRect();
-      if (Math.abs(rect.left - expectedLeft) > 0.5 || Math.abs(rect.width - expectedWidth) > 0.5) return;
-      nextFrame = window.requestAnimationFrame(() => {
+        if (Math.abs(rect.left - expectedLeft) > 0.5 || Math.abs(rect.width - expectedWidth) > 0.5) {
+          stableFrames = 0;
+          invalidateScrollFrameSubscriber("project-action-bar-transition-ready");
+          return;
+        }
+        stableFrames += 1;
+        if (stableFrames < 2) {
+          invalidateScrollFrameSubscriber("project-action-bar-transition-ready");
+          return;
+        }
+        transitionsReadyRef.current = true;
         actionBar.dataset.projectActionTransitions = "true";
-      });
+      },
     });
+    invalidateScrollFrameSubscriber("project-action-bar-transition-ready");
 
-    return () => {
-      window.cancelAnimationFrame(stableFrame);
-      if (nextFrame) window.cancelAnimationFrame(nextFrame);
-    };
-  }, [layout.measurement]);
+    return unregisterFrame;
+  }, [layout.adaptiveLeft, layout.adaptiveWidth, layout.measurement, layout.variant]);
 
   return (
     <>
@@ -184,7 +195,13 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
             )}
           </div>
 
-          <ControlButton className={styles.shareButton} variant="light" dataAction="share" onClick={handleShare}>Поделиться</ControlButton>
+          <Tooltip
+            content={{ text: "Скопировано", icon: "/assets/projects/check.svg" }}
+            open={feedbackOpen}
+            triggerMode="manual"
+          >
+            <ControlButton className={styles.shareButton} variant="light" dataAction="share" onClick={handleShare}>Поделиться</ControlButton>
+          </Tooltip>
         </div>
       </div>
       <span aria-live="polite" className="visually-hidden">{announcement}</span>

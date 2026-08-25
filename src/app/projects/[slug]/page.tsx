@@ -227,7 +227,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div className={styles.actionTerminal} data-project-action-terminal aria-hidden="true" />
 
           <ProjectActionBar
-            title={project.title}
             figmaAvailable={project.availability.figma === "available"}
             figmaUrl={project.figmaUrl}
             updatedAt={project.updatedAt}

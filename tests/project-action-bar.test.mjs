@@ -78,7 +78,7 @@ test("the first user-visible action variant is bootstrapped without a blank shel
   assert.match(rootLayout, /PROJECT_ACTION_BAR_BOOTSTRAP/);
   assert.match(bootstrap, /MutationObserver/);
   assert.match(bootstrap, /projectActionTransitions='false'/);
-  assert.match(component, /requestAnimationFrame/);
+  assert.match(component, /project-action-bar-transition-ready/);
   assert.match(component, /getBoundingClientRect/);
   assert.doesNotMatch(styles, /visibility:\s*hidden/);
   const baseRule = styles.match(/\.actionBar\s*\{[^}]*\}/)?.[0] ?? "";
@@ -99,4 +99,20 @@ test("action bar internal layout maps the current Figma component contract", () 
   assert.match(component, />Обновлено \{updatedAt\}</);
   assert.match(component, />Файл пока недоступен</);
   assert.match(component, /action-bar-external-link\.svg/);
+});
+
+test("project share always copies the current URL and uses the shared Tooltip feedback", () => {
+  const actionBar = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
+  const share = readFileSync(new URL("../src/components/project-share-button.tsx", import.meta.url), "utf8");
+  const tooltip = readFileSync(new URL("../src/components/tooltip.tsx", import.meta.url), "utf8");
+
+  assert.doesNotMatch(share, /navigator\.share/);
+  assert.match(share, /navigator\.clipboard\?\.writeText/);
+  assert.match(share, /window\.location\.href/);
+  assert.match(share, /"Скопировано"/);
+  assert.match(actionBar, /<Tooltip/);
+  assert.match(actionBar, /text: "Скопировано"/);
+  assert.match(actionBar, /\/assets\/projects\/check\.svg/);
+  assert.match(actionBar, /aria-live="polite"/);
+  assert.match(tooltip, /triggerMode/);
 });
