@@ -1,0 +1,32 @@
+{
+  "namespace": "MLIR6-*",
+  "baseSha": "9efff3deefaeba31424fd87910905e364dd70f93",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "previewSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "browsers": [
+    "Chromium 151.0.0.0",
+    "Zen 1.21.15b (build 126.8.18)"
+  ],
+  "blocks": {
+    "MLIR6-GAL": "VERIFIED",
+    "MLIR6-LBX": "VERIFIED",
+    "MLIR6-PRJ": "VERIFIED",
+    "MLIR6-ACT": "VERIFIED",
+    "MLIR6-TIP": "VERIFIED",
+    "MLIR6-AI": "VERIFIED",
+    "MLIR6-PROC": "VERIFIED",
+    "MLIR6-404": "VERIFIED",
+    "MLIR6-500R": "VERIFIED (shared-component regression; no redesign)"
+  },
+  "technical": {
+    "tests": "121/121 PASS",
+    "lint": "PASS",
+    "productionBuild": "PASS",
+    "buildProvenance": "PASS",
+    "chromiumMatrix": "PASS",
+    "zenMatrix": "PASS"
+  },
+  "runtimeChangedAfterEvidence": false,
+  "merge": false,
+  "deploy": false
+}

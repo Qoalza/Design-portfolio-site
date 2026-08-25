@@ -1,0 +1,42 @@
+{
+  "fileKey": "5ZzspE0OrqesDcTP0RRPHr",
+  "galleryInstance": "677:44301",
+  "groups": [
+    {
+      "id": "desktop",
+      "track": {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48162"},
+      "baseCssSize": [740, 512],
+      "items": [
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":1,"nodeId":"680:48078","asset":"/assets/projects/corvo/gallery/desktop-01.png","intrinsicPixels":[2960,2048],"componentMapping":"live instance child of 680:48162","fill":"image","stroke":{"width":0,"color":"transparent"},"radius":0,"effects":[],"clip":false,"imageRect":[0,0,740,512],"frameLayer":"none; raster displayed without an additional frame"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":2,"nodeId":"680:48799","asset":"/assets/projects/corvo/gallery/desktop-02.png","intrinsicPixels":[2960,2048],"componentMapping":"live instance child of 680:48162","fill":"image","stroke":{"width":1,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,740,512],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":3,"nodeId":"680:48813","asset":"/assets/projects/corvo/gallery/desktop-03.png","intrinsicPixels":[2960,2048],"componentMapping":"live instance child of 680:48162","fill":"image","stroke":{"width":1,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,740,512],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":4,"nodeId":"680:48814","asset":"/assets/projects/corvo/gallery/desktop-04.png","intrinsicPixels":[2960,2048],"componentMapping":"live instance child of 680:48162","fill":"image","stroke":{"width":1,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,740,512],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":5,"nodeId":"680:48815","asset":"/assets/projects/corvo/gallery/desktop-05.png","intrinsicPixels":[2960,2048],"componentMapping":"live instance child of 680:48162","fill":"image","stroke":{"width":1,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,740,512],"frameLayer":"Figma layer stroke rendered once in CSS"}
+      ]
+    },
+    {
+      "id": "tablet",
+      "track": {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48163"},
+      "baseCssSize": [400, 566],
+      "items": [
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":1,"nodeId":"680:48156","asset":"/assets/projects/corvo/gallery/tablet-01.png","intrinsicPixels":[1600,2266],"componentMapping":"live instance child of 680:48163","fill":"image","stroke":{"width":0,"color":"transparent"},"radius":0,"effects":[],"clip":false,"imageRect":[0,0,400,566],"frameLayer":"none; raster displayed without an additional frame"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":2,"nodeId":"680:48802","asset":"/assets/projects/corvo/gallery/tablet-02.png","intrinsicPixels":[1600,2266],"componentMapping":"live instance child of 680:48163","fill":"image","stroke":{"width":0.5,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,400,566],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":3,"nodeId":"680:48812","asset":"/assets/projects/corvo/gallery/tablet-03.png","intrinsicPixels":[1600,2266],"componentMapping":"live instance child of 680:48163","fill":"image","stroke":{"width":0.5,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,400,566],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":4,"nodeId":"680:48858","asset":"/assets/projects/corvo/gallery/tablet-04.png","intrinsicPixels":[1600,2266],"componentMapping":"live instance child of 680:48163","fill":"image","stroke":{"width":0.5,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,400,566],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":5,"nodeId":"680:48859","asset":"/assets/projects/corvo/gallery/tablet-05.png","intrinsicPixels":[1600,2266],"componentMapping":"live instance child of 680:48163","fill":"image","stroke":{"width":0.5,"color":"#e8eaeb"},"radius":12,"effects":[],"clip":true,"imageRect":[0,0,400,566],"frameLayer":"Figma layer stroke rendered once in CSS"}
+      ]
+    },
+    {
+      "id": "mobile",
+      "track": {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48164"},
+      "baseCssSize": [180, 320],
+      "items": [
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":1,"nodeId":"680:48159","asset":"/assets/projects/corvo/gallery/mobile-01.png","intrinsicPixels":[1080,1920],"componentMapping":"live instance child of 680:48164","fill":"image","stroke":{"width":1,"color":"#e8eaeb"},"radius":11,"effects":[],"clip":true,"imageRect":[0,0,180,320],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":2,"nodeId":"680:48803","asset":"/assets/projects/corvo/gallery/mobile-02.png","intrinsicPixels":[1080,1920],"componentMapping":"live instance child of 680:48164","fill":"image","stroke":{"width":1,"color":"#f0f1f2"},"radius":11,"effects":[],"clip":true,"imageRect":[0,0,180,320],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":3,"nodeId":"680:48805","asset":"/assets/projects/corvo/gallery/mobile-03.png","intrinsicPixels":[1080,1920],"componentMapping":"live instance child of 680:48164","fill":"image","stroke":{"width":1,"color":"#f0f1f2"},"radius":11,"effects":[],"clip":true,"imageRect":[0,0,180,320],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":4,"nodeId":"680:48860","asset":"/assets/projects/corvo/gallery/mobile-04.png","intrinsicPixels":[1080,1920],"componentMapping":"live instance child of 680:48164","fill":"image","stroke":{"width":1,"color":"#f0f1f2"},"radius":11,"effects":[],"clip":true,"imageRect":[0,0,180,320],"frameLayer":"Figma layer stroke rendered once in CSS"},
+        {"fileKey":"5ZzspE0OrqesDcTP0RRPHr","order":5,"nodeId":"680:48861","asset":"/assets/projects/corvo/gallery/mobile-05.png","intrinsicPixels":[1080,1920],"componentMapping":"live instance child of 680:48164","fill":"image","stroke":{"width":1,"color":"#f0f1f2"},"radius":11,"effects":[],"clip":true,"imageRect":[0,0,180,320],"frameLayer":"Figma layer stroke rendered once in CSS"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "browser": "Chromium 151.0.0.0",
+  "codeSha": "cca7d77f3a6cc8e5af37a26bae2abfe89f796642",
+  "route": "/error-test?trigger=500&review=cca7d77",
+  "viewport": [1440, 900],
+  "heading": "Что-то сломалось...",
+  "scrollSize": [1440, 900],
+  "clientSize": [1440, 900],
+  "screenshot": "500-regression-1440x900.png",
+  "pass": true
+}

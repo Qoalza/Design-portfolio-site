@@ -1,0 +1,68 @@
+{
+  "sources": {
+    "MLIR6-GAL": [
+      {"role":"Gallery instance","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"677:44301"},
+      {"role":"Desktop track","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48162"},
+      {"role":"Tablet track","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48163"},
+      {"role":"Mobile track","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48164"},
+      {"role":"Desktop control icon","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"321:29845"},
+      {"role":"Tablet control icon","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"338:30103"},
+      {"role":"Mobile control icon","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"321:29860"}
+    ],
+    "MLIR6-LBX": [
+      {"role":"Desktop frame 1","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48078"},
+      {"role":"Desktop frame 2","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48799"},
+      {"role":"Desktop frame 3","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48813"},
+      {"role":"Desktop frame 4","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48814"},
+      {"role":"Desktop frame 5","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48815"},
+      {"role":"Tablet frame 1","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48156"},
+      {"role":"Tablet frame 2","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48802"},
+      {"role":"Tablet frame 3","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48812"},
+      {"role":"Tablet frame 4","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48858"},
+      {"role":"Tablet frame 5","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48859"},
+      {"role":"Mobile frame 1","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48159"},
+      {"role":"Mobile frame 2","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48803"},
+      {"role":"Mobile frame 3","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48805"},
+      {"role":"Mobile frame 4","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48860"},
+      {"role":"Mobile frame 5","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"680:48861"},
+      {"role":"Square Button/Cross","fileKey":"CRcI38SOIkr5knjKXeCV5h","nodeId":"73:5324"}
+    ],
+    "MLIR6-PRJ": [
+      {"role":"Home page","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"510:28120"},
+      {"role":"Home project card","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"510:28180"},
+      {"role":"Projects page","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"373:50236"},
+      {"role":"Projects card","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"517:34103"},
+      {"role":"Tags instance","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"506:23146"},
+      {"role":"Corvo header tags","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"505:23035"},
+      {"role":"Projects header tags","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"517:33813"}
+    ],
+    "MLIR6-ACT": [
+      {"role":"Action bar component set","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"550:2868"},
+      {"role":"Adaptive variant","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"528:1540"},
+      {"role":"Full variant","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"576:33195"},
+      {"role":"Project screen","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"553:3314"},
+      {"role":"Alternate project screen","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"553:3036"}
+    ],
+    "MLIR6-TIP": [{"role":"Tooltip component","fileKey":"CRcI38SOIkr5knjKXeCV5h","nodeId":"207:1498"}],
+    "MLIR6-AI": [
+      {"role":"AI section","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"510:28231"},
+      {"role":"AI TextButton","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"725:88725"}
+    ],
+    "MLIR6-PROC": [
+      {"role":"Process section","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"510:28183"},
+      {"role":"Process shell","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"73:6063"},
+      {"role":"Previous arrow","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"515:30871"},
+      {"role":"Next arrow","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"515:30873"},
+      {"role":"Process image 1","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"515:30749"},
+      {"role":"Process image 2","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"515:30751"},
+      {"role":"Process image 3","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"515:30778"}
+    ],
+    "MLIR6-404": [{"role":"404 page","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"420:54056"}],
+    "MLIR6-500R": [{"role":"500 regression reference","fileKey":"5ZzspE0OrqesDcTP0RRPHr","nodeId":"420:54081"}]
+  },
+  "notes": [
+    "321:29845, 338:30103 and 321:29860 are device-icon sources only, never frame sources.",
+    "Deleted node 373:50562 was not used.",
+    "Figma was accessed read-only."
+  ]
+}

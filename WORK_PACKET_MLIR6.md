@@ -176,3 +176,15 @@ Rollback: только MLIR6 branch, отдельные G0–G7 commits, ник�
 ## 16. Definition of Done
 
 Все MLIR6 blocks имеют fresh PASS; полный inventory и ровно одна frame implementation; единый arbiter сохраняет buffered vertical delta один раз и блокирует horizontal root mutation; first/subsequent motion одинаковы; DPR-aware lightbox точен; cards/action имеют независимые PASS; canonical Share payload и Tooltip проверены Full/Adaptive; AI/process/404 подтверждены; focused tests/lint/build успешны; preview отдаёт CODE_SHA; fresh Chromium/Zen evidence собрано; remote base/branch/Draft PR сверены; merge/deploy не выполнены.
+
+## 17. Результат исполнения
+
+- Runtime-группы `G1–G6`: `VERIFIED`.
+- Проверенный `CODE_SHA`: `cca7d77f3a6cc8e5af37a26bae2abfe89f796642`.
+- Focused tests: `121/121 PASS`; `npm run lint`: `PASS`; production build: `PASS`.
+- Production preview отдаёт точный полный `data-build-sha`, равный `CODE_SHA`.
+- Chromium `151.0.0.0` и Zen `1.21.15b` (build `126.8.18`) прошли обязательные focused checks и финальную matrix; conditional 500 regression дополнительно подтверждена при `1440×900`.
+- Fresh evidence: `design-reference/gallery-project-error-reconciliation-mlir6/`.
+- G7 является documentation/evidence-only и не меняет runtime. Его полный `DOC_SHA`, remote SHA и Draft PR head подтверждаются в финальном отчёте после push.
+- После успешной Git/PR-финализации внутренний статус пакета: `READY_FOR_USER_REVIEW`; агрегатный статус `DESIGN_QA.md`: `READY_FOR_REVIEW`.
+- Merge и deploy не выполнялись.

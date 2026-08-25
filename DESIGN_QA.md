@@ -16,7 +16,7 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## IN_PROGRESS — Gallery, project components, homepage и 404 (`MLIR6-*`)
+## READY_FOR_REVIEW — Gallery, project components, homepage и 404 (`MLIR6-*`)
 
 Активный пакет: `WORK_PACKET_MLIR6.md`. Новое evidence сохраняется только в `design-reference/gallery-project-error-reconciliation-mlir6/`.
 
@@ -27,7 +27,7 @@
 - `MLIR6-AI`, `MLIR6-PROC`: актуальный AI instance и корректный process/Header stacking.
 - `MLIR6-404`, `MLIR6-500R`: текущая 404 в Chromium/Zen и условная regression 500 при общей зависимости.
 
-Предыдущее MLIR5 и action-bar evidence остаётся историческим и не подтверждает MLIR6 runtime. Принятая action-bar state machine, inclusive threshold `200 px` и terminal geometry `48 + 88 px` являются regression-only контрактом. `READY_FOR_REVIEW` допустим только после fresh evidence всех критичных MLIR6-блоков из одного подтверждённого `CODE_SHA`.
+Предыдущее MLIR5 и action-bar evidence остаётся историческим и не подтверждает MLIR6 runtime. Принятая action-bar state machine, inclusive threshold `200 px` и terminal geometry `48 + 88 px` являются regression-only контрактом. Все критичные блоки проверены в Chromium `151.0.0.0` и Zen `1.21.15b` из единого `CODE_SHA` `cca7d77f3a6cc8e5af37a26bae2abfe89f796642`; focused tests `121/121`, lint и production build прошли. Актуальное evidence: `design-reference/gallery-project-error-reconciliation-mlir6/`. Статус остаётся `READY_FOR_REVIEW` до явной пользовательской приёмки; `CLOSED` не выставлен.
 
 ## OPEN — Main Layout & Interaction Follow-up (`MLIR5-*`)
 
