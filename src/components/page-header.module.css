@@ -89,7 +89,8 @@
   margin: 0;
   padding: 0;
   color: #606466;
-  font: 400 14px/16px "Onest", sans-serif;
+  font: 400 14px/16px "Source Code Pro", monospace;
+  font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1;
   letter-spacing: -.5px;
   list-style: none;
   white-space: nowrap;
