@@ -39,7 +39,6 @@ const FALLBACK_LAYOUT: ActionLayout = {
 
 function measureActionLayout(
   mode: "initial" | "scroll",
-  initialVariant: ActionLayout["variant"] = "full",
 ): ActionLayout {
   if (typeof window === "undefined") return FALLBACK_LAYOUT;
   const information = document.querySelector<HTMLElement>("[data-project-information-start]");
@@ -59,7 +58,7 @@ function measureActionLayout(
   };
   const state = mode === "initial"
     ? getProjectActionBarInitialState(geometry)
-    : getProjectActionBarScrollState(geometry, initialVariant);
+    : getProjectActionBarScrollState(geometry);
   const values = [informationRect.left, informationRect.width, informationRect.bottom, contentRect.left, contentRect.width, terminalRect.top];
   if (!state.valid || !values.every(Number.isFinite)) return FALLBACK_LAYOUT;
 
@@ -78,25 +77,24 @@ function measureActionLayout(
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const [layout, setLayout] = useState<ActionLayout>(() => measureActionLayout("initial"));
   const actionBarRef = useRef<HTMLDivElement>(null);
-  const initialVariantRef = useRef<ActionLayout["variant"] | null>(
-    layout.measurement === "valid" ? layout.variant : null,
-  );
+  const scrollTrackingRef = useRef(false);
   const { announcement, handleShare } = useProjectShare(title);
 
   useLayoutEffect(() => {
     const update = () => {
-      const nextLayout = initialVariantRef.current === null
-        ? measureActionLayout("initial")
-        : measureActionLayout("scroll", initialVariantRef.current);
-      if (initialVariantRef.current === null && nextLayout.measurement === "valid") {
-        initialVariantRef.current = nextLayout.variant;
-      }
+      const nextLayout = measureActionLayout(scrollTrackingRef.current ? "scroll" : "initial");
       setLayout((current) => Object.keys(nextLayout).every((key) => (
         current[key as keyof ActionLayout] === nextLayout[key as keyof ActionLayout]
       )) ? current : nextLayout);
     };
 
     const scheduleUpdate = () => invalidateScrollFrameSubscriber("project-action-bar-geometry");
+    const handleScroll = () => {
+      if (actionBarRef.current?.dataset.projectActionTransitions === "true") {
+        scrollTrackingRef.current = true;
+      }
+      scheduleUpdate();
+    };
     const unregisterFrame = registerScrollFrameSubscriber({
       id: "project-action-bar-geometry",
       priority: 30,
@@ -115,12 +113,12 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
     const pendingImages = [...document.images].filter((image) => !image.complete);
     pendingImages.forEach((image) => image.addEventListener("load", scheduleUpdate, { once: true }));
     void document.fonts.ready.then(scheduleUpdate);
-    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("scrollend", scheduleUpdate);
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
-      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scrollend", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
       resizeObserver.disconnect();
@@ -130,9 +128,25 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
   }, []);
 
   useEffect(() => {
-    if (layout.measurement === "valid" && actionBarRef.current) {
-      actionBarRef.current.dataset.projectActionTransitions = "true";
-    }
+    const actionBar = actionBarRef.current;
+    if (layout.measurement !== "valid" || !actionBar) return;
+
+    actionBar.dataset.projectActionTransitions = "false";
+    const expectedLeft = layout.variant === "adaptive" ? layout.adaptiveLeft : 0;
+    const expectedWidth = layout.variant === "adaptive" ? layout.adaptiveWidth : window.innerWidth;
+    let nextFrame = 0;
+    const stableFrame = window.requestAnimationFrame(() => {
+      const rect = actionBar.getBoundingClientRect();
+      if (Math.abs(rect.left - expectedLeft) > 0.5 || Math.abs(rect.width - expectedWidth) > 0.5) return;
+      nextFrame = window.requestAnimationFrame(() => {
+        actionBar.dataset.projectActionTransitions = "true";
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(stableFrame);
+      if (nextFrame) window.cancelAnimationFrame(nextFrame);
+    };
   }, [layout.measurement]);
 
   return (
@@ -159,13 +173,13 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
           <div className={styles.leadingContent}>
             {figmaAvailable && figmaUrl && updatedAt ? (
               <>
-                <ControlButton variant="neutral" dataAction="figma" href={figmaUrl} external iconRight="/assets/projects/external-link.svg">Figma</ControlButton>
+                <ControlButton variant="neutral" dataAction="figma" href={figmaUrl} external iconRight="/assets/projects/action-bar-external-link.svg">Figma</ControlButton>
                 <span className={styles.updatedAt}>Обновлено {updatedAt}</span>
               </>
             ) : (
               <div className={styles.unavailableContent}>
                 <span className={`${styles.icon} ${styles.infoIcon}`} aria-hidden="true" />
-                <span>Figma - файл пока недоступен, в процессе подготовки</span>
+                <span>Файл пока недоступен</span>
               </div>
             )}
           </div>

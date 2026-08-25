@@ -30,28 +30,24 @@ test("initial resolver rejects information that already ended and invalid geomet
   });
 });
 
-test("initial Full uses the independent 200px scroll threshold", () => {
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.5 }, "full").variant, "full");
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600 }, "full").variant, "adaptive");
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 599.5 }, "full").variant, "adaptive");
+test("scroll state uses the independent 200px geometry threshold", () => {
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.5 }).variant, "full");
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600 }).variant, "adaptive");
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 599.5 }).variant, "adaptive");
 });
 
-test("initial Adaptive stays Adaptive while information is active and returns after Gallery", () => {
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 750 }, "adaptive").variant, "adaptive");
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationBottom: 712 }, "adaptive").variant, "full");
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationBottom: 713 }, "adaptive").variant, "adaptive");
-});
-
-test("scroll state returns to Full after information end for either initial variant", () => {
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationBottom: 712 }, "full").variant, "full");
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationBottom: 700 }, "adaptive").variant, "full");
+test("scroll state returns to Full after information end and uses the same geometry in reverse", () => {
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationBottom: 712 }).variant, "full");
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationBottom: 700 }).variant, "full");
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 750 }).variant, "full");
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 599.5 }).variant, "adaptive");
 });
 
 test("physical-pixel normalization keeps initial and scroll boundaries deterministic", () => {
   assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 712.24, dpr: 2 }).variant, "adaptive");
   assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 712.26, dpr: 2 }).variant, "full");
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.24, dpr: 2 }, "full").variant, "adaptive");
-  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.26, dpr: 2 }, "full").variant, "full");
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.24, dpr: 2 }).variant, "adaptive");
+  assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.26, dpr: 2 }).variant, "full");
 });
 
 test("runtime separates initial resolution from scroll threshold without magic scrollY", () => {
@@ -62,6 +58,7 @@ test("runtime separates initial resolution from scroll threshold without magic s
 
   assert.match(component, /getProjectActionBarInitialState/);
   assert.match(component, /getProjectActionBarScrollState/);
+  assert.doesNotMatch(component, /initialVariantRef/);
   assert.match(component, /data-project-action-transitions/);
   assert.doesNotMatch(component, /scrollY/);
   assert.doesNotMatch(component, /innerHeight-160/);
@@ -81,7 +78,25 @@ test("the first user-visible action variant is bootstrapped without a blank shel
   assert.match(rootLayout, /PROJECT_ACTION_BAR_BOOTSTRAP/);
   assert.match(bootstrap, /MutationObserver/);
   assert.match(bootstrap, /projectActionTransitions='false'/);
+  assert.match(component, /requestAnimationFrame/);
+  assert.match(component, /getBoundingClientRect/);
   assert.doesNotMatch(styles, /visibility:\s*hidden/);
   const baseRule = styles.match(/\.actionBar\s*\{[^}]*\}/)?.[0] ?? "";
   assert.doesNotMatch(baseRule, /transition/);
+});
+
+test("action bar internal layout maps the current Figma component contract", () => {
+  const component = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../src/components/project-action-bar.module.css", import.meta.url), "utf8");
+
+  assert.match(styles, /height:\s*88px/);
+  assert.match(styles, /padding:\s*24px/);
+  assert.match(styles, /gap:\s*8px/);
+  assert.match(styles, /font-family:\s*"Source Code Pro"/);
+  assert.match(styles, /font-size:\s*14px/);
+  assert.match(styles, /line-height:\s*16px/);
+  assert.match(styles, /letter-spacing:\s*-\.5px/);
+  assert.match(component, />Обновлено \{updatedAt\}</);
+  assert.match(component, />Файл пока недоступен</);
+  assert.match(component, /action-bar-external-link\.svg/);
 });
