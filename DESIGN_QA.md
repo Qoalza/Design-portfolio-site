@@ -16,6 +16,18 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
+## OPEN — Main Layout & Interaction Follow-up (`MLIR5-*`)
+
+Активный пакет: `WORK_PACKET_MLIR5.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish-mlir5/`.
+
+- `MLIR5-SCR`: root Lenis не прерывается обычным wheel-input; Gallery Lenis не выполняют постоянную работу в покое.
+- `MLIR5-TTP`: общий Tooltip сохраняет одну строку и имеет реальный enter/exit `200 ms`.
+- `MLIR5-TXB`: AI TextButton использует системный Figma-вариант `Neutral+Accent`.
+- `MLIR5-ABA`: initial resolver и последующий порог `200 px` проверяются как независимые контракты.
+- `MLIR5-LBX`: реальный Zen pointer click открывает Gallery lightbox, а drag остаётся дискретным.
+
+MLIR4 runtime `0d834e9d96f78e34e4e8e4796468446c7ccbad8d` и `design-reference/main-layout-interaction-polish/` остаются историческим baseline и не подтверждают MLIR5. `CLOSED` разрешён только после явной пользовательской приёмки.
+
 ## READY_FOR_REVIEW — Main Layout & Interaction Polish (`MLIR4-*`)
 
 Активный пакет: `WORK_PACKET_POLISH.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish/`.
