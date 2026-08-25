@@ -2,9 +2,9 @@
 
 import Lenis from "lenis";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
-import { getGalleryLayout, getGalleryOffsetTarget, type StepDirection } from "../lib/main-chapter-interactions";
+import { getGalleryLayout, getGalleryOffsetTarget, shouldScheduleGalleryFrame, type StepDirection } from "../lib/main-chapter-interactions";
 import { registerScrollController } from "../lib/scroll-controller";
-import { registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
+import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
 import { useDesktopSmoothScrollEnabled } from "./smooth-scroll-provider";
 import { SquareButton } from "./ui-controls";
@@ -43,6 +43,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
   const lenisJustCreatedRef = useRef(false);
+  const visibleRef = useRef(true);
   const previous = getGalleryOffsetTarget(activeIndex, -1, offsets);
   const next = getGalleryOffsetTarget(activeIndex, 1, offsets);
 
@@ -92,13 +93,25 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     });
     lenisRef.current = lenis;
     lenisJustCreatedRef.current = true;
+    const subscriberId = `gallery-lenis-${group.id}`;
 
     const unregisterFrame = registerScrollFrameSubscriber({
-      id: `gallery-lenis-${group.id}`,
+      id: subscriberId,
       priority: 20,
-      continuous: true,
-      update: (timestamp) => lenis.raf(timestamp),
+      update: (timestamp) => {
+        lenis.raf(timestamp);
+        if (shouldScheduleGalleryFrame(Boolean(lenis.isScrolling), visibleRef.current)) {
+          invalidateScrollFrameSubscriber(subscriberId);
+        }
+      },
     });
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      visibleRef.current = entry?.isIntersecting ?? false;
+      if (shouldScheduleGalleryFrame(Boolean(lenis.isScrolling), visibleRef.current)) {
+        invalidateScrollFrameSubscriber(subscriberId);
+      }
+    });
+    visibilityObserver.observe(viewport);
     const unregisterController = registerScrollController(`gallery-${group.id}`, {
       scrollTo: (target, options = {}) => {
         lenis.scrollTo(target, {
@@ -116,6 +129,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     return () => {
       unregisterController();
       unregisterFrame();
+      visibilityObserver.disconnect();
       lenis.destroy();
       lenisRef.current = null;
       lenisJustCreatedRef.current = false;
@@ -132,7 +146,10 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       lerp: immediate ? undefined : 0.1,
       force: true,
     });
-  }, [activeIndex, offsets, smoothEnabled]);
+    if (!immediate && visibleRef.current) {
+      invalidateScrollFrameSubscriber(`gallery-lenis-${group.id}`);
+    }
+  }, [activeIndex, group.id, offsets, smoothEnabled]);
 
   const move = (direction: StepDirection) => {
     const target = getGalleryOffsetTarget(activeIndex, direction, offsets);

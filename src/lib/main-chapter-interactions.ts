@@ -39,6 +39,16 @@ export type ProjectNavigationRailGeometry = {
   navigationHeight: number;
 };
 
+export type ProjectNavigationMode = "SCROLL_TRACKING" | "PROGRAMMATIC_SCROLL";
+
+export function shouldCancelProjectNavigation(mode: ProjectNavigationMode): boolean {
+  return mode === "PROGRAMMATIC_SCROLL";
+}
+
+export function shouldScheduleGalleryFrame(isMoving: boolean, isVisible: boolean): boolean {
+  return isMoving && isVisible;
+}
+
 export const NAVIGATION_WATCHDOG_MS = 2000;
 export const NAVIGATION_ABSOLUTE_LIMIT_MS = 30000;
 
