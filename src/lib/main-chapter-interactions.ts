@@ -269,14 +269,7 @@ export function getProjectActionBarInitialState(
   if (!metrics.valid) {
     return { valid: false, variant: "full", barTop: metrics.barTop, barBottom: metrics.barBottom };
   }
-  const informationVisible = metrics.informationTop <= metrics.barTop
-    && metrics.informationBottom > metrics.barTop;
-  return {
-    valid: true,
-    variant: informationVisible ? "adaptive" : "full",
-    barTop: metrics.barTop,
-    barBottom: metrics.barBottom,
-  };
+  return getProjectActionBarResolvedState(metrics);
 }
 
 export function getProjectActionBarScrollState(
@@ -286,6 +279,12 @@ export function getProjectActionBarScrollState(
   if (!metrics.valid) {
     return { valid: false, variant: "full", barTop: metrics.barTop, barBottom: metrics.barBottom };
   }
+  return getProjectActionBarResolvedState(metrics);
+}
+
+function getProjectActionBarResolvedState(
+  metrics: ProjectActionBarState & { informationTop: number; informationBottom: number },
+): ProjectActionBarState {
   const informationActive = metrics.informationBottom > metrics.barTop;
   const visibleInformation = metrics.barBottom - metrics.informationTop;
   const thresholdPassed = visibleInformation >= 200;

@@ -14,10 +14,10 @@ const baseGeometry = {
   dpr: 1,
 };
 
-test("initial resolver selects Adaptive at and above the final bar top", () => {
-  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 711 }).variant, "adaptive");
-  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 712 }).variant, "adaptive");
-  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 713 }).variant, "full");
+test("initial resolver uses the same 200px visibility boundary as steady state", () => {
+  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 600.5 }).variant, "full");
+  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 600 }).variant, "adaptive");
+  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 599.5 }).variant, "adaptive");
 });
 
 test("initial resolver rejects information that already ended and invalid geometry", () => {
@@ -30,7 +30,7 @@ test("initial resolver rejects information that already ended and invalid geomet
   });
 });
 
-test("scroll state uses the independent 200px geometry threshold", () => {
+test("scroll state uses the shared 200px geometry threshold", () => {
   assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.5 }).variant, "full");
   assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600 }).variant, "adaptive");
   assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 599.5 }).variant, "adaptive");
@@ -44,14 +44,15 @@ test("scroll state returns to Full after information end and uses the same geome
 });
 
 test("physical-pixel normalization keeps initial and scroll boundaries deterministic", () => {
-  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 712.24, dpr: 2 }).variant, "adaptive");
-  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 712.26, dpr: 2 }).variant, "full");
+  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 600.24, dpr: 2 }).variant, "adaptive");
+  assert.equal(getProjectActionBarInitialState({ ...baseGeometry, informationTop: 600.26, dpr: 2 }).variant, "full");
   assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.24, dpr: 2 }).variant, "adaptive");
   assert.equal(getProjectActionBarScrollState({ ...baseGeometry, informationTop: 600.26, dpr: 2 }).variant, "full");
 });
 
-test("runtime separates initial resolution from scroll threshold without magic scrollY", () => {
+test("runtime applies the shared geometry threshold without magic scrollY", () => {
   const component = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
+  const bootstrap = readFileSync(new URL("../src/lib/project-action-bar-bootstrap.ts", import.meta.url), "utf8");
   const page = readFileSync(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
   const pageStyles = readFileSync(new URL("../src/app/projects/[slug]/page.module.css", import.meta.url), "utf8");
   const styles = readFileSync(new URL("../src/components/project-action-bar.module.css", import.meta.url), "utf8");
@@ -62,6 +63,7 @@ test("runtime separates initial resolution from scroll threshold without magic s
   assert.match(component, /data-project-action-transitions/);
   assert.doesNotMatch(component, /scrollY/);
   assert.doesNotMatch(component, /innerHeight-160/);
+  assert.match(bootstrap, /barBottom-n\(ir\.top\)>=200/);
   assert.match(styles, /data-project-action-transitions="true"/);
   assert.match(styles, /background:\s*#fcfcfd/i);
   assert.ok(page.indexOf("data-project-action-terminal") < page.indexOf("<ProjectActionBar"));
