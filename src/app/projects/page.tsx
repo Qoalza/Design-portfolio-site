@@ -58,22 +58,22 @@ function ProjectDetails({ project }: { project: Project }) {
 function ProjectActions({ project }: { project: Project }) {
   return (
     <div className={styles.actions}>
-      {project.detailAvailable ? (
+      {project.availability.detail === "available" ? (
         <ProjectDetailControl
-          available
+          availability="available"
           href={`/projects/${project.slug}`}
           breadcrumbLabel={project.title}
           className={styles.detailsButton}
         />
       ) : (
-        <ProjectDetailControl available={false} className={styles.detailsButton} />
+        <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
       )}
-      {project.figmaAvailable && project.figmaUrl ? (
+      {project.availability.figma === "available" && project.figmaUrl ? (
         <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
       ) : (
         <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
       )}
-      {project.figmaAvailable && project.updatedAt ? <><span className={styles.actionDivider} /><span className={styles.updated}><Image src={`${assetRoot}/project-refresh.svg`} alt="" width={16} height={16} />Обновлено {project.updatedAt}</span></> : null}
+      {project.availability.figma === "available" && project.updatedAt ? <><span className={styles.actionDivider} /><span className={styles.updated}><Image src={`${assetRoot}/project-refresh.svg`} alt="" width={16} height={16} />Обновлено {project.updatedAt}</span></> : null}
     </div>
   );
 }

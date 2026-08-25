@@ -1,23 +1,29 @@
 import { ControlButton } from "./ui-controls";
+import type { ProjectAvailability } from "../lib/projects";
+import { Tooltip } from "./tooltip";
 
 type ProjectDetailControlProps = {
   className?: string;
 } & (
   | {
-      available: true;
+      availability: Extract<ProjectAvailability["detail"], "available">;
       href: string;
       breadcrumbLabel: string;
     }
   | {
-      available: false;
+      availability: Extract<ProjectAvailability["detail"], "unavailable">;
       href?: never;
       breadcrumbLabel?: never;
     }
 );
 
 export function ProjectDetailControl(props: ProjectDetailControlProps) {
-  if (!props.available) {
-    return <ControlButton className={props.className} variant="neutral" disabled>Скоро</ControlButton>;
+  if (props.availability === "unavailable") {
+    return (
+      <Tooltip content={{ text: "Вот-вот, горяченькое несу уже!", icon: "/assets/projects/rocket.svg" }}>
+        <ControlButton className={props.className} variant="neutral" disabled>Скоро</ControlButton>
+      </Tooltip>
+    );
   }
 
   return (

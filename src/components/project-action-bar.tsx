@@ -1,7 +1,8 @@
 "use client";
 
-import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
+import { type CSSProperties, useLayoutEffect, useState } from "react";
 import { getProjectActionBarState } from "../lib/main-chapter-interactions";
+import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { useProjectShare } from "./project-share-button";
 import { ControlButton } from "./ui-controls";
 import styles from "./project-action-bar.module.css";
@@ -45,11 +46,12 @@ function measureActionLayout(): ActionLayout {
   const terminalRect = terminal.getBoundingClientRect();
   const state = getProjectActionBarState({
     informationTop: informationRect.top,
+    informationBottom: informationRect.bottom,
     viewportHeight: window.innerHeight,
     barHeight: 88,
     dpr: window.devicePixelRatio || 1,
   });
-  const values = [informationRect.left, informationRect.width, contentRect.left, contentRect.width, terminalRect.top];
+  const values = [informationRect.left, informationRect.width, informationRect.bottom, contentRect.left, contentRect.width, terminalRect.top];
   if (!state.valid || !values.every(Number.isFinite)) return FALLBACK_LAYOUT;
 
   const terminalBarTop = terminalRect.top + 48;
@@ -64,27 +66,26 @@ function measureActionLayout(): ActionLayout {
   };
 }
 
-const ACTION_BAR_BOOTSTRAP = `(()=>{const b=document.querySelector('[data-project-action-bar]'),i=document.querySelector('[data-project-information-start]'),c=document.querySelector('[data-project-content-column]'),t=document.querySelector('[data-project-action-terminal]');if(!b||!i||!c||!t)return;const ir=i.getBoundingClientRect(),cr=c.getBoundingClientRect(),tr=t.getBoundingClientRect(),d=window.devicePixelRatio||1,n=v=>Math.round(v*d)/d,top=n(window.innerHeight-88),variant=n(ir.top)<=top?'adaptive':'full',bottom=Math.max(0,window.innerHeight-(tr.top+48)-88);b.dataset.projectActionVariant=variant;b.dataset.projectActionMeasurement='valid';b.style.setProperty('--action-bottom',bottom+'px');b.style.setProperty('--action-full-left',ir.left+'px');b.style.setProperty('--action-full-width',ir.width+'px');b.style.setProperty('--action-adaptive-left',cr.left+'px');b.style.setProperty('--action-adaptive-width',cr.width+'px')})()`;
+const ACTION_BAR_BOOTSTRAP = `(()=>{const b=document.querySelector('[data-project-action-bar]'),i=document.querySelector('[data-project-information-start]'),c=document.querySelector('[data-project-content-column]'),t=document.querySelector('[data-project-action-terminal]');if(!b||!i||!c||!t)return;const ir=i.getBoundingClientRect(),cr=c.getBoundingClientRect(),tr=t.getBoundingClientRect(),d=window.devicePixelRatio||1,n=v=>Math.round(v*d)/d,barTop=n(window.innerHeight-88),entryTop=n(window.innerHeight-160),values=[ir.top,ir.bottom,ir.left,ir.width,cr.left,cr.width,tr.top];if(!values.every(Number.isFinite))return;const variant=n(ir.top)<=entryTop&&n(ir.bottom)>barTop?'adaptive':'full',bottom=Math.max(0,window.innerHeight-(tr.top+48)-88);b.dataset.projectActionVariant=variant;b.dataset.projectActionMeasurement='valid';b.style.setProperty('--action-bottom',bottom+'px');b.style.setProperty('--action-full-left',ir.left+'px');b.style.setProperty('--action-full-width',ir.width+'px');b.style.setProperty('--action-adaptive-left',cr.left+'px');b.style.setProperty('--action-adaptive-width',cr.width+'px')})()`;
 
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
-  const frameRef = useRef<number | null>(null);
   const [layout, setLayout] = useState<ActionLayout>(measureActionLayout);
   const { announcement, handleShare } = useProjectShare(title);
 
   useLayoutEffect(() => {
     const update = () => {
-      frameRef.current = null;
       const nextLayout = measureActionLayout();
       setLayout((current) => Object.keys(nextLayout).every((key) => (
         current[key as keyof ActionLayout] === nextLayout[key as keyof ActionLayout]
       )) ? current : nextLayout);
     };
 
-    const scheduleUpdate = () => {
-      if (frameRef.current === null) {
-        frameRef.current = window.requestAnimationFrame(update);
-      }
-    };
+    const scheduleUpdate = () => invalidateScrollFrameSubscriber("project-action-bar-geometry");
+    const unregisterFrame = registerScrollFrameSubscriber({
+      id: "project-action-bar-geometry",
+      priority: 30,
+      update: () => update(),
+    });
 
     update();
     const measuredElements = [
@@ -99,18 +100,16 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
     pendingImages.forEach((image) => image.addEventListener("load", scheduleUpdate, { once: true }));
     void document.fonts.ready.then(scheduleUpdate);
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
-    window.addEventListener("scrollend", update);
+    window.addEventListener("scrollend", scheduleUpdate);
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
-      window.removeEventListener("scrollend", update);
+      window.removeEventListener("scrollend", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
       resizeObserver.disconnect();
+      unregisterFrame();
       pendingImages.forEach((image) => image.removeEventListener("load", scheduleUpdate));
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-      }
     };
   }, []);
 

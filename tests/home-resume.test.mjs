@@ -17,6 +17,11 @@ test("Resume contacts use the current Figma slash separator", () => {
   assert.match(page, /<span aria-hidden="true">\/<\/span>/);
 });
 
+test("Resume CTA keeps the current Full CV label and destination", () => {
+  assert.match(page, /href="https:\/\/disk\.yandex\.ru\/i\/iZ1UWgbO1LAOPw"[\s\S]*>Полное CV<\/ControlButton>/);
+  assert.doesNotMatch(page, />Скачать полное CV<\/ControlButton>/);
+});
+
 test("Resume experience typography and tag surfaces follow the current Figma contract", () => {
   assert.match(styles, /\.eyeconDetails h3,[\s\S]*font-size:\s*24px;[\s\S]*line-height:\s*32px;/);
   assert.match(styles, /\.tenure span\s*\{[\s\S]*font-size:\s*24px;[\s\S]*line-height:\s*32px;/);

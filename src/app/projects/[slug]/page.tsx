@@ -106,14 +106,14 @@ function getProjectSections(content: string): Array<{ id: string; label: string 
 }
 
 export function generateStaticParams() {
-  return getAllProjects().filter(({ detailAvailable }) => detailAvailable).map(({ slug }) => ({ slug }));
+  return getAllProjects().filter(({ availability }) => availability.detail === "available").map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
 
-  if (!project || !project.detailAvailable) {
+  if (!project || project.availability.detail !== "available") {
     return {};
   }
 
@@ -127,7 +127,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
 
-  if (!project || !project.detailAvailable) {
+  if (!project || project.availability.detail !== "available") {
     notFound();
   }
 
@@ -228,7 +228,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
           <ProjectActionBar
             title={project.title}
-            figmaAvailable={project.figmaAvailable}
+            figmaAvailable={project.availability.figma === "available"}
             figmaUrl={project.figmaUrl}
             updatedAt={project.updatedAt}
           />

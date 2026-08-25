@@ -155,9 +155,15 @@
 }
 
 .projectNavigation {
+  position: relative;
+  align-self: start;
+}
+
+.projectNavigation > nav {
   position: sticky;
   display: flex;
   height: max-content;
+  box-sizing: border-box;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;

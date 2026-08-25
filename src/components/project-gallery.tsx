@@ -1,8 +1,12 @@
 "use client";
 
+import Lenis from "lenis";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
 import { getGalleryLayout, getGalleryOffsetTarget, type StepDirection } from "../lib/main-chapter-interactions";
+import { registerScrollController } from "../lib/scroll-controller";
+import { registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
+import { useDesktopSmoothScrollEnabled } from "./smooth-scroll-provider";
 import { SquareButton } from "./ui-controls";
 import styles from "./project-gallery.module.css";
 
@@ -29,12 +33,16 @@ type ProjectGalleryProps = {
 type PointerStart = { id: number; x: number; y: number };
 
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
+  const smoothEnabled = useDesktopSmoothScrollEnabled();
   const [activeIndex, setActiveIndex] = useState(0);
   const [offsets, setOffsets] = useState([0]);
   const pointerStartRef = useRef<PointerStart | null>(null);
+  const suppressClickRef = useRef(false);
   const wheelLockedRef = useRef(false);
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const lenisRef = useRef<Lenis | null>(null);
+  const lenisJustCreatedRef = useRef(false);
   const previous = getGalleryOffsetTarget(activeIndex, -1, offsets);
   const next = getGalleryOffsetTarget(activeIndex, 1, offsets);
 
@@ -67,6 +75,65 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     };
   }, [group.items]);
 
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const track = trackRef.current;
+    if (!smoothEnabled || !viewport || !track) return;
+
+    const lenis = new Lenis({
+      wrapper: viewport,
+      content: track,
+      orientation: "horizontal",
+      gestureOrientation: "horizontal",
+      autoRaf: false,
+      smoothWheel: false,
+      syncTouch: false,
+      virtualScroll: () => false,
+    });
+    lenisRef.current = lenis;
+    lenisJustCreatedRef.current = true;
+
+    const unregisterFrame = registerScrollFrameSubscriber({
+      id: `gallery-lenis-${group.id}`,
+      priority: 20,
+      continuous: true,
+      update: (timestamp) => lenis.raf(timestamp),
+    });
+    const unregisterController = registerScrollController(`gallery-${group.id}`, {
+      scrollTo: (target, options = {}) => {
+        lenis.scrollTo(target, {
+          offset: options.offset,
+          immediate: options.immediate,
+          force: true,
+          onComplete: options.onComplete,
+        });
+      },
+      cancel: () => lenis.scrollTo(lenis.actualScroll, { immediate: true, force: true }),
+      stop: () => lenis.stop(),
+      start: () => lenis.start(),
+    });
+
+    return () => {
+      unregisterController();
+      unregisterFrame();
+      lenis.destroy();
+      lenisRef.current = null;
+      lenisJustCreatedRef.current = false;
+      viewport.scrollLeft = 0;
+    };
+  }, [group.id, smoothEnabled]);
+
+  useLayoutEffect(() => {
+    if (!smoothEnabled || !lenisRef.current) return;
+    const immediate = lenisJustCreatedRef.current;
+    lenisJustCreatedRef.current = false;
+    lenisRef.current.scrollTo(offsets[activeIndex] ?? 0, {
+      immediate,
+      lerp: immediate ? undefined : 0.1,
+      force: true,
+    });
+  }, [activeIndex, offsets, smoothEnabled]);
+
   const move = (direction: StepDirection) => {
     const target = getGalleryOffsetTarget(activeIndex, direction, offsets);
     if (target.available) setActiveIndex(target.index);
@@ -84,6 +151,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    suppressClickRef.current = false;
     pointerStartRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -94,13 +162,22 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (!start || start.id !== event.pointerId) return;
     const deltaX = event.clientX - start.x;
     const deltaY = event.clientY - start.y;
-    if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY)) move(deltaX > 0 ? -1 : 1);
+    if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      suppressClickRef.current = true;
+      move(deltaX > 0 ? -1 : 1);
+      window.setTimeout(() => { suppressClickRef.current = false; }, 0);
+    }
   };
 
   const trackStyle = { "--gallery-offset": `${offsets[activeIndex] ?? 0}px` } as CSSProperties;
 
   return (
-    <section className={`${styles.group} ${styles[group.id]}`} data-gallery-group={group.id} data-gallery-index={activeIndex}>
+    <section
+      className={`${styles.group} ${styles[group.id]}`}
+      data-gallery-group={group.id}
+      data-gallery-index={activeIndex}
+      data-gallery-smooth={smoothEnabled ? "true" : "false"}
+    >
       <div className={styles.groupControls}>
         <div className={styles.deviceLabel}>
           <span className={styles.deviceIcon} style={{ maskImage: `url(${group.icon})` }} aria-hidden="true" />
@@ -115,6 +192,12 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       <div
         ref={viewportRef}
         className={styles.viewport}
+        onClickCapture={(event) => {
+          if (!suppressClickRef.current) return;
+          event.preventDefault();
+          event.stopPropagation();
+          suppressClickRef.current = false;
+        }}
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}

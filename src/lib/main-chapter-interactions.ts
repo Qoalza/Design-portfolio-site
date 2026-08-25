@@ -19,6 +19,7 @@ export type GalleryLayout = {
 
 export type ProjectActionBarGeometry = {
   informationTop: number;
+  informationBottom: number;
   viewportHeight: number;
   barHeight: number;
   dpr: number;
@@ -29,6 +30,13 @@ export type ProjectActionBarState = {
   variant: "full" | "adaptive";
   barTop: number;
   barBottom: number;
+};
+
+export type ProjectNavigationRailGeometry = {
+  informationTop: number;
+  terminalSectionTop: number;
+  lastItemOffset: number;
+  navigationHeight: number;
 };
 
 export const NAVIGATION_WATCHDOG_MS = 2000;
@@ -95,7 +103,29 @@ export function getTerminalSectionActivationTop(
   if (![stickyActivationTop, actionBarTop, terminalSectionHeight].every(Number.isFinite)) {
     return stickyActivationTop;
   }
-  return Math.max(stickyActivationTop, actionBarTop - Math.max(0, terminalSectionHeight) / 2);
+  const currentTerminalThreshold = Math.max(
+    stickyActivationTop,
+    actionBarTop - Math.max(0, terminalSectionHeight) / 2,
+  );
+  const currentAdvance = Math.max(0, currentTerminalThreshold - stickyActivationTop);
+  return stickyActivationTop + currentAdvance / 3;
+}
+
+export function getProjectNavigationRailHeight({
+  informationTop,
+  terminalSectionTop,
+  lastItemOffset,
+  navigationHeight,
+}: ProjectNavigationRailGeometry): number {
+  const safeNavigationHeight = Number.isFinite(navigationHeight) ? Math.max(0, navigationHeight) : 0;
+  if (![informationTop, terminalSectionTop, lastItemOffset, navigationHeight].every(Number.isFinite)) {
+    return safeNavigationHeight;
+  }
+
+  return Math.max(
+    safeNavigationHeight,
+    terminalSectionTop - informationTop - Math.max(0, lastItemOffset) + safeNavigationHeight,
+  );
 }
 
 export function getGalleryLayout(
@@ -164,11 +194,12 @@ export function getProjectActionBarState(
 ): ProjectActionBarState {
   const {
     informationTop,
+    informationBottom,
     viewportHeight,
     barHeight,
     dpr,
   } = geometry;
-  const values = [informationTop, viewportHeight, barHeight, dpr];
+  const values = [informationTop, informationBottom, viewportHeight, barHeight, dpr];
   const valid = values.every(Number.isFinite)
     && dpr > 0
     && viewportHeight > 0
@@ -192,7 +223,11 @@ export function getProjectActionBarState(
   const barBottom = normalizedViewportHeight;
   const barTop = normalizePhysicalPixel(barBottom - normalizedBarHeight, dpr);
   const normalizedInformationTop = normalizePhysicalPixel(informationTop, dpr);
-  const variant = normalizedInformationTop <= barTop ? "adaptive" : "full";
+  const normalizedInformationBottom = normalizePhysicalPixel(informationBottom, dpr);
+  const entryTop = normalizePhysicalPixel(barBottom - 160, dpr);
+  const entryPassed = normalizedInformationTop <= entryTop;
+  const informationStillActive = normalizedInformationBottom > barTop;
+  const variant = entryPassed && informationStillActive ? "adaptive" : "full";
 
   return {
     valid: true,

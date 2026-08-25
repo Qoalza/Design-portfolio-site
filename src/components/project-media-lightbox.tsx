@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { startScrollControllers, stopScrollControllers } from "../lib/scroll-controller";
 import styles from "./project-media-lightbox.module.css";
 
 type ProjectMediaLightboxProps = {
@@ -27,6 +28,7 @@ export function ProjectMediaLightbox({
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const scrollPositionRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -37,16 +39,20 @@ export function ProjectMediaLightbox({
     const root = document.documentElement;
     const body = document.body;
     const previousRootOverflow = root.style.overflow;
+    const previousRootScrollBehavior = root.style.scrollBehavior;
     const previousBodyOverflow = body.style.overflow;
     const previousBodyPaddingRight = body.style.paddingRight;
     const scrollbarWidth = window.innerWidth - root.clientWidth;
+    scrollPositionRef.current = { x: window.scrollX, y: window.scrollY };
 
     if (scrollbarWidth > 0) {
       body.style.paddingRight = `${scrollbarWidth}px`;
     }
 
     root.style.overflow = "hidden";
+    root.style.scrollBehavior = "auto";
     body.style.overflow = "hidden";
+    stopScrollControllers();
     dialog.showModal();
     const closeFromEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -62,6 +68,10 @@ export function ProjectMediaLightbox({
       body.style.overflow = previousBodyOverflow;
       body.style.paddingRight = previousBodyPaddingRight;
       if (dialog.open) dialog.close();
+      const scrollPosition = scrollPositionRef.current;
+      window.scrollTo(scrollPosition.x, scrollPosition.y);
+      root.style.scrollBehavior = previousRootScrollBehavior;
+      startScrollControllers();
       trigger?.focus({ preventScroll: true });
     };
   }, [isOpen]);

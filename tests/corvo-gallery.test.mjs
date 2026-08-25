@@ -46,6 +46,8 @@ test("Gallery accepts only dominant horizontal intent and resolves every gesture
   assert.match(component, /event\.preventDefault\(\)/);
   assert.match(component, /setPointerCapture/);
   assert.match(component, /move\(deltaX > 0 \? -1 : 1\)/);
+  assert.match(component, /suppressClickRef/);
+  assert.match(component, /onClickCapture/);
   assert.doesNotMatch(component, /overflowX:\s*["']auto/);
 });
 

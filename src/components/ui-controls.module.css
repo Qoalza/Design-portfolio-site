@@ -77,6 +77,18 @@
   letter-spacing: -.3px;
 }
 
+.textLarge {
+  gap: 8px;
+  font: 400 16px/20px "Onest", sans-serif;
+  letter-spacing: -.2px;
+}
+
+.textLarge .icon {
+  width: 20px;
+  height: 20px;
+  flex-basis: 20px;
+}
+
 .control {
   height: 40px;
   gap: 4px;

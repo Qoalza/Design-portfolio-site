@@ -5,9 +5,12 @@ import {
   NAVIGATION_ABSOLUTE_LIMIT_MS,
   NAVIGATION_WATCHDOG_MS,
   getActiveProjectSectionIndex,
+  getProjectNavigationRailHeight,
   getTerminalSectionActivationTop,
   getNavigationProgressState,
 } from "../lib/main-chapter-interactions";
+import { getPrimaryScrollController } from "../lib/scroll-controller";
+import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 
 type ProjectSection = {
   id: string;
@@ -37,14 +40,15 @@ export function ProjectSectionNavigation({
   className,
   activeItemClassName,
 }: ProjectSectionNavigationProps) {
-  const frameRef = useRef<number | null>(null);
   const watchdogRef = useRef<number | null>(null);
   const absoluteLimitRef = useRef<number | null>(null);
+  const railRef = useRef<HTMLDivElement>(null);
   const navigationRef = useRef<HTMLElement>(null);
   const navigationStateRef = useRef<NavigationState>({ mode: "SCROLL_TRACKING" });
   const startProgrammaticScrollRef = useRef<(index: number, updateHistory?: boolean) => void>(() => undefined);
   const [activeIndex, setActiveIndex] = useState(0);
   const [stickyTop, setStickyTop] = useState(160);
+  const [railHeight, setRailHeight] = useState<number | null>(null);
 
   useEffect(() => {
     const clearProgrammaticTimers = () => {
@@ -63,20 +67,29 @@ export function ProjectSectionNavigation({
         section?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
       ));
       const lastSection = sectionElements.at(-1);
+      const information = document.querySelector<HTMLElement>("[data-project-information-start]");
+      const lastNavigationItem = navigationRef.current?.lastElementChild as HTMLElement | null;
       const actionBar = document.querySelector<HTMLElement>("[data-project-action-bar]");
       const terminalActivationTop = getTerminalSectionActivationTop(
         activationTop,
         actionBar?.getBoundingClientRect().top ?? window.innerHeight,
         lastSection?.getBoundingClientRect().height ?? 0,
       );
+      const nextRailHeight = getProjectNavigationRailHeight({
+        informationTop: information?.getBoundingClientRect().top ?? Number.NaN,
+        terminalSectionTop: lastSection?.getBoundingClientRect().top ?? Number.NaN,
+        lastItemOffset: lastNavigationItem?.offsetTop ?? Number.NaN,
+        navigationHeight: navigationRef.current?.getBoundingClientRect().height ?? Number.NaN,
+      });
 
-      return { activationTop, terminalActivationTop, measuredHeaderHeight, sectionElements, sectionTops };
+      return { activationTop, terminalActivationTop, measuredHeaderHeight, nextRailHeight, sectionElements, sectionTops };
     };
 
     const applyTrackingGeometry = () => {
-      const { activationTop, terminalActivationTop, measuredHeaderHeight, sectionTops } = getGeometry();
+      const { activationTop, terminalActivationTop, measuredHeaderHeight, nextRailHeight, sectionTops } = getGeometry();
       setStickyTop(measuredHeaderHeight);
-      navigationRef.current?.parentElement?.style.setProperty(
+      setRailHeight(nextRailHeight);
+      railRef.current?.parentElement?.style.setProperty(
         "--project-fixed-stack-height",
         `${measuredHeaderHeight}px`,
       );
@@ -84,12 +97,7 @@ export function ProjectSectionNavigation({
     };
 
     const scheduleTrackingGeometry = () => {
-      if (frameRef.current === null) {
-        frameRef.current = window.requestAnimationFrame(() => {
-          frameRef.current = null;
-          applyTrackingGeometry();
-        });
-      }
+      invalidateScrollFrameSubscriber("project-section-navigation-geometry");
     };
 
     const finishProgrammaticScroll = () => {
@@ -105,10 +113,10 @@ export function ProjectSectionNavigation({
     };
 
     const update = () => {
-      frameRef.current = null;
       const geometry = getGeometry();
       setStickyTop(geometry.measuredHeaderHeight);
-      navigationRef.current?.parentElement?.style.setProperty(
+      setRailHeight(geometry.nextRailHeight);
+      railRef.current?.parentElement?.style.setProperty(
         "--project-fixed-stack-height",
         `${geometry.measuredHeaderHeight}px`,
       );
@@ -157,10 +165,14 @@ export function ProjectSectionNavigation({
     };
 
     const scheduleUpdate = () => {
-      if (frameRef.current === null) frameRef.current = window.requestAnimationFrame(update);
+      invalidateScrollFrameSubscriber("project-section-navigation-geometry");
     };
 
-    const startProgrammaticScroll = (requestedIndex: number, updateHistory = true) => {
+    const startProgrammaticScroll = (
+      requestedIndex: number,
+      updateHistory = true,
+      performScroll = true,
+    ) => {
       if (sections.length === 0) return;
       const index = Math.min(sections.length - 1, Math.max(0, requestedIndex));
       const section = sections[index];
@@ -196,10 +208,20 @@ export function ProjectSectionNavigation({
       resetWatchdog();
       absoluteLimitRef.current = window.setTimeout(finishProgrammaticScroll, NAVIGATION_ABSOLUTE_LIMIT_MS);
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      window.scrollTo({
-        top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - activationTop),
-        behavior: reducedMotion ? "auto" : "smooth",
-      });
+      if (performScroll) {
+        const scrollController = getPrimaryScrollController();
+        if (scrollController) {
+          scrollController.scrollTo(target, {
+            immediate: reducedMotion,
+            onComplete: finishProgrammaticScroll,
+          });
+        } else {
+          window.scrollTo({
+            top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - activationTop),
+            behavior: reducedMotion ? "auto" : "smooth",
+          });
+        }
+      }
       scheduleUpdate();
     };
     startProgrammaticScrollRef.current = startProgrammaticScroll;
@@ -207,10 +229,13 @@ export function ProjectSectionNavigation({
     const startFromHash = () => {
       const id = decodeURIComponent(window.location.hash.slice(1));
       const index = sections.findIndex((section) => section.id === id);
-      if (index >= 0) startProgrammaticScroll(index, false);
+      if (index >= 0) startProgrammaticScroll(index, false, false);
       else finishProgrammaticScroll();
     };
-    const cancelFromUserInput = () => finishProgrammaticScroll();
+    const cancelFromUserInput = () => {
+      getPrimaryScrollController()?.cancel();
+      finishProgrammaticScroll();
+    };
     const cancelFromKeyboard = (event: KeyboardEvent) => {
       if (SCROLL_KEYS.has(event.key)) cancelFromUserInput();
     };
@@ -227,12 +252,20 @@ export function ProjectSectionNavigation({
       finishProgrammaticScroll();
     };
 
+    const unregisterFrame = registerScrollFrameSubscriber({
+      id: "project-section-navigation-geometry",
+      priority: 30,
+      update: () => update(),
+    });
     applyTrackingGeometry();
     const fixedHeader = document.querySelector<HTMLElement>("[data-site-header-fixed]");
     const information = document.querySelector<HTMLElement>("[data-project-information-start]");
+    const terminalSection = sections.length > 0 ? document.getElementById(sections.at(-1)!.id) : null;
     const resizeObserver = new ResizeObserver(scheduleUpdate);
     if (fixedHeader) resizeObserver.observe(fixedHeader);
     if (information) resizeObserver.observe(information);
+    if (terminalSection) resizeObserver.observe(terminalSection);
+    if (navigationRef.current) resizeObserver.observe(navigationRef.current);
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("scrollend", handleScrollEnd);
     window.addEventListener("resize", scheduleUpdate);
@@ -241,7 +274,7 @@ export function ProjectSectionNavigation({
     window.addEventListener("keydown", cancelFromKeyboard, { capture: true });
     window.addEventListener("popstate", startFromHash);
     window.addEventListener("hashchange", startFromHash);
-    if (window.location.hash) window.requestAnimationFrame(startFromHash);
+    if (window.location.hash) startFromHash();
 
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
@@ -253,30 +286,37 @@ export function ProjectSectionNavigation({
       window.removeEventListener("popstate", startFromHash);
       window.removeEventListener("hashchange", startFromHash);
       resizeObserver.disconnect();
+      unregisterFrame();
       clearProgrammaticTimers();
       navigationStateRef.current = { mode: "SCROLL_TRACKING" };
       startProgrammaticScrollRef.current = () => undefined;
-      if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
     };
   }, [sections]);
 
   return (
-    <nav ref={navigationRef} className={className} aria-label="Разделы проекта" style={{ top: stickyTop }}>
-      {sections.map((section, index) => (
-        <a
-          className={index === activeIndex ? activeItemClassName : undefined}
-          href={`#${section.id}`}
-          key={section.id}
-          aria-current={index === activeIndex ? "location" : undefined}
-          onClick={(event) => {
-            event.preventDefault();
-            startProgrammaticScrollRef.current(index);
-          }}
-        >
-          <span aria-hidden="true" />
-          {section.label}
-        </a>
-      ))}
-    </nav>
+    <div
+      className={className}
+      data-project-navigation-rail
+      ref={railRef}
+      style={railHeight === null ? undefined : { height: railHeight }}
+    >
+      <nav ref={navigationRef} aria-label="Разделы проекта" style={{ top: stickyTop }}>
+        {sections.map((section, index) => (
+          <a
+            className={index === activeIndex ? activeItemClassName : undefined}
+            href={`#${section.id}`}
+            key={section.id}
+            aria-current={index === activeIndex ? "location" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              startProgrammaticScrollRef.current(index);
+            }}
+          >
+            <span aria-hidden="true" />
+            {section.label}
+          </a>
+        ))}
+      </nav>
+    </div>
   );
 }

@@ -5,7 +5,7 @@ import { MainProjectCard } from "../components/main-project-card";
 import { ProjectPlatforms } from "../components/project-platforms";
 import { ProjectDetailControl } from "../components/project-detail-control";
 import { ProcessStepper } from "../components/process-stepper";
-import { ControlButton } from "../components/ui-controls";
+import { ControlButton, TextButton } from "../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
 import { getCatalogProjects } from "../lib/projects";
 import styles from "./page.module.css";
@@ -88,13 +88,13 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
       <div className={styles.projectActionButtons}>
         {detailHref && detailLabel ? (
           <ProjectDetailControl
-            available
+            availability="available"
             href={detailHref}
             breadcrumbLabel={detailLabel}
             className={styles.detailsButton}
           />
         ) : (
-          <ProjectDetailControl available={false} className={styles.detailsButton} />
+          <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
         )}
         {hasFigma ? (
           <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
@@ -194,7 +194,7 @@ export default function Home() {
             <div className={styles.heroBody}>
               <div className={styles.heroText}>
                 <div className={styles.heroTitleGroup}>
-                  <p className={styles.eyebrow}><span>PRODUCT DESIGNER</span></p>
+                  <p className={styles.eyebrow}>PRODUCT DESIGNER</p>
                   <h1 id="hero-title">Привет, я Артур!</h1>
                 </div>
                 <p className={styles.heroLead}>Я продуктовый дизайнер: разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации</p>
@@ -311,7 +311,16 @@ export default function Home() {
             </div>
             <aside className={styles.aiFact} aria-label="О разработке сайта">
               <span className={styles.aiFactIcon} aria-hidden="true" />
-              <p>Вся разработка данного сайта, кроме дизайна, была полностью выполнена в Codex, с нуля</p>
+              <p>Вся разработка данного сайта, кроме дизайна, была полностью выполнена мной в Codex, с нуля</p>
+              <span className={styles.aiFactDivider} aria-hidden="true" />
+              <TextButton
+                external
+                href="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Концепт?node-id=510-28120"
+                iconRight={`${assetRoot}/project-share.svg`}
+                size="large"
+              >
+                Figma
+              </TextButton>
             </aside>
           </section>
 
@@ -324,7 +333,7 @@ export default function Home() {
                   <a href="https://t.me/Coco_soul" target="_blank" rel="noreferrer">@Coco_soul</a>
                 </div>
               </SectionHeading>
-              <ControlButton className={styles.cvButton} variant="light" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>Скачать полное CV</ControlButton>
+              <ControlButton className={styles.cvButton} variant="light" href="https://disk.yandex.ru/i/iZ1UWgbO1LAOPw" external iconRight={`${assetRoot}/download.svg`}>Полное CV</ControlButton>
             </div>
 
             <div className={styles.experienceList}>

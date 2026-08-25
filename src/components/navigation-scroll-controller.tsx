@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
+import { getPrimaryScrollController } from "../lib/scroll-controller";
 
 const scrollRestorationScript = `
   if ("scrollRestoration" in history) {
@@ -10,6 +11,12 @@ const scrollRestorationScript = `
 `;
 
 function scrollToTopInstantly(): void {
+  const controller = getPrimaryScrollController();
+  if (controller) {
+    controller.cancel();
+    controller.scrollTo(0, { immediate: true });
+    return;
+  }
   const root = document.documentElement;
   const previousScrollBehavior = root.style.scrollBehavior;
 
@@ -27,6 +34,13 @@ function scrollToHashInstantly(hash: string): void {
     return;
   }
 
+  const controller = getPrimaryScrollController();
+  if (controller) {
+    controller.cancel();
+    controller.scrollTo(target, { immediate: true });
+    return;
+  }
+
   const root = document.documentElement;
   const previousScrollBehavior = root.style.scrollBehavior;
 
@@ -40,7 +54,10 @@ export function scrollToHash(hash: string): void {
   const targetId = decodeURIComponent(hash.slice(1));
   const target = document.getElementById(targetId) ?? document.getElementsByName(targetId)[0];
 
-  target?.scrollIntoView();
+  if (!target) return;
+  const controller = getPrimaryScrollController();
+  if (controller) controller.scrollTo(target);
+  else target.scrollIntoView();
 }
 
 export function NavigationScrollController() {

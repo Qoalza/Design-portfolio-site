@@ -53,8 +53,8 @@ test("unavailable project details use the shared disabled Soon contract", () => 
   assert.match(component, /<ProjectDetailControl/);
   assert.match(homePage, /<ProjectDetailControl/);
   assert.match(projectsPage, /<ProjectDetailControl/);
-  assert.match(detailControl, /available:\s*false/);
+  assert.match(detailControl, /availability:\s*Extract<ProjectAvailability\["detail"\], "unavailable">/);
   assert.match(detailControl, /disabled>Скоро<\/ControlButton>/);
-  assert.match(detailControl, /available:\s*true/);
+  assert.match(detailControl, /availability:\s*Extract<ProjectAvailability\["detail"\], "available">/);
   assert.match(detailControl, />\s*Подробнее\s*<\/ControlButton>/);
 });
