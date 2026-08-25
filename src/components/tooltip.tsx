@@ -1,8 +1,15 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { type CSSProperties, type ReactNode, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { getTooltipPlacement, type TooltipContent, type TooltipPlacement } from "../lib/tooltip";
+import { type CSSProperties, type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import {
+  getTooltipPlacement,
+  isSameTooltipPlacement,
+  reduceTooltipPhase,
+  type TooltipContent,
+  type TooltipPhase,
+  type TooltipPlacement,
+} from "../lib/tooltip";
 import styles from "./tooltip.module.css";
 
 type TooltipProps = {
@@ -17,20 +24,26 @@ export function Tooltip({ children, content }: TooltipProps) {
   const id = `tooltip-${reactId.replace(/:/g, "")}`;
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
+  const [phase, setPhase] = useState<TooltipPhase>("closed");
   const [placement, setPlacement] = useState<TooltipPlacement | null>(null);
+  const rendered = phase !== "closed";
+  const requestOpen = useCallback(() => setPhase((current) => reduceTooltipPhase(current, "open")), []);
+  const requestClose = useCallback(() => setPhase((current) => reduceTooltipPhase(current, "close")), []);
 
   useLayoutEffect(() => {
-    if (!open) return;
+    if (!rendered) return;
 
     const update = () => {
       const trigger = triggerRef.current?.getBoundingClientRect();
       const tooltip = tooltipRef.current?.getBoundingClientRect();
       if (!trigger || !tooltip || tooltip.width <= 0 || tooltip.height <= 0) return;
-      setPlacement(getTooltipPlacement(trigger, tooltip, {
+      const nextPlacement = getTooltipPlacement(trigger, tooltip, {
         width: window.innerWidth,
         height: window.innerHeight,
-      }));
+      });
+      setPlacement((current) => (
+        isSameTooltipPlacement(current, nextPlacement) ? current : nextPlacement
+      ));
     };
 
     update();
@@ -44,32 +57,49 @@ export function Tooltip({ children, content }: TooltipProps) {
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open]);
+  }, [rendered]);
 
   useEffect(() => {
-    if (!open) return;
+    if (phase !== "entering" || !placement) return;
+    const frame = window.requestAnimationFrame(() => {
+      setPhase((current) => reduceTooltipPhase(current, "entered"));
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [phase, placement]);
+
+  useEffect(() => {
+    if (phase !== "exiting") return;
+    const watchdog = window.setTimeout(() => {
+      setPhase((current) => reduceTooltipPhase(current, "exited"));
+      setPlacement(null);
+    }, 250);
+    return () => window.clearTimeout(watchdog);
+  }, [phase]);
+
+  useEffect(() => {
+    if (!rendered) return;
     const closeOutside = (event: PointerEvent) => {
-      if (!triggerRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!triggerRef.current?.contains(event.target as Node)) requestClose();
     };
     document.addEventListener("pointerdown", closeOutside);
     return () => document.removeEventListener("pointerdown", closeOutside);
-  }, [open]);
+  }, [rendered, requestClose]);
 
   return (
     <>
       <span
-        aria-describedby={open ? id : undefined}
+        aria-describedby={rendered ? id : undefined}
         className={styles.trigger}
         onBlur={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+          if (!event.currentTarget.contains(event.relatedTarget)) requestClose();
         }}
-        onFocus={() => setOpen(true)}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        onFocus={requestOpen}
+        onMouseEnter={requestOpen}
+        onMouseLeave={requestClose}
         onPointerDown={(event) => {
           if (event.pointerType === "touch") {
             event.preventDefault();
-            setOpen(true);
+            requestOpen();
           }
         }}
         ref={triggerRef}
@@ -77,11 +107,16 @@ export function Tooltip({ children, content }: TooltipProps) {
       >
         {children}
       </span>
-      {open && typeof document !== "undefined" ? createPortal(
+      {rendered && typeof document !== "undefined" ? createPortal(
         <div
           className={styles.tooltip}
-          data-open={placement ? "true" : "false"}
+          data-open={phase === "open" ? "true" : "false"}
           id={id}
+          onTransitionEnd={(event) => {
+            if (event.propertyName !== "opacity" || phase !== "exiting") return;
+            setPhase((current) => reduceTooltipPhase(current, "exited"));
+            setPlacement(null);
+          }}
           ref={tooltipRef}
           role="tooltip"
           style={placement ? { left: placement.left, top: placement.top } : undefined}

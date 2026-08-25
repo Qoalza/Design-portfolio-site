@@ -17,6 +17,22 @@ export type GalleryLayout = {
   maxOffset: number;
 };
 
+export type GalleryPointerGesture = {
+  kind: "click" | "vertical" | "horizontal-drag";
+  step: StepDirection | null;
+};
+
+export function getGalleryPointerGesture(deltaX: number, deltaY: number): GalleryPointerGesture {
+  const horizontalDistance = Math.abs(deltaX);
+  const verticalDistance = Math.abs(deltaY);
+  if (horizontalDistance < 8 && verticalDistance < 8) return { kind: "click", step: null };
+  if (horizontalDistance <= verticalDistance) return { kind: "vertical", step: null };
+  return {
+    kind: "horizontal-drag",
+    step: horizontalDistance >= 48 ? (deltaX > 0 ? -1 : 1) : null,
+  };
+}
+
 export type ProjectActionBarGeometry = {
   informationTop: number;
   informationBottom: number;
@@ -38,6 +54,16 @@ export type ProjectNavigationRailGeometry = {
   lastItemOffset: number;
   navigationHeight: number;
 };
+
+export type ProjectNavigationMode = "SCROLL_TRACKING" | "PROGRAMMATIC_SCROLL";
+
+export function shouldCancelProjectNavigation(mode: ProjectNavigationMode): boolean {
+  return mode === "PROGRAMMATIC_SCROLL";
+}
+
+export function shouldScheduleGalleryFrame(isMoving: boolean, isVisible: boolean): boolean {
+  return isMoving && isVisible;
+}
 
 export const NAVIGATION_WATCHDOG_MS = 2000;
 export const NAVIGATION_ABSOLUTE_LIMIT_MS = 30000;
@@ -189,9 +215,9 @@ function normalizePhysicalPixel(value: number, dpr: number): number {
   return Math.round(value * dpr) / dpr;
 }
 
-export function getProjectActionBarState(
+function getProjectActionBarMetrics(
   geometry: ProjectActionBarGeometry,
-): ProjectActionBarState {
+): ProjectActionBarState & { informationTop: number; informationBottom: number } {
   const {
     informationTop,
     informationBottom,
@@ -215,6 +241,8 @@ export function getProjectActionBarState(
       variant: "full",
       barTop: invalidBarTop,
       barBottom: invalidBarBottom,
+      informationTop: 0,
+      informationBottom: 0,
     };
   }
 
@@ -224,15 +252,49 @@ export function getProjectActionBarState(
   const barTop = normalizePhysicalPixel(barBottom - normalizedBarHeight, dpr);
   const normalizedInformationTop = normalizePhysicalPixel(informationTop, dpr);
   const normalizedInformationBottom = normalizePhysicalPixel(informationBottom, dpr);
-  const entryTop = normalizePhysicalPixel(barBottom - 160, dpr);
-  const entryPassed = normalizedInformationTop <= entryTop;
-  const informationStillActive = normalizedInformationBottom > barTop;
-  const variant = entryPassed && informationStillActive ? "adaptive" : "full";
-
   return {
     valid: true,
-    variant,
+    variant: "full",
     barTop,
     barBottom,
+    informationTop: normalizedInformationTop,
+    informationBottom: normalizedInformationBottom,
+  };
+}
+
+export function getProjectActionBarInitialState(
+  geometry: ProjectActionBarGeometry,
+): ProjectActionBarState {
+  const metrics = getProjectActionBarMetrics(geometry);
+  if (!metrics.valid) {
+    return { valid: false, variant: "full", barTop: metrics.barTop, barBottom: metrics.barBottom };
+  }
+  const informationVisible = metrics.informationTop <= metrics.barTop
+    && metrics.informationBottom > metrics.barTop;
+  return {
+    valid: true,
+    variant: informationVisible ? "adaptive" : "full",
+    barTop: metrics.barTop,
+    barBottom: metrics.barBottom,
+  };
+}
+
+export function getProjectActionBarScrollState(
+  geometry: ProjectActionBarGeometry,
+  initialVariant: ProjectActionBarState["variant"],
+): ProjectActionBarState {
+  const metrics = getProjectActionBarMetrics(geometry);
+  if (!metrics.valid) {
+    return { valid: false, variant: "full", barTop: metrics.barTop, barBottom: metrics.barBottom };
+  }
+  const informationActive = metrics.informationBottom > metrics.barTop;
+  const visibleInformation = metrics.barBottom - metrics.informationTop;
+  const thresholdPassed = visibleInformation >= 200;
+  const adaptive = informationActive && (initialVariant === "adaptive" || thresholdPassed);
+  return {
+    valid: true,
+    variant: adaptive ? "adaptive" : "full",
+    barTop: metrics.barTop,
+    barBottom: metrics.barBottom,
   };
 }

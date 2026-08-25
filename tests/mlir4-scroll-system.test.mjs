@@ -2,6 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { ScrollFrameCoordinator } from "../src/lib/scroll-frame-coordinator.ts";
+import { shouldScheduleGalleryFrame } from "../src/lib/main-chapter-interactions.ts";
+
+test("Gallery frames run only for visible moving groups", () => {
+  assert.equal(shouldScheduleGalleryFrame(false, true), false);
+  assert.equal(shouldScheduleGalleryFrame(true, false), false);
+  assert.equal(shouldScheduleGalleryFrame(true, true), true);
+});
 
 test("one frame coordinator orders root, Gallery and invalidated geometry without duplicate RAF", () => {
   const frames = [];
@@ -60,6 +67,8 @@ test("Gallery and project geometry use the shared frame and scroll contracts", (
   assert.match(gallery, /new Lenis/);
   assert.match(gallery, /orientation:\s*"horizontal"/);
   assert.match(gallery, /registerScrollFrameSubscriber/);
+  assert.doesNotMatch(gallery, /continuous:\s*true/);
+  assert.match(gallery, /invalidateScrollFrameSubscriber/);
   assert.match(actionBar, /registerScrollFrameSubscriber/);
   assert.doesNotMatch(actionBar, /requestAnimationFrame/);
   assert.match(navigation, /registerScrollFrameSubscriber/);

@@ -1,0 +1,599 @@
+{
+  "codeSha": "effc718663489d433aa801f88ef424347736d801",
+  "matrix": [
+    {
+      "browser": "Chromium in-app browser",
+      "viewport": "1280x720",
+      "initial": {
+        "bar": {
+          "bottom": 720,
+          "height": 88,
+          "left": 0,
+          "right": 1280,
+          "top": 632,
+          "width": 1280,
+          "x": 0,
+          "y": 632
+        },
+        "expected": "full",
+        "heroInteractive": 0,
+        "info": {
+          "bottom": 3981,
+          "height": 3079,
+          "left": 40,
+          "right": 1240,
+          "top": 902,
+          "width": 1200,
+          "x": 40,
+          "y": 902
+        },
+        "innerWidth": 1280,
+        "lenis": "true",
+        "measurement": "valid",
+        "scrollHeight": 6163,
+        "scrollWidth": 1280,
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "transitions": "true",
+        "variant": "full"
+      },
+      "gallery": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "groups": [
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "desktop",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "tablet",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              true
+            ],
+            "id": "mobile",
+            "leftFades": 0,
+            "rightFades": 0
+          }
+        ],
+        "image": {
+          "bottom": 748,
+          "height": 512,
+          "left": 52,
+          "right": 792,
+          "top": 236,
+          "width": 740,
+          "x": 52,
+          "y": 236
+        }
+      },
+      "lightboxOpen": {
+        "bodyOverflow": "hidden",
+        "focusInside": true,
+        "open": true,
+        "parent": "BODY"
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "barBottom": 660,
+        "current": "Результат",
+        "footerTop": 660,
+        "gap": 48,
+        "scrollHeight": 6163,
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Chromium in-app browser",
+      "viewport": "1440x900",
+      "initial": {
+        "bar": {
+          "bottom": 900,
+          "height": 88,
+          "left": 0,
+          "right": 1440,
+          "top": 812,
+          "width": 1440,
+          "x": 0,
+          "y": 812
+        },
+        "expected": "full",
+        "heroInteractive": 0,
+        "info": {
+          "bottom": 3981,
+          "height": 3079,
+          "left": 120,
+          "right": 1320,
+          "top": 902,
+          "width": 1200,
+          "x": 120,
+          "y": 902
+        },
+        "innerWidth": 1440,
+        "lenis": "true",
+        "measurement": "valid",
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "transitions": "true",
+        "variant": "full"
+      },
+      "gallery": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "groups": [
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "desktop",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "tablet",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              true
+            ],
+            "id": "mobile",
+            "leftFades": 0,
+            "rightFades": 0
+          }
+        ],
+        "image": {
+          "bottom": 748,
+          "height": 512,
+          "left": 132,
+          "right": 872,
+          "top": 236,
+          "width": 740,
+          "x": 132,
+          "y": 236
+        }
+      },
+      "lightboxOpen": {
+        "bodyOverflow": "hidden",
+        "focusInside": true,
+        "open": true,
+        "parent": "BODY"
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "barBottom": 840,
+        "current": "Результат",
+        "footerTop": 840,
+        "gap": 48,
+        "scrollHeight": 6163,
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Chromium in-app browser",
+      "viewport": "1440x999",
+      "initial": {
+        "bar": {
+          "bottom": 999,
+          "height": 88,
+          "left": 320,
+          "right": 1320,
+          "top": 911,
+          "width": 1000,
+          "x": 320,
+          "y": 911
+        },
+        "expected": "adaptive",
+        "heroInteractive": 0,
+        "info": {
+          "bottom": 3981,
+          "height": 3079,
+          "left": 120,
+          "right": 1320,
+          "top": 902,
+          "width": 1200,
+          "x": 120,
+          "y": 902
+        },
+        "innerWidth": 1440,
+        "lenis": "true",
+        "measurement": "valid",
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "transitions": "true",
+        "variant": "adaptive"
+      },
+      "gallery": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "groups": [
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "desktop",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "tablet",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              true
+            ],
+            "id": "mobile",
+            "leftFades": 0,
+            "rightFades": 0
+          }
+        ],
+        "image": {
+          "bottom": 748,
+          "height": 512,
+          "left": 132,
+          "right": 872,
+          "top": 236,
+          "width": 740,
+          "x": 132,
+          "y": 236
+        }
+      },
+      "lightboxOpen": {
+        "bodyOverflow": "hidden",
+        "focusInside": true,
+        "open": true,
+        "parent": "BODY"
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "barBottom": 939,
+        "current": "Результат",
+        "footerTop": 939,
+        "gap": 48,
+        "scrollHeight": 6163,
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Chromium in-app browser",
+      "viewport": "1440x1200",
+      "initial": {
+        "bar": {
+          "bottom": 1200,
+          "height": 88,
+          "left": 320,
+          "right": 1320,
+          "top": 1112,
+          "width": 1000,
+          "x": 320,
+          "y": 1112
+        },
+        "expected": "adaptive",
+        "heroInteractive": 0,
+        "info": {
+          "bottom": 3981,
+          "height": 3079,
+          "left": 120,
+          "right": 1320,
+          "top": 902,
+          "width": 1200,
+          "x": 120,
+          "y": 902
+        },
+        "innerWidth": 1440,
+        "lenis": "true",
+        "measurement": "valid",
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "transitions": "true",
+        "variant": "adaptive"
+      },
+      "gallery": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "groups": [
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "desktop",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "tablet",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              true
+            ],
+            "id": "mobile",
+            "leftFades": 0,
+            "rightFades": 0
+          }
+        ],
+        "image": {
+          "bottom": 748,
+          "height": 512,
+          "left": 132,
+          "right": 872,
+          "top": 236,
+          "width": 740,
+          "x": 132,
+          "y": 236
+        }
+      },
+      "lightboxOpen": {
+        "bodyOverflow": "hidden",
+        "focusInside": true,
+        "open": true,
+        "parent": "BODY"
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "barBottom": 1140,
+        "current": "Результат",
+        "footerTop": 1140,
+        "gap": 48,
+        "scrollHeight": 6163,
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Chromium in-app browser",
+      "viewport": "1440x1356",
+      "initial": {
+        "bar": {
+          "bottom": 1356,
+          "height": 88,
+          "left": 320,
+          "right": 1320,
+          "top": 1268,
+          "width": 1000,
+          "x": 320,
+          "y": 1268
+        },
+        "expected": "adaptive",
+        "heroInteractive": 0,
+        "info": {
+          "bottom": 3981,
+          "height": 3079,
+          "left": 120,
+          "right": 1320,
+          "top": 902,
+          "width": 1200,
+          "x": 120,
+          "y": 902
+        },
+        "innerWidth": 1440,
+        "lenis": "true",
+        "measurement": "valid",
+        "scrollHeight": 6163,
+        "scrollWidth": 1440,
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "transitions": "true",
+        "variant": "adaptive"
+      },
+      "gallery": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "groups": [
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "desktop",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "tablet",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              true
+            ],
+            "id": "mobile",
+            "leftFades": 0,
+            "rightFades": 0
+          }
+        ],
+        "image": {
+          "bottom": 748,
+          "height": 512,
+          "left": 132,
+          "right": 872,
+          "top": 236,
+          "width": 740,
+          "x": 132,
+          "y": 236
+        }
+      },
+      "lightboxOpen": {
+        "bodyOverflow": "hidden",
+        "focusInside": true,
+        "open": true,
+        "parent": "BODY"
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "barBottom": 1296,
+        "current": "Результат",
+        "footerTop": 1296,
+        "gap": 48,
+        "scrollHeight": 6163,
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    },
+    {
+      "browser": "Chromium in-app browser",
+      "viewport": "1920x1080",
+      "initial": {
+        "bar": {
+          "bottom": 1080,
+          "height": 88,
+          "left": 560,
+          "right": 1560,
+          "top": 992,
+          "width": 1000,
+          "x": 560,
+          "y": 992
+        },
+        "expected": "adaptive",
+        "heroInteractive": 0,
+        "info": {
+          "bottom": 3981,
+          "height": 3079,
+          "left": 360,
+          "right": 1560,
+          "top": 902,
+          "width": 1200,
+          "x": 360,
+          "y": 902
+        },
+        "innerWidth": 1920,
+        "lenis": "true",
+        "measurement": "valid",
+        "scrollHeight": 6163,
+        "scrollWidth": 1920,
+        "sha": "effc718663489d433aa801f88ef424347736d801",
+        "transitions": "true",
+        "variant": "adaptive"
+      },
+      "gallery": {
+        "current": "Результат",
+        "galleryTop": 0,
+        "groups": [
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "desktop",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              false
+            ],
+            "id": "tablet",
+            "leftFades": 0,
+            "rightFades": 1
+          },
+          {
+            "disabled": [
+              true,
+              true
+            ],
+            "id": "mobile",
+            "leftFades": 0,
+            "rightFades": 0
+          }
+        ],
+        "image": {
+          "bottom": 748,
+          "height": 512,
+          "left": 372,
+          "right": 1112,
+          "top": 236,
+          "width": 740,
+          "x": 372,
+          "y": 236
+        }
+      },
+      "lightboxOpen": {
+        "bodyOverflow": "hidden",
+        "focusInside": true,
+        "open": true,
+        "parent": "BODY"
+      },
+      "lightboxClosed": {
+        "dialog": false,
+        "focus": "Увеличить изображение: Desktop-интерфейс Corvo: экран 1"
+      },
+      "terminal": {
+        "barBottom": 1020,
+        "current": "Результат",
+        "footerTop": 1020,
+        "gap": 48,
+        "scrollHeight": 6163,
+        "variant": "full"
+      },
+      "console": [],
+      "pass": true
+    }
+  ]
+}

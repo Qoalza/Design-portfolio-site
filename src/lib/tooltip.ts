@@ -17,6 +17,27 @@ export type TooltipPlacement = {
   side: "top" | "bottom";
 };
 
+export type TooltipPhase = "closed" | "entering" | "open" | "exiting";
+export type TooltipEvent = "open" | "entered" | "close" | "exited";
+
+export function isSameTooltipPlacement(
+  current: TooltipPlacement | null,
+  next: TooltipPlacement,
+): boolean {
+  return current !== null
+    && current.left === next.left
+    && current.top === next.top
+    && current.side === next.side;
+}
+
+export function reduceTooltipPhase(phase: TooltipPhase, event: TooltipEvent): TooltipPhase {
+  if (event === "open") return phase === "open" ? "open" : "entering";
+  if (event === "close") return phase === "closed" ? "closed" : "exiting";
+  if (event === "entered" && phase === "entering") return "open";
+  if (event === "exited" && phase === "exiting") return "closed";
+  return phase;
+}
+
 const TOOLTIP_GAP = 12;
 const VIEWPORT_INSET = 12;
 

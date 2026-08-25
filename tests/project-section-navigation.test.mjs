@@ -5,7 +5,13 @@ import {
   NAVIGATION_ABSOLUTE_LIMIT_MS,
   NAVIGATION_WATCHDOG_MS,
   getNavigationProgressState,
+  shouldCancelProjectNavigation,
 } from "../src/lib/main-chapter-interactions.ts";
+
+test("ordinary tracking input never cancels root Lenis", () => {
+  assert.equal(shouldCancelProjectNavigation("SCROLL_TRACKING"), false);
+  assert.equal(shouldCancelProjectNavigation("PROGRAMMATIC_SCROLL"), true);
+});
 
 test("navigation watchdog resets only after meaningful progress", () => {
   const progress = getNavigationProgressState({

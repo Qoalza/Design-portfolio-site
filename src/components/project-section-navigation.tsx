@@ -8,6 +8,7 @@ import {
   getProjectNavigationRailHeight,
   getTerminalSectionActivationTop,
   getNavigationProgressState,
+  shouldCancelProjectNavigation,
 } from "../lib/main-chapter-interactions";
 import { getPrimaryScrollController } from "../lib/scroll-controller";
 import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
@@ -233,6 +234,7 @@ export function ProjectSectionNavigation({
       else finishProgrammaticScroll();
     };
     const cancelFromUserInput = () => {
+      if (!shouldCancelProjectNavigation(navigationStateRef.current.mode)) return;
       getPrimaryScrollController()?.cancel();
       finishProgrammaticScroll();
     };

@@ -1,0 +1,96 @@
+{
+  "codeSha": "effc718663489d433aa801f88ef424347736d801",
+  "tooltip": {
+    "start": "0",
+    "middle": {
+      "icon": {
+        "bottom": 825,
+        "height": 20,
+        "left": 149,
+        "right": 169,
+        "top": 805,
+        "width": 20,
+        "x": 149,
+        "y": 805
+      },
+      "lineBoxes": 1,
+      "lineHeight": "20px",
+      "opacity": "0.841574",
+      "rect": {
+        "bottom": 838,
+        "height": 46,
+        "left": 136,
+        "right": 414.9296875,
+        "top": 792,
+        "width": 278.9296875,
+        "x": 136,
+        "y": 792
+      },
+      "textRect": {
+        "bottom": 825,
+        "height": 20,
+        "left": 173,
+        "right": 401.9296875,
+        "top": 805,
+        "width": 228.9296875,
+        "x": 173,
+        "y": 805
+      }
+    },
+    "end": {
+      "opacity": "1"
+    },
+    "exitStart": "1",
+    "exitMiddle": "0.159118",
+    "exitEnd": false,
+    "pass": true
+  },
+  "aiTextButton": {
+    "font": "16px / 20px Onest, sans-serif",
+    "icon": "rgb(96, 100, 102)",
+    "iconRect": {
+      "bottom": 3866,
+      "height": 20,
+      "left": 1138.2578125,
+      "right": 1158.2578125,
+      "top": 3846,
+      "width": 20,
+      "x": 1138.2578125,
+      "y": 3846
+    },
+    "label": "rgb(96, 100, 102)",
+    "sha": "effc718663489d433aa801f88ef424347736d801",
+    "pass": true
+  },
+  "wheelTraces": [
+    {
+      "route": "/",
+      "profile": "mouse-like",
+      "start": 1199,
+      "end": 1559.5,
+      "distance": 360.5
+    },
+    {
+      "route": "/",
+      "profile": "trackpad-like",
+      "start": 1199,
+      "end": 1560,
+      "distance": 361
+    },
+    {
+      "route": "/projects/corvo",
+      "profile": "mouse-like",
+      "start": 1199,
+      "end": 1559.5,
+      "distance": 360.5
+    },
+    {
+      "route": "/projects/corvo",
+      "profile": "trackpad-like",
+      "start": 1199,
+      "end": 1560,
+      "distance": 361
+    }
+  ],
+  "console": []
+}

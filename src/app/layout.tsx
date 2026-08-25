@@ -4,6 +4,7 @@ import { NavigationTrailProvider } from "../components/contextual-navigation";
 import { NavigationScrollController } from "../components/navigation-scroll-controller";
 import { SmoothScrollProvider } from "../components/smooth-scroll-provider";
 import { getBuildShaAttribute } from "../lib/build-provenance";
+import { PROJECT_ACTION_BAR_BOOTSTRAP } from "../lib/project-action-bar-bootstrap";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        <script dangerouslySetInnerHTML={{ __html: PROJECT_ACTION_BAR_BOOTSTRAP }} />
       </head>
       <body>
         <SmoothScrollProvider>

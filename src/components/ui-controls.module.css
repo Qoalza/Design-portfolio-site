@@ -56,15 +56,37 @@
 .textControl {
   display: inline-flex;
   align-items: center;
-  color: #606466;
+  color: var(--control-label);
   text-decoration: none;
   white-space: nowrap;
   transition: none;
 }
 
-.textControl:hover { color: #45494c; }
-.textControl:active { color: #2f3133; }
-.textControl[aria-disabled="true"] { color: #acafb2; pointer-events: none; }
+.textNeutral:hover {
+  --control-label: #45494c;
+  --control-icon: #45494c;
+}
+
+.textNeutral:active {
+  --control-label: #2f3133;
+  --control-icon: #2f3133;
+}
+
+.textNeutralAccent:hover {
+  --control-label: #0776ce;
+  --control-icon: #0776ce;
+}
+
+.textNeutralAccent:active {
+  --control-label: #0e5c9a;
+  --control-icon: #0e5c9a;
+}
+
+.textControl[aria-disabled="true"] {
+  --control-label: #acafb2;
+  --control-icon: #acafb2;
+  pointer-events: none;
+}
 
 .textMedium {
   gap: 8px;
@@ -133,7 +155,8 @@
 .small .icon,
 .squareSmall .icon,
 .tab .icon,
-.textControl .icon {
+.textSmall .icon,
+.textMedium .icon {
   width: 16px;
   height: 16px;
   flex-basis: 16px;
