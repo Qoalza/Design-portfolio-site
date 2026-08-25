@@ -85,8 +85,10 @@
 - Проекты хранятся в MDX; backend для текущего этапа не нужен.
 - Повторная same-page hash-навигация (`Мои работы`, Back/Forward) централизована в `ContextLink` и `NavigationScrollController`; поля `history.state` Next.js сохраняются.
 - Следующий пакет контентных настроек зафиксирован, но ещё не реализован:
-  - favicon ожидается от пользователя;
-  - title вкладки браузера: `Artur Product` вместо `Артур Арустамян - Product Designer`;
+  - favicon-source получен и подготовлен в `design-reference/favicon-review/`, но ещё не подключён к приложению;
+  - утверждённый основной favicon вкладки — адаптивный `SVG` с compact-геометрией без центральной черты: `#2F3133` для светлого UI браузера и белый для тёмного UI;
+  - запрещено использовать сгенерированные 16/24 px PNG как основной favicon: PNG нужны только для обязательных фиксированных системных размеров, ICO — только fallback; detailed-геометрия с центральной чертой используется для действительно крупных иконок;
+  - окончательный title вкладки браузера: `Des-art` вместо `Артур Арустамян - Product Designer`;
   - кнопки связи ведут на `https://t.me/Coco_soul`;
   - обе ссылки `CV` и `Скачать полное CV` ведут на `https://disk.yandex.ru/i/iZ1UWgbO1LAOPw`.
   - кнопка `Figma` у проекта Corvo ведёт на `https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1`.
