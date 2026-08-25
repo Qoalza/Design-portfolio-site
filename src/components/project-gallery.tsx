@@ -2,7 +2,7 @@
 
 import Lenis from "lenis";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
-import { getGalleryLayout, getGalleryOffsetTarget, shouldScheduleGalleryFrame, type StepDirection } from "../lib/main-chapter-interactions";
+import { getGalleryLayout, getGalleryOffsetTarget, getGalleryPointerGesture, shouldScheduleGalleryFrame, type StepDirection } from "../lib/main-chapter-interactions";
 import { registerScrollController } from "../lib/scroll-controller";
 import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
@@ -30,7 +30,7 @@ type ProjectGalleryProps = {
   description: string;
 };
 
-type PointerStart = { id: number; x: number; y: number };
+type PointerStart = { id: number; x: number; y: number; captured: boolean };
 
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const smoothEnabled = useDesktopSmoothScrollEnabled();
@@ -169,20 +169,39 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     suppressClickRef.current = false;
-    pointerStartRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    pointerStartRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY, captured: false };
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const start = pointerStartRef.current;
+    if (!start || start.id !== event.pointerId || start.captured) return;
+    const gesture = getGalleryPointerGesture(event.clientX - start.x, event.clientY - start.y);
+    if (gesture.kind !== "horizontal-drag") return;
     event.currentTarget.setPointerCapture(event.pointerId);
+    start.captured = true;
+    suppressClickRef.current = true;
   };
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
     const start = pointerStartRef.current;
-    pointerStartRef.current = null;
     if (!start || start.id !== event.pointerId) return;
-    const deltaX = event.clientX - start.x;
-    const deltaY = event.clientY - start.y;
-    if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      suppressClickRef.current = true;
-      move(deltaX > 0 ? -1 : 1);
+    pointerStartRef.current = null;
+    const gesture = getGalleryPointerGesture(event.clientX - start.x, event.clientY - start.y);
+    if (start.captured && event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    if (start.captured) {
+      if (gesture.step !== null) move(gesture.step);
       window.setTimeout(() => { suppressClickRef.current = false; }, 0);
+    }
+  };
+
+  const handlePointerCancel = (event: PointerEvent<HTMLDivElement>) => {
+    const start = pointerStartRef.current;
+    pointerStartRef.current = null;
+    suppressClickRef.current = false;
+    if (start?.captured && event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
   };
 
@@ -217,8 +236,9 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
         }}
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerCancel={() => { pointerStartRef.current = null; }}
+        onPointerCancel={handlePointerCancel}
       >
         <div ref={trackRef} className={styles.track} style={trackStyle}>
           {group.items.map((item, index) => (

@@ -17,6 +17,22 @@ export type GalleryLayout = {
   maxOffset: number;
 };
 
+export type GalleryPointerGesture = {
+  kind: "click" | "vertical" | "horizontal-drag";
+  step: StepDirection | null;
+};
+
+export function getGalleryPointerGesture(deltaX: number, deltaY: number): GalleryPointerGesture {
+  const horizontalDistance = Math.abs(deltaX);
+  const verticalDistance = Math.abs(deltaY);
+  if (horizontalDistance < 8 && verticalDistance < 8) return { kind: "click", step: null };
+  if (horizontalDistance <= verticalDistance) return { kind: "vertical", step: null };
+  return {
+    kind: "horizontal-drag",
+    step: horizontalDistance >= 48 ? (deltaX > 0 ? -1 : 1) : null,
+  };
+}
+
 export type ProjectActionBarGeometry = {
   informationTop: number;
   informationBottom: number;

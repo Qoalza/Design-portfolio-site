@@ -5,6 +5,7 @@ import {
   getActiveProjectSectionIndex,
   getGalleryLayout,
   getGalleryOffsetTarget,
+  getGalleryPointerGesture,
   getGalleryTarget,
   getProcessStepTarget,
   getProjectNavigationRailHeight,
@@ -101,6 +102,14 @@ test("gallery offsets snap to items and clamp at the measured maximum", () => {
   assert.deepEqual(layout, { offsets: [0, 764, 1092], maxOffset: 1092 });
   assert.deepEqual(getGalleryOffsetTarget(1, 1, layout.offsets), { available: true, index: 2 });
   assert.deepEqual(getGalleryOffsetTarget(2, 1, layout.offsets), { available: false, index: 2 });
+});
+
+test("Gallery pointer gestures preserve clicks until a dominant horizontal drag is confirmed", () => {
+  assert.deepEqual(getGalleryPointerGesture(3, 2), { kind: "click", step: null });
+  assert.deepEqual(getGalleryPointerGesture(9, 12), { kind: "vertical", step: null });
+  assert.deepEqual(getGalleryPointerGesture(9, 2), { kind: "horizontal-drag", step: null });
+  assert.deepEqual(getGalleryPointerGesture(-48, 4), { kind: "horizontal-drag", step: 1 });
+  assert.deepEqual(getGalleryPointerGesture(48, 4), { kind: "horizontal-drag", step: -1 });
 });
 
 test("action bar anchors to the rendered project columns without viewport-center formulas", () => {
