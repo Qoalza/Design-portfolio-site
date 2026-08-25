@@ -66,10 +66,16 @@
 .shareButton { flex: 0 0 auto; cursor: pointer; }
 
 .updatedAt {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
   color: #909498;
   font-family: "Source Code Pro", monospace;
   font-size: 14px;
   line-height: 16px;
+  font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1;
   letter-spacing: -.5px;
   white-space: nowrap;
 }

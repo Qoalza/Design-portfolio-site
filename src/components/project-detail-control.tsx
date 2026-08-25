@@ -20,7 +20,7 @@ type ProjectDetailControlProps = {
 export function ProjectDetailControl(props: ProjectDetailControlProps) {
   if (props.availability === "unavailable") {
     return (
-      <Tooltip content={{ text: "Вот-вот, горяченькое несу уже!", icon: "/assets/projects/rocket.svg" }}>
+      <Tooltip content={{ text: "Вот-вот, горяченькое несу уже!", icon: "/assets/projects/rocket.svg", iconTone: "accent" }}>
         <ControlButton className={props.className} variant="neutral" disabled>Скоро</ControlButton>
       </Tooltip>
     );

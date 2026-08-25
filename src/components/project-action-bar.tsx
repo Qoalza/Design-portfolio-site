@@ -79,7 +79,7 @@ export function ProjectActionBar({ figmaAvailable, figmaUrl, updatedAt }: Projec
   const actionBarRef = useRef<HTMLDivElement>(null);
   const scrollTrackingRef = useRef(false);
   const transitionsReadyRef = useRef(false);
-  const { announcement, feedbackOpen, handleShare } = useProjectShare();
+  const { announcement, feedbackOpen, feedbackRevision, handleShare } = useProjectShare();
 
   useLayoutEffect(() => {
     const update = () => {
@@ -198,6 +198,7 @@ export function ProjectActionBar({ figmaAvailable, figmaUrl, updatedAt }: Projec
           <Tooltip
             content={{ text: "Скопировано", icon: "/assets/projects/check.svg" }}
             open={feedbackOpen}
+            restartKey={feedbackRevision}
             triggerMode="manual"
           >
             <ControlButton className={styles.shareButton} variant="light" dataAction="share" onClick={handleShare}>Поделиться</ControlButton>
