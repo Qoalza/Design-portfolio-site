@@ -75,8 +75,6 @@ function measureActionLayout(
   };
 }
 
-const ACTION_BAR_BOOTSTRAP = `(()=>{const b=document.querySelector('[data-project-action-bar]'),i=document.querySelector('[data-project-information-start]'),c=document.querySelector('[data-project-content-column]'),t=document.querySelector('[data-project-action-terminal]');if(!b||!i||!c||!t)return;const ir=i.getBoundingClientRect(),cr=c.getBoundingClientRect(),tr=t.getBoundingClientRect(),d=window.devicePixelRatio||1,n=v=>Math.round(v*d)/d,barTop=n(window.innerHeight-88),values=[ir.top,ir.bottom,ir.left,ir.width,cr.left,cr.width,tr.top];if(!values.every(Number.isFinite))return;const variant=n(ir.top)<=barTop&&n(ir.bottom)>barTop?'adaptive':'full',bottom=Math.max(0,window.innerHeight-(tr.top+48)-88);b.dataset.projectActionVariant=variant;b.dataset.projectActionMeasurement='valid';b.dataset.projectActionTransitions='false';b.style.setProperty('--action-bottom',bottom+'px');b.style.setProperty('--action-full-left',ir.left+'px');b.style.setProperty('--action-full-width',ir.width+'px');b.style.setProperty('--action-adaptive-left',cr.left+'px');b.style.setProperty('--action-adaptive-width',cr.width+'px')})()`;
-
 export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const [layout, setLayout] = useState<ActionLayout>(() => measureActionLayout("initial"));
   const actionBarRef = useRef<HTMLDivElement>(null);
@@ -175,7 +173,6 @@ export function ProjectActionBar({ title, figmaAvailable, figmaUrl, updatedAt }:
           <ControlButton className={styles.shareButton} variant="light" dataAction="share" onClick={handleShare}>Поделиться</ControlButton>
         </div>
       </div>
-      <script dangerouslySetInnerHTML={{ __html: ACTION_BAR_BOOTSTRAP }} />
       <span aria-live="polite" className="visually-hidden">{announcement}</span>
     </>
   );

@@ -73,10 +73,14 @@ test("runtime separates initial resolution from scroll threshold without magic s
 
 test("the first user-visible action variant is bootstrapped without a blank shell or transition", () => {
   const component = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
+  const rootLayout = readFileSync(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
+  const bootstrap = readFileSync(new URL("../src/lib/project-action-bar-bootstrap.ts", import.meta.url), "utf8");
   const styles = readFileSync(new URL("../src/components/project-action-bar.module.css", import.meta.url), "utf8");
 
-  assert.match(component, /ACTION_BAR_BOOTSTRAP/);
-  assert.match(component, /projectActionTransitions='false'/);
+  assert.doesNotMatch(component, /<script|ACTION_BAR_BOOTSTRAP/);
+  assert.match(rootLayout, /PROJECT_ACTION_BAR_BOOTSTRAP/);
+  assert.match(bootstrap, /MutationObserver/);
+  assert.match(bootstrap, /projectActionTransitions='false'/);
   assert.doesNotMatch(styles, /visibility:\s*hidden/);
   const baseRule = styles.match(/\.actionBar\s*\{[^}]*\}/)?.[0] ?? "";
   assert.doesNotMatch(baseRule, /transition/);
