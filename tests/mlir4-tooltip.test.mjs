@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getTooltipPlacement, reduceTooltipPhase } from "../src/lib/tooltip.ts";
+import { getTooltipPlacement, isSameTooltipPlacement, reduceTooltipPhase } from "../src/lib/tooltip.ts";
 
 test("Tooltip lifecycle preserves the exit phase until animation completion", () => {
   assert.equal(reduceTooltipPhase("closed", "open"), "entering");
@@ -8,6 +8,13 @@ test("Tooltip lifecycle preserves the exit phase until animation completion", ()
   assert.equal(reduceTooltipPhase("open", "close"), "exiting");
   assert.equal(reduceTooltipPhase("exiting", "open"), "entering");
   assert.equal(reduceTooltipPhase("exiting", "exited"), "closed");
+});
+
+test("identical Tooltip measurements do not restart the entering frame", () => {
+  const placement = { left: 120, top: 80, side: "bottom" };
+  assert.equal(isSameTooltipPlacement(placement, { ...placement }), true);
+  assert.equal(isSameTooltipPlacement(placement, { ...placement, top: 81 }), false);
+  assert.equal(isSameTooltipPlacement(null, placement), false);
 });
 
 const trigger = { top: 100, right: 220, bottom: 140, left: 100 };

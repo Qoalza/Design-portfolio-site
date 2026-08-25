@@ -155,7 +155,8 @@
 .small .icon,
 .squareSmall .icon,
 .tab .icon,
-.textControl .icon {
+.textSmall .icon,
+.textMedium .icon {
   width: 16px;
   height: 16px;
   flex-basis: 16px;

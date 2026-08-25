@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { type CSSProperties, type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import {
   getTooltipPlacement,
+  isSameTooltipPlacement,
   reduceTooltipPhase,
   type TooltipContent,
   type TooltipPhase,
@@ -36,10 +37,13 @@ export function Tooltip({ children, content }: TooltipProps) {
       const trigger = triggerRef.current?.getBoundingClientRect();
       const tooltip = tooltipRef.current?.getBoundingClientRect();
       if (!trigger || !tooltip || tooltip.width <= 0 || tooltip.height <= 0) return;
-      setPlacement(getTooltipPlacement(trigger, tooltip, {
+      const nextPlacement = getTooltipPlacement(trigger, tooltip, {
         width: window.innerWidth,
         height: window.innerHeight,
-      }));
+      });
+      setPlacement((current) => (
+        isSameTooltipPlacement(current, nextPlacement) ? current : nextPlacement
+      ));
     };
 
     update();
