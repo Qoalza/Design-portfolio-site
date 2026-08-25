@@ -311,7 +311,7 @@ export default function Home() {
             </div>
             <aside className={styles.aiFact} aria-label="О разработке сайта">
               <span className={styles.aiFactIcon} aria-hidden="true" />
-              <p>Вся разработка данного сайта, кроме дизайна, была полностью выполнена мной в Codex, с нуля</p>
+              <p>Вся разработка данного сайта, была полностью выполнена мной в Codex, с нуля. Дизайн был разработан отдельно.</p>
               <span className={styles.aiFactDivider} aria-hidden="true" />
               <TextButton
                 external
