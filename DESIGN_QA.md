@@ -38,7 +38,7 @@ MLIR4 runtime `0d834e9d96f78e34e4e8e4796468446c7ccbad8d` и `design-reference/ma
 - lightbox: Desktop/Tablet/Mobile увеличиваются в `1.5×` от собственных базовых отображаемых размеров; общий viewport/quality clamp сохраняет единый коэффициент и не допускает размытия;
 - lightbox сохраняет точные радиусы, не добавляет собственный фон, использует кнопку с крестиком и закрывается кликом по любому свободному месту вне изображения.
 
-MLIR5 action bar, точный внутренний layout и контракт «Поделиться» остаются `OPEN` до свежего RED→GREEN evidence. `CLOSED` разрешён только после явной пользовательской приёмки.
+Action-bar follow-up имеет отдельный внутренний статус `READY_FOR_USER_REVIEW`: runtime `62152793e8a7d501209f9ed8a257636ef846bcce`, Chromium focused checks и Zen `1.21.15b` matrix `6/6` подтверждают первый физический rect без flash, независимый порог `200 px`, возврат в `Full` у Gallery, terminal gap `48 px`, стабильный `scrollHeight`, точный внутренний layout и copy-current-URL feedback. Evidence — `design-reference/action-bar-acceptance-fix/README.md`. Агрегатная запись MLIR5 остаётся `OPEN` только из-за перечисленного выше backlog вне scope этой Goal; `CLOSED` разрешён после явной пользовательской приёмки соответствующих блоков.
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Polish (`MLIR4-*`)
 

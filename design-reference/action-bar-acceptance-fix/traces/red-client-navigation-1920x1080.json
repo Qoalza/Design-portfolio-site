@@ -1,0 +1,22 @@
+{
+  "status": "RED",
+  "baseSha": "226e226f2420c14f18dfe973d710c98e01834460",
+  "runtimeCodeSha": "effc718663489d433aa801f88ef424347736d801",
+  "route": "/ -> /projects/corvo",
+  "viewport": "1920x1080",
+  "browser": "Chromium (Codex in-app browser)",
+  "expected": {
+    "variant": "adaptive",
+    "left": 560,
+    "width": 1000,
+    "initialTransition": "none"
+  },
+  "observedFrames": [
+    { "frame": 10, "variant": "adaptive", "left": 0, "width": 1920, "transition": "left 0.25s, width 0.25s" },
+    { "frame": 11, "variant": "adaptive", "left": 10.5546875, "width": 1902.6484375, "transition": "left 0.25s, width 0.25s" },
+    { "frame": 20, "variant": "adaptive", "left": 322.7421875, "width": 1389.765625, "transition": "left 0.25s, width 0.25s" },
+    { "frame": 30, "variant": "adaptive", "left": 517.8203125, "width": 1069.28125, "transition": "left 0.25s, width 0.25s" },
+    { "frame": 40, "variant": "adaptive", "left": 560, "width": 1000, "transition": "left 0.25s, width 0.25s" }
+  ],
+  "failure": "The logical variant is Adaptive, but the first physical rect is Full and animates for 250ms before reaching the target geometry."
+}
