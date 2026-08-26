@@ -59,6 +59,8 @@ test("Gallery accepts only dominant horizontal intent and resolves every gesture
   assert.match(component, /event\.preventDefault\(\)/);
   assert.match(component, /setPointerCapture/);
   assert.match(component, /gesture\.kind !== "horizontal-drag"[\s\S]{0,120}event\.preventDefault\(\)/);
+  assert.match(component, /scrollLeft:\s*viewportRef\.current\?\.scrollLeft\s*\?\?\s*0/);
+  assert.equal((component.match(/viewportRef\.current\.scrollLeft = start\.scrollLeft/g) ?? []).length, 2);
   assert.match(component, /onPointerMove/);
   assert.match(component, /getGalleryPointerGesture/);
   assert.doesNotMatch(component, /handlePointerDown[\s\S]{0,400}setPointerCapture/);

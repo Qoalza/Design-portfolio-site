@@ -41,7 +41,7 @@ type ProjectGalleryProps = {
   description: string;
 };
 
-type PointerStart = { id: number; x: number; y: number; captured: boolean };
+type PointerStart = { id: number; x: number; y: number; scrollLeft: number; captured: boolean };
 
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const smoothEnabled = useDesktopSmoothScrollEnabled();
@@ -199,7 +199,13 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     suppressClickRef.current = false;
-    pointerStartRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY, captured: false };
+    pointerStartRef.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      scrollLeft: viewportRef.current?.scrollLeft ?? 0,
+      captured: false,
+    };
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -208,6 +214,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     const gesture = getGalleryPointerGesture(event.clientX - start.x, event.clientY - start.y);
     if (gesture.kind !== "horizontal-drag") return;
     event.preventDefault();
+    if (viewportRef.current) viewportRef.current.scrollLeft = start.scrollLeft;
     event.currentTarget.setPointerCapture(event.pointerId);
     start.captured = true;
     suppressClickRef.current = true;
@@ -222,6 +229,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     if (start.captured) {
+      if (viewportRef.current) viewportRef.current.scrollLeft = start.scrollLeft;
       if (gesture.step !== null) requestGalleryStep(gesture.step);
       window.setTimeout(() => { suppressClickRef.current = false; }, 0);
     }
