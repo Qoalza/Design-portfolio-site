@@ -1,6 +1,6 @@
 # PROJECT HISTORY
 
-Обновлено: 2026-08-14
+Обновлено: 2026-08-26
 
 ## Назначение
 
@@ -11,6 +11,15 @@
 Читать только релевантные разделы при большой или рискованной задаче, возврате старой ошибки, архитектурном изменении либо расследовании регрессии. Не читать целиком по умолчанию и не добавлять сюда каждую мелкую правку.
 
 Никогда не записывать сюда пароли, приватные ключи, токены или другие секреты.
+
+## 2026-08-26 — MLIR7 merge и production deploy
+
+- Принятая MLIR7-ветка слита fast-forward в `main`; production развернут из точного `DEPLOY_SHA` `ebe50fb29942f6aa0aa60f86f7c2fae8c640f1a7`.
+- Release создан в `/var/www/art-des/releases/ebe50fb29942f6aa0aa60f86f7c2fae8c640f1a7`; `/var/www/art-des/current` атомарно переключён на него. Предыдущий release `/var/www/art-des/releases/ae1c01c10cf87240212b91a9a6594e239eb4f01e` сохранён как rollback boundary.
+- Production build выполнен с полным `NEXT_PUBLIC_BUILD_SHA`; фактически отданный HTML и server-side `REVISION` совпали с `DEPLOY_SHA`. `art-des.service` после переключения имеет состояния `active` и `enabled`.
+- Внешний HTTP smoke подтвердил `/`, `/projects`, `/projects/corvo`, детерминированные 404/500, canonical HTTPS redirects, SVG favicon и все 40 извлечённых homepage assets.
+- Browser smoke подтвердил основную навигацию, Gallery arrow/trackpad movement, lightbox, action bar, Share feedback, интерактивные 404/500 controls и отсутствие horizontal overflow; в чистой сессии неожиданных console/hydration ошибок нет.
+- Первый автоматический health probe стартовал раньше готовности нового процесса и безопасно вернул symlink на предыдущий release. Повторное атомарное переключение с ограниченным readiness-loop прошло успешно; код и конфигурация для обхода не изменялись.
 
 ## Граница рабочих контекстов
 

@@ -23,8 +23,8 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `codex/gallery-tech-favicon-reconciliation-mlir7`; текущий проверенный runtime `CODE_SHA` — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`; merge и deploy не выполнялись.
-- Актуальный production/source commit остаётся `ae1c01c10cf87240212b91a9a6594e239eb4f01e` (`Add contextual breadcrumb navigation`).
+- Рабочая ветка: `main`; принятая MLIR7 слита fast-forward и отправлена в `origin/main`.
+- Актуальный production/source commit (`DEPLOY_SHA`) — `ebe50fb29942f6aa0aa60f86f7c2fae8c640f1a7` (`Record the MLIR7 user acceptance`). Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
@@ -40,18 +40,19 @@
 - Строка характеристик открытого проекта использует Figma Hug-механику: ширина по содержимому, без desktop-переноса в доступных `1200 px` (`b6f461d`).
 - Breadcrumbs строятся из фактического пути текущей history entry; прямой вход использует явно заданную для типа страницы каноническую цепочку.
 - Незавершённый пакет `codex-context-transfer-2026-08-15/` и ZIP остаются отдельными untracked-артефактами; не добавлять и не удалять.
-- Первый production-deploy выполнен из точного commit `ae1c01c10cf87240212b91a9a6594e239eb4f01e`; merge в `main` не выполнялся.
+- MLIR7 развернута в production 2026-08-26 из точного `DEPLOY_SHA` `ebe50fb29942f6aa0aa60f86f7c2fae8c640f1a7`; внешний smoke-check пройден.
 
 ## Production
 
 - URL: `https://art-des.ru`; `http://art-des.ru` и оба варианта `www` перенаправляются на canonical HTTPS host.
 - VPS: Ubuntu 24.04 LTS; Node.js `22.23.2`; npm `10.9.8`; Nginx `1.24.0`; Certbot `5.7.0`.
-- Release: `/var/www/art-des/releases/ae1c01c10cf87240212b91a9a6594e239eb4f01e`; `/var/www/art-des/current` указывает на него.
+- Release: `/var/www/art-des/releases/ebe50fb29942f6aa0aa60f86f7c2fae8c640f1a7`; `/var/www/art-des/current` указывает на него. Предыдущий сохранённый rollback release: `/var/www/art-des/releases/ae1c01c10cf87240212b91a9a6594e239eb4f01e`.
 - Next.js работает от системного пользователя `portfolio` через `art-des.service`: сервис `active`, `enabled`, restart проверен.
 - Next.js слушает только `127.0.0.1:3000`; UFW разрешает снаружи только OpenSSH и `80/443`. Пять независимых внешних probe-nodes получили timeout на `:3000`.
 - Let's Encrypt покрывает `art-des.ru` и `www.art-des.ru`, срок действия до `2026-11-13`; `snap.certbot.renew.timer` активен, `certbot renew --dry-run --no-random-sleep-on-renew` прошёл.
-- External smoke: `/`, `/projects`, `/projects/corvo` — `200`; неизвестный маршрут — `404`; CSS, JS, WOFF2, SVG и изображения загружаются без asset 404; console/hydration errors на основных страницах отсутствуют.
-- Browser smoke при `1440 px`: навигация, Back/Forward, sticky header, project action bar, lightbox и отсутствие horizontal overflow проверены.
+- External smoke 2026-08-26: `/`, `/projects`, `/projects/corvo` — `200`; фиксированный неизвестный маршрут — `404`; `/error-test?trigger=500` — ожидаемый `500`; route titles, canonical redirects, favicon MIME и 40 homepage assets проверены без неожиданных отказов.
+- Browser smoke при `1440×900`: переходы `/` → `/projects` → `/projects/corvo`, Gallery arrow/trackpad step, lightbox, action bar `Adaptive`/`Full`, Share feedback, 404/500 controls и отсутствие horizontal overflow проверены; чистая навигационная сессия не содержит console/hydration ошибок.
+- Production HTML и server-side `REVISION` подтверждают полный `DEPLOY_SHA`; `art-des.service` остаётся `active` и `enabled`.
 - Certbot зарегистрирован без email; email пользователя не придумывался и не сохранялся.
 
 ### Диагностика и rollback
@@ -120,6 +121,5 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Выполнить утверждённый fast-forward merge MLIR7 в `main` и production deploy по существующей release-схеме.
-2. После deploy зафиксировать точные `DEPLOY_SHA`, release path, rollback release и внешний smoke-check.
-3. Preloaders/loading states оставить для отдельного будущего Work Packet.
+1. Текущая MLIR7 merge/deploy Goal завершена; production наблюдать штатными health/smoke-проверками без повторного deploy.
+2. Preloaders/loading states оставить для отдельного будущего Work Packet после новой классификации и пользовательского подтверждения.
