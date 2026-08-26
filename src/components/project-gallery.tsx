@@ -59,8 +59,17 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const next = getGalleryOffsetTarget(activeIndex, 1, offsets);
   const requestGalleryStep = useCallback((direction: StepDirection) => {
     const target = getGalleryOffsetTarget(activeIndex, direction, offsets);
-    if (target.available) setActiveIndex(target.index);
-  }, [activeIndex, offsets]);
+    if (!target.available) return;
+    const lenis = lenisRef.current;
+    if (smoothEnabled && lenis) {
+      // Demand-driven Gallery instances do not receive idle RAF ticks. Stop any
+      // previous interpolation at the rendered scrollLeft and prime the shared
+      // clock before React commits the next target.
+      lenis.resize();
+      lenis.raf(performance.now());
+    }
+    setActiveIndex(target.index);
+  }, [activeIndex, offsets, smoothEnabled]);
 
   const handleWheel = useCallback((event: WheelEvent) => {
     if (smoothEnabled) {
@@ -180,13 +189,6 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     const immediate = lenisJustCreatedRef.current;
     lenisJustCreatedRef.current = false;
     const lenis = lenisRef.current;
-    if (!immediate) {
-      // Demand-driven Gallery instances do not receive idle RAF ticks. Prime the
-      // internal Lenis state and clock from the current rendered position before
-      // starting a user transition. The user target itself is never immediate.
-      lenis.resize();
-      lenis.raf(performance.now());
-    }
     lenis.scrollTo(offsets[activeIndex] ?? 0, {
       immediate,
       lerp: immediate ? undefined : 0.1,
