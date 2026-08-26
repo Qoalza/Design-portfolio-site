@@ -207,6 +207,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (!start || start.id !== event.pointerId || start.captured) return;
     const gesture = getGalleryPointerGesture(event.clientX - start.x, event.clientY - start.y);
     if (gesture.kind !== "horizontal-drag") return;
+    event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     start.captured = true;
     suppressClickRef.current = true;
