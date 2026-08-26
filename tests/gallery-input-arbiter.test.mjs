@@ -82,6 +82,19 @@ test("one continuous accelerating gesture still emits only one step", () => {
   assert.equal(decisions.filter((decision) => decision.galleryStep !== null).length, 1);
 });
 
+test("a vertical gesture takes root ownership immediately after the horizontal tail", () => {
+  const arbiter = new GalleryInputArbiter({ idleMs: 160, threshold: 16 });
+  arbiter.classify(wheel(20, 1, 0), "desktop");
+  arbiter.classify(wheel(7, 1, 16), "desktop");
+  arbiter.classify(wheel(5, 1, 32), "desktop");
+  const verticalEvent = wheel(0, 30, 48);
+  const vertical = arbiter.classify(verticalEvent, "desktop");
+
+  assert.equal(vertical.ownership, "vertical");
+  assert.equal(vertical.blockRoot, false);
+  assert.equal(arbiter.takeRootDelta(verticalEvent), 30);
+});
+
 test("separate gestures around one second apart preserve their real cadence", () => {
   const arbiter = new GalleryInputArbiter({ idleMs: 160, threshold: 16 });
   assert.equal(arbiter.classify(wheel(20, 1, 0), "desktop").galleryStep, 1);

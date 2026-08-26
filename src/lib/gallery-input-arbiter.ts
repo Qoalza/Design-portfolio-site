@@ -75,7 +75,7 @@ export class GalleryInputArbiter {
     const deltaY = normalizeDelta(event.deltaY, event.deltaMode, height);
     let decision: GalleryInputDecision;
 
-    if (this.ownership === "horizontal" && this.isNewHorizontalGesture(deltaX)) {
+    if (this.ownership === "horizontal" && this.isNewGesture(deltaX, deltaY)) {
       this.resetSeries();
     }
 
@@ -137,8 +137,9 @@ export class GalleryInputArbiter {
     this.horizontalTailSamples = 0;
   }
 
-  private isNewHorizontalGesture(deltaX: number): boolean {
+  private isNewGesture(deltaX: number, deltaY: number): boolean {
     const magnitude = Math.abs(deltaX);
+    const verticalMagnitude = Math.abs(deltaY);
     const direction = Math.sign(deltaX) as -1 | 0 | 1;
     const deliberateReverse = direction !== 0
       && this.lockedDirection !== null
@@ -147,8 +148,11 @@ export class GalleryInputArbiter {
     const renewedBurst = this.horizontalTailSamples >= 2
       && magnitude >= this.threshold
       && magnitude >= this.previousHorizontalMagnitude * 1.5;
+    const verticalTakeover = this.horizontalTailSamples >= 2
+      && verticalMagnitude >= this.threshold
+      && verticalMagnitude > magnitude;
 
-    return deliberateReverse || renewedBurst;
+    return deliberateReverse || renewedBurst || verticalTakeover;
   }
 
   private observeHorizontalDelta(deltaX: number): void {
