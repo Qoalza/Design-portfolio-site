@@ -8,10 +8,10 @@ type ErrorScreenProps = {
   variant: "404" | "500";
   title: string;
   children: ReactNode;
-  action: ReactNode;
+  actionLabel: string;
 };
 
-export function ErrorScreen({ variant, title, children, action }: ErrorScreenProps) {
+export function ErrorScreen({ variant, title, children, actionLabel }: ErrorScreenProps) {
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
@@ -23,7 +23,9 @@ export function ErrorScreen({ variant, title, children, action }: ErrorScreenPro
             <section className={styles.message} aria-labelledby={`error-${variant}-title`}>
               <div className={styles.messageBody}>
                 <div className={styles.copy}><h1 id={`error-${variant}-title`}>{title}</h1><div>{children}</div></div>
-                {action}
+                <div className={`${styles.presentationAction} ${styles[`presentationAction${variant}`]}`} data-error-presentation-action>
+                  {actionLabel}
+                </div>
               </div>
               {variant === "404" ? <Image className={styles.tail} src="/assets/errors/speech-tail.svg" alt="" width={27} height={20} /> : null}
             </section>

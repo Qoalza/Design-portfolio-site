@@ -27,5 +27,5 @@ test("runtime scale is recalculated without relying on CSS trigonometry", () => 
 
 test("404 message typography follows the exact current Figma node", () => {
   assert.match(screenStyles, /\.copy\s*\{[^}]*font-family:\s*"Google Sans"/);
-  assert.match(screenStyles, /\.message a,\.message button\s*\{[^}]*font:[^;]*"Google Sans"/);
+  assert.match(screenStyles, /\.presentationAction\s*\{[^}]*font:[^;]*"Google Sans"/);
 });
