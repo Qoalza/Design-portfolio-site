@@ -62,10 +62,9 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (!target.available) return;
     const lenis = lenisRef.current;
     if (smoothEnabled && lenis) {
-      // Demand-driven Gallery instances do not receive idle RAF ticks. Stop any
-      // previous interpolation at the rendered scrollLeft and prime the shared
-      // clock before React commits the next target.
-      lenis.resize();
+      // Demand-driven Gallery instances do not receive idle RAF ticks. Advance
+      // any existing interpolation to the current shared-clock time before React
+      // commits the next target; do not reset the controller or its trajectory.
       lenis.raf(performance.now());
     }
     setActiveIndex(target.index);
