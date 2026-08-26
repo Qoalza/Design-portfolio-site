@@ -204,11 +204,11 @@ G0 exists before runtime and leaves clean tracked state; G1–G6 pass user gates
 
 ## 19. Результат исполнения
 
-- Статус: `READY_FOR_USER_REVIEW`.
+- Статус: `USER_ACCEPTED`.
 - Финальный runtime `CODE_SHA`: `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
 - Focused tests: `142/142`; lint: `PASS`; production build: `PASS`.
 - Production preview подтвердил полный `data-build-sha` до browser evidence.
 - Chromium: `22/22`; Zen `1.21.15b`: `22/22` на обязательной route/viewport matrix.
 - Все runtime-группы G1–G6 приняты пользователем. G7 изменяет только документацию и evidence.
 - Evidence: `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
-- `USER_ACCEPTED`, `CLOSED`, merge и deploy не выполнялись.
+- Пользовательская приёмка получена 2026-08-26. Merge и deploy выполняются отдельной утверждённой Goal.

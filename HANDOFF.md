@@ -34,7 +34,7 @@
 - MLIR4 синхронизирует актуальные Body styles/TextButton Large, Hero/Codex/CV, доступность project routes и общий Tooltip; уточняет action bar, sticky navigation и Gallery; desktop/fine-pointer scroll работает через Lenis `1.3.25` и один общий RAF. Focused tests `95/95`, lint и production build успешны; Chromium и Zen `1.21.15b` matrices прошли 6/6 для текущего CODE_SHA. Evidence — `design-reference/main-layout-interaction-polish/README.md`.
 - Изолированный action-bar initial-state fix подтвердил причину регрессии: bootstrap/initial resolver включал `Adaptive` при любом пересечении information layout с линией bar, а steady-state resolver требовал `200 px`. Все три пути теперь используют один geometry threshold. Chromium и Zen `1.21.15b` подтвердили direct URL, hard reload, client navigation, границы `199.5/200/200.5 px` и matrix `6/6` для `4a59f8cfd9c61ca710f9a39942303356d99bf5f3`; evidence — `design-reference/action-bar-initial-state-fix/README.md`. Внутренний visual layout остаётся отдельным непринятым backlog: frame `Обновлено…` восстанавливается из точного Figma component, Check в copy-Tooltip использует `Semantic/Element/invers`.
 - MLIR6 завершает Gallery/root input arbitration через единый pre-mutation gate, DPR-aware lightbox и точные device frames; синхронизирует project CTA/tags/Update info, внутренний action bar и canonical Clipboard Share, AI/process и 404. Chromium `151.0.0.0` и Zen `1.21.15b` прошли fresh matrix из `cca7d77f3a6cc8e5af37a26bae2abfe89f796642`; focused tests `121/121`, lint и production build успешны. Evidence — `design-reference/gallery-project-error-reconciliation-mlir6/`.
-- MLIR7 стабилизирует все Gallery movement paths, проверяет 15 lightbox frames, восстанавливает Tech typography со slashed zero, синхронизирует AI/Share feedback, интерактивные 404/500 controls и route metadata. Единственный browser favicon — точная копия пользовательского `Symbol.svg` по `/artur-designer-favicon.svg`; ICO/PNG browser fallbacks отсутствуют. Focused tests `142/142`, lint/build успешны; Chromium и Zen `1.21.15b` matrices прошли `22/22` из `a322cf7341ee351d50f1a98cdb9d857fe46dd956`. Evidence — `design-reference/gallery-tech-favicon-reconciliation-mlir7/`; статус `READY_FOR_REVIEW`.
+- MLIR7 стабилизирует все Gallery movement paths, проверяет 15 lightbox frames, восстанавливает Tech typography со slashed zero, синхронизирует AI/Share feedback, интерактивные 404/500 controls и route metadata. Единственный browser favicon — точная копия пользовательского `Symbol.svg` по `/artur-designer-favicon.svg`; ICO/PNG browser fallbacks отсутствуют. Focused tests `142/142`, lint/build успешны; Chromium и Zen `1.21.15b` matrices прошли `22/22` из `a322cf7341ee351d50f1a98cdb9d857fe46dd956`. Evidence — `design-reference/gallery-tech-favicon-reconciliation-mlir7/`; пользовательская приёмка получена 2026-08-26.
 - Базовый error-layout исправлен в `cf9e161` (`Fix error page viewport layout`); follow-up синхронизирует позиции с актуальными nodes `420:54056`/`420:54081` и отделяет clipping иллюстрации от тени сообщения.
 - Общий механизм platform-иконок использует typed intrinsic-размеры и mask с Figma-цветом `#75848F`; error pages и иконки имеют статус `READY_FOR_REVIEW`.
 - Строка характеристик открытого проекта использует Figma Hug-механику: ширина по содержимому, без desktop-переноса в доступных `1200 px` (`b6f461d`).
@@ -110,6 +110,8 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Открытые ограничения
 
+- Preloaders и loading states вынесены в отдельный неблокирующий backlog; они не входят в принятую MLIR7 и текущую merge/deploy Goal.
+
 - `MLIR2-*` runtime и visual/behavioral evidence подтверждены для `69dc9b7823cebc839482a037e6dbb9abaa6ca182`: Chromium и Zen matrices прошли `6/6` со свежими screenshots. До пользовательской приёмки пакет имеет статус `READY_FOR_REVIEW`, не `CLOSED`.
 - Исправления 404/500 и platform-иконок имеют статус `READY_FOR_REVIEW` в `DESIGN_QA.md`; `CLOSED` ставить только после пользовательской проверки.
 - SSH-доступ и read-only аудит VPS подтверждены; сервер до deploy был пустым, неизвестных сайтов и приложений не обнаружено.
@@ -118,8 +120,6 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Пользовательская smoke-проверка MLIR6 по трём локальным preview-маршрутам: Gallery gesture/lightbox, Full/Adaptive Share feedback, cards, AI/process и 404.
-2. После явной приёмки отдельно решить вопрос `CLOSED` и merge; текущая Goal их не выполняет.
-3. Favicon остаётся подготовленным, но не подключённым, до отдельного разрешения.
-
-Не выполнять merge или следующий deploy без отдельного явного разрешения пользователя.
+1. Выполнить утверждённый fast-forward merge MLIR7 в `main` и production deploy по существующей release-схеме.
+2. После deploy зафиксировать точные `DEPLOY_SHA`, release path, rollback release и внешний smoke-check.
+3. Preloaders/loading states оставить для отдельного будущего Work Packet.

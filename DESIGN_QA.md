@@ -16,7 +16,7 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## READY_FOR_REVIEW — Gallery motion, Tech typography, error controls и metadata (`MLIR7-*`)
+## CLOSED — Gallery motion, Tech typography, error controls и metadata (`MLIR7-*`)
 
 Активный пакет: `WORK_PACKET_MLIR7.md`. Новое evidence сохраняется только в `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
 
@@ -27,7 +27,11 @@
 - `MLIR7-404`, `MLIR7-500`: интерактивные системные кнопки `На главную` и `Перезагрузить` с подтверждёнными mouse/keyboard contracts.
 - `MLIR7-META`: единственный явный SVG browser favicon `/artur-designer-favicon.svg` и route titles `Artur Designer` после production-доказательства Next.js metadata contract.
 
-MLIR6 evidence остаётся историческим baseline и не доказывает соответствие MLIR7 runtime. Все критичные блоки подтверждены из единого `CODE_SHA` `a322cf7341ee351d50f1a98cdb9d857fe46dd956`: focused tests `142/142`, lint и production build прошли; Chromium и Zen `1.21.15b` matrices прошли `22/22`. Актуальное evidence: `design-reference/gallery-tech-favicon-reconciliation-mlir7/`. `CLOSED` не выставляется до явной пользовательской приёмки.
+MLIR6 evidence остаётся историческим baseline и не доказывает соответствие MLIR7 runtime. Все критичные блоки подтверждены из единого `CODE_SHA` `a322cf7341ee351d50f1a98cdb9d857fe46dd956`: focused tests `142/142`, lint и production build прошли; Chromium и Zen `1.21.15b` matrices прошли `22/22`. Актуальное evidence: `design-reference/gallery-tech-favicon-reconciliation-mlir7/`. Пользовательская приёмка получена 2026-08-26; MLIR7 закрыт.
+
+## OPEN — preloaders и loading states
+
+Отдельный неблокирующий backlog после MLIR7: системно определить и реализовать preloaders/loading states. Не входит в merge/deploy Goal, не блокирует публикацию принятого MLIR7 и требует отдельной классификации и исполнительного контракта.
 
 ## READY_FOR_REVIEW — Gallery, project components, homepage и 404 (`MLIR6-*`)
 
