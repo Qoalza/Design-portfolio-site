@@ -12,10 +12,11 @@ test("AI fact uses the exact current information panel copy", () => {
   assert.doesNotMatch(fact, /кроме дизайна/);
   assert.match(fact, /<span className=\{styles\.aiFactIcon\}/);
   assert.match(fact, /className=\{styles\.aiFactDivider\}/);
-  const figmaAction = fact.match(/<TextButton[\s\S]*?<\/TextButton>/)?.[0] ?? "";
-  assert.match(figmaAction, /size="large"/);
-  assert.match(figmaAction, /variant="neutralAccent"/);
-  assert.match(figmaAction, />\s*Figma\s*<\/TextButton>/);
+  const disabledAction = fact.match(/<TextButton[\s\S]*?<\/TextButton>/)?.[0] ?? "";
+  assert.match(disabledAction, /size="large"/);
+  assert.match(disabledAction, /variant="neutralAccent"/);
+  assert.match(disabledAction, /disabled/);
+  assert.match(disabledAction, />\s*Скоро тут будет файл\s*<\/TextButton>/);
 });
 
 test("AI fact geometry follows the current Figma instance", () => {

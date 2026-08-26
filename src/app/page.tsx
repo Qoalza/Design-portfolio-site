@@ -314,13 +314,12 @@ export default function Home() {
               <p>Вся разработка данного сайта, была полностью выполнена мной в Codex, с нуля. Дизайн был разработан отдельно.</p>
               <span className={styles.aiFactDivider} aria-hidden="true" />
               <TextButton
-                external
-                href="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Концепт?node-id=510-28120"
-                iconRight={`${assetRoot}/project-share.svg`}
+                disabled
+                iconLeft="/assets/homepage/figma-light.svg"
                 size="large"
                 variant="neutralAccent"
               >
-                Figma
+                Скоро тут будет файл
               </TextButton>
             </aside>
           </section>
