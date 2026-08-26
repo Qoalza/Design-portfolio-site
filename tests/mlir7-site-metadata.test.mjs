@@ -25,8 +25,16 @@ test("active metadata code no longer contains superseded site titles", () => {
   assert.doesNotMatch(metadataSources, /Artur Product|Des-art|Арустамян/);
 });
 
-test("application icon files are byte-identical to the approved review sources", () => {
-  assert.equal(sha256("../src/app/icon.svg"), "7df7de6c1a0f200835a4d1d644c8178dbd84c9b42ab60e7c0448f9e8cc18103a");
-  assert.equal(sha256("../src/app/favicon.ico"), "72cca0d290bf0dafddad804d2ffc8b422fa7361cc12c0cbedf6024dd40c7d0b9");
+test("root metadata exposes one exact SVG browser favicon", () => {
+  const layout = read("../src/app/layout.tsx");
+  const faviconHash = "9b98eb23b20522856670e92d45a19d0dea0f370726b122b0946bae0a8b4b420b";
+
+  assert.equal(sha256("../public/artur-designer-favicon.svg"), faviconHash);
+  assert.equal(sha256("../design-reference/favicon-review/source/Symbol.svg"), faviconHash);
+  assert.match(layout, /url:\s*"\/artur-designer-favicon\.svg"/);
+  assert.match(layout, /type:\s*"image\/svg\+xml"/);
+  assert.match(layout, /sizes:\s*"any"/);
+  assert.equal(existsSync(new URL("../src/app/icon.svg", import.meta.url)), false);
+  assert.equal(existsSync(new URL("../src/app/favicon.ico", import.meta.url)), false);
   assert.equal(sha256("../src/app/apple-icon.png"), "de2db4b9711eaf0912e64e125539621ca8f3ae70edb0810579a20dbbbb4c6dcc");
 });
