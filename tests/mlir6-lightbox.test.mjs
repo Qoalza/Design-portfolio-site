@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-import { calculateLightboxScale } from "../src/lib/project-lightbox.ts";
+import { calculateLightboxFrame, calculateLightboxScale } from "../src/lib/project-lightbox.ts";
 
 const page = fs.readFileSync(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
 const gallery = fs.readFileSync(new URL("../src/components/project-gallery.tsx", import.meta.url), "utf8");
@@ -15,19 +15,38 @@ test("lightbox scale is clamped by viewport, DPR quality and the 1.5x cap", () =
   assert.equal(calculateLightboxScale({ baseWidth: 400, baseHeight: 566, intrinsicWidth: 1600, intrinsicHeight: 2266, dpr: 2, availableWidth: 300, availableHeight: 900 }), 0.75);
 });
 
+test("lightbox scales Figma layer frames with their own device image", () => {
+  assert.deepEqual(
+    calculateLightboxFrame({ radius: 12, strokeWidth: 1 }, 1.5),
+    { radius: 18, strokeWidth: 1.5 },
+  );
+  assert.deepEqual(
+    calculateLightboxFrame({ radius: 12, strokeWidth: 0.5 }, 1.25),
+    { radius: 15, strokeWidth: 0.625 },
+  );
+  assert.deepEqual(
+    calculateLightboxFrame({ radius: 0, strokeWidth: 0 }, 1.5),
+    { radius: 0, strokeWidth: 0 },
+  );
+});
+
 test("all Gallery items carry an explicit live-frame contract", () => {
   assert.equal((page.match(/frame:\s*\{/g) ?? []).length, 15);
+  assert.equal((page.match(/sourceNodeId:\s*"680:/g) ?? []).length, 15);
   assert.match(page, /baseWidth:\s*740,\s*baseHeight:\s*512/);
   assert.match(page, /baseWidth:\s*400,\s*baseHeight:\s*566/);
   assert.match(page, /baseWidth:\s*180,\s*baseHeight:\s*320/);
   assert.match(gallery, /baseWidth=\{group\.baseWidth\}/);
   assert.match(gallery, /frame=\{item\.frame\}/);
+  assert.match(gallery, /sourceNodeId=\{item\.sourceNodeId\}/);
 });
 
 test("modal measures its real media area and keeps the frame as a single layer", () => {
   assert.match(lightbox, /ResizeObserver/);
   assert.match(lightbox, /window\.devicePixelRatio/);
   assert.match(lightbox, /calculateLightboxScale/);
+  assert.match(lightbox, /calculateLightboxFrame/);
+  assert.match(lightbox, /data-figma-node-id=\{sourceNodeId\}/);
   assert.match(lightbox, /currentSrc/);
   assert.match(lightbox, /naturalWidth/);
   assert.match(lightbox, /styles\.expandedFrame/);

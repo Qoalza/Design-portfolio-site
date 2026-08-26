@@ -17,6 +17,7 @@ export type ProjectGalleryItem = {
   width: number;
   height: number;
   frame: ProjectGalleryFrame;
+  sourceNodeId: string;
 };
 
 export type ProjectGalleryFrame = {
@@ -296,6 +297,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
                 baseHeight={group.baseHeight}
                 baseWidth={group.baseWidth}
                 frame={item.frame}
+                sourceNodeId={item.sourceNodeId}
                 sizes={`${group.baseWidth}px`}
               />
               <span className="visually-hidden">{group.label}: изображение {index + 1}</span>

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
-import { calculateLightboxScale } from "../lib/project-lightbox";
+import { calculateLightboxFrame, calculateLightboxScale } from "../lib/project-lightbox";
 import { startScrollControllers, stopScrollControllers } from "../lib/scroll-controller";
 import styles from "./project-media-lightbox.module.css";
 import { SquareButton } from "./ui-controls";
@@ -32,6 +32,7 @@ type ProjectMediaLightboxProps = {
   baseHeight: number;
   baseWidth: number;
   frame: GalleryFrameContract;
+  sourceNodeId: string;
 };
 
 export function ProjectMediaLightbox({
@@ -45,6 +46,7 @@ export function ProjectMediaLightbox({
   baseHeight,
   baseWidth,
   frame,
+  sourceNodeId,
 }: ProjectMediaLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [intrinsicSize, setIntrinsicSize] = useState({ currentSrc: src, dpr: 1, width, height });
@@ -53,10 +55,16 @@ export function ProjectMediaLightbox({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const mediaAreaRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef({ x: 0, y: 0 });
-  const frameStyle = {
+  const previewFrameStyle = {
     "--gallery-frame-radius": `${frame.radius}px`,
     "--gallery-frame-stroke": frame.strokeColor,
     "--gallery-frame-stroke-width": `${frame.strokeWidth}px`,
+  } as FrameStyle;
+  const expandedFrame = calculateLightboxFrame(frame, targetScale);
+  const expandedFrameStyle = {
+    "--gallery-frame-radius": `${expandedFrame.radius}px`,
+    "--gallery-frame-stroke": frame.strokeColor,
+    "--gallery-frame-stroke-width": `${expandedFrame.strokeWidth}px`,
   } as FrameStyle;
 
   useLayoutEffect(() => {
@@ -143,10 +151,11 @@ export function ProjectMediaLightbox({
       <button
         ref={triggerRef}
         className={`${styles.trigger} ${styles.frame} ${frame.clip ? styles.frameClipped : ""}`}
-        style={frameStyle}
+        style={previewFrameStyle}
         type="button"
         aria-label={`Увеличить изображение: ${alt}`}
         data-image-fit={fit}
+        data-figma-node-id={sourceNodeId}
         onClick={() => setIsOpen(true)}
       >
         <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} draggable={false} onLoad={recordIntrinsicSize} />
@@ -177,7 +186,8 @@ export function ProjectMediaLightbox({
                 data-lightbox-natural-height={intrinsicSize.height}
                 data-lightbox-natural-width={intrinsicSize.width}
                 data-lightbox-target-scale={targetScale}
-                style={{ ...frameStyle, width: `${baseWidth * targetScale}px`, height: `${baseHeight * targetScale}px` }}
+                data-figma-node-id={sourceNodeId}
+                style={{ ...expandedFrameStyle, width: `${baseWidth * targetScale}px`, height: `${baseHeight * targetScale}px` }}
               >
                 <Image
                   className={styles.expandedImage}
