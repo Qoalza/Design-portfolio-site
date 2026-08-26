@@ -53,6 +53,7 @@ test("every Gallery input primes the idle Lenis clock before one canonical user 
 
 test("Gallery accepts only dominant horizontal intent and resolves every gesture to one step", async () => {
   const component = await source("src/components/project-gallery.tsx");
+  const lightbox = await source("src/components/project-media-lightbox.tsx");
 
   assert.match(component, /Math\.abs\(event\.deltaX\) > Math\.abs\(event\.deltaY\)/);
   assert.match(component, /event\.preventDefault\(\)/);
@@ -63,6 +64,7 @@ test("Gallery accepts only dominant horizontal intent and resolves every gesture
   assert.match(component, /suppressClickRef/);
   assert.match(component, /onClickCapture/);
   assert.doesNotMatch(component, /overflowX:\s*["']auto/);
+  assert.match(lightbox, /<Image[^>]+draggable=\{false\}/s);
 });
 
 test("Gallery geometry matches the current Desktop, Tablet and Mobile instances", async () => {

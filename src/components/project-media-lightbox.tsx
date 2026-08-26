@@ -149,7 +149,7 @@ export function ProjectMediaLightbox({
         data-image-fit={fit}
         onClick={() => setIsOpen(true)}
       >
-        <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} onLoad={recordIntrinsicSize} />
+        <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} draggable={false} onLoad={recordIntrinsicSize} />
       </button>
 
       {isOpen ? createPortal(
