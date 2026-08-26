@@ -24,7 +24,7 @@ test("copy feedback is success-only and repeatable without remounting the trigge
 });
 
 test("action Update info and Tooltip icon semantics match their component contracts", () => {
-  assert.match(actionCss, /\.updatedAt\s*\{[^}]*height:\s*40px;[^}]*padding:\s*0 16px;[^}]*Source Code Pro/s);
+  assert.match(actionCss, /\.updatedAt\s*\{[^}]*height:\s*40px;[^}]*padding:\s*0 16px;[^}]*font-family:\s*var\(--type-tech-font-family\)[^}]*font-feature-settings:\s*var\(--type-tech-m-features\)/s);
   assert.match(tooltipCss, /\.icon\s*\{[^}]*background:\s*#e2e2ec/s);
   assert.match(tooltipCss, /data-icon-tone="accent"[^}]*background:\s*#5db7fd/);
 });

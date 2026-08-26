@@ -47,6 +47,20 @@
   --type-body-l-medium-letter-spacing: -.2px;
   --type-body-m-medium: 500 14px/16px "Onest", sans-serif;
   --type-body-m-medium-letter-spacing: -.1px;
+  --type-tech-font-family: "Source Code Pro", monospace;
+  --type-tech-font-weight: 400;
+  --type-tech-s-font-size: 12px;
+  --type-tech-s-line-height: 16px;
+  --type-tech-s-letter-spacing: -.3px;
+  --type-tech-s-features: "cv01" 1, "cv02" 1, "cv12" 1, "zero" 1;
+  --type-tech-m-font-size: 14px;
+  --type-tech-m-line-height: 16px;
+  --type-tech-m-letter-spacing: -.5px;
+  --type-tech-m-features: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1, "zero" 1;
+  --type-tech-l-font-size: 16px;
+  --type-tech-l-line-height: 20px;
+  --type-tech-l-letter-spacing: -.6px;
+  --type-tech-l-features: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1, "calt" 0, "zero" 1;
 }
 
 * { box-sizing: border-box; }

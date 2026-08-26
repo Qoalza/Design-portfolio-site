@@ -8,10 +8,12 @@
   margin: 0 auto;
   padding: 20px 24px 24px;
   color: #909498;
-  font-family: "Onest", sans-serif;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: -.3px;
+  font-family: var(--type-tech-font-family);
+  font-size: var(--type-tech-s-font-size);
+  font-weight: var(--type-tech-font-weight);
+  line-height: var(--type-tech-s-line-height);
+  font-feature-settings: var(--type-tech-s-features);
+  letter-spacing: var(--type-tech-s-letter-spacing);
 }
 
 .author {

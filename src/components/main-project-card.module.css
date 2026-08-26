@@ -43,7 +43,7 @@
 .titleLine h3 { margin: 0; color: #45494c; font: 500 24px/32px "Google Sans", sans-serif; letter-spacing: .24px; }
 .titleGroup > p { margin: 0; color: #45494c; font: 350 16px/24px "Onest", sans-serif; letter-spacing: -.1px; }
 
-.tags { display: flex; align-items: center; gap: 12px; color: #606466; font: 400 14px/16px "Source Code Pro", monospace; font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1; letter-spacing: -.5px; }
+.tags { display: flex; align-items: center; gap: 12px; color: #606466; font-family: var(--type-tech-font-family); font-size: var(--type-tech-m-font-size); font-weight: var(--type-tech-font-weight); line-height: var(--type-tech-m-line-height); font-feature-settings: var(--type-tech-m-features); letter-spacing: var(--type-tech-m-letter-spacing); }
 .tags span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .tags b { color: #369ff3; font-weight: 400; }
 .tags i { margin-right: 6px; color: #acafb2; font-style: normal; }
@@ -65,8 +65,11 @@
   justify-content: center;
   padding: 0 16px;
   color: #909498;
-  font: 400 14px/16px "Source Code Pro", monospace;
-  font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1;
-  letter-spacing: -.5px;
+  font-family: var(--type-tech-font-family);
+  font-size: var(--type-tech-m-font-size);
+  font-weight: var(--type-tech-font-weight);
+  line-height: var(--type-tech-m-line-height);
+  font-feature-settings: var(--type-tech-m-features);
+  letter-spacing: var(--type-tech-m-letter-spacing);
   white-space: nowrap;
 }
