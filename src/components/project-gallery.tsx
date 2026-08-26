@@ -17,6 +17,7 @@ export type ProjectGalleryItem = {
   width: number;
   height: number;
   frame: ProjectGalleryFrame;
+  sourceNodeId: string;
 };
 
 export type ProjectGalleryFrame = {
@@ -41,7 +42,7 @@ type ProjectGalleryProps = {
   description: string;
 };
 
-type PointerStart = { id: number; x: number; y: number; captured: boolean };
+type PointerStart = { id: number; x: number; y: number; scrollLeft: number; captured: boolean };
 
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const smoothEnabled = useDesktopSmoothScrollEnabled();
@@ -57,16 +58,29 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const visibleRef = useRef(true);
   const previous = getGalleryOffsetTarget(activeIndex, -1, offsets);
   const next = getGalleryOffsetTarget(activeIndex, 1, offsets);
-  const move = useCallback((direction: StepDirection) => {
+  const requestGalleryStep = useCallback((direction: StepDirection) => {
     const target = getGalleryOffsetTarget(activeIndex, direction, offsets);
-    if (target.available) setActiveIndex(target.index);
-  }, [activeIndex, offsets]);
+    if (!target.available) return;
+    const lenis = lenisRef.current;
+    if (smoothEnabled && lenis) {
+      // Demand-driven Gallery instances do not receive idle RAF ticks. Advance
+      // any existing interpolation to the current shared-clock time. Lenis skips
+      // an immediate reset when actualScroll already equals targetScroll, so use
+      // an unpainted subpixel waypoint to stop the old interpolation first.
+      const actual = lenis.actualScroll;
+      const waypoint = actual < lenis.limit ? actual + 0.001 : actual - 0.001;
+      lenis.scrollTo(waypoint, { immediate: true, force: true });
+      lenis.scrollTo(actual, { immediate: true, force: true });
+      lenis.raf(performance.now());
+    }
+    setActiveIndex(target.index);
+  }, [activeIndex, offsets, smoothEnabled]);
 
   const handleWheel = useCallback((event: WheelEvent) => {
     if (smoothEnabled) {
       const decision = galleryInputArbiter.classify(event, group.id);
       if (decision.blockRoot) event.preventDefault();
-      if (decision.galleryStep !== null) move(decision.galleryStep);
+      if (decision.galleryStep !== null) requestGalleryStep(decision.galleryStep);
       return;
     }
     const isHorizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY);
@@ -74,9 +88,9 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     event.preventDefault();
     if (fallbackWheelLockedRef.current) return;
     fallbackWheelLockedRef.current = true;
-    move(event.deltaX > 0 ? 1 : -1);
+    requestGalleryStep(event.deltaX > 0 ? 1 : -1);
     window.setTimeout(() => { fallbackWheelLockedRef.current = false; }, 300);
-  }, [group.id, move, smoothEnabled]);
+  }, [group.id, requestGalleryStep, smoothEnabled]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -179,7 +193,8 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (!smoothEnabled || !lenisRef.current) return;
     const immediate = lenisJustCreatedRef.current;
     lenisJustCreatedRef.current = false;
-    lenisRef.current.scrollTo(offsets[activeIndex] ?? 0, {
+    const lenis = lenisRef.current;
+    lenis.scrollTo(offsets[activeIndex] ?? 0, {
       immediate,
       lerp: immediate ? undefined : 0.1,
       force: true,
@@ -192,7 +207,13 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     suppressClickRef.current = false;
-    pointerStartRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY, captured: false };
+    pointerStartRef.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      scrollLeft: viewportRef.current?.scrollLeft ?? 0,
+      captured: false,
+    };
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -200,6 +221,8 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (!start || start.id !== event.pointerId || start.captured) return;
     const gesture = getGalleryPointerGesture(event.clientX - start.x, event.clientY - start.y);
     if (gesture.kind !== "horizontal-drag") return;
+    event.preventDefault();
+    if (viewportRef.current) viewportRef.current.scrollLeft = start.scrollLeft;
     event.currentTarget.setPointerCapture(event.pointerId);
     start.captured = true;
     suppressClickRef.current = true;
@@ -214,7 +237,8 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     if (start.captured) {
-      if (gesture.step !== null) move(gesture.step);
+      if (viewportRef.current) viewportRef.current.scrollLeft = start.scrollLeft;
+      if (gesture.step !== null) requestGalleryStep(gesture.step);
       window.setTimeout(() => { suppressClickRef.current = false; }, 0);
     }
   };
@@ -243,8 +267,8 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
           <span>{group.label}</span>
         </div>
         <div className={styles.arrows}>
-          <SquareButton kind="button" variant="ghost" size="small" disabled={!previous.available} onClick={() => move(-1)} ariaLabel={`Предыдущее изображение: ${group.label}`} icon="/assets/projects/chevron-left.svg" />
-          <SquareButton kind="button" variant="ghost" size="small" disabled={!next.available} onClick={() => move(1)} ariaLabel={`Следующее изображение: ${group.label}`} icon="/assets/projects/chevron-right.svg" />
+          <SquareButton kind="button" variant="ghost" size="small" disabled={!previous.available} onClick={() => requestGalleryStep(-1)} ariaLabel={`Предыдущее изображение: ${group.label}`} icon="/assets/projects/chevron-left.svg" />
+          <SquareButton kind="button" variant="ghost" size="small" disabled={!next.available} onClick={() => requestGalleryStep(1)} ariaLabel={`Следующее изображение: ${group.label}`} icon="/assets/projects/chevron-right.svg" />
         </div>
       </div>
 
@@ -273,6 +297,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
                 baseHeight={group.baseHeight}
                 baseWidth={group.baseWidth}
                 frame={item.frame}
+                sourceNodeId={item.sourceNodeId}
                 sizes={`${group.baseWidth}px`}
               />
               <span className="visually-hidden">{group.label}: изображение {index + 1}</span>

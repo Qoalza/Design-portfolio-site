@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import { MainProjectCard } from "../../components/main-project-card";
 import { PageHeader } from "../../components/page-header";
 import { ProjectPlatforms } from "../../components/project-platforms";
@@ -11,6 +12,10 @@ import { getCatalogProjects, type Project } from "../../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
+
+export const metadata: Metadata = {
+  title: { absolute: "Мои работы — Artur Designer" },
+};
 
 function RadioSymbol() {
   return (

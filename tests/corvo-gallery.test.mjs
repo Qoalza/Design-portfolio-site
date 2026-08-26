@@ -39,18 +39,37 @@ test("ProjectGallery keeps independent indexes and always renders disabled-capab
   assert.doesNotMatch(component, /itemCount > 1 \?/);
 });
 
+test("every Gallery input primes the idle Lenis clock before one canonical user transition", async () => {
+  const component = await source("src/components/project-gallery.tsx");
+
+  assert.match(component, /const requestGalleryStep = useCallback/);
+  assert.doesNotMatch(component, /const move = useCallback/);
+  assert.match(component, /const requestGalleryStep = useCallback[\s\S]{0,800}const waypoint = actual < lenis\.limit \? actual \+ 0\.001 : actual - 0\.001;[\s\S]{0,240}lenis\.scrollTo\(actual, \{ immediate: true, force: true \}\);[\s\S]{0,120}lenis\.raf\(performance\.now\(\)\);[\s\S]{0,120}setActiveIndex/);
+  assert.doesNotMatch(component, /requestGalleryStep[\s\S]{0,500}lenis\.resize\(\)/);
+  assert.doesNotMatch(component, /lenis\.stop\(\);[\s\S]{0,80}lenis\.start\(\);[\s\S]{0,120}lenis\.raf\(performance\.now\(\)\)/);
+  assert.match(component, /onClick=\{\(\) => requestGalleryStep\(-1\)\}/);
+  assert.match(component, /onClick=\{\(\) => requestGalleryStep\(1\)\}/);
+  assert.match(component, /requestGalleryStep\(decision\.galleryStep\)/);
+  assert.match(component, /requestGalleryStep\(gesture\.step\)/);
+});
+
 test("Gallery accepts only dominant horizontal intent and resolves every gesture to one step", async () => {
   const component = await source("src/components/project-gallery.tsx");
+  const lightbox = await source("src/components/project-media-lightbox.tsx");
 
   assert.match(component, /Math\.abs\(event\.deltaX\) > Math\.abs\(event\.deltaY\)/);
   assert.match(component, /event\.preventDefault\(\)/);
   assert.match(component, /setPointerCapture/);
+  assert.match(component, /gesture\.kind !== "horizontal-drag"[\s\S]{0,120}event\.preventDefault\(\)/);
+  assert.match(component, /scrollLeft:\s*viewportRef\.current\?\.scrollLeft\s*\?\?\s*0/);
+  assert.equal((component.match(/viewportRef\.current\.scrollLeft = start\.scrollLeft/g) ?? []).length, 2);
   assert.match(component, /onPointerMove/);
   assert.match(component, /getGalleryPointerGesture/);
   assert.doesNotMatch(component, /handlePointerDown[\s\S]{0,400}setPointerCapture/);
   assert.match(component, /suppressClickRef/);
   assert.match(component, /onClickCapture/);
   assert.doesNotMatch(component, /overflowX:\s*["']auto/);
+  assert.match(lightbox, /<Image[^>]+draggable=\{false\}/s);
 });
 
 test("Gallery geometry matches the current Desktop, Tablet and Mobile instances", async () => {

@@ -51,6 +51,57 @@ test("locks a horizontal series before root mutation and emits one step", () => 
   assert.equal(stopCount, 1);
 });
 
+test("a renewed trackpad burst starts a new step without waiting for idle or pointer leave", () => {
+  const arbiter = new GalleryInputArbiter({ idleMs: 160, threshold: 16 });
+  const deltas = [20, 12, 7, 5, 3, 24];
+  const decisions = deltas.map((deltaX, index) =>
+    arbiter.classify(wheel(deltaX, 1, index * 16), "desktop"),
+  );
+
+  assert.deepEqual(
+    decisions.map((decision) => decision.galleryStep),
+    [1, null, null, null, null, 1],
+  );
+});
+
+test("a deliberate direction change starts a new horizontal step immediately", () => {
+  const arbiter = new GalleryInputArbiter({ idleMs: 160, threshold: 16 });
+  const first = arbiter.classify(wheel(20, 1, 0), "desktop");
+  const reverse = arbiter.classify(wheel(-20, 1, 16), "desktop");
+
+  assert.equal(first.galleryStep, 1);
+  assert.equal(reverse.galleryStep, -1);
+});
+
+test("one continuous accelerating gesture still emits only one step", () => {
+  const arbiter = new GalleryInputArbiter({ idleMs: 160, threshold: 16 });
+  const decisions = [5, 10, 18, 24, 20, 14, 10].map((deltaX, index) =>
+    arbiter.classify(wheel(deltaX, 1, index * 16), "desktop"),
+  );
+
+  assert.equal(decisions.filter((decision) => decision.galleryStep !== null).length, 1);
+});
+
+test("a vertical gesture takes root ownership immediately after the horizontal tail", () => {
+  const arbiter = new GalleryInputArbiter({ idleMs: 160, threshold: 16 });
+  arbiter.classify(wheel(20, 1, 0), "desktop");
+  arbiter.classify(wheel(7, 1, 16), "desktop");
+  arbiter.classify(wheel(5, 1, 32), "desktop");
+  const verticalEvent = wheel(0, 30, 48);
+  const vertical = arbiter.classify(verticalEvent, "desktop");
+
+  assert.equal(vertical.ownership, "vertical");
+  assert.equal(vertical.blockRoot, false);
+  assert.equal(arbiter.takeRootDelta(verticalEvent), 30);
+});
+
+test("separate gestures around one second apart preserve their real cadence", () => {
+  const arbiter = new GalleryInputArbiter({ idleMs: 160, threshold: 16 });
+  assert.equal(arbiter.classify(wheel(20, 1, 0), "desktop").galleryStep, 1);
+  assert.equal(arbiter.classify(wheel(2, 1, 960), "desktop").galleryStep, null);
+  assert.equal(arbiter.classify(wheel(20, 1, 1000), "desktop").galleryStep, 1);
+});
+
 test("releases ownership after inactivity and lets the next vertical series through", () => {
   const arbiter = new GalleryInputArbiter({ idleMs: 160 });
   arbiter.classify(wheel(20, 2, 0), "gallery");
@@ -82,4 +133,5 @@ test("Gallery and Lenis share one pre-mutation arbiter contract", () => {
   assert.match(gallerySource, /addEventListener\("wheel", handleWheel, \{ passive: false \}\)/);
   assert.match(gallerySource, /removeEventListener\("wheel", handleWheel\)/);
   assert.doesNotMatch(gallerySource, /onWheel=\{handleWheel\}/);
+  assert.doesNotMatch(gallerySource, /pointerleave|mouseleave/i);
 });

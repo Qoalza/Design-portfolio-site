@@ -8,6 +8,19 @@ export type LightboxScaleInput = {
   intrinsicWidth: number;
 };
 
+export type LightboxFrameInput = {
+  radius: number;
+  strokeWidth: number;
+};
+
+export function calculateLightboxFrame(frame: LightboxFrameInput, scale: number): LightboxFrameInput {
+  if (!Number.isFinite(scale) || scale <= 0) return { radius: 0, strokeWidth: 0 };
+  return {
+    radius: frame.radius * scale,
+    strokeWidth: frame.strokeWidth * scale,
+  };
+}
+
 export function calculateLightboxScale({
   availableHeight,
   availableWidth,

@@ -196,7 +196,7 @@ export function ProjectActionBar({ figmaAvailable, figmaUrl, updatedAt }: Projec
           </div>
 
           <Tooltip
-            content={{ text: "Скопировано", icon: "/assets/projects/check.svg" }}
+            content={{ text: "Ссылка скопирована", icon: "/assets/projects/check.svg" }}
             open={feedbackOpen}
             restartKey={feedbackRevision}
             triggerMode="manual"

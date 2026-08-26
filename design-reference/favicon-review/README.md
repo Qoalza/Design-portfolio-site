@@ -1,12 +1,9 @@
-# Des-art favicon review package
+# Browser favicon review package
 
-- compact: 24 px and under
-- detailed: above 24 px
-- dark mark: #2F3133 on #FFFFFF
-- white mark: #FFFFFF on #161819
-- `generated/favicon.svg` is the approved primary browser favicon: compact geometry, adaptive light/dark color.
-- Do not use the generated 16/24 px PNG files as the primary browser favicon; they are review/fallback artifacts only.
-- `favicon.ico` is compatibility fallback only and must not override the SVG in modern browsers.
-- PNG is reserved for required fixed-size platform assets such as Apple Touch Icon and PWA icons.
-- Detailed geometry with the central bar is reserved for genuinely large platform assets, not a magnified browser-tab favicon.
-- Nothing in this review package is connected to application metadata until a separate approved implementation step.
+- `source/Symbol.svg` is the user-provided approved source for the browser favicon.
+- `generated/favicon.svg` is an exact copy of that source and is the primary browser favicon.
+- The favicon has fixed colors and renders identically in light and dark browser themes.
+- The browser favicon is SVG-only; no ICO or PNG favicon fallback is connected.
+- `generated/apple-touch-icon-light.png` remains unchanged and is the application Apple Touch Icon source.
+- The favicon change does not apply to logos rendered inside the site.
+- Approved SVG SHA-256: `9b98eb23b20522856670e92d45a19d0dea0f370726b122b0946bae0a8b4b420b`.

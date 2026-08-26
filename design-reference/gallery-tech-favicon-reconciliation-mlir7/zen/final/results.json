@@ -1,0 +1,16 @@
+{
+  "browserName": "zen",
+  "browserVersion": "1.21.15b",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+  "expectedSha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+  "cases": 22,
+  "passed": 22,
+  "resultFiles": [
+    "home-results.json",
+    "projects-results.json",
+    "corvo-gallery-results.json",
+    "corvo-action-results.json",
+    "404-results.json",
+    "500-results.json"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "mainFileKey": "5ZzspE0OrqesDcTP0RRPHr",
+  "libraryFileKey": "CRcI38SOIkr5knjKXeCV5h",
+  "gallery": {
+    "instance": "677:44301",
+    "desktopTrack": "680:48162",
+    "tabletTrack": "680:48163",
+    "mobileTrack": "680:48164"
+  },
+  "ai": ["510:28231", "725:88725", "732:89541", "773:90993"],
+  "tooltip": ["207:1498", "550:2868", "528:1540", "576:33195"],
+  "errors": ["420:54056", "420:54066", "420:54081", "420:54090"]
+}
+

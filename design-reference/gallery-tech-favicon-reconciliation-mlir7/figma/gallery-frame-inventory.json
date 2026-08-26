@@ -1,0 +1,8 @@
+{
+  "fileKey": "5ZzspE0OrqesDcTP0RRPHr",
+  "desktop": ["680:48078", "680:48799", "680:48813", "680:48814", "680:48815"],
+  "tablet": ["680:48156", "680:48802", "680:48812", "680:48858", "680:48859"],
+  "mobile": ["680:48159", "680:48803", "680:48805", "680:48860", "680:48861"],
+  "contract": "Each item retains its recorded raster/layer frame ownership; a frame is rendered exactly once."
+}
+

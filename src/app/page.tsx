@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { MainProjectCard } from "../components/main-project-card";
@@ -11,6 +12,10 @@ import { getCatalogProjects } from "../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
+
+export const metadata: Metadata = {
+  title: { absolute: "Artur Designer" },
+};
 
 function MaskIcon({ className = "" }: { className?: string }) {
   return <span aria-hidden="true" className={`${styles.maskIcon} ${className}`} />;
@@ -314,13 +319,12 @@ export default function Home() {
               <p>Вся разработка данного сайта, была полностью выполнена мной в Codex, с нуля. Дизайн был разработан отдельно.</p>
               <span className={styles.aiFactDivider} aria-hidden="true" />
               <TextButton
-                external
-                href="https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Концепт?node-id=510-28120"
-                iconRight={`${assetRoot}/project-share.svg`}
+                disabled
+                iconLeft="/assets/homepage/figma-light.svg"
                 size="large"
                 variant="neutralAccent"
               >
-                Figma
+                Скоро тут будет файл
               </TextButton>
             </aside>
           </section>

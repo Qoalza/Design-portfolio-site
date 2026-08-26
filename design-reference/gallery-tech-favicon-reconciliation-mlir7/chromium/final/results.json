@@ -1,0 +1,704 @@
+{
+  "browser": "Codex In-app Chromium",
+  "codeSha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+  "results": [
+    {
+      "id": "home",
+      "route": "/",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1280,
+          "measurement": null,
+          "scrollHeight": 5139,
+          "scrollWidth": 1280,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "home",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": null,
+          "scrollHeight": 5139,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "home",
+      "route": "/",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1920,
+          "measurement": null,
+          "scrollHeight": 5139,
+          "scrollWidth": 1920,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "projects",
+      "route": "/projects",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1280,
+          "measurement": null,
+          "scrollHeight": 1841,
+          "scrollWidth": 1280,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Мои работы — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "projects",
+      "route": "/projects",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": null,
+          "scrollHeight": 1841,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Мои работы — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "projects",
+      "route": "/projects",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1920,
+          "measurement": null,
+          "scrollHeight": 1841,
+          "scrollWidth": 1920,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Мои работы — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-gallery",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1280,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1280,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "full"
+        },
+        "gallery": {
+          "dialogOpen": false,
+          "galleryGroups": 3,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-gallery",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "full"
+        },
+        "gallery": {
+          "dialogOpen": false,
+          "galleryGroups": 3,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-gallery",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "adaptive"
+        },
+        "gallery": {
+          "dialogOpen": false,
+          "galleryGroups": 3,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-gallery",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1920,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1920,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "full"
+        },
+        "gallery": {
+          "dialogOpen": false,
+          "galleryGroups": 3,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-action",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1280,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1280,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "full"
+        },
+        "information": {
+          "scrollHeight": 6163,
+          "scrollY": 652,
+          "variant": "adaptive"
+        },
+        "gallery": {
+          "scrollHeight": 6163,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-action",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "full"
+        },
+        "information": {
+          "scrollHeight": 6163,
+          "scrollY": 652,
+          "variant": "adaptive"
+        },
+        "gallery": {
+          "scrollHeight": 6163,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-action",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1440,
+        "height": 999
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "full"
+        },
+        "information": {
+          "scrollHeight": 6163,
+          "scrollY": 652,
+          "variant": "adaptive"
+        },
+        "gallery": {
+          "scrollHeight": 6163,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-action",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "adaptive"
+        },
+        "information": {
+          "scrollHeight": 6163,
+          "scrollY": 652,
+          "variant": "adaptive"
+        },
+        "gallery": {
+          "scrollHeight": 6163,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-action",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1440,
+        "height": 1356
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "adaptive"
+        },
+        "information": {
+          "scrollHeight": 6163,
+          "scrollY": 652,
+          "variant": "adaptive"
+        },
+        "gallery": {
+          "scrollHeight": 6163,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "corvo-action",
+      "route": "/projects/corvo",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1920,
+          "measurement": "valid",
+          "scrollHeight": 6163,
+          "scrollWidth": 1920,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Corvo — Artur Designer",
+          "variant": "full"
+        },
+        "information": {
+          "scrollHeight": 6163,
+          "scrollY": 652,
+          "variant": "adaptive"
+        },
+        "gallery": {
+          "scrollHeight": 6163,
+          "scrollY": 3981,
+          "variant": "full"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "404",
+      "route": "/__mlir7-not-found-check__",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1280,
+          "measurement": null,
+          "scrollHeight": 720,
+          "scrollWidth": 1280,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Страница не найдена — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "404",
+      "route": "/__mlir7-not-found-check__",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": null,
+          "scrollHeight": 900,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Страница не найдена — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "404",
+      "route": "/__mlir7-not-found-check__",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1920,
+          "measurement": null,
+          "scrollHeight": 1080,
+          "scrollWidth": 1920,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Страница не найдена — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "500",
+      "route": "/error-test?trigger=500",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1280,
+          "measurement": null,
+          "scrollHeight": 720,
+          "scrollWidth": 1280,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Ошибка — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "500",
+      "route": "/error-test?trigger=500",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1440,
+          "measurement": null,
+          "scrollHeight": 900,
+          "scrollWidth": 1440,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Ошибка — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "500",
+      "route": "/error-test?trigger=500",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "phases": {
+        "initial": {
+          "icons": [
+            {
+              "href": "/artur-designer-favicon.svg",
+              "sizes": "any",
+              "type": "image/svg+xml"
+            }
+          ],
+          "innerWidth": 1920,
+          "measurement": null,
+          "scrollHeight": 1080,
+          "scrollWidth": 1920,
+          "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+          "title": "Ошибка — Artur Designer",
+          "variant": null
+        }
+      },
+      "pass": true
+    }
+  ],
+  "console": [
+    {
+      "level": "error",
+      "message": "Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.",
+      "timestamp": "2026-08-26T14:11:07.234Z",
+      "url": "http://127.0.0.1:3011/_next/static/chunks/2bcknr5_tllvo.js"
+    },
+    {
+      "level": "error",
+      "message": "Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.",
+      "timestamp": "2026-08-26T14:11:07.409Z",
+      "url": "http://127.0.0.1:3011/_next/static/chunks/2bcknr5_tllvo.js"
+    },
+    {
+      "level": "error",
+      "message": "Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.",
+      "timestamp": "2026-08-26T14:11:07.503Z",
+      "url": "http://127.0.0.1:3011/_next/static/chunks/2bcknr5_tllvo.js"
+    }
+  ]
+}

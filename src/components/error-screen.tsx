@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { ErrorActionControl } from "./error-action-control";
 import { ErrorStage } from "./error-stage";
 import { SiteFooter } from "./site-footer";
 import styles from "./error-screen.module.css";
@@ -8,10 +9,11 @@ type ErrorScreenProps = {
   variant: "404" | "500";
   title: string;
   children: ReactNode;
-  action: ReactNode;
+  action: "home" | "reload";
+  actionLabel: string;
 };
 
-export function ErrorScreen({ variant, title, children, action }: ErrorScreenProps) {
+export function ErrorScreen({ variant, title, children, action, actionLabel }: ErrorScreenProps) {
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
@@ -23,7 +25,7 @@ export function ErrorScreen({ variant, title, children, action }: ErrorScreenPro
             <section className={styles.message} aria-labelledby={`error-${variant}-title`}>
               <div className={styles.messageBody}>
                 <div className={styles.copy}><h1 id={`error-${variant}-title`}>{title}</h1><div>{children}</div></div>
-                {action}
+                <ErrorActionControl action={action} className={styles[`action${variant}`]}>{actionLabel}</ErrorActionControl>
               </div>
               {variant === "404" ? <Image className={styles.tail} src="/assets/errors/speech-tail.svg" alt="" width={27} height={20} /> : null}
             </section>

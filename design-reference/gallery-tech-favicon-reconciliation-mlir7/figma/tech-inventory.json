@@ -1,0 +1,13 @@
+{
+  "fileKey": "5ZzspE0OrqesDcTP0RRPHr",
+  "styles": {
+    "techL": "S:25d64e04204a7e6155f896ff75d759dc73aec5f2,118:138",
+    "techM": "S:6c773c4035a051f4c4196b1d151a152d52e68f11,46:273",
+    "techS": "S:da68d6eb7eec01ef25e586fb6e9abb4e43af10bb,46:286"
+  },
+  "routeRoots": ["510:28120", "373:50236", "373:47103"],
+  "consumers": ["506:23146", "505:23035", "517:33813", "515:30721", "515:30755", "515:30774"],
+  "libraryConsumers": [{"fileKey":"CRcI38SOIkr5knjKXeCV5h","nodeId":"124:4841"}],
+  "runtimeContract": "Source Code Pro with centralized Tech tokens and a real visible slashed-zero glyph; Body and Heading tokens remain unchanged."
+}
+

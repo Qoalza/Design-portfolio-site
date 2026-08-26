@@ -26,20 +26,10 @@
 
 @font-face {
   font-family: "Source Code Pro";
-  src: url("/fonts/source-code-pro-cyrillic.woff2") format("woff2");
+  src: url("/fonts/source-code-pro-variable.woff2") format("woff2");
   font-style: normal;
-  font-weight: 400 500;
+  font-weight: 200 900;
   font-display: swap;
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  src: url("/fonts/source-code-pro-latin.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400 500;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 :root {
@@ -47,6 +37,20 @@
   --type-body-l-medium-letter-spacing: -.2px;
   --type-body-m-medium: 500 14px/16px "Onest", sans-serif;
   --type-body-m-medium-letter-spacing: -.1px;
+  --type-tech-font-family: "Source Code Pro", monospace;
+  --type-tech-font-weight: 400;
+  --type-tech-s-font-size: 12px;
+  --type-tech-s-line-height: 16px;
+  --type-tech-s-letter-spacing: -.3px;
+  --type-tech-s-features: "cv01" 1, "cv02" 1, "cv12" 1, "zero" 1;
+  --type-tech-m-font-size: 14px;
+  --type-tech-m-line-height: 16px;
+  --type-tech-m-letter-spacing: -.5px;
+  --type-tech-m-features: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1, "zero" 1;
+  --type-tech-l-font-size: 16px;
+  --type-tech-l-line-height: 20px;
+  --type-tech-l-letter-spacing: -.6px;
+  --type-tech-l-features: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1, "calt" 0, "zero" 1;
 }
 
 * { box-sizing: border-box; }

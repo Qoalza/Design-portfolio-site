@@ -89,9 +89,12 @@
   margin: 0;
   padding: 0;
   color: #606466;
-  font: 400 14px/16px "Source Code Pro", monospace;
-  font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1;
-  letter-spacing: -.5px;
+  font-family: var(--type-tech-font-family);
+  font-size: var(--type-tech-m-font-size);
+  font-weight: var(--type-tech-font-weight);
+  line-height: var(--type-tech-m-line-height);
+  font-feature-settings: var(--type-tech-m-features);
+  letter-spacing: var(--type-tech-m-letter-spacing);
   list-style: none;
   white-space: nowrap;
 }

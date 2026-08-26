@@ -6,7 +6,7 @@ import type { NavigationTrailItem } from "../lib/navigation-trail";
 import styles from "./ui-controls.module.css";
 
 type FilledButtonVariant = "accent" | "neutral" | "light" | "ghost";
-type ControlSize = "medium" | "small";
+type ControlSize = "large" | "medium" | "small";
 type SquareButtonVariant = "light" | "ghost";
 export type TextButtonVariant = "neutral" | "neutralAccent";
 

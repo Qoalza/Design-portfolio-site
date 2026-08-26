@@ -35,11 +35,11 @@ const corvoGalleryGroups: ProjectGalleryGroup[] = [
     baseWidth: 740,
     baseHeight: 512,
     items: [
-      { src: "/assets/projects/corvo/gallery/desktop-01.png", alt: "Desktop-интерфейс Corvo: экран 1", width: 2960, height: 2048, frame: { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 } },
-      { src: "/assets/projects/corvo/gallery/desktop-02.png", alt: "Desktop-интерфейс Corvo: экран 2", width: 2960, height: 2048, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/desktop-03.png", alt: "Desktop-интерфейс Corvo: экран 3", width: 2960, height: 2048, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/desktop-04.png", alt: "Desktop-интерфейс Corvo: экран 4", width: 2960, height: 2048, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/desktop-05.png", alt: "Desktop-интерфейс Corvo: экран 5", width: 2960, height: 2048, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/desktop-01.png", alt: "Desktop-интерфейс Corvo: экран 1", width: 2960, height: 2048, sourceNodeId: "680:48078", frame: { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 } },
+      { src: "/assets/projects/corvo/gallery/desktop-02.png", alt: "Desktop-интерфейс Corvo: экран 2", width: 2960, height: 2048, sourceNodeId: "680:48799", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/desktop-03.png", alt: "Desktop-интерфейс Corvo: экран 3", width: 2960, height: 2048, sourceNodeId: "680:48813", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/desktop-04.png", alt: "Desktop-интерфейс Corvo: экран 4", width: 2960, height: 2048, sourceNodeId: "680:48814", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/desktop-05.png", alt: "Desktop-интерфейс Corvo: экран 5", width: 2960, height: 2048, sourceNodeId: "680:48815", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
     ],
   },
   {
@@ -49,11 +49,11 @@ const corvoGalleryGroups: ProjectGalleryGroup[] = [
     baseWidth: 400,
     baseHeight: 566,
     items: [
-      { src: "/assets/projects/corvo/gallery/tablet-01.png", alt: "Планшетный интерфейс Corvo: экран 1", width: 1600, height: 2266, frame: { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 } },
-      { src: "/assets/projects/corvo/gallery/tablet-02.png", alt: "Планшетный интерфейс Corvo: экран 2", width: 1600, height: 2266, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
-      { src: "/assets/projects/corvo/gallery/tablet-03.png", alt: "Планшетный интерфейс Corvo: экран 3", width: 1600, height: 2266, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
-      { src: "/assets/projects/corvo/gallery/tablet-04.png", alt: "Планшетный интерфейс Corvo: экран 4", width: 1600, height: 2266, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
-      { src: "/assets/projects/corvo/gallery/tablet-05.png", alt: "Планшетный интерфейс Corvo: экран 5", width: 1600, height: 2266, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
+      { src: "/assets/projects/corvo/gallery/tablet-01.png", alt: "Планшетный интерфейс Corvo: экран 1", width: 1600, height: 2266, sourceNodeId: "680:48156", frame: { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 } },
+      { src: "/assets/projects/corvo/gallery/tablet-02.png", alt: "Планшетный интерфейс Corvo: экран 2", width: 1600, height: 2266, sourceNodeId: "680:48802", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
+      { src: "/assets/projects/corvo/gallery/tablet-03.png", alt: "Планшетный интерфейс Corvo: экран 3", width: 1600, height: 2266, sourceNodeId: "680:48812", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
+      { src: "/assets/projects/corvo/gallery/tablet-04.png", alt: "Планшетный интерфейс Corvo: экран 4", width: 1600, height: 2266, sourceNodeId: "680:48858", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
+      { src: "/assets/projects/corvo/gallery/tablet-05.png", alt: "Планшетный интерфейс Corvo: экран 5", width: 1600, height: 2266, sourceNodeId: "680:48859", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
     ],
   },
   {
@@ -63,11 +63,11 @@ const corvoGalleryGroups: ProjectGalleryGroup[] = [
     baseWidth: 180,
     baseHeight: 320,
     items: [
-      { src: "/assets/projects/corvo/gallery/mobile-01.png", alt: "Мобильный интерфейс Corvo: экран 1", width: 1080, height: 1920, frame: { clip: true, radius: 11, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-02.png", alt: "Мобильный интерфейс Corvo: экран 2", width: 1080, height: 1920, frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-03.png", alt: "Мобильный интерфейс Corvo: экран 3", width: 1080, height: 1920, frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-04.png", alt: "Мобильный интерфейс Corvo: экран 4", width: 1080, height: 1920, frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-05.png", alt: "Мобильный интерфейс Corvo: экран 5", width: 1080, height: 1920, frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/mobile-01.png", alt: "Мобильный интерфейс Corvo: экран 1", width: 1080, height: 1920, sourceNodeId: "680:48159", frame: { clip: true, radius: 11, strokeColor: "#e8eaeb", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/mobile-02.png", alt: "Мобильный интерфейс Corvo: экран 2", width: 1080, height: 1920, sourceNodeId: "680:48803", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/mobile-03.png", alt: "Мобильный интерфейс Corvo: экран 3", width: 1080, height: 1920, sourceNodeId: "680:48805", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/mobile-04.png", alt: "Мобильный интерфейс Corvo: экран 4", width: 1080, height: 1920, sourceNodeId: "680:48860", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
+      { src: "/assets/projects/corvo/gallery/mobile-05.png", alt: "Мобильный интерфейс Corvo: экран 5", width: 1080, height: 1920, sourceNodeId: "680:48861", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
     ],
   },
 ];
@@ -124,7 +124,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   }
 
   return {
-    title: `${project.title} — Артур Арустамян`,
+    title: { absolute: `${project.title} — Artur Designer` },
     description: project.description,
   };
 }

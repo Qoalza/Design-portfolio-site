@@ -13,8 +13,9 @@ test("Hero eyebrow uses the current one-line Google Sans typography", () => {
   assert.doesNotMatch(styles, /\.eyebrow > span\s*\{[^}]*width:/);
 });
 
-test("Codex Figma action uses the shared Large TextButton", () => {
-  const action = page.match(/<TextButton[\s\S]*?Figma\s*<\/TextButton>/)?.[0] ?? "";
+test("Codex AI action uses the current shared disabled Large TextButton", () => {
+  const action = page.match(/<TextButton[\s\S]*?Скоро тут будет файл\s*<\/TextButton>/)?.[0] ?? "";
   assert.match(action, /size="large"/);
-  assert.match(action, /href="https:\/\/www\.figma\.com\/design\/5ZzspE0OrqesDcTP0RRPHr\/[^"]+"/);
+  assert.match(action, /disabled/);
+  assert.doesNotMatch(action, /href=|external/);
 });

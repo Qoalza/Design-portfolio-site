@@ -94,10 +94,11 @@ test("action bar internal layout maps the current Figma component contract", () 
   assert.match(styles, /height:\s*88px/);
   assert.match(styles, /padding:\s*24px/);
   assert.match(styles, /gap:\s*8px/);
-  assert.match(styles, /font-family:\s*"Source Code Pro"/);
-  assert.match(styles, /font-size:\s*14px/);
-  assert.match(styles, /line-height:\s*16px/);
-  assert.match(styles, /letter-spacing:\s*-\.5px/);
+  assert.match(styles, /font-family:\s*var\(--type-tech-font-family\)/);
+  assert.match(styles, /font-size:\s*var\(--type-tech-m-font-size\)/);
+  assert.match(styles, /line-height:\s*var\(--type-tech-m-line-height\)/);
+  assert.match(styles, /font-feature-settings:\s*var\(--type-tech-m-features\)/);
+  assert.match(styles, /letter-spacing:\s*var\(--type-tech-m-letter-spacing\)/);
   assert.match(component, />Обновлено \{updatedAt\}</);
   assert.match(component, />Файл пока недоступен</);
   assert.match(component, /action-bar-external-link\.svg/);
@@ -114,9 +115,9 @@ test("project share copies only canonical origin and pathname and uses Tooltip f
   assert.match(canonical, /location\.origin/);
   assert.match(canonical, /location\.pathname/);
   assert.doesNotMatch(share, /window\.location\.href|navigator\.share|execCommand/);
-  assert.match(share, /"Скопировано"/);
+  assert.match(share, /"Ссылка скопирована"/);
   assert.match(actionBar, /<Tooltip/);
-  assert.match(actionBar, /text: "Скопировано"/);
+  assert.match(actionBar, /text: "Ссылка скопирована"/);
   assert.match(actionBar, /\/assets\/projects\/check\.svg/);
   assert.match(actionBar, /restartKey=\{feedbackRevision\}/);
   assert.match(actionBar, /aria-live="polite"/);
