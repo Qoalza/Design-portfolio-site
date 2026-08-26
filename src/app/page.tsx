@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { MainProjectCard } from "../components/main-project-card";
@@ -11,6 +12,10 @@ import { getCatalogProjects } from "../lib/projects";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
+
+export const metadata: Metadata = {
+  title: { absolute: "Artur Designer" },
+};
 
 function MaskIcon({ className = "" }: { className?: string }) {
   return <span aria-hidden="true" className={`${styles.maskIcon} ${className}`} />;

@@ -124,7 +124,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   }
 
   return {
-    title: `${project.title} — Артур Арустамян`,
+    title: { absolute: `${project.title} — Artur Designer` },
     description: project.description,
   };
 }

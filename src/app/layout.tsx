@@ -9,7 +9,7 @@ import "lenis/dist/lenis.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Artur Product",
+  title: { absolute: "Страница не найдена — Artur Designer" },
   description:
     "Портфолио продуктового дизайнера: B2B, B2E, SaaS и сложные внутренние системы.",
 };
