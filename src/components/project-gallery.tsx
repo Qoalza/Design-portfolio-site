@@ -182,8 +182,9 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     const lenis = lenisRef.current;
     if (!immediate) {
       // Demand-driven Gallery instances do not receive idle RAF ticks. Prime the
-      // internal Lenis clock before starting a user transition so the first
-      // animation delta cannot include the entire idle interval and jump to target.
+      // internal Lenis state and clock from the current rendered position before
+      // starting a user transition. The user target itself is never immediate.
+      lenis.reset();
       lenis.raf(performance.now());
     }
     lenis.scrollTo(offsets[activeIndex] ?? 0, {
