@@ -31,7 +31,7 @@ export function useProjectShare() {
 
   async function handleShare(): Promise<void> {
     const copied = await copyCurrentUrl();
-    setAnnouncement(copied ? "Скопировано" : "Не удалось скопировать ссылку");
+    setAnnouncement(copied ? "Ссылка скопирована" : "Не удалось скопировать ссылку");
     setFeedbackOpen(copied);
     if (!copied) return;
     setFeedbackRevision((revision) => revision + 1);

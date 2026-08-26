@@ -115,9 +115,9 @@ test("project share copies only canonical origin and pathname and uses Tooltip f
   assert.match(canonical, /location\.origin/);
   assert.match(canonical, /location\.pathname/);
   assert.doesNotMatch(share, /window\.location\.href|navigator\.share|execCommand/);
-  assert.match(share, /"Скопировано"/);
+  assert.match(share, /"Ссылка скопирована"/);
   assert.match(actionBar, /<Tooltip/);
-  assert.match(actionBar, /text: "Скопировано"/);
+  assert.match(actionBar, /text: "Ссылка скопирована"/);
   assert.match(actionBar, /\/assets\/projects\/check\.svg/);
   assert.match(actionBar, /restartKey=\{feedbackRevision\}/);
   assert.match(actionBar, /aria-live="polite"/);
