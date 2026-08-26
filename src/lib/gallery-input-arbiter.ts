@@ -44,6 +44,9 @@ export class GalleryInputArbiter {
   private accumulatedY = 0;
   private lastTimestamp = Number.NEGATIVE_INFINITY;
   private stepConsumed = false;
+  private lockedDirection: -1 | 1 | null = null;
+  private previousHorizontalMagnitude = 0;
+  private horizontalTailSamples = 0;
   private readonly decisions = new WeakMap<object, CachedDecision>();
 
   constructor({ idleMs = 160, threshold = 16, stopRootAtActual }: GalleryInputArbiterOptions = {}) {
@@ -72,7 +75,12 @@ export class GalleryInputArbiter {
     const deltaY = normalizeDelta(event.deltaY, event.deltaMode, height);
     let decision: GalleryInputDecision;
 
+    if (this.ownership === "horizontal" && this.isNewHorizontalGesture(deltaX)) {
+      this.resetSeries();
+    }
+
     if (this.ownership === "horizontal") {
+      this.observeHorizontalDelta(deltaX);
       decision = this.makeDecision("horizontal", true, null, null, false);
     } else if (this.ownership === "vertical") {
       decision = this.makeDecision("vertical", false, null, deltaY, false);
@@ -87,6 +95,9 @@ export class GalleryInputArbiter {
         this.stopRootAtActual?.();
         const step = this.stepConsumed ? null : (this.accumulatedX > 0 ? 1 : -1);
         this.stepConsumed = true;
+        this.lockedDirection = step;
+        this.previousHorizontalMagnitude = Math.abs(deltaX);
+        this.horizontalTailSamples = 0;
         decision = this.makeDecision("horizontal", true, step, null, Boolean(this.stopRootAtActual));
       } else if (verticalMagnitude >= this.threshold && verticalMagnitude >= horizontalMagnitude) {
         this.ownership = "vertical";
@@ -121,6 +132,30 @@ export class GalleryInputArbiter {
     this.accumulatedX = 0;
     this.accumulatedY = 0;
     this.stepConsumed = false;
+    this.lockedDirection = null;
+    this.previousHorizontalMagnitude = 0;
+    this.horizontalTailSamples = 0;
+  }
+
+  private isNewHorizontalGesture(deltaX: number): boolean {
+    const magnitude = Math.abs(deltaX);
+    const direction = Math.sign(deltaX) as -1 | 0 | 1;
+    const deliberateReverse = direction !== 0
+      && this.lockedDirection !== null
+      && direction !== this.lockedDirection
+      && magnitude >= this.threshold / 2;
+    const renewedBurst = this.horizontalTailSamples >= 2
+      && magnitude >= this.threshold
+      && magnitude >= this.previousHorizontalMagnitude * 1.5;
+
+    return deliberateReverse || renewedBurst;
+  }
+
+  private observeHorizontalDelta(deltaX: number): void {
+    const magnitude = Math.abs(deltaX);
+    if (magnitude <= this.threshold / 2) this.horizontalTailSamples += 1;
+    else if (this.horizontalTailSamples < 2) this.horizontalTailSamples = 0;
+    this.previousHorizontalMagnitude = magnitude;
   }
 
   private makeDecision(
