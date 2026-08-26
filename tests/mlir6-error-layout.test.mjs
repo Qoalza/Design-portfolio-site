@@ -5,6 +5,7 @@ import { calculateErrorStageScale } from "../src/lib/error-layout.ts";
 
 const component = readFileSync(new URL("../src/components/error-stage.tsx", import.meta.url), "utf8");
 const screenStyles = readFileSync(new URL("../src/components/error-screen.module.css", import.meta.url), "utf8");
+const controlStyles = readFileSync(new URL("../src/components/ui-controls.module.css", import.meta.url), "utf8");
 
 test("404 stage scale preserves the 1200 by 900 Figma geometry above the footer", () => {
   assert.equal(calculateErrorStageScale(960), 1);
@@ -27,5 +28,5 @@ test("runtime scale is recalculated without relying on CSS trigonometry", () => 
 
 test("404 message typography follows the exact current Figma node", () => {
   assert.match(screenStyles, /\.copy\s*\{[^}]*font-family:\s*"Google Sans"/);
-  assert.match(screenStyles, /\.presentationAction\s*\{[^}]*font:[^;]*"Google Sans"/);
+  assert.match(controlStyles, /\.control\.large\s*\{[^}]*font:[^;]*"Google Sans"/);
 });

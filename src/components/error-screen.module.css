@@ -24,7 +24,6 @@
 .copy { display: flex; flex-direction: column; gap: 12px; color: #4a6376; font-family: "Google Sans", sans-serif; letter-spacing: .4px; }
 .copy h1 { margin: 0; color: #203749; font-size: 24px; font-weight: 500; line-height: 32px; }
 .copy div,.copy p { margin: 0; font-size: 20px; line-height: 28px; }
-.presentationAction { display: inline-flex; min-width: 96px; height: 48px; align-items: center; justify-content: center; padding: 4px 28px; border-radius: 12px; background: #1d8be3; color: #fbfbfb; font: 400 16px/20px "Google Sans", sans-serif; letter-spacing: .16px; cursor: default; }
-.presentationAction404 { width: 144px; }
-.presentationAction500 { width: 171px; }
+.action404 { width: 144px; }
+.action500 { width: 171px; }
 .tail { width: 27px; height: 20px; margin-left: 101px; }

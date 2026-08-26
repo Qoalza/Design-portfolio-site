@@ -20,6 +20,13 @@
   transition: none;
 }
 
+.control:is(button, a),
+.squareButton:is(button, a),
+.tab:is(button, a),
+.textControl:is(button, a) {
+  cursor: pointer;
+}
+
 .squareButton {
   padding: 0;
   border-radius: 8px;
@@ -118,6 +125,24 @@
   border-radius: 8px;
   font-size: 14px;
   line-height: 16px;
+}
+
+.control.large {
+  height: 48px;
+  padding: 4px 24px;
+  border-radius: 12px;
+  font: 400 16px/20px "Google Sans", sans-serif;
+  letter-spacing: .16px;
+}
+
+.control.large.accent {
+  --control-label: #fbfbfb;
+  --control-icon: #fbfbfb;
+}
+
+.control:focus-visible {
+  outline: 2px solid #369ff3;
+  outline-offset: 2px;
 }
 
 .control.small {

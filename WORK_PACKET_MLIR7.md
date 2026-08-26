@@ -58,14 +58,14 @@
 
 - AI `510:28231`; Disabled TextButton `725:88725`; variant `732:89541`; Figma icon `773:90993`; label `Скоро тут будет файл`; `Size=Large`, `Color=Neutral+Accent`, `State=Disable`.
 - Tooltip Library `207:1498`; action bar set `550:2868`; Adaptive `528:1540`; Full `576:33195`.
-- 404 `420:54056`, presentation frame `420:54066`, label `420:54067`.
-- 500 `420:54081`, presentation frame `420:54090`, label `420:54091`.
+- 404 `420:54056`, Button frame `420:54066`, label `420:54067`.
+- 500 `420:54081`, Button frame `420:54090`, label `420:54091`.
 
-Текущие error controls — обычные `FRAME` без component mapping. Пока mapping не изменился, они не являются интерактивными controls.
+Письменный контракт пользователя определяет оба слоя как настоящие интерактивные кнопки. Геометрия и текст берутся из указанных live frames, а variant, size, states и DOM-семантика — из действующего системного `ControlButton`. Отсутствие instance mapping у detached frame не отменяет этот поведенческий контракт.
 
 ## 4. Scope и non-scope
 
-В scope: Gallery controller и все input paths; lightbox и все 15 frames; полный Tech inventory/consumers; AI Disabled TextButton; Share Tooltip `Ссылка скопирована`; presentation controls 404/500; favicon; route titles; tests, evidence, docs, push и один Draft PR.
+В scope: Gallery controller и все input paths; lightbox и все 15 frames; полный Tech inventory/consumers; AI Disabled TextButton; Share Tooltip `Ссылка скопирована`; интерактивные системные Button controls 404/500; favicon; route titles; tests, evidence, docs, push и один Draft PR.
 
 Не входят: Gallery loop/free scroll; изменение root Lenis coefficients; action-bar state machine, `200 px` threshold или terminal geometry; canonical Share payload; общий Body/Heading redesign; новые breakpoints; favicon regeneration; PWA manifest; новые зависимости; Figma writes; context-transfer; merge/deploy.
 
@@ -127,9 +127,24 @@ Success text и screen-reader feedback: `Ссылка скопирована`. C
 
 ## 11. G5 — MLIR7-404/500
 
-Commit: `Align error page presentation controls`.
+Correcting commit: `Restore interactive error page controls`.
 
-Повторно прочитать node types. При текущем mapping visible frames не являются `<button>`/`<a>`: без href, click, keyboard, tab stop, control role и pointer cursor. PASS: 404 не navigates, 500 не reset; layout unchanged; direct/reload Chromium/Zen `1440×900`; no console/hydration/CSS errors. Routes: `/__mlir7-not-found-check__`, `/error-test?trigger=500`.
+- Обе кнопки рендерятся как нативные `<button>` через общий `ControlButton`, а не локальную CSS-имитацию.
+- 404: `На главную` переходит на `/`.
+- 500: `Перезагрузить` выполняет полную перезагрузку текущей страницы.
+- Variant, size, typography, padding, radius, colors и normal/hover/active/focus-visible берутся из общей дизайн-системы; live frames `420:54066` и `420:54090` фиксируют конкретную геометрию и labels.
+- Pointer cursor, Tab focus, `Enter` и `Space` activation обязательны.
+- Вся остальная композиция и rects 404/500 остаются без изменений.
+
+Focused tests и evidence G5:
+
+- source/component check подтверждает общий `ControlButton`, нативный button DOM и отсутствие локальной имитации;
+- мышью и клавиатурой на 404 подтвердить фактический URL `/`;
+- мышью и клавиатурой на 500 подтвердить новую document navigation того же URL, а не React reset;
+- зафиксировать normal/hover/active/focus-visible computed states, pointer cursor и border-box с допуском `±1 CSS px`;
+- сравнить stage/art/message/footer rects до и после исправления: изменение вне button rects запрещено;
+- Chromium и Zen, `1440×900`, routes `/__mlir7-not-found-check__` и `/error-test?trigger=500`; без expanded matrix на этом gate;
+- console, hydration и CSS errors отсутствуют.
 
 ## 12. G6 — MLIR7-META
 
@@ -179,10 +194,10 @@ Rollback: only MLIR7 branch, separate G0–G7 groups and G4 commits, no reset/re
 
 ## 17. Definition of Done
 
-G0 exists before runtime and leaves clean tracked state; G1–G6 pass user gates; one canonical Gallery controller yields no Instant transition across every device/input/reset context; all 15 lightbox items pass both browsers; Tech inventory and slashed-zero contract pass; AI and Tooltip have independent commits/results; error frames match mapping; Next production proof confirms exact titles; approved favicon is connected; tests/lint/build/provenance/fresh matrix pass; G7 evidence/docs, remote and Draft PR are confirmed; merge/deploy not performed.
+G0 exists before runtime and leaves clean tracked state; G1–G6 pass user gates; one canonical Gallery controller yields no Instant transition across every device/input/reset context; all 15 lightbox items pass both browsers; Tech inventory and slashed-zero contract pass; AI and Tooltip have independent commits/results; 404/500 use exact interactive system Buttons and their required navigation/reload contracts while the surrounding composition remains unchanged; Next production proof confirms exact titles; approved favicon is connected; tests/lint/build/provenance/fresh matrix pass; G7 evidence/docs, remote and Draft PR are confirmed; merge/deploy not performed.
 
 ## 18. Self-review
 
 `SELF_REVIEW_1: PASS`: G0, every Gallery input/reset context, all 15 lightbox items, closed Tech inventory, split G4 commits and exact title paths are present.
 
-`SELF_REVIEW_2: PASS`: final index or static mapping cannot create false PASS; Next metadata requires production proof; G0/G7 lifecycle and Git cleanliness agree; full matrix runs only on final runtime; gates, stop-lines and no-merge/deploy remain enforced.
+`SELF_REVIEW_2: PASS`: final index or static mapping cannot create false PASS; detached error frames cannot override the explicit interactive Button contract; a visual match without real mouse/keyboard navigation and reload is not PASS; Next metadata requires production proof; G0/G7 lifecycle and Git cleanliness agree; full matrix runs only on final runtime; gates, stop-lines and no-merge/deploy remain enforced.
