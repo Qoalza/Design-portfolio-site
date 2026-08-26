@@ -16,6 +16,19 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
+## OPEN — Gallery motion, Tech typography, error controls и metadata (`MLIR7-*`)
+
+Активный пакет: `WORK_PACKET_MLIR7.md`. Новое evidence сохраняется только в `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
+
+- `MLIR7-GAL`: единый canonical movement controller и одинаково плавные first/subsequent transitions для Desktop, Tablet и Mobile через arrows, trackpad и pointer.
+- `MLIR7-LBX`: runtime-проверка всех 15 увеличенных Gallery items без двойной рамки, неверных corners или quality overflow.
+- `MLIR7-TYP`: закрытый Figma→code inventory всех Tech consumers и Source Code Pro с активным slashed zero.
+- `MLIR7-AI`, `MLIR7-TIP`: точный Disabled TextButton AI и feedback `Ссылка скопирована`.
+- `MLIR7-404`, `MLIR7-500`: presentation controls согласно фактическому Figma mapping.
+- `MLIR7-META`: утверждённый favicon и route titles `Artur Designer` после production-доказательства Next.js metadata contract.
+
+MLIR6 evidence остаётся историческим baseline и не доказывает соответствие MLIR7 runtime. Статус `READY_FOR_REVIEW` запрещён до fresh Chromium/Zen evidence из одного подтверждённого `CODE_SHA`.
+
 ## READY_FOR_REVIEW — Gallery, project components, homepage и 404 (`MLIR6-*`)
 
 Активный пакет: `WORK_PACKET_MLIR6.md`. Новое evidence сохраняется только в `design-reference/gallery-project-error-reconciliation-mlir6/`.
