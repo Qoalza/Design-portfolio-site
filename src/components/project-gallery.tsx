@@ -184,7 +184,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       // Demand-driven Gallery instances do not receive idle RAF ticks. Prime the
       // internal Lenis state and clock from the current rendered position before
       // starting a user transition. The user target itself is never immediate.
-      lenis.reset();
+      lenis.scrollTo(lenis.actualScroll, { immediate: true, force: true });
       lenis.raf(performance.now());
     }
     lenis.scrollTo(offsets[activeIndex] ?? 0, {
