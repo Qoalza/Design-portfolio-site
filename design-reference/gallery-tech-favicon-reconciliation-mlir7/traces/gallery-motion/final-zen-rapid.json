@@ -1,0 +1,11 @@
+{
+  "browser": "Zen 1.21.15b",
+  "codeSha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+  "input": "real WebDriver BiDi wheel actions",
+  "indexSequence": [1, 2, 3, 4, 3, 2, 1, 0],
+  "oneStepPerSeries": true,
+  "pointerLeaveRequired": false,
+  "verticalAfterHorizontal": {"before": 3853, "afterSettling": 3973, "passed": true},
+  "result": "PASS"
+}
+

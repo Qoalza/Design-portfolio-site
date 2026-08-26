@@ -1,0 +1,85 @@
+{
+  "browserName": "zen",
+  "browserVersion": "1.21.15b",
+  "expectedSha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+  "results": [
+    {
+      "name": "500",
+      "path": "/error-test?trigger=500",
+      "width": 1280,
+      "height": 720,
+      "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+      "title": "Ошибка — Artur Designer",
+      "href": "http://127.0.0.1:3011/error-test?trigger=500",
+      "viewport": [
+        1280,
+        720
+      ],
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 720,
+      "action": [],
+      "icon": [
+        {
+          "href": "/artur-designer-favicon.svg",
+          "type": "image/svg+xml",
+          "sizes": "any"
+        }
+      ],
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "pass": true
+    },
+    {
+      "name": "500",
+      "path": "/error-test?trigger=500",
+      "width": 1440,
+      "height": 900,
+      "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+      "title": "Ошибка — Artur Designer",
+      "href": "http://127.0.0.1:3011/error-test?trigger=500",
+      "viewport": [
+        1440,
+        900
+      ],
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 900,
+      "action": [],
+      "icon": [
+        {
+          "href": "/artur-designer-favicon.svg",
+          "type": "image/svg+xml",
+          "sizes": "any"
+        }
+      ],
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "pass": true
+    },
+    {
+      "name": "500",
+      "path": "/error-test?trigger=500",
+      "width": 1920,
+      "height": 1080,
+      "sha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+      "title": "Ошибка — Artur Designer",
+      "href": "http://127.0.0.1:3011/error-test?trigger=500",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "scrollHeight": 1080,
+      "action": [],
+      "icon": [
+        {
+          "href": "/artur-designer-favicon.svg",
+          "type": "image/svg+xml",
+          "sizes": "any"
+        }
+      ],
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "pass": true
+    }
+  ]
+}

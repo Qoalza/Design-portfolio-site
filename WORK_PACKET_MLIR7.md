@@ -7,7 +7,7 @@
 - Исполнение: последовательными Git-группами с обязательной пользовательской проверкой после каждой runtime-группы.
 - Автономный режим не включён.
 - Figma строго `read-only`; merge и deploy запрещены.
-- Максимальный итог Work Packet: `READY_FOR_USER_REVIEW`; `DESIGN_QA.md`: `READY_FOR_REVIEW`.
+- Итог Work Packet: `READY_FOR_USER_REVIEW`; `DESIGN_QA.md`: `READY_FOR_REVIEW`.
 
 Цель: устранить периодически мгновенное переключение Gallery, дефекты увеличенных device frames, восстановить полный Tech typography contract, синхронизировать AI-control, Share Tooltip, 404/500 controls и подключить утверждённый favicon с новой схемой title.
 
@@ -152,7 +152,7 @@ Commit: `Connect the approved favicon and site metadata`.
 
 До application edits выполнить disposable production proof вне Git worktree на Next `16.2.10`/React `19.2.7`: ordinary 404, dynamic-project 404 и deterministic 500, без client JS. Записать status, число/title tags, metadata source, streaming и duplicates. Допустимы только stable layout/page metadata, generateMetadata, route-local layout и `title.absolute`. `globalNotFound`, duplicate root layout и catch-all запрещены без решения пользователя. Если exact ordinary 404 initial title требует такой архитектуры, только G6 остаётся OPEN и останавливается.
 
-Browser favicon использует только предоставленный пользователем `/Users/designer/Documents/Figma/LOGO/Symbol.svg`: точная копия хранится как `design-reference/favicon-review/source/Symbol.svg` и `generated/favicon.svg`, а application source — `src/app/icon.svg`. Цвета фиксированы и одинаковы в light/dark; `prefers-color-scheme`, ICO и PNG browser-favicon fallback отсутствуют. `src/app/apple-icon.png` остаётся неизменённым отдельным Apple Touch Icon; PWA assets не подключать. Paths, fills, viewBox, пропорции и композицию `Symbol.svg` не изменять.
+Browser favicon использует только предоставленный пользователем `/Users/designer/Documents/Figma/LOGO/Symbol.svg`: точная копия подключена по уникальному URL `/artur-designer-favicon.svg` из `public/artur-designer-favicon.svg`. Root metadata явно объявляет единственный browser icon как `image/svg+xml`, `sizes="any"`; route metadata его не переопределяет. Цвета фиксированы и одинаковы в light/dark; file-convention icon, `prefers-color-scheme`, ICO и PNG browser-favicon fallback отсутствуют. Apple Touch Icon остаётся неизменённым отдельным системным asset; PWA assets не подключаются. Paths, fills, viewBox, пропорции и композиция `Symbol.svg` не изменяются.
 
 Titles absolute где требуется: `/` `Artur Designer`; `/projects` `Мои работы — Artur Designer`; project `<Название> — Artur Designer`; 404 `Страница не найдена — Artur Designer`; 500 `Ошибка — Artur Designer`. Проверять отсутствие `Des-art`, `Artur Product` и фамилии только в metadata-generating code и actual metadata output.
 
@@ -201,3 +201,14 @@ G0 exists before runtime and leaves clean tracked state; G1–G6 pass user gates
 `SELF_REVIEW_1: PASS`: G0, every Gallery input/reset context, all 15 lightbox items, closed Tech inventory, split G4 commits and exact title paths are present.
 
 `SELF_REVIEW_2: PASS`: final index or static mapping cannot create false PASS; detached error frames cannot override the explicit interactive Button contract; a visual match without real mouse/keyboard navigation and reload is not PASS; Next metadata requires production proof; G0/G7 lifecycle and Git cleanliness agree; full matrix runs only on final runtime; gates, stop-lines and no-merge/deploy remain enforced.
+
+## 19. Результат исполнения
+
+- Статус: `READY_FOR_USER_REVIEW`.
+- Финальный runtime `CODE_SHA`: `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
+- Focused tests: `142/142`; lint: `PASS`; production build: `PASS`.
+- Production preview подтвердил полный `data-build-sha` до browser evidence.
+- Chromium: `22/22`; Zen `1.21.15b`: `22/22` на обязательной route/viewport matrix.
+- Все runtime-группы G1–G6 приняты пользователем. G7 изменяет только документацию и evidence.
+- Evidence: `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
+- `USER_ACCEPTED`, `CLOSED`, merge и deploy не выполнялись.

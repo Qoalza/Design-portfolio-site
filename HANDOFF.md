@@ -23,7 +23,7 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `codex/gallery-project-error-reconciliation-mlir6`; текущий проверенный runtime `CODE_SHA` — `cca7d77f3a6cc8e5af37a26bae2abfe89f796642`; merge и deploy не выполнялись.
+- Рабочая ветка: `codex/gallery-tech-favicon-reconciliation-mlir7`; текущий проверенный runtime `CODE_SHA` — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`; merge и deploy не выполнялись.
 - Актуальный production/source commit остаётся `ae1c01c10cf87240212b91a9a6594e239eb4f01e` (`Add contextual breadcrumb navigation`).
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
@@ -34,6 +34,7 @@
 - MLIR4 синхронизирует актуальные Body styles/TextButton Large, Hero/Codex/CV, доступность project routes и общий Tooltip; уточняет action bar, sticky navigation и Gallery; desktop/fine-pointer scroll работает через Lenis `1.3.25` и один общий RAF. Focused tests `95/95`, lint и production build успешны; Chromium и Zen `1.21.15b` matrices прошли 6/6 для текущего CODE_SHA. Evidence — `design-reference/main-layout-interaction-polish/README.md`.
 - Изолированный action-bar initial-state fix подтвердил причину регрессии: bootstrap/initial resolver включал `Adaptive` при любом пересечении information layout с линией bar, а steady-state resolver требовал `200 px`. Все три пути теперь используют один geometry threshold. Chromium и Zen `1.21.15b` подтвердили direct URL, hard reload, client navigation, границы `199.5/200/200.5 px` и matrix `6/6` для `4a59f8cfd9c61ca710f9a39942303356d99bf5f3`; evidence — `design-reference/action-bar-initial-state-fix/README.md`. Внутренний visual layout остаётся отдельным непринятым backlog: frame `Обновлено…` восстанавливается из точного Figma component, Check в copy-Tooltip использует `Semantic/Element/invers`.
 - MLIR6 завершает Gallery/root input arbitration через единый pre-mutation gate, DPR-aware lightbox и точные device frames; синхронизирует project CTA/tags/Update info, внутренний action bar и canonical Clipboard Share, AI/process и 404. Chromium `151.0.0.0` и Zen `1.21.15b` прошли fresh matrix из `cca7d77f3a6cc8e5af37a26bae2abfe89f796642`; focused tests `121/121`, lint и production build успешны. Evidence — `design-reference/gallery-project-error-reconciliation-mlir6/`.
+- MLIR7 стабилизирует все Gallery movement paths, проверяет 15 lightbox frames, восстанавливает Tech typography со slashed zero, синхронизирует AI/Share feedback, интерактивные 404/500 controls и route metadata. Единственный browser favicon — точная копия пользовательского `Symbol.svg` по `/artur-designer-favicon.svg`; ICO/PNG browser fallbacks отсутствуют. Focused tests `142/142`, lint/build успешны; Chromium и Zen `1.21.15b` matrices прошли `22/22` из `a322cf7341ee351d50f1a98cdb9d857fe46dd956`. Evidence — `design-reference/gallery-tech-favicon-reconciliation-mlir7/`; статус `READY_FOR_REVIEW`.
 - Базовый error-layout исправлен в `cf9e161` (`Fix error page viewport layout`); follow-up синхронизирует позиции с актуальными nodes `420:54056`/`420:54081` и отделяет clipping иллюстрации от тени сообщения.
 - Общий механизм platform-иконок использует typed intrinsic-размеры и mask с Figma-цветом `#75848F`; error pages и иконки имеют статус `READY_FOR_REVIEW`.
 - Строка характеристик открытого проекта использует Figma Hug-механику: ширина по содержимому, без desktop-переноса в доступных `1200 px` (`b6f461d`).
@@ -85,11 +86,7 @@
 - Общая project action bar имеет варианты `Full` / `Adaptive`, привязанные к измеренным границам header stack, information sentinel, content column и footer.
 - Проекты хранятся в MDX; backend для текущего этапа не нужен.
 - Повторная same-page hash-навигация (`Мои работы`, Back/Forward) централизована в `ContextLink` и `NavigationScrollController`; поля `history.state` Next.js сохраняются.
-- Следующий пакет контентных настроек зафиксирован, но ещё не реализован:
-  - favicon-source получен и подготовлен в `design-reference/favicon-review/`, но ещё не подключён к приложению;
-  - утверждённый основной favicon вкладки — адаптивный `SVG` с compact-геометрией без центральной черты: `#2F3133` для светлого UI браузера и белый для тёмного UI;
-  - запрещено использовать сгенерированные 16/24 px PNG как основной favicon: PNG нужны только для обязательных фиксированных системных размеров, ICO — только fallback; detailed-геометрия с центральной чертой используется для действительно крупных иконок;
-  - окончательный title вкладки браузера: `Des-art` вместо `Артур Арустамян - Product Designer`;
+- Актуальные контентные ссылки:
   - кнопки связи ведут на `https://t.me/Coco_soul`;
   - обе ссылки `CV` и `Скачать полное CV` ведут на `https://disk.yandex.ru/i/iZ1UWgbO1LAOPw`.
   - кнопка `Figma` у проекта Corvo ведёт на `https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1`.

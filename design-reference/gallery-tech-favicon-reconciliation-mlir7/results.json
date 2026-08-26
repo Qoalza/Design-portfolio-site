@@ -1,0 +1,24 @@
+{
+  "namespace": "MLIR7",
+  "codeSha": "a322cf7341ee351d50f1a98cdb9d857fe46dd956",
+  "status": "READY_FOR_USER_REVIEW",
+  "checks": {
+    "focusedTests": {"passed": 142, "total": 142},
+    "lint": "PASS",
+    "productionBuild": "PASS",
+    "buildProvenance": "PASS",
+    "chromiumMatrix": {"passed": 22, "total": 22},
+    "zenMatrix": {"browser": "Zen 1.21.15b", "passed": 22, "total": 22},
+    "galleryRapidInput": "PASS"
+  },
+  "blocks": {
+    "MLIR7-GAL": "VERIFIED",
+    "MLIR7-LBX": "VERIFIED",
+    "MLIR7-TYP": "VERIFIED",
+    "MLIR7-AI": "VERIFIED",
+    "MLIR7-TIP": "VERIFIED",
+    "MLIR7-404": "VERIFIED",
+    "MLIR7-500": "VERIFIED",
+    "MLIR7-META": "VERIFIED"
+  }
+}
