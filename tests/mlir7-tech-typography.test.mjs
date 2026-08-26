@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
@@ -11,6 +12,18 @@ const card = read("../src/components/main-project-card.module.css");
 const header = read("../src/components/page-header.module.css");
 const actionBar = read("../src/components/project-action-bar.module.css");
 const footer = read("../src/components/site-footer.module.css");
+
+test("MLIR7 loads the full Source Code Pro variable font that contains the slashed-zero alternate", () => {
+  const font = readFileSync(new URL("../public/fonts/source-code-pro-variable.woff2", import.meta.url));
+
+  assert.match(globals, /src:\s*url\("\/fonts\/source-code-pro-variable\.woff2"\) format\("woff2"\)/);
+  assert.match(globals, /font-weight:\s*200 900/);
+  assert.doesNotMatch(globals, /source-code-pro-(?:latin|cyrillic)\.woff2/);
+  assert.equal(
+    createHash("sha256").update(font).digest("hex"),
+    "d95dc751b4d82141259f5c00c9838addaadd3b4eac30dd7db4a0da4921d77792",
+  );
+});
 
 test("MLIR7 exposes the three exact shared Tech typography tokens", () => {
   assert.match(globals, /--type-tech-font-family:\s*"Source Code Pro", monospace/);
