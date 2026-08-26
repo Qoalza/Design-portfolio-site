@@ -1,0 +1,46 @@
+{
+  "id": "MLIR7-META-FAVICON",
+  "gate": "G6",
+  "status": "PASS_AWAITING_USER_ACCEPTANCE",
+  "codeSha": "751c1328b8365f19268f72741675f568f5297a6c",
+  "source": {
+    "path": "/Users/designer/Documents/Figma/LOGO/Symbol.svg",
+    "sha256": "9b98eb23b20522856670e92d45a19d0dea0f370726b122b0946bae0a8b4b420b",
+    "exactCopies": [
+      "design-reference/favicon-review/source/Symbol.svg",
+      "design-reference/favicon-review/generated/favicon.svg",
+      "src/app/icon.svg"
+    ],
+    "containsThemeMedia": false
+  },
+  "runtime": {
+    "preview": "http://127.0.0.1:3011/",
+    "svgUrl": "/icon.svg?icon.0iyxd5px-wnp8.svg",
+    "svgStatus": 200,
+    "svgMime": "image/svg+xml",
+    "browserFaviconLinks": 1,
+    "icoLinkPresent": false,
+    "pngBrowserFaviconLinkPresent": false,
+    "icoEndpointStatus": 404,
+    "appleTouchIconSha256": "de2db4b9711eaf0912e64e125539621ca8f3ae70edb0810579a20dbbbb4c6dcc"
+  },
+  "zen": {
+    "version": "1.21.15b",
+    "gecko": "154.0",
+    "lightPrefersDark": false,
+    "darkPrefersDark": true,
+    "lightSvgUrl": "/icon.svg?icon.0iyxd5px-wnp8.svg",
+    "darkSvgUrl": "/icon.svg?icon.0iyxd5px-wnp8.svg",
+    "hardReloadRequestedCurrentSvg": true
+  },
+  "arc": {
+    "engine": "Chrome/151.0.7922.174",
+    "lightPrefersDark": false,
+    "darkPrefersDark": true,
+    "lightTabFaviconUrl": "/icon.svg?icon.0iyxd5px-wnp8.svg",
+    "darkTabFaviconUrl": "/icon.svg?icon.0iyxd5px-wnp8.svg",
+    "lightSvgStatus": 200,
+    "darkSvgStatus": 200,
+    "svgMime": "image/svg+xml"
+  }
+}
