@@ -44,7 +44,7 @@ test("every Gallery input primes the idle Lenis clock before one canonical user 
 
   assert.match(component, /const requestGalleryStep = useCallback/);
   assert.doesNotMatch(component, /const move = useCallback/);
-  assert.match(component, /const requestGalleryStep = useCallback[\s\S]{0,500}lenis\.raf\(performance\.now\(\)\);[\s\S]{0,120}setActiveIndex/);
+  assert.match(component, /const requestGalleryStep = useCallback[\s\S]{0,800}const waypoint = actual < lenis\.limit \? actual \+ 0\.001 : actual - 0\.001;[\s\S]{0,240}lenis\.scrollTo\(actual, \{ immediate: true, force: true \}\);[\s\S]{0,120}lenis\.raf\(performance\.now\(\)\);[\s\S]{0,120}setActiveIndex/);
   assert.doesNotMatch(component, /requestGalleryStep[\s\S]{0,500}lenis\.resize\(\)/);
   assert.doesNotMatch(component, /lenis\.stop\(\);[\s\S]{0,80}lenis\.start\(\);[\s\S]{0,120}lenis\.raf\(performance\.now\(\)\)/);
   assert.match(component, /onClick=\{\(\) => requestGalleryStep\(-1\)\}/);

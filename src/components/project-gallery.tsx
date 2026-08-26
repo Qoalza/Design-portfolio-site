@@ -63,8 +63,13 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     const lenis = lenisRef.current;
     if (smoothEnabled && lenis) {
       // Demand-driven Gallery instances do not receive idle RAF ticks. Advance
-      // any existing interpolation to the current shared-clock time before React
-      // commits the next target; do not reset the controller or its trajectory.
+      // any existing interpolation to the current shared-clock time. Lenis skips
+      // an immediate reset when actualScroll already equals targetScroll, so use
+      // an unpainted subpixel waypoint to stop the old interpolation first.
+      const actual = lenis.actualScroll;
+      const waypoint = actual < lenis.limit ? actual + 0.001 : actual - 0.001;
+      lenis.scrollTo(waypoint, { immediate: true, force: true });
+      lenis.scrollTo(actual, { immediate: true, force: true });
       lenis.raf(performance.now());
     }
     setActiveIndex(target.index);
