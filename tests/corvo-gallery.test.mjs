@@ -39,6 +39,18 @@ test("ProjectGallery keeps independent indexes and always renders disabled-capab
   assert.doesNotMatch(component, /itemCount > 1 \?/);
 });
 
+test("every Gallery input primes the idle Lenis clock before one canonical user transition", async () => {
+  const component = await source("src/components/project-gallery.tsx");
+
+  assert.match(component, /const requestGalleryStep = useCallback/);
+  assert.doesNotMatch(component, /const move = useCallback/);
+  assert.match(component, /lenis\.raf\(performance\.now\(\)\);[\s\S]{0,500}lenis\.scrollTo/);
+  assert.match(component, /onClick=\{\(\) => requestGalleryStep\(-1\)\}/);
+  assert.match(component, /onClick=\{\(\) => requestGalleryStep\(1\)\}/);
+  assert.match(component, /requestGalleryStep\(decision\.galleryStep\)/);
+  assert.match(component, /requestGalleryStep\(gesture\.step\)/);
+});
+
 test("Gallery accepts only dominant horizontal intent and resolves every gesture to one step", async () => {
   const component = await source("src/components/project-gallery.tsx");
 

@@ -57,7 +57,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const visibleRef = useRef(true);
   const previous = getGalleryOffsetTarget(activeIndex, -1, offsets);
   const next = getGalleryOffsetTarget(activeIndex, 1, offsets);
-  const move = useCallback((direction: StepDirection) => {
+  const requestGalleryStep = useCallback((direction: StepDirection) => {
     const target = getGalleryOffsetTarget(activeIndex, direction, offsets);
     if (target.available) setActiveIndex(target.index);
   }, [activeIndex, offsets]);
@@ -66,7 +66,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (smoothEnabled) {
       const decision = galleryInputArbiter.classify(event, group.id);
       if (decision.blockRoot) event.preventDefault();
-      if (decision.galleryStep !== null) move(decision.galleryStep);
+      if (decision.galleryStep !== null) requestGalleryStep(decision.galleryStep);
       return;
     }
     const isHorizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY);
@@ -74,9 +74,9 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     event.preventDefault();
     if (fallbackWheelLockedRef.current) return;
     fallbackWheelLockedRef.current = true;
-    move(event.deltaX > 0 ? 1 : -1);
+    requestGalleryStep(event.deltaX > 0 ? 1 : -1);
     window.setTimeout(() => { fallbackWheelLockedRef.current = false; }, 300);
-  }, [group.id, move, smoothEnabled]);
+  }, [group.id, requestGalleryStep, smoothEnabled]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -179,7 +179,14 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     if (!smoothEnabled || !lenisRef.current) return;
     const immediate = lenisJustCreatedRef.current;
     lenisJustCreatedRef.current = false;
-    lenisRef.current.scrollTo(offsets[activeIndex] ?? 0, {
+    const lenis = lenisRef.current;
+    if (!immediate) {
+      // Demand-driven Gallery instances do not receive idle RAF ticks. Prime the
+      // internal Lenis clock before starting a user transition so the first
+      // animation delta cannot include the entire idle interval and jump to target.
+      lenis.raf(performance.now());
+    }
+    lenis.scrollTo(offsets[activeIndex] ?? 0, {
       immediate,
       lerp: immediate ? undefined : 0.1,
       force: true,
@@ -214,7 +221,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     if (start.captured) {
-      if (gesture.step !== null) move(gesture.step);
+      if (gesture.step !== null) requestGalleryStep(gesture.step);
       window.setTimeout(() => { suppressClickRef.current = false; }, 0);
     }
   };
@@ -243,8 +250,8 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
           <span>{group.label}</span>
         </div>
         <div className={styles.arrows}>
-          <SquareButton kind="button" variant="ghost" size="small" disabled={!previous.available} onClick={() => move(-1)} ariaLabel={`Предыдущее изображение: ${group.label}`} icon="/assets/projects/chevron-left.svg" />
-          <SquareButton kind="button" variant="ghost" size="small" disabled={!next.available} onClick={() => move(1)} ariaLabel={`Следующее изображение: ${group.label}`} icon="/assets/projects/chevron-right.svg" />
+          <SquareButton kind="button" variant="ghost" size="small" disabled={!previous.available} onClick={() => requestGalleryStep(-1)} ariaLabel={`Предыдущее изображение: ${group.label}`} icon="/assets/projects/chevron-left.svg" />
+          <SquareButton kind="button" variant="ghost" size="small" disabled={!next.available} onClick={() => requestGalleryStep(1)} ariaLabel={`Следующее изображение: ${group.label}`} icon="/assets/projects/chevron-right.svg" />
         </div>
       </div>
 

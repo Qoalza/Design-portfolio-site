@@ -16,7 +16,7 @@
 
 Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
 
-## OPEN — Gallery motion, Tech typography, error controls и metadata (`MLIR7-*`)
+## IN_PROGRESS — Gallery motion, Tech typography, error controls и metadata (`MLIR7-*`)
 
 Активный пакет: `WORK_PACKET_MLIR7.md`. Новое evidence сохраняется только в `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
 
