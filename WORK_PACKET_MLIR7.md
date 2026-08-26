@@ -152,11 +152,11 @@ Commit: `Connect the approved favicon and site metadata`.
 
 До application edits выполнить disposable production proof вне Git worktree на Next `16.2.10`/React `19.2.7`: ordinary 404, dynamic-project 404 и deterministic 500, без client JS. Записать status, число/title tags, metadata source, streaming и duplicates. Допустимы только stable layout/page metadata, generateMetadata, route-local layout и `title.absolute`. `globalNotFound`, duplicate root layout и catch-all запрещены без решения пользователя. Если exact ordinary 404 initial title требует такой архитектуры, только G6 остаётся OPEN и останавливается.
 
-Подключить без регенерации approved `favicon.svg`, `favicon.ico`, `apple-touch-icon-light.png` как `src/app/icon.svg`, `src/app/favicon.ico`, `src/app/apple-icon.png`. SVG primary adaptive, ICO fallback, PNG fixed Apple asset; PWA assets не подключать.
+Browser favicon использует только предоставленный пользователем `/Users/designer/Documents/Figma/LOGO/Symbol.svg`: точная копия хранится как `design-reference/favicon-review/source/Symbol.svg` и `generated/favicon.svg`, а application source — `src/app/icon.svg`. Цвета фиксированы и одинаковы в light/dark; `prefers-color-scheme`, ICO и PNG browser-favicon fallback отсутствуют. `src/app/apple-icon.png` остаётся неизменённым отдельным Apple Touch Icon; PWA assets не подключать. Paths, fills, viewBox, пропорции и композицию `Symbol.svg` не изменять.
 
 Titles absolute где требуется: `/` `Artur Designer`; `/projects` `Мои работы — Artur Designer`; project `<Название> — Artur Designer`; 404 `Страница не найдена — Artur Designer`; 500 `Ошибка — Artur Designer`. Проверять отсутствие `Des-art`, `Artur Product` и фамилии только в metadata-generating code и actual metadata output.
 
-PASS: exact initial HTML titles ordinary/dynamic 404 and 500; no hydration change/duplicates; direct/reload/client nav; SVG selected in Chromium/Zen light/dark; correct MIME/200; copied asset hashes equal review source.
+PASS: exact initial HTML titles ordinary/dynamic 404 and 500; no hydration change/duplicates; direct/reload/client nav; один актуальный SVG browser favicon выбран в Zen и Arc light/dark, в tab и address bar; нет ICO/PNG favicon links или старого cache resource; SVG отвечает `image/svg+xml`/`200`; application/review hashes равны пользовательскому source; Apple Touch Icon hash не изменён.
 
 ## 13. G7 — финальные проверки и evidence
 
