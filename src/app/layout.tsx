@@ -12,6 +12,15 @@ export const metadata: Metadata = {
   title: { absolute: "Страница не найдена — Artur Designer" },
   description:
     "Портфолио продуктового дизайнера: B2B, B2E, SaaS и сложные внутренние системы.",
+  icons: {
+    icon: [
+      {
+        url: "/artur-designer-favicon.svg",
+        type: "image/svg+xml",
+        sizes: "any",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
