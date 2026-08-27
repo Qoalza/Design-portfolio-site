@@ -34,7 +34,7 @@ export function ProcessStepper({ children }: { children: ReactNode }) {
             kind="button"
             className={styles.previousButton}
             variant="light"
-            size="medium"
+            size="small"
             onClick={() => move(-1)}
             ariaLabel={step === 1 ? "Перейти к аналитике" : "Перейти к проектированию"}
             icon="/assets/homepage/chevron-down.svg"
@@ -49,7 +49,7 @@ export function ProcessStepper({ children }: { children: ReactNode }) {
           <SquareButton
             kind="button"
             variant="light"
-            size="medium"
+            size="small"
             onClick={() => move(1)}
             ariaLabel={step === 0 ? "Перейти к проектированию" : "Перейти к финалу"}
             icon="/assets/homepage/chevron-down.svg"
