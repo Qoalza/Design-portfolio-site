@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className={styles.footer}>
       <span className={styles.author}>
         <span className={`${styles.footerIcon} ${styles.authorIcon}`} aria-hidden="true" />
-        Deveploment and design Artur A.
+        Разработка и Дизайн Артур А.
       </span>
       <span className={styles.year}>2026</span>
     </footer>

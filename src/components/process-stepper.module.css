@@ -48,16 +48,29 @@
 
 .visible { opacity: 1; }
 
-.arrow {
+.processControl {
   position: absolute;
   z-index: 3;
   left: 50%;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   transform: translateX(-50%);
 }
 
-.arrowTop { top: 8px; transform: translateX(-50%) rotate(180deg); }
-.arrowBottom { bottom: 8px; }
+.processControlTop { top: 8px; }
+.processControlBottom { bottom: 8px; }
+
+.processControlLabel {
+  color: #acafb2;
+  font: 400 14px/20px "Onest", sans-serif;
+  letter-spacing: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.previousButton { transform: rotate(180deg); }
 
 @media (prefers-reduced-motion: reduce) {
   .track,

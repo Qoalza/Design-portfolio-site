@@ -26,10 +26,35 @@ export function ProcessStepper({ children }: { children: ReactNode }) {
       <div className={`${styles.fade} ${styles.fadeTop} ${step > 0 ? styles.visible : ""}`} aria-hidden="true" />
       <div className={`${styles.fade} ${styles.fadeBottom} ${step < stepCount - 1 ? styles.visible : ""}`} aria-hidden="true" />
       {step > 0 ? (
-        <SquareButton kind="button" className={`${styles.arrow} ${styles.arrowTop}`} variant="ghost" size="small" onClick={() => move(-1)} ariaLabel="Предыдущий этап" icon="/assets/homepage/chevron-down.svg" />
+        <div className={`${styles.processControl} ${styles.processControlTop}`}>
+          <span className={styles.processControlLabel} aria-hidden="true">
+            {step === 1 ? "к аналитике" : "к проектированию"}
+          </span>
+          <SquareButton
+            kind="button"
+            className={styles.previousButton}
+            variant="light"
+            size="medium"
+            onClick={() => move(-1)}
+            ariaLabel={step === 1 ? "Перейти к аналитике" : "Перейти к проектированию"}
+            icon="/assets/homepage/chevron-down.svg"
+          />
+        </div>
       ) : null}
       {step < stepCount - 1 ? (
-        <SquareButton kind="button" className={`${styles.arrow} ${styles.arrowBottom}`} variant="ghost" size="small" onClick={() => move(1)} ariaLabel="Следующий этап" icon="/assets/homepage/chevron-down.svg" />
+        <div className={`${styles.processControl} ${styles.processControlBottom}`}>
+          <span className={styles.processControlLabel} aria-hidden="true">
+            {step === 0 ? "к проектированию" : "к финалу"}
+          </span>
+          <SquareButton
+            kind="button"
+            variant="light"
+            size="medium"
+            onClick={() => move(1)}
+            ariaLabel={step === 0 ? "Перейти к проектированию" : "Перейти к финалу"}
+            icon="/assets/homepage/chevron-down.svg"
+          />
+        </div>
       ) : null}
       <span className="visually-hidden" aria-live="polite">Этап {step + 1} из {stepCount}</span>
     </div>
