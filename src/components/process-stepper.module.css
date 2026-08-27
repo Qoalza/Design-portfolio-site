@@ -1,5 +1,7 @@
 .viewport {
   position: relative;
+  isolation: isolate;
+  z-index: 0;
   width: 100vw;
   height: 608px;
   margin-left: calc(50% - 50vw);
@@ -9,6 +11,8 @@
 }
 
 .track {
+  position: relative;
+  z-index: 0;
   width: 1200px;
   margin: 0 auto;
   transform: translateY(48px);
