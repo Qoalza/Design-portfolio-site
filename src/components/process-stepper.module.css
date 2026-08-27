@@ -32,12 +32,18 @@
 
 .fadeTop {
   top: 0;
-  background: linear-gradient(to bottom, #fafafa 0 64px, rgba(250, 250, 250, 0) 140px);
+  background: linear-gradient(to bottom, #f5f6f7 12%, rgba(245, 246, 247, .86) 46%, rgba(245, 246, 247, 0));
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  mask-image: linear-gradient(to bottom, #000 10%, rgba(0, 0, 0, .7) 55%, transparent);
 }
 
 .fadeBottom {
   bottom: 0;
-  background: linear-gradient(to top, #fafafa 0 64px, rgba(250, 250, 250, 0) 140px);
+  background: linear-gradient(to top, #f5f6f7 12%, rgba(245, 246, 247, .86) 46%, rgba(245, 246, 247, 0));
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  mask-image: linear-gradient(to top, #000 10%, rgba(0, 0, 0, .7) 55%, transparent);
 }
 
 .visible { opacity: 1; }
@@ -51,6 +57,16 @@
   justify-content: center;
   gap: 8px;
   transform: translateX(-50%);
+}
+
+.processControl::before {
+  position: absolute;
+  z-index: -1;
+  width: 280px;
+  height: 80px;
+  background: radial-gradient(ellipse at center, rgba(250, 250, 250, .98) 0 36%, rgba(250, 250, 250, .84) 52%, rgba(250, 250, 250, 0) 78%);
+  content: "";
+  pointer-events: none;
 }
 
 .processControlTop { top: 32px; }
