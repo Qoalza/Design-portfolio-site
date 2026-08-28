@@ -1,121 +1,356 @@
 import "@radix-ui/themes/styles.css";
 import "./admin.css";
-/* eslint-disable @next/next/no-img-element -- local admin previews draft files outside Next Image */
-import { CheckCircledIcon, ChevronDownIcon, ChevronUpIcon, DragHandleDots2Icon, EyeOpenIcon, PlusIcon, TrashIcon, UploadIcon } from "@radix-ui/react-icons";
-import { AlertDialog, Badge, Box, Button, Callout, Dialog, Flex, Heading, IconButton, Select, Separator, Switch, Tabs, Text, TextArea, TextField, Theme } from "@radix-ui/themes";
+import { EyeOpenIcon } from "@radix-ui/react-icons";
+import { Badge, Box, Button, Callout, Flex, Heading, Tabs, Text, Theme } from "@radix-ui/themes";
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import type { ProjectContentBlock, ProjectDocument, ProjectGalleryGroup, ProjectGalleryItem, ProjectImage, ProjectInlineContent, ProjectPlatform, ProjectSectionBlock, ProjectVisibility } from "../../../src/lib/project-contract";
+import type { ProjectImage, ProjectVisibility } from "../../../src/lib/project-contract";
+import { HomeLimitDialog, PublishOverlay } from "./admin-dialogs";
+import { CardEditor, PageEditor } from "./admin-editor";
+import type { AdminProject, ChangeInventory, FieldIssue, PublishJob } from "./admin-model";
+import { ApiError } from "./admin-model";
+import { ProjectNavigation, type ProjectFilter, visibilityLabels } from "./admin-navigation";
+import { CardSettings, PageSettings, ProjectActions } from "./admin-rail";
+import { SavedMark } from "./admin-ui";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
-type Filter = "all" | ProjectVisibility;
-type Section = Extract<ProjectContentBlock, { type: "section" }>;
-type Gallery = Extract<ProjectContentBlock, { type: "gallery" }>;
-type PublishJob = { id: string; status: "queued" | "running" | "complete" | "failed"; message: string; error?: string; currentStage?: string; stages: Array<{ id: string; label: string; status: "pending" | "complete" }> };
 const csrf = document.body.dataset.csrf ?? "";
-const previewPort = document.body.dataset.previewPort ?? "41732";
-const key = (slug: string) => `des-art-admin:draft:${slug}`;
-const labels: Record<ProjectVisibility, string> = { draft: "Черновик", published: "Опубликован", deleted: "Удалён" };
-const filterLabels: Record<Filter, string> = { all: "Все", published: "Опубликованные", draft: "Черновики", deleted: "Удалённые" };
-const saveLabels: Record<SaveState, string> = { saved: "Все изменения сохранены", dirty: "Есть неопубликованные изменения", saving: "Сохранение…", restored: "Восстановлен локальный черновик" };
+const draftKey = (slug: string) => `des-art-admin:draft:${slug}`;
+const emptyInventory: ChangeInventory = { count: 0, projects: [] };
+const saveLabels: Record<SaveState, string> = {
+  saved: "Все изменения сохранены",
+  dirty: "Есть неопубликованные изменения",
+  saving: "Сохранение…",
+  restored: "Восстановлен локальный черновик",
+};
 
 async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(url, { ...options, headers: { "content-type": "application/json", "x-des-art-csrf": csrf, ...options.headers } });
-  const value = await response.json() as T & { error?: string };
-  if (!response.ok) throw new Error(value.error || "Ошибка запроса");
+  const response = await fetch(url, {
+    ...options,
+    headers: { "content-type": "application/json", "x-des-art-csrf": csrf, ...options.headers },
+  });
+  const value = await response.json() as T & { error?: string; issues?: FieldIssue[] };
+  if (!response.ok) throw new ApiError(value.error || "Не удалось выполнить действие.", value.issues ?? []);
   return value;
 }
-const list = (value: string) => value.split(",").map((item) => item.trim()).filter(Boolean);
-const textOf = (content: ProjectInlineContent[] = []) => content.map((item) => item.text).join("");
-const inline = (value: string): ProjectInlineContent[] => [{ type: "text", text: value }];
 
-function sectionText(section: Section) {
-  return section.blocks.flatMap((block) => block.type === "paragraph" ? [textOf(block.content), ""] : block.type === "heading" ? [`${"#".repeat(block.level)} ${textOf(block.content)}`, ""] : block.type === "list" ? [...block.items.map((item, index) => `${block.style === "ordered" ? `${index + 1}.` : "-"} ${textOf(item)}`), ""] : []).join("\n").trim();
-}
-function textBlocks(value: string): ProjectSectionBlock[] {
-  const result: ProjectSectionBlock[] = []; let paragraph: string[] = [];
-  const flush = () => { const value = paragraph.join("\n").trim(); if (value) result.push({ type: "paragraph", content: inline(value) }); paragraph = []; };
-  const lines = value.replaceAll("\r", "").split("\n");
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index]; if (!line.trim()) { flush(); continue; }
-    const heading = /^(#{3,6})\s+(.+)$/.exec(line); if (heading) { flush(); result.push({ type: "heading", level: heading[1].length as 3 | 4 | 5 | 6, content: inline(heading[2]) }); continue; }
-    const item = /^(-|\d+\.)\s+(.+)$/.exec(line); if (item) { flush(); const style = item[1] === "-" ? "unordered" : "ordered"; const items = [inline(item[2])]; while (index + 1 < lines.length) { const next = /^(-|\d+\.)\s+(.+)$/.exec(lines[index + 1]); if (!next || (next[1] === "-" ? "unordered" : "ordered") !== style) break; index += 1; items.push(inline(next[2])); } result.push({ type: "list", style, items }); continue; }
-    paragraph.push(line);
-  }
-  flush(); return result;
-}
-
-function Field({ label, hint, wide, children }: { label: string; hint?: string; wide?: boolean; children: React.ReactNode }) {
-  return <label className={`field${wide ? " field-wide" : ""}`}><Text size="2" weight="medium">{label}</Text>{children}<span className="field-help">{hint ?? "\u00a0"}</span></label>;
-}
-function Asset({ title, image, managed, upload, remove }: { title: string; image?: ProjectImage; managed?: boolean; upload: (file: File) => void; remove?: () => void }) {
-  const input = useRef<HTMLInputElement>(null);
-  return <div className="asset-field"><div><Text weight="medium">{title}</Text><Text as="p" size="1" color="gray">{managed ? "Сложная композиция управляется кодом и сохранена без изменений." : image ? "Изображение подключено." : "Изображение не загружено."}</Text></div>{image ? <img className="asset-preview" src={image.src} alt="" /> : <div className="asset-placeholder" />}<Flex gap="2"><Button size="1" variant="soft" onClick={() => input.current?.click()}><UploadIcon />{image ? "Заменить явно" : "Загрузить"}</Button>{image && remove && !managed ? <Button size="1" variant="ghost" color="red" onClick={remove}>Удалить</Button> : null}</Flex><input ref={input} hidden type="file" accept="image/png,image/jpeg,image/gif,image/webp" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(file); event.target.value = ""; }} /></div>;
-}
-
-function CardEditor({ project, update, upload, home }: { project: ProjectDocument; update: (patch: Partial<ProjectDocument>) => void; upload: (file: File, context: string) => Promise<ProjectImage>; home: (enabled: boolean) => void }) {
-  const platform = (item: ProjectPlatform, enabled: boolean) => update({ platforms: enabled ? [...new Set([...project.platforms, item])] : project.platforms.filter((value) => value !== item) });
-  return <div className="editor-stack"><section className="editor-section"><div className="section-title"><div><Heading size="4">Карточка проекта</Heading><Text size="2" color="gray">Главная и страница «Все работы».</Text></div></div><div className="form-grid"><Field label="Название"><TextField.Root value={project.title} onChange={(event) => update({ title: event.target.value })} /></Field><Field label="Slug" hint="Адрес задаётся при создании"><TextField.Root readOnly value={project.slug} /></Field><Field label="Описание" wide><TextArea value={project.description} onChange={(event) => update({ description: event.target.value })} /></Field><Field label="Роль"><TextField.Root value={project.role} onChange={(event) => update({ role: event.target.value })} /></Field><Field label="Год"><TextField.Root type="number" value={String(project.year)} onChange={(event) => update({ year: Number(event.target.value) })} /></Field><Field label="Краткие теги" hint="Через запятую" wide><TextField.Root value={project.tags.join(", ")} onChange={(event) => update({ tags: list(event.target.value) })} /></Field><Field label="Что делал" wide><TextArea value={project.workSummary ?? ""} onChange={(event) => update({ workSummary: event.target.value || undefined })} /></Field></div><div className="platforms"><Text size="2" weight="medium">Платформы</Text><Flex gap="5" wrap="wrap">{(["Desktop", "Tablet", "Mobile"] as ProjectPlatform[]).map((item) => <label className="switch-label" key={item}><Switch checked={project.platforms.includes(item)} onCheckedChange={(value) => platform(item, value)} />{item}</label>)}</Flex></div></section><section className="editor-section"><Asset title="Обложка карточки" image={project.catalogImage ?? project.hero?.image} managed={!project.catalogImage && Boolean(project.hero)} upload={async (file) => update({ catalogImage: await upload(file, "Обложка проекта") })} remove={() => update({ catalogImage: undefined })} /></section><section className="editor-section compact"><div className="switch-line"><div><Text weight="medium">Показывать на главной</Text><Text as="p" size="1" color="gray">Не более трёх опубликованных проектов.{project.featuredOnHome && project.homeOrder ? ` На главной · позиция ${project.homeOrder}` : ""}</Text></div><Switch checked={project.featuredOnHome} onCheckedChange={home} /></div></section></div>;
-}
-
-function Materials({ project, update }: { project: ProjectDocument; update: (patch: Partial<ProjectDocument>) => void }) {
-  const value = project.materials;
-  const projectState = (state: "completed" | "in_progress") => update({ materials: state === "completed" ? { projectState: "completed", fileState: "available", figmaUrl: "" } : { projectState: "in_progress", fileState: "available", figmaUrl: "" } });
-  const fileState = (state: string) => update({ materials: value.projectState === "completed" ? state === "available" ? { projectState: "completed", fileState: "available", figmaUrl: "" } : { projectState: "completed", fileState: "absent" } : state === "available" ? { projectState: "in_progress", fileState: "available", figmaUrl: "" } : { projectState: "in_progress", fileState: "unavailable" } });
-  return <section className="editor-section"><div className="section-title"><div><Heading size="4">Состояние материалов</Heading><Text size="2" color="gray">Определяет блок файла внизу страницы.</Text></div></div><div className="form-grid"><Field label="Проект"><Select.Root value={value.projectState} onValueChange={(item) => projectState(item as "completed" | "in_progress")}><Select.Trigger /><Select.Content><Select.Item value="completed">Завершён</Select.Item><Select.Item value="in_progress">Дополняется</Select.Item></Select.Content></Select.Root></Field><Field label="Файл"><Select.Root value={value.fileState} onValueChange={fileState}><Select.Trigger /><Select.Content><Select.Item value="available">Доступен</Select.Item>{value.projectState === "completed" ? <Select.Item value="absent">У проекта нет файла</Select.Item> : <Select.Item value="unavailable">Временно недоступен</Select.Item>}</Select.Content></Select.Root></Field>{value.fileState === "available" ? <Field label="Ссылка на Figma" hint="Обязательное поле" wide><TextField.Root type="url" value={value.figmaUrl} onChange={(event) => update({ materials: { ...value, figmaUrl: event.target.value } })} /></Field> : null}{value.projectState === "in_progress" && value.fileState === "available" ? <Field label="Дата последнего обновления" hint="Необязательно"><TextField.Root value={value.updatedAt ?? ""} onChange={(event) => update({ materials: { ...value, updatedAt: event.target.value || undefined } })} /></Field> : null}</div>{value.projectState === "completed" && value.fileState === "absent" ? <Callout.Root color="gray"><Callout.Text>Будет отображён текст: «У проекта нет отдельного файла»</Callout.Text></Callout.Root> : null}</section>;
-}
-
-function SectionEditor({ section, index, count, change, move, remove }: { section: Section; index: number; count: number; change: (value: Section) => void; move: (delta: number) => void; remove: () => void }) {
-  const textarea = useRef<HTMLTextAreaElement>(null); const value = sectionText(section);
-  const notice = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "notice" }> => block.type === "notice");
-  const managed = section.blocks.filter((block): block is Extract<ProjectSectionBlock, { type: "image" }> => block.type === "image");
-  const rebuild = (text: string, nextNotice = notice) => change({ ...section, blocks: [...textBlocks(text), ...(nextNotice ? [nextNotice] : []), ...managed, ...(managed.length ? [] : [{ type: "divider" as const }])] });
-  const format = (before: string, after = before) => { const node = textarea.current; if (!node) return; const start = node.selectionStart; const end = node.selectionEnd; const selection = value.slice(start, end) || "текст"; rebuild(`${value.slice(0, start)}${before}${selection}${after}${value.slice(end)}`); };
-  return <section className="editor-section section-editor"><div className="section-title"><Heading size="3">Секция {index + 1}</Heading><Flex gap="1"><IconButton size="1" variant="outline" color="gray" disabled={index === 0} onClick={() => move(-1)}><ChevronUpIcon /></IconButton><IconButton size="1" variant="outline" color="gray" disabled={index === count - 1} onClick={() => move(1)}><ChevronDownIcon /></IconButton><IconButton size="1" variant="ghost" color="red" onClick={remove}><TrashIcon /></IconButton></Flex></div><Field label="Заголовок секции"><TextField.Root value={section.heading} onChange={(event) => change({ ...section, heading: event.target.value })} /></Field><div className="rich-editor"><div className="rich-toolbar"><Button size="1" variant="ghost" onClick={() => format("### ", "")}>Подзаголовок</Button><Button size="1" variant="ghost" onClick={() => format("**")}>B</Button><Button size="1" variant="ghost" onClick={() => format("_")}>I</Button><Button size="1" variant="ghost" onClick={() => format("<u>", "</u>")}>U</Button><Button size="1" variant="ghost" onClick={() => format("[", "](https://)")}>Ссылка</Button><Button size="1" variant="ghost" onClick={() => format("- ", "")}>• Список</Button><Button size="1" variant="ghost" onClick={() => format("1. ", "")}>1. Список</Button></div><TextArea ref={textarea} rows={8} value={value} onChange={(event) => rebuild(event.target.value)} placeholder="Описание секции" /></div><div className="notice"><div className="switch-line"><div><Text weight="medium">Примечание</Text><Text as="p" size="1" color="gray">Отдельный акцентный текст.</Text></div><Switch checked={Boolean(notice)} onCheckedChange={(enabled) => rebuild(value, enabled ? { type: "notice", variant: "default", content: inline("") } : undefined)} /></div>{notice ? <div className="form-grid"><Field label="Текст" wide><TextArea value={textOf(notice.content)} onChange={(event) => rebuild(value, { ...notice, content: inline(event.target.value) })} /></Field><Field label="Ширина"><Select.Root value={notice.variant} onValueChange={(item) => rebuild(value, { ...notice, variant: item as "default" | "wide" })}><Select.Trigger /><Select.Content><Select.Item value="default">Обычная</Select.Item><Select.Item value="wide">Широкая</Select.Item></Select.Content></Select.Root></Field></div> : null}</div>{managed.length ? <Callout.Root color="gray"><Callout.Text>Интерактивный экран управляется кодом и сохранён без изменений. Разделитель скрыт.</Callout.Text></Callout.Root> : <Text size="1" color="gray">После секции будет разделитель.</Text>}</section>;
-}
-
-const groupDefaults: Record<ProjectGalleryGroup["id"], Omit<ProjectGalleryGroup, "items">> = { desktop: { id: "desktop", label: "Desktop", icon: "/assets/device-desktop.svg", baseWidth: 740, baseHeight: 512 }, tablet: { id: "tablet", label: "Tablet", icon: "/assets/device-tablet.svg", baseWidth: 400, baseHeight: 566 }, mobile: { id: "mobile", label: "Mobile", icon: "/assets/device-mobile.svg", baseWidth: 180, baseHeight: 320 } };
-function GalleryEditor({ gallery, change, upload }: { gallery: Gallery; change: (value: Gallery) => void; upload: (file: File, context: string) => Promise<ProjectImage> }) {
-  const updateGroup = (id: string, value: ProjectGalleryGroup) => change({ ...gallery, groups: gallery.groups.map((group) => group.id === id ? value : group) });
-  return <section className="editor-section"><div className="section-title"><div><Heading size="4">Галерея</Heading><Text size="2" color="gray">Название и подпись заданы публичным шаблоном.</Text></div><Badge>{gallery.groups.reduce((sum, group) => sum + group.items.length, 0)} изображений</Badge></div><Flex gap="5">{(["desktop", "tablet", "mobile"] as const).map((id) => <label className="switch-label" key={id}><Switch checked={gallery.groups.some((group) => group.id === id)} onCheckedChange={(enabled) => change({ ...gallery, groups: enabled ? [...gallery.groups, { ...groupDefaults[id], items: [] }] : gallery.groups.filter((group) => group.id !== id) })} />{groupDefaults[id].label}</label>)}</Flex>{gallery.groups.map((group) => <div className="gallery-group" key={group.id}><div className="section-title"><Heading size="3">{group.label}</Heading><label><Button asChild size="1" variant="soft"><span><UploadIcon />Добавить</span></Button><input hidden type="file" accept="image/png,image/jpeg,image/gif,image/webp" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; const image = await upload(file, `Галерея ${group.label}`); const item: ProjectGalleryItem = { ...image, frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } }; updateGroup(group.id, { ...group, items: [...group.items, item] }); event.target.value = ""; }} /></label></div><ol className="gallery-list">{group.items.map((item, index) => <li key={`${item.src}-${index}`}><DragHandleDots2Icon /><img src={item.src} alt="" /><Text size="2">Изображение {index + 1}</Text><IconButton size="1" variant="ghost" color="red" onClick={() => updateGroup(group.id, { ...group, items: group.items.filter((_, i) => i !== index) })}><TrashIcon /></IconButton></li>)}</ol></div>)}</section>;
-}
-
-function PageEditor({ project, update, upload }: { project: ProjectDocument; update: (patch: Partial<ProjectDocument>) => void; upload: (file: File, context: string) => Promise<ProjectImage> }) {
-  const sections = project.content.filter((block): block is Section => block.type === "section");
-  const gallery = project.content.find((block): block is Gallery => block.type === "gallery") ?? { type: "gallery", title: "Галерея", description: "Интерфейсы проекта", groups: [] };
-  const replace = (target: ProjectContentBlock, value: ProjectContentBlock) => update({ content: project.content.map((block) => block === target ? value : block) });
-  const galleryChange = (value: Gallery) => update({ content: project.content.some((block) => block.type === "gallery") ? project.content.map((block) => block.type === "gallery" ? value : block) : [...project.content, value] });
-  return <div className="editor-stack"><section className="editor-section compact"><div className="switch-line"><div><Text weight="medium">Страница проекта</Text><Text as="p" size="1" color="gray">{project.detailAvailable ? "Доступна по публичному адресу." : "Недоступна; в карточке отображается «Скоро»."}</Text></div><Switch checked={project.detailAvailable} onCheckedChange={(value) => update({ detailAvailable: value })} /></div></section><section className="editor-section"><Field label="Подробные теги" hint="Только наверху открытого проекта" wide><TextField.Root value={project.detailTags.join(", ")} onChange={(event) => update({ detailTags: list(event.target.value) })} /></Field></section><section className="editor-section"><Asset title="Главное изображение страницы" image={project.hero?.image} managed={project.hero?.presentation === "browser-composite"} upload={async (file) => update({ hero: { presentation: "single", image: await upload(file, "Главное изображение страницы") } })} /></section><Materials project={project} update={update} /><div className="content-heading"><div><Heading size="4">Содержание страницы</Heading><Text size="2" color="gray">Секции соответствуют закреплённой навигации.</Text></div><Button size="2" variant="soft" onClick={() => update({ content: [...project.content.filter((block) => block.type !== "gallery"), { type: "section", heading: "Новая секция", blocks: [{ type: "divider" }] }, ...project.content.filter((block) => block.type === "gallery")] })}><PlusIcon />Секция</Button></div>{sections.map((section, index) => <SectionEditor key={`${project.content.indexOf(section)}`} section={section} index={index} count={sections.length} change={(value) => replace(section, value)} move={(delta) => { const from = project.content.indexOf(section); let to = from + delta; while (to >= 0 && to < project.content.length && project.content[to].type !== "section") to += delta; if (to < 0 || to >= project.content.length) return; const content = [...project.content]; [content[from], content[to]] = [content[to], content[from]]; update({ content }); }} remove={() => update({ content: project.content.filter((block) => block !== section) })} />)}<GalleryEditor gallery={gallery} change={galleryChange} upload={upload} /></div>;
-}
-
-function Navigation({ projects, current, filter, setFilter, search, setSearch, open, create, reorder, publishAll, shutdown }: { projects: ProjectDocument[]; current?: string; filter: Filter; setFilter: (value: Filter) => void; search: string; setSearch: (value: string) => void; open: (slug: string) => void; create: () => void; reorder: (slugs: string[]) => void; publishAll: () => void; shutdown: () => void }) {
-  const counts = { all: projects.length, published: projects.filter((item) => item.visibility === "published").length, draft: projects.filter((item) => item.visibility === "draft").length, deleted: projects.filter((item) => item.visibility === "deleted").length };
-  const ordered = [...projects].filter((item) => filter === "all" || item.visibility === filter).sort((a, b) => filter === "published" ? a.catalogOrder - b.catalogOrder : b.year - a.year).filter((item) => item.title.toLowerCase().includes(search.toLowerCase()));
-  const [dragged, setDragged] = useState<string>();
-  return <aside className="project-nav"><div className="nav-heading"><Heading size="4">Проекты</Heading><IconButton variant="soft" onClick={create}><PlusIcon /></IconButton></div><div className="nav-tabs" role="tablist">{(Object.keys(filterLabels) as Filter[]).map((item) => <button role="tab" key={item} aria-selected={filter === item} onClick={() => setFilter(item)}>{filterLabels[item]} <span>{counts[item]}</span></button>)}</div><TextField.Root placeholder="Найти проект" value={search} onChange={(event) => setSearch(event.target.value)} /><ol className="project-list">{ordered.map((project) => <li key={project.slug} draggable={filter === "published"} onDragStart={() => setDragged(project.slug)} onDragOver={(event) => event.preventDefault()} onDrop={() => { if (!dragged || filter !== "published") return; const slugs = ordered.map((item) => item.slug); const from = slugs.indexOf(dragged); const to = slugs.indexOf(project.slug); slugs.splice(to, 0, slugs.splice(from, 1)[0]); reorder(slugs); }}><div className="project-row" data-active={current === project.slug}>{filter === "published" ? <DragHandleDots2Icon /> : null}<button onClick={() => open(project.slug)}><span>{project.title}</span><small><Badge color={project.visibility === "published" ? "green" : project.visibility === "deleted" ? "red" : "gray"}>{labels[project.visibility]}</Badge>{project.year}</small></button></div></li>)}</ol><div className="nav-footer"><Button variant="outline" onClick={publishAll}>Опубликовать все изменения</Button><Button size="1" variant="ghost" color="gray" onClick={shutdown}>Завершить админку</Button></div></aside>;
-}
-
-function HomeDialog({ open, projects, requested, cancel, apply }: { open: boolean; projects: ProjectDocument[]; requested?: string; cancel: () => void; apply: (slugs: string[]) => void }) {
-  const initial = useMemo(() => { const selected = projects.filter((item) => item.featuredOnHome).sort((a, b) => (a.homeOrder ?? 99) - (b.homeOrder ?? 99)).map((item) => item.slug); return requested && !selected.includes(requested) ? [...selected, requested] : selected; }, [projects, requested]);
-  const [slugs, setSlugs] = useState(initial);
-  return <Dialog.Root open={open} onOpenChange={(value) => { if (!value) cancel(); }}><Dialog.Content maxWidth="560px"><Dialog.Title>На главной можно показать три проекта</Dialog.Title><Dialog.Description>Отключите один проект и расположите оставшиеся в нужном порядке.</Dialog.Description><div className="home-list">{initial.map((slug) => <div key={slug}><DragHandleDots2Icon /><Switch checked={slugs.includes(slug)} onCheckedChange={(value) => setSlugs(value ? [...slugs, slug] : slugs.filter((item) => item !== slug))} /><Text>{projects.find((item) => item.slug === slug)?.title}</Text></div>)}</div><Flex justify="end" gap="3"><Button variant="soft" color="gray" onClick={cancel}>Отмена</Button><Button disabled={slugs.length > 3} onClick={() => apply(slugs)}>Применить</Button></Flex></Dialog.Content></Dialog.Root>;
+function safeMessage(error: unknown): string {
+  return error instanceof ApiError ? error.message : "Не удалось выполнить действие. Повторите попытку.";
 }
 
 function App() {
-  const [projects, setProjects] = useState<ProjectDocument[]>([]); const [current, setCurrent] = useState<ProjectDocument | null>(null); const [filter, setFilter] = useState<Filter>("all"); const [search, setSearch] = useState(""); const [tab, setTab] = useState("card"); const [state, setState] = useState<SaveState>("saved"); const [message, setMessage] = useState(""); const [homeRequest, setHomeRequest] = useState<string>(); const [job, setJob] = useState<PublishJob | null>(null); const dirty = useRef(false); const latest = useRef<ProjectDocument | null>(null);
-  const refresh = async () => setProjects(await api("/api/projects")); useEffect(() => { let active = true; api<ProjectDocument[]>("/api/projects").then((value) => { if (active) setProjects(value); }).catch((error) => { if (active) setMessage(error.message); }); return () => { active = false; }; }, []); useEffect(() => { latest.current = current; }, [current]);
-  useEffect(() => { if (!current || !dirty.current) return; localStorage.setItem(key(current.slug), JSON.stringify({ savedAt: Date.now(), project: current })); setState("dirty"); const timeout = window.setTimeout(async () => { setState("saving"); try { await api(`/api/drafts/${current.slug}`, { method: "PUT", body: JSON.stringify(current) }); dirty.current = false; setState("saved"); await refresh(); } catch (error) { setMessage(error instanceof Error ? error.message : "Ошибка сохранения"); setState("dirty"); } }, 450); return () => clearTimeout(timeout); }, [current]);
-  const flush = async () => { if (dirty.current && latest.current) { await api(`/api/drafts/${latest.current.slug}`, { method: "PUT", body: JSON.stringify(latest.current) }); dirty.current = false; setState("saved"); } };
-  const open = async (slug: string) => { await flush(); const server = await api<ProjectDocument>(`/api/projects/${slug}`); const backup = localStorage.getItem(key(slug)); if (backup) try { const value = JSON.parse(backup).project as ProjectDocument; if (value.slug === slug) { setCurrent(value); dirty.current = true; setState("restored"); return; } } catch {} setCurrent(server); dirty.current = false; setState("saved"); };
-  const update = (patch: Partial<ProjectDocument>) => { dirty.current = true; setCurrent((value) => value ? { ...value, ...patch } : null); };
-  const upload = async (file: File, context: string) => { if (!current) throw new Error("Проект не выбран"); const data = await new Promise<string>((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.readAsDataURL(file); }); return api<ProjectImage>(`/api/projects/${current.slug}/upload`, { method: "POST", body: JSON.stringify({ name: file.name, mime: file.type, data, alt: context }) }); };
-  const preview = async () => { await flush(); if (current) window.open(`http://127.0.0.1:${previewPort}/projects/${current.slug}?admin-preview=1`, "des-art-preview"); };
-  const setVisibility = async (visibility: ProjectVisibility) => { if (!current) return; await flush(); setCurrent(await api(`/api/projects/${current.slug}/visibility`, { method: "POST", body: JSON.stringify({ visibility }) })); await refresh(); };
-  const requestHome = (enabled: boolean) => { if (!current) return; if (!enabled) update({ featuredOnHome: false, homeOrder: undefined }); else { const selected = projects.filter((item) => item.featuredOnHome && item.slug !== current.slug); if (selected.length >= 3) setHomeRequest(current.slug); else update({ featuredOnHome: true, homeOrder: selected.length + 1 }); } };
-  const applyHome = async (slugs: string[]) => { await Promise.all(projects.filter((item) => item.featuredOnHome || slugs.includes(item.slug) || item.slug === homeRequest).map((item) => api(`/api/drafts/${item.slug}`, { method: "PUT", body: JSON.stringify({ ...item, featuredOnHome: slugs.includes(item.slug), homeOrder: slugs.includes(item.slug) ? slugs.indexOf(item.slug) + 1 : undefined }) }))); setHomeRequest(undefined); await refresh(); if (current) await open(current.slug); };
-  const createProject = async () => { const slug = prompt("Адрес нового проекта латиницей, например new-project"); if (!slug) return; if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error("Slug может содержать только строчные латинские буквы, цифры и дефисы."); const project: ProjectDocument = { schemaVersion: 2, title: "Новый проект", slug, description: "Описание проекта", role: "Product Designer", year: new Date().getFullYear(), tags: [], detailTags: [], visibility: "draft", catalogOrder: projects.length + 1, featuredOnHome: false, detailAvailable: false, materials: { projectState: "completed", fileState: "absent" }, platforms: [], content: [] }; await api(`/api/drafts/${slug}`, { method: "PUT", body: JSON.stringify(project) }); await refresh(); await open(slug); };
-  const startPublish = async (scope: "project" | "all") => { await flush(); const name = scope === "project" ? current?.title : `${projects.length} проектов и глобальные настройки`; if (!confirm(`Локальная репетиция публикации: ${name}. Production не изменится. Продолжить?`)) return; const started = await api<PublishJob>("/api/publish/start", { method: "POST", body: JSON.stringify({ scope, slug: current?.slug, dryRun: true }) }); setJob(started); };
-  useEffect(() => { if (!job || job.status === "complete" || job.status === "failed") return; const timer = window.setInterval(() => api<PublishJob | null>("/api/publish/status").then((value) => value && setJob(value)).catch(() => {}), 600); return () => clearInterval(timer); }, [job]);
-  return <Theme accentColor="blue" grayColor="sand" radius="small"><div className="admin-shell"><header className="admin-topbar"><Heading size="4">Des-art Admin</Heading><Text color="gray">{current?.title ?? "Локальные проекты"}</Text><Flex gap="3" align="center"><Text size="2" color={state === "dirty" ? "orange" : "green"}>{state === "saved" ? <CheckCircledIcon /> : null}{saveLabels[state]}</Text>{current ? <Button variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button> : null}</Flex></header><main className="admin-workspace"><Navigation projects={projects} current={current?.slug} filter={filter} setFilter={setFilter} search={search} setSearch={setSearch} open={(slug) => open(slug).catch((error) => setMessage(error.message))} create={() => createProject().catch((error) => setMessage(error.message))} reorder={(slugs) => api<ProjectDocument[]>("/api/projects/reorder", { method: "POST", body: JSON.stringify({ slugs }) }).then(setProjects)} publishAll={() => startPublish("all").catch((error) => setMessage(error.message))} shutdown={() => { if (confirm("Завершить админку?")) api("/api/shutdown", { method: "POST" }); }} /><section className="editor-area">{current ? <div className="editor-inner"><div className="editor-title"><div><Heading size="7">{current.title}</Heading><Badge color={current.visibility === "published" ? "green" : current.visibility === "deleted" ? "red" : "gray"}>{labels[current.visibility]}</Badge></div><Button onClick={() => startPublish("project").catch((error) => setMessage(error.message))}>Опубликовать этот проект</Button></div>{message ? <Callout.Root mb="4"><Callout.Text>{message}</Callout.Text></Callout.Root> : null}<Tabs.Root value={tab} onValueChange={setTab}><Tabs.List><Tabs.Trigger value="card">Карточка</Tabs.Trigger><Tabs.Trigger value="page">Страница проекта</Tabs.Trigger></Tabs.List><Box pt="5"><Tabs.Content value="card"><CardEditor project={current} update={update} upload={upload} home={requestHome} /></Tabs.Content><Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} /></Tabs.Content></Box></Tabs.Root></div> : <div className="empty-state"><Heading size="5">Выберите проект</Heading></div>}</section><aside className="project-rail">{current ? <div className="rail-stack"><Heading size="4">Состояние</Heading><Select.Root value={current.visibility} onValueChange={(value) => setVisibility(value as ProjectVisibility)}><Select.Trigger /><Select.Content><Select.Item value="draft">Черновик</Select.Item><Select.Item value="published">Опубликован</Select.Item><Select.Item value="deleted">Удалён</Select.Item></Select.Content></Select.Root><Separator size="4" /><Button onClick={() => startPublish("project").catch((error) => setMessage(error.message))}>Опубликовать этот проект</Button><Button variant="soft" color="gray" onClick={preview}>Предпросмотр</Button>{current.visibility === "deleted" ? <><Button variant="soft" onClick={() => setVisibility("draft")}>Восстановить</Button><AlertDialog.Root><AlertDialog.Trigger><Button variant="ghost" color="red">Удалить навсегда</Button></AlertDialog.Trigger><AlertDialog.Content><AlertDialog.Title>Удалить проект навсегда?</AlertDialog.Title><AlertDialog.Description>Будут удалены локальный черновик и draft-ассеты.</AlertDialog.Description><Flex justify="end" gap="3" mt="5"><AlertDialog.Cancel><Button variant="soft" color="gray">Отмена</Button></AlertDialog.Cancel><AlertDialog.Action><Button color="red" onClick={() => api(`/api/projects/${current.slug}/permanent`, { method: "DELETE" }).then(async () => { setCurrent(null); await refresh(); }).catch((error) => setMessage(error.message))}>Удалить</Button></AlertDialog.Action></Flex></AlertDialog.Content></AlertDialog.Root></> : <Button variant="ghost" color="red" onClick={() => setVisibility("deleted")}>Переместить в удалённые</Button>}</div> : null}</aside></main><HomeDialog key={homeRequest ?? "closed"} open={Boolean(homeRequest)} projects={projects} requested={homeRequest} cancel={() => setHomeRequest(undefined)} apply={(slugs) => applyHome(slugs).catch((error) => setMessage(error.message))} />{job ? <div className="publish-overlay" role="dialog" aria-modal="true"><div className="publish-card"><div className="publish-stages">{job.stages.map((stage) => <div key={stage.id} data-state={stage.status === "complete" ? "complete" : job.currentStage === stage.id ? "active" : "pending"}><span>{stage.status === "complete" ? <CheckCircledIcon /> : <i />}</span><Text size="1">{stage.label}</Text></div>)}</div><div className="publish-current">{job.status === "running" || job.status === "queued" ? <div className="spinner" /> : job.status === "complete" ? <CheckCircledIcon /> : <TrashIcon />}<Heading size="5">{job.status === "failed" ? "Публикация остановлена" : job.message}</Heading>{job.error ? <Text color="red">{job.error}</Text> : <Text color="gray">Это безопасная локальная репетиция. Production не изменяется.</Text>}</div><Text className="publish-warning" size="2">Можно закрыть эту страницу. Не выключайте Mac до завершения публикации.</Text>{job.status === "complete" || job.status === "failed" ? <Button onClick={() => setJob(null)}>Закрыть</Button> : null}</div></div> : null}</div></Theme>;
+  const [projects, setProjects] = useState<AdminProject[]>([]);
+  const [inventory, setInventory] = useState<ChangeInventory>(emptyInventory);
+  const [current, setCurrent] = useState<AdminProject | null>(null);
+  const [filter, setFilter] = useState<ProjectFilter>("all");
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState("card");
+  const [saveState, setSaveState] = useState<SaveState>("saved");
+  const [message, setMessage] = useState("");
+  const [issues, setIssues] = useState<FieldIssue[]>([]);
+  const [selectedSection, setSelectedSection] = useState<string>();
+  const [homeRequest, setHomeRequest] = useState<string>();
+  const [job, setJob] = useState<PublishJob | null>(null);
+  const dirty = useRef(false);
+  const latest = useRef<AdminProject | null>(null);
+
+  const refresh = async () => {
+    const [nextProjects, nextInventory] = await Promise.all([
+      api<AdminProject[]>("/api/projects"),
+      api<ChangeInventory>("/api/changes"),
+    ]);
+    setProjects(nextProjects);
+    setInventory(nextInventory);
+  };
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([api<AdminProject[]>("/api/projects"), api<ChangeInventory>("/api/changes")])
+      .then(([nextProjects, nextInventory]) => {
+        if (!active) return;
+        setProjects(nextProjects);
+        setInventory(nextInventory);
+      })
+      .catch((error) => { if (active) setMessage(safeMessage(error)); });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => { latest.current = current; }, [current]);
+  useEffect(() => {
+    if (!current || !dirty.current) return;
+    localStorage.setItem(draftKey(current.slug), JSON.stringify({ savedAt: Date.now(), project: current }));
+    setSaveState("dirty");
+    const timeout = window.setTimeout(async () => {
+      setSaveState("saving");
+      try {
+        await api(`/api/drafts/${current.slug}`, { method: "PUT", body: JSON.stringify(current) });
+        dirty.current = false;
+        localStorage.removeItem(draftKey(current.slug));
+        setSaveState("saved");
+        await refresh();
+      } catch (error) {
+        setMessage(safeMessage(error));
+        setSaveState("dirty");
+      }
+    }, 450);
+    return () => clearTimeout(timeout);
+  }, [current]);
+
+  const flush = async () => {
+    if (!dirty.current || !latest.current) return;
+    const project = latest.current;
+    await api(`/api/drafts/${project.slug}`, { method: "PUT", body: JSON.stringify(project) });
+    dirty.current = false;
+    localStorage.removeItem(draftKey(project.slug));
+    setSaveState("saved");
+    await refresh();
+  };
+
+  const openProject = async (slug: string) => {
+    await flush();
+    setMessage("");
+    setIssues([]);
+    const server = await api<AdminProject>(`/api/projects/${slug}`);
+    const backup = localStorage.getItem(draftKey(slug));
+    if (backup) {
+      try {
+        const value = JSON.parse(backup).project as AdminProject;
+        if (value.slug === slug) {
+          setCurrent(value);
+          dirty.current = true;
+          setSaveState("restored");
+          setSelectedSection(value.content.find((block) => block.type === "section")?.adminId);
+          return;
+        }
+      } catch {
+        localStorage.removeItem(draftKey(slug));
+      }
+    }
+    setCurrent(server);
+    dirty.current = false;
+    setSaveState("saved");
+    setSelectedSection(server.content.find((block) => block.type === "section")?.adminId);
+  };
+
+  const update = (patch: Partial<AdminProject>) => {
+    dirty.current = true;
+    setIssues([]);
+    setCurrent((value) => value ? { ...value, ...patch } : null);
+  };
+
+  const upload = async (file: File, context: string) => {
+    if (!current) throw new ApiError("Сначала выберите проект.");
+    const data = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(",")[1]);
+      reader.onerror = () => reject(new ApiError("Не удалось прочитать изображение."));
+      reader.readAsDataURL(file);
+    });
+    return api<ProjectImage>(`/api/projects/${current.slug}/upload`, {
+      method: "POST",
+      body: JSON.stringify({ name: file.name, mime: file.type, data, alt: context }),
+    });
+  };
+
+  const preview = () => {
+    if (!current) return;
+    const popup = window.open("about:blank", "des-art-preview");
+    if (popup) popup.document.title = "Подготовка предпросмотра…";
+    void (async () => {
+      try {
+        await flush();
+        const result = await api<{ ready: true; url: string }>(`/api/preview/${current.slug}`, { method: "POST" });
+        if (popup) popup.location.href = result.url;
+        else window.open(result.url, "des-art-preview");
+      } catch (error) {
+        popup?.close();
+        setIssues(error instanceof ApiError ? error.issues : []);
+        setMessage(safeMessage(error));
+      }
+    })();
+  };
+
+  const setVisibility = async (visibility: ProjectVisibility) => {
+    if (!current) return;
+    await flush();
+    const next = await api<AdminProject>(`/api/projects/${current.slug}/visibility`, {
+      method: "POST",
+      body: JSON.stringify({ visibility }),
+    });
+    setCurrent(next);
+    await refresh();
+  };
+
+  const requestHome = (enabled: boolean) => {
+    if (!current) return;
+    if (!enabled) {
+      update({ featuredOnHome: false, homeOrder: undefined });
+      return;
+    }
+    const selected = projects.filter((item) => item.featuredOnHome && item.slug !== current.slug);
+    if (selected.length >= 3) setHomeRequest(current.slug);
+    else update({ featuredOnHome: true, homeOrder: selected.length + 1 });
+  };
+
+  const applyHome = async (slugs: string[]) => {
+    await Promise.all(projects
+      .filter((item) => item.featuredOnHome || slugs.includes(item.slug) || item.slug === homeRequest)
+      .map((item) => api(`/api/drafts/${item.slug}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          ...item,
+          featuredOnHome: slugs.includes(item.slug),
+          homeOrder: slugs.includes(item.slug) ? slugs.indexOf(item.slug) + 1 : undefined,
+        }),
+      })));
+    setHomeRequest(undefined);
+    await refresh();
+    if (current) await openProject(current.slug);
+  };
+
+  const createProject = async () => {
+    const slug = window.prompt("Адрес нового проекта латиницей, например new-project");
+    if (!slug) return;
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      setMessage("Адрес может содержать только строчные латинские буквы, цифры и дефисы.");
+      return;
+    }
+    const project: AdminProject = {
+      schemaVersion: 2,
+      title: "Новый проект",
+      slug,
+      description: "Описание проекта",
+      role: "Product Designer",
+      year: new Date().getFullYear(),
+      tags: [],
+      detailTags: [],
+      visibility: "draft",
+      catalogOrder: projects.length + 1,
+      featuredOnHome: false,
+      detailAvailable: false,
+      materials: { projectState: "completed", fileState: "absent" },
+      platforms: [],
+      content: [],
+    };
+    await api(`/api/drafts/${slug}`, { method: "PUT", body: JSON.stringify(project) });
+    await refresh();
+    await openProject(slug);
+  };
+
+  const startPublish = async (scope: "project" | "all") => {
+    await flush();
+    const name = scope === "project" ? current?.title : `${inventory.count} проектов`;
+    if (!window.confirm(`Локальная репетиция публикации: ${name}. Production не изменится. Продолжить?`)) return;
+    const started = await api<PublishJob>("/api/publish/start", {
+      method: "POST",
+      body: JSON.stringify({ scope, slug: current?.slug, dryRun: true }),
+    });
+    setJob(started);
+  };
+
+  useEffect(() => {
+    if (!job || job.status === "complete" || job.status === "failed") return;
+    const timer = window.setInterval(() => {
+      api<PublishJob | null>("/api/publish/status")
+        .then((value) => { if (value) setJob(value); })
+        .catch(() => undefined);
+    }, 600);
+    return () => clearInterval(timer);
+  }, [job]);
+
+  const currentChange = useMemo(
+    () => current ? inventory.projects.find((item) => item.slug === current.slug) : undefined,
+    [current, inventory],
+  );
+
+  const permanentDelete = async () => {
+    if (!current || !window.confirm(`Удалить «${current.title}» навсегда? Это удалит локальный черновик и его ассеты.`)) return;
+    await api(`/api/projects/${current.slug}/permanent`, { method: "DELETE" });
+    setCurrent(null);
+    await refresh();
+  };
+
+  return (
+    <Theme accentColor="blue" grayColor="sand" radius="small">
+      <div className="admin-shell">
+        <header className="admin-topbar">
+          <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color="gray">Локально</Badge></div>
+          <Text color="gray">{current?.title ?? "Проекты портфолио"}</Text>
+          <Flex gap="3" align="center">
+            <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>
+              {saveState === "saved" ? <SavedMark>{saveLabels[saveState]}</SavedMark> : saveLabels[saveState]}
+            </Text>
+            {current ? <Button variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button> : null}
+          </Flex>
+        </header>
+        <main className="admin-workspace">
+          <ProjectNavigation
+            projects={projects}
+            inventory={inventory}
+            current={current?.slug}
+            filter={filter}
+            setFilter={setFilter}
+            search={search}
+            setSearch={setSearch}
+            open={(slug) => void openProject(slug).catch((error) => setMessage(safeMessage(error)))}
+            create={() => void createProject().catch((error) => setMessage(safeMessage(error)))}
+            reorder={(slugs) => void api<AdminProject[]>("/api/projects/reorder", { method: "POST", body: JSON.stringify({ slugs }) })
+              .then(async (value) => { setProjects(value); setInventory(await api("/api/changes")); })
+              .catch((error) => setMessage(safeMessage(error)))}
+            publishAll={() => void startPublish("all").catch((error) => setMessage(safeMessage(error)))}
+            shutdown={() => {
+              if (window.confirm("Завершить админку? Черновики останутся сохранены.")) void api("/api/shutdown", { method: "POST" });
+            }}
+          />
+          <section className="editor-area">
+            {current ? (
+              <div className="editor-inner">
+                <div className="editor-title">
+                  <div>
+                    <Flex align="center" gap="3"><Heading size="7">{current.title}</Heading><Badge color={current.visibility === "published" ? "green" : current.visibility === "deleted" ? "red" : "gray"}>{visibilityLabels[current.visibility]}</Badge></Flex>
+                    <Text size="2" color="gray">Редактирование локального черновика</Text>
+                  </div>
+                </div>
+                {message ? <Callout.Root mb="4" color="orange"><Callout.Text>{message}</Callout.Text></Callout.Root> : null}
+                <Tabs.Root value={tab} onValueChange={setTab}>
+                  <Tabs.List><Tabs.Trigger value="card">Карточка</Tabs.Trigger><Tabs.Trigger value="page">Страница проекта</Tabs.Trigger></Tabs.List>
+                  <Box pt="5">
+                    <Tabs.Content value="card"><CardEditor project={current} update={update} upload={upload} /></Tabs.Content>
+                    <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} selectedSection={selectedSection} selectSection={setSelectedSection} /></Tabs.Content>
+                  </Box>
+                </Tabs.Root>
+              </div>
+            ) : (
+              <div className="empty-state"><div><Heading size="5">Выберите проект</Heading><Text color="gray">Редактор откроется в центральной области.</Text></div></div>
+            )}
+          </section>
+          <aside className="project-rail">
+            {current ? (
+              <div className="rail-stack">
+                <ProjectActions
+                  project={current}
+                  changed={Boolean(currentChange)}
+                  preview={preview}
+                  publish={() => void startPublish("project").catch((error) => setMessage(safeMessage(error)))}
+                  setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
+                  permanentDelete={() => void permanentDelete().catch((error) => setMessage(safeMessage(error)))}
+                />
+                {tab === "card" ? (
+                  <CardSettings project={current} update={update} home={requestHome} />
+                ) : (
+                  <PageSettings project={current} update={update} selectedSection={selectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} />
+                )}
+              </div>
+            ) : null}
+          </aside>
+        </main>
+        <HomeLimitDialog key={homeRequest ?? "closed"} open={Boolean(homeRequest)} projects={projects} requested={homeRequest} cancel={() => setHomeRequest(undefined)} apply={(slugs) => void applyHome(slugs).catch((error) => setMessage(safeMessage(error)))} />
+        <PublishOverlay job={job} close={() => setJob(null)} />
+      </div>
+    </Theme>
+  );
 }
-const root = document.querySelector("#admin-root"); if (!root) throw new Error("Admin root was not found"); createRoot(root).render(<StrictMode><App /></StrictMode>);
+
+const root = document.querySelector("#admin-root");
+if (!root) throw new Error("Не найден корневой элемент админки.");
+createRoot(root).render(<StrictMode><App /></StrictMode>);
