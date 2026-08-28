@@ -51,8 +51,8 @@ test("all site routes expose one shared social preview", () => {
   assert.match(socialMetadata, /width:\s*1800/);
   assert.match(socialMetadata, /height:\s*945/);
   assert.match(socialMetadata, /card:\s*"summary_large_image"/);
-  assert.match(socialMetadata, /title:\s*"Artur Designer"/);
-  assert.match(socialMetadata, /description:\s*SITE_DESCRIPTION/);
+  assert.match(socialMetadata, /title:\s*"Артур А\."/);
+  assert.match(socialMetadata, /description:\s*"PRODUCT DESIGNER"/);
   assert.equal(existsSync(new URL("../public/artur-designer-social-preview.png", import.meta.url)), true);
   assert.match(home, /createSocialMetadata\("\/"\)/);
   assert.match(projects, /createSocialMetadata\("\/projects"\)/);

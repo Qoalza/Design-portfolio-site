@@ -15,16 +15,16 @@ export function createSocialMetadata(url: string): Pick<Metadata, "openGraph" | 
     openGraph: {
       type: "website",
       locale: "ru_RU",
-      siteName: "Artur Designer",
-      title: "Artur Designer",
-      description: SITE_DESCRIPTION,
+      siteName: "Артур А.",
+      title: "Артур А.",
+      description: "PRODUCT DESIGNER",
       url,
       images: [SOCIAL_PREVIEW],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Artur Designer",
-      description: SITE_DESCRIPTION,
+      title: "Артур А.",
+      description: "PRODUCT DESIGNER",
       images: [SOCIAL_PREVIEW],
     },
   };
