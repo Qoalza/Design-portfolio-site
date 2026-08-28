@@ -13,6 +13,7 @@ import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
 import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
 import { HOME_TRAIL_ITEM } from "../../../lib/navigation-trail";
+import { createSocialMetadata } from "../../../lib/site-metadata";
 import styles from "./page.module.css";
 
 type ProjectPageProps = {
@@ -126,6 +127,11 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   return {
     title: { absolute: `${project.title} — Artur Designer` },
     description: project.description,
+    ...createSocialMetadata({
+      title: `${project.title} — Artur Designer`,
+      description: project.description,
+      url: `/projects/${project.slug}`,
+    }),
   };
 }
 

@@ -9,12 +9,14 @@ import { ProcessStepper } from "../components/process-stepper";
 import { ControlButton, TextButton } from "../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
 import { getCatalogProjects } from "../lib/projects";
+import { createSocialMetadata } from "../lib/site-metadata";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
 
 export const metadata: Metadata = {
   title: { absolute: "Artur Designer" },
+  ...createSocialMetadata({ title: "Artur Designer", url: "/" }),
 };
 
 function MaskIcon({ className = "" }: { className?: string }) {

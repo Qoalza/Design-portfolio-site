@@ -5,13 +5,18 @@ import { NavigationScrollController } from "../components/navigation-scroll-cont
 import { SmoothScrollProvider } from "../components/smooth-scroll-provider";
 import { getBuildShaAttribute } from "../lib/build-provenance";
 import { PROJECT_ACTION_BAR_BOOTSTRAP } from "../lib/project-action-bar-bootstrap";
+import { createSocialMetadata, SITE_DESCRIPTION } from "../lib/site-metadata";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://art-des.ru"),
   title: { absolute: "Страница не найдена — Artur Designer" },
-  description:
-    "Портфолио продуктового дизайнера: B2B, B2E, SaaS и сложные внутренние системы.",
+  description: SITE_DESCRIPTION,
+  ...createSocialMetadata({
+    title: "Artur Designer",
+    url: "/",
+  }),
   icons: {
     icon: [
       {

@@ -38,3 +38,21 @@ test("root metadata exposes one exact SVG browser favicon", () => {
   assert.equal(existsSync(new URL("../src/app/favicon.ico", import.meta.url)), false);
   assert.equal(sha256("../src/app/apple-icon.png"), "de2db4b9711eaf0912e64e125539621ca8f3ae70edb0810579a20dbbbb4c6dcc");
 });
+
+test("site routes expose the shared social preview with route-specific Open Graph metadata", () => {
+  const layout = read("../src/app/layout.tsx");
+  const home = read("../src/app/page.tsx");
+  const projects = read("../src/app/projects/page.tsx");
+  const project = read("../src/app/projects/[slug]/page.tsx");
+  const socialMetadata = read("../src/lib/site-metadata.ts");
+
+  assert.match(layout, /metadataBase:\s*new URL\("https:\/\/art-des\.ru"\)/);
+  assert.match(socialMetadata, /url:\s*"\/artur-designer-social-preview\.png"/);
+  assert.match(socialMetadata, /width:\s*1800/);
+  assert.match(socialMetadata, /height:\s*945/);
+  assert.match(socialMetadata, /card:\s*"summary_large_image"/);
+  assert.equal(existsSync(new URL("../public/artur-designer-social-preview.png", import.meta.url)), true);
+  assert.match(home, /url:\s*"\/"/);
+  assert.match(projects, /url:\s*"\/projects"/);
+  assert.match(project, /url:\s*`\/projects\/\$\{project\.slug\}`/);
+});

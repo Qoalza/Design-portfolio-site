@@ -9,12 +9,17 @@ import { SiteHeader } from "../../components/site-header";
 import { ControlButton } from "../../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import { getCatalogProjects, type Project } from "../../lib/projects";
+import { createSocialMetadata } from "../../lib/site-metadata";
 import styles from "./page.module.css";
 
 const assetRoot = "/assets/homepage";
 
 export const metadata: Metadata = {
   title: { absolute: "Мои работы — Artur Designer" },
+  ...createSocialMetadata({
+    title: "Мои работы — Artur Designer",
+    url: "/projects",
+  }),
 };
 
 function RadioSymbol() {
