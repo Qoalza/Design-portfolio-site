@@ -24,7 +24,7 @@
 ## Актуальное состояние
 
 - Рабочая ветка: `main`; принятая MLIR7 слита fast-forward и отправлена в `origin/main`.
-- Актуальный production/source commit (`DEPLOY_SHA`) — `4af476cab57c4ed248d04ce2907e0731e6669a36` (`Isolate process layers below the site header`). Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
+- Актуальный production/source commit (`DEPLOY_SHA`) — `3c4400e3b5d1ef8529bb13e13f59ef3b62080a73` (`Match social preview to approved artwork`). Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
@@ -43,12 +43,13 @@
 - MLIR7 развернута в production 2026-08-26 из точного `DEPLOY_SHA` `ebe50fb29942f6aa0aa60f86f7c2fae8c640f1a7`; внешний smoke-check пройден.
 - Принятые Footer и process controls развернуты в production 2026-08-27 из точного `DEPLOY_SHA` `8f3c869ac6aa30cbc4c2c5f6422290db5aa45fa1`: Footer содержит `Разработка и Дизайн Артур А.`, кнопки Light имеют размер `32×32`, верхние/нижние переходы и оба слоя fade подтверждены в browser smoke.
 - Layering process-блока исправлен и развернут 2026-08-28 из точного `DEPLOY_SHA` `4af476cab57c4ed248d04ce2907e0731e6669a36`: изолированный stacking context удерживает `track → fade → control` ниже fixed Header; scroll/hit-test и переходы всех этапов подтверждены в production.
+- Единый social preview развернут 2026-08-28 из точного `DEPLOY_SHA` `3c4400e3b5d1ef8529bb13e13f59ef3b62080a73`: `/`, `/projects` и `/projects/corvo` используют `artur-designer-social-preview.png`, `og:title` `Артур А.`, `og:description` `PRODUCT DESIGNER` и абсолютные canonical OG URL.
 
 ## Production
 
 - URL: `https://art-des.ru`; `http://art-des.ru` и оба варианта `www` перенаправляются на canonical HTTPS host.
 - VPS: Ubuntu 24.04 LTS; Node.js `22.23.2`; npm `10.9.8`; Nginx `1.24.0`; Certbot `5.7.0`.
-- Release: `/var/www/art-des/releases/4af476cab57c4ed248d04ce2907e0731e6669a36`; `/var/www/art-des/current` указывает на него. Предыдущий сохранённый rollback release: `/var/www/art-des/releases/8f3c869ac6aa30cbc4c2c5f6422290db5aa45fa1`.
+- Release: `/var/www/art-des/releases/3c4400e3b5d1ef8529bb13e13f59ef3b62080a73`; `/var/www/art-des/current` указывает на него. Предыдущий сохранённый rollback release: `/var/www/art-des/releases/4af476cab57c4ed248d04ce2907e0731e6669a36`.
 - Next.js работает от системного пользователя `portfolio` через `art-des.service`: сервис `active`, `enabled`, restart проверен.
 - Next.js слушает только `127.0.0.1:3000`; UFW разрешает снаружи только OpenSSH и `80/443`. Пять независимых внешних probe-nodes получили timeout на `:3000`.
 - Let's Encrypt покрывает `art-des.ru` и `www.art-des.ru`, срок действия до `2026-11-13`; `snap.certbot.renew.timer` активен, `certbot renew --dry-run --no-random-sleep-on-renew` прошёл.
@@ -57,6 +58,7 @@
 - Production HTML и server-side `REVISION` подтверждают полный `DEPLOY_SHA`; `art-des.service` остаётся `active` и `enabled`.
 - External/browser smoke 2026-08-27: `/` — `HTTP/2 200`; полный build SHA, Footer, Light-контролы `32×32`, fade и переходы `1→2→3→2→1` подтверждены; console/hydration warnings отсутствуют.
 - External/browser smoke 2026-08-28: `/` — `HTTP/2 200`; полный build SHA подтверждён, Header перекрывает process viewport в реальной scroll-позиции, внутренние z-уровни `track=0`, `fade=2`, `control=3` сохранены, переходы `1→2→3→2→1` работают; console/hydration warnings отсутствуют.
+- External metadata smoke 2026-08-28: `/`, `/projects`, `/projects/corvo` — `200`; один `https://art-des.ru/artur-designer-social-preview.png`, точные OG title/description/url и полный build SHA подтверждены; PNG отвечает `HTTP/2 200` с `content-type: image/png`.
 - Certbot зарегистрирован без email; email пользователя не придумывался и не сохранялся.
 
 ### Диагностика и rollback
@@ -125,5 +127,5 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 ## Следующий шаг
 
-1. Process/Header layering merge/deploy Goal завершена; production наблюдать штатными health/smoke-проверками без повторного deploy.
+1. Social preview production deploy завершён; production наблюдать штатными health/smoke-проверками без повторного deploy.
 2. Preloaders/loading states оставить для отдельного будущего Work Packet после новой классификации и пользовательского подтверждения.
