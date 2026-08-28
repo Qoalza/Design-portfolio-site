@@ -85,6 +85,8 @@ async function main() {
   if (!(await reachable(previewPort))) {
     await detached("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], "preview", {
       DES_ART_ADMIN_PREVIEW: "1",
+      DES_ART_ADMIN_DRAFT_ROOT: path.join(supportRoot, "drafts"),
+      DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(supportRoot, "draft-assets"),
     });
   }
   await waitUntilReady(adminPort);

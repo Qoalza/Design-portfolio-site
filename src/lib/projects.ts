@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
@@ -37,6 +37,19 @@ function withAvailability(project: ProjectDocument): Project {
         : project.materials.fileState === "absent" ? "absent" : "unavailable",
     },
   };
+}
+
+function withDraftAssetUrls(value: unknown, slug: string, draftAssetRoot: string): unknown {
+  if (Array.isArray(value)) return value.map((item) => withDraftAssetUrls(item, slug, draftAssetRoot));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, withDraftAssetUrls(item, slug, draftAssetRoot)]));
+  }
+  const prefix = `/assets/projects/${slug}/`;
+  if (typeof value !== "string" || !value.startsWith(prefix)) return value;
+  const fileName = value.slice(prefix.length);
+  return existsSync(path.join(draftAssetRoot, slug, fileName))
+    ? `/admin-preview-assets/${slug}/${fileName}`
+    : value;
 }
 
 function projectFileNames(contentRoot: string): string[] {
@@ -85,8 +98,18 @@ export function getProjectBySlug(projectSlug: string, contentRoot = projectsDire
 }
 
 export function getProjectBySlugForPreview(projectSlug: string, contentRoot = projectsDirectory): Project | undefined {
-  const project = readAllProjectDocuments(contentRoot).find(({ slug }) => slug === projectSlug);
-  return project ? withAvailability(project) : undefined;
+  const draftRoot = process.env.DES_ART_ADMIN_DRAFT_ROOT;
+  const draftAssetRoot = process.env.DES_ART_ADMIN_DRAFT_ASSET_ROOT;
+  let project = readAllProjectDocuments(contentRoot).find(({ slug }) => slug === projectSlug);
+
+  if (process.env.DES_ART_ADMIN_PREVIEW === "1" && draftRoot) {
+    const draftPath = resolveProjectDocumentPath(draftRoot, projectSlug);
+    if (existsSync(draftPath)) project = parseProjectDocument(readFileSync(draftPath, "utf8"), path.basename(draftPath));
+  }
+  if (!project) return undefined;
+
+  if (process.env.DES_ART_ADMIN_PREVIEW !== "1" || !draftAssetRoot) return withAvailability(project);
+  return withAvailability(withDraftAssetUrls(project, project.slug, draftAssetRoot) as ProjectDocument);
 }
 
 export async function writeProjectDocument(value: unknown, contentRoot = projectsDirectory): Promise<string> {

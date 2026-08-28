@@ -16,6 +16,7 @@ const store = new AdminStore({
   contentRoot: path.join(repoRoot, "content", "projects"),
   assetRoot: path.join(repoRoot, "public", "assets", "projects"),
   draftRoot: path.join(supportRoot, "drafts"),
+  draftAssetRoot: path.join(supportRoot, "draft-assets"),
 });
 
 function json(response, status, value) {
@@ -65,7 +66,7 @@ async function handler(request, response) {
       if (request.method === "GET" && segments.length === 3) return json(response, 200, await store.getProject(slug));
       if (request.method === "PUT" && segments.length === 3) {
         const value = await body(request);
-        await store.saveProject(value);
+        await store.saveDraft(slug, value);
         return json(response, 200, value);
       }
       if (request.method === "POST" && segments[3] === "duplicate") {
@@ -80,6 +81,10 @@ async function handler(request, response) {
         const value = await body(request);
         const buffer = Buffer.from(value.data, "base64");
         return json(response, 201, await store.saveImage(slug, value.name, value.mime, buffer, value.alt));
+      }
+      if (request.method === "DELETE" && segments[3] === "permanent") {
+        await store.permanentlyDelete(slug);
+        return json(response, 200, { deleted: true });
       }
     }
     if (request.method === "POST" && url.pathname === "/api/projects/reorder") {

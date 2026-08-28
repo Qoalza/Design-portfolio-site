@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import {
-  archiveProject,
+  deleteProject,
   parseProjectDocument,
   resolveProjectAssetPath,
   resolveProjectDocumentPath,
@@ -113,18 +113,38 @@ async function canonicalDraftPath(root, slug) {
 }
 
 export class AdminStore {
-  constructor({ contentRoot, assetRoot, draftRoot }) {
+  constructor({ contentRoot, assetRoot, draftRoot, draftAssetRoot = assetRoot }) {
     this.contentRoot = contentRoot;
     this.assetRoot = assetRoot;
     this.draftRoot = draftRoot;
+    this.draftAssetRoot = draftAssetRoot;
   }
 
   async listProjects() {
     await mkdir(this.contentRoot, { recursive: true });
-    return readAllProjectDocuments(this.contentRoot);
+    const published = readAllProjectDocuments(this.contentRoot);
+    await mkdir(this.draftRoot, { recursive: true });
+    const draftFiles = (await readdir(this.draftRoot)).filter((name) => name.endsWith(".json"));
+    const drafts = (await Promise.all(draftFiles.map(async (name) => {
+      try {
+        return parseProjectDocument(await readFile(path.join(this.draftRoot, name), "utf8"), name);
+      } catch {
+        return undefined;
+      }
+    }))).filter(Boolean);
+    const merged = new Map(published.map((project) => [project.slug, project]));
+    for (const draft of drafts) merged.set(draft.slug, draft);
+    return [...merged.values()];
   }
 
   async getProject(slug) {
+    try {
+      return await this.getDraft(slug);
+    } catch {}
+    return this.getPublishedProject(slug);
+  }
+
+  async getPublishedProject(slug) {
     const file = resolveProjectDocumentPath(this.contentRoot, slug);
     return parseProjectDocument(await readFile(file, "utf8"), path.basename(file));
   }
@@ -140,24 +160,21 @@ export class AdminStore {
       title: `${source.title} — копия`,
       slug: newSlug,
       visibility: "draft",
-      catalogVisible: false,
-      detailAvailable: false,
-      figmaAvailable: false,
-      figmaUrl: undefined,
-      updatedAt: undefined,
+      featuredOnHome: false,
+      homeOrder: undefined,
     });
-    await this.saveProject(copy);
+    await this.saveDraft(newSlug, copy);
     return copy;
   }
 
   async setVisibility(slug, visibility) {
     const current = await this.getProject(slug);
-    const next = visibility === "archived" ? archiveProject(current) : validateProjectDocument({
+    const next = visibility === "deleted" ? deleteProject(current) : validateProjectDocument({
       ...current,
       visibility,
-      ...(visibility === "published" ? {} : { catalogVisible: false, detailAvailable: false }),
+      ...(visibility === "published" ? {} : { featuredOnHome: false, homeOrder: undefined }),
     });
-    await this.saveProject(next);
+    await this.saveDraft(slug, next);
     return next;
   }
 
@@ -165,31 +182,53 @@ export class AdminStore {
     const projects = await this.listProjects();
     const bySlug = new Map(projects.map((item) => [item.slug, item]));
     for (const slug of slugs) if (!bySlug.has(slug)) throw new Error(`Unknown project slug "${slug}".`);
-    for (const [index, slug] of slugs.entries()) await this.saveProject({ ...bySlug.get(slug), catalogOrder: index + 1 });
+    const published = projects.filter((item) => item.visibility === "published");
+    if (slugs.length !== published.length || slugs.some((slug) => bySlug.get(slug)?.visibility !== "published")) {
+      throw new Error("Only published projects can be reordered.");
+    }
+    for (const [index, slug] of slugs.entries()) await this.saveDraft(slug, { ...bySlug.get(slug), catalogOrder: index + 1 });
     return this.listProjects();
   }
 
   async saveDraft(slug, value) {
     const file = await canonicalDraftPath(this.draftRoot, slug);
-    await writeFile(file, `${JSON.stringify(value, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+    const project = validateProjectDocument(value);
+    const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
+    await writeFile(temporary, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+    await rename(temporary, file);
     return file;
   }
 
   async getDraft(slug) {
     const file = await canonicalDraftPath(this.draftRoot, slug);
-    return JSON.parse(await readFile(file, "utf8"));
+    return parseProjectDocument(await readFile(file, "utf8"), path.basename(file));
+  }
+
+  async permanentlyDelete(slug) {
+    const project = await this.getProject(slug);
+    if (project.visibility !== "deleted") throw new Error("Only deleted projects can be removed permanently.");
+    try {
+      const published = await this.getPublishedProject(slug);
+      if (published.visibility === "published") {
+        throw new Error("Publish this deletion before removing the project permanently.");
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("Publish this deletion")) throw error;
+    }
+    await rm(resolveProjectDocumentPath(this.draftRoot, slug), { force: true });
+    await rm(path.join(this.draftAssetRoot, slug), { recursive: true, force: true });
   }
 
   async saveImage(slug, fileName, mime, buffer, alt) {
     if (typeof alt !== "string" || alt.trim().length === 0) throw new Error("Alt text is required.");
     const inspected = inspectImage(buffer, fileName, mime);
     const safeName = safeUploadName(fileName);
-    const destination = resolveProjectAssetPath(this.assetRoot, slug, safeName);
+    const destination = resolveProjectAssetPath(this.draftAssetRoot, slug, safeName);
     await mkdir(path.dirname(destination), { recursive: true });
     const digest = createHash("sha256").update(buffer).digest("hex");
     let duplicateOf;
     for (const existing of await readdir(path.dirname(destination)).catch(() => [])) {
-      const existingPath = resolveProjectAssetPath(this.assetRoot, slug, existing);
+      const existingPath = resolveProjectAssetPath(this.draftAssetRoot, slug, existing);
       const existingBuffer = await readFile(existingPath);
       if (createHash("sha256").update(existingBuffer).digest("hex") === digest) {
         duplicateOf = `/assets/projects/${slug}/${existing}`;

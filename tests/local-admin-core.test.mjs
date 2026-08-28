@@ -19,13 +19,13 @@ const project = (slug = "admin-test", overrides = {}) => ({
   description: "Описание",
   role: "Product Designer",
   year: 2026,
-  status: "Черновик",
   tags: [],
+  detailTags: [],
   visibility: "draft",
-  catalogVisible: false,
   catalogOrder: 1,
+  featuredOnHome: false,
   detailAvailable: false,
-  figmaAvailable: false,
+  materials: { projectState: "completed", fileState: "absent" },
   platforms: [],
   content: [],
   ...overrides,
@@ -48,16 +48,16 @@ test("local request boundary accepts only loopback Host, trusted Origin and CSRF
   assert.throws(() => validateLocalRequest({ method: "POST", host: "127.0.0.1:41731", origin: "http://127.0.0.1:41731", csrf: "wrong" }, token, 41731), /csrf/i);
 });
 
-test("admin CRUD preserves lifecycle data and archives instead of deleting", async () => {
+test("admin CRUD preserves lifecycle data and soft deletes instead of destroying", async () => {
   const store = new AdminStore(await roots());
   await store.saveProject(project());
   assert.equal((await store.getProject("admin-test")).title, "Тестовый проект");
   const duplicate = await store.duplicateProject("admin-test", "admin-copy");
   assert.equal(duplicate.visibility, "draft");
-  assert.equal(duplicate.catalogVisible, false);
-  const archived = await store.setVisibility("admin-test", "archived");
-  assert.equal(archived.visibility, "archived");
-  assert.equal(archived.detailAvailable, false);
+  assert.equal(duplicate.featuredOnHome, false);
+  const deleted = await store.setVisibility("admin-test", "deleted");
+  assert.equal(deleted.visibility, "deleted");
+  assert.equal(deleted.featuredOnHome, false);
   assert.equal((await store.getProject("admin-test")).description, "Описание");
   const restored = await store.setVisibility("admin-test", "draft");
   assert.equal(restored.visibility, "draft");
@@ -69,10 +69,19 @@ test("draft survives a new store instance", async () => {
   assert.deepEqual(await new AdminStore(configured).getDraft("admin-test"), project());
 });
 
-test("reorder updates only catalog order and rejects unknown slugs", async () => {
+test("project list overlays newer drafts without changing canonical files", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  await store.saveProject(project("admin-test", { title: "Опубликованное название" }));
+  await store.saveDraft("admin-test", project("admin-test", { title: "Черновое название" }));
+  assert.equal((await store.listProjects())[0].title, "Черновое название");
+  assert.equal((await store.getPublishedProject("admin-test")).title, "Опубликованное название");
+});
+
+test("reorder updates drafts for published projects only and rejects unknown slugs", async () => {
   const store = new AdminStore(await roots());
-  await store.saveProject(project("one"));
-  await store.saveProject(project("two", { catalogOrder: 2 }));
+  await store.saveProject(project("one", { visibility: "published" }));
+  await store.saveProject(project("two", { visibility: "published", catalogOrder: 2 }));
   await store.reorder(["two", "one"]);
   assert.equal((await store.getProject("two")).catalogOrder, 1);
   assert.equal((await store.getProject("one")).catalogOrder, 2);
@@ -105,4 +114,16 @@ test("uploads use safe names, reject traversal and warn on duplicates", async ()
   assert.equal(second.duplicateOf, first.src);
   assert.equal(await readFile(path.join(configured.assetRoot, "admin-test", "hero.png"), "hex"), png.toString("hex"));
   await assert.rejects(() => store.saveImage("../escape", "x.png", "image/png", png, "Alt"), /slug/i);
+});
+
+test("permanent deletion is allowed only for an unpublished deleted draft", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  await store.saveDraft("draft-deleted", project("draft-deleted", { visibility: "deleted" }));
+  await store.permanentlyDelete("draft-deleted");
+  await assert.rejects(() => store.getDraft("draft-deleted"));
+
+  await store.saveProject(project("live", { visibility: "published" }));
+  await store.saveDraft("live", project("live", { visibility: "deleted" }));
+  await assert.rejects(() => store.permanentlyDelete("live"), /publish this deletion/i);
 });

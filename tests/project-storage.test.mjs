@@ -87,3 +87,23 @@ test("writer emits a canonical document at the validated slug path", async () =>
   assert.equal(writtenPath, path.join(root, "written-project.json"));
   assert.equal(await readFile(writtenPath, "utf8"), serializeProjectDocument(value));
 });
+
+test("preview reads the draft overlay without changing the public reader", async () => {
+  const root = await projectRoot();
+  const drafts = await projectRoot();
+  await writeFile(path.join(root, "overlay.json"), serializeProjectDocument(project("overlay", "published", { title: "Published" })));
+  await writeFile(path.join(drafts, "overlay.json"), serializeProjectDocument(project("overlay", "draft", { title: "Draft" })));
+  const previousPreview = process.env.DES_ART_ADMIN_PREVIEW;
+  const previousDraftRoot = process.env.DES_ART_ADMIN_DRAFT_ROOT;
+  process.env.DES_ART_ADMIN_PREVIEW = "1";
+  process.env.DES_ART_ADMIN_DRAFT_ROOT = drafts;
+  try {
+    assert.equal(getProjectBySlugForPreview("overlay", root)?.title, "Draft");
+    assert.equal(getProjectBySlug("overlay", root)?.title, "Published");
+  } finally {
+    if (previousPreview === undefined) delete process.env.DES_ART_ADMIN_PREVIEW;
+    else process.env.DES_ART_ADMIN_PREVIEW = previousPreview;
+    if (previousDraftRoot === undefined) delete process.env.DES_ART_ADMIN_DRAFT_ROOT;
+    else process.env.DES_ART_ADMIN_DRAFT_ROOT = previousDraftRoot;
+  }
+});
