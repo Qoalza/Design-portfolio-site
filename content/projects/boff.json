@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "title": "B.Off",
+  "slug": "boff",
+  "description": "Управление криптовалютными платежами",
+  "role": "Продуктовый дизайнер / Аналитик",
+  "catalogRole": "Product designer",
+  "year": 2026,
+  "status": "В работе",
+  "tags": [
+    "B2B",
+    "SaaS",
+    "В работе"
+  ],
+  "visibility": "published",
+  "catalogVisible": true,
+  "catalogOrder": 3,
+  "detailAvailable": false,
+  "figmaAvailable": false,
+  "platforms": [
+    "Desktop",
+    "Tablet",
+    "Mobile"
+  ],
+  "catalogImage": {
+    "src": "/assets/projects/catalog/boff-transactions.png",
+    "alt": "Интерфейс управления криптовалютными транзакциями B.Off",
+    "width": 2880,
+    "height": 1920
+  },
+  "workSummary": "Декомпозировал требования в пользовательские сценарии. Проектировал макеты и компонентную библиотеку, согласовывал логику со стейкхолдерами, готовил макеты к handoff и проводил design review после реализации.",
+  "content": []
+}

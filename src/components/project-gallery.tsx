@@ -4,6 +4,7 @@ import Lenis from "lenis";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { galleryInputArbiter } from "../lib/gallery-input-arbiter";
 import { getGalleryLayout, getGalleryOffsetTarget, getGalleryPointerGesture, shouldScheduleGalleryFrame, type StepDirection } from "../lib/main-chapter-interactions";
+import type { ProjectGalleryGroup } from "../lib/project-contract";
 import { registerScrollController } from "../lib/scroll-controller";
 import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
@@ -11,30 +12,7 @@ import { useDesktopSmoothScrollEnabled } from "./smooth-scroll-provider";
 import { SquareButton } from "./ui-controls";
 import styles from "./project-gallery.module.css";
 
-export type ProjectGalleryItem = {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-  frame: ProjectGalleryFrame;
-  sourceNodeId: string;
-};
-
-export type ProjectGalleryFrame = {
-  clip: boolean;
-  radius: number;
-  strokeColor: string;
-  strokeWidth: number;
-};
-
-export type ProjectGalleryGroup = {
-  id: "desktop" | "tablet" | "mobile";
-  label: string;
-  icon: string;
-  baseWidth: number;
-  baseHeight: number;
-  items: ProjectGalleryItem[];
-};
+export type { ProjectGalleryFrame, ProjectGalleryGroup, ProjectGalleryItem } from "../lib/project-contract";
 
 type ProjectGalleryProps = {
   groups: ProjectGalleryGroup[];

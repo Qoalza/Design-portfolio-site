@@ -77,8 +77,8 @@ test("programmatic navigation replaces targets and supports explicit user cancel
 
 test("Corvo exposes exactly five information sections and keeps Gallery outside navigation", () => {
   const page = readFileSync(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
-  const content = readFileSync(new URL("../content/projects/corvo.mdx", import.meta.url), "utf8");
-  const headings = [...content.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1]);
+  const content = JSON.parse(readFileSync(new URL("../content/projects/corvo.json", import.meta.url), "utf8"));
+  const headings = content.content.filter((block) => block.type === "section").map((block) => block.heading);
 
   assert.deepEqual(headings, ["О проекте", "Задача", "Процесс", "Система", "Результат"]);
   assert.ok(page.indexOf("<ProjectSectionNavigation") < page.indexOf("<ProjectGallery"));

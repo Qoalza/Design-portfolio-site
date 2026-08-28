@@ -1,16 +1,19 @@
-import { evaluate } from "@mdx-js/mdx";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+import type { ReactNode } from "react";
 import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectCanvas } from "../../../components/project-canvas";
-import { ProjectGallery, type ProjectGalleryGroup } from "../../../components/project-gallery";
+import { ProjectGallery } from "../../../components/project-gallery";
 import { PageHeader } from "../../../components/page-header";
 import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
 import { SiteHeader } from "../../../components/site-header";
 import { SiteFooter } from "../../../components/site-footer";
+import type {
+  ProjectContentBlock,
+  ProjectInlineContent,
+  ProjectSectionBlock,
+} from "../../../lib/project-contract";
 import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
 import { HOME_TRAIL_ITEM } from "../../../lib/navigation-trail";
 import { createSocialMetadata } from "../../../lib/site-metadata";
@@ -28,50 +31,8 @@ type ProjectNoticeProps = ProjectSectionProps & {
   variant?: "default" | "wide";
 };
 
-const corvoGalleryGroups: ProjectGalleryGroup[] = [
-  {
-    id: "desktop",
-    label: "Desktop",
-    icon: "/assets/projects/corvo/desktop.svg",
-    baseWidth: 740,
-    baseHeight: 512,
-    items: [
-      { src: "/assets/projects/corvo/gallery/desktop-01.png", alt: "Desktop-интерфейс Corvo: экран 1", width: 2960, height: 2048, sourceNodeId: "680:48078", frame: { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 } },
-      { src: "/assets/projects/corvo/gallery/desktop-02.png", alt: "Desktop-интерфейс Corvo: экран 2", width: 2960, height: 2048, sourceNodeId: "680:48799", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/desktop-03.png", alt: "Desktop-интерфейс Corvo: экран 3", width: 2960, height: 2048, sourceNodeId: "680:48813", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/desktop-04.png", alt: "Desktop-интерфейс Corvo: экран 4", width: 2960, height: 2048, sourceNodeId: "680:48814", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/desktop-05.png", alt: "Desktop-интерфейс Corvo: экран 5", width: 2960, height: 2048, sourceNodeId: "680:48815", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-    ],
-  },
-  {
-    id: "tablet",
-    label: "Tablet",
-    icon: "/assets/projects/corvo/tablet.svg",
-    baseWidth: 400,
-    baseHeight: 566,
-    items: [
-      { src: "/assets/projects/corvo/gallery/tablet-01.png", alt: "Планшетный интерфейс Corvo: экран 1", width: 1600, height: 2266, sourceNodeId: "680:48156", frame: { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 } },
-      { src: "/assets/projects/corvo/gallery/tablet-02.png", alt: "Планшетный интерфейс Corvo: экран 2", width: 1600, height: 2266, sourceNodeId: "680:48802", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
-      { src: "/assets/projects/corvo/gallery/tablet-03.png", alt: "Планшетный интерфейс Corvo: экран 3", width: 1600, height: 2266, sourceNodeId: "680:48812", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
-      { src: "/assets/projects/corvo/gallery/tablet-04.png", alt: "Планшетный интерфейс Corvo: экран 4", width: 1600, height: 2266, sourceNodeId: "680:48858", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
-      { src: "/assets/projects/corvo/gallery/tablet-05.png", alt: "Планшетный интерфейс Corvo: экран 5", width: 1600, height: 2266, sourceNodeId: "680:48859", frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 0.5 } },
-    ],
-  },
-  {
-    id: "mobile",
-    label: "Mobile",
-    icon: "/assets/projects/corvo/mobile.svg",
-    baseWidth: 180,
-    baseHeight: 320,
-    items: [
-      { src: "/assets/projects/corvo/gallery/mobile-01.png", alt: "Мобильный интерфейс Corvo: экран 1", width: 1080, height: 1920, sourceNodeId: "680:48159", frame: { clip: true, radius: 11, strokeColor: "#e8eaeb", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-02.png", alt: "Мобильный интерфейс Corvo: экран 2", width: 1080, height: 1920, sourceNodeId: "680:48803", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-03.png", alt: "Мобильный интерфейс Corvo: экран 3", width: 1080, height: 1920, sourceNodeId: "680:48805", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-04.png", alt: "Мобильный интерфейс Corvo: экран 4", width: 1080, height: 1920, sourceNodeId: "680:48860", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
-      { src: "/assets/projects/corvo/gallery/mobile-05.png", alt: "Мобильный интерфейс Corvo: экран 5", width: 1080, height: 1920, sourceNodeId: "680:48861", frame: { clip: true, radius: 11, strokeColor: "#f0f1f2", strokeWidth: 1 } },
-    ],
-  },
-];
+type ProjectSectionContent = Extract<ProjectContentBlock, { type: "section" }>;
+type ProjectGalleryContent = Extract<ProjectContentBlock, { type: "gallery" }>;
 
 function ProjectSection({ children }: ProjectSectionProps) {
   return <section className={styles.contentSection}>{children}</section>;
@@ -100,16 +61,58 @@ function getHeadingId(label: string): string {
     .replace(/^-|-$/g, "");
 }
 
-function MdxHeading({ children, ...props }: ComponentPropsWithoutRef<"h2">) {
-  const label = typeof children === "string" ? children : "section";
-  return <h2 id={getHeadingId(label)} {...props}>{children}</h2>;
+function renderInlineContent(content: ProjectInlineContent[]): ReactNode[] {
+  return content.map((item, index) => {
+    const key = `${item.type}-${index}`;
+    if (item.type === "strong") return <strong key={key}>{item.text}</strong>;
+    if (item.type === "emphasis") return <em key={key}>{item.text}</em>;
+    if (item.type === "link") return <a key={key} href={item.href}>{item.text}</a>;
+    return item.text;
+  });
 }
 
-function getProjectSections(content: string): Array<{ id: string; label: string }> {
-  return [...content.matchAll(/^##\s+(.+)$/gm)].map((match) => ({
-    id: getHeadingId(match[1].trim()),
-    label: match[1].trim(),
-  }));
+function ProjectContentBlockView({ block }: { block: ProjectSectionBlock }) {
+  if (block.type === "paragraph") {
+    return <p>{renderInlineContent(block.content)}</p>;
+  }
+
+  if (block.type === "heading") {
+    const content = renderInlineContent(block.content);
+    if (block.level === 3) return <h3>{content}</h3>;
+    if (block.level === 4) return <h4>{content}</h4>;
+    if (block.level === 5) return <h5>{content}</h5>;
+    return <h6>{content}</h6>;
+  }
+
+  if (block.type === "list") {
+    const items = block.items.map((item, index) => <li key={index}>{renderInlineContent(item)}</li>);
+    return block.style === "ordered" ? <ol>{items}</ol> : <ul>{items}</ul>;
+  }
+
+  if (block.type === "notice") {
+    return <ProjectNotice variant={block.variant}>{renderInlineContent(block.content)}</ProjectNotice>;
+  }
+
+  if (block.type === "image") {
+    return <ProjectCanvas presentation={block.presentation} images={block.images} />;
+  }
+
+  return <ProjectDivider />;
+}
+
+function ProjectSectionView({ section }: { section: ProjectSectionContent }) {
+  return (
+    <ProjectSection>
+      <h2 id={getHeadingId(section.heading)}>{section.heading}</h2>
+      {section.blocks.map((block, index) => <ProjectContentBlockView key={`${block.type}-${index}`} block={block} />)}
+    </ProjectSection>
+  );
+}
+
+function getProjectSections(content: ProjectContentBlock[]): Array<{ id: string; label: string }> {
+  return content
+    .filter((block): block is ProjectSectionContent => block.type === "section")
+    .map((section) => ({ id: getHeadingId(section.heading), label: section.heading }));
 }
 
 export function generateStaticParams() {
@@ -139,12 +142,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
-  const { default: ProjectContent } = await evaluate(project.content, {
-    Fragment,
-    jsx,
-    jsxs,
-  });
-
   const projectLabels = project.detailLabels ?? [
     ...project.tags,
     project.role,
@@ -154,12 +151,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const projectsTrailItem = { href: "/projects", label: "Работы" };
   const projectTrailItem = { href: `/projects/${project.slug}`, label: project.title };
   const projectSections = getProjectSections(project.content);
-  const hasHeroImage = Boolean(
-    project.heroImage
-    && project.heroImageAlt
-    && project.heroImageWidth
-    && project.heroImageHeight,
-  );
+  const sectionBlocks = project.content.filter((block): block is ProjectSectionContent => block.type === "section");
+  const galleryBlocks = project.content.filter((block): block is ProjectGalleryContent => block.type === "gallery");
+  const hero = project.hero;
+  const heroForeground = hero?.foreground ?? hero?.image;
 
   return (
     <div className={styles.page}>
@@ -176,33 +171,35 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <PageHeader
             title={project.title}
             description={project.subtitle ?? project.description}
-            symbol={project.logo}
+            symbol={project.logo?.type === "image" ? project.logo.src : undefined}
             tags={projectLabels}
             platforms={project.platforms}
           />
 
-          {hasHeroImage ? (
+          {hero && heroForeground ? (
             <div className={styles.heroPreview}>
-              <Image
-                className={styles.heroPreviewBack}
-                src="/assets/homepage/corvo-dashboard.png"
-                alt=""
-                width={2960}
-                height={2400}
-                priority
-                aria-hidden="true"
-              />
+              {hero.presentation === "browser-composite" && hero.backdrop ? (
+                <Image
+                  className={styles.heroPreviewBack}
+                  src={hero.backdrop.src}
+                  alt={hero.backdrop.alt}
+                  width={hero.backdrop.width}
+                  height={hero.backdrop.height}
+                  priority
+                  aria-hidden={hero.backdrop.alt.length === 0}
+                />
+              ) : null}
               <div className={styles.heroPreviewFront}>
                 <div className={styles.browserBar} aria-hidden="true"><i /><i /><i /></div>
                 <div className={styles.heroPreviewImage}>
-                <Image
-                  src="/assets/homepage/corvo-product.png"
-                  alt={project.heroImageAlt!}
-                  width={2960}
-                  height={2400}
-                  priority
-                  sizes="720px"
-                />
+                  <Image
+                    src={heroForeground.src}
+                    alt={heroForeground.alt}
+                    width={heroForeground.width}
+                    height={heroForeground.height}
+                    priority
+                    sizes="720px"
+                  />
                 </div>
               </div>
             </div>
@@ -216,21 +213,20 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             />
 
             <article className={styles.projectArticle} data-project-content-column>
-              <ProjectContent
-                components={{
-                  ProjectDivider,
-                  ProjectCanvas,
-                  ProjectNotice,
-                  ProjectSection,
-                  h2: MdxHeading,
-                }}
-              />
+              {sectionBlocks.map((section, index) => (
+                <ProjectSectionView key={`${getHeadingId(section.heading)}-${index}`} section={section} />
+              ))}
             </article>
           </div>
 
-          {project.slug === "corvo" ? (
-            <ProjectGallery groups={corvoGalleryGroups} title="Галерея" description="Часть экранов интерфейса" />
-          ) : null}
+          {galleryBlocks.map((gallery, index) => (
+            <ProjectGallery
+              key={`${gallery.title}-${index}`}
+              groups={gallery.groups}
+              title={gallery.title}
+              description={gallery.description}
+            />
+          ))}
 
           <div className={styles.actionTerminal} data-project-action-terminal aria-hidden="true" />
 
