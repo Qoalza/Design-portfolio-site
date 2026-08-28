@@ -347,7 +347,7 @@ export function PageSettings({
         </label>
       </RailGroup>
       <MaterialsSettings project={project} update={update} issues={issues} />
-      {section ? <SectionSettings project={project} section={section} change={(next) => update(next)} /> : (
+      {section ? <div className="selected-section-settings"><Text size="1" color="gray">Настройки · Секция {project.content.filter((block) => block.type === "section").findIndex((block) => block.adminId === section.adminId) + 1} · {section.heading || "Без названия"}</Text><SectionSettings project={project} section={section} change={(next) => update(next)} /></div> : (
         <RailGroup title="Настройки секции" description="Выберите секцию в центральной области." />
       )}
       <GallerySettings project={project} update={update} />

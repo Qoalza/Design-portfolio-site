@@ -23,7 +23,8 @@ import type {
   ProjectSectionBlock,
 } from "../../../src/lib/project-contract";
 import type { AdminContentBlock, AdminProject, AdminSection } from "./admin-model";
-import { list, sectionText, textBlocks } from "./admin-model";
+import type { FieldIssue } from "./admin-model";
+import { issueFor, list, sectionText, textBlocks } from "./admin-model";
 import { AssetField, Field, RichEditor } from "./admin-ui";
 
 type Upload = (file: File, context: string) => Promise<ProjectImage>;
@@ -42,6 +43,7 @@ function SectionEditor({
   change,
   move,
   remove,
+  issues,
 }: {
   section: AdminSection;
   index: number;
@@ -51,6 +53,7 @@ function SectionEditor({
   change: (value: AdminSection) => void;
   move: (delta: number) => void;
   remove: () => void;
+  issues: FieldIssue[];
 }) {
   const managed = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "image" }> => block.type === "image");
   return (
@@ -70,6 +73,7 @@ function SectionEditor({
           </IconButton>
         </Flex>
         <Flex gap="1">
+          <Button type="button" size="1" variant="ghost" color="gray" onClick={select}>Настройки</Button>
           <IconButton type="button" size="1" variant="outline" color="gray" aria-label="Переместить выше" disabled={index === 0} onClick={() => move(-1)}>
             <ChevronUpIcon />
           </IconButton>
@@ -78,7 +82,7 @@ function SectionEditor({
           </IconButton>
         </Flex>
       </div>
-      <Field label="Заголовок секции">
+      <Field field={`content.${section.adminId}.heading`} label="Заголовок секции" error={issueFor(issues, `content.${section.adminId}.heading`)}>
         <TextField.Root value={section.heading} onChange={(event) => change({ ...section, heading: event.target.value })} />
       </Field>
       <Field label="Описание секции">
@@ -103,10 +107,14 @@ export function CardEditor({
   project,
   update,
   upload,
+  uploadLogo,
+  issues,
 }: {
   project: AdminProject;
   update: (patch: Partial<AdminProject>) => void;
   upload: Upload;
+  uploadLogo: (file: File) => Promise<AdminProject["logo"]>;
+  issues: FieldIssue[];
 }) {
   return (
     <div className="editor-stack">
@@ -116,13 +124,13 @@ export function CardEditor({
           <Text size="2" color="gray">Контент карточки на главной и в «Все работы».</Text>
         </div>
         <div className="form-grid">
-          <Field label="Название" wide>
+          <Field field="title" label="Название" error={issueFor(issues, "title")} wide>
             <TextField.Root value={project.title} onChange={(event) => update({ title: event.target.value })} />
           </Field>
-          <Field label="Описание" wide>
+          <Field field="description" label="Описание" error={issueFor(issues, "description")} wide>
             <TextArea rows={4} value={project.description} onChange={(event) => update({ description: event.target.value })} />
           </Field>
-          <Field label="Роль">
+          <Field field="role" label="Роль" error={issueFor(issues, "role")}>
             <TextField.Root value={project.role} onChange={(event) => update({ role: event.target.value })} />
           </Field>
           <Field label="Краткие теги" hint="Через запятую">
@@ -131,6 +139,13 @@ export function CardEditor({
           <Field label="Что делал" wide>
             <TextArea rows={3} value={project.workSummary ?? ""} onChange={(event) => update({ workSummary: event.target.value || undefined })} />
           </Field>
+        </div>
+      </section>
+      <section className="editor-section">
+        <div className="asset-field logo-field">
+          <div className="asset-copy"><Text weight="medium">Логотип проекта</Text><Text as="p" size="1" color="gray">Необязательно. Загрузите безопасный квадратный SVG.</Text></div>
+          {project.logo ? <div className="logo-preview">{project.logo.type === "image" ? <img src={project.logo.src} alt="" /> : <Text size="1" color="gray">Составной логотип сохранён</Text>}</div> : <div className="asset-placeholder"><Text size="1" color="gray">Логотип не добавлен</Text></div>}
+          <Flex gap="2"><label><Button asChild size="1" variant="soft"><span>{project.logo ? "Заменить" : "Загрузить SVG"}</span></Button><input hidden type="file" accept="image/svg+xml,.svg" onChange={async (event) => { const file = event.target.files?.[0]; if (file) update({ logo: await uploadLogo(file) }); event.target.value = ""; }} /></label>{project.logo ? <Button size="1" variant="soft" color="red" onClick={() => update({ logo: undefined })}>Удалить</Button> : null}</Flex>
         </div>
       </section>
       <section className="editor-section">
@@ -234,12 +249,14 @@ export function PageEditor({
   upload,
   selectedSection,
   selectSection,
+  issues,
 }: {
   project: AdminProject;
   update: (patch: Partial<AdminProject>) => void;
   upload: Upload;
   selectedSection?: string;
   selectSection: (id: string) => void;
+  issues: FieldIssue[];
 }) {
   const sections = project.content.filter((block): block is AdminSection => block.type === "section");
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
@@ -314,7 +331,12 @@ export function PageEditor({
             [content[from], content[to]] = [content[to], content[from]];
             update({ content });
           }}
-          remove={() => update({ content: project.content.filter((block) => block !== section) })}
+          remove={() => {
+            const sections = { ...project.admin?.sections };
+            delete sections[section.adminId];
+            update({ content: project.content.filter((block) => block !== section), admin: { ...project.admin, sections } });
+          }}
+          issues={issues}
         />
       ))}
       <GalleryEditor gallery={gallery} change={galleryChange} upload={upload} />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ProjectVisibility } from "../../../src/lib/project-contract";
 import type { AdminProject, ChangeInventory } from "./admin-model";
 
-export type ProjectFilter = "all" | ProjectVisibility;
+export type ProjectFilter = ProjectVisibility;
 
 const labels: Record<ProjectVisibility, string> = {
   draft: "Черновик",
@@ -13,7 +13,6 @@ const labels: Record<ProjectVisibility, string> = {
 };
 
 const filterLabels: Record<ProjectFilter, string> = {
-  all: "Все",
   published: "Опубликованные",
   draft: "Черновики",
   deleted: "Удалённые",
@@ -47,13 +46,12 @@ export function ProjectNavigation({
   shutdown: () => void;
 }) {
   const counts = {
-    all: projects.length,
     published: projects.filter((item) => item.visibility === "published").length,
     draft: projects.filter((item) => item.visibility === "draft").length,
     deleted: projects.filter((item) => item.visibility === "deleted").length,
   };
   const ordered = [...projects]
-    .filter((item) => filter === "all" || item.visibility === filter)
+    .filter((item) => item.visibility === filter)
     .sort((first, second) => filter === "published" ? first.catalogOrder - second.catalogOrder : second.year - first.year)
     .filter((item) => item.title.toLowerCase().includes(search.toLowerCase()));
   const [dragged, setDragged] = useState<string>();

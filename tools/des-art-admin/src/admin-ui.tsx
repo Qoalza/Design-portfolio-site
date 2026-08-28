@@ -23,16 +23,18 @@ export function Field({
   hint,
   error,
   wide,
+  field,
   children,
 }: {
   label: string;
   hint?: string;
   error?: string;
   wide?: boolean;
+  field?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className={`field${wide ? " field-wide" : ""}`}>
+    <label className={`field${wide ? " field-wide" : ""}`} data-field={field} tabIndex={field ? -1 : undefined}>
       <Text size="2" weight="medium">{label}</Text>
       {children}
       <span className={`field-help${error ? " field-error" : ""}`}>

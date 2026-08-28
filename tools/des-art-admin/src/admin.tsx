@@ -5,7 +5,7 @@ import { Badge, Box, Button, Callout, Flex, Heading, Tabs, Text, Theme } from "@
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { ProjectImage, ProjectVisibility } from "../../../src/lib/project-contract";
-import { HomeLimitDialog, PublishOverlay } from "./admin-dialogs";
+import { ConfirmDialog, HomeLimitDialog, IssueDialog, NewProjectDialog, PublishOverlay } from "./admin-dialogs";
 import { CardEditor, PageEditor } from "./admin-editor";
 import type { AdminProject, ChangeInventory, FieldIssue, PublishJob } from "./admin-model";
 import { ApiError } from "./admin-model";
@@ -42,7 +42,7 @@ function App() {
   const [projects, setProjects] = useState<AdminProject[]>([]);
   const [inventory, setInventory] = useState<ChangeInventory>(emptyInventory);
   const [current, setCurrent] = useState<AdminProject | null>(null);
-  const [filter, setFilter] = useState<ProjectFilter>("all");
+  const [filter, setFilter] = useState<ProjectFilter>("published");
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("card");
   const [saveState, setSaveState] = useState<SaveState>("saved");
@@ -51,6 +51,9 @@ function App() {
   const [selectedSection, setSelectedSection] = useState<string>();
   const [homeRequest, setHomeRequest] = useState<string>();
   const [job, setJob] = useState<PublishJob | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState<"project" | "all" | "delete" | "shutdown">();
+  const [reviewIssues, setReviewIssues] = useState<FieldIssue[]>([]);
   const dirty = useRef(false);
   const latest = useRef<AdminProject | null>(null);
 
@@ -88,6 +91,8 @@ function App() {
         localStorage.removeItem(draftKey(current.slug));
         setSaveState("saved");
         await refresh();
+        const validation = await api<{ valid: boolean; issues: FieldIssue[] }>("/api/validate", { method: "POST", body: JSON.stringify({ scope: "project", slug: current.slug }) });
+        setIssues(validation.issues);
       } catch (error) {
         setMessage(safeMessage(error));
         setSaveState("dirty");
@@ -151,6 +156,11 @@ function App() {
       body: JSON.stringify({ name: file.name, mime: file.type, data, alt: context }),
     });
   };
+  const uploadLogo = async (file: File) => {
+    if (!current) throw new ApiError("Сначала выберите проект.");
+    const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = () => reject(new ApiError("Не удалось прочитать SVG.")); reader.readAsDataURL(file); });
+    return api<AdminProject["logo"]>(`/api/projects/${current.slug}/logo`, { method: "POST", body: JSON.stringify({ name: file.name, data }) });
+  };
 
   const preview = () => {
     if (!current) return;
@@ -178,6 +188,7 @@ function App() {
       body: JSON.stringify({ visibility }),
     });
     setCurrent(next);
+    setFilter(visibility);
     await refresh();
   };
 
@@ -208,39 +219,21 @@ function App() {
     if (current) await openProject(current.slug);
   };
 
-  const createProject = async () => {
-    const slug = window.prompt("Адрес нового проекта латиницей, например new-project");
-    if (!slug) return;
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-      setMessage("Адрес может содержать только строчные латинские буквы, цифры и дефисы.");
-      return;
-    }
-    const project: AdminProject = {
-      schemaVersion: 2,
-      title: "Новый проект",
-      slug,
-      description: "Описание проекта",
-      role: "Product Designer",
-      year: new Date().getFullYear(),
-      tags: [],
-      detailTags: [],
-      visibility: "draft",
-      catalogOrder: projects.length + 1,
-      featuredOnHome: false,
-      detailAvailable: false,
-      materials: { projectState: "completed", fileState: "absent" },
-      platforms: [],
-      content: [],
-    };
-    await api(`/api/drafts/${slug}`, { method: "PUT", body: JSON.stringify(project) });
+  const createProject = async (title: string, slug?: string) => {
+    const project = await api<AdminProject>("/api/projects", { method: "POST", body: JSON.stringify({ title, slug }) });
+    setCreateOpen(false);
+    setFilter("draft");
     await refresh();
-    await openProject(slug);
+    await openProject(project.slug);
   };
 
-  const startPublish = async (scope: "project" | "all") => {
+  const startPublish = async (scope: "project" | "all", confirmed = false) => {
     await flush();
-    const name = scope === "project" ? current?.title : `${inventory.count} проектов`;
-    if (!window.confirm(`Локальная репетиция публикации: ${name}. Production не изменится. Продолжить?`)) return;
+    const validation = await api<{ valid: boolean; issues?: FieldIssue[]; projects?: ChangeInventory["projects"] }>("/api/validate", { method: "POST", body: JSON.stringify({ scope, slug: current?.slug }) });
+    const invalidIssues = validation.issues ?? validation.projects?.flatMap((item) => item.valid ? [] : item.issues.map((issue) => ({ ...issue, projectSlug: item.slug, projectTitle: item.title }))) ?? [];
+    if (!validation.valid) { setReviewIssues(invalidIssues); return; }
+    if (!confirmed) { setConfirmation(scope); return; }
+    setConfirmation(undefined);
     const started = await api<PublishJob>("/api/publish/start", {
       method: "POST",
       body: JSON.stringify({ scope, slug: current?.slug, dryRun: true }),
@@ -264,7 +257,7 @@ function App() {
   );
 
   const permanentDelete = async () => {
-    if (!current || !window.confirm(`Удалить «${current.title}» навсегда? Это удалит локальный черновик и его ассеты.`)) return;
+    if (!current) return;
     await api(`/api/projects/${current.slug}/permanent`, { method: "DELETE" });
     setCurrent(null);
     await refresh();
@@ -293,14 +286,12 @@ function App() {
             search={search}
             setSearch={setSearch}
             open={(slug) => void openProject(slug).catch((error) => setMessage(safeMessage(error)))}
-            create={() => void createProject().catch((error) => setMessage(safeMessage(error)))}
+            create={() => setCreateOpen(true)}
             reorder={(slugs) => void api<AdminProject[]>("/api/projects/reorder", { method: "POST", body: JSON.stringify({ slugs }) })
               .then(async (value) => { setProjects(value); setInventory(await api("/api/changes")); })
               .catch((error) => setMessage(safeMessage(error)))}
             publishAll={() => void startPublish("all").catch((error) => setMessage(safeMessage(error)))}
-            shutdown={() => {
-              if (window.confirm("Завершить админку? Черновики останутся сохранены.")) void api("/api/shutdown", { method: "POST" });
-            }}
+            shutdown={() => setConfirmation("shutdown")}
           />
           <section className="editor-area">
             {current ? (
@@ -315,8 +306,8 @@ function App() {
                 <Tabs.Root value={tab} onValueChange={setTab}>
                   <Tabs.List><Tabs.Trigger value="card">Карточка</Tabs.Trigger><Tabs.Trigger value="page">Страница проекта</Tabs.Trigger></Tabs.List>
                   <Box pt="5">
-                    <Tabs.Content value="card"><CardEditor project={current} update={update} upload={upload} /></Tabs.Content>
-                    <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} selectedSection={selectedSection} selectSection={setSelectedSection} /></Tabs.Content>
+                    <Tabs.Content value="card"><CardEditor project={current} update={update} upload={upload} uploadLogo={uploadLogo} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
+                    <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} selectedSection={selectedSection} selectSection={setSelectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
                   </Box>
                 </Tabs.Root>
               </div>
@@ -333,7 +324,7 @@ function App() {
                   preview={preview}
                   publish={() => void startPublish("project").catch((error) => setMessage(safeMessage(error)))}
                   setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
-                  permanentDelete={() => void permanentDelete().catch((error) => setMessage(safeMessage(error)))}
+                  permanentDelete={() => setConfirmation("delete")}
                 />
                 {tab === "card" ? (
                   <CardSettings project={current} update={update} home={requestHome} />
@@ -345,6 +336,17 @@ function App() {
           </aside>
         </main>
         <HomeLimitDialog key={homeRequest ?? "closed"} open={Boolean(homeRequest)} projects={projects} requested={homeRequest} cancel={() => setHomeRequest(undefined)} apply={(slugs) => void applyHome(slugs).catch((error) => setMessage(safeMessage(error)))} />
+        <NewProjectDialog key={createOpen ? "open" : "closed"} open={createOpen} close={() => setCreateOpen(false)} create={(title, slug) => void createProject(title, slug).catch((error) => setMessage(safeMessage(error)))} />
+        <IssueDialog open={reviewIssues.length > 0} title="Что нужно исправить" issues={reviewIssues} close={() => setReviewIssues([])} navigate={(issue) => {
+          setReviewIssues([]);
+          if (issue.projectSlug && issue.projectSlug !== current?.slug) void openProject(issue.projectSlug);
+          setTab(issue.tab ?? "card");
+          if (issue.sectionId) setSelectedSection(issue.sectionId);
+          requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${CSS.escape(issue.field)}"]`)?.focus());
+        }} />
+        <ConfirmDialog open={confirmation === "project" || confirmation === "all"} title="Запустить тестовую публикацию?" description="Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся." confirmLabel="Запустить" close={() => setConfirmation(undefined)} confirm={() => void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error)))} />
+        <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
+        <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
         <PublishOverlay job={job} close={() => setJob(null)} />
       </div>
     </Theme>
