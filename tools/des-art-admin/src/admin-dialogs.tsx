@@ -57,6 +57,7 @@ export function HomeLimitDialog({
   const [order, setOrder] = useState(initial);
   const [enabled, setEnabled] = useState(() => new Set(initial));
   const [dragged, setDragged] = useState<string>();
+  const [dropTarget, setDropTarget] = useState<string>();
   return (
     <Dialog.Root open={open} onOpenChange={(value) => { if (!value) cancel(); }}>
       <Dialog.Content maxWidth="600px">
@@ -66,9 +67,11 @@ export function HomeLimitDialog({
           {order.map((slug, index) => (
             <div
               key={slug}
+              data-drop-target={dropTarget === slug || undefined}
               draggable
               onDragStart={() => setDragged(slug)}
-              onDragOver={(event) => event.preventDefault()}
+              onDragOver={(event) => { event.preventDefault(); setDropTarget(slug); }}
+              onDragLeave={() => setDropTarget((value) => value === slug ? undefined : value)}
               onDrop={() => {
                 if (!dragged || dragged === slug) return;
                 const next = [...order];
@@ -77,6 +80,7 @@ export function HomeLimitDialog({
                 if (from === -1 || to === -1) return;
                 next.splice(to, 0, next.splice(from, 1)[0]);
                 setOrder(next);
+                setDropTarget(undefined);
               }}
             >
               <DragHandleDots2Icon />

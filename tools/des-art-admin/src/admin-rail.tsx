@@ -29,6 +29,7 @@ export function ProjectActions({
   setVisibility,
   permanentDelete,
   issues,
+  reviewIssues,
 }: {
   project: AdminProject;
   changed: boolean;
@@ -37,6 +38,7 @@ export function ProjectActions({
   setVisibility: (visibility: ProjectVisibility) => void;
   permanentDelete: () => void;
   issues: FieldIssue[];
+  reviewIssues: () => void;
 }) {
   return (
     <RailGroup title="Проект" description={issues.length ? `Нужно исправить · ${issues.length}` : "Готов к публикации"}>
@@ -48,6 +50,7 @@ export function ProjectActions({
           <Select.Item value="deleted">Удалён</Select.Item>
         </Select.Content>
       </Select.Root>
+      {issues.length ? <Button variant="soft" color="orange" onClick={reviewIssues}>Показать ошибки · {issues.length}</Button> : null}
       <Button variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button>
       {changed ? <Button onClick={publish}>Опубликовать этот проект</Button> : null}
       {project.visibility === "deleted" ? (

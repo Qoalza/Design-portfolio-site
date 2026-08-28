@@ -24,8 +24,8 @@ import type {
 } from "../../../src/lib/project-contract";
 import type { AdminContentBlock, AdminProject, AdminSection } from "./admin-model";
 import type { FieldIssue } from "./admin-model";
-import { issueFor, list, sectionText, textBlocks } from "./admin-model";
-import { AssetField, Field, RichEditor } from "./admin-ui";
+import { issueFor, sectionText, textBlocks } from "./admin-model";
+import { AssetField, Field, RichEditor, TagField } from "./admin-ui";
 
 type Upload = (file: File, context: string) => Promise<ProjectImage>;
 
@@ -133,9 +133,7 @@ export function CardEditor({
           <Field field="role" label="Роль" error={issueFor(issues, "role")}>
             <TextField.Root value={project.role} onChange={(event) => update({ role: event.target.value })} />
           </Field>
-          <Field label="Краткие теги" hint="Через запятую">
-            <TextField.Root value={project.tags.join(", ")} onChange={(event) => update({ tags: list(event.target.value) })} />
-          </Field>
+          <TagField label="Краткие теги" value={project.tags} onChange={(tags) => update({ tags })} />
           <Field label="Что делал" wide>
             <TextArea rows={3} value={project.workSummary ?? ""} onChange={(event) => update({ workSummary: event.target.value || undefined })} />
           </Field>
@@ -224,16 +222,11 @@ function GalleryEditor({
               <li key={`${item.src}-${index}`}>
                 <img src={item.src} alt="" />
                 <Text size="2">Изображение {index + 1}</Text>
-                <IconButton
-                  type="button"
-                  size="1"
-                  variant="ghost"
-                  color="red"
-                  aria-label={`Удалить изображение ${index + 1}`}
-                  onClick={() => updateGroup(group.id, { ...group, items: group.items.filter((_, itemIndex) => itemIndex !== index) })}
-                >
-                  <TrashIcon />
-                </IconButton>
+                <Flex gap="1">
+                  <IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const items = [...group.items]; [items[index - 1], items[index]] = [items[index], items[index - 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronUpIcon /></IconButton>
+                  <IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.items.length - 1} onClick={() => { const items = [...group.items]; [items[index + 1], items[index]] = [items[index], items[index + 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronDownIcon /></IconButton>
+                  <IconButton type="button" size="1" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => updateGroup(group.id, { ...group, items: group.items.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton>
+                </Flex>
               </li>
             ))}
           </ol>
@@ -276,9 +269,7 @@ export function PageEditor({
           <Heading size="4">Открытая страница проекта</Heading>
           <Text size="2" color="gray">Контент, который видит пользователь после открытия проекта.</Text>
         </div>
-        <Field label="Подробные теги" hint="Отображаются наверху открытого проекта">
-          <TextField.Root value={project.detailTags.join(", ")} onChange={(event) => update({ detailTags: list(event.target.value) })} />
-        </Field>
+        <TagField label="Подробные теги" hint="Отображаются наверху открытого проекта · разделитель /" value={project.detailTags} onChange={(detailTags) => update({ detailTags })} />
       </section>
       <section className="editor-section">
         <AssetField
