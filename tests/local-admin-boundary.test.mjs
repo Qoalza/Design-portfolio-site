@@ -8,6 +8,8 @@ const projectRoute = await readFile(new URL("../src/app/projects/[slug]/page.tsx
 const previewAssetRoute = await readFile(new URL("../src/app/admin-preview-assets/[slug]/[file]/route.ts", import.meta.url), "utf8");
 const nextConfig = await readFile(new URL("../next.config.ts", import.meta.url), "utf8");
 const adminUi = await readFile(new URL("../tools/des-art-admin/src/admin.tsx", import.meta.url), "utf8");
+const adminDialogs = await readFile(new URL("../tools/des-art-admin/src/admin-dialogs.tsx", import.meta.url), "utf8");
+const adminEditor = await readFile(new URL("../tools/des-art-admin/src/admin-editor.tsx", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 
 test("admin server binds only to IPv4 loopback and validates local requests", () => {
@@ -43,6 +45,14 @@ test("admin UI keeps Radix Themes inside the local admin boundary", () => {
   assert.equal(packageJson.dependencies["@radix-ui/themes"], "3.3.0");
   assert.match(adminUi, /<Theme accentColor="blue" grayColor="sand" radius="small"/);
   assert.doesNotMatch(projectRoute, /@radix-ui\/themes/);
+});
+
+test("admin workflows use internal dialogs and manual SVG logos", () => {
+  assert.doesNotMatch(adminUi, /window\.(?:prompt|confirm|alert)/);
+  assert.match(adminDialogs, /NewProjectDialog/);
+  assert.match(adminDialogs, /AlertDialog/);
+  assert.match(adminEditor, /accept="image\/svg\+xml,\.svg"/);
+  assert.match(server, /saveLogo/);
 });
 
 test("prepared macOS launcher bundle is complete", async () => {
