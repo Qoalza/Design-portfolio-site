@@ -44,6 +44,7 @@
 - Принятые Footer и process controls развернуты в production 2026-08-27 из точного `DEPLOY_SHA` `8f3c869ac6aa30cbc4c2c5f6422290db5aa45fa1`: Footer содержит `Разработка и Дизайн Артур А.`, кнопки Light имеют размер `32×32`, верхние/нижние переходы и оба слоя fade подтверждены в browser smoke.
 - Layering process-блока исправлен и развернут 2026-08-28 из точного `DEPLOY_SHA` `4af476cab57c4ed248d04ce2907e0731e6669a36`: изолированный stacking context удерживает `track → fade → control` ниже fixed Header; scroll/hit-test и переходы всех этапов подтверждены в production.
 - Единый social preview развернут 2026-08-28 из текущего `origin/main`: `/`, `/projects` и `/projects/corvo` используют `artur-designer-social-preview.png`, `og:title` `Артур А.`, `og:description` `PRODUCT DESIGNER` и абсолютные canonical OG URL; release-path и отданный build SHA совпали с полным SHA ветки.
+- В ветке `codex/local-project-admin-publisher` локальная админка получила отдельный React + Radix Themes UI-контур: список проектов, вкладки `Карточка` / `Страница проекта` / `Медиа` и постоянная панель публикации. Radix подключён только внутри `tools/des-art-admin`, публичный App Router и портфельная дизайн-система его не импортируют. Файловое хранилище, локальная безопасность и preview-контракт не менялись.
 
 ## Production
 
@@ -129,3 +130,4 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 1. Social preview production deploy завершён; production наблюдать штатными health/smoke-проверками без повторного deploy.
 2. Preloaders/loading states оставить для отдельного будущего Work Packet после новой классификации и пользовательского подтверждения.
+3. Новый интерфейс локальной админки готов к пользовательской проверке из рабочей ветки; merge/deploy в рамках этой Git-группы не выполнялись.

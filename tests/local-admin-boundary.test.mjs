@@ -5,6 +5,8 @@ import test from "node:test";
 const server = await readFile(new URL("../tools/des-art-admin/server.mjs", import.meta.url), "utf8");
 const launcher = await readFile(new URL("../tools/des-art-admin/launcher.mjs", import.meta.url), "utf8");
 const projectRoute = await readFile(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
+const adminUi = await readFile(new URL("../tools/des-art-admin/src/admin.tsx", import.meta.url), "utf8");
+const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 
 test("admin server binds only to IPv4 loopback and validates local requests", () => {
   assert.match(server, /server\.listen\(port, "127\.0\.0\.1"/);
@@ -25,6 +27,12 @@ test("admin is not an App Router route and preview access is env-gated", async (
   await assert.rejects(() => access(new URL("../src/app/admin", import.meta.url)));
   assert.match(projectRoute, /process\.env\.DES_ART_ADMIN_PREVIEW === "1"/);
   assert.match(projectRoute, /!isAdminPreview && project\.availability\.detail/);
+});
+
+test("admin UI keeps Radix Themes inside the local admin boundary", () => {
+  assert.equal(packageJson.dependencies["@radix-ui/themes"], "3.3.0");
+  assert.match(adminUi, /<Theme accentColor="blue" grayColor="sand" radius="small"/);
+  assert.doesNotMatch(projectRoute, /@radix-ui\/themes/);
 });
 
 test("prepared macOS launcher bundle is complete", async () => {

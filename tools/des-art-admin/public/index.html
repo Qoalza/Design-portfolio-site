@@ -3,43 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
   <title>Des-art Admin</title>
   <link rel="stylesheet" href="/admin.css">
 </head>
 <body data-csrf="__CSRF_TOKEN__" data-preview-port="__PREVIEW_PORT__">
-  <header><div><strong>Des-art Admin</strong><span id="save-state">Все изменения сохранены</span></div><button id="shutdown" class="danger">Завершить работу админки</button></header>
-  <main>
-    <aside>
-      <div class="aside-title"><h1>Проекты</h1><button id="create">Создать</button></div>
-      <ol id="projects"></ol>
-    </aside>
-    <section id="empty"><h2>Выберите проект</h2><p>Или создайте новый черновик.</p></section>
-    <form id="editor" hidden>
-      <div class="editor-head"><div><p class="eyebrow">Редактор проекта</p><h2 id="editor-title"></h2></div><div class="actions"><button type="button" id="preview">Предпросмотр</button><button type="submit" class="primary">Сохранить</button></div></div>
-      <div id="message" role="status"></div>
-      <fieldset><legend>Основное</legend><div class="grid">
-        <label>Название<input name="title" required></label><label>Slug<input name="slug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required></label>
-        <label class="wide">Описание<textarea name="description" required></textarea></label><label class="wide">Подзаголовок<input name="subtitle"></label>
-        <label>Роль<input name="role" required></label><label>Роль в каталоге<input name="catalogRole"></label>
-        <label>Год<input name="year" type="number" min="1900" required></label><label>Статус<input name="status" required></label>
-        <label class="wide">Теги, через запятую<input name="tags"></label><label class="wide">Метки страницы, через запятую<input name="detailLabels"></label>
-        <label class="wide">Что делал<textarea name="workSummary"></textarea></label>
-      </div></fieldset>
-      <fieldset><legend>Публикация и доступность</legend><div class="grid">
-        <label>Состояние<select name="visibility"><option>draft</option><option>published</option><option>hidden</option><option>archived</option></select></label>
-        <label>Порядок<input name="catalogOrder" type="number" min="0"></label>
-        <label class="check"><input name="catalogVisible" type="checkbox">Показывать в каталоге</label>
-        <label class="check"><input name="detailAvailable" type="checkbox">Доступна страница проекта</label>
-        <label class="check"><input name="figmaAvailable" type="checkbox">Доступна Figma</label>
-        <label class="wide">Figma URL<input name="figmaUrl" type="url"></label><label>Обновлено<input name="updatedAt"></label>
-        <div class="wide checks"><span>Платформы</span><label><input type="checkbox" name="platform" value="Desktop">Desktop</label><label><input type="checkbox" name="platform" value="Tablet">Tablet</label><label><input type="checkbox" name="platform" value="Mobile">Mobile</label></div>
-        <label class="wide">NDA-примечание<textarea name="ndaNote"></textarea></label>
-      </div></fieldset>
-      <fieldset><legend>Контент</legend><div class="block-toolbar"><button type="button" data-add="section">Добавить секцию</button><button type="button" data-add="gallery">Добавить галерею</button></div><div id="blocks"></div></fieldset>
-      <fieldset><legend>Изображения</legend><div id="dropzone" tabindex="0">Перетащите изображение сюда или <button type="button" id="pick-image">выберите файл</button><input id="file" type="file" accept="image/png,image/jpeg,image/gif,image/webp" hidden></div><label>Alt для загружаемого изображения<input id="upload-alt"></label><div id="uploads"></div></fieldset>
-      <div class="lifecycle"><button type="button" data-life="published">Опубликовать локально</button><button type="button" data-life="hidden">Скрыть</button><button type="button" data-life="archived" class="danger">Архивировать</button><button type="button" data-life="draft">Восстановить как черновик</button><button type="button" id="duplicate">Дублировать</button></div>
-    </form>
-  </main>
+  <div id="admin-root"></div>
   <script src="/admin.js" defer></script>
 </body>
 </html>
