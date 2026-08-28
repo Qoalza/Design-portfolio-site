@@ -30,6 +30,7 @@ const imageTypes = new Map([
   [".jpg", "image/jpeg"],
   [".gif", "image/gif"],
   [".webp", "image/webp"],
+  [".svg", "image/svg+xml"],
 ]);
 
 function reachable(targetPort) {
@@ -125,7 +126,19 @@ async function handler(request, response) {
       return;
     }
     if (request.method === "GET" && url.pathname === "/api/projects") return json(response, 200, await store.listProjects());
+    if (request.method === "POST" && url.pathname === "/api/projects") {
+      return json(response, 201, await store.createProject(await body(request)));
+    }
     if (request.method === "GET" && url.pathname === "/api/changes") return json(response, 200, await store.getChangeInventory());
+    if (request.method === "POST" && url.pathname === "/api/validate") {
+      const value = await body(request);
+      if (value.scope === "project") {
+        const project = await store.getProject(value.slug);
+        return json(response, 200, (await import("./draft-contract.mjs")).draftValidation(project));
+      }
+      const inventory = await store.getChangeInventory();
+      return json(response, 200, { valid: inventory.projects.every((item) => item.valid), projects: inventory.projects });
+    }
     if (request.method === "POST" && segments[0] === "api" && segments[1] === "preview" && segments[2]) {
       const slug = decodeURIComponent(segments[2]);
       await store.preparePreview(slug, previewRoot);
@@ -144,6 +157,11 @@ async function handler(request, response) {
       const all = await store.listProjects();
       const selected = value.scope === "project" ? all.filter((project) => project.slug === value.slug) : all;
       if (value.scope === "project" && selected.length !== 1) return json(response, 404, { error: "Проект для публикации не найден." });
+      const invalid = selected.map((project) => ({ project, validation: (await import("./draft-contract.mjs")).draftValidation(project) })).filter((item) => !item.validation.valid);
+      if (invalid.length) {
+        const issues = invalid.flatMap(({ project, validation }) => validation.issues.map((issue) => ({ ...issue, projectSlug: project.slug, projectTitle: project.title })));
+        throw new DraftValidationError(issues);
+      }
       const files = selected.map((project) => path.join(store.draftRoot, `${project.slug}.json`));
       await mkdir(jobsRoot, { recursive: true });
       const id = `${Date.now()}-${value.scope === "project" ? selected[0].slug : "all"}`;
@@ -178,6 +196,10 @@ async function handler(request, response) {
         const value = await body(request);
         const buffer = Buffer.from(value.data, "base64");
         return json(response, 201, await store.saveImage(slug, value.name, value.mime, buffer, value.alt));
+      }
+      if (request.method === "POST" && segments[3] === "logo") {
+        const value = await body(request);
+        return json(response, 201, await store.saveLogo(slug, value.name, Buffer.from(value.data, "base64")));
       }
       if (request.method === "DELETE" && segments[3] === "permanent") {
         await store.permanentlyDelete(slug);

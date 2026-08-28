@@ -30,7 +30,15 @@ export type AdminSection = Extract<ProjectContentBlock, { type: "section" }> & {
 
 export type AdminContentBlock = AdminSection | Extract<ProjectContentBlock, { type: "gallery" }>;
 
-export type FieldIssue = { field: string; message: string };
+export type FieldIssue = {
+  field: string;
+  label?: string;
+  tab?: "card" | "page";
+  sectionId?: string;
+  projectSlug?: string;
+  projectTitle?: string;
+  message: string;
+};
 export type ChangeProject = { slug: string; title: string; valid: boolean; issues: FieldIssue[] };
 export type ChangeInventory = { count: number; projects: ChangeProject[] };
 

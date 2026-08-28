@@ -7,10 +7,35 @@ import test from "node:test";
 import { PROJECT_DOCUMENT_VERSION } from "../src/lib/project-contract.ts";
 import {
   AdminStore,
+  createProjectSlug,
+  inspectSvg,
   inspectImage,
   safeUploadName,
   validateLocalRequest,
 } from "../tools/des-art-admin/core.mjs";
+
+test("project slugs are readable, Unicode-safe and collision resistant", async () => {
+  assert.equal(createProjectSlug("Новый проект. Тест", []), "novyi-proekt-test");
+  assert.equal(createProjectSlug("Sarafan.Radio", []), "sarafan-radio");
+  assert.equal(createProjectSlug("NEW project", ["new-project"]), "new-project-2");
+  assert.match(createProjectSlug("🎉", []), /^project-[a-f0-9]{8}$/);
+});
+
+test("project creation is atomic and accepts a free-form title", async () => {
+  const store = new AdminStore(await roots());
+  const first = await store.createProject({ title: "Новый проект. Тест" });
+  const second = await store.createProject({ title: "Новый проект. Тест" });
+  assert.equal(first.slug, "novyi-proekt-test");
+  assert.equal(second.slug, "novyi-proekt-test-2");
+  assert.equal(first.title, "Новый проект. Тест");
+});
+
+test("SVG inspection accepts passive square artwork and rejects active markup", () => {
+  const safe = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>');
+  assert.deepEqual(inspectSvg(safe, "Logo.svg"), { mime: "image/svg+xml", width: 24, height: 24, extension: ".svg" });
+  assert.throws(() => inspectSvg(Buffer.from('<svg viewBox="0 0 24 24"><script>alert(1)</script></svg>'), "x.svg"), /active|unsafe/i);
+  assert.throws(() => inspectSvg(Buffer.from('<svg viewBox="0 0 24 12"></svg>'), "x.svg"), /square/i);
+});
 
 const project = (slug = "admin-test", overrides = {}) => ({
   schemaVersion: PROJECT_DOCUMENT_VERSION,

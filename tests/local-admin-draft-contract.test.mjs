@@ -6,6 +6,7 @@ import {
   createAdminDraft,
   DraftValidationError,
   parseAdminDraft,
+  draftValidation,
 } from "../tools/des-art-admin/draft-contract.mjs";
 
 const project = (overrides = {}) => ({
@@ -25,6 +26,25 @@ const project = (overrides = {}) => ({
   platforms: [],
   content: [],
   ...overrides,
+});
+
+test("validation accumulates field navigation metadata", () => {
+  const draft = createAdminDraft(project({
+    title: "",
+    description: "",
+    role: "",
+    materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
+    content: [{ type: "section", heading: "", blocks: [] }],
+  }));
+  const validation = draftValidation(draft);
+  assert.equal(validation.valid, false);
+  assert.deepEqual(validation.issues.slice(0, 4).map(({ field, tab }) => [field, tab]), [
+    ["title", "card"],
+    ["description", "card"],
+    ["role", "card"],
+    ["materials.figmaUrl", "page"],
+  ]);
+  assert.equal(validation.issues.some((issue) => issue.sectionId === draft.content[0].adminId), true);
 });
 
 test("admin draft persists an incomplete required Figma URL", () => {

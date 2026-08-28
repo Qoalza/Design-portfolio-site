@@ -48,27 +48,57 @@ export function parseAdminDraft(source, sourceName = "draft.json") {
 function issueFrom(error) {
   const message = error instanceof Error ? error.message : String(error);
   if (message.includes("materials.figmaUrl")) {
-    return { field: "materials.figmaUrl", message: "Укажите ссылку на Figma." };
+    return { field: "materials.figmaUrl", label: "Ссылка на Figma", tab: "page", message: "Укажите ссылку на Figma." };
   }
   if (message.includes("materials.updatedAt")) {
-    return { field: "materials.updatedAt", message: "Проверьте дату последнего обновления." };
+    return { field: "materials.updatedAt", label: "Дата последнего обновления", tab: "page", message: "Проверьте дату последнего обновления." };
   }
-  if (message.includes("title")) return { field: "title", message: "Укажите название проекта." };
-  if (message.includes("description")) return { field: "description", message: "Укажите описание проекта." };
-  return { field: "project", message: "Проверьте обязательные поля проекта." };
+  if (message.includes("title")) return { field: "title", label: "Название", tab: "card", message: "Укажите название проекта." };
+  if (message.includes("description")) return { field: "description", label: "Описание", tab: "card", message: "Укажите описание проекта." };
+  if (message.includes("role")) return { field: "role", label: "Роль", tab: "card", message: "Укажите роль в проекте." };
+  return { field: "project", label: "Проект", tab: "card", message: "Проверьте обязательные поля проекта." };
+}
+
+function requiredIssues(draft) {
+  const issues = [];
+  const required = [
+    ["title", "Название", "card", "Укажите название проекта."],
+    ["description", "Описание", "card", "Укажите описание проекта."],
+    ["role", "Роль", "card", "Укажите роль в проекте."],
+  ];
+  for (const [field, label, tab, message] of required) {
+    if (typeof draft[field] !== "string" || !draft[field].trim()) issues.push({ field, label, tab, message });
+  }
+  if (!Number.isInteger(draft.year) || draft.year < 1900) {
+    issues.push({ field: "year", label: "Год", tab: "card", message: "Укажите корректный год." });
+  }
+  if (draft.materials?.fileState === "available" && !(draft.materials.figmaUrl ?? "").trim()) {
+    issues.push(issueFrom(new Error("materials.figmaUrl")));
+  }
+  for (const block of draft.content ?? []) {
+    if (block?.type === "section" && !(block.heading ?? "").trim()) {
+      issues.push({ field: `content.${block.adminId}.heading`, label: "Заголовок секции", tab: "page", sectionId: block.adminId, message: "Укажите заголовок секции." });
+    }
+  }
+  return issues;
 }
 
 export function compileAdminDraft(value) {
   const draft = createAdminDraft(value);
+  const issues = requiredIssues(draft);
   const settings = draft.admin?.sections ?? {};
   for (const [id, sectionSettings] of Object.entries(settings)) {
     if (sectionSettings?.interactive?.enabled && sectionSettings.interactive.status === "pending") {
-      throw new DraftValidationError([{
+      issues.push({
         field: `admin.sections.${id}.interactive`,
+        label: "Интерактивный экран",
+        tab: "page",
+        sectionId: id,
         message: "Интерактивный экран ещё не подготовлен.",
-      }]);
+      });
     }
   }
+  if (issues.length) throw new DraftValidationError(issues);
   const publicValue = clone(draft);
   delete publicValue.admin;
   publicValue.content = publicValue.content.map((block) => {

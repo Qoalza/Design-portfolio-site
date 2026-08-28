@@ -19,6 +19,34 @@ const IMAGE_TYPES = new Map([
 ]);
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 40_000_000;
+const MAX_SVG_BYTES = 512 * 1024;
+const CYRILLIC = { а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"e",ж:"zh",з:"z",и:"i",й:"y",к:"k",л:"l",м:"m",н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"h",ц:"ts",ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya" };
+
+export function createProjectSlug(title, existing = []) {
+  const base = String(title ?? "").normalize("NFKD").toLowerCase()
+    .split("").map((character) => CYRILLIC[character] ?? character).join("")
+    .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  const stem = base || `project-${createHash("sha256").update(String(title)).digest("hex").slice(0, 8)}`;
+  const occupied = new Set(existing.map((value) => String(value).toLowerCase()));
+  if (!occupied.has(stem)) return stem;
+  let suffix = 2;
+  while (occupied.has(`${stem}-${suffix}`)) suffix += 1;
+  return `${stem}-${suffix}`;
+}
+
+export function inspectSvg(buffer, fileName) {
+  if (!Buffer.isBuffer(buffer) || buffer.length === 0 || buffer.length > MAX_SVG_BYTES) throw new Error("SVG size is invalid.");
+  if (path.extname(fileName).toLowerCase() !== ".svg") throw new Error("SVG extension is required.");
+  const source = buffer.toString("utf8");
+  if (!/^\s*<svg\b/i.test(source) || /<!DOCTYPE|<script\b|<foreignObject\b|\son[a-z]+\s*=|javascript:|(?:href|src)\s*=\s*["'](?:https?:|\/\/|data:)/i.test(source)) {
+    throw new Error("SVG contains active or unsafe markup.");
+  }
+  const viewBox = /\bviewBox\s*=\s*["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)\s*["']/i.exec(source);
+  if (!viewBox) throw new Error("SVG must contain a viewBox.");
+  const width = Number(viewBox[1]); const height = Number(viewBox[2]);
+  if (!(width > 0) || width !== height) throw new Error("SVG viewBox must be square.");
+  return { mime: "image/svg+xml", width, height, extension: ".svg" };
+}
 
 export function validateLocalRequest(request, csrfToken, port) {
   const host = String(request.host ?? "");
@@ -152,6 +180,26 @@ export class AdminStore {
     return writeProjectDocument(value, this.contentRoot);
   }
 
+  async createProject({ title, slug: requestedSlug }) {
+    const cleanTitle = typeof title === "string" ? title.trim() : "";
+    if (!cleanTitle) throw new Error("Укажите название проекта.");
+    await mkdir(this.draftRoot, { recursive: true });
+    const existing = (await this.listProjects()).map((item) => item.slug);
+    const requested = requestedSlug ? createProjectSlug(requestedSlug, []) : createProjectSlug(cleanTitle, []);
+    let slug = createProjectSlug(requested, existing);
+    for (;;) {
+      const file = resolveProjectDocumentPath(this.draftRoot, slug);
+      const project = createAdminDraft({ schemaVersion: 2, title: cleanTitle, slug, description: "", role: "", year: new Date().getFullYear(), tags: [], detailTags: [], visibility: "draft", catalogOrder: existing.length + 1, featuredOnHome: false, detailAvailable: false, materials: { projectState: "completed", fileState: "absent" }, platforms: [], content: [] });
+      try {
+        await writeFile(file, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600, flag: "wx" });
+        return project;
+      } catch (error) {
+        if (error?.code !== "EEXIST") throw error;
+        existing.push(slug); slug = createProjectSlug(requested, existing);
+      }
+    }
+  }
+
   async duplicateProject(sourceSlug, newSlug) {
     const source = await this.getProject(sourceSlug);
     const copy = createAdminDraft({
@@ -273,6 +321,16 @@ export class AdminStore {
       mime: inspected.mime,
       ...(duplicateOf ? { duplicateOf } : {}),
     };
+  }
+
+  async saveLogo(slug, fileName, buffer) {
+    inspectSvg(buffer, fileName);
+    const destination = resolveProjectAssetPath(this.draftAssetRoot, slug, "logo.svg");
+    await mkdir(path.dirname(destination), { recursive: true });
+    const temporary = `${destination}.${process.pid}.${Date.now()}.tmp`;
+    await writeFile(temporary, buffer, { mode: 0o600 });
+    await rename(temporary, destination);
+    return { type: "image", src: `/assets/projects/${slug}/logo.svg` };
   }
 
   async readImage(slug, fileName) {
