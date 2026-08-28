@@ -16,10 +16,7 @@ const assetRoot = "/assets/homepage";
 
 export const metadata: Metadata = {
   title: { absolute: "Мои работы — Artur Designer" },
-  ...createSocialMetadata({
-    title: "Мои работы — Artur Designer",
-    url: "/projects",
-  }),
+  ...createSocialMetadata("/projects"),
 };
 
 function RadioSymbol() {

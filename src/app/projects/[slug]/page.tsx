@@ -127,11 +127,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   return {
     title: { absolute: `${project.title} — Artur Designer` },
     description: project.description,
-    ...createSocialMetadata({
-      title: `${project.title} — Artur Designer`,
-      description: project.description,
-      url: `/projects/${project.slug}`,
-    }),
+    ...createSocialMetadata(`/projects/${project.slug}`),
   };
 }
 

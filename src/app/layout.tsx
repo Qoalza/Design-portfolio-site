@@ -13,10 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://art-des.ru"),
   title: { absolute: "Страница не найдена — Artur Designer" },
   description: SITE_DESCRIPTION,
-  ...createSocialMetadata({
-    title: "Artur Designer",
-    url: "/",
-  }),
+  ...createSocialMetadata("/"),
   icons: {
     icon: [
       {

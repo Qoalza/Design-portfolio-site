@@ -16,7 +16,7 @@ const assetRoot = "/assets/homepage";
 
 export const metadata: Metadata = {
   title: { absolute: "Artur Designer" },
-  ...createSocialMetadata({ title: "Artur Designer", url: "/" }),
+  ...createSocialMetadata("/"),
 };
 
 function MaskIcon({ className = "" }: { className?: string }) {

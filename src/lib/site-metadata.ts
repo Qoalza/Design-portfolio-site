@@ -10,29 +10,21 @@ const SOCIAL_PREVIEW = {
   alt: "Артур А. — Product Designer",
 } as const;
 
-export function createSocialMetadata({
-  title,
-  description = SITE_DESCRIPTION,
-  url,
-}: {
-  title: string;
-  description?: string;
-  url: string;
-}): Pick<Metadata, "openGraph" | "twitter"> {
+export function createSocialMetadata(url: string): Pick<Metadata, "openGraph" | "twitter"> {
   return {
     openGraph: {
       type: "website",
       locale: "ru_RU",
       siteName: "Artur Designer",
-      title,
-      description,
+      title: "Artur Designer",
+      description: SITE_DESCRIPTION,
       url,
       images: [SOCIAL_PREVIEW],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: "Artur Designer",
+      description: SITE_DESCRIPTION,
       images: [SOCIAL_PREVIEW],
     },
   };
