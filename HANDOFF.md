@@ -24,7 +24,7 @@
 ## Актуальное состояние
 
 - Рабочая ветка: `main`; принятая MLIR7 слита fast-forward и отправлена в `origin/main`.
-- Актуальный production/source commit (`DEPLOY_SHA`) — `3c4400e3b5d1ef8529bb13e13f59ef3b62080a73` (`Match social preview to approved artwork`). Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
+- Актуальный production/source commit (`DEPLOY_SHA`) совпадает с полным SHA текущего `origin/main`; точное значение подтверждается после каждого deploy по отданному HTML и release-path. Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
@@ -43,13 +43,13 @@
 - MLIR7 развернута в production 2026-08-26 из точного `DEPLOY_SHA` `ebe50fb29942f6aa0aa60f86f7c2fae8c640f1a7`; внешний smoke-check пройден.
 - Принятые Footer и process controls развернуты в production 2026-08-27 из точного `DEPLOY_SHA` `8f3c869ac6aa30cbc4c2c5f6422290db5aa45fa1`: Footer содержит `Разработка и Дизайн Артур А.`, кнопки Light имеют размер `32×32`, верхние/нижние переходы и оба слоя fade подтверждены в browser smoke.
 - Layering process-блока исправлен и развернут 2026-08-28 из точного `DEPLOY_SHA` `4af476cab57c4ed248d04ce2907e0731e6669a36`: изолированный stacking context удерживает `track → fade → control` ниже fixed Header; scroll/hit-test и переходы всех этапов подтверждены в production.
-- Единый social preview развернут 2026-08-28 из точного `DEPLOY_SHA` `3c4400e3b5d1ef8529bb13e13f59ef3b62080a73`: `/`, `/projects` и `/projects/corvo` используют `artur-designer-social-preview.png`, `og:title` `Артур А.`, `og:description` `PRODUCT DESIGNER` и абсолютные canonical OG URL.
+- Единый social preview развернут 2026-08-28 из текущего `origin/main`: `/`, `/projects` и `/projects/corvo` используют `artur-designer-social-preview.png`, `og:title` `Артур А.`, `og:description` `PRODUCT DESIGNER` и абсолютные canonical OG URL; release-path и отданный build SHA совпали с полным SHA ветки.
 
 ## Production
 
 - URL: `https://art-des.ru`; `http://art-des.ru` и оба варианта `www` перенаправляются на canonical HTTPS host.
 - VPS: Ubuntu 24.04 LTS; Node.js `22.23.2`; npm `10.9.8`; Nginx `1.24.0`; Certbot `5.7.0`.
-- Release: `/var/www/art-des/releases/3c4400e3b5d1ef8529bb13e13f59ef3b62080a73`; `/var/www/art-des/current` указывает на него. Предыдущий сохранённый rollback release: `/var/www/art-des/releases/4af476cab57c4ed248d04ce2907e0731e6669a36`.
+- Release: `/var/www/art-des/current` указывает на каталог полного SHA текущего `origin/main`; предыдущий успешный release сохраняется как rollback boundary.
 - Next.js работает от системного пользователя `portfolio` через `art-des.service`: сервис `active`, `enabled`, restart проверен.
 - Next.js слушает только `127.0.0.1:3000`; UFW разрешает снаружи только OpenSSH и `80/443`. Пять независимых внешних probe-nodes получили timeout на `:3000`.
 - Let's Encrypt покрывает `art-des.ru` и `www.art-des.ru`, срок действия до `2026-11-13`; `snap.certbot.renew.timer` активен, `certbot renew --dry-run --no-random-sleep-on-renew` прошёл.
