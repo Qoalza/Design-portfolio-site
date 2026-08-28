@@ -1,10 +1,12 @@
 import { randomBytes } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
 
 import { AdminStore, validateLocalRequest } from "./core.mjs";
+import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(directory, "../.."));
@@ -18,6 +20,7 @@ const store = new AdminStore({
   draftRoot: path.join(supportRoot, "drafts"),
   draftAssetRoot: path.join(supportRoot, "draft-assets"),
 });
+const jobsRoot = path.join(supportRoot, "jobs");
 
 function json(response, status, value) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
@@ -61,6 +64,32 @@ async function handler(request, response) {
     if (request.method === "GET" && url.pathname === "/admin.css") return staticFile(response, "admin.css", "text/css; charset=utf-8");
     if (request.method === "GET" && url.pathname === "/admin.js") return staticFile(response, "admin.js", "text/javascript; charset=utf-8");
     if (request.method === "GET" && url.pathname === "/api/projects") return json(response, 200, await store.listProjects());
+    if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot }));
+    if (request.method === "GET" && url.pathname === "/api/publish/status") {
+      const names = (await readdir(jobsRoot).catch(() => [])).filter((name) => name.endsWith(".json")).sort().reverse();
+      return json(response, 200, names[0] ? JSON.parse(await readFile(path.join(jobsRoot, names[0]), "utf8")) : null);
+    }
+    if (request.method === "POST" && url.pathname === "/api/publish/start") {
+      const value = await body(request);
+      if (value.dryRun !== true) return json(response, 409, { error: "Первый настоящий publish требует отдельного запуска пользователя." });
+      if (value.scope !== "project" && value.scope !== "all") return json(response, 400, { error: "Неизвестная область публикации." });
+      const all = await store.listProjects();
+      const selected = value.scope === "project" ? all.filter((project) => project.slug === value.slug) : all;
+      if (value.scope === "project" && selected.length !== 1) return json(response, 404, { error: "Проект для публикации не найден." });
+      const files = selected.map((project) => path.join(store.draftRoot, `${project.slug}.json`));
+      await mkdir(jobsRoot, { recursive: true });
+      const id = `${Date.now()}-${value.scope === "project" ? selected[0].slug : "all"}`;
+      const jobFile = path.join(jobsRoot, `${id}.json`);
+      const existingFiles = [];
+      for (const file of files) { try { await readFile(file); existingFiles.push(file); } catch {} }
+      const job = { id, scope: value.scope, slug: value.slug, dryRun: true, repoRoot, files: existingFiles, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
+      await writeFile(jobFile, `${JSON.stringify(job, null, 2)}\n`, { mode: 0o600 });
+      const workerArgs = [process.execPath, "--experimental-strip-types", path.join(directory, "publish-worker.mjs"), jobFile];
+      const command = process.platform === "darwin" ? "/usr/bin/caffeinate" : workerArgs.shift();
+      const child = spawn(command, workerArgs, { cwd: repoRoot, detached: true, stdio: "ignore" });
+      child.unref();
+      return json(response, 202, job);
+    }
     if (segments[0] === "api" && segments[1] === "projects" && segments[2]) {
       const slug = decodeURIComponent(segments[2]);
       if (request.method === "GET" && segments.length === 3) return json(response, 200, await store.getProject(slug));
