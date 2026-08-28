@@ -22,13 +22,13 @@ function project(slug, visibility = "published", overrides = {}) {
     description: `${slug} description`,
     role: "Product Designer",
     year: 2026,
-    status: "Тест",
     tags: [],
+    detailTags: [],
     visibility,
-    catalogVisible: true,
     catalogOrder: 1,
+    featuredOnHome: false,
     detailAvailable: true,
-    figmaAvailable: false,
+    materials: { projectState: "completed", fileState: "absent" },
     platforms: [],
     content: [],
     ...overrides,
@@ -56,27 +56,27 @@ test("storage rejects duplicate slugs even when filenames differ", async () => {
   assert.throws(() => readAllProjectDocuments(root), /filename.*slug|duplicate/i);
 });
 
-test("public readers expose only published projects and honor catalog/detail flags", async () => {
+test("public readers expose every published project and a maximum of three homepage projects", async () => {
   const root = await projectRoot();
   const fixtures = [
-    project("published", "published", { catalogOrder: 2 }),
-    project("catalog-hidden", "published", { catalogVisible: false, catalogOrder: 1 }),
-    project("detail-hidden", "published", { detailAvailable: false, catalogOrder: 3 }),
-    project("draft", "draft", { catalogVisible: false, detailAvailable: false, catalogOrder: 4 }),
-    project("hidden", "hidden", { catalogVisible: false, detailAvailable: false, catalogOrder: 5 }),
-    project("archived", "archived", { catalogVisible: false, detailAvailable: false, catalogOrder: 6 }),
+    project("published", "published", { catalogOrder: 2, featuredOnHome: true, homeOrder: 2 }),
+    project("catalog-hidden", "published", { catalogOrder: 1, featuredOnHome: true, homeOrder: 1 }),
+    project("detail-hidden", "published", { detailAvailable: false, catalogOrder: 3, featuredOnHome: true, homeOrder: 3 }),
+    project("fourth", "published", { catalogOrder: 4, featuredOnHome: true, homeOrder: 4 }),
+    project("draft", "draft", { detailAvailable: false, catalogOrder: 5 }),
+    project("deleted", "deleted", { detailAvailable: false, catalogOrder: 6 }),
   ];
   for (const fixture of fixtures) {
     await writeFile(path.join(root, `${fixture.slug}.json`), serializeProjectDocument(fixture));
   }
 
-  assert.deepEqual(getAllProjects(root).map(({ slug }) => slug), ["catalog-hidden", "published", "detail-hidden"]);
-  assert.deepEqual(getCatalogProjects(root).map(({ slug }) => slug), ["published", "detail-hidden"]);
+  assert.deepEqual(getAllProjects(root).map(({ slug }) => slug), ["catalog-hidden", "published", "detail-hidden", "fourth"]);
+  assert.deepEqual(getCatalogProjects(root).map(({ slug }) => slug), ["catalog-hidden", "published", "detail-hidden"]);
   assert.equal(getProjectBySlug("published", root)?.slug, "published");
   assert.equal(getProjectBySlug("detail-hidden", root), undefined);
   assert.equal(getProjectBySlug("draft", root), undefined);
   assert.equal(getProjectBySlugForPreview("draft", root)?.slug, "draft");
-  assert.equal(getProjectBySlugForPreview("hidden", root)?.slug, "hidden");
+  assert.equal(getProjectBySlugForPreview("deleted", root)?.slug, "deleted");
 });
 
 test("writer emits a canonical document at the validated slug path", async () => {

@@ -96,7 +96,9 @@ function ProjectActions({ project }: { project: Project }) {
             breadcrumbLabel={project.title}
             className={styles.detailsButton}
           />
-        ) : (
+      ) : project.availability.figma === "absent" ? (
+        <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
+      ) : (
           <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
         )}
         {hasFigma ? (
@@ -240,7 +242,7 @@ export default function Home() {
                   <ProjectTags tags={secondaryProject.tags} />
                 </div>
                 <dl className={styles.projectDetails}>
-                  <ProjectDetail label="Моя роль">{secondaryProject.catalogRole ?? secondaryProject.role}</ProjectDetail>
+                  <ProjectDetail label="Моя роль">{secondaryProject.role}</ProjectDetail>
                   <ProjectDetail label="Что делал">{secondaryProject.workSummary}</ProjectDetail>
                 </dl>
                 <ProjectPlatforms platforms={secondaryProject.platforms} desktopOnlyLabel={secondaryProject.platforms.length === 1 && secondaryProject.platforms[0] === "Desktop"} />

@@ -1,21 +1,27 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "Сараффан.Радио",
   "slug": "sarafan-radio",
   "description": "Платформа для организации мероприятий",
-  "role": "Продуктовый дизайнер / Аналитик",
-  "catalogRole": "Product designer / Product Analyst",
+  "role": "Product designer / Product Analyst",
   "year": 2026,
-  "status": "Тестовое",
   "tags": [
     "B2B2C",
     "Тестовое"
   ],
+  "detailTags": [
+    "B2B2C",
+    "Тестовое"
+  ],
   "visibility": "published",
-  "catalogVisible": true,
   "catalogOrder": 2,
+  "featuredOnHome": true,
+  "homeOrder": 2,
   "detailAvailable": false,
-  "figmaAvailable": false,
+  "materials": {
+    "projectState": "completed",
+    "fileState": "absent"
+  },
   "platforms": [
     "Desktop"
   ],

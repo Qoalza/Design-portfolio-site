@@ -1,14 +1,15 @@
 import path from "node:path";
 
-export const PROJECT_DOCUMENT_VERSION = 1 as const;
+export const PROJECT_DOCUMENT_VERSION = 2 as const;
 
-export type ProjectVisibility = "draft" | "published" | "hidden" | "archived";
+export type ProjectVisibility = "draft" | "published" | "deleted";
 export type ProjectPlatform = "Desktop" | "Tablet" | "Mobile";
 
 export type ProjectInlineContent =
   | { type: "text"; text: string }
   | { type: "strong"; text: string }
   | { type: "emphasis"; text: string }
+  | { type: "underline"; text: string }
   | { type: "link"; text: string; href: string };
 
 export type ProjectImage = {
@@ -75,20 +76,20 @@ export type ProjectDocument = {
   description: string;
   subtitle?: string;
   role: string;
-  catalogRole?: string;
   year: number;
-  status: string;
   tags: string[];
-  detailLabels?: string[];
+  detailTags: string[];
   visibility: ProjectVisibility;
-  catalogVisible: boolean;
   catalogOrder: number;
+  featuredOnHome: boolean;
+  homeOrder?: number;
   detailAvailable: boolean;
-  figmaAvailable: boolean;
-  figmaUrl?: string;
-  updatedAt?: string;
+  materials:
+    | { projectState: "completed"; fileState: "available"; figmaUrl: string }
+    | { projectState: "completed"; fileState: "absent" }
+    | { projectState: "in_progress"; fileState: "available"; figmaUrl: string; updatedAt?: string }
+    | { projectState: "in_progress"; fileState: "unavailable" };
   platforms: ProjectPlatform[];
-  ndaNote?: string;
   logo?: ProjectLogo;
   hero?: ProjectHero;
   catalogImage?: ProjectImage;
@@ -106,20 +107,16 @@ const PROJECT_KEYS = [
   "description",
   "subtitle",
   "role",
-  "catalogRole",
   "year",
-  "status",
   "tags",
-  "detailLabels",
+  "detailTags",
   "visibility",
-  "catalogVisible",
   "catalogOrder",
+  "featuredOnHome",
+  "homeOrder",
   "detailAvailable",
-  "figmaAvailable",
-  "figmaUrl",
-  "updatedAt",
+  "materials",
   "platforms",
-  "ndaNote",
   "logo",
   "hero",
   "catalogImage",
@@ -128,7 +125,7 @@ const PROJECT_KEYS = [
   "content",
 ] as const;
 
-const VISIBILITIES: ProjectVisibility[] = ["draft", "published", "hidden", "archived"];
+const VISIBILITIES: ProjectVisibility[] = ["draft", "published", "deleted"];
 const PLATFORMS: ProjectPlatform[] = ["Desktop", "Tablet", "Mobile"];
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const COLOR_PATTERN = /^(?:transparent|#[0-9a-f]{3,8})$/i;
@@ -271,7 +268,7 @@ function inline(value: unknown, location: string): ProjectInlineContent {
     };
   }
 
-  if (type !== "text" && type !== "strong" && type !== "emphasis") {
+  if (type !== "text" && type !== "strong" && type !== "emphasis" && type !== "underline") {
     throw new Error(`${location}.type is not a supported inline content type.`);
   }
 
@@ -452,7 +449,7 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
 
   const visibility = string(input.visibility, "Project document.visibility");
   if (!VISIBILITIES.includes(visibility as ProjectVisibility)) {
-    throw new Error("Project document.visibility must be draft, published, hidden, or archived.");
+    throw new Error("Project document.visibility must be draft, published, or deleted.");
   }
 
   if (!Array.isArray(input.platforms)) throw new Error("Project document.platforms must be an array.");
@@ -463,17 +460,39 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
 
   if (!Array.isArray(input.content)) throw new Error("Project document.content must be an array.");
 
-  const catalogVisible = boolean(input.catalogVisible, "Project document.catalogVisible");
+  const featuredOnHome = boolean(input.featuredOnHome, "Project document.featuredOnHome");
+  const homeOrder = input.homeOrder === undefined ? undefined : integer(input.homeOrder, "Project document.homeOrder", 1);
   const detailAvailable = boolean(input.detailAvailable, "Project document.detailAvailable");
-  if (visibility !== "published" && (catalogVisible || detailAvailable)) {
-    throw new Error("A non-published project cannot be catalogVisible or detailAvailable.");
+  if (visibility !== "published" && featuredOnHome) {
+    throw new Error("A non-published project cannot be featuredOnHome.");
+  }
+  if (featuredOnHome !== (homeOrder !== undefined)) {
+    throw new Error("featuredOnHome and homeOrder must be set together.");
   }
 
-  const figmaAvailable = boolean(input.figmaAvailable, "Project document.figmaAvailable");
-  const figmaUrl = input.figmaUrl === undefined ? undefined : externalUrl(input.figmaUrl, "Project document.figmaUrl");
-  const updatedAt = optionalString(input.updatedAt, "Project document.updatedAt");
-  if (figmaAvailable && (!figmaUrl || !updatedAt)) {
-    throw new Error("Project document must provide figmaUrl and updatedAt when figmaAvailable is true.");
+  const materialInput = record(input.materials, "Project document.materials");
+  const projectState = string(materialInput.projectState, "Project document.materials.projectState");
+  const fileState = string(materialInput.fileState, "Project document.materials.fileState");
+  let materials: ProjectDocument["materials"];
+  if (projectState === "completed" && fileState === "available") {
+    exactKeys(materialInput, ["projectState", "fileState", "figmaUrl"], "Project document.materials");
+    materials = { projectState, fileState, figmaUrl: externalUrl(materialInput.figmaUrl, "Project document.materials.figmaUrl") };
+  } else if (projectState === "completed" && fileState === "absent") {
+    exactKeys(materialInput, ["projectState", "fileState"], "Project document.materials");
+    materials = { projectState, fileState };
+  } else if (projectState === "in_progress" && fileState === "available") {
+    exactKeys(materialInput, ["projectState", "fileState", "figmaUrl", "updatedAt"], "Project document.materials");
+    materials = {
+      projectState,
+      fileState,
+      figmaUrl: externalUrl(materialInput.figmaUrl, "Project document.materials.figmaUrl"),
+      ...optionalProperty("updatedAt", optionalString(materialInput.updatedAt, "Project document.materials.updatedAt")),
+    };
+  } else if (projectState === "in_progress" && fileState === "unavailable") {
+    exactKeys(materialInput, ["projectState", "fileState"], "Project document.materials");
+    materials = { projectState, fileState };
+  } else {
+    throw new Error("Project document.materials contains an unsupported state.");
   }
 
   const logoInput = input.logo === undefined ? undefined : record(input.logo, "Project document.logo");
@@ -547,20 +566,16 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
     description: string(input.description, "Project document.description"),
     ...optionalProperty("subtitle", optionalString(input.subtitle, "Project document.subtitle")),
     role: string(input.role, "Project document.role"),
-    ...optionalProperty("catalogRole", optionalString(input.catalogRole, "Project document.catalogRole")),
     year: integer(input.year, "Project document.year", 1900),
-    status: string(input.status, "Project document.status"),
     tags: stringArray(input.tags, "Project document.tags"),
-    ...optionalProperty("detailLabels", input.detailLabels === undefined ? undefined : stringArray(input.detailLabels, "Project document.detailLabels")),
+    detailTags: stringArray(input.detailTags, "Project document.detailTags"),
     visibility: visibility as ProjectVisibility,
-    catalogVisible,
     catalogOrder: integer(input.catalogOrder, "Project document.catalogOrder"),
+    featuredOnHome,
+    ...optionalProperty("homeOrder", homeOrder),
     detailAvailable,
-    figmaAvailable,
-    ...optionalProperty("figmaUrl", figmaUrl),
-    ...optionalProperty("updatedAt", updatedAt),
+    materials,
     platforms: platforms as ProjectPlatform[],
-    ...optionalProperty("ndaNote", optionalString(input.ndaNote, "Project document.ndaNote")),
     ...optionalProperty("logo", logo),
     ...optionalProperty("hero", hero),
     ...optionalProperty("catalogImage", catalogImage),
@@ -591,13 +606,13 @@ export function serializeProjectDocument(value: unknown): string {
   return `${JSON.stringify(validateProjectDocument(value), null, 2)}\n`;
 }
 
-export function archiveProject(value: unknown): ProjectDocument {
+export function deleteProject(value: unknown): ProjectDocument {
   const project = validateProjectDocument(value);
   return {
     ...project,
-    visibility: "archived",
-    catalogVisible: false,
-    detailAvailable: false,
+    visibility: "deleted",
+    featuredOnHome: false,
+    homeOrder: undefined,
   };
 }
 

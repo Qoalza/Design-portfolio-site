@@ -9,7 +9,7 @@ import { SiteHeader } from "../../components/site-header";
 import { ControlButton } from "../../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import type { ProjectLogo } from "../../lib/project-contract";
-import { getCatalogProjects, type Project } from "../../lib/projects";
+import { getAllProjects, type Project } from "../../lib/projects";
 import { createSocialMetadata } from "../../lib/site-metadata";
 import styles from "./page.module.css";
 
@@ -55,7 +55,7 @@ function ProjectDetails({ project }: { project: Project }) {
   return (
     <>
       <div className={styles.details}>
-        <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Моя роль</strong><small>{project.catalogRole ?? project.role}</small></span></div>
+        <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Моя роль</strong><small>{project.role}</small></span></div>
         <div className={styles.detail}><Image src={`${assetRoot}/project-bullet.svg`} alt="" width={12} height={16} /><span><strong>Что делал</strong><small>{project.workSummary}</small></span></div>
       </div>
       {project.platforms?.length ? (
@@ -80,6 +80,8 @@ function ProjectActions({ project }: { project: Project }) {
       )}
       {project.availability.figma === "available" && project.figmaUrl ? (
         <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
+      ) : project.availability.figma === "absent" ? (
+        <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
       ) : (
         <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
       )}
@@ -119,7 +121,7 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
 }
 
 export default function ProjectsPage() {
-  const projects = getCatalogProjects();
+  const projects = getAllProjects();
   const [primaryProject, ...compactProjects] = projects;
   const projectsTrailItem = { href: "/projects", label: "Работы" };
 

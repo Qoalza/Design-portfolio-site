@@ -1,21 +1,28 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "Пример проектного кейса",
   "slug": "example-project",
   "description": "Нейтральный пример описания продуктового проекта для проверки структуры контента.",
   "role": "Product Designer",
   "year": 2026,
-  "status": "Черновик",
   "tags": [
     "B2B",
     "SaaS",
     "Внутренние системы"
   ],
+  "detailTags": [
+    "B2B",
+    "SaaS",
+    "Внутренние системы"
+  ],
   "visibility": "draft",
-  "catalogVisible": false,
   "catalogOrder": 999,
+  "featuredOnHome": false,
   "detailAvailable": false,
-  "figmaAvailable": false,
+  "materials": {
+    "projectState": "completed",
+    "fileState": "absent"
+  },
   "platforms": [],
   "content": [
     {

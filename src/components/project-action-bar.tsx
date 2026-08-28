@@ -12,7 +12,7 @@ import { ControlButton } from "./ui-controls";
 import styles from "./project-action-bar.module.css";
 
 type ProjectActionBarProps = {
-  figmaAvailable: boolean;
+  fileState: "available" | "unavailable" | "absent";
   figmaUrl?: string;
   updatedAt?: string;
 };
@@ -74,7 +74,7 @@ function measureActionLayout(
   };
 }
 
-export function ProjectActionBar({ figmaAvailable, figmaUrl, updatedAt }: ProjectActionBarProps) {
+export function ProjectActionBar({ fileState, figmaUrl, updatedAt }: ProjectActionBarProps) {
   const [layout, setLayout] = useState<ActionLayout>(() => measureActionLayout("initial"));
   const actionBarRef = useRef<HTMLDivElement>(null);
   const scrollTrackingRef = useRef(false);
@@ -182,11 +182,13 @@ export function ProjectActionBar({ figmaAvailable, figmaUrl, updatedAt }: Projec
           className={styles.barContent}
         >
           <div className={styles.leadingContent}>
-            {figmaAvailable && figmaUrl && updatedAt ? (
+            {fileState === "available" && figmaUrl ? (
               <>
                 <ControlButton variant="neutral" dataAction="figma" href={figmaUrl} external iconRight="/assets/projects/action-bar-external-link.svg">Figma</ControlButton>
-                <span className={styles.updatedAt}>Обновлено {updatedAt}</span>
+                {updatedAt ? <span className={styles.updatedAt}>Обновлено {updatedAt}</span> : null}
               </>
+            ) : fileState === "absent" ? (
+              <div className={styles.unavailableContent}><span>У проекта нет отдельного файла</span></div>
             ) : (
               <div className={styles.unavailableContent}>
                 <span className={`${styles.icon} ${styles.infoIcon}`} aria-hidden="true" />

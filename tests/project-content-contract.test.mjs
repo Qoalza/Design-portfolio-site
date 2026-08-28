@@ -6,7 +6,7 @@ import test from "node:test";
 
 import {
   PROJECT_DOCUMENT_VERSION,
-  archiveProject,
+  deleteProject,
   parseProjectDocument,
   resolveProjectAssetPath,
   resolveProjectDocumentPath,
@@ -21,20 +21,16 @@ const validProject = {
   description: "Описание проекта",
   subtitle: "Подзаголовок проекта",
   role: "Product Designer",
-  catalogRole: "Product Designer / Analyst",
   year: 2026,
-  status: "В работе",
   tags: ["B2B", "SaaS"],
-  detailLabels: ["B2B", "Product Designer", "2026"],
+  detailTags: ["B2B", "Product Designer", "2026"],
   visibility: "published",
-  catalogVisible: true,
   catalogOrder: 1,
+  featuredOnHome: true,
+  homeOrder: 1,
   detailAvailable: true,
-  figmaAvailable: true,
-  figmaUrl: "https://www.figma.com/design/example",
-  updatedAt: "13.05.2026",
+  materials: { projectState: "in_progress", fileState: "available", figmaUrl: "https://www.figma.com/design/example", updatedAt: "13.05.2026" },
   platforms: ["Desktop", "Tablet", "Mobile"],
-  ndaNote: "Часть данных скрыта.",
   logo: { type: "image", src: "/assets/projects/test-project/logo.svg" },
   hero: {
     presentation: "browser-composite",
@@ -126,30 +122,30 @@ test("the project contract rejects unknown fields instead of silently losing dat
 });
 
 test("visibility is restricted to safe lifecycle states", () => {
-  for (const visibility of ["draft", "published", "hidden", "archived"]) {
-    const safeFlags = visibility === "published" ? {} : { catalogVisible: false, detailAvailable: false };
+  for (const visibility of ["draft", "published", "deleted"]) {
+    const safeFlags = visibility === "published" ? {} : { featuredOnHome: false, homeOrder: undefined };
     assert.equal(validateProjectDocument({ ...validProject, visibility, ...safeFlags }).visibility, visibility);
   }
 
   assert.throws(
-    () => validateProjectDocument({ ...validProject, visibility: "deleted" }),
+    () => validateProjectDocument({ ...validProject, visibility: "archived" }),
     /visibility/i,
   );
 
   assert.throws(
-    () => validateProjectDocument({ ...validProject, visibility: "hidden", catalogVisible: true }),
-    /non-published/i,
+    () => validateProjectDocument({ ...validProject, visibility: "draft", featuredOnHome: true }),
+    /featuredOnHome/i,
   );
 });
 
-test("archive is non-destructive and removes the project from public surfaces", () => {
-  const archived = archiveProject(validProject);
+test("soft delete is non-destructive and removes the project from the homepage", () => {
+  const deleted = deleteProject(validProject);
 
-  assert.equal(archived.visibility, "archived");
-  assert.equal(archived.catalogVisible, false);
-  assert.equal(archived.detailAvailable, false);
-  assert.equal(archived.slug, validProject.slug);
-  assert.deepEqual(archived.content, validProject.content);
+  assert.equal(deleted.visibility, "deleted");
+  assert.equal(deleted.featuredOnHome, false);
+  assert.equal(deleted.homeOrder, undefined);
+  assert.equal(deleted.slug, validProject.slug);
+  assert.deepEqual(deleted.content, validProject.content);
 });
 
 test("slug and asset paths reject traversal and unsafe forms", () => {

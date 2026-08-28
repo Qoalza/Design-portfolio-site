@@ -149,12 +149,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
-  const projectLabels = project.detailLabels ?? [
-    ...project.tags,
-    project.role,
-    project.status,
-    String(project.year),
-  ];
+  const projectLabels = project.detailTags;
   const projectsTrailItem = { href: "/projects", label: "Работы" };
   const projectTrailItem = { href: `/projects/${project.slug}`, label: project.title };
   const projectSections = getProjectSections(project.content);
@@ -238,7 +233,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div className={styles.actionTerminal} data-project-action-terminal aria-hidden="true" />
 
           <ProjectActionBar
-            figmaAvailable={project.availability.figma === "available"}
+            fileState={project.availability.figma}
             figmaUrl={project.figmaUrl}
             updatedAt={project.updatedAt}
           />

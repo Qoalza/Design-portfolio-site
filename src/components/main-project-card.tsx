@@ -15,7 +15,7 @@ type MainProjectCardProps = {
 export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCardProps) {
   const Heading = headingLevel;
   const description = project.subtitle ?? project.description;
-  const role = project.catalogRole ?? project.role;
+  const role = project.role;
   const visualBack = project.hero?.backdrop;
   const visualFront = project.hero?.foreground ?? project.hero?.image;
 
@@ -72,6 +72,8 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
                 breadcrumbLabel={project.title}
                 className={styles.detailsButton}
               />
+            ) : project.availability.figma === "absent" ? (
+              <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
             ) : (
               <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
             )}

@@ -13,21 +13,28 @@ export type { ProjectDocument, ProjectPlatform } from "./project-contract.ts";
 
 export type ProjectAvailability = {
   detail: "available" | "unavailable";
-  figma: "available" | "unavailable";
+  figma: "available" | "unavailable" | "absent";
 };
 
 export type Project = ProjectDocument & {
   availability: ProjectAvailability;
+  figmaUrl?: string;
+  updatedAt?: string;
 };
 
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
 
 function withAvailability(project: ProjectDocument): Project {
+  const available = project.materials.fileState === "available" ? project.materials : undefined;
   return {
     ...project,
+    ...(available ? { figmaUrl: available.figmaUrl } : {}),
+    ...(available && "updatedAt" in available && available.updatedAt ? { updatedAt: available.updatedAt } : {}),
     availability: {
       detail: project.detailAvailable ? "available" : "unavailable",
-      figma: project.figmaAvailable ? "available" : "unavailable",
+      figma: project.materials.fileState === "available"
+        ? "available"
+        : project.materials.fileState === "absent" ? "absent" : "unavailable",
     },
   };
 }
@@ -61,13 +68,14 @@ export function getAllProjects(contentRoot = projectsDirectory): Project[] {
   return readAllProjectDocuments(contentRoot)
     .filter((project) => project.visibility === "published")
     .map(withAvailability)
-    .sort((first, second) => second.year - first.year || first.catalogOrder - second.catalogOrder);
+    .sort((first, second) => first.catalogOrder - second.catalogOrder);
 }
 
 export function getCatalogProjects(contentRoot = projectsDirectory): Project[] {
   return getAllProjects(contentRoot)
-    .filter((project) => project.catalogVisible)
-    .sort((first, second) => first.catalogOrder - second.catalogOrder);
+    .filter((project) => project.featuredOnHome)
+    .sort((first, second) => (first.homeOrder ?? Number.MAX_SAFE_INTEGER) - (second.homeOrder ?? Number.MAX_SAFE_INTEGER))
+    .slice(0, 3);
 }
 
 export function getProjectBySlug(projectSlug: string, contentRoot = projectsDirectory): Project | undefined {

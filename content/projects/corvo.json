@@ -1,19 +1,17 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "Corvo",
   "slug": "corvo",
   "description": "B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком.",
   "subtitle": "Система для управления партнёрской программой",
   "role": "Product Designer",
-  "catalogRole": "Product Designer",
   "year": 2026,
-  "status": "Готов частично",
   "tags": [
     "B2B",
     "SaaS",
     "В работе"
   ],
-  "detailLabels": [
+  "detailTags": [
     "B2B",
     "SaaS",
     "Product Designer",
@@ -21,12 +19,16 @@
     "2026"
   ],
   "visibility": "published",
-  "catalogVisible": true,
   "catalogOrder": 1,
+  "featuredOnHome": true,
+  "homeOrder": 1,
   "detailAvailable": true,
-  "figmaAvailable": true,
-  "figmaUrl": "https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1",
-  "updatedAt": "13.05.2026",
+  "materials": {
+    "projectState": "in_progress",
+    "fileState": "available",
+    "figmaUrl": "https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1",
+    "updatedAt": "13.05.2026"
+  },
   "platforms": [
     "Desktop",
     "Tablet",
