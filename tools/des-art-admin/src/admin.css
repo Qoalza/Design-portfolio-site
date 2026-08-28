@@ -54,10 +54,12 @@ button, input, textarea, select { font: inherit; }
 }
 .nav-heading > div, .section-heading-copy, .rail-group-heading { display: grid; gap: 4px; }
 .nav-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.nav-tabs::-webkit-scrollbar { display: none; }
 .nav-tabs button {
   min-width: 0;
   padding: 7px 9px;
@@ -111,7 +113,7 @@ button, input, textarea, select { font: inherit; }
   display: grid;
   gap: 20px;
   padding: 24px;
-  border: 1px solid var(--sand-6);
+  border: 1px solid var(--sand-5);
   border-radius: 10px;
   background: var(--sand-1);
 }
@@ -168,14 +170,24 @@ button, input, textarea, select { font: inherit; }
 .empty-state > div { display: grid; gap: 8px; }
 
 .rail-stack { position: sticky; top: 84px; }
-.rail-group { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--sand-6); border-radius: 9px; background: var(--sand-1); }
+.rail-group { display: grid; gap: 14px; padding: 16px 0 20px; border: 0; border-bottom: 1px solid var(--sand-6); background: var(--sand-1); }
 .rail-group[data-selected="true"] { border-color: var(--accent-7); }
 .rail-group > .rt-Button, .rail-group > .rt-SelectTrigger { width: 100%; }
 .rail-switch-list { display: grid; gap: 13px; }
 .rail-divider { height: 1px; background: var(--sand-6); }
 
 .home-list { display: grid; gap: 8px; margin: 20px 0; }
-.home-list > div { display: grid; grid-template-columns: 20px auto 1fr; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--sand-6); border-radius: 8px; cursor: grab; }
+.home-list > div { display: grid; grid-template-columns: 20px auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--sand-6); border-radius: 8px; cursor: grab; }
+.home-project-copy { display: grid; min-width: 0; gap: 2px; }
+.home-project-copy > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dialog-field { display: grid; gap: 7px; margin-top: 18px; }
+.issue-list { display: grid; gap: 6px; max-height: 360px; margin-top: 18px; overflow: auto; }
+.issue-list button { display: grid; gap: 3px; padding: 12px; border: 0; border-radius: 8px; background: var(--sand-3); text-align: left; cursor: pointer; }
+.issue-list button:hover { background: var(--sand-4); }
+.issue-list span { color: var(--sand-10); font-size: 13px; }
+.logo-preview { grid-column: 2; grid-row: 1 / span 2; display: grid; width: 100px; height: 100px; place-items: center; border-radius: 8px; background: var(--sand-3); }
+.logo-preview img { width: 64px; height: 64px; object-fit: contain; }
+.selected-section-settings { display: grid; gap: 6px; }
 .publish-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 32px; background: rgba(255, 255, 255, .78); backdrop-filter: blur(16px); }
 .publish-card { display: grid; width: min(960px, 100%); min-height: 430px; place-items: center; gap: 32px; padding: 40px; border: 1px solid var(--sand-6); border-radius: 14px; background: rgba(255, 255, 255, .97); box-shadow: 0 24px 80px rgba(38, 35, 30, .12); }
 .publish-stages { display: grid; grid-template-columns: repeat(7, 1fr); width: 100%; gap: 10px; }

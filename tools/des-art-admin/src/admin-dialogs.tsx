@@ -2,12 +2,13 @@ import { CheckCircledIcon, ChevronDownIcon, ChevronUpIcon, DragHandleDots2Icon, 
 import { AlertDialog, Button, Dialog, Flex, Heading, IconButton, Switch, Text, TextField } from "@radix-ui/themes";
 import { useMemo, useState } from "react";
 import type { AdminProject, FieldIssue, PublishJob } from "./admin-model";
+import { createSlugPreview } from "./admin-model";
 
-export function NewProjectDialog({ open, close, create }: { open: boolean; close: () => void; create: (title: string, slug?: string) => void }) {
+export function NewProjectDialog({ open, existingSlugs, close, create }: { open: boolean; existingSlugs: string[]; close: () => void; create: (title: string, slug?: string) => void }) {
   const [title, setTitle] = useState("");
   const [custom, setCustom] = useState(false);
   const [slug, setSlug] = useState("");
-  const preview = (slug || title.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "-").replace(/^-|-$/g, "") || "novyy-proekt");
+  const preview = createSlugPreview(slug || title, existingSlugs);
   return <Dialog.Root open={open} onOpenChange={(value) => { if (!value) close(); }}><Dialog.Content maxWidth="520px">
     <Dialog.Title>Новый проект</Dialog.Title><Dialog.Description>Название можно написать свободно — адрес сформирует система.</Dialog.Description>
     <label className="dialog-field"><Text size="2" weight="medium">Название проекта</Text><TextField.Root autoFocus value={title} onChange={(event) => setTitle(event.target.value)} /></label>

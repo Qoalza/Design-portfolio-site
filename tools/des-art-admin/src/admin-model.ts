@@ -66,6 +66,17 @@ export const list = (value: string) => value
   .map((item) => item.trim())
   .filter(Boolean);
 
+const cyrillicSlug: Record<string, string> = { а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"e",ж:"zh",з:"z",и:"i",й:"y",к:"k",л:"l",м:"m",н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"h",ц:"ts",ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya" };
+
+export function createSlugPreview(value: string, existing: string[] = []): string {
+  const base = value.normalize("NFKD").toLowerCase().split("").map((character) => cyrillicSlug[character] ?? character).join("")
+    .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "project-…";
+  if (!existing.includes(base)) return base;
+  let suffix = 2;
+  while (existing.includes(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
+}
+
 export const textOf = (content: ProjectInlineContent[] = []) => content
   .map((item) => item.text)
   .join("");

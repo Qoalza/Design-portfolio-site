@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
 import { AdminStore, validateLocalRequest } from "./core.mjs";
-import { DraftValidationError } from "./draft-contract.mjs";
+import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
 import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -134,7 +134,7 @@ async function handler(request, response) {
       const value = await body(request);
       if (value.scope === "project") {
         const project = await store.getProject(value.slug);
-        return json(response, 200, (await import("./draft-contract.mjs")).draftValidation(project));
+        return json(response, 200, draftValidation(project));
       }
       const inventory = await store.getChangeInventory();
       return json(response, 200, { valid: inventory.projects.every((item) => item.valid), projects: inventory.projects });
@@ -157,7 +157,7 @@ async function handler(request, response) {
       const all = await store.listProjects();
       const selected = value.scope === "project" ? all.filter((project) => project.slug === value.slug) : all;
       if (value.scope === "project" && selected.length !== 1) return json(response, 404, { error: "Проект для публикации не найден." });
-      const invalid = selected.map((project) => ({ project, validation: (await import("./draft-contract.mjs")).draftValidation(project) })).filter((item) => !item.validation.valid);
+      const invalid = selected.map((project) => ({ project, validation: draftValidation(project) })).filter((item) => !item.validation.valid);
       if (invalid.length) {
         const issues = invalid.flatMap(({ project, validation }) => validation.issues.map((issue) => ({ ...issue, projectSlug: project.slug, projectTitle: project.title })));
         throw new DraftValidationError(issues);

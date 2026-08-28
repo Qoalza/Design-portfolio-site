@@ -38,7 +38,7 @@ export function inspectSvg(buffer, fileName) {
   if (!Buffer.isBuffer(buffer) || buffer.length === 0 || buffer.length > MAX_SVG_BYTES) throw new Error("SVG size is invalid.");
   if (path.extname(fileName).toLowerCase() !== ".svg") throw new Error("SVG extension is required.");
   const source = buffer.toString("utf8");
-  if (!/^\s*<svg\b/i.test(source) || /<!DOCTYPE|<script\b|<foreignObject\b|\son[a-z]+\s*=|javascript:|(?:href|src)\s*=\s*["'](?:https?:|\/\/|data:)/i.test(source)) {
+  if (!/^\s*<svg\b/i.test(source) || /<!DOCTYPE|<script\b|<foreignObject\b|\son[a-z]+\s*=|javascript:|(?:href|src)\s*=\s*["'](?!#)|url\(\s*["']?(?!#)/i.test(source)) {
     throw new Error("SVG contains active or unsafe markup.");
   }
   const viewBox = /\bviewBox\s*=\s*["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)\s*["']/i.exec(source);
@@ -68,7 +68,7 @@ export function safeUploadName(fileName) {
     throw new Error("Filename must not contain path segments.");
   }
   const extension = path.extname(fileName).toLowerCase();
-  if (![...IMAGE_TYPES.values()].includes(extension) && extension !== ".jpeg") {
+  if (![...IMAGE_TYPES.values()].includes(extension) && extension !== ".jpeg" && extension !== ".svg") {
     throw new Error("Filename extension is not supported.");
   }
   const stem = path.basename(fileName, path.extname(fileName))

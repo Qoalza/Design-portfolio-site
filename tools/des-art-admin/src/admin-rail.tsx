@@ -28,6 +28,7 @@ export function ProjectActions({
   publish,
   setVisibility,
   permanentDelete,
+  issues,
 }: {
   project: AdminProject;
   changed: boolean;
@@ -35,9 +36,10 @@ export function ProjectActions({
   publish: () => void;
   setVisibility: (visibility: ProjectVisibility) => void;
   permanentDelete: () => void;
+  issues: FieldIssue[];
 }) {
   return (
-    <RailGroup title="Проект" description={changed ? "Есть неопубликованные изменения" : "Черновик совпадает с опубликованной версией"}>
+    <RailGroup title="Проект" description={issues.length ? `Нужно исправить · ${issues.length}` : "Готов к публикации"}>
       <Select.Root value={project.visibility} onValueChange={(value) => setVisibility(value as ProjectVisibility)}>
         <Select.Trigger />
         <Select.Content>
@@ -102,8 +104,9 @@ export function CardSettings({
               <Text as="p" size="1" color="gray">Позиция {project.homeOrder}</Text>
             ) : null}
           </div>
-          <Switch radius="full" checked={project.featuredOnHome} onCheckedChange={home} />
+          <Switch radius="full" checked={project.featuredOnHome} disabled={project.visibility !== "published"} onCheckedChange={home} />
         </label>
+        {project.visibility !== "published" ? <Text size="1" color="gray">Сначала переведите проект в состояние «Опубликован».</Text> : null}
       </RailGroup>
     </>
   );

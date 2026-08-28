@@ -174,7 +174,9 @@ function App() {
         else window.open(result.url, "des-art-preview");
       } catch (error) {
         popup?.close();
-        setIssues(error instanceof ApiError ? error.issues : []);
+        const nextIssues = error instanceof ApiError ? error.issues : [];
+        setIssues(nextIssues);
+        if (nextIssues.length) setReviewIssues(nextIssues);
         setMessage(safeMessage(error));
       }
     })();
@@ -325,6 +327,7 @@ function App() {
                   publish={() => void startPublish("project").catch((error) => setMessage(safeMessage(error)))}
                   setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
                   permanentDelete={() => setConfirmation("delete")}
+                  issues={issues.length ? issues : currentChange?.issues ?? []}
                 />
                 {tab === "card" ? (
                   <CardSettings project={current} update={update} home={requestHome} />
@@ -336,14 +339,14 @@ function App() {
           </aside>
         </main>
         <HomeLimitDialog key={homeRequest ?? "closed"} open={Boolean(homeRequest)} projects={projects} requested={homeRequest} cancel={() => setHomeRequest(undefined)} apply={(slugs) => void applyHome(slugs).catch((error) => setMessage(safeMessage(error)))} />
-        <NewProjectDialog key={createOpen ? "open" : "closed"} open={createOpen} close={() => setCreateOpen(false)} create={(title, slug) => void createProject(title, slug).catch((error) => setMessage(safeMessage(error)))} />
-        <IssueDialog open={reviewIssues.length > 0} title="Что нужно исправить" issues={reviewIssues} close={() => setReviewIssues([])} navigate={(issue) => {
+        <NewProjectDialog key={createOpen ? "open" : "closed"} open={createOpen} existingSlugs={projects.map((project) => project.slug)} close={() => setCreateOpen(false)} create={(title, slug) => void createProject(title, slug).catch((error) => setMessage(safeMessage(error)))} />
+        <IssueDialog open={reviewIssues.length > 0} title="Что нужно исправить" issues={reviewIssues} close={() => setReviewIssues([])} navigate={(issue) => { void (async () => {
           setReviewIssues([]);
-          if (issue.projectSlug && issue.projectSlug !== current?.slug) void openProject(issue.projectSlug);
+          if (issue.projectSlug && issue.projectSlug !== current?.slug) await openProject(issue.projectSlug);
           setTab(issue.tab ?? "card");
           if (issue.sectionId) setSelectedSection(issue.sectionId);
           requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${CSS.escape(issue.field)}"]`)?.focus());
-        }} />
+        })(); }} />
         <ConfirmDialog open={confirmation === "project" || confirmation === "all"} title="Запустить тестовую публикацию?" description="Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся." confirmLabel="Запустить" close={() => setConfirmation(undefined)} confirm={() => void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error)))} />
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
