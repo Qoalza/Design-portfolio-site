@@ -76,6 +76,11 @@ export function getProjectBySlug(projectSlug: string, contentRoot = projectsDire
   );
 }
 
+export function getProjectBySlugForPreview(projectSlug: string, contentRoot = projectsDirectory): Project | undefined {
+  const project = readAllProjectDocuments(contentRoot).find(({ slug }) => slug === projectSlug);
+  return project ? withAvailability(project) : undefined;
+}
+
 export async function writeProjectDocument(value: unknown, contentRoot = projectsDirectory): Promise<string> {
   const project = validateProjectDocument(value);
   await mkdir(contentRoot, { recursive: true });

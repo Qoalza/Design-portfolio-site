@@ -14,7 +14,7 @@ import type {
   ProjectInlineContent,
   ProjectSectionBlock,
 } from "../../../lib/project-contract";
-import { getAllProjects, getProjectBySlug } from "../../../lib/projects";
+import { getAllProjects, getProjectBySlug, getProjectBySlugForPreview } from "../../../lib/projects";
 import { HOME_TRAIL_ITEM } from "../../../lib/navigation-trail";
 import { createSocialMetadata } from "../../../lib/site-metadata";
 import styles from "./page.module.css";
@@ -33,6 +33,7 @@ type ProjectNoticeProps = ProjectSectionProps & {
 
 type ProjectSectionContent = Extract<ProjectContentBlock, { type: "section" }>;
 type ProjectGalleryContent = Extract<ProjectContentBlock, { type: "gallery" }>;
+const isAdminPreview = process.env.DES_ART_ADMIN_PREVIEW === "1";
 
 function ProjectSection({ children }: ProjectSectionProps) {
   return <section className={styles.contentSection}>{children}</section>;
@@ -116,14 +117,18 @@ function getProjectSections(content: ProjectContentBlock[]): Array<{ id: string;
 }
 
 export function generateStaticParams() {
-  return getAllProjects().filter(({ availability }) => availability.detail === "available").map(({ slug }) => ({ slug }));
+  return getAllProjects()
+    .filter(({ availability }) => isAdminPreview || availability.detail === "available")
+    .map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = isAdminPreview
+    ? getProjectBySlugForPreview(slug)
+    : getProjectBySlug(slug);
 
-  if (!project || project.availability.detail !== "available") {
+  if (!project || (!isAdminPreview && project.availability.detail !== "available")) {
     return {};
   }
 
@@ -136,9 +141,11 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = isAdminPreview
+    ? getProjectBySlugForPreview(slug)
+    : getProjectBySlug(slug);
 
-  if (!project || project.availability.detail !== "available") {
+  if (!project || (!isAdminPreview && project.availability.detail !== "available")) {
     notFound();
   }
 

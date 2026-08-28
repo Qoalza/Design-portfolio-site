@@ -1,0 +1,37 @@
+import assert from "node:assert/strict";
+import { access, readFile } from "node:fs/promises";
+import test from "node:test";
+
+const server = await readFile(new URL("../tools/des-art-admin/server.mjs", import.meta.url), "utf8");
+const launcher = await readFile(new URL("../tools/des-art-admin/launcher.mjs", import.meta.url), "utf8");
+const projectRoute = await readFile(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
+
+test("admin server binds only to IPv4 loopback and validates local requests", () => {
+  assert.match(server, /server\.listen\(port, "127\.0\.0\.1"/);
+  assert.match(server, /validateLocalRequest/);
+  assert.doesNotMatch(server, /0\.0\.0\.0/);
+});
+
+test("launcher uses argument arrays instead of shell command construction", () => {
+  assert.match(launcher, /exec\("\/usr\/bin\/git", \[/);
+  assert.match(launcher, /spawn\(command, args/);
+  assert.doesNotMatch(launcher, /shell:\s*true/);
+  assert.match(launcher, /Library", "Application Support", "Des-art Admin/);
+  assert.match(launcher, /process\.env\.DES_ART_ADMIN_SUPPORT/);
+  assert.match(launcher, /DES_ART_ADMIN_PREVIEW/);
+});
+
+test("admin is not an App Router route and preview access is env-gated", async () => {
+  await assert.rejects(() => access(new URL("../src/app/admin", import.meta.url)));
+  assert.match(projectRoute, /process\.env\.DES_ART_ADMIN_PREVIEW === "1"/);
+  assert.match(projectRoute, /!isAdminPreview && project\.availability\.detail/);
+});
+
+test("prepared macOS launcher bundle is complete", async () => {
+  await access(new URL("../dist/Des-art Admin.app/Contents/Info.plist", import.meta.url));
+  await access(new URL("../dist/Des-art Admin.app/Contents/MacOS/Des-art Admin", import.meta.url));
+  const bundledLauncher = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/launcher.mjs", import.meta.url), "utf8");
+  assert.equal(bundledLauncher, launcher);
+  const source = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/source-repository.txt", import.meta.url), "utf8");
+  assert.equal(source.trim(), "https://github.com/Qoalza/Design-portfolio-site.git");
+});

@@ -9,6 +9,7 @@ import {
   getAllProjects,
   getCatalogProjects,
   getProjectBySlug,
+  getProjectBySlugForPreview,
   readAllProjectDocuments,
   writeProjectDocument,
 } from "../src/lib/projects.ts";
@@ -74,6 +75,8 @@ test("public readers expose only published projects and honor catalog/detail fla
   assert.equal(getProjectBySlug("published", root)?.slug, "published");
   assert.equal(getProjectBySlug("detail-hidden", root), undefined);
   assert.equal(getProjectBySlug("draft", root), undefined);
+  assert.equal(getProjectBySlugForPreview("draft", root)?.slug, "draft");
+  assert.equal(getProjectBySlugForPreview("hidden", root)?.slug, "hidden");
 });
 
 test("writer emits a canonical document at the validated slug path", async () => {
