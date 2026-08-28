@@ -3,13 +3,12 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promise
 import path from "node:path";
 
 import {
-  deleteProject,
   parseProjectDocument,
   resolveProjectAssetPath,
   resolveProjectDocumentPath,
-  validateProjectDocument,
 } from "../../src/lib/project-contract.ts";
 import { readAllProjectDocuments, writeProjectDocument } from "../../src/lib/projects.ts";
+import { compileAdminDraft, createAdminDraft, draftValidation, parseAdminDraft } from "./draft-contract.mjs";
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const IMAGE_TYPES = new Map([
@@ -127,7 +126,7 @@ export class AdminStore {
     const draftFiles = (await readdir(this.draftRoot)).filter((name) => name.endsWith(".json"));
     const drafts = (await Promise.all(draftFiles.map(async (name) => {
       try {
-        return parseProjectDocument(await readFile(path.join(this.draftRoot, name), "utf8"), name);
+        return parseAdminDraft(await readFile(path.join(this.draftRoot, name), "utf8"), name);
       } catch {
         return undefined;
       }
@@ -155,7 +154,7 @@ export class AdminStore {
 
   async duplicateProject(sourceSlug, newSlug) {
     const source = await this.getProject(sourceSlug);
-    const copy = validateProjectDocument({
+    const copy = createAdminDraft({
       ...source,
       title: `${source.title} — копия`,
       slug: newSlug,
@@ -169,7 +168,7 @@ export class AdminStore {
 
   async setVisibility(slug, visibility) {
     const current = await this.getProject(slug);
-    const next = visibility === "deleted" ? deleteProject(current) : validateProjectDocument({
+    const next = createAdminDraft({
       ...current,
       visibility,
       ...(visibility === "published" ? {} : { featuredOnHome: false, homeOrder: undefined }),
@@ -192,7 +191,8 @@ export class AdminStore {
 
   async saveDraft(slug, value) {
     const file = await canonicalDraftPath(this.draftRoot, slug);
-    const project = validateProjectDocument(value);
+    const project = createAdminDraft(value);
+    if (project.slug !== slug) throw new Error("Draft slug does not match its file name.");
     const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
     await writeFile(temporary, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
     await rename(temporary, file);
@@ -201,7 +201,36 @@ export class AdminStore {
 
   async getDraft(slug) {
     const file = await canonicalDraftPath(this.draftRoot, slug);
-    return parseProjectDocument(await readFile(file, "utf8"), path.basename(file));
+    return parseAdminDraft(await readFile(file, "utf8"), path.basename(file));
+  }
+
+  async preparePreview(slug, previewRoot) {
+    const draft = await this.getProject(slug);
+    const project = compileAdminDraft(draft);
+    const file = await canonicalDraftPath(previewRoot, slug);
+    const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
+    await writeFile(temporary, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+    await rename(temporary, file);
+    return project;
+  }
+
+  async getChangeInventory() {
+    const published = new Map(readAllProjectDocuments(this.contentRoot).map((item) => [item.slug, item]));
+    await mkdir(this.draftRoot, { recursive: true });
+    const names = (await readdir(this.draftRoot)).filter((name) => name.endsWith(".json"));
+    const projects = [];
+    for (const name of names) {
+      const draft = parseAdminDraft(await readFile(path.join(this.draftRoot, name), "utf8"), name);
+      const validation = draftValidation(draft);
+      let changed = !validation.valid;
+      if (validation.valid) {
+        const canonical = published.get(draft.slug);
+        changed = !canonical || JSON.stringify(compileAdminDraft(draft)) !== JSON.stringify(canonical);
+      }
+      if (changed) projects.push({ slug: draft.slug, title: draft.title, valid: validation.valid, issues: validation.issues });
+    }
+    projects.sort((first, second) => first.title.localeCompare(second.title, "ru"));
+    return { count: projects.length, projects };
   }
 
   async permanentlyDelete(slug) {
@@ -244,5 +273,15 @@ export class AdminStore {
       mime: inspected.mime,
       ...(duplicateOf ? { duplicateOf } : {}),
     };
+  }
+
+  async readImage(slug, fileName) {
+    const safeName = safeUploadName(fileName);
+    const draftPath = resolveProjectAssetPath(this.draftAssetRoot, slug, safeName);
+    try {
+      return await readFile(draftPath);
+    } catch {
+      return readFile(resolveProjectAssetPath(this.assetRoot, slug, safeName));
+    }
   }
 }

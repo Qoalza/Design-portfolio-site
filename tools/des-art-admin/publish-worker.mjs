@@ -1,10 +1,10 @@
 import { execFile } from "node:child_process";
-import { access, cp, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
-import { parseProjectDocument } from "../../src/lib/project-contract.ts";
+import { compileAdminDraft, parseAdminDraft } from "./draft-contract.mjs";
 
 const exec = promisify(execFile);
 export const PUBLISH_STAGES = [
@@ -44,10 +44,13 @@ export async function runPublishJob(jobFile) {
     for (const [stageId, label] of PUBLISH_STAGES) {
       await update(jobFile, job, { currentStage: stageId, message: label });
       if (stageId === "validate") {
-        for (const file of job.files) parseProjectDocument(await readFile(file, "utf8"), path.basename(file));
+        for (const file of job.files) compileAdminDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
       } else if (stageId === "prepare") {
         await mkdir(stageRoot, { recursive: true });
-        for (const file of job.files) await cp(file, path.join(stageRoot, path.basename(file)));
+        for (const file of job.files) {
+          const project = compileAdminDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
+          await atomicJson(path.join(stageRoot, path.basename(file)), project);
+        }
       } else if (stageId === "checks") {
         await exec(process.execPath, ["--experimental-strip-types", "--test", "tests/project-storage.test.mjs", "tests/local-admin-core.test.mjs"], { cwd: job.repoRoot, maxBuffer: 10 * 1024 * 1024 });
       } else if (!job.dryRun) {

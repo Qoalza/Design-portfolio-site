@@ -69,6 +69,59 @@ test("draft survives a new store instance", async () => {
   assert.deepEqual(await new AdminStore(configured).getDraft("admin-test"), project());
 });
 
+test("draft store accepts incomplete form values and reports real unpublished changes", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  const canonical = project("admin-test", { visibility: "published", detailAvailable: true });
+  await store.saveProject(canonical);
+  assert.deepEqual(await store.getChangeInventory(), { count: 0, projects: [] });
+
+  await store.saveDraft("admin-test", {
+    ...canonical,
+    materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
+  });
+
+  assert.equal((await store.getDraft("admin-test")).materials.figmaUrl, "");
+  const inventory = await store.getChangeInventory();
+  assert.equal(inventory.count, 1);
+  assert.deepEqual(inventory.projects.map(({ slug, valid }) => ({ slug, valid })), [
+    { slug: "admin-test", valid: false },
+  ]);
+});
+
+test("lifecycle changes do not reject an otherwise incomplete admin draft", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  await store.saveDraft("admin-test", project("admin-test", {
+    materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
+  }));
+
+  const deleted = await store.setVisibility("admin-test", "deleted");
+  assert.equal(deleted.visibility, "deleted");
+  assert.equal(deleted.materials.figmaUrl, "");
+});
+
+test("preview preparation compiles only a valid draft into an isolated overlay", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  const previewRoot = path.join(path.dirname(configured.draftRoot), "preview-drafts");
+  await store.saveDraft("preview", project("preview", { detailAvailable: true }));
+  await store.preparePreview("preview", previewRoot);
+  const compiled = JSON.parse(await readFile(path.join(previewRoot, "preview.json"), "utf8"));
+  assert.equal(compiled.slug, "preview");
+  assert.equal("admin" in compiled, false);
+
+  await store.saveDraft("preview", project("preview", {
+    detailAvailable: true,
+    materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
+  }));
+  await assert.rejects(() => store.preparePreview("preview", previewRoot), (error) => {
+    assert.equal(error.name, "DraftValidationError");
+    assert.equal(error.issues[0].field, "materials.figmaUrl");
+    return true;
+  });
+});
+
 test("project list overlays newer drafts without changing canonical files", async () => {
   const configured = await roots();
   const store = new AdminStore(configured);
@@ -113,7 +166,9 @@ test("uploads use safe names, reject traversal and warn on duplicates", async ()
   assert.equal(first.width, 20);
   assert.equal(second.duplicateOf, first.src);
   assert.equal(await readFile(path.join(configured.assetRoot, "admin-test", "hero.png"), "hex"), png.toString("hex"));
+  assert.equal((await store.readImage("admin-test", "hero.png")).toString("hex"), png.toString("hex"));
   await assert.rejects(() => store.saveImage("../escape", "x.png", "image/png", png, "Alt"), /slug/i);
+  await assert.rejects(() => store.readImage("admin-test", "../secret.png"), /path|filename/i);
 });
 
 test("permanent deletion is allowed only for an unpublished deleted draft", async () => {

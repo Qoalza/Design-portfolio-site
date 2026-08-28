@@ -73,19 +73,21 @@ async function waitUntilReady(port, timeout = 60_000) {
 }
 
 async function main() {
-  if (await reachable(adminPort)) return openAdmin();
   await mkdir(logsRoot, { recursive: true });
   await ensureManagedRepository();
-  await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
-    DES_ART_ADMIN_REPO: managedRepo,
-    DES_ART_ADMIN_SUPPORT: supportRoot,
-    DES_ART_ADMIN_PORT: String(adminPort),
-    DES_ART_PREVIEW_PORT: String(previewPort),
-  });
+  if (!(await reachable(adminPort))) {
+    await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
+      DES_ART_ADMIN_REPO: managedRepo,
+      DES_ART_ADMIN_SUPPORT: supportRoot,
+      DES_ART_ADMIN_PORT: String(adminPort),
+      DES_ART_PREVIEW_PORT: String(previewPort),
+    });
+  }
   if (!(await reachable(previewPort))) {
     await detached("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], "preview", {
       DES_ART_ADMIN_PREVIEW: "1",
-      DES_ART_ADMIN_DRAFT_ROOT: path.join(supportRoot, "drafts"),
+      DES_ART_PREVIEW_PORT: String(previewPort),
+      DES_ART_ADMIN_DRAFT_ROOT: path.join(supportRoot, "preview-drafts"),
       DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(supportRoot, "draft-assets"),
     });
   }

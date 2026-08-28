@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { closeSync, openSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
@@ -6,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
 import { AdminStore, validateLocalRequest } from "./core.mjs";
+import { DraftValidationError } from "./draft-contract.mjs";
 import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -21,6 +23,55 @@ const store = new AdminStore({
   draftAssetRoot: path.join(supportRoot, "draft-assets"),
 });
 const jobsRoot = path.join(supportRoot, "jobs");
+const previewRoot = path.join(supportRoot, "preview-drafts");
+const logsRoot = path.join(supportRoot, "logs");
+const imageTypes = new Map([
+  [".png", "image/png"],
+  [".jpg", "image/jpeg"],
+  [".gif", "image/gif"],
+  [".webp", "image/webp"],
+]);
+
+function reachable(targetPort) {
+  return new Promise((resolve) => {
+    const request = http.get({ hostname: "127.0.0.1", port: targetPort, path: "/", timeout: 700 }, (result) => {
+      result.resume();
+      resolve(Boolean(result.statusCode));
+    });
+    request.on("error", () => resolve(false));
+    request.on("timeout", () => { request.destroy(); resolve(false); });
+  });
+}
+
+async function ensurePreview() {
+  if (await reachable(previewPort)) return;
+  await mkdir(logsRoot, { recursive: true });
+  const output = openSync(path.join(logsRoot, "preview.log"), "a", 0o600);
+  try {
+    const child = spawn("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], {
+      cwd: repoRoot,
+      detached: true,
+      stdio: ["ignore", output, output],
+      env: {
+        ...process.env,
+        DES_ART_ADMIN_PREVIEW: "1",
+        DES_ART_PREVIEW_PORT: String(previewPort),
+        DES_ART_ADMIN_DRAFT_ROOT: previewRoot,
+        DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(supportRoot, "draft-assets"),
+      },
+    });
+    await writeFile(path.join(supportRoot, "preview.pid"), `${child.pid}\n`, { mode: 0o600 });
+    child.unref();
+  } finally {
+    closeSync(output);
+  }
+  const started = Date.now();
+  while (Date.now() - started < 60_000) {
+    if (await reachable(previewPort)) return;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error("Предпросмотр не запустился. Повторите попытку.");
+}
 
 function json(response, status, value) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
@@ -63,7 +114,24 @@ async function handler(request, response) {
     }
     if (request.method === "GET" && url.pathname === "/admin.css") return staticFile(response, "admin.css", "text/css; charset=utf-8");
     if (request.method === "GET" && url.pathname === "/admin.js") return staticFile(response, "admin.js", "text/javascript; charset=utf-8");
+    if (request.method === "GET" && segments[0] === "assets" && segments[1] === "projects" && segments.length === 4) {
+      const slug = decodeURIComponent(segments[2]);
+      const fileName = decodeURIComponent(segments[3]);
+      const source = await store.readImage(slug, fileName);
+      const type = imageTypes.get(path.extname(fileName).toLowerCase());
+      if (!type) return json(response, 415, { error: "Неподдерживаемый формат изображения." });
+      response.writeHead(200, { "content-type": type, "cache-control": "no-store" });
+      response.end(source);
+      return;
+    }
     if (request.method === "GET" && url.pathname === "/api/projects") return json(response, 200, await store.listProjects());
+    if (request.method === "GET" && url.pathname === "/api/changes") return json(response, 200, await store.getChangeInventory());
+    if (request.method === "POST" && segments[0] === "api" && segments[1] === "preview" && segments[2]) {
+      const slug = decodeURIComponent(segments[2]);
+      await store.preparePreview(slug, previewRoot);
+      await ensurePreview();
+      return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}/projects/${encodeURIComponent(slug)}?admin-preview=1` });
+    }
     if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot }));
     if (request.method === "GET" && url.pathname === "/api/publish/status") {
       const names = (await readdir(jobsRoot).catch(() => [])).filter((name) => name.endsWith(".json")).sort().reverse();
@@ -141,6 +209,9 @@ async function handler(request, response) {
     }
     json(response, 404, { error: "Не найдено" });
   } catch (error) {
+    if (error instanceof DraftValidationError) {
+      return json(response, 422, { error: "Проверьте обязательные поля.", issues: error.issues });
+    }
     const message = error instanceof Error ? error.message : "Неизвестная ошибка";
     json(response, /Host|Origin|CSRF/.test(message) ? 403 : 400, { error: message });
   }

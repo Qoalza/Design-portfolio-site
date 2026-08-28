@@ -15,6 +15,8 @@
 
 # next.js
 /.next/
+/.next-admin-preview/
+/.next-admin-preview-*/
 /out/
 
 # production

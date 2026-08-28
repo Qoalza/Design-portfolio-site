@@ -6,6 +6,7 @@ const server = await readFile(new URL("../tools/des-art-admin/server.mjs", impor
 const launcher = await readFile(new URL("../tools/des-art-admin/launcher.mjs", import.meta.url), "utf8");
 const projectRoute = await readFile(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
 const previewAssetRoute = await readFile(new URL("../src/app/admin-preview-assets/[slug]/[file]/route.ts", import.meta.url), "utf8");
+const nextConfig = await readFile(new URL("../next.config.ts", import.meta.url), "utf8");
 const adminUi = await readFile(new URL("../tools/des-art-admin/src/admin.tsx", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 
@@ -31,6 +32,11 @@ test("admin is not an App Router route and preview access is env-gated", async (
   assert.match(previewAssetRoute, /DES_ART_ADMIN_PREVIEW !== "1"/);
   assert.match(launcher, /DES_ART_ADMIN_DRAFT_ROOT/);
   assert.match(launcher, /DES_ART_ADMIN_DRAFT_ASSET_ROOT/);
+  assert.match(server, /segments\[1\] === "preview"/);
+  assert.match(server, /ensurePreview/);
+  assert.match(server, /preview-drafts/);
+  assert.match(nextConfig, /DES_ART_ADMIN_PREVIEW === "1"/);
+  assert.match(nextConfig, /\.next-admin-preview-\$\{previewPort\}/);
 });
 
 test("admin UI keeps Radix Themes inside the local admin boundary", () => {
