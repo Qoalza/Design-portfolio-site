@@ -311,7 +311,10 @@ export class AdminStore {
     const changedSlugs = [];
     const globalProjects = [];
     const withoutGlobalPlacement = (project) => {
-      const { catalogOrder: _catalogOrder, featuredOnHome: _featuredOnHome, homeOrder: _homeOrder, ...content } = project;
+      const content = { ...project };
+      delete content.catalogOrder;
+      delete content.featuredOnHome;
+      delete content.homeOrder;
       return content;
     };
     for (const name of names) {

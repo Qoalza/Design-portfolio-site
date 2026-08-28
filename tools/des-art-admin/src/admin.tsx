@@ -260,8 +260,9 @@ function App() {
     if (job?.status !== "complete") return;
     void (async () => {
       await refresh();
-      if (current) {
-        const next = await api<AdminProject>(`/api/projects/${current.slug}`);
+      const project = latest.current;
+      if (project) {
+        const next = await api<AdminProject>(`/api/projects/${project.slug}`);
         setCurrent(next);
       }
     })().catch((error) => setMessage(safeMessage(error)));
