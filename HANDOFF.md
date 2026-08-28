@@ -1,6 +1,6 @@
 # HANDOFF
 
-Обновлено: 2026-08-28
+Обновлено: 2026-08-29
 
 ## Назначение
 
@@ -23,7 +23,7 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `main`; принятая MLIR7 слита fast-forward и отправлена в `origin/main`.
+- Рабочая ветка текущей Goal: `codex/local-project-admin-publisher`; `main` и production в этой Goal не изменяются.
 - Актуальный production/source commit (`DEPLOY_SHA`) совпадает с полным SHA текущего `origin/main`; точное значение подтверждается после каждого deploy по отданному HTML и release-path. Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
@@ -44,7 +44,8 @@
 - Принятые Footer и process controls развернуты в production 2026-08-27 из точного `DEPLOY_SHA` `8f3c869ac6aa30cbc4c2c5f6422290db5aa45fa1`: Footer содержит `Разработка и Дизайн Артур А.`, кнопки Light имеют размер `32×32`, верхние/нижние переходы и оба слоя fade подтверждены в browser smoke.
 - Layering process-блока исправлен и развернут 2026-08-28 из точного `DEPLOY_SHA` `4af476cab57c4ed248d04ce2907e0731e6669a36`: изолированный stacking context удерживает `track → fade → control` ниже fixed Header; scroll/hit-test и переходы всех этапов подтверждены в production.
 - Единый social preview развернут 2026-08-28 из текущего `origin/main`: `/`, `/projects` и `/projects/corvo` используют `artur-designer-social-preview.png`, `og:title` `Артур А.`, `og:description` `PRODUCT DESIGNER` и абсолютные canonical OG URL; release-path и отданный build SHA совпали с полным SHA ветки.
-- В ветке `codex/local-project-admin-publisher` реализуется schema v2 и изолированная локальная CMS. Черновики и draft-ассеты перенесены в `Application Support`, preview читает overlay без записи в Git, UI использует только вкладки `Карточка` / `Страница проекта`, lifecycle `Черновик / Опубликован / Удалён`, published-only reorder и лимит трёх проектов на главной. Radix и Radix Icons остаются только внутри `tools/des-art-admin`.
+- В ветке `codex/local-project-admin-publisher` реализована schema v2 и изолированная локальная CMS. Черновики и draft-ассеты находятся в `Application Support`; неполные формы сохраняются, а строгая компиляция выполняется перед preview/publish. Preview использует отдельный overlay и отдельный `.next-admin-preview-<port>`, не пишет в Git и не конфликтует с обычным dev-сервером.
+- Admin UI использует три ясные зоны: расширенный список проектов, центральный редактор `Карточка / Страница проекта` и правую панель настроек. Реализованы круглые switches, published-only reorder, лимит трёх проектов на главной, единый редактор секции с toolbar, отключаемое примечание, одна галерея и pending-модель «Интерактивного экрана». Radix и Radix Icons остаются только внутри `tools/des-art-admin`; публичный Next bundle их не содержит.
 - Persisted publish worker выполняет безопасный локальный dry-run с горизонтальными этапами и `caffeinate`. Настоящий Git/PR/merge/deploy намеренно закрыт до отдельного первого запуска: `gh`-авторизация и фоновый SSH-ключ должны пройти readiness, секреты не хранятся в проекте.
 
 ## Production
@@ -131,4 +132,4 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 1. Social preview production deploy завершён; production наблюдать штатными health/smoke-проверками без повторного deploy.
 2. Preloaders/loading states оставить для отдельного будущего Work Packet после новой классификации и пользовательского подтверждения.
-3. Новый интерфейс локальной админки готов к пользовательской проверке из рабочей ветки; merge/deploy в рамках этой Git-группы не выполнялись.
+3. Новый интерфейс локальной админки готов к пользовательской проверке из Draft PR текущей ветки; live publish, merge и deploy в рамках Goal не выполнялись.
