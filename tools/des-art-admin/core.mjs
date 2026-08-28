@@ -308,18 +308,32 @@ export class AdminStore {
     await mkdir(this.draftRoot, { recursive: true });
     const names = (await readdir(this.draftRoot)).filter((name) => name.endsWith(".json"));
     const projects = [];
+    const changedSlugs = [];
+    const globalProjects = [];
+    const withoutGlobalPlacement = (project) => {
+      const { catalogOrder: _catalogOrder, featuredOnHome: _featuredOnHome, homeOrder: _homeOrder, ...content } = project;
+      return content;
+    };
     for (const name of names) {
       const draft = parseAdminDraft(await readFile(path.join(this.draftRoot, name), "utf8"), name);
       const validation = draftValidation(draft);
       let changed = !validation.valid;
+      let globalChanged = false;
       if (validation.valid) {
         const canonical = published.get(draft.slug);
-        changed = !canonical || JSON.stringify(compileAdminDraft(draft)) !== JSON.stringify(canonical);
+        const compiled = compileAdminDraft(draft);
+        changed = !canonical || JSON.stringify(withoutGlobalPlacement(compiled)) !== JSON.stringify(withoutGlobalPlacement(canonical));
+        globalChanged = !canonical
+          || compiled.catalogOrder !== canonical.catalogOrder
+          || compiled.featuredOnHome !== canonical.featuredOnHome
+          || compiled.homeOrder !== canonical.homeOrder;
       }
       if (changed) projects.push({ slug: draft.slug, title: draft.title, valid: validation.valid, issues: validation.issues });
+      if (changed || globalChanged) changedSlugs.push(draft.slug);
+      if (globalChanged) globalProjects.push(draft.slug);
     }
     projects.sort((first, second) => first.title.localeCompare(second.title, "ru"));
-    return { count: projects.length, projects };
+    return { count: changedSlugs.length, projects, changedSlugs, globalProjects };
   }
 
   async publishSandbox({ scope, slug }) {

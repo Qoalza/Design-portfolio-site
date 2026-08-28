@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -29,7 +29,7 @@ test("dry-run compiles admin metadata into isolated public staging files", async
     tags: [],
     detailTags: [],
     visibility: "draft",
-    catalogOrder: 1,
+    catalogOrder: 4,
     featuredOnHome: false,
     detailAvailable: false,
     materials: { projectState: "completed", fileState: "absent" },
@@ -37,12 +37,32 @@ test("dry-run compiles admin metadata into isolated public staging files", async
     content: [{ type: "section", adminId: "draft-section-1", heading: "Секция", blocks: [] }],
     admin: { sections: { "draft-section-1": { noticeEnabled: false } } },
   }));
+  const snapshotRoot = path.join(root, "snapshots");
+  await mkdir(snapshotRoot);
+  await writeFile(path.join(snapshotRoot, "draft.json"), JSON.stringify({
+    schemaVersion: 2,
+    title: "Старая публикация",
+    slug: "draft",
+    description: "Описание",
+    role: "Product Designer",
+    year: 2026,
+    tags: [],
+    detailTags: [],
+    visibility: "published",
+    catalogOrder: 1,
+    featuredOnHome: false,
+    detailAvailable: false,
+    materials: { projectState: "completed", fileState: "absent" },
+    platforms: [],
+    content: [],
+  }));
   await writeFile(jobFile, JSON.stringify({
     id: "draft-test",
     scope: "project",
     dryRun: true,
     repoRoot: process.cwd(),
     files: [draftFile],
+    snapshotRoot,
     status: "queued",
     message: "Подготовка",
     stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
@@ -52,6 +72,17 @@ test("dry-run compiles admin metadata into isolated public staging files", async
   const staged = JSON.parse(await readFile(path.join(root, "staging", "draft.json"), "utf8"));
   assert.equal("admin" in staged, false);
   assert.equal("adminId" in staged.content[0], false);
+  const savedDraft = JSON.parse(await readFile(draftFile, "utf8"));
+  const snapshot = JSON.parse(await readFile(path.join(root, "snapshots", "draft.json"), "utf8"));
+  assert.equal(savedDraft.visibility, "published");
+  assert.equal("admin" in savedDraft, true);
+  assert.equal(snapshot.visibility, "published");
+  assert.equal("admin" in snapshot, false);
+  assert.equal(snapshot.catalogOrder, 1);
+  assert.equal(snapshot.featuredOnHome, false);
+  assert.equal(snapshot.homeOrder, undefined);
+  assert.equal(savedDraft.catalogOrder, 4);
+  assert.equal(savedDraft.featuredOnHome, false);
 });
 
 test("readiness reports missing credentials without exposing secrets", async () => {

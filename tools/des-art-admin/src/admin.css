@@ -221,3 +221,61 @@ button, input, textarea, select { font: inherit; }
   .asset-preview, .asset-placeholder { grid-column: 1; grid-row: auto; width: 100%; height: 180px; }
   .publish-stages { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* Goal: clean publishing workspace — semantic boundaries, stable controls, no decorative nesting. */
+body { background: #fbfaf8; }
+.admin-topbar { grid-template-columns: 336px minmax(0, 1fr) auto; background: rgba(255,255,255,.96); }
+.admin-workspace { grid-template-columns: 336px minmax(0,1fr) 320px; }
+.project-nav, .project-rail { background: #fff; }
+.project-nav { gap: 18px; }
+.nav-tabs { gap: 6px; }
+.nav-tabs button { flex: 0 0 auto; width: max-content; min-width: max-content; white-space: nowrap; padding: 8px 11px; border-radius: 8px; font-size: 13px; }
+.nav-tabs span { float: none; margin-left: 4px; }
+.project-row { border: 0; padding: 11px 10px; border-radius: 9px; }
+.project-row[data-active="true"] { border: 0; box-shadow: inset 3px 0 var(--accent-9); }
+.project-row > button > span { font-weight: 600; }
+.change-summary { border: 0; background: var(--orange-2); }
+.editor-area { padding: 32px clamp(24px,3vw,48px) 72px; background: #fbfaf8; }
+.editor-inner { width: min(880px,100%); }
+.editor-stack { gap: 24px; }
+.editor-section { gap: 22px; padding: 0 0 28px; border: 0; border-bottom: 1px solid var(--sand-6); border-radius: 0; background: transparent; }
+.section-editor { padding: 24px; border: 1px solid transparent; border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgba(47,42,36,.04); }
+.section-editor[data-selected="true"] { border-color: var(--accent-7); box-shadow: 0 0 0 2px var(--accent-3); }
+.form-grid { gap: 18px 20px; }
+.tag-input { width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--sand-7); border-radius: 6px; outline: none; background: #fff; color: inherit; }
+.tag-input:focus { border-color: var(--accent-8); box-shadow: 0 0 0 1px var(--accent-7); }
+.asset-field { grid-template-columns: minmax(190px,1fr) 160px; gap: 16px 24px; }
+.asset-preview, .asset-placeholder { width: 160px; height: 96px; border: 0; border-radius: 9px; }
+.asset-field > .rt-Flex { align-items: center; gap: 8px !important; }
+.asset-field > .rt-Flex .rt-Button { min-height: 30px; }
+.rich-toolbar { min-height: 42px; background: var(--sand-2); }
+.managed-preview, .empty-inline { border: 0; border-radius: 9px; background: var(--sand-3); }
+.rail-group { padding: 18px 0 22px; }
+.rail-group[data-selected="true"] { margin: 0 -10px; padding: 18px 10px 22px; border-radius: 10px; background: var(--accent-2); }
+.home-list > div { position: relative; border: 0; border-radius: 9px; background: var(--sand-2); }
+.home-list > div[data-drop-target="true"]::before { content: ""; position: absolute; top: -5px; right: 0; left: 0; height: 2px; border-radius: 2px; background: var(--accent-9); }
+.publish-card { width: min(1120px, 100%); border: 0; border-radius: 16px; }
+.publish-stages { display: flex; grid-template-columns: none; gap: 20px; overflow-x: auto; scrollbar-width: none; }
+.publish-stages::-webkit-scrollbar { display: none; }
+.publish-stages > div { flex: 0 0 132px; min-width: max-content; }
+.publish-stages > div > * { white-space: nowrap; }
+@media (min-width: 1440px) {
+  .admin-workspace { grid-template-columns: 352px minmax(0,1fr) 340px; }
+  .admin-topbar { grid-template-columns: 352px minmax(0,1fr) auto; }
+}
+@media (max-width: 1320px) and (min-width: 1121px) {
+  .admin-workspace { grid-template-columns: 336px minmax(0,1fr) 320px; }
+  .admin-topbar { grid-template-columns: 336px minmax(0,1fr) auto; }
+}
+@media (max-width: 1120px) and (min-width: 821px) {
+  .admin-topbar { grid-template-columns: 336px minmax(0,1fr); }
+  .admin-topbar > :nth-child(2) { display: none; }
+  .admin-topbar > :last-child { grid-column: 2; grid-row: 1; justify-self: end; }
+  .admin-workspace { grid-template-columns: 336px minmax(0,1fr); }
+  .project-rail { position: static; grid-column: 2; width: min(880px, calc(100% - 48px)); height: auto; margin: 0 auto 40px; border: 0; }
+}
+@media (max-width: 820px) {
+  .admin-topbar { grid-template-columns: 1fr; }
+  .admin-workspace { display: block; }
+  .project-nav, .project-rail { position: static; width: auto; height: auto; margin: 0; border: 0; border-bottom: 1px solid var(--sand-6); border-radius: 0; }
+}

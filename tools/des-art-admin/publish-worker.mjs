@@ -24,6 +24,10 @@ async function atomicJson(file, value) {
   await rename(temporary, file);
 }
 
+function publishedDraft(project) {
+  return project.visibility === "draft" ? { ...project, visibility: "published" } : project;
+}
+
 export async function publishReadiness({ supportRoot }) {
   const failures = [];
   try { await exec("gh", ["auth", "status"]); } catch { failures.push("GitHub CLI не авторизован"); }
@@ -62,8 +66,22 @@ export async function runPublishJob(jobFile) {
     if (job.dryRun && job.snapshotRoot) {
       await mkdir(job.snapshotRoot, { recursive: true });
       for (const file of job.files) {
-        const project = compileAdminDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
-        await atomicJson(path.join(job.snapshotRoot, path.basename(file)), project);
+        const draft = publishedDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
+        await atomicJson(file, draft);
+        const snapshotFile = path.join(job.snapshotRoot, path.basename(file));
+        let compiled = compileAdminDraft(draft);
+        if (job.scope === "project") {
+          try {
+            const baseline = JSON.parse(await readFile(snapshotFile, "utf8"));
+            compiled = {
+              ...compiled,
+              catalogOrder: baseline.catalogOrder,
+              featuredOnHome: baseline.featuredOnHome,
+              homeOrder: baseline.homeOrder,
+            };
+          } catch {}
+        }
+        await atomicJson(snapshotFile, compiled);
       }
     }
     await update(jobFile, job, { status: "complete", currentStage: undefined, message: "Локальная репетиция завершена" });

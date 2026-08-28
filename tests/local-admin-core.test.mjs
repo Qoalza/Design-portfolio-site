@@ -102,7 +102,7 @@ test("draft store accepts incomplete form values and reports real unpublished ch
   const store = new AdminStore(configured);
   const canonical = project("admin-test", { visibility: "published", detailAvailable: true });
   await store.saveProject(canonical);
-  assert.deepEqual(await store.getChangeInventory(), { count: 0, projects: [] });
+  assert.deepEqual(await store.getChangeInventory(), { count: 0, projects: [], changedSlugs: [], globalProjects: [] });
 
   await store.saveDraft("admin-test", {
     ...canonical,
@@ -212,6 +212,19 @@ test("sandbox publish creates an isolated snapshot and clears only published dir
   assert.equal((await store.getSandboxPublishedProject("one")).title, "Черновая версия");
   assert.deepEqual((await store.getChangeInventory()).projects.map((item) => item.slug), ["two"]);
   await assert.rejects(() => store.getSandboxPublishedProject("two"));
+});
+
+test("global placement stays outside the project publish scope", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  await store.saveProject(project("placed", { visibility: "published", catalogOrder: 1, featuredOnHome: false }));
+  await store.ensureSnapshotBaseline();
+  await store.saveDraft("placed", project("placed", { visibility: "published", catalogOrder: 4, featuredOnHome: true, homeOrder: 2 }));
+
+  const inventory = await store.getChangeInventory();
+  assert.equal(inventory.count, 1);
+  assert.deepEqual(inventory.projects, []);
+  assert.deepEqual(inventory.globalProjects, ["placed"]);
 });
 
 test("card and page previews expose the current valid draft in the requested context", async () => {

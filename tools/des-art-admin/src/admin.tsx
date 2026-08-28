@@ -342,6 +342,7 @@ function App() {
                   setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
                   permanentDelete={() => setConfirmation("delete")}
                   issues={issues.length ? issues : currentChange?.issues ?? []}
+                  reviewIssues={() => setReviewIssues(issues.length ? issues : currentChange?.issues ?? [])}
                 />
                 {tab === "card" ? (
                   <CardSettings project={current} update={update} home={requestHome} />
