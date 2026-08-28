@@ -9,7 +9,7 @@ import { SiteHeader } from "../../components/site-header";
 import { ControlButton } from "../../components/ui-controls";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import type { ProjectLogo } from "../../lib/project-contract";
-import { getAllProjects, type Project } from "../../lib/projects";
+import { getAllProjects, getAllProjectsForPreview, type Project } from "../../lib/projects";
 import { createSocialMetadata } from "../../lib/site-metadata";
 import styles from "./page.module.css";
 
@@ -121,7 +121,7 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
 }
 
 export default function ProjectsPage() {
-  const projects = getAllProjects();
+  const projects = process.env.DES_ART_ADMIN_PREVIEW === "1" ? getAllProjectsForPreview() : getAllProjects();
   const [primaryProject, ...compactProjects] = projects;
   const projectsTrailItem = { href: "/projects", label: "Работы" };
 

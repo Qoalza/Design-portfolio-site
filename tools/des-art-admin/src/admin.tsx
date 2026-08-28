@@ -169,7 +169,10 @@ function App() {
     void (async () => {
       try {
         await flush();
-        const result = await api<{ ready: true; url: string }>(`/api/preview/${current.slug}`, { method: "POST" });
+        const result = await api<{ ready: true; url: string }>(`/api/preview/${current.slug}`, {
+          method: "POST",
+          body: JSON.stringify({ context: tab === "card" ? "card" : "page" }),
+        });
         if (popup) popup.location.href = result.url;
         else window.open(result.url, "des-art-preview");
       } catch (error) {
@@ -253,6 +256,17 @@ function App() {
     return () => clearInterval(timer);
   }, [job]);
 
+  useEffect(() => {
+    if (job?.status !== "complete") return;
+    void (async () => {
+      await refresh();
+      if (current) {
+        const next = await api<AdminProject>(`/api/projects/${current.slug}`);
+        setCurrent(next);
+      }
+    })().catch((error) => setMessage(safeMessage(error)));
+  }, [job?.status]);
+
   const currentChange = useMemo(
     () => current ? inventory.projects.find((item) => item.slug === current.slug) : undefined,
     [current, inventory],
@@ -269,7 +283,7 @@ function App() {
     <Theme accentColor="blue" grayColor="sand" radius="small">
       <div className="admin-shell">
         <header className="admin-topbar">
-          <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color="gray">Локально</Badge></div>
+          <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color="gray">Тестовый контур</Badge></div>
           <Text color="gray">{current?.title ?? "Проекты портфолио"}</Text>
           <Flex gap="3" align="center">
             <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>

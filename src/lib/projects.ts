@@ -84,6 +84,22 @@ export function getAllProjects(contentRoot = projectsDirectory): Project[] {
     .sort((first, second) => first.catalogOrder - second.catalogOrder);
 }
 
+export function getAllProjectsForPreview(contentRoot = projectsDirectory): Project[] {
+  const base = readAllProjectDocuments(contentRoot);
+  const draftRoot = process.env.DES_ART_ADMIN_DRAFT_ROOT;
+  const documents = process.env.DES_ART_ADMIN_PREVIEW === "1" && draftRoot && existsSync(draftRoot)
+    ? (() => {
+        const merged = new Map(base.map((project) => [project.slug, project]));
+        for (const project of readAllProjectDocuments(draftRoot)) merged.set(project.slug, project);
+        return [...merged.values()];
+      })()
+    : base;
+  return documents
+    .filter((project) => project.visibility === "published")
+    .map(withAvailability)
+    .sort((first, second) => first.catalogOrder - second.catalogOrder);
+}
+
 export function getCatalogProjects(contentRoot = projectsDirectory): Project[] {
   return getAllProjects(contentRoot)
     .filter((project) => project.featuredOnHome)

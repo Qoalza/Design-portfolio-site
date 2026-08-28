@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -9,6 +10,8 @@ import {
 } from "../../src/lib/project-contract.ts";
 import { readAllProjectDocuments, writeProjectDocument } from "../../src/lib/projects.ts";
 import { compileAdminDraft, createAdminDraft, draftValidation, parseAdminDraft } from "./draft-contract.mjs";
+
+const requireRead = (file) => readFileSync(file, "utf8");
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const IMAGE_TYPES = new Map([
@@ -140,11 +143,12 @@ async function canonicalDraftPath(root, slug) {
 }
 
 export class AdminStore {
-  constructor({ contentRoot, assetRoot, draftRoot, draftAssetRoot = assetRoot }) {
+  constructor({ contentRoot, assetRoot, draftRoot, draftAssetRoot = assetRoot, snapshotRoot = path.join(path.dirname(draftRoot), "published-snapshots") }) {
     this.contentRoot = contentRoot;
     this.assetRoot = assetRoot;
     this.draftRoot = draftRoot;
     this.draftAssetRoot = draftAssetRoot;
+    this.snapshotRoot = snapshotRoot;
   }
 
   async listProjects() {
@@ -174,6 +178,32 @@ export class AdminStore {
   async getPublishedProject(slug) {
     const file = resolveProjectDocumentPath(this.contentRoot, slug);
     return parseProjectDocument(await readFile(file, "utf8"), path.basename(file));
+  }
+
+  async getSandboxPublishedProject(slug) {
+    const file = resolveProjectDocumentPath(this.snapshotRoot, slug);
+    return parseProjectDocument(await readFile(file, "utf8"), path.basename(file));
+  }
+
+  async listSandboxPublished() {
+    await mkdir(this.snapshotRoot, { recursive: true });
+    const names = (await readdir(this.snapshotRoot)).filter((name) => name.endsWith(".json"));
+    if (names.length) return names.map((name) => parseProjectDocument(
+      requireRead(path.join(this.snapshotRoot, name)), name,
+    ));
+    await mkdir(this.contentRoot, { recursive: true });
+    return readAllProjectDocuments(this.contentRoot);
+  }
+
+  async ensureSnapshotBaseline() {
+    await mkdir(this.snapshotRoot, { recursive: true });
+    const names = (await readdir(this.snapshotRoot)).filter((name) => name.endsWith(".json"));
+    if (names.length) return;
+    await mkdir(this.contentRoot, { recursive: true });
+    for (const project of readAllProjectDocuments(this.contentRoot)) {
+      const destination = resolveProjectDocumentPath(this.snapshotRoot, project.slug);
+      await writeFile(destination, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600, flag: "wx" });
+    }
   }
 
   async saveProject(value) {
@@ -252,9 +282,14 @@ export class AdminStore {
     return parseAdminDraft(await readFile(file, "utf8"), path.basename(file));
   }
 
-  async preparePreview(slug, previewRoot) {
+  async preparePreview(slug, previewRoot, context = "page") {
     const draft = await this.getProject(slug);
-    const project = compileAdminDraft(draft);
+    const compiled = compileAdminDraft(draft);
+    const project = {
+      ...compiled,
+      visibility: "published",
+      ...(context === "page" ? { detailAvailable: true } : {}),
+    };
     const file = await canonicalDraftPath(previewRoot, slug);
     const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
     await writeFile(temporary, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
@@ -263,7 +298,13 @@ export class AdminStore {
   }
 
   async getChangeInventory() {
-    const published = new Map(readAllProjectDocuments(this.contentRoot).map((item) => [item.slug, item]));
+    await mkdir(this.contentRoot, { recursive: true });
+    await mkdir(this.snapshotRoot, { recursive: true });
+    const snapshots = (await readdir(this.snapshotRoot)).filter((name) => name.endsWith(".json"));
+    const baseline = snapshots.length
+      ? snapshots.map((name) => parseProjectDocument(requireRead(path.join(this.snapshotRoot, name)), name))
+      : readAllProjectDocuments(this.contentRoot);
+    const published = new Map(baseline.map((item) => [item.slug, item]));
     await mkdir(this.draftRoot, { recursive: true });
     const names = (await readdir(this.draftRoot)).filter((name) => name.endsWith(".json"));
     const projects = [];
@@ -281,11 +322,29 @@ export class AdminStore {
     return { count: projects.length, projects };
   }
 
+  async publishSandbox({ scope, slug }) {
+    await this.ensureSnapshotBaseline();
+    const inventory = await this.getChangeInventory();
+    const selected = scope === "project"
+      ? inventory.projects.filter((item) => item.slug === slug)
+      : inventory.projects;
+    if (scope === "project" && selected.length !== 1) throw new Error("У проекта нет неопубликованных изменений.");
+    await mkdir(this.snapshotRoot, { recursive: true });
+    for (const item of selected) {
+      const compiled = compileAdminDraft(await this.getProject(item.slug));
+      const destination = resolveProjectDocumentPath(this.snapshotRoot, item.slug);
+      const temporary = `${destination}.${process.pid}.${Date.now()}.tmp`;
+      await writeFile(temporary, `${JSON.stringify(compiled, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+      await rename(temporary, destination);
+    }
+    return selected.map((item) => item.slug);
+  }
+
   async permanentlyDelete(slug) {
     const project = await this.getProject(slug);
     if (project.visibility !== "deleted") throw new Error("Only deleted projects can be removed permanently.");
     try {
-      const published = await this.getPublishedProject(slug);
+      const published = await this.getSandboxPublishedProject(slug).catch(() => this.getPublishedProject(slug));
       if (published.visibility === "published") {
         throw new Error("Publish this deletion before removing the project permanently.");
       }
@@ -318,8 +377,6 @@ export class AdminStore {
       alt: alt.trim(),
       width: inspected.width,
       height: inspected.height,
-      mime: inspected.mime,
-      ...(duplicateOf ? { duplicateOf } : {}),
     };
   }
 

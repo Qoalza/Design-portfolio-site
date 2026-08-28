@@ -63,6 +63,8 @@ async function roots() {
     contentRoot: path.join(root, "repo", "content", "projects"),
     assetRoot: path.join(root, "repo", "public", "assets", "projects"),
     draftRoot: path.join(root, "drafts"),
+    snapshotRoot: path.join(root, "published-snapshots"),
+    draftAssetRoot: path.join(root, "draft-assets"),
   };
 }
 
@@ -190,11 +192,41 @@ test("uploads use safe names, reject traversal and warn on duplicates", async ()
   const first = await store.saveImage("admin-test", "Hero.png", "image/png", png, "Hero alt");
   const second = await store.saveImage("admin-test", "Another.png", "image/png", png, "Hero alt");
   assert.equal(first.width, 20);
-  assert.equal(second.duplicateOf, first.src);
-  assert.equal(await readFile(path.join(configured.assetRoot, "admin-test", "hero.png"), "hex"), png.toString("hex"));
+  assert.deepEqual(Object.keys(first).sort(), ["alt", "height", "src", "width"]);
+  assert.equal(second.src, first.src);
+  assert.equal(await readFile(path.join(configured.draftAssetRoot, "admin-test", "hero.png"), "hex"), png.toString("hex"));
   assert.equal((await store.readImage("admin-test", "hero.png")).toString("hex"), png.toString("hex"));
   await assert.rejects(() => store.saveImage("../escape", "x.png", "image/png", png, "Alt"), /slug/i);
   await assert.rejects(() => store.readImage("admin-test", "../secret.png"), /path|filename/i);
+});
+
+test("sandbox publish creates an isolated snapshot and clears only published dirty scope", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  await store.saveDraft("one", project("one", { visibility: "published", title: "Черновая версия" }));
+  await store.saveDraft("two", project("two", { title: "Другой черновик" }));
+
+  assert.equal((await store.getChangeInventory()).count, 2);
+  await store.publishSandbox({ scope: "project", slug: "one" });
+
+  assert.equal((await store.getSandboxPublishedProject("one")).title, "Черновая версия");
+  assert.deepEqual((await store.getChangeInventory()).projects.map((item) => item.slug), ["two"]);
+  await assert.rejects(() => store.getSandboxPublishedProject("two"));
+});
+
+test("card and page previews expose the current valid draft in the requested context", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  const previewRoot = path.join(path.dirname(configured.draftRoot), "preview-drafts");
+  await store.saveDraft("preview-context", project("preview-context", { visibility: "draft", detailAvailable: false }));
+
+  await store.preparePreview("preview-context", previewRoot, "card");
+  let compiled = JSON.parse(await readFile(path.join(previewRoot, "preview-context.json"), "utf8"));
+  assert.equal(compiled.visibility, "published");
+
+  await store.preparePreview("preview-context", previewRoot, "page");
+  compiled = JSON.parse(await readFile(path.join(previewRoot, "preview-context.json"), "utf8"));
+  assert.equal(compiled.detailAvailable, true);
 });
 
 test("permanent deletion is allowed only for an unpublished deleted draft", async () => {

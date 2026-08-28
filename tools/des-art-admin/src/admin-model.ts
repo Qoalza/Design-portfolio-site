@@ -61,10 +61,15 @@ export class ApiError extends Error {
   }
 }
 
-export const list = (value: string) => value
-  .split(",")
+export const parseTagInput = (value: string) => value
+  .split("/")
   .map((item) => item.trim())
   .filter(Boolean);
+
+export const formatTagInput = (value: string[]) => value.join(" / ");
+
+/** @deprecated use parseTagInput */
+export const list = parseTagInput;
 
 const cyrillicSlug: Record<string, string> = { а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"e",ж:"zh",з:"z",и:"i",й:"y",к:"k",л:"l",м:"m",н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"h",ц:"ts",ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya" };
 

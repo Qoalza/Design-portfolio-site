@@ -59,6 +59,13 @@ export async function runPublishJob(jobFile) {
       job.stages = job.stages.map((stage) => stage.id === stageId ? { ...stage, status: "complete" } : stage);
       await atomicJson(jobFile, job);
     }
+    if (job.dryRun && job.snapshotRoot) {
+      await mkdir(job.snapshotRoot, { recursive: true });
+      for (const file of job.files) {
+        const project = compileAdminDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
+        await atomicJson(path.join(job.snapshotRoot, path.basename(file)), project);
+      }
+    }
     await update(jobFile, job, { status: "complete", currentStage: undefined, message: "Локальная репетиция завершена" });
   } catch (error) {
     await update(jobFile, job, { status: "failed", error: error instanceof Error ? error.message : String(error) });

@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { sectionText, textBlocks } from "../tools/des-art-admin/src/admin-model.ts";
+import { formatTagInput, parseTagInput, sectionText, textBlocks } from "../tools/des-art-admin/src/admin-model.ts";
+
+test("slash tag input preserves text while editing and parses only on commit", () => {
+  assert.deepEqual(parseTagInput("B2B / SaaS / Внутренняя система"), ["B2B", "SaaS", "Внутренняя система"]);
+  assert.equal(formatTagInput(["B2B", "SaaS"]), "B2B / SaaS");
+});
 
 test("section editor markup round-trips into structured inline content", () => {
   const source = "Обычный **жирный** _курсив_ <u>подчёркнутый</u> [ссылка](https://example.com).\n\n- Первый\n- **Второй**";

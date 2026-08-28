@@ -12,6 +12,17 @@ function clone(value) {
   return structuredClone(value);
 }
 
+function removeFileMetadata(value) {
+  if (Array.isArray(value)) return value.map(removeFileMetadata);
+  if (!value || typeof value !== "object") return value;
+  const result = Object.fromEntries(Object.entries(value).map(([key, item]) => [key, removeFileMetadata(item)]));
+  if (typeof result.src === "string" && Number.isFinite(result.width) && Number.isFinite(result.height)) {
+    delete result.mime;
+    delete result.duplicateOf;
+  }
+  return result;
+}
+
 function requireRecord(value, label) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new DraftValidationError([{ field: label, message: "Черновик повреждён." }]);
@@ -24,7 +35,7 @@ function sectionId(slug, index) {
 }
 
 export function createAdminDraft(value) {
-  const input = clone(requireRecord(value, "project"));
+  const input = removeFileMetadata(clone(requireRecord(value, "project")));
   if (typeof input.slug !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.slug)) {
     throw new DraftValidationError([{ field: "slug", message: "Некорректный адрес проекта." }]);
   }
@@ -56,7 +67,13 @@ function issueFrom(error) {
   if (message.includes("title")) return { field: "title", label: "Название", tab: "card", message: "Укажите название проекта." };
   if (message.includes("description")) return { field: "description", label: "Описание", tab: "card", message: "Укажите описание проекта." };
   if (message.includes("role")) return { field: "role", label: "Роль", tab: "card", message: "Укажите роль в проекте." };
-  return { field: "project", label: "Проект", tab: "card", message: "Проверьте обязательные поля проекта." };
+  const location = /Project document\.([^ ]+)/.exec(message)?.[1]?.replace(/[".]+$/g, "");
+  return {
+    field: location ?? "project",
+    label: location ? `Поле ${location}` : "Данные проекта",
+    tab: location?.startsWith("content") || location?.startsWith("materials") ? "page" : "card",
+    message: location ? `Поле «${location}» содержит некорректные данные.` : `Не удалось проверить проект: ${message}`,
+  };
 }
 
 function requiredIssues(draft) {
@@ -71,6 +88,9 @@ function requiredIssues(draft) {
   }
   if (!Number.isInteger(draft.year) || draft.year < 1900) {
     issues.push({ field: "year", label: "Год", tab: "card", message: "Укажите корректный год." });
+  }
+  if (typeof draft.slug !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(draft.slug)) {
+    issues.push({ field: "slug", label: "Адрес", tab: "card", message: "Системный адрес проекта повреждён." });
   }
   if (draft.materials?.fileState === "available" && !(draft.materials.figmaUrl ?? "").trim()) {
     issues.push(issueFrom(new Error("materials.figmaUrl")));

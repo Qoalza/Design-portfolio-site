@@ -21,6 +21,7 @@ const store = new AdminStore({
   assetRoot: path.join(repoRoot, "public", "assets", "projects"),
   draftRoot: path.join(supportRoot, "drafts"),
   draftAssetRoot: path.join(supportRoot, "draft-assets"),
+  snapshotRoot: path.join(supportRoot, "published-snapshots"),
 });
 const jobsRoot = path.join(supportRoot, "jobs");
 const previewRoot = path.join(supportRoot, "preview-drafts");
@@ -141,9 +142,12 @@ async function handler(request, response) {
     }
     if (request.method === "POST" && segments[0] === "api" && segments[1] === "preview" && segments[2]) {
       const slug = decodeURIComponent(segments[2]);
-      await store.preparePreview(slug, previewRoot);
+      const value = await body(request);
+      const context = value.context === "card" ? "card" : "page";
+      await store.preparePreview(slug, previewRoot, context);
       await ensurePreview();
-      return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}/projects/${encodeURIComponent(slug)}?admin-preview=1` });
+      const pathname = context === "card" ? "/projects" : `/projects/${encodeURIComponent(slug)}`;
+      return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}${pathname}?admin-preview=1&draft=${encodeURIComponent(slug)}` });
     }
     if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot }));
     if (request.method === "GET" && url.pathname === "/api/publish/status") {
@@ -154,6 +158,7 @@ async function handler(request, response) {
       const value = await body(request);
       if (value.dryRun !== true) return json(response, 409, { error: "Первый настоящий publish требует отдельного запуска пользователя." });
       if (value.scope !== "project" && value.scope !== "all") return json(response, 400, { error: "Неизвестная область публикации." });
+      await store.ensureSnapshotBaseline();
       const all = await store.listProjects();
       const selected = value.scope === "project" ? all.filter((project) => project.slug === value.slug) : all;
       if (value.scope === "project" && selected.length !== 1) return json(response, 404, { error: "Проект для публикации не найден." });
@@ -168,7 +173,7 @@ async function handler(request, response) {
       const jobFile = path.join(jobsRoot, `${id}.json`);
       const existingFiles = [];
       for (const file of files) { try { await readFile(file); existingFiles.push(file); } catch {} }
-      const job = { id, scope: value.scope, slug: value.slug, dryRun: true, repoRoot, files: existingFiles, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
+      const job = { id, scope: value.scope, slug: value.slug, dryRun: true, repoRoot, files: existingFiles, snapshotRoot: store.snapshotRoot, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
       await writeFile(jobFile, `${JSON.stringify(job, null, 2)}\n`, { mode: 0o600 });
       const workerArgs = [process.execPath, "--experimental-strip-types", path.join(directory, "publish-worker.mjs"), jobFile];
       const command = process.platform === "darwin" ? "/usr/bin/caffeinate" : workerArgs.shift();
@@ -232,7 +237,7 @@ async function handler(request, response) {
     json(response, 404, { error: "Не найдено" });
   } catch (error) {
     if (error instanceof DraftValidationError) {
-      return json(response, 422, { error: "Проверьте обязательные поля.", issues: error.issues });
+      return json(response, 422, { error: `Нужно исправить · ${error.issues.length}`, issues: error.issues });
     }
     const message = error instanceof Error ? error.message : "Неизвестная ошибка";
     json(response, /Host|Origin|CSRF/.test(message) ? 403 : 400, { error: message });
