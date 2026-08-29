@@ -102,6 +102,12 @@ test("prepared macOS launcher bundle is complete", async () => {
   assert.equal(source.trim(), "https://github.com/Qoalza/Design-portfolio-site.git");
 });
 
+test("canonical TypeScript config includes the fixed live preview output", async () => {
+  const config = JSON.parse(await readFile(new URL("../tsconfig.json", import.meta.url), "utf8"));
+  assert.ok(config.include.includes(".next-admin-preview-41732/types/**/*.ts"));
+  assert.ok(config.include.includes(".next-admin-preview-41732/dev/types/**/*.ts"));
+});
+
 test("remote deploy command accepts only full SHAs and rolls back failed readiness", () => {
   assert.match(deployCommand, /\[0-9a-f\]\{40\}/);
   assert.match(deployCommand, /NEXT_PUBLIC_BUILD_SHA/);
