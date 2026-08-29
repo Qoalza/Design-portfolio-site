@@ -84,6 +84,11 @@ test("each section renders its own settings inside the section editor", () => {
   assert.doesNotMatch(adminRail, /function SectionSettings/);
 });
 
+test("disabling the last gallery device removes the invalid empty gallery", () => {
+  assert.match(adminRail, /next\.groups\.length === 0/);
+  assert.match(adminRail, /filter\(\(block\) => block\.type !== "gallery"\)/);
+});
+
 test("rich text toolbar uses Radix icons instead of letter glyph controls", () => {
   assert.match(adminComponents, /FontBoldIcon/);
   assert.match(adminComponents, /FontItalicIcon/);

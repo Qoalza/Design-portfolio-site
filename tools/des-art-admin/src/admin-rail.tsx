@@ -191,9 +191,11 @@ function GallerySettings({ project, update }: { project: AdminProject; update: (
         : gallery.groups.filter((group) => group.id !== id),
     };
     update({
-      content: project.content.some((block) => block.type === "gallery")
-        ? project.content.map((block) => block.type === "gallery" ? next : block)
-        : [...project.content, next],
+      content: next.groups.length === 0
+        ? project.content.filter((block) => block.type !== "gallery")
+        : project.content.some((block) => block.type === "gallery")
+          ? project.content.map((block) => block.type === "gallery" ? next : block)
+          : [...project.content, next],
     });
   };
   return (
