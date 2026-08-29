@@ -26,7 +26,8 @@ test("project cards render detail and file availability independently", () => {
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), "utf8");
     assert.doesNotMatch(source, /availability\.detail[^]*?availability\.figma === "absent"[^]*?ProjectDetailControl/s);
-    assert.match(source, /availability\.figma === "absent"/);
+    assert.match(source, /availability\.figma === "unavailable"/);
+    assert.doesNotMatch(source, /У проекта нет отдельного файла/);
   }
 });
 
