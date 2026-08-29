@@ -102,6 +102,13 @@ test("readiness reports missing credentials without exposing secrets", async () 
   assert.doesNotMatch(JSON.stringify(result), /BEGIN .*PRIVATE KEY/);
 });
 
+test("live readiness blocks publication before canonical production data bootstrap", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-live-baseline-"));
+  const result = await publishReadiness({ supportRoot: root, mode: "live" });
+  assert.equal(result.ready, false);
+  assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
+});
+
 test("live publish refuses a sandbox support root", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
   const jobFile = path.join(root, "job.json");

@@ -1,7 +1,7 @@
 import { execFile, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { closeSync, openSync } from "node:fs";
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
@@ -23,6 +23,8 @@ const managedRepo = path.join(supportRoot, "repository");
 const logsRoot = path.join(supportRoot, "logs");
 const adminPort = 41731;
 const previewPort = 41732;
+const productionBaselineVersion = 1;
+const activeWorkspaceNames = ["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs"];
 
 async function configuredPublishMode() {
   try {
@@ -31,6 +33,54 @@ async function configuredPublishMode() {
   } catch {
     return "sandbox";
   }
+}
+
+async function stopService(name) {
+  const pidFile = path.join(supportRoot, `${name}.pid`);
+  const pid = Number((await readFile(pidFile, "utf8").catch(() => "")).trim());
+  if (!Number.isInteger(pid) || pid < 1) return;
+  const { stdout: command } = await exec("/bin/ps", ["-p", String(pid), "-o", "command="]).catch(() => ({ stdout: "" }));
+  if (!command.trim()) return;
+  const expected = name === "admin" ? "tools/des-art-admin/server.mjs" : "npm run dev";
+  if (!command.includes(expected)) throw new Error(`Сохранённый PID ${name} не принадлежит Des-art Admin. Синхронизация данных остановлена.`);
+  try { process.kill(-pid, "SIGTERM"); } catch { return; }
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    try { process.kill(-pid, 0); } catch { return; }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error(`Не удалось безопасно остановить локальный процесс ${name}.`);
+}
+
+async function ensureProductionDataBaseline(publishMode) {
+  if (publishMode !== "live") return;
+  const marker = path.join(supportRoot, "production-data-baseline.json");
+  const current = await readFile(marker, "utf8").then(JSON.parse).catch(() => undefined);
+  if (current?.version === productionBaselineVersion) return;
+
+  await stopService("admin");
+  await stopService("preview");
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const archiveRoot = path.join(supportRoot, "sandbox-archive", `before-production-${timestamp}`);
+  let archived = false;
+  for (const name of activeWorkspaceNames) {
+    const source = path.join(supportRoot, name);
+    try {
+      await access(source);
+      await mkdir(archiveRoot, { recursive: true });
+      await rename(source, path.join(archiveRoot, name));
+      archived = true;
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+  }
+  const { stdout } = await exec("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: managedRepo });
+  await writeFile(marker, `${JSON.stringify({
+    version: productionBaselineVersion,
+    source: "canonical-main",
+    sourceSha: stdout.trim(),
+    archivedSandbox: archived,
+    createdAt: new Date().toISOString(),
+  }, null, 2)}\n`, { mode: 0o600 });
 }
 
 function reachable(port) {
@@ -96,6 +146,7 @@ async function main() {
   await mkdir(logsRoot, { recursive: true });
   await ensureManagedRepository();
   const publishMode = await configuredPublishMode();
+  await ensureProductionDataBaseline(publishMode);
   if (!(await reachable(adminPort))) {
     await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
       DES_ART_ADMIN_REPO: managedRepo,

@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.des-art-admin-runtime/
 
 # next.js
 /.next/
