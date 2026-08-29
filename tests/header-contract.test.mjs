@@ -31,6 +31,12 @@ test("PageHeader keeps tags and devices in the same bottom information row", () 
   assert.match(pageHeader, /className=\{styles\.tags\}/);
 });
 
+test("project logo frames are conditional and disappear with an absent logo", () => {
+  assert.match(pageHeader, /symbol \? \(/);
+  assert.match(projectPage, /project\.logo\?\.type === "image"/);
+  assert.doesNotMatch(projectPage, /logo-placeholder/);
+});
+
 test("GeneralHeader keeps the current 1200 by 80 Figma row contract", () => {
   assert.match(siteHeaderStyles, /\.header\s*\{[\s\S]*width: 1200px;[\s\S]*height: 80px;/);
   assert.match(siteHeaderStyles, /\.nav\s*\{[\s\S]*min-width: 388px;[\s\S]*padding: 4px 48px;/);

@@ -1,251 +1,149 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import matter from "gray-matter";
+import {
+  parseProjectDocument,
+  resolveProjectDocumentPath,
+  serializeProjectDocument,
+  validateProjectDocument,
+  type ProjectDocument,
+} from "./project-contract.ts";
 
-export type ProjectPlatform = "Desktop" | "Tablet" | "Mobile";
+export type { ProjectDocument, ProjectPlatform } from "./project-contract.ts";
 
 export type ProjectAvailability = {
   detail: "available" | "unavailable";
-  figma: "available" | "unavailable";
+  figma: "available" | "unavailable" | "absent";
 };
 
-export type Project = {
-  title: string;
-  slug: string;
-  description: string;
-  role: string;
-  year: number;
-  status: string;
-  tags: string[];
-  subtitle?: string;
-  updatedAt?: string;
-  platforms?: ProjectPlatform[];
-  visibility?: string;
-  ndaNote?: string;
+export type Project = ProjectDocument & {
   availability: ProjectAvailability;
   figmaUrl?: string;
-  logo?: string;
-  heroImage?: string;
-  heroImageAlt?: string;
-  heroImageWidth?: number;
-  heroImageHeight?: number;
-  workSummary?: string;
-  catalogRole?: string;
-  detailLabels?: string[];
-  catalogVisible: boolean;
-  catalogOrder: number;
-};
-
-export type ProjectWithContent = Project & {
-  content: string;
+  updatedAt?: string;
 };
 
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function readString(value: unknown, field: keyof Omit<Project, "year" | "tags">): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`Project frontmatter field "${field}" must be a non-empty string.`);
-  }
-
-  return value;
-}
-
-function readYear(value: unknown): number {
-  if (typeof value !== "number" || !Number.isInteger(value)) {
-    throw new Error('Project frontmatter field "year" must be an integer.');
-  }
-
-  return value;
-}
-
-function readTags(value: unknown): string[] {
-  if (!Array.isArray(value) || value.some((tag) => typeof tag !== "string")) {
-    throw new Error('Project frontmatter field "tags" must be an array of strings.');
-  }
-
-  return value;
-}
-
-function readOptionalStringArray(value: unknown, field: "detailLabels"): string[] | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.trim().length === 0)) {
-    throw new Error(`Project frontmatter field "${field}" must be an array of non-empty strings.`);
-  }
-
-  return value;
-}
-
-function readOptionalString(value: unknown, field: keyof Project): string | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`Project frontmatter field "${field}" must be a non-empty string when provided.`);
-  }
-
-  return value;
-}
-
-function readOptionalPlatforms(value: unknown): ProjectPlatform[] | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  const allowedPlatforms: ProjectPlatform[] = ["Desktop", "Tablet", "Mobile"];
-
-  if (!Array.isArray(value) || value.some((item) => !allowedPlatforms.includes(item as ProjectPlatform))) {
-    throw new Error('Project frontmatter field "platforms" must contain only Desktop, Tablet, or Mobile.');
-  }
-
-  return value as ProjectPlatform[];
-}
-
-function readFigmaAvailability(value: unknown): boolean {
-  if (value === undefined) {
-    return false;
-  }
-
-  if (typeof value !== "boolean") {
-    throw new Error('Project frontmatter field "figmaAvailable" must be a boolean when provided.');
-  }
-
-  return value;
-}
-
-function readOptionalBoolean(value: unknown, field: "catalogVisible" | "detailAvailable", fallback: boolean): boolean {
-  if (value === undefined) {
-    return fallback;
-  }
-
-  if (typeof value !== "boolean") {
-    throw new Error(`Project frontmatter field "${field}" must be a boolean when provided.`);
-  }
-
-  return value;
-}
-
-function readOptionalPositiveInteger(value: unknown, field: "heroImageWidth" | "heroImageHeight"): number | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
-    throw new Error(`Project frontmatter field "${field}" must be a positive integer when provided.`);
-  }
-
-  return value;
-}
-
-function readProject(fileName: string): ProjectWithContent {
-  const filePath = path.join(projectsDirectory, fileName);
-  const { content, data } = matter(readFileSync(filePath, "utf8"));
-
-  if (!isRecord(data)) {
-    throw new Error(`Project frontmatter in "${fileName}" must be an object.`);
-  }
-
-  const updatedAt = readOptionalString(data.updatedAt, "updatedAt");
-  const figmaAvailable = readFigmaAvailability(data.figmaAvailable);
-  const detailAvailable = readOptionalBoolean(data.detailAvailable, "detailAvailable", true);
-  const figmaUrl = readOptionalString(data.figmaUrl, "figmaUrl");
-  const heroImage = readOptionalString(data.heroImage, "heroImage");
-  const heroImageAlt = readOptionalString(data.heroImageAlt, "heroImageAlt");
-  const heroImageWidth = readOptionalPositiveInteger(data.heroImageWidth, "heroImageWidth");
-  const heroImageHeight = readOptionalPositiveInteger(data.heroImageHeight, "heroImageHeight");
-
-  if (figmaAvailable && (!figmaUrl || !updatedAt)) {
-    throw new Error(`Project frontmatter in "${fileName}" must provide "figmaUrl" and "updatedAt" when "figmaAvailable" is true.`);
-  }
-
-  if ([heroImage, heroImageAlt, heroImageWidth, heroImageHeight].some(Boolean)
-    && ![heroImage, heroImageAlt, heroImageWidth, heroImageHeight].every(Boolean)) {
-    throw new Error(`Project frontmatter in "${fileName}" must provide the complete hero image metadata.`);
-  }
-
+function withAvailability(project: ProjectDocument): Project {
+  const available = project.materials.fileState === "available" ? project.materials : undefined;
   return {
-    title: readString(data.title, "title"),
-    slug: readString(data.slug, "slug"),
-    description: readString(data.description, "description"),
-    role: readString(data.role, "role"),
-    year: readYear(data.year),
-    status: readString(data.status, "status"),
-    tags: readTags(data.tags),
-    subtitle: readOptionalString(data.subtitle, "subtitle"),
-    updatedAt,
-    platforms: readOptionalPlatforms(data.platforms),
-    visibility: readOptionalString(data.visibility, "visibility"),
-    ndaNote: readOptionalString(data.ndaNote, "ndaNote"),
+    ...project,
+    ...(available ? { figmaUrl: available.figmaUrl } : {}),
+    ...(available && "updatedAt" in available && available.updatedAt ? { updatedAt: available.updatedAt } : {}),
     availability: {
-      detail: detailAvailable ? "available" : "unavailable",
-      figma: figmaAvailable ? "available" : "unavailable",
+      detail: project.detailAvailable ? "available" : "unavailable",
+      figma: project.materials.fileState === "available"
+        ? "available"
+        : project.materials.fileState === "absent" ? "absent" : "unavailable",
     },
-    figmaUrl,
-    logo: readOptionalString(data.logo, "logo"),
-    heroImage,
-    heroImageAlt,
-    heroImageWidth,
-    heroImageHeight,
-    workSummary: readOptionalString(data.workSummary, "workSummary"),
-    catalogRole: readOptionalString(data.catalogRole, "catalogRole"),
-    detailLabels: readOptionalStringArray(data.detailLabels, "detailLabels"),
-    catalogVisible: readOptionalBoolean(data.catalogVisible, "catalogVisible", true),
-    catalogOrder: typeof data.catalogOrder === "number" && Number.isInteger(data.catalogOrder) ? data.catalogOrder : 999,
-    content,
   };
 }
 
-function getProjectFileNames(): string[] {
-  return readdirSync(projectsDirectory).filter((fileName) => fileName.endsWith(".mdx"));
+function withDraftAssetUrls(value: unknown, slug: string, draftAssetRoot: string): unknown {
+  if (Array.isArray(value)) return value.map((item) => withDraftAssetUrls(item, slug, draftAssetRoot));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, withDraftAssetUrls(item, slug, draftAssetRoot)]));
+  }
+  const prefix = `/assets/projects/${slug}/`;
+  if (typeof value !== "string" || !value.startsWith(prefix)) return value;
+  const fileName = value.slice(prefix.length);
+  return existsSync(path.join(draftAssetRoot, slug, fileName))
+    ? `/admin-preview-assets/${slug}/${fileName}`
+    : value;
 }
 
-function withoutContent(project: ProjectWithContent): Project {
-  return {
-    title: project.title,
-    slug: project.slug,
-    description: project.description,
-    role: project.role,
-    year: project.year,
-    status: project.status,
-    tags: project.tags,
-    subtitle: project.subtitle,
-    updatedAt: project.updatedAt,
-    platforms: project.platforms,
-    visibility: project.visibility,
-    ndaNote: project.ndaNote,
-    availability: project.availability,
-    figmaUrl: project.figmaUrl,
-    logo: project.logo,
-    heroImage: project.heroImage,
-    heroImageAlt: project.heroImageAlt,
-    heroImageWidth: project.heroImageWidth,
-    heroImageHeight: project.heroImageHeight,
-    workSummary: project.workSummary,
-    catalogRole: project.catalogRole,
-    detailLabels: project.detailLabels,
-    catalogVisible: project.catalogVisible,
-    catalogOrder: project.catalogOrder,
-  };
+function projectFileNames(contentRoot: string): string[] {
+  return readdirSync(contentRoot)
+    .filter((fileName) => fileName.endsWith(".json"))
+    .sort((first, second) => first.localeCompare(second, "en"));
 }
 
-export function getAllProjects(): Project[] {
-  return getProjectFileNames()
-    .map(readProject)
-    .map(withoutContent)
-    .sort((firstProject, secondProject) => secondProject.year - firstProject.year);
+export function readAllProjectDocuments(contentRoot = projectsDirectory): ProjectDocument[] {
+  const projects = projectFileNames(contentRoot).map((fileName) => {
+    const filePath = path.join(contentRoot, fileName);
+    const project = parseProjectDocument(readFileSync(filePath, "utf8"), fileName);
+    const fileSlug = path.basename(fileName, ".json");
+    if (fileSlug !== project.slug) {
+      throw new Error(`Project filename "${fileName}" must match slug "${project.slug}".`);
+    }
+    return project;
+  });
+
+  const duplicate = projects.find((project, index) => projects.findIndex(({ slug }) => slug === project.slug) !== index);
+  if (duplicate) {
+    throw new Error(`Project slug "${duplicate.slug}" is duplicated.`);
+  }
+
+  return projects;
 }
 
-export function getCatalogProjects(): Project[] {
-  return getAllProjects().filter((project) => project.catalogVisible).sort((a, b) => a.catalogOrder - b.catalogOrder);
+export function getAllProjects(contentRoot = projectsDirectory): Project[] {
+  return readAllProjectDocuments(contentRoot)
+    .filter((project) => project.visibility === "published")
+    .map(withAvailability)
+    .sort((first, second) => first.catalogOrder - second.catalogOrder);
 }
 
-export function getProjectBySlug(slug: string): ProjectWithContent | undefined {
-  return getProjectFileNames().map(readProject).find((project) => project.slug === slug);
+export function getAllProjectsForPreview(contentRoot = projectsDirectory): Project[] {
+  const base = readAllProjectDocuments(contentRoot);
+  const draftRoot = process.env.DES_ART_ADMIN_DRAFT_ROOT;
+  const documents = process.env.DES_ART_ADMIN_PREVIEW === "1" && draftRoot && existsSync(draftRoot)
+    ? (() => {
+        const merged = new Map(base.map((project) => [project.slug, project]));
+        for (const project of readAllProjectDocuments(draftRoot)) merged.set(project.slug, project);
+        return [...merged.values()];
+      })()
+    : base;
+  return documents
+    .filter((project) => project.visibility === "published")
+    .map(withAvailability)
+    .sort((first, second) => first.catalogOrder - second.catalogOrder);
+}
+
+export function getCatalogProjects(contentRoot = projectsDirectory): Project[] {
+  return getAllProjects(contentRoot)
+    .filter((project) => project.featuredOnHome)
+    .sort((first, second) => (first.homeOrder ?? Number.MAX_SAFE_INTEGER) - (second.homeOrder ?? Number.MAX_SAFE_INTEGER))
+    .slice(0, 3);
+}
+
+export function getProjectBySlug(projectSlug: string, contentRoot = projectsDirectory): Project | undefined {
+  return getAllProjects(contentRoot).find(
+    (project) => project.slug === projectSlug && project.detailAvailable,
+  );
+}
+
+export function getProjectBySlugForPreview(projectSlug: string, contentRoot = projectsDirectory): Project | undefined {
+  const draftRoot = process.env.DES_ART_ADMIN_DRAFT_ROOT;
+  const draftAssetRoot = process.env.DES_ART_ADMIN_DRAFT_ASSET_ROOT;
+  let project = readAllProjectDocuments(contentRoot).find(({ slug }) => slug === projectSlug);
+
+  if (process.env.DES_ART_ADMIN_PREVIEW === "1" && draftRoot) {
+    const draftPath = resolveProjectDocumentPath(draftRoot, projectSlug);
+    if (existsSync(draftPath)) project = parseProjectDocument(readFileSync(draftPath, "utf8"), path.basename(draftPath));
+  }
+  if (!project) return undefined;
+
+  if (process.env.DES_ART_ADMIN_PREVIEW !== "1" || !draftAssetRoot) return withAvailability(project);
+  return withAvailability(withDraftAssetUrls(project, project.slug, draftAssetRoot) as ProjectDocument);
+}
+
+export async function writeProjectDocument(value: unknown, contentRoot = projectsDirectory): Promise<string> {
+  const project = validateProjectDocument(value);
+  await mkdir(contentRoot, { recursive: true });
+  const destination = resolveProjectDocumentPath(contentRoot, project.slug);
+  const temporary = path.join(contentRoot, `.${project.slug}.${process.pid}.${Date.now()}.tmp`);
+
+  try {
+    await writeFile(temporary, serializeProjectDocument(project), {
+      encoding: "utf8",
+      flag: "wx",
+      mode: 0o600,
+    });
+    await rename(temporary, destination);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+
+  return destination;
 }

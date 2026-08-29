@@ -15,35 +15,36 @@ async function pngSize(path) {
 }
 
 test("Corvo exposes the five current Figma information sections in order", async () => {
-  const mdx = await source("content/projects/corvo.mdx");
-  const headings = [...mdx.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim());
+  const project = JSON.parse(await source("content/projects/corvo.json"));
+  const headings = project.content.filter((block) => block.type === "section").map((block) => block.heading);
 
   assert.deepEqual(headings, ["О проекте", "Задача", "Процесс", "Система", "Результат"]);
 });
 
 test("Corvo uses code-built canvases and no stale full-frame project screenshots", async () => {
-  const mdx = await source("content/projects/corvo.mdx");
+  const project = JSON.parse(await source("content/projects/corvo.json"));
+  const sourceDocument = JSON.stringify(project);
 
-  assert.match(mdx, /<ProjectCanvas variant="quotes"/);
-  assert.match(mdx, /<ProjectCanvas variant="process"/);
-  assert.match(mdx, /<ProjectCanvas variant="controls"/);
-  assert.match(mdx, /<ProjectNotice variant="wide"/);
-  assert.doesNotMatch(mdx, /overview\.png|process-interface\.png|result-interface\.png/);
+  for (const presentation of ["quotes", "process", "controls"]) {
+    assert.ok(project.content.some((section) => section.type === "section" && section.blocks.some((block) => block.type === "image" && block.presentation === presentation)));
+  }
+  assert.ok(project.content.some((section) => section.type === "section" && section.blocks.some((block) => block.type === "notice" && block.variant === "wide")));
+  assert.doesNotMatch(sourceDocument, /overview\.png|process-interface\.png|result-interface\.png/);
 });
 
-test("ProjectCanvas keeps the code shell in CSS and mounts four independent Figma exports", async () => {
+test("ProjectCanvas keeps the code shell in CSS and mounts structured image exports", async () => {
   const component = await source("src/components/project-canvas.tsx");
+  const project = await source("content/projects/corvo.json");
   const css = await source("src/components/project-canvas.module.css");
 
-  assert.match(component, /variant:\s*"quotes"/);
-  assert.match(component, /variant:\s*"process"/);
-  assert.match(component, /variant:\s*"controls"/);
-  assert.match(component, /corvo-quotes\.png/);
-  assert.match(component, /corvo-process\.png/);
-  assert.match(component, /corvo-buttons\.png/);
-  assert.match(component, /corvo-inputs\.png/);
-  assert.equal((component.match(/unoptimized/g) ?? []).length, 4);
-  assert.doesNotMatch(component, /Array\.from|\.map\(/);
+  assert.match(component, /presentation === "quotes"/);
+  assert.match(component, /presentation === "process"/);
+  assert.match(component, /presentation === "controls"/);
+  assert.match(project, /corvo-quotes\.png/);
+  assert.match(project, /corvo-process\.png/);
+  assert.match(project, /corvo-buttons\.png/);
+  assert.match(project, /corvo-inputs\.png/);
+  assert.match(component, /unoptimized/);
 
   assert.match(css, /radial-gradient/);
   assert.match(css, /#e3e6e8/i);
@@ -68,11 +69,11 @@ test("ProjectCanvas raster exports have at least two intrinsic pixels per CSS pi
   }
 });
 
-test("the project page registers ProjectCanvas for evaluated MDX", async () => {
+test("the project page renders structured image blocks through ProjectCanvas", async () => {
   const page = await source("src/app/projects/[slug]/page.tsx");
 
   assert.match(page, /import \{ ProjectCanvas \}/);
-  assert.match(page, /ProjectCanvas,/);
+  assert.match(page, /<ProjectCanvas presentation=\{block\.presentation\} images=\{block\.images\}/);
 });
 
 test("all five information sections encode the current Figma vertical rhythm without margin collapse", async () => {

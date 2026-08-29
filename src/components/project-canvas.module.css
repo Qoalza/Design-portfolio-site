@@ -11,6 +11,8 @@
 }
 
 .canvas img { position: absolute; display: block; max-width: none; }
+.single { background: transparent; }
+.single img { position: static; width: 100%; height: auto; }
 .quotes { height: 450px; }
 .quotesAsset { top: 42px; left: 74px; width: 852px; height: 366px; }
 .process { height: 480px; }

@@ -1,0 +1,3 @@
+#!/bin/zsh
+APP_ROOT="${0:A:h:h}"
+exec /usr/bin/env node --experimental-strip-types "$APP_ROOT/Resources/launcher.mjs"

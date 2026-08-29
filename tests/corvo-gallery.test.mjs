@@ -15,17 +15,16 @@ async function pngSize(path) {
 }
 
 test("Corvo gallery defines three independent groups with five current assets each", async () => {
-  const page = await source("src/app/projects/[slug]/page.tsx");
+  const project = JSON.parse(await source("content/projects/corvo.json"));
+  const gallery = project.content.find((block) => block.type === "gallery");
 
   for (const device of ["desktop", "tablet", "mobile"]) {
+    const group = gallery.groups.find(({ id }) => id === device);
+    assert.equal(group.items.length, 5);
     for (let index = 1; index <= 5; index += 1) {
-      assert.match(page, new RegExp(`${device}-0${index}\\.png`));
+      assert.equal(group.items[index - 1].src, `/assets/projects/corvo/gallery/${device}-0${index}.png`);
     }
   }
-
-  assert.match(page, /id:\s*"desktop"/);
-  assert.match(page, /id:\s*"tablet"/);
-  assert.match(page, /id:\s*"mobile"/);
 });
 
 test("ProjectGallery keeps independent indexes and always renders disabled-capable arrows", async () => {
@@ -102,9 +101,11 @@ test("Gallery previews serve the original high-density Figma exports without ano
 });
 
 test("Mobile Gallery exports retain two device pixels at the maximum lightbox size", async () => {
-  const page = await source("src/app/projects/[slug]/page.tsx");
+  const project = JSON.parse(await source("content/projects/corvo.json"));
+  const gallery = project.content.find((block) => block.type === "gallery");
+  const mobile = gallery.groups.find(({ id }) => id === "mobile");
 
-  assert.equal((page.match(/width:\s*1080,\s*height:\s*1920/g) ?? []).length, 5);
+  assert.equal(mobile.items.filter(({ width, height }) => width === 1080 && height === 1920).length, 5);
   for (let index = 1; index <= 5; index += 1) {
     assert.deepEqual(
       await pngSize(`public/assets/projects/corvo/gallery/mobile-0${index}.png`),
@@ -116,9 +117,10 @@ test("Mobile Gallery exports retain two device pixels at the maximum lightbox si
 test("the Gallery is outside the information article and exposes a geometry anchor", async () => {
   const page = await source("src/app/projects/[slug]/page.tsx");
   const component = await source("src/components/project-gallery.tsx");
-  const informationEnd = page.indexOf("</div>\n\n          {project.slug === \"corvo\"");
+  const informationEnd = page.indexOf("{galleryBlocks.map");
 
   assert.notEqual(informationEnd, -1);
+  assert.ok(page.indexOf("data-project-information-start") < informationEnd);
   assert.match(component, /data-project-gallery/);
 });
 

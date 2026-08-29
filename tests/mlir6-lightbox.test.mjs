@@ -3,7 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 import { calculateLightboxFrame, calculateLightboxScale } from "../src/lib/project-lightbox.ts";
 
-const page = fs.readFileSync(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
+const project = JSON.parse(fs.readFileSync(new URL("../content/projects/corvo.json", import.meta.url), "utf8"));
 const gallery = fs.readFileSync(new URL("../src/components/project-gallery.tsx", import.meta.url), "utf8");
 const lightbox = fs.readFileSync(new URL("../src/components/project-media-lightbox.tsx", import.meta.url), "utf8");
 const cross = fs.readFileSync(new URL("../public/assets/projects/corvo/cross.svg", import.meta.url), "utf8");
@@ -31,11 +31,11 @@ test("lightbox scales Figma layer frames with their own device image", () => {
 });
 
 test("all Gallery items carry an explicit live-frame contract", () => {
-  assert.equal((page.match(/frame:\s*\{/g) ?? []).length, 15);
-  assert.equal((page.match(/sourceNodeId:\s*"680:/g) ?? []).length, 15);
-  assert.match(page, /baseWidth:\s*740,\s*baseHeight:\s*512/);
-  assert.match(page, /baseWidth:\s*400,\s*baseHeight:\s*566/);
-  assert.match(page, /baseWidth:\s*180,\s*baseHeight:\s*320/);
+  const groups = project.content.find((block) => block.type === "gallery").groups;
+  const items = groups.flatMap((group) => group.items);
+  assert.equal(items.filter((item) => item.frame).length, 15);
+  assert.equal(items.filter((item) => item.sourceNodeId?.startsWith("680:")).length, 15);
+  assert.deepEqual(groups.map(({ baseWidth, baseHeight }) => [baseWidth, baseHeight]), [[740, 512], [400, 566], [180, 320]]);
   assert.match(gallery, /baseWidth=\{group\.baseWidth\}/);
   assert.match(gallery, /frame=\{item\.frame\}/);
   assert.match(gallery, /sourceNodeId=\{item\.sourceNodeId\}/);

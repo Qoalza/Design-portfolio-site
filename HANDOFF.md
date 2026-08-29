@@ -1,6 +1,6 @@
 # HANDOFF
 
-Обновлено: 2026-08-28
+Обновлено: 2026-08-29
 
 ## Назначение
 
@@ -23,7 +23,7 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка: `main`; принятая MLIR7 слита fast-forward и отправлена в `origin/main`.
+- Рабочая ветка текущей Goal: `codex/local-project-admin-publisher`; пользователь разрешил связать админку с реальными данными, merge и production deploy после полного dry-run и проверок.
 - Актуальный production/source commit (`DEPLOY_SHA`) совпадает с полным SHA текущего `origin/main`; точное значение подтверждается после каждого deploy по отданному HTML и release-path. Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
@@ -44,6 +44,13 @@
 - Принятые Footer и process controls развернуты в production 2026-08-27 из точного `DEPLOY_SHA` `8f3c869ac6aa30cbc4c2c5f6422290db5aa45fa1`: Footer содержит `Разработка и Дизайн Артур А.`, кнопки Light имеют размер `32×32`, верхние/нижние переходы и оба слоя fade подтверждены в browser smoke.
 - Layering process-блока исправлен и развернут 2026-08-28 из точного `DEPLOY_SHA` `4af476cab57c4ed248d04ce2907e0731e6669a36`: изолированный stacking context удерживает `track → fade → control` ниже fixed Header; scroll/hit-test и переходы всех этапов подтверждены в production.
 - Единый social preview развернут 2026-08-28 из текущего `origin/main`: `/`, `/projects` и `/projects/corvo` используют `artur-designer-social-preview.png`, `og:title` `Артур А.`, `og:description` `PRODUCT DESIGNER` и абсолютные canonical OG URL; release-path и отданный build SHA совпали с полным SHA ветки.
+- В ветке `codex/local-project-admin-publisher` реализована schema v2 и изолированная локальная CMS. Черновики и draft-ассеты находятся в `Application Support`; неполные формы сохраняются, а строгая компиляция выполняется перед preview/publish. Preview использует отдельный overlay и отдельный `.next-admin-preview-<port>`, не пишет в Git и не конфликтует с обычным dev-сервером.
+- Предыдущий статус готовности локальной админки был снят как недоказанный (`NOT_READY`). Экран тестовой публикации дополнительно исправлен после пользовательской приёмки: Radix-подписи больше не наследуют геометрию круглых маркеров, семь этапов не сжимаются и не обрезаются, активное и завершённое состояния проверены в браузере на `1280×720`. Текущий статус — `READY_FOR_USER_REVIEW`, но не `CLOSED`.
+- Admin UI теперь использует светлую трёхзонную сетку: расширенный список проектов, центральный редактор `Карточка / Страница проекта` и устойчивую правую панель настроек. Убраны несмысловые вложенные рамки; tab labels не сжимаются и не переносятся; формы, asset actions, section controls, ошибки, home dialog и publication overlay проверены в готовом интерфейсе. Radix остаётся только внутри `tools/des-art-admin`.
+- Настройки `Примечание` и `Интерактивный экран` находятся непосредственно внутри каждой секции и сохраняются независимо по `adminId`; правая панель больше не маскирует их как одну общую настройку. Описание секции редактируется настоящим визуальным rich-text полем: Markdown/HTML-маркеры пользователю не показываются, абзацы, подзаголовок, форматирование, ссылки и списки сохраняются структурированно и воспроизводятся в preview. Активный режим toolbar, autosave/reload и совпадение списка с preview проверены в браузере.
+- Создание принимает свободное название и формирует системный уникальный slug. Slash-теги сохраняются через blur/restart. Structured validation показывает все конкретные проблемы и переводит к нужному полю; generic error и browser-native dialog отсутствуют. Card/page preview читают draft overlay и не пишут в канонический контент.
+- Publish worker имеет server-owned режимы. Sandbox по умолчанию создаёт только локальный snapshot. Live включается отдельным `Application Support/live-publish.json`, берёт свежий `origin/main` во временный worktree, запускает проверки, создаёт PR/merge, передаёт exact SHA через ограниченный SSH-канал и использует атомарный VPS release с rollback по readiness. Тестовые `/private/tmp` stores не могут запускать live publish.
+- Браузером подтверждены: создание со спецсимволами, конкретный issue-dialog и focus, slash-теги, card/page preview, отсутствие logo-frame без logo, soft delete/restore, published-only home limit reorder/cancel/apply, независимое notice, форматирование выделения и успешный sandbox publish. Focused tests `39/39`, lint и production build успешны.
 
 ## Production
 
@@ -129,3 +136,4 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 1. Social preview production deploy завершён; production наблюдать штатными health/smoke-проверками без повторного deploy.
 2. Preloaders/loading states оставить для отдельного будущего Work Packet после новой классификации и пользовательского подтверждения.
+3. Локальная админка имеет статус `READY_FOR_USER_REVIEW`; открыть финальный локальный HEAD и проверить визуально. Live publish, merge и deploy в рамках Goal не выполнялись.

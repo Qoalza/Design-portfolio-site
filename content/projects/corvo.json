@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 2,
+  "title": "Corvo",
+  "slug": "corvo",
+  "description": "B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком.",
+  "subtitle": "Система для управления партнёрской программой",
+  "role": "Product Designer",
+  "year": 2026,
+  "tags": [
+    "B2B",
+    "SaaS",
+    "В работе"
+  ],
+  "detailTags": [
+    "B2B",
+    "SaaS",
+    "Product Designer",
+    "В работе",
+    "2026"
+  ],
+  "visibility": "published",
+  "catalogOrder": 1,
+  "featuredOnHome": true,
+  "homeOrder": 1,
+  "detailAvailable": true,
+  "materials": {
+    "projectState": "in_progress",
+    "fileState": "available",
+    "figmaUrl": "https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1&t=aF2DFRqTKZaBO9Ig-1",
+    "updatedAt": "13.05.2026"
+  },
+  "platforms": [
+    "Desktop",
+    "Tablet",
+    "Mobile"
+  ],
+  "logo": {
+    "type": "image",
+    "src": "/assets/projects/corvo/logo.svg"
+  },
+  "hero": {
+    "presentation": "browser-composite",
+    "image": {
+      "src": "/assets/projects/corvo/hero-preview.png",
+      "alt": "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний",
+      "width": 2960,
+      "height": 2400
+    },
+    "backdrop": {
+      "src": "/assets/homepage/corvo-dashboard.png",
+      "alt": "",
+      "width": 2960,
+      "height": 2400
+    },
+    "foreground": {
+      "src": "/assets/homepage/corvo-product.png",
+      "alt": "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний",
+      "width": 2960,
+      "height": 2400
+    }
+  },
+  "workSummary": "Спроектировал сервис с нуля: от дизайн-системы и согласования решений со стейкхолдерами до передачи в разработку. Выстроил процесс работы с командой разработки, сопровождал реализацию и прорабатывал запросы со стороны бизнес-аналитики.",
+  "content": [
+    {
+      "type": "section",
+      "heading": "О проекте",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "На момент моего подключения техническая часть уже развивалась, но дизайна и фронтенда не было. Я формировал интерфейс продукта с нуля: определил визуальное направление, структуру разделов, сценарии и состояния, выстроил дизайн-систему и процесс взаимодействия между дизайном и разработкой — от согласования решений до проверки их реализации."
+            }
+          ]
+        },
+        {
+          "type": "notice",
+          "variant": "default",
+          "content": [
+            {
+              "type": "text",
+              "text": "Проект опубликован частично, остальная часть находится в процессе подготовке к публикации"
+            }
+          ]
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Задача",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Работа началась не с единого готового ТЗ. Требования формировались из постановок проджект-менеджера, работы с бизнес-аналитиком, требований аффилиатов, рыночных примеров и обсуждений с разработкой."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Необходимо было собрать из этой информации рабочую модель продукта:"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "style": "unordered",
+          "items": [
+            [
+              {
+                "type": "text",
+                "text": "определить роли;"
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "связи между сущностями;"
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "доступы и состояния."
+              }
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "А затем разложить её на последовательные сценарии и интерфейсы. Эта модель стала основой дальнейшей проработки продукта — от внутренних операций команды до работы аффилиата в личном кабинете."
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "presentation": "quotes",
+          "images": [
+            {
+              "src": "/assets/projects/corvo/canvas/corvo-quotes.png",
+              "alt": "Отзывы участников команды о требованиях к продукту Corvo",
+              "width": 1704,
+              "height": 732
+            }
+          ]
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Процесс",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Я последовательно прорабатывал сценарии для разных ролей: подключение и ведение аффилиатов, работу с кампаниями, создание медиа айтемов и анализ статистики. Для каждого сценария определял состав данных, ключевые действия, статусы и связанные состояния интерфейса."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Решения сначала проходили согласование с проджект-менеджером, аналитиками и другими заинтересованными сторонами. После этого их необходимо было проверить вместе с разработкой: оценить реализацию, уточнить ограничения и найти вариант, который сохраняет смысл решения и укладывается в возможности продукта."
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "presentation": "process",
+          "images": [
+            {
+              "src": "/assets/projects/corvo/canvas/corvo-process.png",
+              "alt": "Схема процесса от требований до реализации Corvo",
+              "width": 1812,
+              "height": 780
+            }
+          ]
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Система",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Параллельно с интерфейсами я выстраивал дизайн-систему: определял структуру компонентов, состояния и семантику токенов. Система нужна была не как отдельная библиотека, а как рабочая основа для продукта: чтобы новые разделы проектировались по единым правилам и не расходились с уже принятыми решениями."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Я задавал структуру системы и проводил ревью компонентов, которые собирал младший дизайнер. Позже он подключался к макетам: сначала к отдельным частям разделов, затем — к самостоятельной работе с моим ревью. Отдельно согласовывали дизайн-систему с разработкой."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Для адаптивного поведения уже готовых компонентов мы совместно нашли локальное решение: добавили дополнительный слой Behavior поверх существующей библиотеки. Он позволил разработке сохранить единую механику компонентов в коде, а дизайну — не пересобирать всю систему с нуля. Это не универсальный паттерн, а решение, принятое для конкретной архитектуры проекта."
+            }
+          ]
+        },
+        {
+          "type": "notice",
+          "variant": "wide",
+          "content": [
+            {
+              "type": "text",
+              "text": "Детальная документация по дизайн-системе и правилам использования готовится к публикации. В публичном кейсе будут показаны её применение в продукте и ключевые принципы."
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "presentation": "controls",
+          "images": [
+            {
+              "src": "/assets/projects/corvo/canvas/corvo-buttons.png",
+              "alt": "Пример структуры кнопок дизайн-системы Corvo",
+              "width": 856,
+              "height": 456
+            },
+            {
+              "src": "/assets/projects/corvo/canvas/corvo-inputs.png",
+              "alt": "Пример структуры полей ввода дизайн-системы Corvo",
+              "width": 1062,
+              "height": 456
+            }
+          ]
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Результат",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "В рамках проекта спроектированы интерфейсы основных процессов партнёрской программы: подключение и ведение аффилиатов, управление кампаниями и условиями, создание рекламных материалов и работа со статистикой."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Одновременно была собрана дизайн-система и выстроен процесс взаимодействия дизайна с разработкой. Это дало проекту не просто набор экранов, а согласованную интерфейсную базу, на которой команда могла продолжать работу."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "title": "Галерея",
+      "description": "Часть экранов интерфейса",
+      "groups": [
+        {
+          "id": "desktop",
+          "label": "Desktop",
+          "icon": "/assets/projects/corvo/desktop.svg",
+          "baseWidth": 740,
+          "baseHeight": 512,
+          "items": [
+            {
+              "src": "/assets/projects/corvo/gallery/desktop-01.png",
+              "alt": "Desktop-интерфейс Corvo: экран 1",
+              "width": 2960,
+              "height": 2048,
+              "sourceNodeId": "680:48078",
+              "frame": {
+                "clip": false,
+                "radius": 0,
+                "strokeColor": "transparent",
+                "strokeWidth": 0
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/desktop-02.png",
+              "alt": "Desktop-интерфейс Corvo: экран 2",
+              "width": 2960,
+              "height": 2048,
+              "sourceNodeId": "680:48799",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/desktop-03.png",
+              "alt": "Desktop-интерфейс Corvo: экран 3",
+              "width": 2960,
+              "height": 2048,
+              "sourceNodeId": "680:48813",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/desktop-04.png",
+              "alt": "Desktop-интерфейс Corvo: экран 4",
+              "width": 2960,
+              "height": 2048,
+              "sourceNodeId": "680:48814",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/desktop-05.png",
+              "alt": "Desktop-интерфейс Corvo: экран 5",
+              "width": 2960,
+              "height": 2048,
+              "sourceNodeId": "680:48815",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "tablet",
+          "label": "Tablet",
+          "icon": "/assets/projects/corvo/tablet.svg",
+          "baseWidth": 400,
+          "baseHeight": 566,
+          "items": [
+            {
+              "src": "/assets/projects/corvo/gallery/tablet-01.png",
+              "alt": "Планшетный интерфейс Corvo: экран 1",
+              "width": 1600,
+              "height": 2266,
+              "sourceNodeId": "680:48156",
+              "frame": {
+                "clip": false,
+                "radius": 0,
+                "strokeColor": "transparent",
+                "strokeWidth": 0
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/tablet-02.png",
+              "alt": "Планшетный интерфейс Corvo: экран 2",
+              "width": 1600,
+              "height": 2266,
+              "sourceNodeId": "680:48802",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 0.5
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/tablet-03.png",
+              "alt": "Планшетный интерфейс Corvo: экран 3",
+              "width": 1600,
+              "height": 2266,
+              "sourceNodeId": "680:48812",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 0.5
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/tablet-04.png",
+              "alt": "Планшетный интерфейс Corvo: экран 4",
+              "width": 1600,
+              "height": 2266,
+              "sourceNodeId": "680:48858",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 0.5
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/tablet-05.png",
+              "alt": "Планшетный интерфейс Corvo: экран 5",
+              "width": 1600,
+              "height": 2266,
+              "sourceNodeId": "680:48859",
+              "frame": {
+                "clip": true,
+                "radius": 12,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 0.5
+              }
+            }
+          ]
+        },
+        {
+          "id": "mobile",
+          "label": "Mobile",
+          "icon": "/assets/projects/corvo/mobile.svg",
+          "baseWidth": 180,
+          "baseHeight": 320,
+          "items": [
+            {
+              "src": "/assets/projects/corvo/gallery/mobile-01.png",
+              "alt": "Мобильный интерфейс Corvo: экран 1",
+              "width": 1080,
+              "height": 1920,
+              "sourceNodeId": "680:48159",
+              "frame": {
+                "clip": true,
+                "radius": 11,
+                "strokeColor": "#e8eaeb",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/mobile-02.png",
+              "alt": "Мобильный интерфейс Corvo: экран 2",
+              "width": 1080,
+              "height": 1920,
+              "sourceNodeId": "680:48803",
+              "frame": {
+                "clip": true,
+                "radius": 11,
+                "strokeColor": "#f0f1f2",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/mobile-03.png",
+              "alt": "Мобильный интерфейс Corvo: экран 3",
+              "width": 1080,
+              "height": 1920,
+              "sourceNodeId": "680:48805",
+              "frame": {
+                "clip": true,
+                "radius": 11,
+                "strokeColor": "#f0f1f2",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/mobile-04.png",
+              "alt": "Мобильный интерфейс Corvo: экран 4",
+              "width": 1080,
+              "height": 1920,
+              "sourceNodeId": "680:48860",
+              "frame": {
+                "clip": true,
+                "radius": 11,
+                "strokeColor": "#f0f1f2",
+                "strokeWidth": 1
+              }
+            },
+            {
+              "src": "/assets/projects/corvo/gallery/mobile-05.png",
+              "alt": "Мобильный интерфейс Corvo: экран 5",
+              "width": 1080,
+              "height": 1920,
+              "sourceNodeId": "680:48861",
+              "frame": {
+                "clip": true,
+                "radius": 11,
+                "strokeColor": "#f0f1f2",
+                "strokeWidth": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -7,8 +7,9 @@ import { ProjectPlatforms } from "../components/project-platforms";
 import { ProjectDetailControl } from "../components/project-detail-control";
 import { ProcessStepper } from "../components/process-stepper";
 import { ControlButton, TextButton } from "../components/ui-controls";
+import type { ProjectImage, ProjectLogo } from "../lib/project-contract";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
-import { getCatalogProjects } from "../lib/projects";
+import { getCatalogProjects, type Project } from "../lib/projects";
 import { createSocialMetadata } from "../lib/site-metadata";
 import styles from "./page.module.css";
 
@@ -80,27 +81,24 @@ function HeroBackground() {
   );
 }
 
-type ProjectActionsProps = {
-  detailHref?: string;
-  detailLabel?: string;
-  figmaHref?: string;
-  updatedAt?: string;
-};
-
-function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: ProjectActionsProps) {
+function ProjectActions({ project }: { project: Project }) {
+  const detailHref = project.availability.detail === "available" ? `/projects/${project.slug}` : undefined;
+  const figmaHref = project.availability.figma === "available" ? project.figmaUrl : undefined;
   const hasFigma = Boolean(figmaHref);
 
   return (
     <div className={styles.projectActions}>
       <div className={styles.projectActionButtons}>
-        {detailHref && detailLabel ? (
+        {detailHref ? (
           <ProjectDetailControl
             availability="available"
             href={detailHref}
-            breadcrumbLabel={detailLabel}
+            breadcrumbLabel={project.title}
             className={styles.detailsButton}
           />
-        ) : (
+      ) : project.availability.figma === "absent" ? (
+        <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
+      ) : (
           <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
         )}
         {hasFigma ? (
@@ -109,36 +107,37 @@ function ProjectActions({ detailHref, detailLabel, figmaHref, updatedAt }: Proje
           <ControlButton className={styles.unavailableButton} variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
         )}
       </div>
-      {hasFigma && updatedAt ? (
+      {hasFigma && project.updatedAt ? (
         <>
           <span className={styles.actionDivider} />
-          <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено {updatedAt}</span>
+          <span className={styles.updated}><MaskIcon className={styles.refreshIcon} />Обновлено {project.updatedAt}</span>
         </>
       ) : null}
     </div>
   );
 }
 
-function RadioSymbol() {
+function RadioSymbol({ logo }: { logo: Extract<ProjectLogo, { type: "layered" }> }) {
+  const classBySlot = { a: styles.radioLogoA, b: styles.radioLogoB, c: styles.radioLogoC, d: styles.radioLogoD };
+  const sizeBySlot = { a: "15px", b: "5px", c: "15px", d: "5px" };
   return (
     <span className={styles.radioSymbol} aria-hidden="true">
-      <span className={styles.radioLogoA}><Image src={`${assetRoot}/radio-logo-vector-a.svg`} alt="" fill sizes="15px" /></span>
-      <span className={styles.radioLogoA}><Image src={`${assetRoot}/radio-logo-mask-a.svg`} alt="" fill sizes="15px" /></span>
-      <span className={styles.radioLogoB}><Image src={`${assetRoot}/radio-logo-vector-b.svg`} alt="" fill sizes="5px" /></span>
-      <span className={styles.radioLogoB}><Image src={`${assetRoot}/radio-logo-mask-b.svg`} alt="" fill sizes="5px" /></span>
-      <span className={styles.radioLogoC}><Image src={`${assetRoot}/radio-logo-vector-c.svg`} alt="" fill sizes="15px" /></span>
-      <span className={styles.radioLogoC}><Image src={`${assetRoot}/radio-logo-mask-c.svg`} alt="" fill sizes="15px" /></span>
-      <span className={styles.radioLogoD}><Image src={`${assetRoot}/radio-logo-vector-d.svg`} alt="" fill sizes="5px" /></span>
+      {logo.layers.map((layer) => (
+        <span className={classBySlot[layer.slot]} key={`${layer.slot}-${layer.src}`}>
+          <Image src={layer.src} alt="" fill sizes={sizeBySlot[layer.slot]} />
+        </span>
+      ))}
     </span>
   );
 }
 
-function RadioVisual() {
+function RadioVisual({ images }: { images: ProjectImage[] }) {
+  if (images.length < 3) return null;
   return (
     <div className={styles.projectVisual} aria-hidden="true">
-      <Image className={styles.radioDashboard} src={`${assetRoot}/radio-dashboard.png`} alt="" width={2880} height={2518} />
-      <Image className={styles.radioPlayer} src={`${assetRoot}/radio-player.png`} alt="" width={1688} height={612} />
-      <Image className={styles.radioPayment} src={`${assetRoot}/radio-payment.png`} alt="" width={760} height={1100} />
+      <Image className={styles.radioDashboard} src={images[0].src} alt="" width={images[0].width} height={images[0].height} />
+      <Image className={styles.radioPlayer} src={images[1].src} alt="" width={images[1].width} height={images[1].height} />
+      <Image className={styles.radioPayment} src={images[2].src} alt="" width={images[2].width} height={images[2].height} />
     </div>
   );
 }
@@ -182,7 +181,8 @@ function MethodRow({ iconClass, title, children }: { iconClass: string; title: s
 }
 
 export default function Home() {
-  const corvo = getCatalogProjects().find((project) => project.slug === "corvo");
+  const projects = getCatalogProjects();
+  const [primaryProject, secondaryProject] = projects;
 
   return (
     <div className={styles.page}>
@@ -228,28 +228,28 @@ export default function Home() {
               <ControlButton className={styles.textButton} variant="ghost" href="/projects" breadcrumbLabel="Работы" iconRight={`${assetRoot}/arrow-right.svg`}>Все работы</ControlButton>
             </div>
 
-            {corvo ? <MainProjectCard project={corvo} headingLevel="h3" /> : null}
+            {primaryProject ? <MainProjectCard project={primaryProject} headingLevel="h3" /> : null}
 
             <div className={styles.projectDivider} />
 
-            <article className={`${styles.projectRow} ${styles.projectRowReverse}`}>
+            {secondaryProject ? <article className={`${styles.projectRow} ${styles.projectRowReverse}`}>
               <div className={styles.projectCopy}>
                 <div className={styles.projectHeader}>
                   <div className={styles.projectTitle}>
-                    <div><h3>Сараффан.Радио</h3><RadioSymbol /></div>
-                    <p>Платформа для организации мероприятий</p>
+                    <div><h3>{secondaryProject.title}</h3>{secondaryProject.logo?.type === "layered" ? <RadioSymbol logo={secondaryProject.logo} /> : null}</div>
+                    <p>{secondaryProject.subtitle ?? secondaryProject.description}</p>
                   </div>
-                  <ProjectTags tags={["B2B2C", "Тестовое"]} />
+                  <ProjectTags tags={secondaryProject.tags} />
                 </div>
                 <dl className={styles.projectDetails}>
-                  <ProjectDetail label="Моя роль">Product designer / Product Analyst</ProjectDetail>
-                  <ProjectDetail label="Что делал">Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.</ProjectDetail>
+                  <ProjectDetail label="Моя роль">{secondaryProject.role}</ProjectDetail>
+                  <ProjectDetail label="Что делал">{secondaryProject.workSummary}</ProjectDetail>
                 </dl>
-                <ProjectPlatforms platforms={["Desktop"]} desktopOnlyLabel />
-                <ProjectActions />
+                <ProjectPlatforms platforms={secondaryProject.platforms} desktopOnlyLabel={secondaryProject.platforms.length === 1 && secondaryProject.platforms[0] === "Desktop"} />
+                <ProjectActions project={secondaryProject} />
               </div>
-              <RadioVisual />
-            </article>
+              <RadioVisual images={secondaryProject.homeImages ?? []} />
+            </article> : null}
           </section>
 
           <section className={styles.process} aria-labelledby="process-title">

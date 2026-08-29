@@ -32,7 +32,7 @@ type ProjectMediaLightboxProps = {
   baseHeight: number;
   baseWidth: number;
   frame: GalleryFrameContract;
-  sourceNodeId: string;
+  sourceNodeId?: string;
 };
 
 export function ProjectMediaLightbox({

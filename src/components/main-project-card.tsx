@@ -15,17 +15,19 @@ type MainProjectCardProps = {
 export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCardProps) {
   const Heading = headingLevel;
   const description = project.subtitle ?? project.description;
-  const role = project.catalogRole ?? project.role;
+  const role = project.role;
+  const visualBack = project.hero?.backdrop;
+  const visualFront = project.hero?.foreground ?? project.hero?.image;
 
   return (
     <article className={styles.card}>
       <div className={styles.visual} aria-hidden="true">
-        <span className={`${styles.visualFrame} ${styles.visualBack}`}>
-          <Image src={`${assetRoot}/corvo-dashboard.png`} alt="" width={2960} height={2400} />
-        </span>
-        <span className={`${styles.visualFrame} ${styles.visualFront}`}>
-          <Image src={`${assetRoot}/corvo-product.png`} alt="" width={2960} height={2400} />
-        </span>
+        {visualBack ? <span className={`${styles.visualFrame} ${styles.visualBack}`}>
+          <Image src={visualBack.src} alt="" width={visualBack.width} height={visualBack.height} />
+        </span> : null}
+        {visualFront ? <span className={`${styles.visualFrame} ${styles.visualFront}`}>
+          <Image src={visualFront.src} alt="" width={visualFront.width} height={visualFront.height} />
+        </span> : null}
       </div>
 
       <div className={styles.copy}>
@@ -33,7 +35,7 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
           <div className={styles.titleGroup}>
             <div className={styles.titleLine}>
               <Heading>{project.title}</Heading>
-              {project.logo ? <Image src={project.logo} alt="" width={28} height={28} /> : null}
+              {project.logo?.type === "image" ? <Image src={project.logo.src} alt="" width={28} height={28} /> : null}
             </div>
             <p>{description}</p>
           </div>
@@ -70,6 +72,8 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
                 breadcrumbLabel={project.title}
                 className={styles.detailsButton}
               />
+            ) : project.availability.figma === "absent" ? (
+              <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
             ) : (
               <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
             )}

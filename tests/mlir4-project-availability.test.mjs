@@ -2,17 +2,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 test("only Corvo exposes an available project detail route", () => {
-  const corvo = readFileSync(new URL("../content/projects/corvo.mdx", import.meta.url), "utf8");
-  const sarafan = readFileSync(new URL("../content/projects/sarafan-radio.mdx", import.meta.url), "utf8");
-  const boff = readFileSync(new URL("../content/projects/boff.mdx", import.meta.url), "utf8");
-  const example = readFileSync(new URL("../content/projects/example-project.mdx", import.meta.url), "utf8");
-  assert.match(corvo, /detailAvailable:\s*true/);
-  assert.match(sarafan, /detailAvailable:\s*false/);
-  assert.match(boff, /detailAvailable:\s*false/);
-  assert.match(example, /detailAvailable:\s*false/);
+  const readProject = (name) => JSON.parse(readFileSync(new URL(`../content/projects/${name}.json`, import.meta.url), "utf8"));
+  assert.equal(readProject("corvo").detailAvailable, true);
+  assert.equal(readProject("sarafan-radio").detailAvailable, false);
+  assert.equal(readProject("boff").detailAvailable, false);
+  assert.equal(readProject("example-project").detailAvailable, false);
   const projects = readFileSync(new URL("../src/lib/projects.ts", import.meta.url), "utf8");
   assert.match(projects, /export type ProjectAvailability/);
-  assert.match(projects, /detail:\s*detailAvailable \? "available" : "unavailable"/);
+  assert.match(projects, /detail:\s*project\.detailAvailable \? "available" : "unavailable"/);
 });
 
 test("the project route rejects unavailable content through the shared availability contract", () => {

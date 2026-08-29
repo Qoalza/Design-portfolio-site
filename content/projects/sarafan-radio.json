@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 2,
+  "title": "Сараффан.Радио",
+  "slug": "sarafan-radio",
+  "description": "Платформа для организации мероприятий",
+  "role": "Product designer / Product Analyst",
+  "year": 2026,
+  "tags": [
+    "B2B2C",
+    "Тестовое"
+  ],
+  "detailTags": [
+    "B2B2C",
+    "Тестовое"
+  ],
+  "visibility": "published",
+  "catalogOrder": 2,
+  "featuredOnHome": true,
+  "homeOrder": 2,
+  "detailAvailable": false,
+  "materials": {
+    "projectState": "completed",
+    "fileState": "absent"
+  },
+  "platforms": [
+    "Desktop"
+  ],
+  "logo": {
+    "type": "layered",
+    "layers": [
+      {
+        "src": "/assets/homepage/radio-logo-vector-a.svg",
+        "slot": "a"
+      },
+      {
+        "src": "/assets/homepage/radio-logo-mask-a.svg",
+        "slot": "a"
+      },
+      {
+        "src": "/assets/homepage/radio-logo-vector-b.svg",
+        "slot": "b"
+      },
+      {
+        "src": "/assets/homepage/radio-logo-mask-b.svg",
+        "slot": "b"
+      },
+      {
+        "src": "/assets/homepage/radio-logo-vector-c.svg",
+        "slot": "c"
+      },
+      {
+        "src": "/assets/homepage/radio-logo-mask-c.svg",
+        "slot": "c"
+      },
+      {
+        "src": "/assets/homepage/radio-logo-vector-d.svg",
+        "slot": "d"
+      }
+    ]
+  },
+  "catalogImage": {
+    "src": "/assets/projects/catalog/sarafan-radio.png",
+    "alt": "Интерфейс платформы для организации мероприятий Сараффан.Радио",
+    "width": 2880,
+    "height": 2752
+  },
+  "homeImages": [
+    {
+      "src": "/assets/homepage/radio-dashboard.png",
+      "alt": "",
+      "width": 2880,
+      "height": 2518
+    },
+    {
+      "src": "/assets/homepage/radio-player.png",
+      "alt": "",
+      "width": 1688,
+      "height": 612
+    },
+    {
+      "src": "/assets/homepage/radio-payment.png",
+      "alt": "",
+      "width": 760,
+      "height": 1100
+    }
+  ],
+  "workSummary": "Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.",
+  "content": []
+}
