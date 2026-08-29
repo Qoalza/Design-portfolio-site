@@ -23,7 +23,7 @@ const project = (overrides = {}) => ({
   visibility: "draft",
   catalogOrder: 1,
   featuredOnHome: false,
-  detailAvailable: true,
+  detailAvailable: false,
   materials: { projectState: "completed", fileState: "absent" },
   platforms: [],
   content: [],

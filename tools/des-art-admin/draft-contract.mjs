@@ -98,6 +98,9 @@ function requiredIssues(draft) {
   if (draft.materials?.fileState === "available" && !(draft.materials.figmaUrl ?? "").trim()) {
     issues.push(issueFrom(new Error("materials.figmaUrl")));
   }
+  if (draft.detailAvailable && !draft.heroFrame && !draft.hero) {
+    issues.push({ field: "heroFrame", label: "Главное изображение страницы", tab: "page", message: "Импортируйте главное изображение страницы из Figma Frame." });
+  }
   for (const block of draft.content ?? []) {
     if (block?.type === "section" && !(block.heading ?? "").trim()) {
       issues.push({ field: `content.${block.adminId}.heading`, label: "Заголовок секции", tab: "page", sectionId: block.adminId, message: "Укажите заголовок секции." });
@@ -135,8 +138,8 @@ export function compileAdminDraft(value) {
     if (sectionSettings?.noticeVariant) {
       blocks = blocks.map((item) => item.type === "notice" ? { ...item, variant: sectionSettings.noticeVariant } : item);
     }
-    if (sectionSettings?.interactive?.enabled === false) blocks = blocks.filter((item) => item.type !== "image");
-    const hasImage = blocks.some((item) => item.type === "image");
+    if (sectionSettings?.interactive?.enabled === false) blocks = blocks.filter((item) => item.type !== "image" && item.type !== "frame");
+    const hasImage = blocks.some((item) => item.type === "image" || item.type === "frame");
     blocks = blocks.filter((item) => item.type !== "divider");
     if (!hasImage) blocks.push({ type: "divider" });
     return { ...next, blocks };
