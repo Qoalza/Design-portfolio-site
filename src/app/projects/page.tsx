@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { MainProjectCard } from "../../components/main-project-card";
 import { PageHeader } from "../../components/page-header";
 import { ProjectPlatforms } from "../../components/project-platforms";
@@ -7,6 +8,7 @@ import { ProjectDetailControl } from "../../components/project-detail-control";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { ControlButton } from "../../components/ui-controls";
+import { ProjectFrameCompositionView } from "../../components/project-frame-composition";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import type { ProjectLogo } from "../../lib/project-contract";
 import { getAllProjects, getAllProjectsForPreview, type Project } from "../../lib/projects";
@@ -39,6 +41,7 @@ function ProjectLogoMark({ logo }: { logo: ProjectLogo }) {
 }
 
 function ProjectVisual({ project }: { project: Project }) {
+  if (project.catalogFrame) return <div className={styles.compactVisual} aria-hidden="true"><ProjectFrameCompositionView composition={project.catalogFrame} fillSlot slotRadius={12} /></div>;
   const image = project.catalogImage;
   if (!image) return null;
   return (
@@ -80,8 +83,6 @@ function ProjectActions({ project }: { project: Project }) {
       )}
       {project.availability.figma === "available" && project.figmaUrl ? (
         <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
-      ) : project.availability.figma === "unavailable" ? (
-        <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
       ) : null}
       {project.availability.figma === "available" && project.updatedAt ? <><span className={styles.actionDivider} /><span className={styles.updated}><Image src={`${assetRoot}/project-refresh.svg`} alt="" width={16} height={16} />Обновлено {project.updatedAt}</span></> : null}
     </div>
@@ -118,9 +119,11 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
   );
 }
 
-export default function ProjectsPage() {
+const isAdminPreview = process.env.DES_ART_ADMIN_PREVIEW === "1";
+
+export default async function ProjectsPage() {
+  if (isAdminPreview) await connection();
   const projects = process.env.DES_ART_ADMIN_PREVIEW === "1" ? getAllProjectsForPreview() : getAllProjects();
-  const [primaryProject, ...compactProjects] = projects;
   const projectsTrailItem = { href: "/projects", label: "Работы" };
 
   return (
@@ -139,8 +142,12 @@ export default function ProjectsPage() {
             description={"Здесь собрал рабочие проекты, тестовые задания,\nгде можно увидеть мой подход к задаче и результат."}
           />
           <section className={styles.catalog} aria-label="Проекты">
-            {primaryProject ? <MainProjectCard project={primaryProject} /> : null}
-            <div className={styles.compactGrid}>{compactProjects.map((project) => <article className={styles.compactCard} key={project.slug}><ProjectVisual project={project} /><ProjectCopy project={project} compact /></article>)}</div>
+            {projects.map((project, index) => {
+              if (index % 3 === 0) return <div className={index === 0 ? styles.primaryWide : styles.repeatedWide} key={project.slug}><MainProjectCard project={project} headingLevel={index === 0 ? "h2" : "h3"} /></div>;
+              if (index % 3 !== 1) return null;
+              const pair = projects.slice(index, index + 2);
+              return <div className={styles.compactGrid} key={`pair-${project.slug}`}>{pair.map((compactProject) => <article className={styles.compactCard} key={compactProject.slug}><ProjectVisual project={compactProject} /><ProjectCopy project={compactProject} compact /></article>)}</div>;
+            })}
           </section>
         </main>
         <SiteFooter />

@@ -47,6 +47,13 @@ async function liveConfig(supportRoot) {
 export async function publishReadiness({ supportRoot, mode = "sandbox" }) {
   const failures = [];
   if (mode === "live") {
+    try {
+      const baseline = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
+      if (baseline.version !== 1 || baseline.source !== "canonical-main") throw new Error("invalid baseline");
+    } catch {
+      failures.push("Рабочие данные ещё не синхронизированы с актуальным production-контентом");
+    }
+    if (failures.length) return { ready: false, failures, mode };
     try { await exec("gh", ["auth", "status"]); } catch { failures.push("GitHub CLI не авторизован"); }
     try {
       const config = await liveConfig(supportRoot);

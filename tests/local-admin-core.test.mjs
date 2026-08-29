@@ -8,11 +8,21 @@ import { PROJECT_DOCUMENT_VERSION } from "../src/lib/project-contract.ts";
 import {
   AdminStore,
   createProjectSlug,
+  humanFigmaImportError,
   inspectSvg,
   inspectImage,
   safeUploadName,
   validateLocalRequest,
 } from "../tools/des-art-admin/core.mjs";
+
+test("Figma import failures are explained without internal contract paths", () => {
+  const layerMessage = humanFigmaImportError(new Error("Слой «Controls» использует неподдерживаемый fill GRADIENT_LINEAR."));
+  assert.match(layerMessage, /элемент «Controls»/i);
+  assert.doesNotMatch(layerMessage, /GRADIENT_LINEAR|catalogFrame|nodes\[/);
+
+  const linkMessage = humanFigmaImportError(new Error("Figma Frame больше не найден по node-id."));
+  assert.match(linkMessage, /не удалось найти Frame по этой ссылке/i);
+});
 
 test("project slugs are readable, Unicode-safe and collision resistant", async () => {
   assert.equal(createProjectSlug("Новый проект. Тест", []), "novyi-proekt-test");
@@ -100,7 +110,7 @@ test("draft survives a new store instance", async () => {
 test("draft store accepts incomplete form values and reports real unpublished changes", async () => {
   const configured = await roots();
   const store = new AdminStore(configured);
-  const canonical = project("admin-test", { visibility: "published", detailAvailable: true });
+  const canonical = project("admin-test", { visibility: "published", detailAvailable: false });
   await store.saveProject(canonical);
   assert.deepEqual(await store.getChangeInventory(), { count: 0, projects: [], changedSlugs: [], globalProjects: [] });
 
@@ -115,6 +125,22 @@ test("draft store accepts incomplete form values and reports real unpublished ch
   assert.deepEqual(inventory.projects.map(({ slug, valid }) => ({ slug, valid })), [
     { slug: "admin-test", valid: false },
   ]);
+});
+
+test("opening a migrated project does not create a false unpublished change", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  const canonical = project("stable", {
+    visibility: "published",
+    content: [{ type: "section", heading: "О проекте", blocks: [] }],
+  });
+  await store.saveProject(canonical);
+  await store.saveDraft("stable", {
+    ...canonical,
+    admin: { sections: { "stable-section-1": { noticeEnabled: false } } },
+    content: [{ type: "section", adminId: "stable-section-1", heading: "О проекте", blocks: [] }],
+  });
+  assert.deepEqual(await store.getChangeInventory(), { count: 0, projects: [], changedSlugs: [], globalProjects: [] });
 });
 
 test("lifecycle changes do not reject an otherwise incomplete admin draft", async () => {
@@ -133,14 +159,14 @@ test("preview preparation compiles only a valid draft into an isolated overlay",
   const configured = await roots();
   const store = new AdminStore(configured);
   const previewRoot = path.join(path.dirname(configured.draftRoot), "preview-drafts");
-  await store.saveDraft("preview", project("preview", { detailAvailable: true }));
+  await store.saveDraft("preview", project("preview", { detailAvailable: false }));
   await store.preparePreview("preview", previewRoot);
   const compiled = JSON.parse(await readFile(path.join(previewRoot, "preview.json"), "utf8"));
   assert.equal(compiled.slug, "preview");
   assert.equal("admin" in compiled, false);
 
   await store.saveDraft("preview", project("preview", {
-    detailAvailable: true,
+    detailAvailable: false,
     materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
   }));
   await assert.rejects(() => store.preparePreview("preview", previewRoot), (error) => {

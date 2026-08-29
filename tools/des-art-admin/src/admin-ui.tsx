@@ -9,6 +9,8 @@ import {
   RowsIcon,
   TextIcon,
   UnderlineIcon,
+  ExclamationTriangleIcon,
+  TrashIcon,
 } from "@radix-ui/react-icons";
 import {
   Button,
@@ -17,10 +19,11 @@ import {
   Flex,
   IconButton,
   Text,
+  TextField,
   Tooltip,
 } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import type { ProjectImage, ProjectInlineContent, ProjectSectionBlock, ProjectTextMark } from "../../../src/lib/project-contract";
+import type { ProjectFrameComposition, ProjectFrameNode, ProjectImage, ProjectInlineContent, ProjectSectionBlock, ProjectTextMark } from "../../../src/lib/project-contract";
 import { formatTagInput, parseTagInput } from "./admin-model";
 
 export function Field({
@@ -95,16 +98,16 @@ export function AssetField({
         <Text as="p" size="1" color="gray">{description}</Text>
       </div>
       {image ? (
-        <img className="asset-preview" src={image.src} alt="" />
+        <ImagePreview src={image.src} label={title}><img className="asset-preview" src={image.src} alt="" /></ImagePreview>
       ) : (
         <div className="asset-placeholder"><Text size="1" color="gray">Нет изображения</Text></div>
       )}
       <Flex gap="2" wrap="wrap">
-        <Button size="1" variant="soft" onClick={() => input.current?.click()}>
+        <Button size="3" variant="outline" color="gray" onClick={() => input.current?.click()}>
           {image ? "Заменить" : "Загрузить"}
         </Button>
         {image && remove && !managed ? (
-          <Button size="1" variant="ghost" color="red" onClick={remove}>Удалить</Button>
+          <IconButton size="3" variant="ghost" color="red" aria-label={`Удалить ${title}`} onClick={remove}><TrashIcon /></IconButton>
         ) : null}
       </Flex>
       <input
@@ -123,11 +126,161 @@ export function AssetField({
         <AlertDialog.Content maxWidth="520px">
           <AlertDialog.Title>Заменить управляемую композицию?</AlertDialog.Title>
           <AlertDialog.Description>Текущая сложная композиция будет заменена одним обычным изображением в тестовом черновике.</AlertDialog.Description>
-          <Flex justify="end" gap="3" mt="5"><AlertDialog.Cancel><Button variant="soft" color="gray">Отмена</Button></AlertDialog.Cancel><AlertDialog.Action><Button onClick={() => { if (pendingFile) upload(pendingFile); setPendingFile(undefined); }}>Заменить</Button></AlertDialog.Action></Flex>
+          <Flex justify="end" gap="3" mt="5"><AlertDialog.Cancel><Button size="3" variant="soft" color="gray">Отмена</Button></AlertDialog.Cancel><AlertDialog.Action><Button size="3" onClick={() => { if (pendingFile) upload(pendingFile); setPendingFile(undefined); }}>Заменить</Button></AlertDialog.Action></Flex>
         </AlertDialog.Content>
       </AlertDialog.Root>
     </div>
   );
+}
+
+export function ImagePreview({ src, label, children }: { src: string; label: string; children: React.ReactNode }) {
+  return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
+}
+
+function frameRootWidthUnit(value: number, rootWidth: number) { return `${value / rootWidth * 100}cqw`; }
+function frameRootHeightUnit(value: number, rootHeight: number) { return `${value / rootHeight * 100}cqh`; }
+function frameScaledLength(value: number, root: { width: number; height: number }) {
+  const magnitude = Math.abs(value);
+  const length = `min(${magnitude / root.width * 100}cqw, ${magnitude / root.height * 100}cqh)`;
+  return value < 0 ? `calc(0px - ${length})` : length;
+}
+function frameStrokeShadow(stroke: ProjectFrameNode["stroke"], rootWidth: number) {
+  if (!stroke) return undefined;
+  if (stroke.align === "INSIDE") return `inset 0 0 0 ${frameRootWidthUnit(stroke.width, rootWidth)} ${stroke.color}`;
+  if (stroke.align === "OUTSIDE") return `0 0 0 ${frameRootWidthUnit(stroke.width, rootWidth)} ${stroke.color}`;
+  const half = frameRootWidthUnit(stroke.width / 2, rootWidth);
+  return `inset 0 0 0 ${half} ${stroke.color}, 0 0 0 ${half} ${stroke.color}`;
+}
+
+function frameEffectStyle(effects: ProjectFrameNode["effects"], root: { width: number; height: number }) {
+  const shadows: string[] = [];
+  const filters: string[] = [];
+  let backdropFilter: string | undefined;
+  for (const effect of effects ?? []) {
+    if (effect.type === "drop-shadow" || effect.type === "inner-shadow") {
+      shadows.push(`${effect.type === "inner-shadow" ? "inset " : ""}${frameRootWidthUnit(effect.offsetX, root.width)} ${frameRootHeightUnit(effect.offsetY, root.height)} ${frameRootWidthUnit(effect.blur, root.width)} ${frameRootWidthUnit(effect.spread, root.width)} ${effect.color}`);
+    } else if (effect.type === "layer-blur") filters.push(`blur(${frameRootWidthUnit(effect.radius, root.width)})`);
+    else if (effect.type === "background-blur") backdropFilter = `blur(${frameRootWidthUnit(effect.radius, root.width)})`;
+  }
+  return { shadows, filter: filters.length ? filters.join(" ") : undefined, backdropFilter };
+}
+
+function frameCompositionStyle(composition: ProjectFrameComposition, aspectRatio: string): React.CSSProperties {
+  const visualEffects = frameEffectStyle(composition.effects, composition);
+  return {
+    aspectRatio,
+    background: composition.background,
+    borderRadius: frameRootWidthUnit(composition.radius, composition.width),
+    boxShadow: [frameStrokeShadow(composition.stroke, composition.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
+    filter: visualEffects.filter,
+    backdropFilter: visualEffects.backdropFilter,
+    mixBlendMode: composition.blendMode as React.CSSProperties["mixBlendMode"],
+  };
+}
+
+function FrameNodePreview({ node, parent, root, inLayout = false }: { node: ProjectFrameNode; parent: { width: number; height: number }; root: { width: number; height: number }; inLayout?: boolean }) {
+  const transforms: string[] = [];
+  const style: React.CSSProperties = inLayout ? {
+    position: "relative", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
+    flex: node.layoutGrow ? `${node.layoutGrow} 1 0` : node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
+  } : {
+    position: "absolute",
+  };
+  if (!inLayout) {
+    if (node.constraints.horizontal === "SCALE") {
+      style.left = `${node.x / parent.width * 100}%`;
+      style.width = `${node.width / parent.width * 100}%`;
+    } else if (node.constraints.horizontal === "STRETCH") {
+      style.left = frameScaledLength(node.x, root);
+      style.right = frameScaledLength(parent.width - node.x - node.width, root);
+    } else style.width = frameScaledLength(node.width, root);
+    if (node.constraints.horizontal === "MAX") style.right = frameScaledLength(parent.width - node.x - node.width, root);
+    else if (node.constraints.horizontal === "CENTER") {
+      style.left = `calc(50% + ${frameScaledLength(node.x + node.width / 2 - parent.width / 2, root)})`;
+      transforms.push("translateX(-50%)");
+    }
+    else if (node.constraints.horizontal === "MIN") style.left = frameScaledLength(node.x, root);
+    if (node.constraints.vertical === "SCALE") {
+      style.top = `${node.y / parent.height * 100}%`;
+      style.height = `${node.height / parent.height * 100}%`;
+    } else if (node.constraints.vertical === "STRETCH") {
+      style.top = frameScaledLength(node.y, root);
+      style.bottom = frameScaledLength(parent.height - node.y - node.height, root);
+    } else style.height = frameScaledLength(node.height, root);
+    if (node.constraints.vertical === "MAX") style.bottom = frameScaledLength(parent.height - node.y - node.height, root);
+    else if (node.constraints.vertical === "CENTER") {
+      style.top = `calc(50% + ${frameScaledLength(node.y + node.height / 2 - parent.height / 2, root)})`;
+      transforms.push("translateY(-50%)");
+    }
+    else if (node.constraints.vertical === "MIN") style.top = frameScaledLength(node.y, root);
+  }
+  if (node.rotation) transforms.push(`rotate(${node.rotation}deg)`);
+  if (transforms.length) style.transform = transforms.join(" ");
+  const visualEffects = frameEffectStyle(node.effects, root);
+  Object.assign(style, {
+    opacity: node.opacity,
+    overflow: node.asset?.bounds ? "visible" : node.clip ? "hidden" : "visible",
+    borderRadius: node.radius === undefined ? undefined : frameRootWidthUnit(node.radius, root.width),
+    background: node.background,
+    boxShadow: [frameStrokeShadow(node.stroke, root.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
+    filter: visualEffects.filter,
+    backdropFilter: visualEffects.backdropFilter,
+    mixBlendMode: node.blendMode as React.CSSProperties["mixBlendMode"],
+    zIndex: node.zIndex,
+  });
+  if (inLayout && node.layoutAlign) style.alignSelf = node.layoutAlign === "start" ? "flex-start" : node.layoutAlign === "end" ? "flex-end" : node.layoutAlign;
+  if (node.layout) {
+    const [top, right, bottom, left] = node.layout.padding;
+    Object.assign(style, {
+      display: "flex", boxSizing: "border-box", flexDirection: node.layout.direction === "horizontal" ? "row" : "column",
+      gap: node.layout.direction === "horizontal" ? frameRootWidthUnit(node.layout.gap, root.width) : frameRootHeightUnit(node.layout.gap, root.height),
+      padding: `${frameRootHeightUnit(top, root.height)} ${frameRootWidthUnit(right, root.width)} ${frameRootHeightUnit(bottom, root.height)} ${frameRootWidthUnit(left, root.width)}`,
+      justifyContent: node.layout.align === "space-between" ? "space-between" : node.layout.align === "end" ? "flex-end" : node.layout.align,
+      alignItems: node.layout.crossAlign === "end" ? "flex-end" : node.layout.crossAlign === "start" || node.layout.crossAlign === undefined ? "flex-start" : node.layout.crossAlign,
+    });
+  }
+  const assetStyle: React.CSSProperties | undefined = node.asset ? node.asset.bounds ? {
+    position: "absolute",
+    left: `${node.asset.bounds.x / node.width * 100}%`,
+    top: `${node.asset.bounds.y / node.height * 100}%`,
+    width: `${node.asset.bounds.width / node.width * 100}%`,
+    height: `${node.asset.bounds.height / node.height * 100}%`,
+    objectFit: node.asset.fit,
+    opacity: node.asset.opacity,
+  } : { width: "100%", height: "100%", objectFit: node.asset.fit, opacity: node.asset.opacity } : undefined;
+  return <div className="frame-node-preview" style={style}>
+    {node.asset ? <img src={node.asset.src} alt="" style={assetStyle} /> : null}
+    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} root={root} inLayout={Boolean(node.layout) && !child.absoluteInLayout} />)}
+  </div>;
+}
+
+export function FrameField({ title, description, composition, source, required, importing, previewVariant = "hero", onImport }: {
+  title: string; description: string; composition?: ProjectFrameComposition; source?: string; required?: boolean; importing?: boolean; previewVariant?: "hero" | "cover" | "interactive"; onImport: (url: string) => Promise<void>;
+}) {
+  const [value, setValue] = useState(source ?? composition?.source.url ?? "");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const busy = Boolean(importing || submitting);
+  const submit = async () => {
+    if (busy) return;
+    setError("");
+    setSubmitting(true);
+    try { await onImport(value.trim()); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Не удалось импортировать Frame."); }
+    finally { setSubmitting(false); }
+  };
+  const previewAspect = composition ? `${composition.width}/${composition.height}` : undefined;
+  const coverPreviewStyle = composition && previewVariant === "cover" ? {
+    ...frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`),
+    ...(composition.width >= composition.height ? { width: "100%", height: "auto" } : { width: "auto", height: "100%" }),
+  } : composition ? frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`) : undefined;
+  return <div className={`frame-field frame-field-${previewVariant}${error ? " frame-field-error" : ""}`}>
+    <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
+    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={coverPreviewStyle}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={frameCompositionStyle(composition, `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
+    <div className="frame-source"><TextField.Root size="3" value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button size="3" variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
+    {busy ? <span className="frame-import-status" role="status">Получаем структуру Frame и сохраняем ассеты…</span> : null}
+    <span className={`field-help${error ? " field-error" : ""}`}>{error || "Production использует локальный snapshot и не зависит от Figma после публикации."}</span>
+  </div>;
 }
 
 export function TagField({ value, onChange, label, hint }: { value: string[]; onChange: (value: string[]) => void; label: string; hint?: string }) {
@@ -144,7 +297,8 @@ export function TagField({ value, onChange, label, hint }: { value: string[]; on
   };
   return (
     <Field label={label} hint={hint ?? "Разделяйте теги символом /"}>
-      <input
+      <TextField.Root
+        size="3"
         className="tag-input"
         value={raw}
         onFocus={() => { focused.current = true; }}
@@ -161,7 +315,7 @@ function Tool({ label, children, onClick, active }: { label: string; children: R
     <Tooltip content={label}>
       <IconButton
         type="button"
-        size="1"
+        size="3"
         variant={active ? "soft" : "ghost"}
         color={active ? "blue" : "gray"}
         aria-label={label}
@@ -425,8 +579,8 @@ export function RichEditor({ value, onChange }: { value: ProjectSectionBlock[]; 
         <Dialog.Content maxWidth="440px">
           <Dialog.Title>Добавить ссылку</Dialog.Title>
           <Dialog.Description>Выделенный текст станет ссылкой.</Dialog.Description>
-          <div className="dialog-field"><Text size="2" weight="medium">URL</Text><input className="tag-input" autoFocus value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} /></div>
-          <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button variant="soft" color="gray">Отмена</Button></Dialog.Close><Button disabled={!/^https?:\/\//i.test(linkUrl)} onClick={applyLink}>Добавить</Button></Flex>
+          <div className="dialog-field"><Text size="2" weight="medium">URL</Text><TextField.Root size="3" className="tag-input" autoFocus value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} /></div>
+          <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button size="3" variant="soft" color="gray">Отмена</Button></Dialog.Close><Button size="3" disabled={!/^https?:\/\//i.test(linkUrl)} onClick={applyLink}>Добавить</Button></Flex>
         </Dialog.Content>
       </Dialog.Root>
     </div>

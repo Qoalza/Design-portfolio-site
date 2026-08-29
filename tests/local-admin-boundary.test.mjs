@@ -5,7 +5,8 @@ import test from "node:test";
 const server = await readFile(new URL("../tools/des-art-admin/server.mjs", import.meta.url), "utf8");
 const launcher = await readFile(new URL("../tools/des-art-admin/launcher.mjs", import.meta.url), "utf8");
 const projectRoute = await readFile(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
-const previewAssetRoute = await readFile(new URL("../src/app/admin-preview-assets/[slug]/[file]/route.ts", import.meta.url), "utf8");
+const projectsRoute = await readFile(new URL("../src/app/projects/page.tsx", import.meta.url), "utf8");
+const previewAssetRoute = await readFile(new URL("../src/app/admin-preview-assets/[slug]/[...file]/route.ts", import.meta.url), "utf8");
 const nextConfig = await readFile(new URL("../next.config.ts", import.meta.url), "utf8");
 const adminUi = await readFile(new URL("../tools/des-art-admin/src/admin.tsx", import.meta.url), "utf8");
 const adminDialogs = await readFile(new URL("../tools/des-art-admin/src/admin-dialogs.tsx", import.meta.url), "utf8");
@@ -39,6 +40,9 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /live-publish\.json/);
   assert.match(launcher, /npm-lock\.sha256/);
   assert.match(launcher, /createHash\("sha256"\)/);
+  assert.match(launcher, /production-data-baseline\.json/);
+  assert.match(launcher, /activeWorkspaceNames = \["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs"\]/);
+  assert.match(launcher, /source: "canonical-main"/);
 });
 
 test("admin is not an App Router route and preview access is env-gated", async () => {
@@ -53,11 +57,13 @@ test("admin is not an App Router route and preview access is env-gated", async (
   assert.match(server, /preview-drafts/);
   assert.match(nextConfig, /DES_ART_ADMIN_PREVIEW === "1"/);
   assert.match(nextConfig, /\.next-admin-preview-\$\{previewPort\}/);
+  assert.match(projectRoute, /if \(isAdminPreview\) await connection\(\)/);
+  assert.match(projectsRoute, /if \(isAdminPreview\) await connection\(\)/);
 });
 
 test("admin UI keeps Radix Themes inside the local admin boundary", () => {
   assert.equal(packageJson.dependencies["@radix-ui/themes"], "3.3.0");
-  assert.match(adminUi, /<Theme accentColor="blue" grayColor="sand" radius="small"/);
+  assert.match(adminUi, /<Theme accentColor="blue" grayColor="sand" radius="medium"/);
   assert.doesNotMatch(projectRoute, /@radix-ui\/themes/);
 });
 

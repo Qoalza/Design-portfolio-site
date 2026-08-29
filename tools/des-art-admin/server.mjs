@@ -9,6 +9,7 @@ import { spawn } from "node:child_process";
 import { AdminStore, validateLocalRequest } from "./core.mjs";
 import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
 import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
+import { readFigmaToken, saveFigmaToken } from "./figma-frame.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(directory, "../.."));
@@ -117,9 +118,9 @@ async function handler(request, response) {
     }
     if (request.method === "GET" && url.pathname === "/admin.css") return staticFile(response, "admin.css", "text/css; charset=utf-8");
     if (request.method === "GET" && url.pathname === "/admin.js") return staticFile(response, "admin.js", "text/javascript; charset=utf-8");
-    if (request.method === "GET" && segments[0] === "assets" && segments[1] === "projects" && segments.length === 4) {
+    if (request.method === "GET" && segments[0] === "assets" && segments[1] === "projects" && segments.length >= 4) {
       const slug = decodeURIComponent(segments[2]);
-      const fileName = decodeURIComponent(segments[3]);
+      const fileName = segments.slice(3).map(decodeURIComponent).join("/");
       const source = await store.readImage(slug, fileName);
       const type = imageTypes.get(path.extname(fileName).toLowerCase());
       if (!type) return json(response, 415, { error: "Неподдерживаемый формат изображения." });
@@ -128,6 +129,14 @@ async function handler(request, response) {
       return;
     }
     if (request.method === "GET" && url.pathname === "/api/projects") return json(response, 200, await store.listProjects());
+    if (request.method === "GET" && url.pathname === "/api/figma/status") {
+      try { await readFigmaToken(); return json(response, 200, { connected: true }); }
+      catch { return json(response, 200, { connected: false }); }
+    }
+    if (request.method === "POST" && url.pathname === "/api/figma/token") {
+      await saveFigmaToken((await body(request)).token);
+      return json(response, 200, { connected: true });
+    }
     if (request.method === "POST" && url.pathname === "/api/projects") {
       return json(response, 201, await store.createProject(await body(request)));
     }
@@ -209,6 +218,9 @@ async function handler(request, response) {
       if (request.method === "POST" && segments[3] === "logo") {
         const value = await body(request);
         return json(response, 201, await store.saveLogo(slug, value.name, Buffer.from(value.data, "base64")));
+      }
+      if (request.method === "POST" && segments[3] === "frame") {
+        return json(response, 201, await store.importFrame(slug, await body(request)));
       }
       if (request.method === "DELETE" && segments[3] === "permanent") {
         await store.permanentlyDelete(slug);

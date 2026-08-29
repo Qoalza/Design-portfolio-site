@@ -11,18 +11,18 @@ export function NewProjectDialog({ open, existingSlugs, close, create }: { open:
   const preview = createSlugPreview(slug || title, existingSlugs);
   return <Dialog.Root open={open} onOpenChange={(value) => { if (!value) close(); }}><Dialog.Content maxWidth="520px">
     <Dialog.Title>Новый проект</Dialog.Title><Dialog.Description>Название можно написать свободно — адрес сформирует система.</Dialog.Description>
-    <label className="dialog-field"><Text size="2" weight="medium">Название проекта</Text><TextField.Root autoFocus value={title} onChange={(event) => setTitle(event.target.value)} /></label>
+    <label className="dialog-field"><Text size="2" weight="medium">Название проекта</Text><TextField.Root size="3" autoFocus value={title} onChange={(event) => setTitle(event.target.value)} /></label>
     <Text size="1" color="gray">Будущий адрес: /projects/{preview}</Text>
-    <Button size="1" variant="ghost" color="gray" onClick={() => setCustom((value) => !value)}>{custom ? "Использовать автоматический адрес" : "Изменить адрес"}</Button>
-    {custom ? <label className="dialog-field"><Text size="2" weight="medium">Адрес</Text><TextField.Root value={slug} onChange={(event) => setSlug(event.target.value)} /></label> : null}
-    <Flex justify="end" gap="3" mt="5"><Button variant="soft" color="gray" onClick={close}>Отмена</Button><Button disabled={!title.trim()} onClick={() => create(title, custom ? slug : undefined)}>Создать</Button></Flex>
+    <Button size="3" variant="ghost" color="gray" onClick={() => setCustom((value) => !value)}>{custom ? "Использовать автоматический адрес" : "Изменить адрес"}</Button>
+    {custom ? <label className="dialog-field"><Text size="2" weight="medium">Адрес</Text><TextField.Root size="3" value={slug} onChange={(event) => setSlug(event.target.value)} /></label> : null}
+    <Flex justify="end" gap="3" mt="5"><Button size="3" variant="soft" color="gray" onClick={close}>Отмена</Button><Button size="3" disabled={!title.trim()} onClick={() => create(title, custom ? slug : undefined)}>Создать</Button></Flex>
   </Dialog.Content></Dialog.Root>;
 }
 
 export function ConfirmDialog({ open, title, description, confirmLabel, danger, close, confirm }: { open: boolean; title: string; description: string; confirmLabel: string; danger?: boolean; close: () => void; confirm: () => void }) {
   return <AlertDialog.Root open={open} onOpenChange={(value) => { if (!value) close(); }}><AlertDialog.Content maxWidth="520px">
     <AlertDialog.Title>{title}</AlertDialog.Title><AlertDialog.Description>{description}</AlertDialog.Description>
-    <Flex justify="end" gap="3" mt="5"><AlertDialog.Cancel><Button variant="soft" color="gray">Отмена</Button></AlertDialog.Cancel><AlertDialog.Action><Button color={danger ? "red" : "blue"} onClick={confirm}>{confirmLabel}</Button></AlertDialog.Action></Flex>
+    <Flex justify="end" gap="3" mt="5"><AlertDialog.Cancel><Button size="3" variant="soft" color="gray">Отмена</Button></AlertDialog.Cancel><AlertDialog.Action><Button size="3" color={danger ? "red" : "blue"} onClick={confirm}>{confirmLabel}</Button></AlertDialog.Action></Flex>
   </AlertDialog.Content></AlertDialog.Root>;
 }
 
@@ -30,7 +30,7 @@ export function IssueDialog({ open, title, issues, close, navigate }: { open: bo
   return <Dialog.Root open={open} onOpenChange={(value) => { if (!value) close(); }}><Dialog.Content maxWidth="620px">
     <Dialog.Title>{title}</Dialog.Title><Dialog.Description>Исправьте отмеченные поля — после этого предпросмотр и публикация станут доступны.</Dialog.Description>
     <div className="issue-list">{issues.map((issue, index) => <button key={`${issue.projectSlug ?? "current"}-${issue.field}-${index}`} onClick={() => navigate(issue)}><strong>{issue.projectTitle ? `${issue.projectTitle} · ` : ""}{issue.label ?? "Поле"}</strong><span>{issue.message}</span></button>)}</div>
-    <Flex justify="end" mt="4"><Button onClick={close}>Понятно</Button></Flex>
+    <Flex justify="end" mt="4"><Button size="3" onClick={close}>Понятно</Button></Flex>
   </Dialog.Content></Dialog.Root>;
 }
 
@@ -90,13 +90,13 @@ export function HomeLimitDialog({
                 onCheckedChange={(value) => setEnabled((previous) => { const next = new Set(previous); if (value) next.add(slug); else next.delete(slug); return next; })}
               />
               <div className="home-project-copy"><Text weight="medium">{projects.find((item) => item.slug === slug)?.title}</Text><Text size="1" color="gray">{projects.find((item) => item.slug === slug)?.description}</Text></div>
-              <Flex gap="1"><IconButton size="1" variant="ghost" color="gray" disabled={index === 0} aria-label="Переместить выше" onClick={() => setOrder((value) => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; return next; })}><ChevronUpIcon /></IconButton><IconButton size="1" variant="ghost" color="gray" disabled={index === order.length - 1} aria-label="Переместить ниже" onClick={() => setOrder((value) => { const next = [...value]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; return next; })}><ChevronDownIcon /></IconButton></Flex>
+              <Flex gap="2"><IconButton size="3" variant="ghost" color="gray" disabled={index === 0} aria-label="Переместить выше" onClick={() => setOrder((value) => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; return next; })}><ChevronUpIcon /></IconButton><IconButton size="3" variant="ghost" color="gray" disabled={index === order.length - 1} aria-label="Переместить ниже" onClick={() => setOrder((value) => { const next = [...value]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; return next; })}><ChevronDownIcon /></IconButton></Flex>
             </div>
           ))}
         </div>
         <Flex justify="end" gap="3">
-          <Button variant="soft" color="gray" onClick={cancel}>Отмена</Button>
-          <Button disabled={enabled.size !== 3} onClick={() => apply(order.filter((slug) => enabled.has(slug)))}>Применить</Button>
+          <Button size="3" variant="soft" color="gray" onClick={cancel}>Отмена</Button>
+          <Button size="3" disabled={enabled.size !== 3} onClick={() => apply(order.filter((slug) => enabled.has(slug)))}>Применить</Button>
         </Flex>
       </Dialog.Content>
     </Dialog.Root>
@@ -146,7 +146,7 @@ export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; m
               ? mode === "live" ? "Изменения опубликованы на art-des.ru." : "Изменения опубликованы только в тестовом контуре."
               : "Можно закрыть эту страницу. Не выключайте Mac до завершения публикации."}
         </Text>
-        {job.status === "complete" || job.status === "failed" ? <Button onClick={close}>Закрыть</Button> : null}
+        {job.status === "complete" || job.status === "failed" ? <Button size="3" onClick={close}>Закрыть</Button> : null}
       </div>
     </div>
   );

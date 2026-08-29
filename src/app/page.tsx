@@ -101,8 +101,6 @@ function ProjectActions({ project }: { project: Project }) {
       )}
         {hasFigma ? (
           <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
-        ) : project.availability.figma === "unavailable" ? (
-          <ControlButton className={styles.unavailableButton} variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
         ) : null}
       </div>
       {hasFigma && project.updatedAt ? (

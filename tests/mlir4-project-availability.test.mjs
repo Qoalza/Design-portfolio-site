@@ -18,7 +18,7 @@ test("Sarafan.Radio preserves the pre-admin unavailable states", () => {
   assert.deepEqual(sarafan.materials, { projectState: "in_progress", fileState: "unavailable" });
 });
 
-test("project cards render detail and file availability independently", () => {
+test("project cards do not expose unavailable file state in project lists", () => {
   for (const file of [
     "../src/app/page.tsx",
     "../src/app/projects/page.tsx",
@@ -26,8 +26,9 @@ test("project cards render detail and file availability independently", () => {
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), "utf8");
     assert.doesNotMatch(source, /availability\.detail[^]*?availability\.figma === "absent"[^]*?ProjectDetailControl/s);
-    assert.match(source, /availability\.figma === "unavailable"/);
+    assert.doesNotMatch(source, /availability\.figma === "unavailable"/);
     assert.doesNotMatch(source, /У проекта нет отдельного файла/);
+    assert.doesNotMatch(source, /Файл пока недоступен/);
   }
 });
 

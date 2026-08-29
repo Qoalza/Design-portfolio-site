@@ -1,7 +1,7 @@
 import "@radix-ui/themes/styles.css";
 import "./admin.css";
 import { EyeOpenIcon } from "@radix-ui/react-icons";
-import { Badge, Box, Button, Callout, Flex, Heading, Tabs, Text, Theme } from "@radix-ui/themes";
+import { Badge, Box, Button, Callout, Dialog, Flex, Heading, Tabs, Text, TextField, Theme } from "@radix-ui/themes";
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { ProjectImage, ProjectVisibility } from "../../../src/lib/project-contract";
@@ -55,6 +55,9 @@ function App() {
   const [createOpen, setCreateOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<"project" | "all" | "delete" | "shutdown">();
   const [reviewIssues, setReviewIssues] = useState<FieldIssue[]>([]);
+  const [figmaConnected, setFigmaConnected] = useState(false);
+  const [figmaOpen, setFigmaOpen] = useState(false);
+  const [figmaToken, setFigmaToken] = useState("");
   const dirty = useRef(false);
   const latest = useRef<AdminProject | null>(null);
 
@@ -78,6 +81,7 @@ function App() {
       .catch((error) => { if (active) setMessage(safeMessage(error)); });
     return () => { active = false; };
   }, []);
+  useEffect(() => { void api<{ connected: boolean }>("/api/figma/status").then((value) => setFigmaConnected(value.connected)).catch(() => setFigmaConnected(false)); }, []);
 
   useEffect(() => { latest.current = current; }, [current]);
   useEffect(() => {
@@ -161,6 +165,15 @@ function App() {
     if (!current) throw new ApiError("Сначала выберите проект.");
     const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = () => reject(new ApiError("Не удалось прочитать SVG.")); reader.readAsDataURL(file); });
     return api<AdminProject["logo"]>(`/api/projects/${current.slug}/logo`, { method: "POST", body: JSON.stringify({ name: file.name, data }) });
+  };
+  const importFrame = async (slot: "catalog" | "hero" | "interactive", url: string, sectionId?: string) => {
+    if (!current) throw new ApiError("Сначала выберите проект.");
+    await flush();
+    const result = await api<{ project: AdminProject }>(`/api/projects/${current.slug}/frame`, { method: "POST", body: JSON.stringify({ slot, url, sectionId }) });
+    setCurrent(result.project);
+    dirty.current = false;
+    setSaveState("saved");
+    await refresh();
   };
 
   const preview = () => {
@@ -282,16 +295,17 @@ function App() {
   };
 
   return (
-    <Theme accentColor="blue" grayColor="sand" radius="small">
+    <Theme accentColor="blue" grayColor="sand" radius="medium">
       <div className="admin-shell">
         <header className="admin-topbar">
           <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color={publishMode === "live" ? "green" : "gray"}>{publishMode === "live" ? "Связано с art-des.ru" : "Тестовый контур"}</Badge></div>
           <Text color="gray">{current?.title ?? "Проекты портфолио"}</Text>
           <Flex gap="3" align="center">
+            <Button size="3" variant="outline" color="gray" onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "не подключена"}</Button>
             <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>
               {saveState === "saved" ? <SavedMark>{saveLabels[saveState]}</SavedMark> : saveLabels[saveState]}
             </Text>
-            {current ? <Button variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button> : null}
+            {current ? <Button size="3" variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button> : null}
           </Flex>
         </header>
         <main className="admin-workspace">
@@ -324,8 +338,8 @@ function App() {
                 <Tabs.Root value={tab} onValueChange={setTab}>
                   <Tabs.List><Tabs.Trigger value="card">Карточка</Tabs.Trigger><Tabs.Trigger value="page">Страница проекта</Tabs.Trigger></Tabs.List>
                   <Box pt="5">
-                    <Tabs.Content value="card"><CardEditor project={current} update={update} upload={upload} uploadLogo={uploadLogo} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
-                    <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} selectedSection={selectedSection} selectSection={setSelectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
+                    <Tabs.Content value="card"><CardEditor project={current} update={update} uploadLogo={uploadLogo} importFrame={importFrame} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
+                    <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} importFrame={importFrame} selectedSection={selectedSection} selectSection={setSelectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
                   </Box>
                 </Tabs.Root>
               </div>
@@ -368,6 +382,7 @@ function App() {
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
         <PublishOverlay job={job} mode={publishMode} close={() => setJob(null)} />
+        <Dialog.Root open={figmaOpen} onOpenChange={setFigmaOpen}><Dialog.Content maxWidth="520px"><Dialog.Title>Подключение Figma</Dialog.Title><Dialog.Description>Токен хранится только в macOS Keychain. Нужен доступ file_content:read.</Dialog.Description><label className="dialog-field"><Text size="2" weight="medium">Personal access token</Text><TextField.Root size="3" type="password" value={figmaToken} onChange={(event) => setFigmaToken(event.target.value)} /></label><Flex justify="end" gap="3" mt="5"><Dialog.Close><Button size="3" variant="soft" color="gray">Отмена</Button></Dialog.Close><Button size="3" disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then(() => { setFigmaConnected(true); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить в Keychain</Button></Flex></Dialog.Content></Dialog.Root>
       </div>
     </Theme>
   );

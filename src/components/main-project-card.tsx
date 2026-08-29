@@ -3,6 +3,7 @@ import type { Project } from "../lib/projects";
 import { ProjectPlatforms } from "./project-platforms";
 import { ProjectDetailControl } from "./project-detail-control";
 import { ControlButton } from "./ui-controls";
+import { ProjectFrameCompositionView } from "./project-frame-composition";
 import styles from "./main-project-card.module.css";
 
 const assetRoot = "/assets/homepage";
@@ -22,10 +23,10 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
   return (
     <article className={styles.card}>
       <div className={styles.visual} aria-hidden="true">
-        {visualBack ? <span className={`${styles.visualFrame} ${styles.visualBack}`}>
+        {project.catalogFrame ? <ProjectFrameCompositionView composition={project.catalogFrame} className={styles.structuredVisual} fillSlot slotRadius={12} /> : visualBack ? <span className={`${styles.visualFrame} ${styles.visualBack}`}>
           <Image src={visualBack.src} alt="" width={visualBack.width} height={visualBack.height} />
         </span> : null}
-        {visualFront ? <span className={`${styles.visualFrame} ${styles.visualFront}`}>
+        {!project.catalogFrame && visualFront ? <span className={`${styles.visualFrame} ${styles.visualFront}`}>
           <Image src={visualFront.src} alt="" width={visualFront.width} height={visualFront.height} />
         </span> : null}
       </div>
@@ -77,8 +78,6 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
             )}
             {project.availability.figma === "available" && project.figmaUrl ? (
               <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
-            ) : project.availability.figma === "unavailable" ? (
-              <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
             ) : null}
           </div>
           {project.availability.figma === "available" && project.updatedAt ? (

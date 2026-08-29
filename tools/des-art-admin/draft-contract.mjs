@@ -59,7 +59,7 @@ export function parseAdminDraft(source, sourceName = "draft.json") {
   }
 }
 
-function issueFrom(error) {
+function issueFrom(error, draft) {
   const message = error instanceof Error ? error.message : String(error);
   if (message.includes("materials.figmaUrl")) {
     return { field: "materials.figmaUrl", label: "Ссылка на Figma", tab: "page", message: "Укажите ссылку на Figma." };
@@ -71,11 +71,37 @@ function issueFrom(error) {
   if (message.includes("description")) return { field: "description", label: "Описание", tab: "card", message: "Укажите описание проекта." };
   if (message.includes("role")) return { field: "role", label: "Роль", tab: "card", message: "Укажите роль в проекте." };
   const location = /Project document\.([^ ]+)/.exec(message)?.[1]?.replace(/[".]+$/g, "");
+  if (location?.startsWith("catalogFrame")) {
+    return { field: "catalogFrame", label: "Обложка карточки", tab: "card", message: "Импортированная обложка повреждена. Обновите Frame по ссылке ещё раз." };
+  }
+  if (location?.startsWith("heroFrame")) {
+    return { field: "heroFrame", label: "Главное изображение страницы", tab: "page", message: "Импортированное главное изображение повреждено. Обновите Frame по ссылке ещё раз." };
+  }
+  if (location?.startsWith("logo")) {
+    return { field: "logo", label: "Логотип проекта", tab: "card", message: "Логотип повреждён. Загрузите SVG ещё раз или оставьте поле пустым." };
+  }
+  const contentIndex = location ? /^content\[(\d+)\]/.exec(location)?.[1] : undefined;
+  if (contentIndex !== undefined) {
+    const index = Number(contentIndex);
+    const block = draft?.content?.[index];
+    if (block?.type === "section") {
+      return {
+        field: `content.${block.adminId ?? index}`,
+        label: `Секция ${index + 1}`,
+        tab: "page",
+        ...(block.adminId ? { sectionId: block.adminId } : {}),
+        message: `Содержимое секции ${index + 1} повреждено. Проверьте последнее изменение в этой секции.`,
+      };
+    }
+    if (block?.type === "gallery") {
+      return { field: "gallery", label: "Галерея", tab: "page", message: "Данные галереи повреждены. Проверьте последнее добавленное изображение." };
+    }
+  }
   return {
-    field: location ?? "project",
-    label: location ? `Поле ${location}` : "Данные проекта",
+    field: "project",
+    label: "Данные проекта",
     tab: location?.startsWith("content") || location?.startsWith("materials") ? "page" : "card",
-    message: location ? `Поле «${location}» содержит некорректные данные.` : `Не удалось проверить проект: ${message}`,
+    message: "В данных проекта обнаружена ошибка. Проверьте последнее изменение или вернитесь к сохранённой версии.",
   };
 }
 
@@ -97,6 +123,9 @@ function requiredIssues(draft) {
   }
   if (draft.materials?.fileState === "available" && !(draft.materials.figmaUrl ?? "").trim()) {
     issues.push(issueFrom(new Error("materials.figmaUrl")));
+  }
+  if (draft.detailAvailable && !draft.heroFrame && !draft.hero) {
+    issues.push({ field: "heroFrame", label: "Главное изображение страницы", tab: "page", message: "Импортируйте главное изображение страницы из Figma Frame." });
   }
   for (const block of draft.content ?? []) {
     if (block?.type === "section" && !(block.heading ?? "").trim()) {
@@ -135,8 +164,8 @@ export function compileAdminDraft(value) {
     if (sectionSettings?.noticeVariant) {
       blocks = blocks.map((item) => item.type === "notice" ? { ...item, variant: sectionSettings.noticeVariant } : item);
     }
-    if (sectionSettings?.interactive?.enabled === false) blocks = blocks.filter((item) => item.type !== "image");
-    const hasImage = blocks.some((item) => item.type === "image");
+    if (sectionSettings?.interactive?.enabled === false) blocks = blocks.filter((item) => item.type !== "image" && item.type !== "frame");
+    const hasImage = blocks.some((item) => item.type === "image" || item.type === "frame");
     blocks = blocks.filter((item) => item.type !== "divider");
     if (!hasImage) blocks.push({ type: "divider" });
     return { ...next, blocks };
@@ -144,7 +173,7 @@ export function compileAdminDraft(value) {
   try {
     return validateProjectDocument(publicValue);
   } catch (error) {
-    throw new DraftValidationError([issueFrom(error)]);
+    throw new DraftValidationError([issueFrom(error, draft)]);
   }
 }
 

@@ -7,6 +7,9 @@
 .intro h1 { margin: 0 0 8px; color: #313a41; font: 500 48px/60px "Google Sans", sans-serif; letter-spacing: -.1px; }
 .intro p { margin: 0 4px; color: #354857; font: 400 20px/28px "Onest", sans-serif; letter-spacing: .3px; }
 .catalog { display: flex; flex-direction: column; gap: 44px; }
+.primaryWide, .repeatedWide { position: relative; }
+.repeatedWide { padding-top: 64px; border-top: 1px solid #e2e5e7; }
+.repeatedWide::before { position: absolute; top: -44px; left: 50%; width: 1px; height: 44px; background: #e2e5e7; content: ""; }
 .copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 32px; padding: 12px 120px 12px 40px; }
 .headerGroup { display: flex; min-width: 0; flex-direction: column; gap: 16px; }
 .titleGroup { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
@@ -28,7 +31,7 @@
 .compactGrid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; column-gap: 129px; padding: 64px 0 40px; border-top: 1px solid #e2e5e7; }
 .compactGrid::after { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: #e2e5e7; content: ""; }
 .compactCard { display: flex; width: auto; min-width: 0; flex-direction: column; }
-.compactVisual { position: relative; width: 100%; height: 400px; overflow: hidden; border-radius: 12px; background: #f5f6f7; }
+.compactVisual { position: relative; width: 100%; height: 400px; overflow: hidden; border-radius: 12px; }
 .browserFrame { position: absolute; top: 40px; left: 50%; width: 468px; overflow: hidden; border: 2px solid #707070; border-radius: 12px; transform: translateX(-50%); }
 .compactCard:nth-child(2) .browserFrame { top: 50%; border-radius: 9px; transform: translate(-50%, -50%); }
 .browserFrame > img { position: relative!important; display: block; width: 100%!important; height: auto!important; margin-top: 18px; object-fit: cover; }

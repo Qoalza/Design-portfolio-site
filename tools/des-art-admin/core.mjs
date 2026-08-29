@@ -10,8 +10,36 @@ import {
 } from "../../src/lib/project-contract.ts";
 import { readAllProjectDocuments, writeProjectDocument } from "../../src/lib/projects.ts";
 import { compileAdminDraft, createAdminDraft, draftValidation, parseAdminDraft } from "./draft-contract.mjs";
+import { importFigmaFrame } from "./figma-frame.mjs";
 
 const requireRead = (file) => readFileSync(file, "utf8");
+
+export function humanFigmaImportError(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/отклонила токен|доступ к файлу/i.test(message)) {
+    return "Figma не дала доступ к этому Frame. Проверьте подключение Figma и доступ к файлу — предыдущая версия изображения сохранена.";
+  }
+  if (/больше не найден|node-id|ссылк/i.test(message)) {
+    return "Не удалось найти Frame по этой ссылке. Проверьте ссылку — предыдущая версия изображения сохранена.";
+  }
+  const layer = /(?:Слой|элемент) «([^»]+)»/i.exec(message)?.[1];
+  if (layer) {
+    return `Не удалось без потерь подготовить элемент «${layer}». Предыдущая версия изображения сохранена; проверьте этот элемент во Frame и повторите импорт.`;
+  }
+  if (/временно ограничила запросы/i.test(message)) {
+    return "Figma временно ограничила загрузку. Подождите немного и повторите — предыдущая версия изображения сохранена.";
+  }
+  return "Не удалось обновить изображение из Figma. Проверьте ссылку и подключение Figma — предыдущая версия изображения сохранена.";
+}
+
+function semanticValue(value) {
+  if (Array.isArray(value)) return value.map(semanticValue);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value)
+    .filter(([key, item]) => !["admin", "adminId", "savedAt", "importStatus", "lastCheckedAt"].includes(key) && item !== undefined)
+    .sort(([first], [second]) => first.localeCompare(second, "en"))
+    .map(([key, item]) => [key, semanticValue(item)]));
+}
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const IMAGE_TYPES = new Map([
@@ -221,6 +249,8 @@ export class AdminStore {
       const file = resolveProjectDocumentPath(this.draftRoot, slug);
       const project = createAdminDraft({ schemaVersion: 2, title: cleanTitle, slug, description: "", role: "", year: new Date().getFullYear(), tags: [], detailTags: [], visibility: "draft", catalogOrder: existing.length + 1, featuredOnHome: false, detailAvailable: false, materials: { projectState: "completed", fileState: "absent" }, platforms: [], content: [] });
       try {
+        const firstSection = { type: "section", adminId: `${slug}-section-1`, heading: "Новая секция", blocks: [] };
+        project.content = [firstSection];
         await writeFile(file, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600, flag: "wx" });
         return project;
       } catch (error) {
@@ -320,17 +350,21 @@ export class AdminStore {
     for (const name of names) {
       const draft = parseAdminDraft(await readFile(path.join(this.draftRoot, name), "utf8"), name);
       const validation = draftValidation(draft);
-      let changed = !validation.valid;
+      let changed = false;
       let globalChanged = false;
-      if (validation.valid) {
-        const canonical = published.get(draft.slug);
-        const compiled = compileAdminDraft(draft);
-        changed = !canonical || JSON.stringify(withoutGlobalPlacement(compiled)) !== JSON.stringify(withoutGlobalPlacement(canonical));
+      const canonical = published.get(draft.slug);
+      let comparable;
+      try { comparable = compileAdminDraft(draft); }
+      catch { comparable = semanticValue(draft); }
+      if (canonical) {
+        let canonicalComparable = canonical;
+        try { canonicalComparable = compileAdminDraft(createAdminDraft(canonical)); } catch { /* canonical is already validated */ }
+        changed = JSON.stringify(semanticValue(withoutGlobalPlacement(comparable))) !== JSON.stringify(semanticValue(withoutGlobalPlacement(canonicalComparable)));
         globalChanged = !canonical
-          || compiled.catalogOrder !== canonical.catalogOrder
-          || compiled.featuredOnHome !== canonical.featuredOnHome
-          || compiled.homeOrder !== canonical.homeOrder;
-      }
+          || comparable.catalogOrder !== canonical.catalogOrder
+          || comparable.featuredOnHome !== canonical.featuredOnHome
+          || comparable.homeOrder !== canonical.homeOrder;
+      } else { changed = true; globalChanged = true; }
       if (changed) projects.push({ slug: draft.slug, title: draft.title, valid: validation.valid, issues: validation.issues });
       if (changed || globalChanged) changedSlugs.push(draft.slug);
       if (globalChanged) globalProjects.push(draft.slug);
@@ -407,8 +441,31 @@ export class AdminStore {
     return { type: "image", src: `/assets/projects/${slug}/logo.svg` };
   }
 
+  async importFrame(slug, { url, slot, sectionId }) {
+    if (!['catalog', 'hero', 'interactive'].includes(slot)) throw new Error("Неизвестное назначение Figma Frame.");
+    const project = await this.getProject(slug);
+    let composition;
+    try {
+      composition = await importFigmaFrame({ url, slug, slot: sectionId ? `${slot}-${sectionId}` : slot, assetRoot: this.draftAssetRoot });
+    } catch (error) {
+      throw new Error(humanFigmaImportError(error));
+    }
+    let next;
+    if (slot === 'catalog') next = { ...project, catalogFrame: composition };
+    else if (slot === 'hero') next = { ...project, heroFrame: composition };
+    else {
+      const content = project.content.map((block) => {
+        if (block.type !== 'section' || block.adminId !== sectionId) return block;
+        return { ...block, blocks: [...block.blocks.filter((item) => item.type !== 'frame'), { type: 'frame', composition }] };
+      });
+      next = { ...project, content, admin: { ...project.admin, sections: { ...project.admin?.sections, [sectionId]: { ...project.admin?.sections?.[sectionId], interactive: { enabled: true, figmaUrl: url, status: 'connected' } } } } };
+    }
+    await this.saveDraft(slug, next);
+    return { project: next, composition };
+  }
+
   async readImage(slug, fileName) {
-    const safeName = safeUploadName(fileName);
+    const safeName = fileName.includes("/") ? fileName : safeUploadName(fileName);
     const draftPath = resolveProjectAssetPath(this.draftAssetRoot, slug, safeName);
     try {
       return await readFile(draftPath);

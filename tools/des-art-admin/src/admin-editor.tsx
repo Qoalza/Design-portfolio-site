@@ -28,12 +28,12 @@ import type {
 import type { AdminProject, AdminSection } from "./admin-model";
 import type { FieldIssue } from "./admin-model";
 import { inline, issueFor, sectionSetting, textOf, withSectionSetting } from "./admin-model";
-import { AssetField, Field, RichEditor, TagField } from "./admin-ui";
+import { Field, FrameField, ImagePreview, RichEditor, TagField } from "./admin-ui";
 
 type Upload = (file: File, context: string) => Promise<ProjectImage>;
 
 function replaceSectionText(section: AdminSection, value: ProjectSectionBlock[]): AdminSection {
-  const managed = section.blocks.filter((block) => block.type === "notice" || block.type === "image");
+  const managed = section.blocks.filter((block) => block.type === "notice" || block.type === "image" || block.type === "frame");
   return { ...section, blocks: [...value, ...managed] };
 }
 
@@ -41,12 +41,13 @@ function updateSection(project: AdminProject, target: AdminSection, next: AdminS
   return { ...project, content: project.content.map((block) => block === target ? next : block) };
 }
 
-function SectionSettings({ project, section, change }: { project: AdminProject; section: AdminSection; change: (project: AdminProject) => void }) {
+function SectionSettings({ project, section, change, importFrame }: { project: AdminProject; section: AdminSection; change: (project: AdminProject) => void; importFrame: (slot: "interactive", url: string, sectionId: string) => Promise<void> }) {
   const settings = sectionSetting(project, section.adminId);
   const notice = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "notice" }> => block.type === "notice");
   const image = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "image" }> => block.type === "image");
+  const frame = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "frame" }> => block.type === "frame");
   const noticeEnabled = settings.noticeEnabled ?? Boolean(notice);
-  const interactive = settings.interactive ?? { enabled: Boolean(image), status: image ? "connected" as const : undefined };
+  const interactive = settings.interactive ?? { enabled: Boolean(image || frame), status: image || frame ? "connected" as const : undefined };
   const changeSetting = (patch: Parameters<typeof withSectionSetting>[2]) => change(withSectionSetting(project, section.adminId, patch));
   const changeNotice = (enabled: boolean) => {
     let next = project;
@@ -80,7 +81,7 @@ function SectionSettings({ project, section, change }: { project: AdminProject; 
           </label>
           {noticeEnabled ? (
             <div className="section-setting-fields">
-              <Field label="Текст примечания"><TextArea rows={3} value={notice ? textOf(notice.content) : ""} onChange={(event) => changeNoticeContent(event.target.value)} /></Field>
+              <Field label="Текст примечания"><TextArea size="3" rows={3} value={notice ? textOf(notice.content) : ""} onChange={(event) => changeNoticeContent(event.target.value)} /></Field>
               <Field label="Ширина">
                 <Select.Root value={settings.noticeVariant ?? notice?.variant ?? "default"} onValueChange={(variant) => changeSetting({ noticeVariant: variant as "default" | "wide" })}>
                   <Select.Trigger /><Select.Content><Select.Item value="default">Обычная</Select.Item><Select.Item value="wide">Широкая</Select.Item></Select.Content>
@@ -96,10 +97,8 @@ function SectionSettings({ project, section, change }: { project: AdminProject; 
           </label>
           {interactive.enabled ? (
             <div className="section-setting-fields">
-              <Field label="Ссылка на фрейм Figma" hint="Codex подготовит экран по размерам фрейма">
-                <TextField.Root type="url" value={interactive.figmaUrl ?? ""} onChange={(event) => changeSetting({ interactive: { enabled: true, figmaUrl: event.target.value, status: event.target.value ? "pending" : undefined } })} />
-              </Field>
-              {image ? <Callout.Root color="green" size="1"><Callout.Text>Подключён существующий экран.</Callout.Text></Callout.Root> : interactive.figmaUrl ? <Callout.Root color="blue" size="1"><Callout.Text>Экран ожидает подготовки ассета.</Callout.Text></Callout.Root> : <Text size="1" color="gray">Вставьте ссылку на конкретный фрейм Figma.</Text>}
+              <FrameField key={`${project.slug}-${section.adminId}-${frame?.composition.source.url ?? interactive.figmaUrl ?? "empty"}`} title="Frame секции" description="Импортируется независимо для этой секции." composition={frame?.composition} source={interactive.figmaUrl} onImport={(url) => importFrame("interactive", url, section.adminId)} />
+              {image && !frame ? <Callout.Root color="green" size="1"><Callout.Text>Подключён существующий managed-экран.</Callout.Text></Callout.Root> : null}
             </div>
           ) : <Text className="section-divider-status" size="1" color="gray">После секции будет разделитель.</Text>}
         </div>
@@ -119,6 +118,7 @@ function SectionEditor({
   move,
   remove,
   issues,
+  importFrame,
 }: {
   section: AdminSection;
   project: AdminProject;
@@ -130,6 +130,7 @@ function SectionEditor({
   move: (delta: number) => void;
   remove: () => void;
   issues: FieldIssue[];
+  importFrame: (slot: "interactive", url: string, sectionId: string) => Promise<void>;
 }) {
   const managed = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "image" }> => block.type === "image");
   return (
@@ -137,28 +138,28 @@ function SectionEditor({
       <div className="section-editor-heading">
         <Flex align="center" gap="2">
           <Heading size="3">Секция {index + 1}</Heading>
-          <IconButton
+          {index > 0 ? <IconButton
             type="button"
-            size="1"
-            variant="outline"
+            size="3"
+            variant="ghost"
             color="red"
             aria-label={`Удалить секцию ${index + 1}`}
             onClick={(event) => { event.stopPropagation(); remove(); }}
           >
             <TrashIcon />
-          </IconButton>
+          </IconButton> : null}
         </Flex>
-        <Flex gap="1">
-          <IconButton type="button" size="1" variant="outline" color="gray" aria-label="Переместить выше" disabled={index === 0} onClick={() => move(-1)}>
+        <Flex gap="2">
+          <IconButton type="button" size="3" variant="outline" color="gray" aria-label="Переместить выше" disabled={index === 0} onClick={() => move(-1)}>
             <ChevronUpIcon />
           </IconButton>
-          <IconButton type="button" size="1" variant="outline" color="gray" aria-label="Переместить ниже" disabled={index === count - 1} onClick={() => move(1)}>
+          <IconButton type="button" size="3" variant="outline" color="gray" aria-label="Переместить ниже" disabled={index === count - 1} onClick={() => move(1)}>
             <ChevronDownIcon />
           </IconButton>
         </Flex>
       </div>
       <Field field={`content.${section.adminId}.heading`} label="Заголовок секции" error={issueFor(issues, `content.${section.adminId}.heading`)}>
-        <TextField.Root value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} />
+        <TextField.Root size="3" value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} />
       </Field>
       <Field label="Описание секции">
         <RichEditor value={section.blocks} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)))} />
@@ -170,11 +171,11 @@ function SectionEditor({
             <Text as="p" size="1" color="gray">Существующая кодовая композиция сохранена без изменений.</Text>
           </div>
           <div className="managed-thumbnails">
-            {managed.images.map((image) => <img key={image.src} src={image.src} alt="" />)}
+            {managed.images.map((image, imageIndex) => <ImagePreview key={image.src} src={image.src} label={`Интерактивный экран · изображение ${imageIndex + 1}`}><img src={image.src} alt="" /></ImagePreview>)}
           </div>
         </div>
       ) : null}
-      <SectionSettings project={project} section={section} change={change} />
+      <SectionSettings project={project} section={section} change={change} importFrame={importFrame} />
     </section>
   );
 }
@@ -182,18 +183,29 @@ function SectionEditor({
 export function CardEditor({
   project,
   update,
-  upload,
   uploadLogo,
+  importFrame,
   issues,
 }: {
   project: AdminProject;
   update: (patch: Partial<AdminProject>) => void;
-  upload: Upload;
   uploadLogo: (file: File) => Promise<AdminProject["logo"]>;
+  importFrame: (slot: "catalog" | "hero" | "interactive", url: string, sectionId?: string) => Promise<void>;
   issues: FieldIssue[];
 }) {
   return (
     <div className="editor-stack">
+      <section className="editor-section frame-editor-section">
+        <FrameField
+          key={`${project.slug}-catalog-${project.catalogFrame?.source.url ?? "legacy"}`}
+          title="Обложка карточки"
+          description="Один адаптивный Frame используется на главной и в списке проектов."
+          composition={project.catalogFrame}
+          previewVariant="cover"
+          onImport={(url) => importFrame("catalog", url)}
+        />
+        {!project.catalogFrame && (project.catalogImage || project.hero) ? <Text size="1" color="gray">Текущая managed-композиция сохранена и не изменится до успешного импорта Frame.</Text> : null}
+      </section>
       <section className="editor-section editor-section-primary">
         <div className="section-heading-copy">
           <Heading size="4">Карточка проекта</Heading>
@@ -201,36 +213,26 @@ export function CardEditor({
         </div>
         <div className="form-grid">
           <Field field="title" label="Название" error={issueFor(issues, "title")} wide>
-            <TextField.Root value={project.title} onChange={(event) => update({ title: event.target.value })} />
+            <TextField.Root size="3" value={project.title} onChange={(event) => update({ title: event.target.value })} />
           </Field>
           <Field field="description" label="Описание" error={issueFor(issues, "description")} wide>
-            <TextArea rows={4} value={project.description} onChange={(event) => update({ description: event.target.value })} />
+            <TextArea size="3" rows={4} value={project.description} onChange={(event) => update({ description: event.target.value })} />
           </Field>
           <Field field="role" label="Роль" error={issueFor(issues, "role")}>
-            <TextField.Root value={project.role} onChange={(event) => update({ role: event.target.value })} />
+            <TextField.Root size="3" value={project.role} onChange={(event) => update({ role: event.target.value })} />
           </Field>
           <TagField label="Краткие теги" value={project.tags} onChange={(tags) => update({ tags })} />
           <Field label="Что делал" wide>
-            <TextArea rows={3} value={project.workSummary ?? ""} onChange={(event) => update({ workSummary: event.target.value || undefined })} />
+            <TextArea size="3" rows={3} value={project.workSummary ?? ""} onChange={(event) => update({ workSummary: event.target.value || undefined })} />
           </Field>
         </div>
       </section>
       <section className="editor-section">
         <div className="asset-field logo-field">
           <div className="asset-copy"><Text weight="medium">Логотип проекта</Text><Text as="p" size="1" color="gray">Необязательно. Загрузите безопасный квадратный SVG.</Text></div>
-          {project.logo ? <div className="logo-preview">{project.logo.type === "image" ? <img src={project.logo.src} alt="" /> : <Text size="1" color="gray">Составной логотип сохранён</Text>}</div> : <div className="asset-placeholder"><Text size="1" color="gray">Логотип не добавлен</Text></div>}
-          <Flex gap="2"><label><Button asChild size="1" variant="soft"><span>{project.logo ? "Заменить" : "Загрузить SVG"}</span></Button><input hidden type="file" accept="image/svg+xml,.svg" onChange={async (event) => { const file = event.target.files?.[0]; if (file) update({ logo: await uploadLogo(file) }); event.target.value = ""; }} /></label>{project.logo ? <Button size="1" variant="soft" color="red" onClick={() => update({ logo: undefined })}>Удалить</Button> : null}</Flex>
+          {project.logo ? <div className="logo-preview">{project.logo.type === "image" ? <ImagePreview src={project.logo.src} label="Логотип проекта"><img src={project.logo.src} alt="" /></ImagePreview> : <Text size="1" color="gray">Составной логотип сохранён</Text>}</div> : <div className="asset-placeholder"><Text size="1" color="gray">Логотип не добавлен</Text></div>}
+          <Flex gap="2"><label><Button asChild size="3" variant="outline" color="gray"><span>{project.logo ? "Заменить" : "Загрузить SVG"}</span></Button><input hidden type="file" accept="image/svg+xml,.svg" onChange={async (event) => { const file = event.target.files?.[0]; if (file) update({ logo: await uploadLogo(file) }); event.target.value = ""; }} /></label>{project.logo ? <IconButton size="3" variant="ghost" color="red" aria-label="Удалить логотип" onClick={() => update({ logo: undefined })}><TrashIcon /></IconButton> : null}</Flex>
         </div>
-      </section>
-      <section className="editor-section">
-        <AssetField
-          title="Обложка карточки"
-          description="Одна обложка используется на главной и в списке проектов."
-          image={project.catalogImage ?? project.hero?.image}
-          managed={!project.catalogImage && Boolean(project.hero)}
-          upload={async (file) => update({ catalogImage: await upload(file, "Обложка проекта") })}
-          remove={() => update({ catalogImage: undefined })}
-        />
       </section>
     </div>
   );
@@ -274,7 +276,7 @@ function GalleryEditor({
           <div className="section-title">
             <Heading size="3">{group.label}</Heading>
             <label>
-              <Button asChild size="1" variant="soft"><span><PlusIcon />Добавить изображение</span></Button>
+              <Button asChild size="3" variant="soft"><span><PlusIcon />Добавить изображение</span></Button>
               <input
                 hidden
                 type="file"
@@ -296,12 +298,11 @@ function GalleryEditor({
           <ol className="gallery-list">
             {group.items.map((item, index) => (
               <li key={`${item.src}-${index}`}>
-                <img src={item.src} alt="" />
-                <Text size="2">Изображение {index + 1}</Text>
-                <Flex gap="1">
-                  <IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const items = [...group.items]; [items[index - 1], items[index]] = [items[index], items[index - 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronUpIcon /></IconButton>
-                  <IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.items.length - 1} onClick={() => { const items = [...group.items]; [items[index + 1], items[index]] = [items[index], items[index + 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronDownIcon /></IconButton>
-                  <IconButton type="button" size="1" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => updateGroup(group.id, { ...group, items: group.items.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton>
+                <ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview>
+                <Flex className="gallery-item-name" align="center" gap="2"><Text size="2">Изображение {index + 1}</Text><IconButton type="button" size="3" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => updateGroup(group.id, { ...group, items: group.items.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></Flex>
+                <Flex className="gallery-item-order" gap="2">
+                  <IconButton size="3" variant="ghost" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const items = [...group.items]; [items[index - 1], items[index]] = [items[index], items[index - 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronUpIcon /></IconButton>
+                  <IconButton size="3" variant="ghost" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.items.length - 1} onClick={() => { const items = [...group.items]; [items[index + 1], items[index]] = [items[index], items[index + 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronDownIcon /></IconButton>
                 </Flex>
               </li>
             ))}
@@ -319,6 +320,7 @@ export function PageEditor({
   selectedSection,
   selectSection,
   issues,
+  importFrame,
 }: {
   project: AdminProject;
   update: (patch: Partial<AdminProject>) => void;
@@ -326,6 +328,7 @@ export function PageEditor({
   selectedSection?: string;
   selectSection: (id: string) => void;
   issues: FieldIssue[];
+  importFrame: (slot: "catalog" | "hero" | "interactive", url: string, sectionId?: string) => Promise<void>;
 }) {
   const sections = project.content.filter((block): block is AdminSection => block.type === "section");
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
@@ -337,6 +340,17 @@ export function PageEditor({
   });
   return (
     <div className="editor-stack">
+      <section className="editor-section frame-editor-section">
+        <FrameField
+          key={`${project.slug}-hero-${project.heroFrame?.source.url ?? "legacy"}`}
+          title="Главное изображение страницы"
+          description="Frame занимает публичный визуальный слот и сохраняет constraints вложенных элементов."
+          composition={project.heroFrame}
+          required={project.detailAvailable}
+          onImport={(url) => importFrame("hero", url)}
+        />
+        {!project.heroFrame && project.hero ? <Text size="1" color="gray">Существующее главное изображение сохранено как managed-композиция.</Text> : null}
+      </section>
       <section className="editor-section editor-section-primary">
         <div className="section-heading-copy">
           <Heading size="4">Открытая страница проекта</Heading>
@@ -344,38 +358,11 @@ export function PageEditor({
         </div>
         <TagField label="Подробные теги" hint="Отображаются наверху открытого проекта · разделитель /" value={project.detailTags} onChange={(detailTags) => update({ detailTags })} />
       </section>
-      <section className="editor-section">
-        <AssetField
-          title="Главное изображение страницы"
-          description="Крупное изображение над основной информацией проекта."
-          image={project.hero?.image}
-          managed={project.hero?.presentation === "browser-composite"}
-          upload={async (file) => update({ hero: { presentation: "single", image: await upload(file, "Главное изображение страницы") } })}
-        />
-      </section>
       <div className="content-heading">
         <div className="section-heading-copy">
           <Heading size="4">Содержание страницы</Heading>
           <Text size="2" color="gray">Одна секция соответствует одному пункту закреплённой навигации.</Text>
         </div>
-        <Button
-          size="2"
-          variant="soft"
-          onClick={() => {
-            const adminId = `${project.slug}-section-${Date.now()}`;
-            const section: AdminSection = { type: "section", adminId, heading: "Новая секция", blocks: [] };
-            update({
-              content: [
-                ...project.content.filter((block) => block.type !== "gallery"),
-                section,
-                ...project.content.filter((block) => block.type === "gallery"),
-              ],
-            });
-            selectSection(adminId);
-          }}
-        >
-          <PlusIcon />Секция
-        </Button>
       </div>
       {sections.map((section, index) => (
         <SectionEditor
@@ -402,8 +389,22 @@ export function PageEditor({
             update({ content: project.content.filter((block) => block !== section), admin: { ...project.admin, sections } });
           }}
           issues={issues}
+          importFrame={importFrame}
         />
       ))}
+      <Button
+        className="add-section-button"
+        size="3"
+        variant="soft"
+        color="gray"
+        onClick={() => {
+          const adminId = `${project.slug}-section-${Date.now()}`;
+          const section: AdminSection = { type: "section", adminId, heading: "Новая секция", blocks: [] };
+          update({ content: [...project.content.filter((block) => block.type !== "gallery"), section, ...project.content.filter((block) => block.type === "gallery")] });
+          selectSection(adminId);
+          requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="content.${adminId}.heading"] input`)?.focus());
+        }}
+      ><PlusIcon />Добавить секцию</Button>
       <GalleryEditor gallery={gallery} change={galleryChange} upload={upload} />
     </div>
   );
