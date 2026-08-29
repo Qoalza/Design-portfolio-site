@@ -54,10 +54,10 @@ test("frame import preserves vector and raster leaves as separate local assets",
 });
 
 test("frame constraints become responsive CSS positions", () => {
-  const centered = frameNodeStyle({ x: 500, y: 300, width: 200, height: 200, constraints: { horizontal: "CENTER", vertical: "CENTER" } }, 1200, 800);
-  assert.equal(centered.left, "50%");
-  assert.equal(centered.top, "50%");
-  assert.match(centered.transform, /translate/);
+  const centered = frameNodeStyle({ x: 77, y: 65, width: 720, height: 612, constraints: { horizontal: "CENTER", vertical: "CENTER" } }, 1200, 533);
+  assert.equal(centered.left, "calc(50% + -13.583333%)");
+  assert.equal(centered.top, "calc(50% + 19.606004%)");
+  assert.equal(centered.transform, "translateX(-50%) translateY(-50%)");
 
   const stretch = frameNodeStyle({ x: 20, y: 10, width: 1160, height: 780, constraints: { horizontal: "STRETCH", vertical: "STRETCH" } }, 1200, 800);
   assert.deepEqual({ left: stretch.left, right: stretch.right, top: stretch.top, bottom: stretch.bottom }, { left: "1.666667%", right: "1.666667%", top: "1.25%", bottom: "1.25%" });

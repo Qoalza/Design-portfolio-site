@@ -195,6 +195,16 @@ export function CardEditor({
 }) {
   return (
     <div className="editor-stack">
+      <section className="editor-section frame-editor-section">
+        <FrameField
+          key={`${project.slug}-catalog-${project.catalogFrame?.source.url ?? "legacy"}`}
+          title="Обложка карточки"
+          description="Один адаптивный Frame используется на главной и в списке проектов."
+          composition={project.catalogFrame}
+          onImport={(url) => importFrame("catalog", url)}
+        />
+        {!project.catalogFrame && (project.catalogImage || project.hero) ? <Text size="1" color="gray">Текущая managed-композиция сохранена и не изменится до успешного импорта Frame.</Text> : null}
+      </section>
       <section className="editor-section editor-section-primary">
         <div className="section-heading-copy">
           <Heading size="4">Карточка проекта</Heading>
@@ -222,16 +232,6 @@ export function CardEditor({
           {project.logo ? <div className="logo-preview">{project.logo.type === "image" ? <ImagePreview src={project.logo.src} label="Логотип проекта"><img src={project.logo.src} alt="" /></ImagePreview> : <Text size="1" color="gray">Составной логотип сохранён</Text>}</div> : <div className="asset-placeholder"><Text size="1" color="gray">Логотип не добавлен</Text></div>}
           <Flex gap="2"><label><Button asChild size="1" variant="outline" color="gray"><span>{project.logo ? "Заменить" : "Загрузить SVG"}</span></Button><input hidden type="file" accept="image/svg+xml,.svg" onChange={async (event) => { const file = event.target.files?.[0]; if (file) update({ logo: await uploadLogo(file) }); event.target.value = ""; }} /></label>{project.logo ? <IconButton size="1" variant="ghost" color="red" aria-label="Удалить логотип" onClick={() => update({ logo: undefined })}><TrashIcon /></IconButton> : null}</Flex>
         </div>
-      </section>
-      <section className="editor-section frame-editor-section">
-        <FrameField
-          key={`${project.slug}-catalog-${project.catalogFrame?.source.url ?? "legacy"}`}
-          title="Обложка карточки"
-          description="Один адаптивный Frame используется на главной и в списке проектов."
-          composition={project.catalogFrame}
-          onImport={(url) => importFrame("catalog", url)}
-        />
-        {!project.catalogFrame && (project.catalogImage || project.hero) ? <Text size="1" color="gray">Текущая managed-композиция сохранена и не изменится до успешного импорта Frame.</Text> : null}
       </section>
     </div>
   );

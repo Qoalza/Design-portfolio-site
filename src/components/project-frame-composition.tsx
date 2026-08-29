@@ -19,11 +19,17 @@ function positionedStyle(node: ProjectFrameNode, parentWidth: number, parentHeig
   const horizontal = node.constraints.horizontal;
   const vertical = node.constraints.vertical;
   if (horizontal === "MAX") style.right = percent((parentWidth - node.x - node.width) / parentWidth * 100);
-  else if (horizontal === "CENTER") { style.left = "50%"; transforms.push(`translateX(calc(-50% + ${percent((node.x + node.width / 2 - parentWidth / 2) / parentWidth * 100)}))`); }
+  else if (horizontal === "CENTER") {
+    style.left = `calc(50% + ${percent((node.x + node.width / 2 - parentWidth / 2) / parentWidth * 100)})`;
+    transforms.push("translateX(-50%)");
+  }
   else if (horizontal === "STRETCH") { style.left = percent(node.x / parentWidth * 100); style.right = percent((parentWidth - node.x - node.width) / parentWidth * 100); delete style.width; }
   else style.left = percent(node.x / parentWidth * 100);
   if (vertical === "MAX") style.bottom = percent((parentHeight - node.y - node.height) / parentHeight * 100);
-  else if (vertical === "CENTER") { style.top = "50%"; transforms.push(`translateY(calc(-50% + ${percent((node.y + node.height / 2 - parentHeight / 2) / parentHeight * 100)}))`); }
+  else if (vertical === "CENTER") {
+    style.top = `calc(50% + ${percent((node.y + node.height / 2 - parentHeight / 2) / parentHeight * 100)})`;
+    transforms.push("translateY(-50%)");
+  }
   else if (vertical === "STRETCH") { style.top = percent(node.y / parentHeight * 100); style.bottom = percent((parentHeight - node.y - node.height) / parentHeight * 100); delete style.height; }
   else style.top = percent(node.y / parentHeight * 100);
   if (node.rotation) transforms.push(`rotate(${node.rotation}deg)`);

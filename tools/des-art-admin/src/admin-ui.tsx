@@ -146,11 +146,17 @@ function FrameNodePreview({ node, parent, inLayout = false }: { node: ProjectFra
   };
   if (!inLayout) {
     if (node.constraints.horizontal === "MAX") style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`;
-    else if (node.constraints.horizontal === "CENTER") { style.left = "50%"; transforms.push(`translateX(calc(-50% + ${(node.x + node.width / 2 - parent.width / 2) / parent.width * 100}%))`); }
+    else if (node.constraints.horizontal === "CENTER") {
+      style.left = `calc(50% + ${(node.x + node.width / 2 - parent.width / 2) / parent.width * 100}%)`;
+      transforms.push("translateX(-50%)");
+    }
     else if (node.constraints.horizontal === "STRETCH") { style.left = `${node.x / parent.width * 100}%`; style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`; delete style.width; }
     else style.left = `${node.x / parent.width * 100}%`;
     if (node.constraints.vertical === "MAX") style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`;
-    else if (node.constraints.vertical === "CENTER") { style.top = "50%"; transforms.push(`translateY(calc(-50% + ${(node.y + node.height / 2 - parent.height / 2) / parent.height * 100}%))`); }
+    else if (node.constraints.vertical === "CENTER") {
+      style.top = `calc(50% + ${(node.y + node.height / 2 - parent.height / 2) / parent.height * 100}%)`;
+      transforms.push("translateY(-50%)");
+    }
     else if (node.constraints.vertical === "STRETCH") { style.top = `${node.y / parent.height * 100}%`; style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`; delete style.height; }
     else style.top = `${node.y / parent.height * 100}%`;
   }
@@ -177,11 +183,21 @@ export function FrameField({ title, description, composition, source, required, 
 }) {
   const [value, setValue] = useState(source ?? composition?.source.url ?? "");
   const [error, setError] = useState("");
-  const submit = async () => { setError(""); try { await onImport(value.trim()); } catch (reason) { setError(reason instanceof Error ? reason.message : "Не удалось импортировать Frame."); } };
+  const [submitting, setSubmitting] = useState(false);
+  const busy = Boolean(importing || submitting);
+  const submit = async () => {
+    if (busy) return;
+    setError("");
+    setSubmitting(true);
+    try { await onImport(value.trim()); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Не удалось импортировать Frame."); }
+    finally { setSubmitting(false); }
+  };
   return <div className={`frame-field${error ? " frame-field-error" : ""}`}>
     <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
     {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={{ aspectRatio: `${composition.width}/${composition.height}`, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={{ aspectRatio: `${composition.width}/${composition.height}`, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
-    <div className="frame-source"><input value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} /><Button variant="outline" color="gray" disabled={!value.trim() || importing} onClick={() => void submit()}>{importing ? "Импорт…" : composition ? "Обновить" : "Импортировать"}</Button></div>
+    <div className="frame-source"><input value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
+    {busy ? <span className="frame-import-status" role="status">Получаем структуру Frame и сохраняем ассеты…</span> : null}
     <span className={`field-help${error ? " field-error" : ""}`}>{error || "Production использует локальный snapshot и не зависит от Figma после публикации."}</span>
   </div>;
 }
