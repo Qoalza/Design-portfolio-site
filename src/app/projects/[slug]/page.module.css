@@ -94,8 +94,20 @@
   width: 1200px;
   height: 533px;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #f5f6f7;
+}
+
+.heroPreview::after {
+  position: absolute;
+  z-index: 20;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: #f5f6f7;
+  content: "";
+  pointer-events: none;
 }
 
 .heroPreviewBack {

@@ -123,13 +123,13 @@ function FrameNodeView({ node, parentWidth, parentHeight, rootWidth, rootHeight,
   </div>;
 }
 
-export function ProjectFrameCompositionView({ composition, className = "", fillSlot = false }: { composition: ProjectFrameComposition; className?: string; fillSlot?: boolean }) {
+export function ProjectFrameCompositionView({ composition, className = "", fillSlot = false, slotRadius }: { composition: ProjectFrameComposition; className?: string; fillSlot?: boolean; slotRadius?: number }) {
   const visualEffects = effectStyle(composition.effects, composition.width, composition.height);
   const rootStyle: FrameStyle = {
     aspectRatio: `${composition.width} / ${composition.height}`,
     overflow: composition.clip ? "hidden" : "visible",
     "--frame-background": composition.background,
-    "--frame-radius": rootWidthUnit(composition.radius, composition.width),
+    "--frame-radius": slotRadius === undefined ? rootWidthUnit(composition.radius, composition.width) : `${slotRadius}px`,
     boxShadow: [strokeShadow(composition.stroke, composition.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
     filter: visualEffects.filter,
     backdropFilter: visualEffects.backdropFilter,
