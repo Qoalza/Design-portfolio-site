@@ -14,11 +14,18 @@ const adminRail = await readFile(new URL("../tools/des-art-admin/src/admin-rail.
 const adminComponents = await readFile(new URL("../tools/des-art-admin/src/admin-ui.tsx", import.meta.url), "utf8");
 const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+const deployCommand = await readFile(new URL("../tools/des-art-admin/server/art-des-publish", import.meta.url), "utf8");
 
 test("admin server binds only to IPv4 loopback and validates local requests", () => {
   assert.match(server, /server\.listen\(port, "127\.0\.0\.1"/);
   assert.match(server, /validateLocalRequest/);
   assert.doesNotMatch(server, /0\.0\.0\.0/);
+});
+
+test("publish mode is server-owned and sandbox is the safe default", () => {
+  assert.match(server, /DES_ART_ADMIN_PUBLISH_MODE/);
+  assert.match(server, /publishMode\s*=.*\?\s*"live"\s*:\s*"sandbox"/s);
+  assert.doesNotMatch(server, /value\.dryRun\s*!==\s*true/);
 });
 
 test("launcher uses argument arrays instead of shell command construction", () => {
@@ -28,6 +35,10 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /Library", "Application Support", "Des-art Admin/);
   assert.match(launcher, /process\.env\.DES_ART_ADMIN_SUPPORT/);
   assert.match(launcher, /DES_ART_ADMIN_PREVIEW/);
+  assert.match(launcher, /merge", "--ff-only", "origin\/main/);
+  assert.match(launcher, /live-publish\.json/);
+  assert.match(launcher, /npm-lock\.sha256/);
+  assert.match(launcher, /createHash\("sha256"\)/);
 });
 
 test("admin is not an App Router route and preview access is env-gated", async () => {
@@ -89,4 +100,16 @@ test("prepared macOS launcher bundle is complete", async () => {
   assert.equal(bundledLauncher, launcher);
   const source = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/source-repository.txt", import.meta.url), "utf8");
   assert.equal(source.trim(), "https://github.com/Qoalza/Design-portfolio-site.git");
+});
+
+test("remote deploy command accepts only full SHAs and rolls back failed readiness", () => {
+  assert.match(deployCommand, /\[0-9a-f\]\{40\}/);
+  assert.match(deployCommand, /NEXT_PUBLIC_BUILD_SHA/);
+  assert.match(deployCommand, /upload\[\[:space:\]\]/);
+  assert.match(deployCommand, /Archive contains an unsafe path/);
+  assert.match(deployCommand, /Archive contains a symbolic link/);
+  assert.match(deployCommand, /runuser -u portfolio/);
+  assert.match(deployCommand, /current\.rollback/);
+  assert.match(deployCommand, /previous release restored/i);
+  assert.doesNotMatch(deployCommand, /eval\s/);
 });

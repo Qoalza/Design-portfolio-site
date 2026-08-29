@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="/var/www/art-des"
+LOCK="/var/lock/art-des-publish.lock"
+COMMAND="${SSH_ORIGINAL_COMMAND:-${*:-}}"
+
+if [[ "$COMMAND" == "status" ]]; then
+  current="$(readlink -f "$ROOT/current" 2>/dev/null || true)"
+  printf 'ready %s\n' "${current##*/}"
+  exit 0
+fi
+
+if [[ "$COMMAND" =~ ^upload[[:space:]]+([0-9a-f]{40})$ ]]; then
+  SHA="${BASH_REMATCH[1]}"
+  INCOMING="$ROOT/incoming/$SHA"
+  ARCHIVE="$ROOT/incoming/.${SHA}.tar.gz"
+  mkdir -p "$ROOT/incoming"
+  cat > "$ARCHIVE"
+  if tar -tzf "$ARCHIVE" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
+    rm -f "$ARCHIVE"
+    echo "Archive contains an unsafe path." >&2
+    exit 65
+  fi
+  rm -rf "$INCOMING"
+  mkdir -p "$INCOMING"
+  tar -xzf "$ARCHIVE" -C "$INCOMING"
+  rm -f "$ARCHIVE"
+  if find "$INCOMING" -type l -print -quit | grep -q .; then
+    rm -rf "$INCOMING"
+    echo "Archive contains a symbolic link." >&2
+    exit 65
+  fi
+  printf 'uploaded %s\n' "$SHA"
+  exit 0
+fi
+
+if [[ ! "$COMMAND" =~ ^publish[[:space:]]+([0-9a-f]{40})$ ]]; then
+  echo "Only 'status', 'upload <full-sha>' and 'publish <full-sha>' are allowed." >&2
+  exit 64
+fi
+
+SHA="${BASH_REMATCH[1]}"
+RELEASE="$ROOT/releases/$SHA"
+TEMP="$ROOT/releases/.${SHA}.building"
+INCOMING="$ROOT/incoming/$SHA"
+PREVIOUS="$(readlink -f "$ROOT/current" 2>/dev/null || true)"
+
+exec 9>"$LOCK"
+flock -n 9 || { echo "Another deploy is running." >&2; exit 75; }
+
+if [[ ! -d "$RELEASE" ]]; then
+  [[ -d "$INCOMING" ]] || { echo "Uploaded release source is missing." >&2; exit 66; }
+  rm -rf "$TEMP"
+  mv "$INCOMING" "$TEMP"
+  chown -R portfolio:portfolio "$TEMP"
+  runuser -u portfolio -- npm ci --no-audit --no-fund --prefix "$TEMP"
+  runuser -u portfolio -- env NEXT_PUBLIC_BUILD_SHA="$SHA" npm run build --prefix "$TEMP"
+  printf '%s\n' "$SHA" > "$TEMP/DEPLOY_SHA"
+  mv "$TEMP" "$RELEASE"
+fi
+
+ln -sfn "$RELEASE" "$ROOT/current.next"
+mv -Tf "$ROOT/current.next" "$ROOT/current"
+systemctl restart art-des.service
+
+ready=0
+for _ in $(seq 1 40); do
+  if systemctl is-active --quiet art-des.service && curl --fail --silent --max-time 2 http://127.0.0.1:3000/ | grep -Fq "$SHA"; then
+    ready=1
+    break
+  fi
+  sleep 0.5
+done
+
+if [[ "$ready" != "1" ]]; then
+  if [[ -n "$PREVIOUS" && -d "$PREVIOUS" ]]; then
+    ln -sfn "$PREVIOUS" "$ROOT/current.rollback"
+    mv -Tf "$ROOT/current.rollback" "$ROOT/current"
+    systemctl restart art-des.service
+  fi
+  echo "New release failed readiness; previous release restored." >&2
+  exit 70
+fi
+
+printf 'deployed %s\n' "$SHA"

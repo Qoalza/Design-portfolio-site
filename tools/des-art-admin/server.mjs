@@ -15,6 +15,7 @@ const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(direct
 const supportRoot = path.resolve(process.env.DES_ART_ADMIN_SUPPORT ?? path.join(repoRoot, ".des-art-admin-runtime"));
 const port = Number(process.env.DES_ART_ADMIN_PORT ?? 41731);
 const previewPort = Number(process.env.DES_ART_PREVIEW_PORT ?? 41732);
+const publishMode = process.env.DES_ART_ADMIN_PUBLISH_MODE === "live" ? "live" : "sandbox";
 const csrfToken = randomBytes(32).toString("hex");
 const store = new AdminStore({
   contentRoot: path.join(repoRoot, "content", "projects"),
@@ -111,7 +112,7 @@ async function handler(request, response) {
     if (request.method === "GET" && url.pathname === "/") {
       const template = await readFile(path.join(directory, "public", "index.html"), "utf8");
       response.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
-      response.end(template.replaceAll("__CSRF_TOKEN__", csrfToken).replaceAll("__PREVIEW_PORT__", String(previewPort)));
+      response.end(template.replaceAll("__CSRF_TOKEN__", csrfToken).replaceAll("__PREVIEW_PORT__", String(previewPort)).replaceAll("__PUBLISH_MODE__", publishMode));
       return;
     }
     if (request.method === "GET" && url.pathname === "/admin.css") return staticFile(response, "admin.css", "text/css; charset=utf-8");
@@ -149,18 +150,21 @@ async function handler(request, response) {
       const pathname = context === "card" ? "/projects" : `/projects/${encodeURIComponent(slug)}`;
       return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}${pathname}?admin-preview=1&draft=${encodeURIComponent(slug)}` });
     }
-    if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot }));
+    if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot, mode: publishMode }));
     if (request.method === "GET" && url.pathname === "/api/publish/status") {
       const names = (await readdir(jobsRoot).catch(() => [])).filter((name) => name.endsWith(".json")).sort().reverse();
       return json(response, 200, names[0] ? JSON.parse(await readFile(path.join(jobsRoot, names[0]), "utf8")) : null);
     }
     if (request.method === "POST" && url.pathname === "/api/publish/start") {
       const value = await body(request);
-      if (value.dryRun !== true) return json(response, 409, { error: "Первый настоящий publish требует отдельного запуска пользователя." });
+      const readiness = await publishReadiness({ supportRoot, mode: publishMode });
+      if (!readiness.ready) return json(response, 409, { error: readiness.failures.join(". ") });
       if (value.scope !== "project" && value.scope !== "all") return json(response, 400, { error: "Неизвестная область публикации." });
       await store.ensureSnapshotBaseline();
       const all = await store.listProjects();
-      const selected = value.scope === "project" ? all.filter((project) => project.slug === value.slug) : all;
+      const inventory = await store.getChangeInventory();
+      const selectedSlugs = value.scope === "project" ? [value.slug] : inventory.changedSlugs;
+      const selected = all.filter((project) => selectedSlugs.includes(project.slug));
       if (value.scope === "project" && selected.length !== 1) return json(response, 404, { error: "Проект для публикации не найден." });
       const invalid = selected.map((project) => ({ project, validation: draftValidation(project) })).filter((item) => !item.validation.valid);
       if (invalid.length) {
@@ -173,7 +177,7 @@ async function handler(request, response) {
       const jobFile = path.join(jobsRoot, `${id}.json`);
       const existingFiles = [];
       for (const file of files) { try { await readFile(file); existingFiles.push(file); } catch {} }
-      const job = { id, scope: value.scope, slug: value.slug, dryRun: true, repoRoot, files: existingFiles, snapshotRoot: store.snapshotRoot, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
+      const job = { id, mode: publishMode, scope: value.scope, slug: value.slug, repoRoot, supportRoot, draftAssetRoot: store.draftAssetRoot, files: existingFiles, snapshotRoot: store.snapshotRoot, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
       await writeFile(jobFile, `${JSON.stringify(job, null, 2)}\n`, { mode: 0o600 });
       const workerArgs = [process.execPath, "--experimental-strip-types", path.join(directory, "publish-worker.mjs"), jobFile];
       const command = process.platform === "darwin" ? "/usr/bin/caffeinate" : workerArgs.shift();

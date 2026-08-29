@@ -1,4 +1,5 @@
 import { execFile, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { closeSync, openSync } from "node:fs";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import http from "node:http";
@@ -23,6 +24,15 @@ const logsRoot = path.join(supportRoot, "logs");
 const adminPort = 41731;
 const previewPort = 41732;
 
+async function configuredPublishMode() {
+  try {
+    const value = JSON.parse(await readFile(path.join(supportRoot, "live-publish.json"), "utf8"));
+    return value.mode === "live" ? "live" : "sandbox";
+  } catch {
+    return "sandbox";
+  }
+}
+
 function reachable(port) {
   return new Promise((resolve) => {
     const request = http.get({ hostname: "127.0.0.1", port, path: "/", timeout: 500 }, (response) => {
@@ -45,10 +55,20 @@ async function ensureManagedRepository() {
   } catch {
     await exec("/usr/bin/git", ["clone", "--no-hardlinks", sourceRoot, managedRepo]);
   }
-  try {
-    await access(path.join(managedRepo, "node_modules"));
-  } catch {
-    await exec("npm", ["install", "--no-audit", "--no-fund"], { cwd: managedRepo });
+  const { stdout: status } = await exec("/usr/bin/git", ["status", "--porcelain"], { cwd: managedRepo });
+  if (status.trim()) throw new Error("Управляемая копия содержит несохранённые изменения. Автоматическая синхронизация остановлена.");
+  await exec("/usr/bin/git", ["fetch", "origin", "main"], { cwd: managedRepo });
+  await exec("/usr/bin/git", ["switch", "main"], { cwd: managedRepo });
+  await exec("/usr/bin/git", ["merge", "--ff-only", "origin/main"], { cwd: managedRepo });
+  const lock = await readFile(path.join(managedRepo, "package-lock.json"));
+  const lockHash = createHash("sha256").update(lock).digest("hex");
+  const marker = path.join(supportRoot, "npm-lock.sha256");
+  const installedHash = await readFile(marker, "utf8").catch(() => "");
+  let dependenciesPresent = true;
+  try { await access(path.join(managedRepo, "node_modules")); } catch { dependenciesPresent = false; }
+  if (!dependenciesPresent || installedHash.trim() !== lockHash) {
+    await exec("npm", ["ci", "--no-audit", "--no-fund"], { cwd: managedRepo });
+    await writeFile(marker, `${lockHash}\n`, { mode: 0o600 });
   }
 }
 
@@ -75,12 +95,14 @@ async function waitUntilReady(port, timeout = 60_000) {
 async function main() {
   await mkdir(logsRoot, { recursive: true });
   await ensureManagedRepository();
+  const publishMode = await configuredPublishMode();
   if (!(await reachable(adminPort))) {
     await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
       DES_ART_ADMIN_REPO: managedRepo,
       DES_ART_ADMIN_SUPPORT: supportRoot,
       DES_ART_ADMIN_PORT: String(adminPort),
       DES_ART_PREVIEW_PORT: String(previewPort),
+      DES_ART_ADMIN_PUBLISH_MODE: publishMode,
     });
   }
   if (!(await reachable(previewPort))) {

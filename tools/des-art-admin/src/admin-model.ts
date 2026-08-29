@@ -47,6 +47,9 @@ export type PublishJob = {
   message: string;
   error?: string;
   currentStage?: string;
+  productionState?: "unchanged" | "main-updated" | "main-updated-deploy-failed";
+  publishedSha?: string;
+  pullRequestUrl?: string;
   stages: Array<{ id: string; label: string; status: "pending" | "complete" }>;
 };
 

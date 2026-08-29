@@ -103,7 +103,7 @@ export function HomeLimitDialog({
   );
 }
 
-export function PublishOverlay({ job, close }: { job: PublishJob | null; close: () => void }) {
+export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; mode: "live" | "sandbox"; close: () => void }) {
   if (!job) return null;
   return (
     <div className="publish-overlay" role="dialog" aria-modal="true" aria-label="Публикация изменений">
@@ -134,14 +134,16 @@ export function PublishOverlay({ job, close }: { job: PublishJob | null; close: 
           {job.error ? (
             <Text color="red">{job.error}</Text>
           ) : (
-            <Text color="gray">Это безопасная локальная репетиция. Production не изменяется.</Text>
+            <Text color="gray">{mode === "live" ? "Изменения проходят проверки перед публикацией на art-des.ru." : "Это безопасная локальная репетиция. Production не изменяется."}</Text>
           )}
         </div>
         <Text className="publish-warning" size="2">
           {job.status === "failed"
-            ? "Изменения сохранены. Сайт не изменён."
+            ? job.productionState === "main-updated-deploy-failed"
+              ? "Изменения уже находятся в main, но deploy не завершён. Текущий работающий production сохранён."
+              : "Изменения сохранены. Сайт не изменён."
             : job.status === "complete"
-              ? "Изменения опубликованы только в тестовом контуре."
+              ? mode === "live" ? "Изменения опубликованы на art-des.ru." : "Изменения опубликованы только в тестовом контуре."
               : "Можно закрыть эту страницу. Не выключайте Mac до завершения публикации."}
         </Text>
         {job.status === "complete" || job.status === "failed" ? <Button onClick={close}>Закрыть</Button> : null}

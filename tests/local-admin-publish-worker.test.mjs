@@ -3,7 +3,16 @@ import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import {
+  PUBLISH_STAGES,
+  createPublishBranch,
+  publishReadiness,
+  runPublishJob,
+} from "../tools/des-art-admin/publish-worker.mjs";
+
+test("live publication branches are deterministic and contain no project title data", () => {
+  assert.equal(createPublishBranch("2026-08-29T12:34:56.000Z"), "codex/content-publish-20260829-123456");
+});
 
 test("dry-run publish persists every stage without external mutations", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-"));
@@ -91,4 +100,24 @@ test("readiness reports missing credentials without exposing secrets", async () 
   assert.equal(typeof result.ready, "boolean");
   assert.ok(Array.isArray(result.failures));
   assert.doesNotMatch(JSON.stringify(result), /BEGIN .*PRIVATE KEY/);
+});
+
+test("live publish refuses a sandbox support root", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
+  const jobFile = path.join(root, "job.json");
+  await writeFile(jobFile, JSON.stringify({
+    id: "unsafe-live",
+    mode: "live",
+    scope: "all",
+    repoRoot: process.cwd(),
+    supportRoot: root,
+    files: [],
+    status: "queued",
+    message: "Подготовка",
+    stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
+  }));
+  await runPublishJob(jobFile);
+  const result = JSON.parse(await readFile(jobFile, "utf8"));
+  assert.equal(result.status, "failed");
+  assert.match(result.error, /live environment|production/i);
 });
