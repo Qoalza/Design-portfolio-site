@@ -23,9 +23,9 @@
 
 ## Актуальное состояние
 
-- Goal `codex/figma-frame-admin-assets` merged через PR #24. `main`, `origin/main` и production совпадают на `27679a0a8f8856037aefd48c79586b0b46be0704`.
+- Goal `codex/figma-frame-admin-assets` merged через PR #24; feature merge SHA — `27679a0a8f8856037aefd48c79586b0b46be0704`. Production разворачивается только из точного tracked-содержимого актуального `origin/main`.
 - Односторонняя граница данных активна: при первом live-запуске прежние sandbox drafts/assets/snapshots/jobs перемещены в локальный `sandbox-archive`, рабочая база создана заново из канонического `main`, а baseline подтверждает source SHA `27679a0a8f8856037aefd48c79586b0b46be0704`. Тестовые данные и тестовые состояния публикации не являются источником production-контента.
-- Production deploy `27679a0a8f8856037aefd48c79586b0b46be0704` выполнен атомарно 2026-08-30. Ограниченный SSH status и публичные `/`, `/projects`, `/projects/corvo` подтверждают точный SHA; все маршруты отвечают `200`, известные тестовые проекты и тексты отсутствуют.
+- Production deploy Goal выполнен атомарно 2026-08-30. Ограниченный SSH status и публичные `/`, `/projects`, `/projects/corvo` подтверждают точный release SHA; все маршруты отвечают `200`, известные тестовые проекты и тексты отсутствуют.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
