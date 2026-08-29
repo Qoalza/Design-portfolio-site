@@ -8,11 +8,21 @@ import { PROJECT_DOCUMENT_VERSION } from "../src/lib/project-contract.ts";
 import {
   AdminStore,
   createProjectSlug,
+  humanFigmaImportError,
   inspectSvg,
   inspectImage,
   safeUploadName,
   validateLocalRequest,
 } from "../tools/des-art-admin/core.mjs";
+
+test("Figma import failures are explained without internal contract paths", () => {
+  const layerMessage = humanFigmaImportError(new Error("Слой «Controls» использует неподдерживаемый fill GRADIENT_LINEAR."));
+  assert.match(layerMessage, /элемент «Controls»/i);
+  assert.doesNotMatch(layerMessage, /GRADIENT_LINEAR|catalogFrame|nodes\[/);
+
+  const linkMessage = humanFigmaImportError(new Error("Figma Frame больше не найден по node-id."));
+  assert.match(linkMessage, /не удалось найти Frame по этой ссылке/i);
+});
 
 test("project slugs are readable, Unicode-safe and collision resistant", async () => {
   assert.equal(createProjectSlug("Новый проект. Тест", []), "novyi-proekt-test");

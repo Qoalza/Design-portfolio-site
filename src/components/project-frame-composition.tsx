@@ -64,7 +64,11 @@ function FrameNodeView({ node, parentWidth, parentHeight, rootWidth, rootHeight,
   const style: CSSProperties = inLayout ? {
     position: "relative", width: percent(node.width / parentWidth * 100), height: percent(node.height / parentHeight * 100), flex: node.layoutGrow ? `${node.layoutGrow} 1 0` : node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
   } : positionedStyle(node, parentWidth, parentHeight);
-  style.overflow = node.clip ? "hidden" : "visible";
+  // Direct-child PNG snapshots may include visual bleed (for example a
+  // centered stroke) beyond the Figma layout box. The PNG already contains
+  // the child's clipping result, so clipping it again here would cut that
+  // border in half.
+  style.overflow = node.asset?.bounds ? "visible" : node.clip ? "hidden" : "visible";
   style.borderRadius = node.radius === undefined ? undefined : rootWidthUnit(node.radius, rootWidth);
   style.background = node.background;
   const visualEffects = effectStyle(node.effects, rootWidth, rootHeight);
@@ -83,8 +87,17 @@ function FrameNodeView({ node, parentWidth, parentHeight, rootWidth, rootHeight,
     style.justifyContent = node.layout.align === "space-between" ? "space-between" : node.layout.align === "end" ? "flex-end" : node.layout.align;
     style.alignItems = node.layout.crossAlign === "end" ? "flex-end" : node.layout.crossAlign === "start" || node.layout.crossAlign === undefined ? "flex-start" : node.layout.crossAlign;
   }
+  const assetStyle: CSSProperties | undefined = node.asset ? node.asset.bounds ? {
+    position: "absolute",
+    left: percent(node.asset.bounds.x / node.width * 100),
+    top: percent(node.asset.bounds.y / node.height * 100),
+    width: percent(node.asset.bounds.width / node.width * 100),
+    height: percent(node.asset.bounds.height / node.height * 100),
+    objectFit: node.asset.fit,
+    opacity: node.asset.opacity,
+  } : { objectFit: node.asset.fit, opacity: node.asset.opacity } : undefined;
   return <div className={`${styles.node} ${node.layout ? styles.layout : ""}`} style={style} data-frame-node={node.name}>
-    {node.asset ? <img className={styles.asset} src={node.asset.src} alt="" style={{ objectFit: node.asset.fit, opacity: node.asset.opacity }} /> : null}
+    {node.asset ? <img className={styles.asset} src={node.asset.src} alt="" style={assetStyle} /> : null}
     {node.children?.map((child) => <FrameNodeView key={child.id} node={child} parentWidth={node.width} parentHeight={node.height} rootWidth={rootWidth} rootHeight={rootHeight} inLayout={Boolean(node.layout) && !child.absoluteInLayout} />)}
   </div>;
 }

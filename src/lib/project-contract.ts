@@ -64,7 +64,13 @@ export type ProjectFrameNode = {
     align: "start" | "center" | "end" | "space-between";
     crossAlign?: "start" | "center" | "end" | "stretch" | "baseline";
   };
-  asset?: { src: string; format: "svg" | "raster"; fit: "cover" | "contain" | "fill"; opacity?: number };
+  asset?: {
+    src: string;
+    format: "svg" | "raster";
+    fit: "cover" | "contain" | "fill";
+    opacity?: number;
+    bounds?: { x: number; y: number; width: number; height: number };
+  };
   children?: ProjectFrameNode[];
 };
 
@@ -339,12 +345,27 @@ function frameNode(value: unknown, location: string): ProjectFrameNode {
   let asset: ProjectFrameNode["asset"];
   if (input.asset !== undefined) {
     const assetInput = record(input.asset, `${location}.asset`);
-    exactKeys(assetInput, ["src", "format", "fit", "opacity"], `${location}.asset`);
+    exactKeys(assetInput, ["src", "format", "fit", "opacity", "bounds"], `${location}.asset`);
     const format = string(assetInput.format, `${location}.asset.format`);
     const fit = string(assetInput.fit, `${location}.asset.fit`);
     if (format !== "svg" && format !== "raster") throw new Error(`${location}.asset.format is not supported.`);
     if (fit !== "cover" && fit !== "contain" && fit !== "fill") throw new Error(`${location}.asset.fit is not supported.`);
-    asset = { src: publicAssetPath(assetInput.src, `${location}.asset.src`), format, fit, ...optionalProperty("opacity", assetInput.opacity === undefined ? undefined : finiteNumber(assetInput.opacity, `${location}.asset.opacity`)) };
+    let bounds: NonNullable<ProjectFrameNode["asset"]>["bounds"];
+    if (assetInput.bounds !== undefined) {
+      const boundsInput = record(assetInput.bounds, `${location}.asset.bounds`);
+      exactKeys(boundsInput, ["x", "y", "width", "height"], `${location}.asset.bounds`);
+      bounds = {
+        x: finiteSignedNumber(boundsInput.x, `${location}.asset.bounds.x`),
+        y: finiteSignedNumber(boundsInput.y, `${location}.asset.bounds.y`),
+        width: finiteNumber(boundsInput.width, `${location}.asset.bounds.width`, 0),
+        height: finiteNumber(boundsInput.height, `${location}.asset.bounds.height`, 0),
+      };
+    }
+    asset = {
+      src: publicAssetPath(assetInput.src, `${location}.asset.src`), format, fit,
+      ...optionalProperty("opacity", assetInput.opacity === undefined ? undefined : finiteNumber(assetInput.opacity, `${location}.asset.opacity`)),
+      ...optionalProperty("bounds", bounds),
+    };
   }
   let layout: ProjectFrameNode["layout"];
   if (input.layout !== undefined) {

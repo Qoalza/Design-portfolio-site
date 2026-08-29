@@ -62,7 +62,7 @@ export function ProjectNavigation({
           <Heading size="4">Проекты</Heading>
           <Text size="1" color="gray">Локальная рабочая область</Text>
         </div>
-        <IconButton variant="soft" aria-label="Новый проект" onClick={create}><PlusIcon /></IconButton>
+        <IconButton size="3" variant="soft" aria-label="Новый проект" onClick={create}><PlusIcon /></IconButton>
       </div>
       <div className="nav-tabs" role="tablist">
         {(Object.keys(filterLabels) as ProjectFilter[]).map((item) => (
@@ -71,7 +71,7 @@ export function ProjectNavigation({
           </button>
         ))}
       </div>
-      <TextField.Root placeholder="Найти проект" value={search} onChange={(event) => setSearch(event.target.value)} />
+      <TextField.Root size="3" placeholder="Найти проект" value={search} onChange={(event) => setSearch(event.target.value)} />
       <ol className="project-list">
         {ordered.map((project) => (
           <li
@@ -112,10 +112,10 @@ export function ProjectNavigation({
               <Text size="2" weight="medium">Есть неопубликованные изменения</Text>
             </div>
             <Text size="1" color="gray">Проектов: {inventory.count}</Text>
-            <Button variant="outline" onClick={publishAll}>Опубликовать все · {inventory.count}</Button>
+            <Button size="3" variant="outline" onClick={publishAll}>Опубликовать все · {inventory.count}</Button>
           </div>
         ) : null}
-        <Button size="1" variant="ghost" color="gray" onClick={shutdown}>Завершить админку</Button>
+        <Button size="3" variant="ghost" color="gray" onClick={shutdown}>Завершить админку</Button>
       </div>
     </aside>
   );

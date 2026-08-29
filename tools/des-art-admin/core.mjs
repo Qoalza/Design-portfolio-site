@@ -14,6 +14,24 @@ import { importFigmaFrame } from "./figma-frame.mjs";
 
 const requireRead = (file) => readFileSync(file, "utf8");
 
+export function humanFigmaImportError(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/отклонила токен|доступ к файлу/i.test(message)) {
+    return "Figma не дала доступ к этому Frame. Проверьте подключение Figma и доступ к файлу — предыдущая версия изображения сохранена.";
+  }
+  if (/больше не найден|node-id|ссылк/i.test(message)) {
+    return "Не удалось найти Frame по этой ссылке. Проверьте ссылку — предыдущая версия изображения сохранена.";
+  }
+  const layer = /(?:Слой|элемент) «([^»]+)»/i.exec(message)?.[1];
+  if (layer) {
+    return `Не удалось без потерь подготовить элемент «${layer}». Предыдущая версия изображения сохранена; проверьте этот элемент во Frame и повторите импорт.`;
+  }
+  if (/временно ограничила запросы/i.test(message)) {
+    return "Figma временно ограничила загрузку. Подождите немного и повторите — предыдущая версия изображения сохранена.";
+  }
+  return "Не удалось обновить изображение из Figma. Проверьте ссылку и подключение Figma — предыдущая версия изображения сохранена.";
+}
+
 function semanticValue(value) {
   if (Array.isArray(value)) return value.map(semanticValue);
   if (!value || typeof value !== "object") return value;
@@ -426,7 +444,12 @@ export class AdminStore {
   async importFrame(slug, { url, slot, sectionId }) {
     if (!['catalog', 'hero', 'interactive'].includes(slot)) throw new Error("Неизвестное назначение Figma Frame.");
     const project = await this.getProject(slug);
-    const composition = await importFigmaFrame({ url, slug, slot: sectionId ? `${slot}-${sectionId}` : slot, assetRoot: this.draftAssetRoot });
+    let composition;
+    try {
+      composition = await importFigmaFrame({ url, slug, slot: sectionId ? `${slot}-${sectionId}` : slot, assetRoot: this.draftAssetRoot });
+    } catch (error) {
+      throw new Error(humanFigmaImportError(error));
+    }
     let next;
     if (slot === 'catalog') next = { ...project, catalogFrame: composition };
     else if (slot === 'hero') next = { ...project, heroFrame: composition };

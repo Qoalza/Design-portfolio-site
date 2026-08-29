@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectCanvas } from "../../../components/project-canvas";
@@ -128,6 +129,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
+  if (isAdminPreview) await connection();
   const { slug } = await params;
   const project = isAdminPreview
     ? getProjectBySlugForPreview(slug)
@@ -145,6 +147,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
+  if (isAdminPreview) await connection();
   const { slug } = await params;
   const project = isAdminPreview
     ? getProjectBySlugForPreview(slug)

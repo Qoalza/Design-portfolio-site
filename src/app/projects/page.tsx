@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { MainProjectCard } from "../../components/main-project-card";
 import { PageHeader } from "../../components/page-header";
 import { ProjectPlatforms } from "../../components/project-platforms";
@@ -118,7 +119,10 @@ function ProjectCopy({ project, compact = false }: { project: Project; compact?:
   );
 }
 
-export default function ProjectsPage() {
+const isAdminPreview = process.env.DES_ART_ADMIN_PREVIEW === "1";
+
+export default async function ProjectsPage() {
+  if (isAdminPreview) await connection();
   const projects = process.env.DES_ART_ADMIN_PREVIEW === "1" ? getAllProjectsForPreview() : getAllProjects();
   const [primaryProject, ...compactProjects] = projects;
   const projectsTrailItem = { href: "/projects", label: "Работы" };

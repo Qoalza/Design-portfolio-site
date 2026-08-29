@@ -96,25 +96,12 @@ const stroke = (node) => {
   return { color, width, align };
 };
 
-function safeSvg(source) {
-  if (!/^\s*<svg\b/i.test(source) || /<!DOCTYPE|<script\b|<foreignObject\b|\son[a-z]+\s*=|javascript:|(?:href|src)\s*=\s*["']https?:/i.test(source)) {
-    throw new Error("Figma вернула небезопасный SVG-слой.");
-  }
-  return source;
-}
-
 function box(node) {
   return node.absoluteBoundingBox ?? node.absoluteRenderBounds;
 }
 
-function collectLeaves(node, target = []) {
-  for (const child of node.children ?? []) {
-    if (child.visible === false) continue;
-    if (child.children?.some((item) => item.isMask)) target.push(child);
-    else if (child.children?.length) collectLeaves(child, target);
-    else target.push(child);
-  }
-  return target;
+function collectVisualUnits(root) {
+  return (root.children ?? []).filter((child) => child.visible !== false);
 }
 
 function imageFill(node) {
@@ -136,17 +123,18 @@ function validateContainerVisuals(node) {
   blendMode(node);
 }
 
-function collectNodes(node, target = []) {
-  target.push(node);
-  for (const child of node.children ?? []) collectNodes(child, target);
-  return target;
-}
-
 function rasterExtension(contentType) {
   if (contentType?.includes("png")) return "png";
   if (contentType?.includes("webp")) return "webp";
   if (contentType?.includes("gif")) return "gif";
   return "jpg";
+}
+
+function pngDimensions(buffer) {
+  if (buffer.length < 24 || buffer[0] !== 137 || buffer[1] !== 80 || buffer[2] !== 78 || buffer[3] !== 71) return undefined;
+  const width = buffer.readUInt32BE(16);
+  const height = buffer.readUInt32BE(20);
+  return width > 0 && height > 0 ? { width, height } : undefined;
 }
 
 async function figmaJson(fetchImpl, endpoint, token) {
@@ -161,27 +149,27 @@ async function figmaJson(fetchImpl, endpoint, token) {
   return response.json();
 }
 
-function relativeNode(node, parentBox, assetMap) {
+function relativeNode(node, parentBox, assetMap, snapshotIds = new Set()) {
   const bounds = box(node);
   if (!bounds || bounds.width <= 0 || bounds.height <= 0) throw new Error(`Слой «${node.name ?? node.id}» не имеет пригодной геометрии.`);
   const constraints = node.constraints ?? { horizontal: "MIN", vertical: "MIN" };
-  const compoundAsset = assetMap.has(node.id);
+  const compoundAsset = snapshotIds.has(node.id);
   const rasterAsset = Boolean(imageFill(node));
   const visibleChildren = node.children?.filter((child) => child.visible !== false) ?? [];
   const children = compoundAsset ? undefined : visibleChildren.map((child, index) => ({
-    ...relativeNode(child, bounds, assetMap),
+    ...relativeNode(child, bounds, assetMap, snapshotIds),
     ...(node.itemReverseZIndex ? { zIndex: visibleChildren.length - index } : {}),
   }));
   const isContainer = Boolean(children?.length);
-  if (isContainer || rasterAsset) validateContainerVisuals(node);
-  const layoutMode = node.layoutMode === "HORIZONTAL" || node.layoutMode === "VERTICAL" ? node.layoutMode : undefined;
+  if (isContainer || (rasterAsset && !compoundAsset)) validateContainerVisuals(node);
+  const layoutMode = !compoundAsset && (node.layoutMode === "HORIZONTAL" || node.layoutMode === "VERTICAL") ? node.layoutMode : undefined;
   const backgroundAsset = isContainer && imageFill(node) ? assetMap.get(node.id) : undefined;
   const renderedChildren = backgroundAsset ? [{
     id: `${node.id}:background`, name: `${node.name || node.id} background`, type: "asset",
     x: 0, y: 0, width: bounds.width, height: bounds.height, opacity: imageFill(node).opacity ?? 1, rotation: 0,
     constraints: { horizontal: "STRETCH", vertical: "STRETCH" }, clip: true, asset: backgroundAsset,
   }, ...children] : children;
-  const nodeEffects = isContainer || rasterAsset ? effects(node) : undefined;
+  const nodeEffects = isContainer || rasterAsset || compoundAsset ? effects(node) : undefined;
   const nodeBlendMode = blendMode(node);
   return {
     id: node.id,
@@ -191,21 +179,21 @@ function relativeNode(node, parentBox, assetMap) {
     y: bounds.y - parentBox.y,
     width: bounds.width,
     height: bounds.height,
-    opacity: node.opacity ?? 1,
-    rotation: node.rotation ?? 0,
+    opacity: compoundAsset ? 1 : node.opacity ?? 1,
+    rotation: compoundAsset ? 0 : node.rotation ?? 0,
     constraints: {
       horizontal: ["MIN", "MAX", "CENTER", "STRETCH", "SCALE"].includes(constraints.horizontal) ? constraints.horizontal : "MIN",
       vertical: ["MIN", "MAX", "CENTER", "STRETCH", "SCALE"].includes(constraints.vertical) ? constraints.vertical : "MIN",
     },
     ...(node.clipsContent === undefined ? {} : { clip: Boolean(node.clipsContent) }),
-    ...(node.cornerRadius === undefined ? {} : { radius: node.cornerRadius }),
-    ...((isContainer || rasterAsset) && rgba(node.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ? { background: rgba(node.fills.find((paint) => paint.visible !== false && paint.type === "SOLID")) } : {}),
-    ...((isContainer || rasterAsset) && stroke(node) ? { stroke: stroke(node) } : {}),
+    ...(!compoundAsset && node.cornerRadius !== undefined ? { radius: node.cornerRadius } : {}),
+    ...(!compoundAsset && (isContainer || rasterAsset) && rgba(node.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ? { background: rgba(node.fills.find((paint) => paint.visible !== false && paint.type === "SOLID")) } : {}),
+    ...(!compoundAsset && (isContainer || rasterAsset) && stroke(node) ? { stroke: stroke(node) } : {}),
     ...(nodeEffects?.length ? { effects: nodeEffects } : {}),
     ...(nodeBlendMode ? { blendMode: nodeBlendMode } : {}),
-    ...(node.layoutPositioning === "ABSOLUTE" ? { absoluteInLayout: true } : {}),
-    ...(typeof node.layoutGrow === "number" && node.layoutGrow > 0 ? { layoutGrow: node.layoutGrow } : {}),
-    ...(node.layoutAlign && node.layoutAlign !== "INHERIT" ? { layoutAlign: node.layoutAlign === "STRETCH" ? "stretch" : node.layoutAlign === "CENTER" ? "center" : node.layoutAlign === "MAX" ? "end" : "start" } : {}),
+    ...(!compoundAsset && node.layoutPositioning === "ABSOLUTE" ? { absoluteInLayout: true } : {}),
+    ...(!compoundAsset && typeof node.layoutGrow === "number" && node.layoutGrow > 0 ? { layoutGrow: node.layoutGrow } : {}),
+    ...(!compoundAsset && node.layoutAlign && node.layoutAlign !== "INHERIT" ? { layoutAlign: node.layoutAlign === "STRETCH" ? "stretch" : node.layoutAlign === "CENTER" ? "center" : node.layoutAlign === "MAX" ? "end" : "start" } : {}),
     ...(layoutMode ? { layout: {
       direction: layoutMode === "HORIZONTAL" ? "horizontal" : "vertical",
       gap: node.itemSpacing ?? 0,
@@ -229,14 +217,12 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
   if (!rootBox || rootBox.width <= 0 || rootBox.height <= 0) throw new Error("Корневой Frame не имеет пригодного размера.");
 
   validateContainerVisuals(root);
-  const leaves = collectLeaves(root);
-  const allNodes = collectNodes(root, []);
+  const visualUnits = collectVisualUnits(root);
   const rootRasterFill = imageFill(root);
-  const rasterLeaves = allNodes.filter((node) => imageFill(node));
-  const vectorLeaves = leaves.filter((leaf) => !imageFill(leaf));
-  const vectorIds = vectorLeaves.map((leaf) => leaf.id);
-  const exports = vectorIds.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${vectorIds.map(encodeURIComponent).join(",")}&format=svg&svg_outline_text=true&svg_include_node_id=true`, auth) : { images: {} };
-  const fills = rasterLeaves.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/images`, auth) : { meta: { images: {} } };
+  const backgroundNodes = rootRasterFill ? [root] : [];
+  const unitIds = visualUnits.map((unit) => unit.id);
+  const exports = unitIds.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${unitIds.map(encodeURIComponent).join(",")}&format=png&scale=2&use_absolute_bounds=true`, auth) : { images: {} };
+  const fills = backgroundNodes.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/images`, auth) : { meta: { images: {} } };
   const version = String(nodeData.version ?? entry.version ?? createHash("sha256").update(JSON.stringify(root)).digest("hex").slice(0, 12));
   const folderName = `${slot}-${createHash("sha256").update(`${fileKey}:${nodeId}:${version}`).digest("hex").slice(0, 12)}`;
   const projectRoot = path.join(assetRoot, slug, "frames");
@@ -245,17 +231,26 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
   const assets = new Map();
   await mkdir(temporary, { recursive: true });
   try {
-    for (const leaf of vectorLeaves) {
-      const download = exports.images?.[leaf.id];
-      if (!download) throw new Error(`Figma не смогла экспортировать слой «${leaf.name ?? leaf.id}».`);
+    for (const unit of visualUnits) {
+      const download = exports.images?.[unit.id];
+      if (!download) throw new Error(`Figma не смогла экспортировать элемент «${unit.name ?? unit.id}».`);
       const response = await fetchImpl(download);
-      if (!response.ok) throw new Error(`Не удалось скачать слой «${leaf.name ?? leaf.id}».`);
-      const svg = safeSvg(await response.text());
-      const name = `${createHash("sha256").update(leaf.id).digest("hex").slice(0, 10)}.svg`;
-      await writeFile(path.join(temporary, name), svg, { encoding: "utf8", mode: 0o600 });
-      assets.set(leaf.id, { src: `/assets/projects/${slug}/frames/${folderName}/${name}`, format: "svg", fit: "contain" });
+      if (!response.ok) throw new Error(`Не удалось скачать элемент «${unit.name ?? unit.id}».`);
+      const name = `${createHash("sha256").update(unit.id).digest("hex").slice(0, 10)}@2x.png`;
+      const bytes = Buffer.from(await response.arrayBuffer());
+      await writeFile(path.join(temporary, name), bytes, { mode: 0o600 });
+      const dimensions = pngDimensions(bytes);
+      const unitBox = box(unit);
+      const renderedWidth = dimensions ? dimensions.width / 2 : unitBox.width;
+      const renderedHeight = dimensions ? dimensions.height / 2 : unitBox.height;
+      const bleedX = Math.max(0, (renderedWidth - unitBox.width) / 2);
+      const bleedY = Math.max(0, (renderedHeight - unitBox.height) / 2);
+      assets.set(unit.id, {
+        src: `/assets/projects/${slug}/frames/${folderName}/${name}`, format: "raster", fit: "fill",
+        ...(bleedX || bleedY ? { bounds: { x: -bleedX, y: -bleedY, width: renderedWidth, height: renderedHeight } } : {}),
+      });
     }
-    for (const leaf of rasterLeaves) {
+    for (const leaf of backgroundNodes) {
       const fill = imageFill(leaf);
       const download = fills.meta?.images?.[fill.imageRef];
       if (!download) throw new Error(`Figma не вернула raster fill слоя «${leaf.name ?? leaf.id}».`);
@@ -278,7 +273,7 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
       ...(stroke(root) ? { stroke: stroke(root) } : {}),
       ...(effects(root).length ? { effects: effects(root) } : {}),
       ...(blendMode(root) ? { blendMode: blendMode(root) } : {}),
-      nodes: [...(rootBackground ? [rootBackground] : []), ...(root.children ?? []).filter((child) => child.visible !== false).map((child) => relativeNode(child, rootBox, assets))],
+      nodes: [...(rootBackground ? [rootBackground] : []), ...visualUnits.map((child) => relativeNode(child, rootBox, assets, new Set(unitIds)))],
     };
     await writeFile(path.join(temporary, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o600 });
     await mkdir(projectRoot, { recursive: true });

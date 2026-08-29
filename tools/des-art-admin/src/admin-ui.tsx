@@ -19,6 +19,7 @@ import {
   Flex,
   IconButton,
   Text,
+  TextField,
   Tooltip,
 } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
@@ -102,11 +103,11 @@ export function AssetField({
         <div className="asset-placeholder"><Text size="1" color="gray">Нет изображения</Text></div>
       )}
       <Flex gap="2" wrap="wrap">
-        <Button size="1" variant="outline" color="gray" onClick={() => input.current?.click()}>
+        <Button size="3" variant="outline" color="gray" onClick={() => input.current?.click()}>
           {image ? "Заменить" : "Загрузить"}
         </Button>
         {image && remove && !managed ? (
-          <IconButton size="1" variant="ghost" color="red" aria-label={`Удалить ${title}`} onClick={remove}><TrashIcon /></IconButton>
+          <IconButton size="3" variant="ghost" color="red" aria-label={`Удалить ${title}`} onClick={remove}><TrashIcon /></IconButton>
         ) : null}
       </Flex>
       <input
@@ -125,7 +126,7 @@ export function AssetField({
         <AlertDialog.Content maxWidth="520px">
           <AlertDialog.Title>Заменить управляемую композицию?</AlertDialog.Title>
           <AlertDialog.Description>Текущая сложная композиция будет заменена одним обычным изображением в тестовом черновике.</AlertDialog.Description>
-          <Flex justify="end" gap="3" mt="5"><AlertDialog.Cancel><Button variant="soft" color="gray">Отмена</Button></AlertDialog.Cancel><AlertDialog.Action><Button onClick={() => { if (pendingFile) upload(pendingFile); setPendingFile(undefined); }}>Заменить</Button></AlertDialog.Action></Flex>
+          <Flex justify="end" gap="3" mt="5"><AlertDialog.Cancel><Button size="3" variant="soft" color="gray">Отмена</Button></AlertDialog.Cancel><AlertDialog.Action><Button size="3" onClick={() => { if (pendingFile) upload(pendingFile); setPendingFile(undefined); }}>Заменить</Button></AlertDialog.Action></Flex>
         </AlertDialog.Content>
       </AlertDialog.Root>
     </div>
@@ -133,7 +134,7 @@ export function AssetField({
 }
 
 export function ImagePreview({ src, label, children }: { src: string; label: string; children: React.ReactNode }) {
-  return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
+  return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
 }
 
 function frameRootWidthUnit(value: number, rootWidth: number) { return `${value / rootWidth * 100}cqw`; }
@@ -201,7 +202,7 @@ function FrameNodePreview({ node, parent, root, inLayout = false }: { node: Proj
   const visualEffects = frameEffectStyle(node.effects, root);
   Object.assign(style, {
     opacity: node.opacity,
-    overflow: node.clip ? "hidden" : "visible",
+    overflow: node.asset?.bounds ? "visible" : node.clip ? "hidden" : "visible",
     borderRadius: node.radius === undefined ? undefined : frameRootWidthUnit(node.radius, root.width),
     background: node.background,
     boxShadow: [frameStrokeShadow(node.stroke, root.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
@@ -221,8 +222,17 @@ function FrameNodePreview({ node, parent, root, inLayout = false }: { node: Proj
       alignItems: node.layout.crossAlign === "end" ? "flex-end" : node.layout.crossAlign === "start" || node.layout.crossAlign === undefined ? "flex-start" : node.layout.crossAlign,
     });
   }
+  const assetStyle: React.CSSProperties | undefined = node.asset ? node.asset.bounds ? {
+    position: "absolute",
+    left: `${node.asset.bounds.x / node.width * 100}%`,
+    top: `${node.asset.bounds.y / node.height * 100}%`,
+    width: `${node.asset.bounds.width / node.width * 100}%`,
+    height: `${node.asset.bounds.height / node.height * 100}%`,
+    objectFit: node.asset.fit,
+    opacity: node.asset.opacity,
+  } : { width: "100%", height: "100%", objectFit: node.asset.fit, opacity: node.asset.opacity } : undefined;
   return <div className="frame-node-preview" style={style}>
-    {node.asset ? <img src={node.asset.src} alt="" style={{ width: "100%", height: "100%", objectFit: node.asset.fit, opacity: node.asset.opacity }} /> : null}
+    {node.asset ? <img src={node.asset.src} alt="" style={assetStyle} /> : null}
     {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} root={root} inLayout={Boolean(node.layout) && !child.absoluteInLayout} />)}
   </div>;
 }
@@ -242,11 +252,11 @@ export function FrameField({ title, description, composition, source, required, 
     catch (reason) { setError(reason instanceof Error ? reason.message : "Не удалось импортировать Frame."); }
     finally { setSubmitting(false); }
   };
-  const previewAspect = previewVariant === "cover" ? "1 / 1" : composition ? `${composition.width}/${composition.height}` : undefined;
+  const previewAspect = composition ? `${composition.width}/${composition.height}` : undefined;
   return <div className={`frame-field frame-field-${previewVariant}${error ? " frame-field-error" : ""}`}>
     <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
-    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={frameCompositionStyle(composition, `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
-    <div className="frame-source"><input value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
+    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={frameCompositionStyle(composition, `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
+    <div className="frame-source"><TextField.Root size="3" value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button size="3" variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
     {busy ? <span className="frame-import-status" role="status">Получаем структуру Frame и сохраняем ассеты…</span> : null}
     <span className={`field-help${error ? " field-error" : ""}`}>{error || "Production использует локальный snapshot и не зависит от Figma после публикации."}</span>
   </div>;
@@ -266,7 +276,8 @@ export function TagField({ value, onChange, label, hint }: { value: string[]; on
   };
   return (
     <Field label={label} hint={hint ?? "Разделяйте теги символом /"}>
-      <input
+      <TextField.Root
+        size="3"
         className="tag-input"
         value={raw}
         onFocus={() => { focused.current = true; }}
@@ -283,7 +294,7 @@ function Tool({ label, children, onClick, active }: { label: string; children: R
     <Tooltip content={label}>
       <IconButton
         type="button"
-        size="1"
+        size="3"
         variant={active ? "soft" : "ghost"}
         color={active ? "blue" : "gray"}
         aria-label={label}
@@ -547,8 +558,8 @@ export function RichEditor({ value, onChange }: { value: ProjectSectionBlock[]; 
         <Dialog.Content maxWidth="440px">
           <Dialog.Title>Добавить ссылку</Dialog.Title>
           <Dialog.Description>Выделенный текст станет ссылкой.</Dialog.Description>
-          <div className="dialog-field"><Text size="2" weight="medium">URL</Text><input className="tag-input" autoFocus value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} /></div>
-          <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button variant="soft" color="gray">Отмена</Button></Dialog.Close><Button disabled={!/^https?:\/\//i.test(linkUrl)} onClick={applyLink}>Добавить</Button></Flex>
+          <div className="dialog-field"><Text size="2" weight="medium">URL</Text><TextField.Root size="3" className="tag-input" autoFocus value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} /></div>
+          <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button size="3" variant="soft" color="gray">Отмена</Button></Dialog.Close><Button size="3" disabled={!/^https?:\/\//i.test(linkUrl)} onClick={applyLink}>Добавить</Button></Flex>
         </Dialog.Content>
       </Dialog.Root>
     </div>

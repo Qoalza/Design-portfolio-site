@@ -49,16 +49,16 @@ export function ProjectActions({
           <Select.Item value="deleted">Удалён</Select.Item>
         </Select.Content>
       </Select.Root>
-      {issues.length ? <Button variant="soft" color="orange" onClick={reviewIssues}>Показать ошибки · {issues.length}</Button> : null}
-      <Button variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button>
-      {changed ? <Button onClick={publish}>Опубликовать этот проект</Button> : null}
+      {issues.length ? <Button size="3" variant="soft" color="orange" onClick={reviewIssues}>Показать ошибки · {issues.length}</Button> : null}
+      <Button size="3" variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button>
+      {changed ? <Button size="3" onClick={publish}>Опубликовать этот проект</Button> : null}
       {project.visibility === "deleted" ? (
         <>
-          <Button variant="soft" onClick={() => setVisibility("draft")}>Восстановить</Button>
-          <Button variant="ghost" color="red" onClick={permanentDelete}>Удалить навсегда</Button>
+          <Button size="3" variant="soft" onClick={() => setVisibility("draft")}>Восстановить</Button>
+          <Button size="3" variant="ghost" color="red" onClick={permanentDelete}>Удалить навсегда</Button>
         </>
       ) : (
-        <Button variant="ghost" color="red" onClick={() => setVisibility("deleted")}>Переместить в удалённые</Button>
+        <Button size="3" variant="ghost" color="red" onClick={() => setVisibility("deleted")}>Переместить в удалённые</Button>
       )}
     </RailGroup>
   );
@@ -82,10 +82,10 @@ export function CardSettings({
     <>
       <RailGroup title="Настройки карточки">
         <Field label="Адрес проекта" hint="Задаётся при создании">
-          <TextField.Root readOnly value={project.slug} />
+          <TextField.Root size="3" readOnly value={project.slug} />
         </Field>
         <Field label="Год">
-          <TextField.Root type="number" value={String(project.year)} onChange={(event) => update({ year: Number(event.target.value) })} />
+          <TextField.Root size="3" type="number" value={String(project.year)} onChange={(event) => update({ year: Number(event.target.value) })} />
         </Field>
       </RailGroup>
       <RailGroup title="Платформы">
@@ -156,7 +156,7 @@ function MaterialsSettings({
       </Field>
       {value.fileState === "available" ? (
         <Field label="Ссылка на Figma" hint="Обязательное поле" error={issueFor(issues, "materials.figmaUrl")}>
-          <TextField.Root
+          <TextField.Root size="3"
             type="url"
             value={value.figmaUrl}
             onChange={(event) => update({ materials: { ...value, figmaUrl: event.target.value } })}
@@ -165,7 +165,7 @@ function MaterialsSettings({
       ) : null}
       {value.projectState === "in_progress" && value.fileState === "available" ? (
         <Field label="Дата последнего обновления" hint="Необязательно" error={issueFor(issues, "materials.updatedAt")}>
-          <TextField.Root
+          <TextField.Root size="3"
             value={value.updatedAt ?? ""}
             onChange={(event) => update({ materials: { ...value, updatedAt: event.target.value || undefined } })}
           />

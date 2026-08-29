@@ -81,7 +81,7 @@ function SectionSettings({ project, section, change, importFrame }: { project: A
           </label>
           {noticeEnabled ? (
             <div className="section-setting-fields">
-              <Field label="Текст примечания"><TextArea rows={3} value={notice ? textOf(notice.content) : ""} onChange={(event) => changeNoticeContent(event.target.value)} /></Field>
+              <Field label="Текст примечания"><TextArea size="3" rows={3} value={notice ? textOf(notice.content) : ""} onChange={(event) => changeNoticeContent(event.target.value)} /></Field>
               <Field label="Ширина">
                 <Select.Root value={settings.noticeVariant ?? notice?.variant ?? "default"} onValueChange={(variant) => changeSetting({ noticeVariant: variant as "default" | "wide" })}>
                   <Select.Trigger /><Select.Content><Select.Item value="default">Обычная</Select.Item><Select.Item value="wide">Широкая</Select.Item></Select.Content>
@@ -140,7 +140,7 @@ function SectionEditor({
           <Heading size="3">Секция {index + 1}</Heading>
           {index > 0 ? <IconButton
             type="button"
-            size="1"
+            size="3"
             variant="ghost"
             color="red"
             aria-label={`Удалить секцию ${index + 1}`}
@@ -149,17 +149,17 @@ function SectionEditor({
             <TrashIcon />
           </IconButton> : null}
         </Flex>
-        <Flex gap="1">
-          <IconButton type="button" size="1" variant="outline" color="gray" aria-label="Переместить выше" disabled={index === 0} onClick={() => move(-1)}>
+        <Flex gap="2">
+          <IconButton type="button" size="3" variant="outline" color="gray" aria-label="Переместить выше" disabled={index === 0} onClick={() => move(-1)}>
             <ChevronUpIcon />
           </IconButton>
-          <IconButton type="button" size="1" variant="outline" color="gray" aria-label="Переместить ниже" disabled={index === count - 1} onClick={() => move(1)}>
+          <IconButton type="button" size="3" variant="outline" color="gray" aria-label="Переместить ниже" disabled={index === count - 1} onClick={() => move(1)}>
             <ChevronDownIcon />
           </IconButton>
         </Flex>
       </div>
       <Field field={`content.${section.adminId}.heading`} label="Заголовок секции" error={issueFor(issues, `content.${section.adminId}.heading`)}>
-        <TextField.Root value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} />
+        <TextField.Root size="3" value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} />
       </Field>
       <Field label="Описание секции">
         <RichEditor value={section.blocks} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)))} />
@@ -213,17 +213,17 @@ export function CardEditor({
         </div>
         <div className="form-grid">
           <Field field="title" label="Название" error={issueFor(issues, "title")} wide>
-            <TextField.Root value={project.title} onChange={(event) => update({ title: event.target.value })} />
+            <TextField.Root size="3" value={project.title} onChange={(event) => update({ title: event.target.value })} />
           </Field>
           <Field field="description" label="Описание" error={issueFor(issues, "description")} wide>
-            <TextArea rows={4} value={project.description} onChange={(event) => update({ description: event.target.value })} />
+            <TextArea size="3" rows={4} value={project.description} onChange={(event) => update({ description: event.target.value })} />
           </Field>
           <Field field="role" label="Роль" error={issueFor(issues, "role")}>
-            <TextField.Root value={project.role} onChange={(event) => update({ role: event.target.value })} />
+            <TextField.Root size="3" value={project.role} onChange={(event) => update({ role: event.target.value })} />
           </Field>
           <TagField label="Краткие теги" value={project.tags} onChange={(tags) => update({ tags })} />
           <Field label="Что делал" wide>
-            <TextArea rows={3} value={project.workSummary ?? ""} onChange={(event) => update({ workSummary: event.target.value || undefined })} />
+            <TextArea size="3" rows={3} value={project.workSummary ?? ""} onChange={(event) => update({ workSummary: event.target.value || undefined })} />
           </Field>
         </div>
       </section>
@@ -231,7 +231,7 @@ export function CardEditor({
         <div className="asset-field logo-field">
           <div className="asset-copy"><Text weight="medium">Логотип проекта</Text><Text as="p" size="1" color="gray">Необязательно. Загрузите безопасный квадратный SVG.</Text></div>
           {project.logo ? <div className="logo-preview">{project.logo.type === "image" ? <ImagePreview src={project.logo.src} label="Логотип проекта"><img src={project.logo.src} alt="" /></ImagePreview> : <Text size="1" color="gray">Составной логотип сохранён</Text>}</div> : <div className="asset-placeholder"><Text size="1" color="gray">Логотип не добавлен</Text></div>}
-          <Flex gap="2"><label><Button asChild size="1" variant="outline" color="gray"><span>{project.logo ? "Заменить" : "Загрузить SVG"}</span></Button><input hidden type="file" accept="image/svg+xml,.svg" onChange={async (event) => { const file = event.target.files?.[0]; if (file) update({ logo: await uploadLogo(file) }); event.target.value = ""; }} /></label>{project.logo ? <IconButton size="1" variant="ghost" color="red" aria-label="Удалить логотип" onClick={() => update({ logo: undefined })}><TrashIcon /></IconButton> : null}</Flex>
+          <Flex gap="2"><label><Button asChild size="3" variant="outline" color="gray"><span>{project.logo ? "Заменить" : "Загрузить SVG"}</span></Button><input hidden type="file" accept="image/svg+xml,.svg" onChange={async (event) => { const file = event.target.files?.[0]; if (file) update({ logo: await uploadLogo(file) }); event.target.value = ""; }} /></label>{project.logo ? <IconButton size="3" variant="ghost" color="red" aria-label="Удалить логотип" onClick={() => update({ logo: undefined })}><TrashIcon /></IconButton> : null}</Flex>
         </div>
       </section>
     </div>
@@ -276,7 +276,7 @@ function GalleryEditor({
           <div className="section-title">
             <Heading size="3">{group.label}</Heading>
             <label>
-              <Button asChild size="1" variant="soft"><span><PlusIcon />Добавить изображение</span></Button>
+              <Button asChild size="3" variant="soft"><span><PlusIcon />Добавить изображение</span></Button>
               <input
                 hidden
                 type="file"
@@ -299,10 +299,10 @@ function GalleryEditor({
             {group.items.map((item, index) => (
               <li key={`${item.src}-${index}`}>
                 <ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview>
-                <Flex className="gallery-item-name" align="center" gap="2"><Text size="2">Изображение {index + 1}</Text><IconButton type="button" size="1" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => updateGroup(group.id, { ...group, items: group.items.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></Flex>
+                <Flex className="gallery-item-name" align="center" gap="2"><Text size="2">Изображение {index + 1}</Text><IconButton type="button" size="3" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => updateGroup(group.id, { ...group, items: group.items.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></Flex>
                 <Flex className="gallery-item-order" gap="2">
-                  <IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const items = [...group.items]; [items[index - 1], items[index]] = [items[index], items[index - 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronUpIcon /></IconButton>
-                  <IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.items.length - 1} onClick={() => { const items = [...group.items]; [items[index + 1], items[index]] = [items[index], items[index + 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronDownIcon /></IconButton>
+                  <IconButton size="3" variant="ghost" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const items = [...group.items]; [items[index - 1], items[index]] = [items[index], items[index - 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronUpIcon /></IconButton>
+                  <IconButton size="3" variant="ghost" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.items.length - 1} onClick={() => { const items = [...group.items]; [items[index + 1], items[index]] = [items[index], items[index + 1]]; updateGroup(group.id, { ...group, items }); }}><ChevronDownIcon /></IconButton>
                 </Flex>
               </li>
             ))}
@@ -394,7 +394,7 @@ export function PageEditor({
       ))}
       <Button
         className="add-section-button"
-        size="2"
+        size="3"
         variant="soft"
         color="gray"
         onClick={() => {

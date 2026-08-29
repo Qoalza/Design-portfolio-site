@@ -295,17 +295,17 @@ function App() {
   };
 
   return (
-    <Theme accentColor="blue" grayColor="sand" radius="small">
+    <Theme accentColor="blue" grayColor="sand" radius="medium">
       <div className="admin-shell">
         <header className="admin-topbar">
           <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color={publishMode === "live" ? "green" : "gray"}>{publishMode === "live" ? "Связано с art-des.ru" : "Тестовый контур"}</Badge></div>
           <Text color="gray">{current?.title ?? "Проекты портфолио"}</Text>
           <Flex gap="3" align="center">
-            <Button variant="outline" color="gray" onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "не подключена"}</Button>
+            <Button size="3" variant="outline" color="gray" onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "не подключена"}</Button>
             <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>
               {saveState === "saved" ? <SavedMark>{saveLabels[saveState]}</SavedMark> : saveLabels[saveState]}
             </Text>
-            {current ? <Button variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button> : null}
+            {current ? <Button size="3" variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button> : null}
           </Flex>
         </header>
         <main className="admin-workspace">
@@ -382,7 +382,7 @@ function App() {
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
         <PublishOverlay job={job} mode={publishMode} close={() => setJob(null)} />
-        <Dialog.Root open={figmaOpen} onOpenChange={setFigmaOpen}><Dialog.Content maxWidth="520px"><Dialog.Title>Подключение Figma</Dialog.Title><Dialog.Description>Токен хранится только в macOS Keychain. Нужен доступ file_content:read.</Dialog.Description><label className="dialog-field"><Text size="2" weight="medium">Personal access token</Text><TextField.Root type="password" value={figmaToken} onChange={(event) => setFigmaToken(event.target.value)} /></label><Flex justify="end" gap="3" mt="5"><Dialog.Close><Button variant="soft" color="gray">Отмена</Button></Dialog.Close><Button disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then(() => { setFigmaConnected(true); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить в Keychain</Button></Flex></Dialog.Content></Dialog.Root>
+        <Dialog.Root open={figmaOpen} onOpenChange={setFigmaOpen}><Dialog.Content maxWidth="520px"><Dialog.Title>Подключение Figma</Dialog.Title><Dialog.Description>Токен хранится только в macOS Keychain. Нужен доступ file_content:read.</Dialog.Description><label className="dialog-field"><Text size="2" weight="medium">Personal access token</Text><TextField.Root size="3" type="password" value={figmaToken} onChange={(event) => setFigmaToken(event.target.value)} /></label><Flex justify="end" gap="3" mt="5"><Dialog.Close><Button size="3" variant="soft" color="gray">Отмена</Button></Dialog.Close><Button size="3" disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then(() => { setFigmaConnected(true); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить в Keychain</Button></Flex></Dialog.Content></Dialog.Root>
       </div>
     </Theme>
   );
