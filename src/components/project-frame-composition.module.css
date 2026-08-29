@@ -7,7 +7,7 @@
   border-radius: var(--frame-radius, 0);
 }
 
-.fillSlot { height: 100%; aspect-ratio: auto!important; }
+.fillSlot { height: auto; max-height: 100%; }
 
 .node { min-width: 0; min-height: 0; transform-origin: center; }
 .asset { display: block; width: 100%; height: 100%; }

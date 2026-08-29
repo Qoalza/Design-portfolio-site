@@ -8,30 +8,51 @@ type FrameStyle = CSSProperties & { [key: `--${string}`]: string | number };
 
 function percent(value: number) { return `${Number(value.toFixed(6))}%`; }
 
-function positionedStyle(node: ProjectFrameNode, parentWidth: number, parentHeight: number): CSSProperties {
+function scaledLength(value: number, rootWidth: number, rootHeight: number) {
+  const magnitude = Math.abs(value);
+  const length = `min(${Number((magnitude / rootWidth * 100).toFixed(6))}cqw, ${Number((magnitude / rootHeight * 100).toFixed(6))}cqh)`;
+  return value < 0 ? `calc(0px - ${length})` : length;
+}
+
+function positionedStyle(node: ProjectFrameNode, parentWidth: number, parentHeight: number, rootWidth: number, rootHeight: number): CSSProperties {
   const style: CSSProperties = {
     position: "absolute",
-    width: percent(node.width / parentWidth * 100),
-    height: percent(node.height / parentHeight * 100),
     opacity: node.opacity,
   };
   const transforms: string[] = [];
   const horizontal = node.constraints.horizontal;
   const vertical = node.constraints.vertical;
-  if (horizontal === "MAX") style.right = percent((parentWidth - node.x - node.width) / parentWidth * 100);
+  if (horizontal === "SCALE") {
+    style.left = percent(node.x / parentWidth * 100);
+    style.width = percent(node.width / parentWidth * 100);
+  } else if (horizontal === "STRETCH") {
+    style.left = scaledLength(node.x, rootWidth, rootHeight);
+    style.right = scaledLength(parentWidth - node.x - node.width, rootWidth, rootHeight);
+  } else {
+    style.width = scaledLength(node.width, rootWidth, rootHeight);
+  }
+  if (horizontal === "MAX") style.right = scaledLength(parentWidth - node.x - node.width, rootWidth, rootHeight);
   else if (horizontal === "CENTER") {
-    style.left = `calc(50% + ${percent((node.x + node.width / 2 - parentWidth / 2) / parentWidth * 100)})`;
+    style.left = `calc(50% + ${scaledLength(node.x + node.width / 2 - parentWidth / 2, rootWidth, rootHeight)})`;
     transforms.push("translateX(-50%)");
   }
-  else if (horizontal === "STRETCH") { style.left = percent(node.x / parentWidth * 100); style.right = percent((parentWidth - node.x - node.width) / parentWidth * 100); delete style.width; }
-  else style.left = percent(node.x / parentWidth * 100);
-  if (vertical === "MAX") style.bottom = percent((parentHeight - node.y - node.height) / parentHeight * 100);
+  else if (horizontal === "MIN") style.left = scaledLength(node.x, rootWidth, rootHeight);
+
+  if (vertical === "SCALE") {
+    style.top = percent(node.y / parentHeight * 100);
+    style.height = percent(node.height / parentHeight * 100);
+  } else if (vertical === "STRETCH") {
+    style.top = scaledLength(node.y, rootWidth, rootHeight);
+    style.bottom = scaledLength(parentHeight - node.y - node.height, rootWidth, rootHeight);
+  } else {
+    style.height = scaledLength(node.height, rootWidth, rootHeight);
+  }
+  if (vertical === "MAX") style.bottom = scaledLength(parentHeight - node.y - node.height, rootWidth, rootHeight);
   else if (vertical === "CENTER") {
-    style.top = `calc(50% + ${percent((node.y + node.height / 2 - parentHeight / 2) / parentHeight * 100)})`;
+    style.top = `calc(50% + ${scaledLength(node.y + node.height / 2 - parentHeight / 2, rootWidth, rootHeight)})`;
     transforms.push("translateY(-50%)");
   }
-  else if (vertical === "STRETCH") { style.top = percent(node.y / parentHeight * 100); style.bottom = percent((parentHeight - node.y - node.height) / parentHeight * 100); delete style.height; }
-  else style.top = percent(node.y / parentHeight * 100);
+  else if (vertical === "MIN") style.top = scaledLength(node.y, rootWidth, rootHeight);
   if (node.rotation) transforms.push(`rotate(${node.rotation}deg)`);
   if (transforms.length) style.transform = transforms.join(" ");
   return style;
@@ -63,7 +84,7 @@ function effectStyle(effects: ProjectFrameNode["effects"], rootWidth: number, ro
 function FrameNodeView({ node, parentWidth, parentHeight, rootWidth, rootHeight, inLayout = false }: { node: ProjectFrameNode; parentWidth: number; parentHeight: number; rootWidth: number; rootHeight: number; inLayout?: boolean }) {
   const style: CSSProperties = inLayout ? {
     position: "relative", width: percent(node.width / parentWidth * 100), height: percent(node.height / parentHeight * 100), flex: node.layoutGrow ? `${node.layoutGrow} 1 0` : node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
-  } : positionedStyle(node, parentWidth, parentHeight);
+  } : positionedStyle(node, parentWidth, parentHeight, rootWidth, rootHeight);
   // Direct-child PNG snapshots may include visual bleed (for example a
   // centered stroke) beyond the Figma layout box. The PNG already contains
   // the child's clipping result, so clipping it again here would cut that

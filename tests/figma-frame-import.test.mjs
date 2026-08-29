@@ -100,10 +100,22 @@ test("frame import keeps direct-child effects separate from the 2x raster snapsh
 
 test("frame constraints become responsive CSS positions", () => {
   const centered = frameNodeStyle({ x: 77, y: 65, width: 720, height: 612, constraints: { horizontal: "CENTER", vertical: "CENTER" } }, 1200, 533);
-  assert.equal(centered.left, "calc(50% + -13.583333%)");
-  assert.equal(centered.top, "calc(50% + 19.606004%)");
+  assert.equal(centered.left, "calc(50% + calc(0px - min(13.583333cqw, 30.581614cqh)))");
+  assert.equal(centered.top, "calc(50% + min(8.708333cqw, 19.606004cqh))");
   assert.equal(centered.transform, "translateX(-50%) translateY(-50%)");
+  assert.equal(centered.width, "min(60cqw, 135.084428cqh)");
+  assert.equal(centered.height, "min(51cqw, 114.821764cqh)");
 
   const stretch = frameNodeStyle({ x: 20, y: 10, width: 1160, height: 780, constraints: { horizontal: "STRETCH", vertical: "STRETCH" } }, 1200, 800);
-  assert.deepEqual({ left: stretch.left, right: stretch.right, top: stretch.top, bottom: stretch.bottom }, { left: "1.666667%", right: "1.666667%", top: "1.25%", bottom: "1.25%" });
+  assert.deepEqual({ left: stretch.left, right: stretch.right, top: stretch.top, bottom: stretch.bottom }, {
+    left: "min(1.666667cqw, 2.5cqh)", right: "min(1.666667cqw, 2.5cqh)", top: "min(0.833333cqw, 1.25cqh)", bottom: "min(0.833333cqw, 1.25cqh)",
+  });
+
+  const leftPinned = frameNodeStyle({ x: 32, y: 24, width: 240, height: 120, constraints: { horizontal: "MIN", vertical: "MIN" } }, 1200, 800);
+  assert.equal(leftPinned.left, "min(2.666667cqw, 4cqh)");
+  assert.equal(leftPinned.width, "min(20cqw, 30cqh)");
+  assert.equal(leftPinned.height, "min(10cqw, 15cqh)");
+
+  const scaled = frameNodeStyle({ x: 120, y: 80, width: 240, height: 160, constraints: { horizontal: "SCALE", vertical: "SCALE" } }, 1200, 800);
+  assert.deepEqual({ left: scaled.left, top: scaled.top, width: scaled.width, height: scaled.height }, { left: "10%", top: "10%", width: "20%", height: "20%" });
 });

@@ -139,6 +139,11 @@ export function ImagePreview({ src, label, children }: { src: string; label: str
 
 function frameRootWidthUnit(value: number, rootWidth: number) { return `${value / rootWidth * 100}cqw`; }
 function frameRootHeightUnit(value: number, rootHeight: number) { return `${value / rootHeight * 100}cqh`; }
+function frameScaledLength(value: number, root: { width: number; height: number }) {
+  const magnitude = Math.abs(value);
+  const length = `min(${magnitude / root.width * 100}cqw, ${magnitude / root.height * 100}cqh)`;
+  return value < 0 ? `calc(0px - ${length})` : length;
+}
 function frameStrokeShadow(stroke: ProjectFrameNode["stroke"], rootWidth: number) {
   if (!stroke) return undefined;
   if (stroke.align === "INSIDE") return `inset 0 0 0 ${frameRootWidthUnit(stroke.width, rootWidth)} ${stroke.color}`;
@@ -179,23 +184,35 @@ function FrameNodePreview({ node, parent, root, inLayout = false }: { node: Proj
     position: "relative", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
     flex: node.layoutGrow ? `${node.layoutGrow} 1 0` : node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
   } : {
-    position: "absolute", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
+    position: "absolute",
   };
   if (!inLayout) {
-    if (node.constraints.horizontal === "MAX") style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`;
+    if (node.constraints.horizontal === "SCALE") {
+      style.left = `${node.x / parent.width * 100}%`;
+      style.width = `${node.width / parent.width * 100}%`;
+    } else if (node.constraints.horizontal === "STRETCH") {
+      style.left = frameScaledLength(node.x, root);
+      style.right = frameScaledLength(parent.width - node.x - node.width, root);
+    } else style.width = frameScaledLength(node.width, root);
+    if (node.constraints.horizontal === "MAX") style.right = frameScaledLength(parent.width - node.x - node.width, root);
     else if (node.constraints.horizontal === "CENTER") {
-      style.left = `calc(50% + ${(node.x + node.width / 2 - parent.width / 2) / parent.width * 100}%)`;
+      style.left = `calc(50% + ${frameScaledLength(node.x + node.width / 2 - parent.width / 2, root)})`;
       transforms.push("translateX(-50%)");
     }
-    else if (node.constraints.horizontal === "STRETCH") { style.left = `${node.x / parent.width * 100}%`; style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`; delete style.width; }
-    else style.left = `${node.x / parent.width * 100}%`;
-    if (node.constraints.vertical === "MAX") style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`;
+    else if (node.constraints.horizontal === "MIN") style.left = frameScaledLength(node.x, root);
+    if (node.constraints.vertical === "SCALE") {
+      style.top = `${node.y / parent.height * 100}%`;
+      style.height = `${node.height / parent.height * 100}%`;
+    } else if (node.constraints.vertical === "STRETCH") {
+      style.top = frameScaledLength(node.y, root);
+      style.bottom = frameScaledLength(parent.height - node.y - node.height, root);
+    } else style.height = frameScaledLength(node.height, root);
+    if (node.constraints.vertical === "MAX") style.bottom = frameScaledLength(parent.height - node.y - node.height, root);
     else if (node.constraints.vertical === "CENTER") {
-      style.top = `calc(50% + ${(node.y + node.height / 2 - parent.height / 2) / parent.height * 100}%)`;
+      style.top = `calc(50% + ${frameScaledLength(node.y + node.height / 2 - parent.height / 2, root)})`;
       transforms.push("translateY(-50%)");
     }
-    else if (node.constraints.vertical === "STRETCH") { style.top = `${node.y / parent.height * 100}%`; style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`; delete style.height; }
-    else style.top = `${node.y / parent.height * 100}%`;
+    else if (node.constraints.vertical === "MIN") style.top = frameScaledLength(node.y, root);
   }
   if (node.rotation) transforms.push(`rotate(${node.rotation}deg)`);
   if (transforms.length) style.transform = transforms.join(" ");

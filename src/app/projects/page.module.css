@@ -9,7 +9,7 @@
 .catalog { display: flex; flex-direction: column; gap: 44px; }
 .primaryWide, .repeatedWide { position: relative; }
 .repeatedWide { padding-top: 64px; border-top: 1px solid #e2e5e7; }
-.repeatedWide::before { position: absolute; top: -44px; left: 50%; width: 1px; height: 108px; background: #e2e5e7; content: ""; }
+.repeatedWide::before { position: absolute; top: -44px; left: 50%; width: 1px; height: 44px; background: #e2e5e7; content: ""; }
 .copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 32px; padding: 12px 120px 12px 40px; }
 .headerGroup { display: flex; min-width: 0; flex-direction: column; gap: 16px; }
 .titleGroup { display: flex; min-width: 0; flex-direction: column; gap: 4px; }

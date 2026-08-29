@@ -23,25 +23,34 @@ export function parseFigmaNodeUrl(value) {
 }
 
 const percent = (value) => `${Number(value.toFixed(6))}%`;
+const scaledLength = (value, rootWidth, rootHeight) => {
+  const magnitude = Math.abs(value);
+  const length = `min(${Number((magnitude / rootWidth * 100).toFixed(6))}cqw, ${Number((magnitude / rootHeight * 100).toFixed(6))}cqh)`;
+  return value < 0 ? `calc(0px - ${length})` : length;
+};
 
-export function frameNodeStyle(node, parentWidth, parentHeight) {
-  const style = { position: "absolute", width: percent(node.width / parentWidth * 100), height: percent(node.height / parentHeight * 100) };
+export function frameNodeStyle(node, parentWidth, parentHeight, rootWidth = parentWidth, rootHeight = parentHeight) {
+  const style = { position: "absolute" };
   const horizontal = node.constraints?.horizontal ?? "MIN";
   const vertical = node.constraints?.vertical ?? "MIN";
-  if (horizontal === "MAX") style.right = percent((parentWidth - node.x - node.width) / parentWidth * 100);
+  if (horizontal === "SCALE") { style.left = percent(node.x / parentWidth * 100); style.width = percent(node.width / parentWidth * 100); }
+  else if (horizontal === "STRETCH") { style.left = scaledLength(node.x, rootWidth, rootHeight); style.right = scaledLength(parentWidth - node.x - node.width, rootWidth, rootHeight); }
+  else style.width = scaledLength(node.width, rootWidth, rootHeight);
+  if (horizontal === "MAX") style.right = scaledLength(parentWidth - node.x - node.width, rootWidth, rootHeight);
   else if (horizontal === "CENTER") {
-    style.left = `calc(50% + ${percent((node.x + node.width / 2 - parentWidth / 2) / parentWidth * 100)})`;
+    style.left = `calc(50% + ${scaledLength(node.x + node.width / 2 - parentWidth / 2, rootWidth, rootHeight)})`;
     style.transform = "translateX(-50%)";
   }
-  else if (horizontal === "STRETCH") { style.left = percent(node.x / parentWidth * 100); style.right = percent((parentWidth - node.x - node.width) / parentWidth * 100); delete style.width; }
-  else { style.left = percent(node.x / parentWidth * 100); }
-  if (vertical === "MAX") style.bottom = percent((parentHeight - node.y - node.height) / parentHeight * 100);
+  else if (horizontal === "MIN") style.left = scaledLength(node.x, rootWidth, rootHeight);
+  if (vertical === "SCALE") { style.top = percent(node.y / parentHeight * 100); style.height = percent(node.height / parentHeight * 100); }
+  else if (vertical === "STRETCH") { style.top = scaledLength(node.y, rootWidth, rootHeight); style.bottom = scaledLength(parentHeight - node.y - node.height, rootWidth, rootHeight); }
+  else style.height = scaledLength(node.height, rootWidth, rootHeight);
+  if (vertical === "MAX") style.bottom = scaledLength(parentHeight - node.y - node.height, rootWidth, rootHeight);
   else if (vertical === "CENTER") {
-    style.top = `calc(50% + ${percent((node.y + node.height / 2 - parentHeight / 2) / parentHeight * 100)})`;
+    style.top = `calc(50% + ${scaledLength(node.y + node.height / 2 - parentHeight / 2, rootWidth, rootHeight)})`;
     style.transform = `${style.transform ?? ""} translateY(-50%)`.trim();
   }
-  else if (vertical === "STRETCH") { style.top = percent(node.y / parentHeight * 100); style.bottom = percent((parentHeight - node.y - node.height) / parentHeight * 100); delete style.height; }
-  else { style.top = percent(node.y / parentHeight * 100); }
+  else if (vertical === "MIN") style.top = scaledLength(node.y, rootWidth, rootHeight);
   return style;
 }
 
