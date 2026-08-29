@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectCanvas } from "../../../components/project-canvas";
 import { ProjectGallery } from "../../../components/project-gallery";
+import { ProjectFrameCompositionView } from "../../../components/project-frame-composition";
 import { PageHeader } from "../../../components/page-header";
 import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
 import { SiteHeader } from "../../../components/site-header";
@@ -104,6 +105,10 @@ function ProjectContentBlockView({ block }: { block: ProjectSectionBlock }) {
     return <ProjectCanvas presentation={block.presentation} images={block.images} />;
   }
 
+  if (block.type === "frame") {
+    return <ProjectFrameCompositionView composition={block.composition} />;
+  }
+
   return <ProjectDivider />;
 }
 
@@ -184,7 +189,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             platforms={project.platforms}
           />
 
-          {hero && heroForeground ? (
+          {project.heroFrame ? (
+            <div className={styles.heroPreview}><ProjectFrameCompositionView composition={project.heroFrame} /></div>
+          ) : hero && heroForeground ? (
             <div className={styles.heroPreview}>
               {hero.presentation === "browser-composite" && hero.backdrop ? (
                 <Image

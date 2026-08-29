@@ -21,6 +21,46 @@ export type ProjectImage = {
   height: number;
 };
 
+export type ProjectFrameConstraints = {
+  horizontal: "MIN" | "MAX" | "CENTER" | "STRETCH" | "SCALE";
+  vertical: "MIN" | "MAX" | "CENTER" | "STRETCH" | "SCALE";
+};
+
+export type ProjectFrameNode = {
+  id: string;
+  name: string;
+  type: "container" | "asset";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number;
+  rotation: number;
+  constraints: ProjectFrameConstraints;
+  clip?: boolean;
+  radius?: number;
+  background?: string;
+  layout?: {
+    direction: "horizontal" | "vertical";
+    gap: number;
+    padding: [number, number, number, number];
+    align: "start" | "center" | "end" | "space-between";
+  };
+  asset?: { src: string; format: "svg" | "raster"; fit: "cover" | "contain" | "fill" };
+  children?: ProjectFrameNode[];
+};
+
+export type ProjectFrameComposition = {
+  source: { url: string; fileKey: string; nodeId: string; version: string };
+  width: number;
+  height: number;
+  clip: boolean;
+  radius: number;
+  background: string;
+  nodes: ProjectFrameNode[];
+  preview?: ProjectImage;
+};
+
 export type ProjectHero = {
   presentation: "single" | "browser-composite";
   image: ProjectImage;
@@ -65,6 +105,7 @@ export type ProjectSectionBlock =
   | { type: "list"; style: "ordered" | "unordered"; items: ProjectInlineContent[][] }
   | { type: "notice"; variant: "default" | "wide"; content: ProjectInlineContent[] }
   | { type: "image"; presentation: "single" | "quotes" | "process" | "controls"; images: ProjectImage[] }
+  | { type: "frame"; composition: ProjectFrameComposition }
   | { type: "divider" };
 
 export type ProjectContentBlock =
@@ -95,6 +136,8 @@ export type ProjectDocument = {
   logo?: ProjectLogo;
   hero?: ProjectHero;
   catalogImage?: ProjectImage;
+  catalogFrame?: ProjectFrameComposition;
+  heroFrame?: ProjectFrameComposition;
   homeImages?: ProjectImage[];
   workSummary?: string;
   content: ProjectContentBlock[];
@@ -122,6 +165,8 @@ const PROJECT_KEYS = [
   "logo",
   "hero",
   "catalogImage",
+  "catalogFrame",
+  "heroFrame",
   "homeImages",
   "workSummary",
   "content",
@@ -257,6 +302,68 @@ function image(value: unknown, location: string): ProjectImage {
   };
 }
 
+const HORIZONTAL_CONSTRAINTS = ["MIN", "MAX", "CENTER", "STRETCH", "SCALE"] as const;
+const VERTICAL_CONSTRAINTS = ["MIN", "MAX", "CENTER", "STRETCH", "SCALE"] as const;
+
+function frameNode(value: unknown, location: string): ProjectFrameNode {
+  const input = record(value, location);
+  exactKeys(input, ["id", "name", "type", "x", "y", "width", "height", "opacity", "rotation", "constraints", "clip", "radius", "background", "layout", "asset", "children"], location);
+  const type = string(input.type, `${location}.type`);
+  if (type !== "container" && type !== "asset") throw new Error(`${location}.type is not supported.`);
+  const constraintInput = record(input.constraints, `${location}.constraints`);
+  exactKeys(constraintInput, ["horizontal", "vertical"], `${location}.constraints`);
+  const horizontal = string(constraintInput.horizontal, `${location}.constraints.horizontal`) as ProjectFrameConstraints["horizontal"];
+  const vertical = string(constraintInput.vertical, `${location}.constraints.vertical`) as ProjectFrameConstraints["vertical"];
+  if (!HORIZONTAL_CONSTRAINTS.includes(horizontal) || !VERTICAL_CONSTRAINTS.includes(vertical)) throw new Error(`${location}.constraints is not supported.`);
+  let asset: ProjectFrameNode["asset"];
+  if (input.asset !== undefined) {
+    const assetInput = record(input.asset, `${location}.asset`);
+    exactKeys(assetInput, ["src", "format", "fit"], `${location}.asset`);
+    const format = string(assetInput.format, `${location}.asset.format`);
+    const fit = string(assetInput.fit, `${location}.asset.fit`);
+    if (format !== "svg" && format !== "raster") throw new Error(`${location}.asset.format is not supported.`);
+    if (fit !== "cover" && fit !== "contain" && fit !== "fill") throw new Error(`${location}.asset.fit is not supported.`);
+    asset = { src: publicAssetPath(assetInput.src, `${location}.asset.src`), format, fit };
+  }
+  let layout: ProjectFrameNode["layout"];
+  if (input.layout !== undefined) {
+    const layoutInput = record(input.layout, `${location}.layout`);
+    exactKeys(layoutInput, ["direction", "gap", "padding", "align"], `${location}.layout`);
+    const direction = string(layoutInput.direction, `${location}.layout.direction`);
+    const align = string(layoutInput.align, `${location}.layout.align`);
+    if (direction !== "horizontal" && direction !== "vertical") throw new Error(`${location}.layout.direction is not supported.`);
+    if (!Array.isArray(layoutInput.padding) || layoutInput.padding.length !== 4) throw new Error(`${location}.layout.padding must have four values.`);
+    if (!["start", "center", "end", "space-between"].includes(align)) throw new Error(`${location}.layout.align is not supported.`);
+    layout = { direction, gap: finiteNumber(layoutInput.gap, `${location}.layout.gap`), padding: layoutInput.padding.map((item, index) => finiteNumber(item, `${location}.layout.padding[${index}]`)) as [number, number, number, number], align: align as ProjectFrameNode["layout"]["align"] };
+  }
+  if (type === "asset" && !asset) throw new Error(`${location}.asset is required.`);
+  const children = input.children === undefined ? undefined : Array.isArray(input.children) ? input.children.map((item, index) => frameNode(item, `${location}.children[${index}]`)) : (() => { throw new Error(`${location}.children must be an array.`); })();
+  return {
+    id: string(input.id, `${location}.id`), name: string(input.name, `${location}.name`), type,
+    x: finiteNumber(input.x, `${location}.x`), y: finiteNumber(input.y, `${location}.y`), width: finiteNumber(input.width, `${location}.width`, 0), height: finiteNumber(input.height, `${location}.height`, 0),
+    opacity: finiteNumber(input.opacity, `${location}.opacity`), rotation: typeof input.rotation === "number" && Number.isFinite(input.rotation) ? input.rotation : 0,
+    constraints: { horizontal, vertical },
+    ...optionalProperty("clip", input.clip === undefined ? undefined : boolean(input.clip, `${location}.clip`)),
+    ...optionalProperty("radius", input.radius === undefined ? undefined : finiteNumber(input.radius, `${location}.radius`)),
+    ...optionalProperty("background", input.background === undefined ? undefined : string(input.background, `${location}.background`, true)),
+    ...optionalProperty("layout", layout), ...optionalProperty("asset", asset), ...optionalProperty("children", children),
+  };
+}
+
+function frameComposition(value: unknown, location: string): ProjectFrameComposition {
+  const input = record(value, location);
+  exactKeys(input, ["source", "width", "height", "clip", "radius", "background", "nodes", "preview"], location);
+  const source = record(input.source, `${location}.source`);
+  exactKeys(source, ["url", "fileKey", "nodeId", "version"], `${location}.source`);
+  if (!Array.isArray(input.nodes)) throw new Error(`${location}.nodes must be an array.`);
+  return {
+    source: { url: externalUrl(source.url, `${location}.source.url`), fileKey: string(source.fileKey, `${location}.source.fileKey`), nodeId: string(source.nodeId, `${location}.source.nodeId`), version: string(source.version, `${location}.source.version`) },
+    width: finiteNumber(input.width, `${location}.width`, 1), height: finiteNumber(input.height, `${location}.height`, 1), clip: boolean(input.clip, `${location}.clip`), radius: finiteNumber(input.radius, `${location}.radius`), background: string(input.background, `${location}.background`, true),
+    nodes: input.nodes.map((item, index) => frameNode(item, `${location}.nodes[${index}]`)),
+    ...optionalProperty("preview", input.preview === undefined ? undefined : image(input.preview, `${location}.preview`)),
+  };
+}
+
 function inline(value: unknown, location: string): ProjectInlineContent {
   const input = record(value, location);
   const type = string(input.type, `${location}.type`);
@@ -363,6 +470,11 @@ function sectionBlock(value: unknown, location: string): ProjectSectionBlock {
       presentation: presentation as "single" | "quotes" | "process" | "controls",
       images: input.images.map((item, index) => image(item, `${location}.images[${index}]`)),
     };
+  }
+
+  if (type === "frame") {
+    exactKeys(input, ["type", "composition"], location);
+    return { type, composition: frameComposition(input.composition, `${location}.composition`) };
   }
 
   if (type === "divider") {
@@ -571,6 +683,8 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
   const catalogImage = input.catalogImage === undefined
     ? undefined
     : image(input.catalogImage, "Project document.catalogImage");
+  const catalogFrame = input.catalogFrame === undefined ? undefined : frameComposition(input.catalogFrame, "Project document.catalogFrame");
+  const heroFrame = input.heroFrame === undefined ? undefined : frameComposition(input.heroFrame, "Project document.heroFrame");
   let homeImages: ProjectImage[] | undefined;
   if (input.homeImages !== undefined) {
     if (!Array.isArray(input.homeImages) || input.homeImages.length === 0) {
@@ -599,6 +713,8 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
     ...optionalProperty("logo", logo),
     ...optionalProperty("hero", hero),
     ...optionalProperty("catalogImage", catalogImage),
+    ...optionalProperty("catalogFrame", catalogFrame),
+    ...optionalProperty("heroFrame", heroFrame),
     ...optionalProperty("homeImages", homeImages),
     ...optionalProperty("workSummary", optionalString(input.workSummary, "Project document.workSummary")),
     content: input.content.map((item, index) => contentBlock(item, `Project document.content[${index}]`)),

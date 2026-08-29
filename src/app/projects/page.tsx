@@ -7,6 +7,7 @@ import { ProjectDetailControl } from "../../components/project-detail-control";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { ControlButton } from "../../components/ui-controls";
+import { ProjectFrameCompositionView } from "../../components/project-frame-composition";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import type { ProjectLogo } from "../../lib/project-contract";
 import { getAllProjects, getAllProjectsForPreview, type Project } from "../../lib/projects";
@@ -39,6 +40,7 @@ function ProjectLogoMark({ logo }: { logo: ProjectLogo }) {
 }
 
 function ProjectVisual({ project }: { project: Project }) {
+  if (project.catalogFrame) return <div className={styles.compactVisual} aria-hidden="true"><ProjectFrameCompositionView composition={project.catalogFrame} /></div>;
   const image = project.catalogImage;
   if (!image) return null;
   return (

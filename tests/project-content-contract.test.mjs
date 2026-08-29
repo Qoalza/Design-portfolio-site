@@ -114,6 +114,26 @@ test("the project contract validates every supported field and block", () => {
   assert.deepEqual(validateProjectDocument(validProject), validProject);
 });
 
+test("structured Figma compositions preserve containers, constraints and leaf formats", () => {
+  const project = structuredClone(validProject);
+  project.catalogFrame = {
+    source: { url: "https://www.figma.com/design/key/name?node-id=1-2", fileKey: "key", nodeId: "1:2", version: "7" },
+    width: 1200,
+    height: 800,
+    clip: true,
+    radius: 24,
+    background: "#ffffff",
+    nodes: [{
+      id: "2:3", name: "Centered mark", type: "asset", x: 500, y: 300, width: 200, height: 200,
+      opacity: 1, rotation: 0, constraints: { horizontal: "CENTER", vertical: "CENTER" },
+      asset: { src: "/assets/projects/test-project/frames/mark.svg", format: "svg", fit: "contain" },
+    }],
+  };
+  const parsed = validateProjectDocument(project);
+  assert.equal(parsed.catalogFrame.nodes[0].asset.format, "svg");
+  assert.deepEqual(parsed.catalogFrame.nodes[0].constraints, { horizontal: "CENTER", vertical: "CENTER" });
+});
+
 test("visual editor marks preserve combined formatting without markup text", () => {
   const project = structuredClone(validProject);
   project.content[0].blocks[0].content = [{
