@@ -18,6 +18,13 @@ test("compact cards use their own columns around the centered divider", () => {
   assert.doesNotMatch(pageStyles, /\.compactCard:nth-child\(2\) \.compactVisual\s*\{[^}]*margin-left:/s);
 });
 
+test("project catalog repeats one wide card followed by one compact pair", () => {
+  assert.match(pageSource, /index % 3 === 0/);
+  assert.match(pageSource, /projects\.slice\(index, index \+ 2\)/);
+  assert.match(pageStyles, /\.repeatedWide\s*\{[^}]*border-top:\s*1px solid #e2e5e7;/s);
+  assert.match(pageStyles, /\.repeatedWide::before\s*\{[^}]*left:\s*50%;[^}]*width:\s*1px;/s);
+});
+
 test("platform row is a sibling of Info instead of being trapped in its 16px stack", () => {
   assert.match(pageSource, /function ProjectDetails[\s\S]*<>[\s\S]*className=\{styles\.details\}[\s\S]*<ProjectPlatforms[\s\S]*<\/>/);
   assert.doesNotMatch(pageStyles, /\.compactCopy \.details\s*\{[^}]*min-height:/s);

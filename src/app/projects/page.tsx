@@ -124,7 +124,6 @@ const isAdminPreview = process.env.DES_ART_ADMIN_PREVIEW === "1";
 export default async function ProjectsPage() {
   if (isAdminPreview) await connection();
   const projects = process.env.DES_ART_ADMIN_PREVIEW === "1" ? getAllProjectsForPreview() : getAllProjects();
-  const [primaryProject, ...compactProjects] = projects;
   const projectsTrailItem = { href: "/projects", label: "Работы" };
 
   return (
@@ -143,8 +142,12 @@ export default async function ProjectsPage() {
             description={"Здесь собрал рабочие проекты, тестовые задания,\nгде можно увидеть мой подход к задаче и результат."}
           />
           <section className={styles.catalog} aria-label="Проекты">
-            {primaryProject ? <MainProjectCard project={primaryProject} /> : null}
-            <div className={styles.compactGrid}>{compactProjects.map((project) => <article className={styles.compactCard} key={project.slug}><ProjectVisual project={project} /><ProjectCopy project={project} compact /></article>)}</div>
+            {projects.map((project, index) => {
+              if (index % 3 === 0) return <div className={index === 0 ? styles.primaryWide : styles.repeatedWide} key={project.slug}><MainProjectCard project={project} headingLevel={index === 0 ? "h2" : "h3"} /></div>;
+              if (index % 3 !== 1) return null;
+              const pair = projects.slice(index, index + 2);
+              return <div className={styles.compactGrid} key={`pair-${project.slug}`}>{pair.map((compactProject) => <article className={styles.compactCard} key={compactProject.slug}><ProjectVisual project={compactProject} /><ProjectCopy project={compactProject} compact /></article>)}</div>;
+            })}
           </section>
         </main>
         <SiteFooter />

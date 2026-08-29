@@ -84,17 +84,8 @@ const effects = (node) => (node.effects ?? []).filter((effect) => effect.visible
     if (!color) throw new Error(`Эффект слоя «${node.name ?? node.id}» не содержит корректный цвет.`);
     return { type: effect.type === "DROP_SHADOW" ? "drop-shadow" : "inner-shadow", color, offsetX: effect.offset?.x ?? 0, offsetY: effect.offset?.y ?? 0, blur: effect.radius ?? 0, spread: effect.spread ?? 0 };
   }
-  if (effect.type === "LAYER_BLUR" || effect.type === "BACKGROUND_BLUR") return { type: effect.type === "LAYER_BLUR" ? "layer-blur" : "background-blur", radius: effect.radius ?? 0 };
-  throw new Error(`Слой «${node.name ?? node.id}» использует неподдерживаемый эффект ${effect.type}.`);
+  throw new Error(`У слоя «${node.name ?? node.id}» есть эффект, отличный от тени. Добавьте его в готовое PNG и повторите импорт.`);
 });
-
-const stroke = (node) => {
-  const color = rgba(node.strokes?.find((paint) => paint.visible !== false));
-  const width = node.strokeWeight;
-  if (!color || typeof width !== "number" || !Number.isFinite(width) || width <= 0) return undefined;
-  const align = ["INSIDE", "OUTSIDE", "CENTER"].includes(node.strokeAlign) ? node.strokeAlign : "CENTER";
-  return { color, width, align };
-};
 
 function box(node) {
   return node.absoluteBoundingBox ?? node.absoluteRenderBounds;
@@ -113,9 +104,6 @@ function validateContainerVisuals(node) {
   const unsupportedFill = visibleFills.find((paint) => !["SOLID", "IMAGE"].includes(paint.type));
   if (unsupportedFill) throw new Error(`Слой «${node.name ?? node.id}» использует неподдерживаемый fill ${unsupportedFill.type}.`);
   if (visibleFills.filter((paint) => paint.type === "SOLID").length > 1 || visibleFills.filter((paint) => paint.type === "IMAGE").length > 1) throw new Error(`Слой «${node.name ?? node.id}» содержит несколько одинаковых fills, которые нельзя воспроизвести без потерь.`);
-  const visibleStrokes = (node.strokes ?? []).filter((paint) => paint.visible !== false && (paint.opacity ?? 1) > 0);
-  if (visibleStrokes.length > 1 || visibleStrokes.some((paint) => paint.type !== "SOLID")) throw new Error(`Слой «${node.name ?? node.id}» использует сложную обводку, которую нельзя воспроизвести без потерь.`);
-  if (node.strokeDashes?.length || node.individualStrokeWeights) throw new Error(`Слой «${node.name ?? node.id}» использует нестандартную обводку, которую нельзя воспроизвести без потерь.`);
   if (node.rectangleCornerRadii && new Set(node.rectangleCornerRadii).size > 1) throw new Error(`Слой «${node.name ?? node.id}» использует разные радиусы углов, которые пока не поддерживаются.`);
   if ((node.cornerSmoothing ?? 0) !== 0) throw new Error(`Слой «${node.name ?? node.id}» использует corner smoothing, который пока не поддерживается.`);
   if (node.layoutMode === "GRID" || node.layoutWrap === "WRAP") throw new Error(`Слой «${node.name ?? node.id}» использует неподдерживаемый режим Auto Layout.`);
@@ -188,7 +176,6 @@ function relativeNode(node, parentBox, assetMap, snapshotIds = new Set()) {
     ...(node.clipsContent === undefined ? {} : { clip: Boolean(node.clipsContent) }),
     ...(!compoundAsset && node.cornerRadius !== undefined ? { radius: node.cornerRadius } : {}),
     ...(!compoundAsset && (isContainer || rasterAsset) && rgba(node.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ? { background: rgba(node.fills.find((paint) => paint.visible !== false && paint.type === "SOLID")) } : {}),
-    ...(!compoundAsset && (isContainer || rasterAsset) && stroke(node) ? { stroke: stroke(node) } : {}),
     ...(nodeEffects?.length ? { effects: nodeEffects } : {}),
     ...(nodeBlendMode ? { blendMode: nodeBlendMode } : {}),
     ...(!compoundAsset && node.layoutPositioning === "ABSOLUTE" ? { absoluteInLayout: true } : {}),
@@ -219,10 +206,10 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
   validateContainerVisuals(root);
   const visualUnits = collectVisualUnits(root);
   const rootRasterFill = imageFill(root);
-  const backgroundNodes = rootRasterFill ? [root] : [];
-  const unitIds = visualUnits.map((unit) => unit.id);
+  const fillNodes = [...(rootRasterFill ? [root] : []), ...visualUnits.filter((unit) => imageFill(unit))];
+  const unitIds = visualUnits.filter((unit) => !imageFill(unit)).map((unit) => unit.id);
   const exports = unitIds.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${unitIds.map(encodeURIComponent).join(",")}&format=png&scale=2&use_absolute_bounds=true`, auth) : { images: {} };
-  const fills = backgroundNodes.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/images`, auth) : { meta: { images: {} } };
+  const fills = fillNodes.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/images`, auth) : { meta: { images: {} } };
   const version = String(nodeData.version ?? entry.version ?? createHash("sha256").update(JSON.stringify(root)).digest("hex").slice(0, 12));
   const folderName = `${slot}-${createHash("sha256").update(`${fileKey}:${nodeId}:${version}`).digest("hex").slice(0, 12)}`;
   const projectRoot = path.join(assetRoot, slug, "frames");
@@ -232,6 +219,23 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
   await mkdir(temporary, { recursive: true });
   try {
     for (const unit of visualUnits) {
+      const fill = imageFill(unit);
+      if (fill) {
+        const download = fills.meta?.images?.[fill.imageRef];
+        if (!download) throw new Error(`Figma не вернула исходное изображение элемента «${unit.name ?? unit.id}».`);
+        const response = await fetchImpl(download);
+        if (!response.ok) throw new Error(`Не удалось скачать исходное изображение элемента «${unit.name ?? unit.id}».`);
+        const extension = rasterExtension(response.headers?.get?.("content-type"));
+        const name = `${createHash("sha256").update(unit.id).digest("hex").slice(0, 10)}.${extension}`;
+        await writeFile(path.join(temporary, name), Buffer.from(await response.arrayBuffer()), { mode: 0o600 });
+        assets.set(unit.id, {
+          src: `/assets/projects/${slug}/frames/${folderName}/${name}`,
+          format: "raster",
+          fit: "contain",
+          ...(fill.opacity === undefined ? {} : { opacity: fill.opacity }),
+        });
+        continue;
+      }
       const download = exports.images?.[unit.id];
       if (!download) throw new Error(`Figma не смогла экспортировать элемент «${unit.name ?? unit.id}».`);
       const response = await fetchImpl(download);
@@ -250,7 +254,7 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
         ...(bleedX || bleedY ? { bounds: { x: -bleedX, y: -bleedY, width: renderedWidth, height: renderedHeight } } : {}),
       });
     }
-    for (const leaf of backgroundNodes) {
+    for (const leaf of rootRasterFill ? [root] : []) {
       const fill = imageFill(leaf);
       const download = fills.meta?.images?.[fill.imageRef];
       if (!download) throw new Error(`Figma не вернула raster fill слоя «${leaf.name ?? leaf.id}».`);
@@ -270,7 +274,6 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
     const manifest = {
       source: { url, fileKey, nodeId, version }, width: rootBox.width, height: rootBox.height,
       clip: Boolean(root.clipsContent), radius: root.cornerRadius ?? 0, background: rgba(root.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ?? "transparent",
-      ...(stroke(root) ? { stroke: stroke(root) } : {}),
       ...(effects(root).length ? { effects: effects(root) } : {}),
       ...(blendMode(root) ? { blendMode: blendMode(root) } : {}),
       nodes: [...(rootBackground ? [rootBackground] : []), ...visualUnits.map((child) => relativeNode(child, rootBox, assets, new Set(unitIds)))],
