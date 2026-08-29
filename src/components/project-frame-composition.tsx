@@ -37,7 +37,10 @@ function positionedStyle(node: ProjectFrameNode, parentWidth: number, parentHeig
   return style;
 }
 
-function FrameNodeView({ node, parentWidth, parentHeight, inLayout = false }: { node: ProjectFrameNode; parentWidth: number; parentHeight: number; inLayout?: boolean }) {
+function rootWidthUnit(value: number, rootWidth: number) { return `${Number((value / rootWidth * 100).toFixed(6))}cqw`; }
+function rootHeightUnit(value: number, rootHeight: number) { return `${Number((value / rootHeight * 100).toFixed(6))}cqh`; }
+
+function FrameNodeView({ node, parentWidth, parentHeight, rootWidth, rootHeight, inLayout = false }: { node: ProjectFrameNode; parentWidth: number; parentHeight: number; rootWidth: number; rootHeight: number; inLayout?: boolean }) {
   const style: CSSProperties = inLayout ? {
     position: "relative", width: percent(node.width / parentWidth * 100), height: percent(node.height / parentHeight * 100), flex: node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
   } : positionedStyle(node, parentWidth, parentHeight);
@@ -47,14 +50,14 @@ function FrameNodeView({ node, parentWidth, parentHeight, inLayout = false }: { 
   if (node.layout) {
     style.display = "flex";
     style.flexDirection = node.layout.direction === "horizontal" ? "row" : "column";
-    style.gap = percent(node.layout.gap / (node.layout.direction === "horizontal" ? node.width : node.height) * 100);
+    style.gap = node.layout.direction === "horizontal" ? rootWidthUnit(node.layout.gap, rootWidth) : rootHeightUnit(node.layout.gap, rootHeight);
     const [top, right, bottom, left] = node.layout.padding;
-    style.padding = `${percent(top / node.height * 100)} ${percent(right / node.width * 100)} ${percent(bottom / node.height * 100)} ${percent(left / node.width * 100)}`;
+    style.padding = `${rootHeightUnit(top, rootHeight)} ${rootWidthUnit(right, rootWidth)} ${rootHeightUnit(bottom, rootHeight)} ${rootWidthUnit(left, rootWidth)}`;
     style.justifyContent = node.layout.align === "space-between" ? "space-between" : node.layout.align === "end" ? "flex-end" : node.layout.align;
   }
   return <div className={`${styles.node} ${node.layout ? styles.layout : ""}`} style={style} data-frame-node={node.name}>
     {node.asset ? <img className={styles.asset} src={node.asset.src} alt="" style={{ objectFit: node.asset.fit }} /> : null}
-    {node.children?.map((child) => <FrameNodeView key={child.id} node={child} parentWidth={node.width} parentHeight={node.height} inLayout={Boolean(node.layout)} />)}
+    {node.children?.map((child) => <FrameNodeView key={child.id} node={child} parentWidth={node.width} parentHeight={node.height} rootWidth={rootWidth} rootHeight={rootHeight} inLayout={Boolean(node.layout)} />)}
   </div>;
 }
 
@@ -66,6 +69,6 @@ export function ProjectFrameCompositionView({ composition, className = "", fillS
     "--frame-radius": `${composition.radius}px`,
   };
   return <div className={`${styles.composition} ${fillSlot ? styles.fillSlot : ""} ${className}`} style={rootStyle} data-project-frame>
-    {composition.nodes.map((node) => <FrameNodeView key={node.id} node={node} parentWidth={composition.width} parentHeight={composition.height} />)}
+    {composition.nodes.map((node) => <FrameNodeView key={node.id} node={node} parentWidth={composition.width} parentHeight={composition.height} rootWidth={composition.width} rootHeight={composition.height} />)}
   </div>;
 }

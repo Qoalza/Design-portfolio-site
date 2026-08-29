@@ -201,6 +201,7 @@ export function CardEditor({
           title="Обложка карточки"
           description="Один адаптивный Frame используется на главной и в списке проектов."
           composition={project.catalogFrame}
+          previewVariant="cover"
           onImport={(url) => importFrame("catalog", url)}
         />
         {!project.catalogFrame && (project.catalogImage || project.hero) ? <Text size="1" color="gray">Текущая managed-композиция сохранена и не изменится до успешного импорта Frame.</Text> : null}

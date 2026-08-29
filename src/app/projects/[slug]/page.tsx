@@ -17,6 +17,7 @@ import type {
 } from "../../../lib/project-contract";
 import { getAllProjects, getProjectBySlug, getProjectBySlugForPreview } from "../../../lib/projects";
 import { HOME_TRAIL_ITEM } from "../../../lib/navigation-trail";
+import { createProjectSectionIds } from "../../../lib/project-section-ids.mjs";
 import { createSocialMetadata } from "../../../lib/site-metadata";
 import styles from "./page.module.css";
 
@@ -53,14 +54,6 @@ function ProjectNotice({ children, variant = "default" }: ProjectNoticeProps) {
       <p>{children}</p>
     </div>
   );
-}
-
-function getHeadingId(label: string): string {
-  return label
-    .toLocaleLowerCase("ru")
-    .replace(/ё/g, "е")
-    .replace(/[^a-zа-я0-9]+/gi, "-")
-    .replace(/^-|-$/g, "");
 }
 
 function renderInlineContent(content: ProjectInlineContent[]): ReactNode[] {
@@ -112,19 +105,20 @@ function ProjectContentBlockView({ block }: { block: ProjectSectionBlock }) {
   return <ProjectDivider />;
 }
 
-function ProjectSectionView({ section }: { section: ProjectSectionContent }) {
+function ProjectSectionView({ section, id }: { section: ProjectSectionContent; id: string }) {
   return (
     <ProjectSection>
-      <h2 id={getHeadingId(section.heading)}>{section.heading}</h2>
+      <h2 id={id}>{section.heading}</h2>
       {section.blocks.map((block, index) => <ProjectContentBlockView key={`${block.type}-${index}`} block={block} />)}
     </ProjectSection>
   );
 }
 
 function getProjectSections(content: ProjectContentBlock[]): Array<{ id: string; label: string }> {
-  return content
+  const sections = content
     .filter((block): block is ProjectSectionContent => block.type === "section")
-    .map((section) => ({ id: getHeadingId(section.heading), label: section.heading }));
+  const ids = createProjectSectionIds(sections.map((section) => section.heading));
+  return sections.map((section, index) => ({ id: ids[index], label: section.heading }));
 }
 
 export function generateStaticParams() {
@@ -163,8 +157,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const projectLabels = project.detailTags;
   const projectsTrailItem = { href: "/projects", label: "Работы" };
   const projectTrailItem = { href: `/projects/${project.slug}`, label: project.title };
-  const projectSections = getProjectSections(project.content);
   const sectionBlocks = project.content.filter((block): block is ProjectSectionContent => block.type === "section");
+  const projectSections = getProjectSections(project.content);
   const galleryBlocks = project.content.filter((block): block is ProjectGalleryContent => block.type === "gallery");
   const hero = project.hero;
   const heroForeground = hero?.foreground ?? hero?.image;
@@ -229,7 +223,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
             <article className={styles.projectArticle} data-project-content-column>
               {sectionBlocks.map((section, index) => (
-                <ProjectSectionView key={`${getHeadingId(section.heading)}-${index}`} section={section} />
+                <ProjectSectionView key={projectSections[index].id} id={projectSections[index].id} section={section} />
               ))}
             </article>
           </div>

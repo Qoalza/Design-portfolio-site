@@ -133,6 +133,7 @@ button, input, textarea, select { font: inherit; }
 .rt-SwitchRoot { border-radius: 999px !important; }
 .rt-SwitchThumb { border-radius: 50% !important; }
 .rt-Button, .rt-IconButton, .rt-TextFieldRoot, .rt-TextAreaRoot, .rt-SelectTrigger, .tag-input, .frame-source > input { border-radius: 6px !important; }
+.rt-Button.rt-variant-outline, .rt-IconButton.rt-variant-outline { background: #fff !important; }
 
 .asset-field {
   display: grid;
@@ -276,7 +277,8 @@ body { background: #fbfaf8; }
 .asset-field > .rt-Flex .rt-IconButton { width: 32px; padding: 0; }
 .frame-field { display: grid; gap: 14px; }
 .frame-preview-button { display: block; width: 100%; padding: 0; overflow: hidden; border: 0; border-radius: 10px; background: var(--sand-3); cursor: zoom-in; }
-.frame-preview { position: relative; width: 100%; overflow: hidden; }
+.frame-field-cover .frame-preview-button { width: 160px; }
+.frame-preview { position: relative; container-type: size; width: 100%; overflow: hidden; }
 .frame-preview-large { max-height: 72vh; margin-top: 16px; }
 .frame-node-preview { transform-origin: center; }
 .frame-node-preview > img { display: block; width: 100%; height: 100%; }
@@ -284,8 +286,8 @@ body { background: #fbfaf8; }
 .frame-warning { position: absolute; inset: 0; display: grid; place-items: center; color: var(--amber-10); }
 .frame-warning svg { width: 44px; height: 44px; filter: drop-shadow(0 2px 6px rgba(255,255,255,.9)); }
 .frame-source { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
-.frame-source > input { min-width: 0; height: 40px; padding: 0 12px; border: 1px solid var(--sand-7); outline: none; background: #fff; font: inherit; }
-.frame-source > .rt-Button { display: inline-flex; min-width: 148px; height: 40px; min-height: 40px; align-items: center; justify-content: center; gap: 8px; padding-inline: 16px; }
+.frame-source > input { min-width: 0; height: 32px; padding: 0 10px; border: 1px solid var(--sand-7); outline: none; background: #fff; font: inherit; }
+.frame-source > .rt-Button { display: inline-flex; min-width: 132px; height: 32px; min-height: 32px; align-items: center; justify-content: center; gap: 8px; padding-inline: 12px; }
 .frame-source .spinner { width: 14px; height: 14px; flex: 0 0 14px; }
 .frame-import-status { display: inline-flex; align-items: center; min-height: 20px; color: var(--gray-11); font-size: 13px; }
 .frame-source > input:focus { border-color: var(--accent-8); box-shadow: 0 0 0 1px var(--accent-6); }

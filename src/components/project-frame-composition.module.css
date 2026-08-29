@@ -1,5 +1,6 @@
 .composition {
   position: relative;
+  container-type: size;
   width: 100%;
   overflow: hidden;
   background: var(--frame-background, transparent);

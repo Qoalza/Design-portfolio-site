@@ -136,7 +136,10 @@ export function ImagePreview({ src, label, children }: { src: string; label: str
   return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
 }
 
-function FrameNodePreview({ node, parent, inLayout = false }: { node: ProjectFrameNode; parent: { width: number; height: number }; inLayout?: boolean }) {
+function frameRootWidthUnit(value: number, rootWidth: number) { return `${value / rootWidth * 100}cqw`; }
+function frameRootHeightUnit(value: number, rootHeight: number) { return `${value / rootHeight * 100}cqh`; }
+
+function FrameNodePreview({ node, parent, root, inLayout = false }: { node: ProjectFrameNode; parent: { width: number; height: number }; root: { width: number; height: number }; inLayout?: boolean }) {
   const transforms: string[] = [];
   const style: React.CSSProperties = inLayout ? {
     position: "relative", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
@@ -167,19 +170,19 @@ function FrameNodePreview({ node, parent, inLayout = false }: { node: ProjectFra
     const [top, right, bottom, left] = node.layout.padding;
     Object.assign(style, {
       display: "flex", boxSizing: "border-box", flexDirection: node.layout.direction === "horizontal" ? "row" : "column",
-      gap: `${node.layout.gap / (node.layout.direction === "horizontal" ? node.width : node.height) * 100}%`,
-      padding: `${top / node.height * 100}% ${right / node.width * 100}% ${bottom / node.height * 100}% ${left / node.width * 100}%`,
+      gap: node.layout.direction === "horizontal" ? frameRootWidthUnit(node.layout.gap, root.width) : frameRootHeightUnit(node.layout.gap, root.height),
+      padding: `${frameRootHeightUnit(top, root.height)} ${frameRootWidthUnit(right, root.width)} ${frameRootHeightUnit(bottom, root.height)} ${frameRootWidthUnit(left, root.width)}`,
       justifyContent: node.layout.align === "space-between" ? "space-between" : node.layout.align === "end" ? "flex-end" : node.layout.align,
     });
   }
   return <div className="frame-node-preview" style={style}>
     {node.asset ? <img src={node.asset.src} alt="" style={{ width: "100%", height: "100%", objectFit: node.asset.fit }} /> : null}
-    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} inLayout={Boolean(node.layout)} />)}
+    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} root={root} inLayout={Boolean(node.layout)} />)}
   </div>;
 }
 
-export function FrameField({ title, description, composition, source, required, importing, onImport }: {
-  title: string; description: string; composition?: ProjectFrameComposition; source?: string; required?: boolean; importing?: boolean; onImport: (url: string) => Promise<void>;
+export function FrameField({ title, description, composition, source, required, importing, previewVariant = "hero", onImport }: {
+  title: string; description: string; composition?: ProjectFrameComposition; source?: string; required?: boolean; importing?: boolean; previewVariant?: "hero" | "cover" | "interactive"; onImport: (url: string) => Promise<void>;
 }) {
   const [value, setValue] = useState(source ?? composition?.source.url ?? "");
   const [error, setError] = useState("");
@@ -193,9 +196,10 @@ export function FrameField({ title, description, composition, source, required, 
     catch (reason) { setError(reason instanceof Error ? reason.message : "Не удалось импортировать Frame."); }
     finally { setSubmitting(false); }
   };
-  return <div className={`frame-field${error ? " frame-field-error" : ""}`}>
+  const previewAspect = previewVariant === "cover" ? "1 / 1" : composition ? `${composition.width}/${composition.height}` : undefined;
+  return <div className={`frame-field frame-field-${previewVariant}${error ? " frame-field-error" : ""}`}>
     <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
-    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={{ aspectRatio: `${composition.width}/${composition.height}`, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={{ aspectRatio: `${composition.width}/${composition.height}`, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
+    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={{ aspectRatio: previewAspect, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={{ aspectRatio: previewAspect, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
     <div className="frame-source"><input value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
     {busy ? <span className="frame-import-status" role="status">Получаем структуру Frame и сохраняем ассеты…</span> : null}
     <span className={`field-help${error ? " field-error" : ""}`}>{error || "Production использует локальный snapshot и не зависит от Figma после публикации."}</span>
