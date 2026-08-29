@@ -19,8 +19,8 @@
   "homeOrder": 2,
   "detailAvailable": false,
   "materials": {
-    "projectState": "completed",
-    "fileState": "absent"
+    "projectState": "in_progress",
+    "fileState": "unavailable"
   },
   "platforms": [
     "Desktop"

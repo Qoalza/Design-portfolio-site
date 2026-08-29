@@ -72,13 +72,13 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
                 breadcrumbLabel={project.title}
                 className={styles.detailsButton}
               />
-            ) : project.availability.figma === "absent" ? (
-              <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
             ) : (
               <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
             )}
             {project.availability.figma === "available" && project.figmaUrl ? (
               <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
+            ) : project.availability.figma === "absent" ? (
+              <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
             ) : (
               <ControlButton variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
             )}

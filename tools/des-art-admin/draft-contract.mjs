@@ -1,4 +1,7 @@
 import { validateProjectDocument } from "../../src/lib/project-contract.ts";
+import { changeProjectFileState, changeProjectMaterialsState } from "./material-state.mjs";
+
+export { changeProjectFileState, changeProjectMaterialsState };
 
 export class DraftValidationError extends Error {
   constructor(issues) {

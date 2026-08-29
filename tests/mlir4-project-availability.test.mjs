@@ -12,6 +12,24 @@ test("only Corvo exposes an available project detail route", () => {
   assert.match(projects, /detail:\s*project\.detailAvailable \? "available" : "unavailable"/);
 });
 
+test("Sarafan.Radio preserves the pre-admin unavailable states", () => {
+  const sarafan = JSON.parse(readFileSync(new URL("../content/projects/sarafan-radio.json", import.meta.url), "utf8"));
+  assert.equal(sarafan.detailAvailable, false);
+  assert.deepEqual(sarafan.materials, { projectState: "in_progress", fileState: "unavailable" });
+});
+
+test("project cards render detail and file availability independently", () => {
+  for (const file of [
+    "../src/app/page.tsx",
+    "../src/app/projects/page.tsx",
+    "../src/components/main-project-card.tsx",
+  ]) {
+    const source = readFileSync(new URL(file, import.meta.url), "utf8");
+    assert.doesNotMatch(source, /availability\.detail[^]*?availability\.figma === "absent"[^]*?ProjectDetailControl/s);
+    assert.match(source, /availability\.figma === "absent"/);
+  }
+});
+
 test("the project route rejects unavailable content through the shared availability contract", () => {
   const page = readFileSync(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
   assert.match(page, /project\.availability\.detail !== "available"/);
