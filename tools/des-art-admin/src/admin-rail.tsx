@@ -1,24 +1,21 @@
 import { EyeOpenIcon } from "@radix-ui/react-icons";
 import {
-  Badge,
   Button,
   Callout,
   Select,
   Switch,
   Text,
-  TextArea,
   TextField,
 } from "@radix-ui/themes";
 import type {
   ProjectContentBlock,
   ProjectGalleryGroup,
   ProjectPlatform,
-  ProjectSectionBlock,
   ProjectVisibility,
 } from "../../../src/lib/project-contract";
 import { groupDefaults } from "./admin-editor";
-import type { AdminProject, AdminSection, FieldIssue } from "./admin-model";
-import { inline, issueFor, sectionSetting, textOf, withSectionSetting } from "./admin-model";
+import type { AdminProject, FieldIssue } from "./admin-model";
+import { issueFor } from "./admin-model";
 import { Field, RailGroup } from "./admin-ui";
 
 export function ProjectActions({
@@ -189,116 +186,6 @@ function MaterialsSettings({
   );
 }
 
-function updateSection(project: AdminProject, target: AdminSection, next: AdminSection): AdminProject {
-  return { ...project, content: project.content.map((block) => block === target ? next : block) };
-}
-
-function SectionSettings({
-  project,
-  section,
-  change,
-}: {
-  project: AdminProject;
-  section: AdminSection;
-  change: (project: AdminProject) => void;
-}) {
-  const settings = sectionSetting(project, section.adminId);
-  const notice = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "notice" }> => block.type === "notice");
-  const image = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "image" }> => block.type === "image");
-  const noticeEnabled = settings.noticeEnabled ?? Boolean(notice);
-  const interactive = settings.interactive ?? { enabled: Boolean(image), status: image ? "connected" as const : undefined };
-  const changeSetting = (patch: Parameters<typeof withSectionSetting>[2]) => change(withSectionSetting(project, section.adminId, patch));
-  const changeNotice = (enabled: boolean) => {
-    let next = project;
-    if (enabled && !notice) {
-      next = updateSection(project, section, { ...section, blocks: [...section.blocks, { type: "notice", variant: "default", content: inline("") }] });
-    }
-    change(withSectionSetting(next, section.adminId, { noticeEnabled: enabled }));
-  };
-  const changeNoticeContent = (text: string) => {
-    const nextNotice: Extract<ProjectSectionBlock, { type: "notice" }> = {
-      type: "notice",
-      variant: settings.noticeVariant ?? notice?.variant ?? "default",
-      content: inline(text),
-    };
-    change(updateSection(project, section, {
-      ...section,
-      blocks: [...section.blocks.filter((block) => block.type !== "notice"), nextNotice],
-    }));
-  };
-  return (
-    <RailGroup title={`Секция · ${section.heading}`} description="Настройки выбранной секции" selected>
-      <label className="switch-line">
-        <div>
-          <Text size="2" weight="medium">Примечание</Text>
-          <Text as="p" size="1" color="gray">Отдельный акцентный текст</Text>
-        </div>
-        <Switch radius="full" checked={noticeEnabled} onCheckedChange={changeNotice} />
-      </label>
-      {noticeEnabled ? (
-        <>
-          <Field label="Текст примечания">
-            <TextArea rows={4} value={notice ? textOf(notice.content) : ""} onChange={(event) => changeNoticeContent(event.target.value)} />
-          </Field>
-          <Field label="Ширина">
-            <Select.Root
-              value={settings.noticeVariant ?? notice?.variant ?? "default"}
-              onValueChange={(variant) => changeSetting({ noticeVariant: variant as "default" | "wide" })}
-            >
-              <Select.Trigger />
-              <Select.Content>
-                <Select.Item value="default">Обычная</Select.Item>
-                <Select.Item value="wide">Широкая</Select.Item>
-              </Select.Content>
-            </Select.Root>
-          </Field>
-        </>
-      ) : null}
-      <div className="rail-divider" />
-      <label className="switch-line">
-        <div>
-          <Text size="2" weight="medium">Интерактивный экран</Text>
-          <Text as="p" size="1" color="gray">Фрейм из Figma поверх публичного фона</Text>
-        </div>
-        <Switch
-          radius="full"
-          checked={interactive.enabled}
-          onCheckedChange={(enabled) => changeSetting({ interactive: { ...interactive, enabled } })}
-        />
-      </label>
-      {interactive.enabled ? (
-        <>
-          <Field label="Ссылка на фрейм Figma" hint="Codex подготовит экран по размерам фрейма">
-            <TextField.Root
-              type="url"
-              value={interactive.figmaUrl ?? ""}
-              onChange={(event) => changeSetting({
-                interactive: {
-                  enabled: true,
-                  figmaUrl: event.target.value,
-                  status: event.target.value ? "pending" : undefined,
-                },
-              })}
-            />
-          </Field>
-          {image ? (
-            <Badge color="green">Подключён существующий экран</Badge>
-          ) : interactive.figmaUrl ? (
-            <Callout.Root color="blue" size="1">
-              <Callout.Text>Фрейм сохранён в запросе. Публикация будет доступна после подготовки ассета Codex.</Callout.Text>
-            </Callout.Root>
-          ) : (
-            <Callout.Root color="gray" size="1"><Callout.Text>Вставьте ссылку на конкретный фрейм Figma.</Callout.Text></Callout.Root>
-          )}
-        </>
-      ) : null}
-      <Text size="1" color="gray">
-        {interactive.enabled ? "Разделитель после секции скрыт." : "После секции будет разделитель."}
-      </Text>
-    </RailGroup>
-  );
-}
-
 function GallerySettings({ project, update }: { project: AdminProject; update: (patch: Partial<AdminProject>) => void }) {
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
     ?? { type: "gallery", title: "Галерея", description: "Интерфейсы проекта", groups: [] };
@@ -332,15 +219,12 @@ function GallerySettings({ project, update }: { project: AdminProject; update: (
 export function PageSettings({
   project,
   update,
-  selectedSection,
   issues,
 }: {
   project: AdminProject;
   update: (patch: Partial<AdminProject>) => void;
-  selectedSection?: string;
   issues: FieldIssue[];
 }) {
-  const section = project.content.find((block): block is AdminSection => block.type === "section" && block.adminId === selectedSection);
   return (
     <>
       <RailGroup title="Доступность страницы">
@@ -353,9 +237,6 @@ export function PageSettings({
         </label>
       </RailGroup>
       <MaterialsSettings project={project} update={update} issues={issues} />
-      {section ? <div className="selected-section-settings"><Text size="1" color="gray">Настройки · Секция {project.content.filter((block) => block.type === "section").findIndex((block) => block.adminId === section.adminId) + 1} · {section.heading || "Без названия"}</Text><SectionSettings project={project} section={section} change={(next) => update(next)} /></div> : (
-        <RailGroup title="Настройки секции" description="Выберите секцию в центральной области." />
-      )}
       <GallerySettings project={project} update={update} />
     </>
   );

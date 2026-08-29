@@ -8,9 +8,12 @@ import {
 import {
   Badge,
   Button,
+  Callout,
   Flex,
   Heading,
   IconButton,
+  Select,
+  Switch,
   Text,
   TextArea,
   TextField,
@@ -22,9 +25,9 @@ import type {
   ProjectImage,
   ProjectSectionBlock,
 } from "../../../src/lib/project-contract";
-import type { AdminContentBlock, AdminProject, AdminSection } from "./admin-model";
+import type { AdminProject, AdminSection } from "./admin-model";
 import type { FieldIssue } from "./admin-model";
-import { issueFor, sectionText, textBlocks } from "./admin-model";
+import { inline, issueFor, sectionSetting, sectionText, textBlocks, textOf, withSectionSetting } from "./admin-model";
 import { AssetField, Field, RichEditor, TagField } from "./admin-ui";
 
 type Upload = (file: File, context: string) => Promise<ProjectImage>;
@@ -34,8 +37,80 @@ function replaceSectionText(section: AdminSection, value: string): AdminSection 
   return { ...section, blocks: [...textBlocks(value), ...managed] };
 }
 
+function updateSection(project: AdminProject, target: AdminSection, next: AdminSection): AdminProject {
+  return { ...project, content: project.content.map((block) => block === target ? next : block) };
+}
+
+function SectionSettings({ project, section, change }: { project: AdminProject; section: AdminSection; change: (project: AdminProject) => void }) {
+  const settings = sectionSetting(project, section.adminId);
+  const notice = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "notice" }> => block.type === "notice");
+  const image = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "image" }> => block.type === "image");
+  const noticeEnabled = settings.noticeEnabled ?? Boolean(notice);
+  const interactive = settings.interactive ?? { enabled: Boolean(image), status: image ? "connected" as const : undefined };
+  const changeSetting = (patch: Parameters<typeof withSectionSetting>[2]) => change(withSectionSetting(project, section.adminId, patch));
+  const changeNotice = (enabled: boolean) => {
+    let next = project;
+    if (enabled && !notice) {
+      next = updateSection(project, section, { ...section, blocks: [...section.blocks, { type: "notice", variant: "default", content: inline("") }] });
+    }
+    change(withSectionSetting(next, section.adminId, { noticeEnabled: enabled }));
+  };
+  const changeNoticeContent = (text: string) => {
+    const nextNotice: Extract<ProjectSectionBlock, { type: "notice" }> = {
+      type: "notice",
+      variant: settings.noticeVariant ?? notice?.variant ?? "default",
+      content: inline(text),
+    };
+    change(updateSection(project, section, {
+      ...section,
+      blocks: [...section.blocks.filter((block) => block.type !== "notice"), nextNotice],
+    }));
+  };
+  return (
+    <div className="section-settings">
+      <div className="section-settings-heading">
+        <Text weight="medium">Настройки секции</Text>
+        <Text size="1" color="gray">Действуют только для этой секции</Text>
+      </div>
+      <div className="section-settings-grid">
+        <div className="section-setting">
+          <label className="switch-line">
+            <div><Text size="2" weight="medium">Примечание</Text><Text as="p" size="1" color="gray">Отдельный акцентный текст</Text></div>
+            <Switch radius="full" checked={noticeEnabled} onCheckedChange={changeNotice} />
+          </label>
+          {noticeEnabled ? (
+            <div className="section-setting-fields">
+              <Field label="Текст примечания"><TextArea rows={3} value={notice ? textOf(notice.content) : ""} onChange={(event) => changeNoticeContent(event.target.value)} /></Field>
+              <Field label="Ширина">
+                <Select.Root value={settings.noticeVariant ?? notice?.variant ?? "default"} onValueChange={(variant) => changeSetting({ noticeVariant: variant as "default" | "wide" })}>
+                  <Select.Trigger /><Select.Content><Select.Item value="default">Обычная</Select.Item><Select.Item value="wide">Широкая</Select.Item></Select.Content>
+                </Select.Root>
+              </Field>
+            </div>
+          ) : null}
+        </div>
+        <div className="section-setting">
+          <label className="switch-line">
+            <div><Text size="2" weight="medium">Интерактивный экран</Text><Text as="p" size="1" color="gray">Фрейм из Figma вместо разделителя</Text></div>
+            <Switch radius="full" checked={interactive.enabled} onCheckedChange={(enabled) => changeSetting({ interactive: { ...interactive, enabled } })} />
+          </label>
+          {interactive.enabled ? (
+            <div className="section-setting-fields">
+              <Field label="Ссылка на фрейм Figma" hint="Codex подготовит экран по размерам фрейма">
+                <TextField.Root type="url" value={interactive.figmaUrl ?? ""} onChange={(event) => changeSetting({ interactive: { enabled: true, figmaUrl: event.target.value, status: event.target.value ? "pending" : undefined } })} />
+              </Field>
+              {image ? <Callout.Root color="green" size="1"><Callout.Text>Подключён существующий экран.</Callout.Text></Callout.Root> : interactive.figmaUrl ? <Callout.Root color="blue" size="1"><Callout.Text>Экран ожидает подготовки ассета.</Callout.Text></Callout.Root> : <Text size="1" color="gray">Вставьте ссылку на конкретный фрейм Figma.</Text>}
+            </div>
+          ) : <Text className="section-divider-status" size="1" color="gray">После секции будет разделитель.</Text>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SectionEditor({
   section,
+  project,
   index,
   count,
   selected,
@@ -46,11 +121,12 @@ function SectionEditor({
   issues,
 }: {
   section: AdminSection;
+  project: AdminProject;
   index: number;
   count: number;
   selected: boolean;
   select: () => void;
-  change: (value: AdminSection) => void;
+  change: (value: AdminProject) => void;
   move: (delta: number) => void;
   remove: () => void;
   issues: FieldIssue[];
@@ -73,7 +149,6 @@ function SectionEditor({
           </IconButton>
         </Flex>
         <Flex gap="1">
-          <Button type="button" size="1" variant="ghost" color="gray" onClick={select}>Настройки</Button>
           <IconButton type="button" size="1" variant="outline" color="gray" aria-label="Переместить выше" disabled={index === 0} onClick={() => move(-1)}>
             <ChevronUpIcon />
           </IconButton>
@@ -83,10 +158,10 @@ function SectionEditor({
         </Flex>
       </div>
       <Field field={`content.${section.adminId}.heading`} label="Заголовок секции" error={issueFor(issues, `content.${section.adminId}.heading`)}>
-        <TextField.Root value={section.heading} onChange={(event) => change({ ...section, heading: event.target.value })} />
+        <TextField.Root value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} />
       </Field>
       <Field label="Описание секции">
-        <RichEditor value={sectionText(section)} onChange={(value) => change(replaceSectionText(section, value))} />
+        <RichEditor value={sectionText(section)} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)))} />
       </Field>
       {managed ? (
         <div className="managed-preview">
@@ -99,6 +174,7 @@ function SectionEditor({
           </div>
         </div>
       ) : null}
+      <SectionSettings project={project} section={section} change={change} />
     </section>
   );
 }
@@ -254,9 +330,6 @@ export function PageEditor({
   const sections = project.content.filter((block): block is AdminSection => block.type === "section");
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
     ?? { type: "gallery", title: "Галерея", description: "Интерфейсы проекта", groups: [] };
-  const replace = (target: AdminContentBlock, value: AdminContentBlock) => update({
-    content: project.content.map((block) => block === target ? value : block),
-  });
   const galleryChange = (value: Extract<ProjectContentBlock, { type: "gallery" }>) => update({
     content: project.content.some((block) => block.type === "gallery")
       ? project.content.map((block) => block.type === "gallery" ? value : block)
@@ -308,11 +381,12 @@ export function PageEditor({
         <SectionEditor
           key={section.adminId}
           section={section}
+          project={project}
           index={index}
           count={sections.length}
           selected={selectedSection === section.adminId}
           select={() => selectSection(section.adminId)}
-          change={(value) => replace(section, value)}
+          change={(value) => update(value)}
           move={(delta) => {
             const from = project.content.indexOf(section);
             let to = from + delta;

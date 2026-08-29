@@ -152,10 +152,21 @@ button, input, textarea, select { font: inherit; }
   object-fit: cover;
   background: var(--sand-3);
 }
-.rich-editor { overflow: hidden; border: 1px solid var(--sand-7); border-radius: 8px; background: var(--sand-1); }
-.rich-toolbar { display: flex; align-items: center; gap: 2px; min-height: 38px; padding: 4px 6px; border-bottom: 1px solid var(--sand-6); background: var(--sand-2); }
-.toolbar-separator { width: 1px; height: 18px; margin: 0 4px; background: var(--sand-6); }
-.rich-editor textarea { min-height: 220px; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+.rich-editor { overflow: hidden; border: 1px solid var(--sand-7); border-radius: 10px; background: #fff; transition: border-color 120ms ease, box-shadow 120ms ease; }
+.rich-editor:focus-within { border-color: var(--accent-8); box-shadow: 0 0 0 1px var(--accent-6); }
+.rich-toolbar { display: flex; align-items: center; gap: 3px; min-height: 44px; padding: 7px 9px; border-bottom: 1px solid var(--sand-6); background: #fff; }
+.rich-toolbar .rt-IconButton { width: 28px; height: 28px; flex: 0 0 28px; border-radius: 6px; }
+.rich-toolbar .rt-IconButton:hover { background: var(--sand-3); color: var(--sand-12); }
+.toolbar-separator { width: 1px; height: 20px; margin: 0 5px; background: var(--sand-6); }
+.rich-editor .rt-TextAreaRoot { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: #fff; }
+.rich-editor textarea { min-height: 180px; padding: 14px 16px; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; line-height: 1.55; resize: vertical; }
+.section-settings { display: grid; gap: 14px; padding-top: 4px; }
+.section-settings-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-top: 18px; border-top: 1px solid var(--sand-6); }
+.section-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.section-setting { display: grid; align-content: start; gap: 14px; min-width: 0; padding: 16px; border-radius: 10px; background: var(--sand-2); }
+.section-setting-fields { display: grid; gap: 12px; padding-top: 2px; }
+.section-setting .field-help { min-height: 0; }
+.section-divider-status { padding-top: 2px; }
 .managed-preview { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 8px; background: var(--sand-3); }
 .managed-preview > div:first-child { display: grid; gap: 4px; }
 .managed-thumbnails { display: flex; gap: 6px; }
@@ -187,7 +198,6 @@ button, input, textarea, select { font: inherit; }
 .issue-list span { color: var(--sand-10); font-size: 13px; }
 .logo-preview { grid-column: 2; grid-row: 1 / span 2; display: grid; width: 100px; height: 100px; place-items: center; border-radius: 8px; background: var(--sand-3); }
 .logo-preview img { width: 64px; height: 64px; object-fit: contain; }
-.selected-section-settings { display: grid; gap: 6px; }
 .publish-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 32px; background: rgba(255, 255, 255, .78); backdrop-filter: blur(16px); }
 .publish-card { display: grid; width: min(1120px, 100%); place-items: center; gap: 32px; padding: 40px 44px 36px; border: 0; border-radius: 16px; background: rgba(255, 255, 255, .97); box-shadow: 0 24px 80px rgba(38, 35, 30, .12); }
 .publish-stages { display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); width: 100%; overflow-x: auto; scrollbar-width: none; }
@@ -251,7 +261,10 @@ body { background: #fbfaf8; }
 .asset-preview, .asset-placeholder { width: 160px; height: 96px; border: 0; border-radius: 9px; }
 .asset-field > .rt-Flex { align-items: center; gap: 8px !important; }
 .asset-field > .rt-Flex .rt-Button { min-height: 30px; }
-.rich-toolbar { min-height: 42px; background: var(--sand-2); }
+.rich-toolbar { min-height: 44px; }
+@media (max-width: 1320px) {
+  .section-settings-grid { grid-template-columns: 1fr; }
+}
 .managed-preview, .empty-inline { border: 0; border-radius: 9px; background: var(--sand-3); }
 .rail-group { padding: 18px 0 22px; }
 .rail-group[data-selected="true"] { margin: 0 -10px; padding: 18px 10px 22px; border-radius: 10px; background: var(--accent-2); }

@@ -348,7 +348,7 @@ function App() {
                 {tab === "card" ? (
                   <CardSettings project={current} update={update} home={requestHome} />
                 ) : (
-                  <PageSettings project={current} update={update} selectedSection={selectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} />
+                      <PageSettings project={current} update={update} issues={issues.length ? issues : currentChange?.issues ?? []} />
                 )}
               </div>
             ) : null}

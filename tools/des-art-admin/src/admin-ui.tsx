@@ -1,11 +1,14 @@
 /* eslint-disable @next/next/no-img-element -- local admin previews draft files outside Next Image */
 import {
   CheckIcon,
+  FontBoldIcon,
+  FontItalicIcon,
   HeadingIcon,
   Link2Icon,
   ListBulletIcon,
   RowsIcon,
   TextIcon,
+  UnderlineIcon,
 } from "@radix-ui/react-icons";
 import {
   Button,
@@ -206,9 +209,9 @@ export function RichEditor({ value, onChange }: { value: string; onChange: (valu
         <Tool label="Обычный текст" onClick={() => textarea.current?.focus()}><TextIcon /></Tool>
         <Tool label="Подзаголовок" onClick={() => prefixLines("### ")}><HeadingIcon /></Tool>
         <span className="toolbar-separator" />
-        <Tool label="Полужирный" onClick={() => format("**")}><strong>B</strong></Tool>
-        <Tool label="Курсив" onClick={() => format("_")}><em>I</em></Tool>
-        <Tool label="Подчёркивание" onClick={() => format("<u>", "</u>")}><u>U</u></Tool>
+        <Tool label="Полужирный" onClick={() => format("**")}><FontBoldIcon /></Tool>
+        <Tool label="Курсив" onClick={() => format("_")}><FontItalicIcon /></Tool>
+        <Tool label="Подчёркивание" onClick={() => format("<u>", "</u>")}><UnderlineIcon /></Tool>
         <Tool label="Ссылка" onClick={() => setLinkOpen(true)}><Link2Icon /></Tool>
         <span className="toolbar-separator" />
         <Tool label="Маркированный список" onClick={() => prefixLines("- ")}><ListBulletIcon /></Tool>

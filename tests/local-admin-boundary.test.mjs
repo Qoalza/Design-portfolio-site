@@ -10,6 +10,8 @@ const nextConfig = await readFile(new URL("../next.config.ts", import.meta.url),
 const adminUi = await readFile(new URL("../tools/des-art-admin/src/admin.tsx", import.meta.url), "utf8");
 const adminDialogs = await readFile(new URL("../tools/des-art-admin/src/admin-dialogs.tsx", import.meta.url), "utf8");
 const adminEditor = await readFile(new URL("../tools/des-art-admin/src/admin-editor.tsx", import.meta.url), "utf8");
+const adminRail = await readFile(new URL("../tools/des-art-admin/src/admin-rail.tsx", import.meta.url), "utf8");
+const adminComponents = await readFile(new URL("../tools/des-art-admin/src/admin-ui.tsx", import.meta.url), "utf8");
 const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 
@@ -61,6 +63,23 @@ test("publication stepper styles markers without constraining Radix labels", () 
   assert.match(adminDialogs, /className="publish-stage-label"/);
   assert.match(adminCss, /\.publish-stage-marker\s*\{/);
   assert.doesNotMatch(adminCss, /\.publish-stages\s+span\s*\{/);
+});
+
+test("each section renders its own settings inside the section editor", () => {
+  assert.match(adminEditor, /className="section-settings"/);
+  assert.match(adminEditor, /Примечание/);
+  assert.match(adminEditor, /Интерактивный экран/);
+  assert.doesNotMatch(adminRail, /selected-section-settings/);
+  assert.doesNotMatch(adminRail, /function SectionSettings/);
+});
+
+test("rich text toolbar uses Radix icons instead of letter glyph controls", () => {
+  assert.match(adminComponents, /FontBoldIcon/);
+  assert.match(adminComponents, /FontItalicIcon/);
+  assert.match(adminComponents, /UnderlineIcon/);
+  assert.doesNotMatch(adminComponents, /<strong>B<\/strong>/);
+  assert.doesNotMatch(adminComponents, /<em>I<\/em>/);
+  assert.doesNotMatch(adminComponents, /<u>U<\/u>/);
 });
 
 test("prepared macOS launcher bundle is complete", async () => {
