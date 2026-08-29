@@ -23,9 +23,9 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка текущей Goal: `codex/figma-frame-admin-assets`, основана на `main` `349ec7d071d1d6e9c74bc442b2fff3032d8c68ae`. Merge и production deploy этой Goal не выполнялись и требуют отдельного подтверждения точного SHA.
-- Перед merge добавлена обязательная односторонняя граница данных: при первом live-запуске активные sandbox drafts/assets/snapshots/jobs архивируются вне Git, рабочая база заново создаётся из чистого актуального `main`, а live publish заблокирован до появления подтверждённого canonical baseline. Тестовые данные и тестовые состояния публикации не входят в ветку и не могут стать источником production-контента.
-- Актуальный production/source commit (`DEPLOY_SHA`) совпадает с полным SHA текущего `origin/main`; точное значение подтверждается после каждого deploy по отданному HTML и release-path. Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
+- Goal `codex/figma-frame-admin-assets` merged через PR #24. `main`, `origin/main` и production совпадают на `27679a0a8f8856037aefd48c79586b0b46be0704`.
+- Односторонняя граница данных активна: при первом live-запуске прежние sandbox drafts/assets/snapshots/jobs перемещены в локальный `sandbox-archive`, рабочая база создана заново из канонического `main`, а baseline подтверждает source SHA `27679a0a8f8856037aefd48c79586b0b46be0704`. Тестовые данные и тестовые состояния публикации не являются источником production-контента.
+- Production deploy `27679a0a8f8856037aefd48c79586b0b46be0704` выполнен атомарно 2026-08-30. Ограниченный SSH status и публичные `/`, `/projects`, `/projects/corvo` подтверждают точный SHA; все маршруты отвечают `200`, известные тестовые проекты и тексты отсутствуют.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
 - Corvo использует актуальный большой Figma-preview, сетку навигации и контента `200 + 1000 px`, нециклическую галерею и одну action bar с переходом `Full ↔ Adaptive`.
@@ -58,7 +58,7 @@
 - Публичный список проектов больше не показывает подписи `Файл пока недоступен` или `У проекта нет отдельного файла`: состояние файла остаётся только внутри открытого проекта. Ошибки повреждённого импортированного Frame переводятся из внутренних contract paths в пользовательские названия ассета и конкретное действие восстановления.
 - Исправлены оба preview-пути SVG-логотипа: draft asset route отдаёт `image/svg+xml`, а `/projects` и `/projects/[slug]` переписывают URL на env-gated preview asset. Реальным локальным HTTP-контуром подтверждены `200`, MIME и наличие одного и того же SVG URL в card/page HTML.
 - Asset UX использует outline `Заменить`, ghost-корзины, lightbox для всех preview, исправленные gallery/section arrows, неудаляемую первую секцию и нижнюю кнопку добавления. False dirty считается по нормализованному пользовательскому payload, а conditional validation не требует Figma URL при состоянии `Файл отсутствует` или недоступной странице.
-- Автопроверки текущей Goal: focused Frame tests, `npm run admin:build`, lint и production build успешны; в публичных Next chunks Radix не найден. Figma PAT подключён через macOS Keychain; живой повторный импорт Frame успешно завершён без ошибки. Пользовательская приёмка исправленного локального интерфейса остаётся обязательным gate перед merge/deploy.
+- Автопроверки Goal: focused Frame tests, `npm run admin:build`, lint и production build успешны; в публичных Next chunks Radix не найден. Figma PAT подключён через macOS Keychain; живой повторный импорт Frame успешно завершён без ошибки. Пользовательская локальная приёмка получена; PR #24 merged и точный merge SHA развёрнут на production.
 
 ## Production
 
