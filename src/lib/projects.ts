@@ -94,8 +94,12 @@ export function getAllProjectsForPreview(contentRoot = projectsDirectory): Proje
         return [...merged.values()];
       })()
     : base;
+  const draftAssetRoot = process.env.DES_ART_ADMIN_DRAFT_ASSET_ROOT;
   return documents
     .filter((project) => project.visibility === "published")
+    .map((project) => process.env.DES_ART_ADMIN_PREVIEW === "1" && draftAssetRoot
+      ? withDraftAssetUrls(project, project.slug, draftAssetRoot) as ProjectDocument
+      : project)
     .map(withAvailability)
     .sort((first, second) => first.catalogOrder - second.catalogOrder);
 }

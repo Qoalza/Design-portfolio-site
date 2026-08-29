@@ -9,6 +9,8 @@ import {
   RowsIcon,
   TextIcon,
   UnderlineIcon,
+  ExclamationTriangleIcon,
+  TrashIcon,
 } from "@radix-ui/react-icons";
 import {
   Button,
@@ -20,7 +22,7 @@ import {
   Tooltip,
 } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import type { ProjectImage, ProjectInlineContent, ProjectSectionBlock, ProjectTextMark } from "../../../src/lib/project-contract";
+import type { ProjectFrameComposition, ProjectFrameNode, ProjectImage, ProjectInlineContent, ProjectSectionBlock, ProjectTextMark } from "../../../src/lib/project-contract";
 import { formatTagInput, parseTagInput } from "./admin-model";
 
 export function Field({
@@ -95,16 +97,16 @@ export function AssetField({
         <Text as="p" size="1" color="gray">{description}</Text>
       </div>
       {image ? (
-        <img className="asset-preview" src={image.src} alt="" />
+        <ImagePreview src={image.src} label={title}><img className="asset-preview" src={image.src} alt="" /></ImagePreview>
       ) : (
         <div className="asset-placeholder"><Text size="1" color="gray">Нет изображения</Text></div>
       )}
       <Flex gap="2" wrap="wrap">
-        <Button size="1" variant="soft" onClick={() => input.current?.click()}>
+        <Button size="1" variant="outline" color="gray" onClick={() => input.current?.click()}>
           {image ? "Заменить" : "Загрузить"}
         </Button>
         {image && remove && !managed ? (
-          <Button size="1" variant="ghost" color="red" onClick={remove}>Удалить</Button>
+          <IconButton size="1" variant="ghost" color="red" aria-label={`Удалить ${title}`} onClick={remove}><TrashIcon /></IconButton>
         ) : null}
       </Flex>
       <input
@@ -128,6 +130,40 @@ export function AssetField({
       </AlertDialog.Root>
     </div>
   );
+}
+
+export function ImagePreview({ src, label, children }: { src: string; label: string; children: React.ReactNode }) {
+  return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
+}
+
+function FrameNodePreview({ node, parent }: { node: ProjectFrameNode; parent: { width: number; height: number } }) {
+  const style: React.CSSProperties = {
+    position: "absolute", left: `${node.x / parent.width * 100}%`, top: `${node.y / parent.height * 100}%`,
+    width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
+    opacity: node.opacity, overflow: node.clip ? "hidden" : "visible", borderRadius: node.radius, background: node.background,
+  };
+  if (node.constraints.horizontal === "CENTER") { style.left = "50%"; style.transform = `translateX(calc(-50% + ${(node.x + node.width / 2 - parent.width / 2) / parent.width * 100}%))`; }
+  if (node.constraints.horizontal === "STRETCH") { style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`; delete style.width; }
+  if (node.constraints.vertical === "CENTER") { style.top = "50%"; style.transform = `${style.transform ?? ""} translateY(calc(-50% + ${(node.y + node.height / 2 - parent.height / 2) / parent.height * 100}%))`; }
+  if (node.constraints.vertical === "STRETCH") { style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`; delete style.height; }
+  return <div className="frame-node-preview" style={style}>
+    {node.asset ? <img src={node.asset.src} alt="" style={{ width: "100%", height: "100%", objectFit: node.asset.fit }} /> : null}
+    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} />)}
+  </div>;
+}
+
+export function FrameField({ title, description, composition, source, required, importing, onImport }: {
+  title: string; description: string; composition?: ProjectFrameComposition; source?: string; required?: boolean; importing?: boolean; onImport: (url: string) => Promise<void>;
+}) {
+  const [value, setValue] = useState(source ?? composition?.source.url ?? "");
+  const [error, setError] = useState("");
+  const submit = async () => { setError(""); try { await onImport(value.trim()); } catch (reason) { setError(reason instanceof Error ? reason.message : "Не удалось импортировать Frame."); } };
+  return <div className={`frame-field${error ? " frame-field-error" : ""}`}>
+    <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
+    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={{ aspectRatio: `${composition.width}/${composition.height}`, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={{ aspectRatio: `${composition.width}/${composition.height}`, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
+    <div className="frame-source"><input value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} /><Button variant="outline" color="gray" disabled={!value.trim() || importing} onClick={() => void submit()}>{importing ? "Импорт…" : composition ? "Обновить" : "Импортировать"}</Button></div>
+    <span className={`field-help${error ? " field-error" : ""}`}>{error || "Production использует локальный snapshot и не зависит от Figma после публикации."}</span>
+  </div>;
 }
 
 export function TagField({ value, onChange, label, hint }: { value: string[]; onChange: (value: string[]) => void; label: string; hint?: string }) {
