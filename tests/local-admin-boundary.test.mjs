@@ -10,6 +10,7 @@ const nextConfig = await readFile(new URL("../next.config.ts", import.meta.url),
 const adminUi = await readFile(new URL("../tools/des-art-admin/src/admin.tsx", import.meta.url), "utf8");
 const adminDialogs = await readFile(new URL("../tools/des-art-admin/src/admin-dialogs.tsx", import.meta.url), "utf8");
 const adminEditor = await readFile(new URL("../tools/des-art-admin/src/admin-editor.tsx", import.meta.url), "utf8");
+const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 
 test("admin server binds only to IPv4 loopback and validates local requests", () => {
@@ -53,6 +54,13 @@ test("admin workflows use internal dialogs and manual SVG logos", () => {
   assert.match(adminDialogs, /AlertDialog/);
   assert.match(adminEditor, /accept="image\/svg\+xml,\.svg"/);
   assert.match(server, /saveLogo/);
+});
+
+test("publication stepper styles markers without constraining Radix labels", () => {
+  assert.match(adminDialogs, /className="publish-stage-marker"/);
+  assert.match(adminDialogs, /className="publish-stage-label"/);
+  assert.match(adminCss, /\.publish-stage-marker\s*\{/);
+  assert.doesNotMatch(adminCss, /\.publish-stages\s+span\s*\{/);
 });
 
 test("prepared macOS launcher bundle is complete", async () => {

@@ -189,10 +189,13 @@ button, input, textarea, select { font: inherit; }
 .logo-preview img { width: 64px; height: 64px; object-fit: contain; }
 .selected-section-settings { display: grid; gap: 6px; }
 .publish-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 32px; background: rgba(255, 255, 255, .78); backdrop-filter: blur(16px); }
-.publish-card { display: grid; width: min(960px, 100%); min-height: 430px; place-items: center; gap: 32px; padding: 40px; border: 1px solid var(--sand-6); border-radius: 14px; background: rgba(255, 255, 255, .97); box-shadow: 0 24px 80px rgba(38, 35, 30, .12); }
-.publish-stages { display: grid; grid-template-columns: repeat(7, 1fr); width: 100%; gap: 10px; }
-.publish-stages > div { display: grid; justify-items: center; gap: 8px; color: var(--sand-9); text-align: center; }
-.publish-stages span { display: grid; width: 28px; height: 28px; place-items: center; border: 1px solid var(--sand-7); border-radius: 50%; }
+.publish-card { display: grid; width: min(1120px, 100%); place-items: center; gap: 32px; padding: 40px 44px 36px; border: 0; border-radius: 16px; background: rgba(255, 255, 255, .97); box-shadow: 0 24px 80px rgba(38, 35, 30, .12); }
+.publish-stages { display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); width: 100%; overflow-x: auto; scrollbar-width: none; }
+.publish-stages::-webkit-scrollbar { display: none; }
+.publish-stage { position: relative; display: grid; min-width: 128px; justify-items: center; gap: 10px; color: var(--sand-9); text-align: center; }
+.publish-stage:not(:last-child)::after { content: ""; position: absolute; z-index: 0; top: 13px; left: calc(50% + 20px); width: calc(100% - 40px); height: 1px; background: var(--sand-6); }
+.publish-stage-marker { position: relative; z-index: 1; display: grid; width: 28px; height: 28px; flex: 0 0 28px; place-items: center; border: 1px solid var(--sand-7); border-radius: 50%; background: #fff; }
+.publish-stage-label { width: max-content; max-width: none; line-height: 18px; white-space: nowrap; }
 .publish-stages [data-state="complete"] { color: var(--green-10); }
 .publish-stages [data-state="active"] { color: var(--accent-10); }
 .publish-stages [data-state="active"] i, .spinner { display: block; border: 2px solid var(--accent-5); border-top-color: var(--accent-10); border-radius: 50%; animation: spin .8s linear infinite; }
@@ -200,7 +203,7 @@ button, input, textarea, select { font: inherit; }
 .publish-current { display: grid; max-width: 520px; justify-items: center; gap: 12px; text-align: center; }
 .publish-current > .spinner { width: 42px; height: 42px; }
 .publish-current > svg { width: 42px; height: 42px; color: var(--green-10); }
-.publish-warning { align-self: end; color: var(--sand-10); }
+.publish-warning { color: var(--sand-10); text-align: center; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 1320px) {
@@ -219,7 +222,7 @@ button, input, textarea, select { font: inherit; }
   .form-grid, .asset-field { grid-template-columns: 1fr; }
   .field-wide { grid-column: auto; }
   .asset-preview, .asset-placeholder { grid-column: 1; grid-row: auto; width: 100%; height: 180px; }
-  .publish-stages { grid-template-columns: repeat(4, 1fr); }
+  .publish-card { padding: 32px 24px; }
 }
 
 /* Goal: clean publishing workspace — semantic boundaries, stable controls, no decorative nesting. */
@@ -254,11 +257,6 @@ body { background: #fbfaf8; }
 .rail-group[data-selected="true"] { margin: 0 -10px; padding: 18px 10px 22px; border-radius: 10px; background: var(--accent-2); }
 .home-list > div { position: relative; border: 0; border-radius: 9px; background: var(--sand-2); }
 .home-list > div[data-drop-target="true"]::before { content: ""; position: absolute; top: -5px; right: 0; left: 0; height: 2px; border-radius: 2px; background: var(--accent-9); }
-.publish-card { width: min(1120px, 100%); border: 0; border-radius: 16px; }
-.publish-stages { display: flex; grid-template-columns: none; gap: 20px; overflow-x: auto; scrollbar-width: none; }
-.publish-stages::-webkit-scrollbar { display: none; }
-.publish-stages > div { flex: 0 0 132px; min-width: max-content; }
-.publish-stages > div > * { white-space: nowrap; }
 @media (min-width: 1440px) {
   .admin-workspace { grid-template-columns: 352px minmax(0,1fr) 340px; }
   .admin-topbar { grid-template-columns: 352px minmax(0,1fr) auto; }

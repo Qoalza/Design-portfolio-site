@@ -108,14 +108,17 @@ export function PublishOverlay({ job, close }: { job: PublishJob | null; close: 
   return (
     <div className="publish-overlay" role="dialog" aria-modal="true" aria-label="Публикация изменений">
       <div className="publish-card">
-        <div className="publish-stages">
+        <div className="publish-stages" aria-label="Этапы публикации">
           {job.stages.map((stage) => (
             <div
+              className="publish-stage"
               key={stage.id}
               data-state={stage.status === "complete" ? "complete" : job.currentStage === stage.id ? "active" : "pending"}
             >
-              <span>{stage.status === "complete" ? <CheckCircledIcon /> : <i />}</span>
-              <Text size="1">{stage.label}</Text>
+              <span className="publish-stage-marker" aria-hidden="true">
+                {stage.status === "complete" ? <CheckCircledIcon /> : <i />}
+              </span>
+              <Text className="publish-stage-label" size="1">{stage.label}</Text>
             </div>
           ))}
         </div>
@@ -134,7 +137,13 @@ export function PublishOverlay({ job, close }: { job: PublishJob | null; close: 
             <Text color="gray">Это безопасная локальная репетиция. Production не изменяется.</Text>
           )}
         </div>
-        <Text className="publish-warning" size="2">{job.status === "failed" ? "Изменения сохранены. Сайт не изменён." : "Можно закрыть эту страницу. Не выключайте Mac до завершения публикации."}</Text>
+        <Text className="publish-warning" size="2">
+          {job.status === "failed"
+            ? "Изменения сохранены. Сайт не изменён."
+            : job.status === "complete"
+              ? "Изменения опубликованы только в тестовом контуре."
+              : "Можно закрыть эту страницу. Не выключайте Mac до завершения публикации."}
+        </Text>
         {job.status === "complete" || job.status === "failed" ? <Button onClick={close}>Закрыть</Button> : null}
       </div>
     </div>
