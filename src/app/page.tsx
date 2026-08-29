@@ -96,16 +96,14 @@ function ProjectActions({ project }: { project: Project }) {
             breadcrumbLabel={project.title}
             className={styles.detailsButton}
           />
-      ) : project.availability.figma === "absent" ? (
-        <ControlButton variant="ghost" disabled>У проекта нет отдельного файла</ControlButton>
       ) : (
-          <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
-        )}
+        <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
+      )}
         {hasFigma ? (
           <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
-        ) : (
+        ) : project.availability.figma === "unavailable" ? (
           <ControlButton className={styles.unavailableButton} variant="ghost" disabled iconLeft={`${assetRoot}/project-info.svg`}>Файл пока недоступен</ControlButton>
-        )}
+        ) : null}
       </div>
       {hasFigma && project.updatedAt ? (
         <>

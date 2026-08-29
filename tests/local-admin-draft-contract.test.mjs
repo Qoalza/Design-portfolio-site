@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  changeProjectFileState,
+  changeProjectMaterialsState,
   compileAdminDraft,
   createAdminDraft,
   DraftValidationError,
@@ -58,6 +60,28 @@ test("admin draft persists an incomplete required Figma URL", () => {
     (error) => error instanceof DraftValidationError
       && error.issues[0]?.field === "materials.figmaUrl"
       && error.issues[0]?.message === "Укажите ссылку на Figma.",
+  );
+});
+
+test("switching project state defaults to a valid linkless material state", () => {
+  assert.deepEqual(
+    changeProjectMaterialsState({ projectState: "completed", fileState: "available", figmaUrl: "" }, "in_progress"),
+    { projectState: "in_progress", fileState: "unavailable" },
+  );
+  assert.deepEqual(
+    changeProjectMaterialsState({ projectState: "in_progress", fileState: "available", figmaUrl: "" }, "completed"),
+    { projectState: "completed", fileState: "absent" },
+  );
+});
+
+test("file state changes preserve a real Figma URL but never invent one", () => {
+  assert.deepEqual(
+    changeProjectFileState({ projectState: "completed", fileState: "available", figmaUrl: " https://figma.com/file " }, "available"),
+    { projectState: "completed", fileState: "available", figmaUrl: "https://figma.com/file" },
+  );
+  assert.deepEqual(
+    changeProjectFileState({ projectState: "in_progress", fileState: "unavailable" }, "available"),
+    { projectState: "in_progress", fileState: "available", figmaUrl: "" },
   );
 });
 

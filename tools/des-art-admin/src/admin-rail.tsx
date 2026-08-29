@@ -9,6 +9,7 @@ import {
 } from "@radix-ui/themes";
 import type {
   ProjectContentBlock,
+  ProjectDocument,
   ProjectGalleryGroup,
   ProjectPlatform,
   ProjectVisibility,
@@ -17,6 +18,7 @@ import { groupDefaults } from "./admin-editor";
 import type { AdminProject, FieldIssue } from "./admin-model";
 import { issueFor } from "./admin-model";
 import { Field, RailGroup } from "./admin-ui";
+import { changeProjectFileState, changeProjectMaterialsState } from "../material-state.mjs";
 
 export function ProjectActions({
   project,
@@ -123,18 +125,10 @@ function MaterialsSettings({
 }) {
   const value = project.materials;
   const projectState = (state: "completed" | "in_progress") => update({
-    materials: state === "completed"
-      ? { projectState: "completed", fileState: "available", figmaUrl: "" }
-      : { projectState: "in_progress", fileState: "available", figmaUrl: "" },
+    materials: changeProjectMaterialsState(value, state),
   });
   const fileState = (state: string) => update({
-    materials: value.projectState === "completed"
-      ? state === "available"
-        ? { projectState: "completed", fileState: "available", figmaUrl: "" }
-        : { projectState: "completed", fileState: "absent" }
-      : state === "available"
-        ? { projectState: "in_progress", fileState: "available", figmaUrl: "" }
-        : { projectState: "in_progress", fileState: "unavailable" },
+    materials: changeProjectFileState(value, state as ProjectDocument["materials"]["fileState"]),
   });
   return (
     <RailGroup title="Материалы проекта" description="Определяет состояние файла внизу публичной страницы.">
@@ -197,9 +191,11 @@ function GallerySettings({ project, update }: { project: AdminProject; update: (
         : gallery.groups.filter((group) => group.id !== id),
     };
     update({
-      content: project.content.some((block) => block.type === "gallery")
-        ? project.content.map((block) => block.type === "gallery" ? next : block)
-        : [...project.content, next],
+      content: next.groups.length === 0
+        ? project.content.filter((block) => block.type !== "gallery")
+        : project.content.some((block) => block.type === "gallery")
+          ? project.content.map((block) => block.type === "gallery" ? next : block)
+          : [...project.content, next],
     });
   };
   return (
