@@ -134,6 +134,16 @@ button, input, textarea, select { font: inherit; }
 .rt-SwitchThumb { border-radius: 50% !important; }
 .rt-Button, .rt-IconButton, .rt-TextFieldRoot, .rt-TextAreaRoot, .rt-SelectTrigger, .tag-input, .frame-source > input { border-radius: 6px !important; }
 .rt-Button.rt-variant-outline, .rt-IconButton.rt-variant-outline { background: #fff !important; }
+.rt-Button.rt-variant-outline:not(:disabled):hover,
+.rt-IconButton.rt-variant-outline:not(:disabled):hover,
+.rt-Button.rt-variant-outline[data-state="open"],
+.rt-IconButton.rt-variant-outline[data-state="open"] { background: var(--sand-3) !important; }
+.rt-Button.rt-variant-outline:not(:disabled):active,
+.rt-IconButton.rt-variant-outline:not(:disabled):active { background: var(--sand-4) !important; }
+.rt-Button.rt-variant-outline:focus-visible,
+.rt-IconButton.rt-variant-outline:focus-visible { outline: 2px solid var(--accent-8); outline-offset: 2px; }
+.rt-Button.rt-variant-outline:disabled,
+.rt-IconButton.rt-variant-outline:disabled { background: var(--sand-2) !important; }
 
 .asset-field {
   display: grid;
@@ -277,7 +287,7 @@ body { background: #fbfaf8; }
 .asset-field > .rt-Flex .rt-IconButton { width: 32px; padding: 0; }
 .frame-field { display: grid; gap: 14px; }
 .frame-preview-button { display: block; width: 100%; padding: 0; overflow: hidden; border: 0; border-radius: 10px; background: var(--sand-3); cursor: zoom-in; }
-.frame-field-cover .frame-preview-button { width: 160px; }
+.frame-field-cover .frame-preview-button { width: min(320px, 100%); }
 .frame-preview { position: relative; container-type: size; width: 100%; overflow: hidden; }
 .frame-preview-large { max-height: 72vh; margin-top: 16px; }
 .frame-node-preview { transform-origin: center; }

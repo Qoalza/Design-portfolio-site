@@ -141,7 +141,7 @@ function SectionEditor({
           {index > 0 ? <IconButton
             type="button"
             size="1"
-            variant="outline"
+            variant="ghost"
             color="red"
             aria-label={`Удалить секцию ${index + 1}`}
             onClick={(event) => { event.stopPropagation(); remove(); }}

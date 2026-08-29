@@ -138,3 +138,32 @@ test("admin draft keeps stable section ids when parsed repeatedly", () => {
   const second = parseAdminDraft(JSON.stringify(first));
   assert.equal(second.content[0].adminId, first.content[0].adminId);
 });
+
+test("frame contract errors are translated into human asset instructions", () => {
+  const draft = createAdminDraft(project({
+    catalogFrame: {
+      source: { url: "https://www.figma.com/design/key/file?node-id=1-2", fileKey: "key", nodeId: "1:2", version: "1" },
+      width: 1200,
+      height: 800,
+      clip: true,
+      radius: 24,
+      background: "#ffffff",
+      nodes: [{
+        id: "2:3", name: "Frame", type: "container", x: 0, y: 0, width: 1200, height: 800,
+        opacity: 1, rotation: 0, constraints: { horizontal: "STRETCH", vertical: "STRETCH" },
+        layout: { direction: "horizontal", gap: null, padding: [0, 0, 0, 0], align: "start" },
+        children: [],
+      }],
+    },
+  }));
+
+  const validation = draftValidation(draft);
+  assert.equal(validation.valid, false);
+  assert.deepEqual(validation.issues[0], {
+    field: "catalogFrame",
+    label: "Обложка карточки",
+    tab: "card",
+    message: "Импортированная обложка повреждена. Обновите Frame по ссылке ещё раз.",
+  });
+  assert.equal(validation.issues[0].message.includes("catalogFrame"), false);
+});

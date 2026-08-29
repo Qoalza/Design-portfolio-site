@@ -138,12 +138,45 @@ export function ImagePreview({ src, label, children }: { src: string; label: str
 
 function frameRootWidthUnit(value: number, rootWidth: number) { return `${value / rootWidth * 100}cqw`; }
 function frameRootHeightUnit(value: number, rootHeight: number) { return `${value / rootHeight * 100}cqh`; }
+function frameStrokeShadow(stroke: ProjectFrameNode["stroke"], rootWidth: number) {
+  if (!stroke) return undefined;
+  if (stroke.align === "INSIDE") return `inset 0 0 0 ${frameRootWidthUnit(stroke.width, rootWidth)} ${stroke.color}`;
+  if (stroke.align === "OUTSIDE") return `0 0 0 ${frameRootWidthUnit(stroke.width, rootWidth)} ${stroke.color}`;
+  const half = frameRootWidthUnit(stroke.width / 2, rootWidth);
+  return `inset 0 0 0 ${half} ${stroke.color}, 0 0 0 ${half} ${stroke.color}`;
+}
+
+function frameEffectStyle(effects: ProjectFrameNode["effects"], root: { width: number; height: number }) {
+  const shadows: string[] = [];
+  const filters: string[] = [];
+  let backdropFilter: string | undefined;
+  for (const effect of effects ?? []) {
+    if (effect.type === "drop-shadow" || effect.type === "inner-shadow") {
+      shadows.push(`${effect.type === "inner-shadow" ? "inset " : ""}${frameRootWidthUnit(effect.offsetX, root.width)} ${frameRootHeightUnit(effect.offsetY, root.height)} ${frameRootWidthUnit(effect.blur, root.width)} ${frameRootWidthUnit(effect.spread, root.width)} ${effect.color}`);
+    } else if (effect.type === "layer-blur") filters.push(`blur(${frameRootWidthUnit(effect.radius, root.width)})`);
+    else if (effect.type === "background-blur") backdropFilter = `blur(${frameRootWidthUnit(effect.radius, root.width)})`;
+  }
+  return { shadows, filter: filters.length ? filters.join(" ") : undefined, backdropFilter };
+}
+
+function frameCompositionStyle(composition: ProjectFrameComposition, aspectRatio: string): React.CSSProperties {
+  const visualEffects = frameEffectStyle(composition.effects, composition);
+  return {
+    aspectRatio,
+    background: composition.background,
+    borderRadius: frameRootWidthUnit(composition.radius, composition.width),
+    boxShadow: [frameStrokeShadow(composition.stroke, composition.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
+    filter: visualEffects.filter,
+    backdropFilter: visualEffects.backdropFilter,
+    mixBlendMode: composition.blendMode as React.CSSProperties["mixBlendMode"],
+  };
+}
 
 function FrameNodePreview({ node, parent, root, inLayout = false }: { node: ProjectFrameNode; parent: { width: number; height: number }; root: { width: number; height: number }; inLayout?: boolean }) {
   const transforms: string[] = [];
   const style: React.CSSProperties = inLayout ? {
     position: "relative", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
-    flex: node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
+    flex: node.layoutGrow ? `${node.layoutGrow} 1 0` : node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
   } : {
     position: "absolute", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
   };
@@ -165,7 +198,19 @@ function FrameNodePreview({ node, parent, root, inLayout = false }: { node: Proj
   }
   if (node.rotation) transforms.push(`rotate(${node.rotation}deg)`);
   if (transforms.length) style.transform = transforms.join(" ");
-  Object.assign(style, { opacity: node.opacity, overflow: node.clip ? "hidden" : "visible", borderRadius: node.radius, background: node.background });
+  const visualEffects = frameEffectStyle(node.effects, root);
+  Object.assign(style, {
+    opacity: node.opacity,
+    overflow: node.clip ? "hidden" : "visible",
+    borderRadius: node.radius === undefined ? undefined : frameRootWidthUnit(node.radius, root.width),
+    background: node.background,
+    boxShadow: [frameStrokeShadow(node.stroke, root.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
+    filter: visualEffects.filter,
+    backdropFilter: visualEffects.backdropFilter,
+    mixBlendMode: node.blendMode as React.CSSProperties["mixBlendMode"],
+    zIndex: node.zIndex,
+  });
+  if (inLayout && node.layoutAlign) style.alignSelf = node.layoutAlign === "start" ? "flex-start" : node.layoutAlign === "end" ? "flex-end" : node.layoutAlign;
   if (node.layout) {
     const [top, right, bottom, left] = node.layout.padding;
     Object.assign(style, {
@@ -173,11 +218,12 @@ function FrameNodePreview({ node, parent, root, inLayout = false }: { node: Proj
       gap: node.layout.direction === "horizontal" ? frameRootWidthUnit(node.layout.gap, root.width) : frameRootHeightUnit(node.layout.gap, root.height),
       padding: `${frameRootHeightUnit(top, root.height)} ${frameRootWidthUnit(right, root.width)} ${frameRootHeightUnit(bottom, root.height)} ${frameRootWidthUnit(left, root.width)}`,
       justifyContent: node.layout.align === "space-between" ? "space-between" : node.layout.align === "end" ? "flex-end" : node.layout.align,
+      alignItems: node.layout.crossAlign === "end" ? "flex-end" : node.layout.crossAlign === "start" || node.layout.crossAlign === undefined ? "flex-start" : node.layout.crossAlign,
     });
   }
   return <div className="frame-node-preview" style={style}>
-    {node.asset ? <img src={node.asset.src} alt="" style={{ width: "100%", height: "100%", objectFit: node.asset.fit }} /> : null}
-    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} root={root} inLayout={Boolean(node.layout)} />)}
+    {node.asset ? <img src={node.asset.src} alt="" style={{ width: "100%", height: "100%", objectFit: node.asset.fit, opacity: node.asset.opacity }} /> : null}
+    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} root={root} inLayout={Boolean(node.layout) && !child.absoluteInLayout} />)}
   </div>;
 }
 
@@ -199,7 +245,7 @@ export function FrameField({ title, description, composition, source, required, 
   const previewAspect = previewVariant === "cover" ? "1 / 1" : composition ? `${composition.width}/${composition.height}` : undefined;
   return <div className={`frame-field frame-field-${previewVariant}${error ? " frame-field-error" : ""}`}>
     <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
-    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={{ aspectRatio: previewAspect, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={{ aspectRatio: previewAspect, background: composition.background, borderRadius: composition.radius }}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
+    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={frameCompositionStyle(composition, `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
     <div className="frame-source"><input value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
     {busy ? <span className="frame-import-status" role="status">Получаем структуру Frame и сохраняем ассеты…</span> : null}
     <span className={`field-help${error ? " field-error" : ""}`}>{error || "Production использует локальный snapshot и не зависит от Figma после публикации."}</span>

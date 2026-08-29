@@ -123,15 +123,23 @@ test("structured Figma compositions preserve containers, constraints and leaf fo
     clip: true,
     radius: 24,
     background: "#ffffff",
+    stroke: { color: "#777777", width: 2, align: "INSIDE" },
+    effects: [{ type: "drop-shadow", color: "rgba(0, 0, 0, 0.2)", offsetX: 0, offsetY: 4, blur: 12, spread: 0 }],
+    blendMode: "multiply",
     nodes: [{
       id: "2:3", name: "Centered mark", type: "asset", x: 500, y: 300, width: 200, height: 200,
-      opacity: 1, rotation: 0, constraints: { horizontal: "CENTER", vertical: "CENTER" },
-      asset: { src: "/assets/projects/test-project/frames/mark.svg", format: "svg", fit: "contain" },
+      opacity: 1, rotation: 0, constraints: { horizontal: "CENTER", vertical: "CENTER" }, layoutGrow: 1, layoutAlign: "center",
+      asset: { src: "/assets/projects/test-project/frames/mark.svg", format: "svg", fit: "contain", opacity: 0.75 },
     }],
   };
   const parsed = validateProjectDocument(project);
   assert.equal(parsed.catalogFrame.nodes[0].asset.format, "svg");
   assert.deepEqual(parsed.catalogFrame.nodes[0].constraints, { horizontal: "CENTER", vertical: "CENTER" });
+  assert.equal(parsed.catalogFrame.nodes[0].layoutGrow, 1);
+  assert.equal(parsed.catalogFrame.nodes[0].layoutAlign, "center");
+  assert.equal(parsed.catalogFrame.nodes[0].asset.opacity, 0.75);
+  assert.equal(parsed.catalogFrame.effects[0].type, "drop-shadow");
+  assert.equal(parsed.catalogFrame.blendMode, "multiply");
 });
 
 test("visual editor marks preserve combined formatting without markup text", () => {

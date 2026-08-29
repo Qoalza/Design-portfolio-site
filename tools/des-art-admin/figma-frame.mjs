@@ -69,6 +69,33 @@ const rgba = (paint) => {
   return `#${channel(color.r)}${channel(color.g)}${channel(color.b)}${alpha < 1 ? channel(alpha) : ""}`;
 };
 
+const CSS_BLEND_MODES = new Set(["NORMAL", "PASS_THROUGH", "MULTIPLY", "SCREEN", "OVERLAY", "DARKEN", "LIGHTEN", "COLOR_DODGE", "COLOR_BURN", "HARD_LIGHT", "SOFT_LIGHT", "DIFFERENCE", "EXCLUSION", "HUE", "SATURATION", "COLOR", "LUMINOSITY"]);
+
+const blendMode = (node) => {
+  const mode = node.blendMode ?? "PASS_THROUGH";
+  if (!CSS_BLEND_MODES.has(mode)) throw new Error(`Слой «${node.name ?? node.id}» использует неподдерживаемый blend mode ${mode}.`);
+  if (mode === "NORMAL" || mode === "PASS_THROUGH") return undefined;
+  return mode.toLowerCase().replaceAll("_", "-");
+};
+
+const effects = (node) => (node.effects ?? []).filter((effect) => effect.visible !== false).map((effect) => {
+  if (effect.type === "DROP_SHADOW" || effect.type === "INNER_SHADOW") {
+    const color = rgba({ type: "SOLID", color: effect.color, opacity: 1 });
+    if (!color) throw new Error(`Эффект слоя «${node.name ?? node.id}» не содержит корректный цвет.`);
+    return { type: effect.type === "DROP_SHADOW" ? "drop-shadow" : "inner-shadow", color, offsetX: effect.offset?.x ?? 0, offsetY: effect.offset?.y ?? 0, blur: effect.radius ?? 0, spread: effect.spread ?? 0 };
+  }
+  if (effect.type === "LAYER_BLUR" || effect.type === "BACKGROUND_BLUR") return { type: effect.type === "LAYER_BLUR" ? "layer-blur" : "background-blur", radius: effect.radius ?? 0 };
+  throw new Error(`Слой «${node.name ?? node.id}» использует неподдерживаемый эффект ${effect.type}.`);
+});
+
+const stroke = (node) => {
+  const color = rgba(node.strokes?.find((paint) => paint.visible !== false));
+  const width = node.strokeWeight;
+  if (!color || typeof width !== "number" || !Number.isFinite(width) || width <= 0) return undefined;
+  const align = ["INSIDE", "OUTSIDE", "CENTER"].includes(node.strokeAlign) ? node.strokeAlign : "CENTER";
+  return { color, width, align };
+};
+
 function safeSvg(source) {
   if (!/^\s*<svg\b/i.test(source) || /<!DOCTYPE|<script\b|<foreignObject\b|\son[a-z]+\s*=|javascript:|(?:href|src)\s*=\s*["']https?:/i.test(source)) {
     throw new Error("Figma вернула небезопасный SVG-слой.");
@@ -92,6 +119,27 @@ function collectLeaves(node, target = []) {
 
 function imageFill(node) {
   return node.fills?.find((paint) => paint.visible !== false && paint.type === "IMAGE" && paint.imageRef);
+}
+
+function validateContainerVisuals(node) {
+  const visibleFills = (node.fills ?? []).filter((paint) => paint.visible !== false && (paint.opacity ?? 1) > 0);
+  const unsupportedFill = visibleFills.find((paint) => !["SOLID", "IMAGE"].includes(paint.type));
+  if (unsupportedFill) throw new Error(`Слой «${node.name ?? node.id}» использует неподдерживаемый fill ${unsupportedFill.type}.`);
+  if (visibleFills.filter((paint) => paint.type === "SOLID").length > 1 || visibleFills.filter((paint) => paint.type === "IMAGE").length > 1) throw new Error(`Слой «${node.name ?? node.id}» содержит несколько одинаковых fills, которые нельзя воспроизвести без потерь.`);
+  const visibleStrokes = (node.strokes ?? []).filter((paint) => paint.visible !== false && (paint.opacity ?? 1) > 0);
+  if (visibleStrokes.length > 1 || visibleStrokes.some((paint) => paint.type !== "SOLID")) throw new Error(`Слой «${node.name ?? node.id}» использует сложную обводку, которую нельзя воспроизвести без потерь.`);
+  if (node.strokeDashes?.length || node.individualStrokeWeights) throw new Error(`Слой «${node.name ?? node.id}» использует нестандартную обводку, которую нельзя воспроизвести без потерь.`);
+  if (node.rectangleCornerRadii && new Set(node.rectangleCornerRadii).size > 1) throw new Error(`Слой «${node.name ?? node.id}» использует разные радиусы углов, которые пока не поддерживаются.`);
+  if ((node.cornerSmoothing ?? 0) !== 0) throw new Error(`Слой «${node.name ?? node.id}» использует corner smoothing, который пока не поддерживается.`);
+  if (node.layoutMode === "GRID" || node.layoutWrap === "WRAP") throw new Error(`Слой «${node.name ?? node.id}» использует неподдерживаемый режим Auto Layout.`);
+  effects(node);
+  blendMode(node);
+}
+
+function collectNodes(node, target = []) {
+  target.push(node);
+  for (const child of node.children ?? []) collectNodes(child, target);
+  return target;
 }
 
 function rasterExtension(contentType) {
@@ -118,9 +166,23 @@ function relativeNode(node, parentBox, assetMap) {
   if (!bounds || bounds.width <= 0 || bounds.height <= 0) throw new Error(`Слой «${node.name ?? node.id}» не имеет пригодной геометрии.`);
   const constraints = node.constraints ?? { horizontal: "MIN", vertical: "MIN" };
   const compoundAsset = assetMap.has(node.id);
-  const children = compoundAsset ? undefined : node.children?.filter((child) => child.visible !== false).map((child) => relativeNode(child, bounds, assetMap));
+  const rasterAsset = Boolean(imageFill(node));
+  const visibleChildren = node.children?.filter((child) => child.visible !== false) ?? [];
+  const children = compoundAsset ? undefined : visibleChildren.map((child, index) => ({
+    ...relativeNode(child, bounds, assetMap),
+    ...(node.itemReverseZIndex ? { zIndex: visibleChildren.length - index } : {}),
+  }));
   const isContainer = Boolean(children?.length);
+  if (isContainer || rasterAsset) validateContainerVisuals(node);
   const layoutMode = node.layoutMode === "HORIZONTAL" || node.layoutMode === "VERTICAL" ? node.layoutMode : undefined;
+  const backgroundAsset = isContainer && imageFill(node) ? assetMap.get(node.id) : undefined;
+  const renderedChildren = backgroundAsset ? [{
+    id: `${node.id}:background`, name: `${node.name || node.id} background`, type: "asset",
+    x: 0, y: 0, width: bounds.width, height: bounds.height, opacity: imageFill(node).opacity ?? 1, rotation: 0,
+    constraints: { horizontal: "STRETCH", vertical: "STRETCH" }, clip: true, asset: backgroundAsset,
+  }, ...children] : children;
+  const nodeEffects = isContainer || rasterAsset ? effects(node) : undefined;
+  const nodeBlendMode = blendMode(node);
   return {
     id: node.id,
     name: node.name || node.id,
@@ -137,14 +199,21 @@ function relativeNode(node, parentBox, assetMap) {
     },
     ...(node.clipsContent === undefined ? {} : { clip: Boolean(node.clipsContent) }),
     ...(node.cornerRadius === undefined ? {} : { radius: node.cornerRadius }),
-    ...(rgba(node.fills?.find((paint) => paint.visible !== false)) ? { background: rgba(node.fills.find((paint) => paint.visible !== false)) } : {}),
+    ...((isContainer || rasterAsset) && rgba(node.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ? { background: rgba(node.fills.find((paint) => paint.visible !== false && paint.type === "SOLID")) } : {}),
+    ...((isContainer || rasterAsset) && stroke(node) ? { stroke: stroke(node) } : {}),
+    ...(nodeEffects?.length ? { effects: nodeEffects } : {}),
+    ...(nodeBlendMode ? { blendMode: nodeBlendMode } : {}),
+    ...(node.layoutPositioning === "ABSOLUTE" ? { absoluteInLayout: true } : {}),
+    ...(typeof node.layoutGrow === "number" && node.layoutGrow > 0 ? { layoutGrow: node.layoutGrow } : {}),
+    ...(node.layoutAlign && node.layoutAlign !== "INHERIT" ? { layoutAlign: node.layoutAlign === "STRETCH" ? "stretch" : node.layoutAlign === "CENTER" ? "center" : node.layoutAlign === "MAX" ? "end" : "start" } : {}),
     ...(layoutMode ? { layout: {
       direction: layoutMode === "HORIZONTAL" ? "horizontal" : "vertical",
       gap: node.itemSpacing ?? 0,
       padding: [node.paddingTop ?? 0, node.paddingRight ?? 0, node.paddingBottom ?? 0, node.paddingLeft ?? 0],
       align: node.primaryAxisAlignItems === "SPACE_BETWEEN" ? "space-between" : node.primaryAxisAlignItems === "CENTER" ? "center" : node.primaryAxisAlignItems === "MAX" ? "end" : "start",
+      crossAlign: node.counterAxisAlignItems === "CENTER" ? "center" : node.counterAxisAlignItems === "MAX" ? "end" : node.counterAxisAlignItems === "STRETCH" ? "stretch" : node.counterAxisAlignItems === "BASELINE" ? "baseline" : "start",
     } } : {}),
-    ...(isContainer ? { children } : { asset: assetMap.get(node.id) }),
+    ...(isContainer ? { children: renderedChildren } : { asset: assetMap.get(node.id) }),
   };
 }
 
@@ -159,9 +228,11 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
   const rootBox = box(root);
   if (!rootBox || rootBox.width <= 0 || rootBox.height <= 0) throw new Error("Корневой Frame не имеет пригодного размера.");
 
+  validateContainerVisuals(root);
   const leaves = collectLeaves(root);
+  const allNodes = collectNodes(root, []);
   const rootRasterFill = imageFill(root);
-  const rasterLeaves = [...(rootRasterFill ? [root] : []), ...leaves.filter((leaf) => imageFill(leaf))];
+  const rasterLeaves = allNodes.filter((node) => imageFill(node));
   const vectorLeaves = leaves.filter((leaf) => !imageFill(leaf));
   const vectorIds = vectorLeaves.map((leaf) => leaf.id);
   const exports = vectorIds.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${vectorIds.map(encodeURIComponent).join(",")}&format=svg&svg_outline_text=true&svg_include_node_id=true`, auth) : { images: {} };
@@ -193,7 +264,7 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
       const extension = rasterExtension(response.headers?.get?.("content-type"));
       const name = `${createHash("sha256").update(leaf.id).digest("hex").slice(0, 10)}.${extension}`;
       await writeFile(path.join(temporary, name), Buffer.from(await response.arrayBuffer()), { mode: 0o600 });
-      assets.set(leaf.id, { src: `/assets/projects/${slug}/frames/${folderName}/${name}`, format: "raster", fit: fill.scaleMode === "FILL" ? "cover" : fill.scaleMode === "STRETCH" ? "fill" : "contain" });
+      assets.set(leaf.id, { src: `/assets/projects/${slug}/frames/${folderName}/${name}`, format: "raster", fit: fill.scaleMode === "FILL" ? "cover" : fill.scaleMode === "STRETCH" ? "fill" : "contain", ...(fill.opacity === undefined ? {} : { opacity: fill.opacity }) });
     }
     const rootBackground = rootRasterFill ? {
       id: `${root.id}:background`, name: `${root.name || root.id} background`, type: "asset",
@@ -203,7 +274,10 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
     } : undefined;
     const manifest = {
       source: { url, fileKey, nodeId, version }, width: rootBox.width, height: rootBox.height,
-      clip: Boolean(root.clipsContent), radius: root.cornerRadius ?? 0, background: rgba(root.fills?.find((paint) => paint.visible !== false)) ?? "transparent",
+      clip: Boolean(root.clipsContent), radius: root.cornerRadius ?? 0, background: rgba(root.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ?? "transparent",
+      ...(stroke(root) ? { stroke: stroke(root) } : {}),
+      ...(effects(root).length ? { effects: effects(root) } : {}),
+      ...(blendMode(root) ? { blendMode: blendMode(root) } : {}),
       nodes: [...(rootBackground ? [rootBackground] : []), ...(root.children ?? []).filter((child) => child.visible !== false).map((child) => relativeNode(child, rootBox, assets))],
     };
     await writeFile(path.join(temporary, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o600 });
