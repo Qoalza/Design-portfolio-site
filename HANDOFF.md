@@ -23,7 +23,7 @@
 
 ## Актуальное состояние
 
-- Рабочая ветка текущей Goal: `codex/local-project-admin-publisher`; пользователь разрешил связать админку с реальными данными, merge и production deploy после полного dry-run и проверок.
+- Рабочая ветка текущей Goal: `codex/figma-frame-admin-assets`, основана на `main` `349ec7d071d1d6e9c74bc442b2fff3032d8c68ae`. Merge и production deploy этой Goal не выполнялись и требуют отдельного подтверждения точного SHA.
 - Актуальный production/source commit (`DEPLOY_SHA`) совпадает с полным SHA текущего `origin/main`; точное значение подтверждается после каждого deploy по отданному HTML и release-path. Проверенный MLIR7 runtime `CODE_SHA` до документационной приёмки — `a322cf7341ee351d50f1a98cdb9d857fe46dd956`.
 - Desktop-раздел `Main chapter` повторно сверен блоками с актуальной Figma в ветке Goal: hero `be19432`, process `aa356c2`/`0175d5c`, `/projects` `73285a3`, breadcrumbs `bdcbb27`, Corvo top/preview `18eb4bc`, sticky/action bar `db3aeea`/`8e3e45b`/`99fb7b4`, content/footer `542e666`, проекты/AI/resume главной `3bfc8de`/`d742b23`/`01ce952`/`daf6e01`.
 - Главная использует трёхшаговый process-блок только со стрелками; wheel/trackpad прокручивает страницу и не переключает этап. Поведение проверено в Chromium и Zen/Firefox.
@@ -50,7 +50,10 @@
 - Настройки `Примечание` и `Интерактивный экран` находятся непосредственно внутри каждой секции и сохраняются независимо по `adminId`; правая панель больше не маскирует их как одну общую настройку. Описание секции редактируется настоящим визуальным rich-text полем: Markdown/HTML-маркеры пользователю не показываются, абзацы, подзаголовок, форматирование, ссылки и списки сохраняются структурированно и воспроизводятся в preview. Активный режим toolbar, autosave/reload и совпадение списка с preview проверены в браузере.
 - Создание принимает свободное название и формирует системный уникальный slug. Slash-теги сохраняются через blur/restart. Structured validation показывает все конкретные проблемы и переводит к нужному полю; generic error и browser-native dialog отсутствуют. Card/page preview читают draft overlay и не пишут в канонический контент.
 - Publish worker имеет server-owned режимы. Sandbox по умолчанию создаёт только локальный snapshot. Live включается отдельным `Application Support/live-publish.json`, берёт свежий `origin/main` во временный worktree, запускает проверки, создаёт PR/merge, передаёт exact SHA через ограниченный SSH-канал и использует атомарный VPS release с rollback по readiness. Тестовые `/private/tmp` stores не могут запускать live publish.
-- Браузером подтверждены: создание со спецсимволами, конкретный issue-dialog и focus, slash-теги, card/page preview, отсутствие logo-frame без logo, soft delete/restore, published-only home limit reorder/cancel/apply, независимое notice, форматирование выделения и успешный sandbox publish. Focused tests `39/39`, lint и production build успешны.
+- В ветке `codex/figma-frame-admin-assets` добавлен структурированный `ProjectFrameComposition`: Figma Frame сохраняется как DOM/CSS-композиция с отдельными SVG/raster leaves, constraints, nested Auto Layout, root raster background и атомарным last-good snapshot. Production Figma не опрашивает. Cover/hero/interactive подключены без автоматической миграции legacy managed-композиций.
+- Исправлены оба preview-пути SVG-логотипа: draft asset route отдаёт `image/svg+xml`, а `/projects` и `/projects/[slug]` переписывают URL на env-gated preview asset. Реальным локальным HTTP-контуром подтверждены `200`, MIME и наличие одного и того же SVG URL в card/page HTML.
+- Asset UX использует outline `Заменить`, ghost-корзины, lightbox для всех preview, исправленные gallery/section arrows, неудаляемую первую секцию и нижнюю кнопку добавления. False dirty считается по нормализованному пользовательскому payload, а conditional validation не требует Figma URL при состоянии `Файл отсутствует` или недоступной странице.
+- Автопроверки текущей Goal: focused tests `39/39`, `npm run admin:build`, lint и production build успешны; в публичных Next chunks Radix не найден. Визуальная сетка админки ранее проверена на `1280×720` и `1440×900`. Живой импорт произвольного пользовательского Frame остаётся пользовательским acceptance-gate до ввода локального Figma PAT; тестовый импортёр проверен изолированными node/asset responses.
 
 ## Production
 
@@ -136,4 +139,4 @@ Production, VPS, DNS, SSL, секреты, доступы, миграции и �
 
 1. Social preview production deploy завершён; production наблюдать штатными health/smoke-проверками без повторного deploy.
 2. Preloaders/loading states оставить для отдельного будущего Work Packet после новой классификации и пользовательского подтверждения.
-3. Локальная админка имеет статус `READY_FOR_USER_REVIEW`; открыть финальный локальный HEAD и проверить визуально. Live publish, merge и deploy в рамках Goal не выполнялись.
+3. После создания Draft PR по `codex/figma-frame-admin-assets` подключить Figma PAT локально и выполнить живую приёмку пользовательского Frame. Только после отдельного разрешения exact SHA допускаются merge и production deploy.

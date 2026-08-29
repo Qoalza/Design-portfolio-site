@@ -52,14 +52,14 @@ function FrameNodeView({ node, parentWidth, parentHeight, inLayout = false }: { 
   </div>;
 }
 
-export function ProjectFrameCompositionView({ composition, className = "" }: { composition: ProjectFrameComposition; className?: string }) {
+export function ProjectFrameCompositionView({ composition, className = "", fillSlot = false }: { composition: ProjectFrameComposition; className?: string; fillSlot?: boolean }) {
   const rootStyle: FrameStyle = {
     aspectRatio: `${composition.width} / ${composition.height}`,
     overflow: composition.clip ? "hidden" : "visible",
     "--frame-background": composition.background,
     "--frame-radius": `${composition.radius}px`,
   };
-  return <div className={`${styles.composition} ${className}`} style={rootStyle} data-project-frame>
+  return <div className={`${styles.composition} ${fillSlot ? styles.fillSlot : ""} ${className}`} style={rootStyle} data-project-frame>
     {composition.nodes.map((node) => <FrameNodeView key={node.id} node={node} parentWidth={composition.width} parentHeight={composition.height} />)}
   </div>;
 }

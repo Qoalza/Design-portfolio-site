@@ -334,7 +334,7 @@ function frameNode(value: unknown, location: string): ProjectFrameNode {
     if (direction !== "horizontal" && direction !== "vertical") throw new Error(`${location}.layout.direction is not supported.`);
     if (!Array.isArray(layoutInput.padding) || layoutInput.padding.length !== 4) throw new Error(`${location}.layout.padding must have four values.`);
     if (!["start", "center", "end", "space-between"].includes(align)) throw new Error(`${location}.layout.align is not supported.`);
-    layout = { direction, gap: finiteNumber(layoutInput.gap, `${location}.layout.gap`), padding: layoutInput.padding.map((item, index) => finiteNumber(item, `${location}.layout.padding[${index}]`)) as [number, number, number, number], align: align as ProjectFrameNode["layout"]["align"] };
+    layout = { direction, gap: finiteNumber(layoutInput.gap, `${location}.layout.gap`), padding: layoutInput.padding.map((item, index) => finiteNumber(item, `${location}.layout.padding[${index}]`)) as [number, number, number, number], align: align as NonNullable<ProjectFrameNode["layout"]>["align"] };
   }
   if (type === "asset" && !asset) throw new Error(`${location}.asset is required.`);
   const children = input.children === undefined ? undefined : Array.isArray(input.children) ? input.children.map((item, index) => frameNode(item, `${location}.children[${index}]`)) : (() => { throw new Error(`${location}.children must be an array.`); })();

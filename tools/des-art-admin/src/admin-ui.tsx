@@ -136,19 +136,39 @@ export function ImagePreview({ src, label, children }: { src: string; label: str
   return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
 }
 
-function FrameNodePreview({ node, parent }: { node: ProjectFrameNode; parent: { width: number; height: number } }) {
-  const style: React.CSSProperties = {
-    position: "absolute", left: `${node.x / parent.width * 100}%`, top: `${node.y / parent.height * 100}%`,
-    width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
-    opacity: node.opacity, overflow: node.clip ? "hidden" : "visible", borderRadius: node.radius, background: node.background,
+function FrameNodePreview({ node, parent, inLayout = false }: { node: ProjectFrameNode; parent: { width: number; height: number }; inLayout?: boolean }) {
+  const transforms: string[] = [];
+  const style: React.CSSProperties = inLayout ? {
+    position: "relative", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
+    flex: node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
+  } : {
+    position: "absolute", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
   };
-  if (node.constraints.horizontal === "CENTER") { style.left = "50%"; style.transform = `translateX(calc(-50% + ${(node.x + node.width / 2 - parent.width / 2) / parent.width * 100}%))`; }
-  if (node.constraints.horizontal === "STRETCH") { style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`; delete style.width; }
-  if (node.constraints.vertical === "CENTER") { style.top = "50%"; style.transform = `${style.transform ?? ""} translateY(calc(-50% + ${(node.y + node.height / 2 - parent.height / 2) / parent.height * 100}%))`; }
-  if (node.constraints.vertical === "STRETCH") { style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`; delete style.height; }
+  if (!inLayout) {
+    if (node.constraints.horizontal === "MAX") style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`;
+    else if (node.constraints.horizontal === "CENTER") { style.left = "50%"; transforms.push(`translateX(calc(-50% + ${(node.x + node.width / 2 - parent.width / 2) / parent.width * 100}%))`); }
+    else if (node.constraints.horizontal === "STRETCH") { style.left = `${node.x / parent.width * 100}%`; style.right = `${(parent.width - node.x - node.width) / parent.width * 100}%`; delete style.width; }
+    else style.left = `${node.x / parent.width * 100}%`;
+    if (node.constraints.vertical === "MAX") style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`;
+    else if (node.constraints.vertical === "CENTER") { style.top = "50%"; transforms.push(`translateY(calc(-50% + ${(node.y + node.height / 2 - parent.height / 2) / parent.height * 100}%))`); }
+    else if (node.constraints.vertical === "STRETCH") { style.top = `${node.y / parent.height * 100}%`; style.bottom = `${(parent.height - node.y - node.height) / parent.height * 100}%`; delete style.height; }
+    else style.top = `${node.y / parent.height * 100}%`;
+  }
+  if (node.rotation) transforms.push(`rotate(${node.rotation}deg)`);
+  if (transforms.length) style.transform = transforms.join(" ");
+  Object.assign(style, { opacity: node.opacity, overflow: node.clip ? "hidden" : "visible", borderRadius: node.radius, background: node.background });
+  if (node.layout) {
+    const [top, right, bottom, left] = node.layout.padding;
+    Object.assign(style, {
+      display: "flex", boxSizing: "border-box", flexDirection: node.layout.direction === "horizontal" ? "row" : "column",
+      gap: `${node.layout.gap / (node.layout.direction === "horizontal" ? node.width : node.height) * 100}%`,
+      padding: `${top / node.height * 100}% ${right / node.width * 100}% ${bottom / node.height * 100}% ${left / node.width * 100}%`,
+      justifyContent: node.layout.align === "space-between" ? "space-between" : node.layout.align === "end" ? "flex-end" : node.layout.align,
+    });
+  }
   return <div className="frame-node-preview" style={style}>
     {node.asset ? <img src={node.asset.src} alt="" style={{ width: "100%", height: "100%", objectFit: node.asset.fit }} /> : null}
-    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} />)}
+    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} inLayout={Boolean(node.layout)} />)}
   </div>;
 }
 

@@ -22,6 +22,7 @@ test("frame import preserves vector and raster leaves as separate local assets",
     if (String(url).includes("/nodes?")) return new Response(JSON.stringify({ version: "42", nodes: { "1:2": { document: {
       id: "1:2", name: "Preview", type: "FRAME", clipsContent: true, cornerRadius: 24,
       absoluteBoundingBox: { x: 0, y: 0, width: 1200, height: 800 },
+      fills: [{ type: "IMAGE", imageRef: "root-image-ref", scaleMode: "FILL" }],
       children: [
         { id: "2:3", name: "Mark", type: "VECTOR", absoluteBoundingBox: { x: 500, y: 300, width: 200, height: 200 }, constraints: { horizontal: "CENTER", vertical: "CENTER" } },
         { id: "2:4", name: "Backdrop", type: "RECTANGLE", absoluteBoundingBox: { x: 0, y: 0, width: 1200, height: 800 }, constraints: { horizontal: "STRETCH", vertical: "STRETCH" }, fills: [{ type: "IMAGE", imageRef: "image-ref", scaleMode: "FILL" }] },
@@ -31,20 +32,24 @@ test("frame import preserves vector and raster leaves as separate local assets",
       ],
     } } } }), { status: 200, headers: { "content-type": "application/json" } });
     if (String(url).includes("/v1/images/")) return new Response(JSON.stringify({ images: { "2:3": "https://download/vector", "2:6": "https://download/nested-vector" } }), { status: 200 });
-    if (String(url).endsWith("/images")) return new Response(JSON.stringify({ meta: { images: { "image-ref": "https://download/raster" } } }), { status: 200 });
+    if (String(url).endsWith("/images")) return new Response(JSON.stringify({ meta: { images: { "image-ref": "https://download/raster", "root-image-ref": "https://download/root-raster" } } }), { status: 200 });
     if (String(url) === "https://download/vector") return new Response('<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h1v1z"/></svg>', { status: 200, headers: { "content-type": "image/svg+xml" } });
     if (String(url) === "https://download/nested-vector") return new Response('<svg xmlns="http://www.w3.org/2000/svg"><circle cx="1" cy="1" r="1"/></svg>', { status: 200, headers: { "content-type": "image/svg+xml" } });
     if (String(url) === "https://download/raster") return new Response(Uint8Array.from([137, 80, 78, 71]), { status: 200, headers: { "content-type": "image/png" } });
+    if (String(url) === "https://download/root-raster") return new Response(Uint8Array.from([137, 80, 78, 71]), { status: 200, headers: { "content-type": "image/png" } });
     throw new Error(`Unexpected ${url}`);
   };
   const manifest = await importFigmaFrame({ url: "https://www.figma.com/design/file/Preview?node-id=1-2", token: "test-token", slug: "demo", slot: "hero", assetRoot: root, fetchImpl });
-  assert.equal(manifest.nodes[0].asset.format, "svg");
-  assert.equal(manifest.nodes[1].asset.format, "raster");
-  assert.match(manifest.nodes[1].asset.src, /\.png$/);
-  assert.equal(manifest.nodes[2].layout.direction, "horizontal");
-  assert.equal(manifest.nodes[2].children[0].asset.format, "svg");
-  const saved = JSON.parse(await readFile(path.join(root, "demo", "frames", path.basename(path.dirname(manifest.nodes[0].asset.src)), "manifest.json"), "utf8"));
-  assert.equal(saved.nodes.length, 3);
+  assert.equal(manifest.nodes[0].name, "Preview background");
+  assert.equal(manifest.nodes[0].asset.format, "raster");
+  assert.deepEqual(manifest.nodes[0].constraints, { horizontal: "STRETCH", vertical: "STRETCH" });
+  assert.equal(manifest.nodes[1].asset.format, "svg");
+  assert.equal(manifest.nodes[2].asset.format, "raster");
+  assert.match(manifest.nodes[2].asset.src, /\.png$/);
+  assert.equal(manifest.nodes[3].layout.direction, "horizontal");
+  assert.equal(manifest.nodes[3].children[0].asset.format, "svg");
+  const saved = JSON.parse(await readFile(path.join(root, "demo", "frames", path.basename(path.dirname(manifest.nodes[1].asset.src)), "manifest.json"), "utf8"));
+  assert.equal(saved.nodes.length, 4);
   assert.ok(calls.some((url) => url.endsWith("/files/file/images")));
 });
 

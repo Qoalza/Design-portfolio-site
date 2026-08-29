@@ -40,7 +40,7 @@ function ProjectLogoMark({ logo }: { logo: ProjectLogo }) {
 }
 
 function ProjectVisual({ project }: { project: Project }) {
-  if (project.catalogFrame) return <div className={styles.compactVisual} aria-hidden="true"><ProjectFrameCompositionView composition={project.catalogFrame} /></div>;
+  if (project.catalogFrame) return <div className={styles.compactVisual} aria-hidden="true"><ProjectFrameCompositionView composition={project.catalogFrame} fillSlot /></div>;
   const image = project.catalogImage;
   if (!image) return null;
   return (

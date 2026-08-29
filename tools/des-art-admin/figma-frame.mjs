@@ -154,7 +154,8 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
   if (!rootBox || rootBox.width <= 0 || rootBox.height <= 0) throw new Error("Корневой Frame не имеет пригодного размера.");
 
   const leaves = collectLeaves(root);
-  const rasterLeaves = leaves.filter((leaf) => imageFill(leaf));
+  const rootRasterFill = imageFill(root);
+  const rasterLeaves = [...(rootRasterFill ? [root] : []), ...leaves.filter((leaf) => imageFill(leaf))];
   const vectorLeaves = leaves.filter((leaf) => !imageFill(leaf));
   const vectorIds = vectorLeaves.map((leaf) => leaf.id);
   const exports = vectorIds.length ? await figmaJson(fetchImpl, `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${vectorIds.map(encodeURIComponent).join(",")}&format=svg&svg_outline_text=true&svg_include_node_id=true`, auth) : { images: {} };
@@ -188,15 +189,34 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
       await writeFile(path.join(temporary, name), Buffer.from(await response.arrayBuffer()), { mode: 0o600 });
       assets.set(leaf.id, { src: `/assets/projects/${slug}/frames/${folderName}/${name}`, format: "raster", fit: fill.scaleMode === "FILL" ? "cover" : fill.scaleMode === "STRETCH" ? "fill" : "contain" });
     }
+    const rootBackground = rootRasterFill ? {
+      id: `${root.id}:background`, name: `${root.name || root.id} background`, type: "asset",
+      x: 0, y: 0, width: rootBox.width, height: rootBox.height, opacity: 1, rotation: 0,
+      constraints: { horizontal: "STRETCH", vertical: "STRETCH" }, clip: true,
+      asset: assets.get(root.id),
+    } : undefined;
     const manifest = {
       source: { url, fileKey, nodeId, version }, width: rootBox.width, height: rootBox.height,
       clip: Boolean(root.clipsContent), radius: root.cornerRadius ?? 0, background: rgba(root.fills?.find((paint) => paint.visible !== false)) ?? "transparent",
-      nodes: (root.children ?? []).filter((child) => child.visible !== false).map((child) => relativeNode(child, rootBox, assets)),
+      nodes: [...(rootBackground ? [rootBackground] : []), ...(root.children ?? []).filter((child) => child.visible !== false).map((child) => relativeNode(child, rootBox, assets))],
     };
     await writeFile(path.join(temporary, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o600 });
     await mkdir(projectRoot, { recursive: true });
-    await rm(destination, { recursive: true, force: true });
-    await rename(temporary, destination);
+    const backup = `${destination}.${process.pid}.backup`;
+    let hasBackup = false;
+    try {
+      await rename(destination, backup);
+      hasBackup = true;
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+    try {
+      await rename(temporary, destination);
+    } catch (error) {
+      if (hasBackup) await rename(backup, destination).catch(() => {});
+      throw error;
+    }
+    if (hasBackup) await rm(backup, { recursive: true, force: true }).catch(() => {});
     return manifest;
   } catch (error) {
     await rm(temporary, { recursive: true, force: true });

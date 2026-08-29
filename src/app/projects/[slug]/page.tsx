@@ -190,7 +190,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           />
 
           {project.heroFrame ? (
-            <div className={styles.heroPreview}><ProjectFrameCompositionView composition={project.heroFrame} /></div>
+            <div className={styles.heroPreview}><ProjectFrameCompositionView composition={project.heroFrame} fillSlot /></div>
           ) : hero && heroForeground ? (
             <div className={styles.heroPreview}>
               {hero.presentation === "browser-composite" && hero.backdrop ? (
