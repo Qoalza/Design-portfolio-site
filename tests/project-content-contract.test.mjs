@@ -114,6 +114,17 @@ test("the project contract validates every supported field and block", () => {
   assert.deepEqual(validateProjectDocument(validProject), validProject);
 });
 
+test("visual editor marks preserve combined formatting without markup text", () => {
+  const project = structuredClone(validProject);
+  project.content[0].blocks[0].content = [{
+    type: "text",
+    text: "Жирный курсив",
+    marks: ["strong", "emphasis", "underline"],
+  }];
+  const parsed = parseProjectDocument(serializeProjectDocument(project), "formatted-project.json");
+  assert.deepEqual(parsed.content[0].blocks[0].content, project.content[0].blocks[0].content);
+});
+
 test("the project contract rejects unknown fields instead of silently losing data", () => {
   assert.throws(
     () => validateProjectDocument({ ...validProject, unexpected: true }),

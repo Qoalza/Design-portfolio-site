@@ -65,10 +65,16 @@ function getHeadingId(label: string): string {
 function renderInlineContent(content: ProjectInlineContent[]): ReactNode[] {
   return content.map((item, index) => {
     const key = `${item.type}-${index}`;
-    if (item.type === "strong") return <strong key={key}>{item.text}</strong>;
-    if (item.type === "emphasis") return <em key={key}>{item.text}</em>;
-    if (item.type === "link") return <a key={key} href={item.href}>{item.text}</a>;
-    return item.text;
+    const marks = new Set(item.type === "text" || item.type === "link" ? item.marks : []);
+    if (item.type === "strong") marks.add("strong");
+    if (item.type === "emphasis") marks.add("emphasis");
+    if (item.type === "underline") marks.add("underline");
+    let rendered: ReactNode = item.text;
+    if (marks.has("strong")) rendered = <strong>{rendered}</strong>;
+    if (marks.has("emphasis")) rendered = <em>{rendered}</em>;
+    if (marks.has("underline")) rendered = <u>{rendered}</u>;
+    if (item.type === "link") rendered = <a href={item.href}>{rendered}</a>;
+    return <span key={key}>{rendered}</span>;
   });
 }
 

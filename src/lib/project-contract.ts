@@ -6,11 +6,13 @@ export type ProjectVisibility = "draft" | "published" | "deleted";
 export type ProjectPlatform = "Desktop" | "Tablet" | "Mobile";
 
 export type ProjectInlineContent =
-  | { type: "text"; text: string }
+  | { type: "text"; text: string; marks?: ProjectTextMark[] }
   | { type: "strong"; text: string }
   | { type: "emphasis"; text: string }
   | { type: "underline"; text: string }
-  | { type: "link"; text: string; href: string };
+  | { type: "link"; text: string; href: string; marks?: ProjectTextMark[] };
+
+export type ProjectTextMark = "strong" | "emphasis" | "underline";
 
 export type ProjectImage = {
   src: string;
@@ -260,11 +262,13 @@ function inline(value: unknown, location: string): ProjectInlineContent {
   const type = string(input.type, `${location}.type`);
 
   if (type === "link") {
-    exactKeys(input, ["type", "text", "href"], location);
+    exactKeys(input, ["type", "text", "href", "marks"], location);
+    const marks = inlineMarks(input.marks, `${location}.marks`);
     return {
       type,
       text: string(input.text, `${location}.text`),
       href: linkHref(input.href, `${location}.href`),
+      ...(marks ? { marks } : {}),
     };
   }
 
@@ -272,8 +276,24 @@ function inline(value: unknown, location: string): ProjectInlineContent {
     throw new Error(`${location}.type is not a supported inline content type.`);
   }
 
-  exactKeys(input, ["type", "text"], location);
-  return { type, text: string(input.text, `${location}.text`, type === "text") };
+  exactKeys(input, type === "text" ? ["type", "text", "marks"] : ["type", "text"], location);
+  if (type === "text") {
+    const marks = inlineMarks(input.marks, `${location}.marks`);
+    return { type, text: string(input.text, `${location}.text`, true), ...(marks ? { marks } : {}) };
+  }
+  return { type, text: string(input.text, `${location}.text`) };
+}
+
+function inlineMarks(value: unknown, location: string): ProjectTextMark[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) throw new Error(`${location} must be an array.`);
+  const allowed: ProjectTextMark[] = ["strong", "emphasis", "underline"];
+  const marks = value.map((item, index) => {
+    const mark = string(item, `${location}[${index}]`) as ProjectTextMark;
+    if (!allowed.includes(mark)) throw new Error(`${location}[${index}] is not a supported text mark.`);
+    return mark;
+  });
+  return [...new Set(marks)];
 }
 
 function inlineArray(value: unknown, location: string): ProjectInlineContent[] {

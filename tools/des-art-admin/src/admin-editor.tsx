@@ -27,14 +27,14 @@ import type {
 } from "../../../src/lib/project-contract";
 import type { AdminProject, AdminSection } from "./admin-model";
 import type { FieldIssue } from "./admin-model";
-import { inline, issueFor, sectionSetting, sectionText, textBlocks, textOf, withSectionSetting } from "./admin-model";
+import { inline, issueFor, sectionSetting, textOf, withSectionSetting } from "./admin-model";
 import { AssetField, Field, RichEditor, TagField } from "./admin-ui";
 
 type Upload = (file: File, context: string) => Promise<ProjectImage>;
 
-function replaceSectionText(section: AdminSection, value: string): AdminSection {
+function replaceSectionText(section: AdminSection, value: ProjectSectionBlock[]): AdminSection {
   const managed = section.blocks.filter((block) => block.type === "notice" || block.type === "image");
-  return { ...section, blocks: [...textBlocks(value), ...managed] };
+  return { ...section, blocks: [...value, ...managed] };
 }
 
 function updateSection(project: AdminProject, target: AdminSection, next: AdminSection): AdminProject {
@@ -161,7 +161,7 @@ function SectionEditor({
         <TextField.Root value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} />
       </Field>
       <Field label="Описание секции">
-        <RichEditor value={sectionText(section)} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)))} />
+        <RichEditor value={section.blocks} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)))} />
       </Field>
       {managed ? (
         <div className="managed-preview">

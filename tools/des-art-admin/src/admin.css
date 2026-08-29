@@ -155,11 +155,18 @@ button, input, textarea, select { font: inherit; }
 .rich-editor { overflow: hidden; border: 1px solid var(--sand-7); border-radius: 10px; background: #fff; transition: border-color 120ms ease, box-shadow 120ms ease; }
 .rich-editor:focus-within { border-color: var(--accent-8); box-shadow: 0 0 0 1px var(--accent-6); }
 .rich-toolbar { display: flex; align-items: center; gap: 3px; min-height: 44px; padding: 7px 9px; border-bottom: 1px solid var(--sand-6); background: #fff; }
-.rich-toolbar .rt-IconButton { width: 28px; height: 28px; flex: 0 0 28px; border-radius: 6px; }
+.rich-toolbar .rt-IconButton { width: 30px; height: 30px; flex: 0 0 30px; border-radius: 8px; }
 .rich-toolbar .rt-IconButton:hover { background: var(--sand-3); color: var(--sand-12); }
 .toolbar-separator { width: 1px; height: 20px; margin: 0 5px; background: var(--sand-6); }
-.rich-editor .rt-TextAreaRoot { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: #fff; }
-.rich-editor textarea { min-height: 180px; padding: 14px 16px; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; line-height: 1.55; resize: vertical; }
+.rich-editor-content { min-height: 220px; padding: 16px 18px; outline: none; color: var(--sand-12); font-size: 15px; line-height: 1.6; }
+.rich-editor-content:empty::before { content: attr(data-placeholder); color: var(--sand-9); pointer-events: none; }
+.rich-editor-content p { margin: 0 0 12px; }
+.rich-editor-content p:last-child { margin-bottom: 0; }
+.rich-editor-content h3 { margin: 18px 0 8px; font-size: 18px; line-height: 1.35; font-weight: 600; }
+.rich-editor-content h3:first-child { margin-top: 0; }
+.rich-editor-content ul, .rich-editor-content ol { margin: 0 0 12px; padding-left: 24px; }
+.rich-editor-content li + li { margin-top: 4px; }
+.rich-editor-content a { color: var(--accent-11); text-decoration: underline; text-underline-offset: 2px; }
 .section-settings { display: grid; gap: 14px; padding-top: 4px; }
 .section-settings-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-top: 18px; border-top: 1px solid var(--sand-6); }
 .section-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
