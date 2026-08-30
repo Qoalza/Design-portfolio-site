@@ -17,6 +17,9 @@ const requireRead = (file) => readFileSync(file, "utf8");
 
 export function humanFigmaImportError(error) {
   const message = error instanceof Error ? error.message : String(error);
+  if (/Figma не подключена/i.test(message)) {
+    return { title: "Figma не подключена", message: "Подключите локальный токен Figma с доступом file_content:read и повторите импорт. Предыдущая рабочая версия изображения сохранена." };
+  }
   if (/отклонила токен|доступ к файлу/i.test(message)) {
     return { title: "Figma не дала доступ к Frame", message: "Проверьте, что подключённый токен действует и у него есть доступ к этому Figma-файлу. Предыдущая рабочая версия изображения сохранена." };
   }
@@ -421,11 +424,12 @@ export class AdminStore {
     if (typeof alt !== "string" || alt.trim().length === 0) throw new Error("Alt text is required.");
     const inspected = inspectImage(buffer, fileName, mime);
     const safeName = safeUploadName(fileName);
-    const destination = resolveProjectAssetPath(this.draftAssetRoot, slug, safeName);
-    await mkdir(path.dirname(destination), { recursive: true });
+    const assetDirectory = path.dirname(resolveProjectAssetPath(this.draftAssetRoot, slug, safeName));
+    await mkdir(assetDirectory, { recursive: true });
     const digest = createHash("sha256").update(buffer).digest("hex");
     let duplicateOf;
-    for (const existing of await readdir(path.dirname(destination)).catch(() => [])) {
+    const existingNames = await readdir(assetDirectory).catch(() => []);
+    for (const existing of existingNames) {
       const existingPath = resolveProjectAssetPath(this.draftAssetRoot, slug, existing);
       const existingBuffer = await readFile(existingPath);
       if (createHash("sha256").update(existingBuffer).digest("hex") === digest) {
@@ -433,9 +437,15 @@ export class AdminStore {
         break;
       }
     }
-    if (!duplicateOf) await writeFile(destination, buffer, { flag: "wx", mode: 0o600 });
+    let savedName = safeName;
+    if (!duplicateOf && existingNames.includes(savedName)) {
+      const extension = path.extname(safeName);
+      const stem = path.basename(safeName, extension);
+      savedName = `${stem}-${digest}${extension}`;
+    }
+    if (!duplicateOf) await writeFile(resolveProjectAssetPath(this.draftAssetRoot, slug, savedName), buffer, { flag: "wx", mode: 0o600 });
     return {
-      src: duplicateOf ?? `/assets/projects/${slug}/${safeName}`,
+      src: duplicateOf ?? `/assets/projects/${slug}/${savedName}`,
       alt: alt.trim(),
       width: inspected.width,
       height: inspected.height,

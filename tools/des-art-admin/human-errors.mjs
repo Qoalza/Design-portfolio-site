@@ -24,6 +24,31 @@ export function humanError(error) {
     message: "Размер файла превышает допустимый предел. Уменьшите файл и загрузите его ещё раз.",
     status: 413,
   };
+  if (/Image MIME type is not supported/i.test(source)) return {
+    title: "Формат изображения не поддерживается",
+    message: "Загрузите изображение в PNG, JPEG, GIF или WebP и повторите попытку.",
+    status: 400,
+  };
+  if (/Image extension does not match its MIME type/i.test(source)) return {
+    title: "Расширение изображения не совпадает с форматом",
+    message: "Переименуйте или экспортируйте файл так, чтобы расширение соответствовало его формату, затем загрузите его ещё раз.",
+    status: 400,
+  };
+  if (/Image size must be between 1 byte and 20 MB/i.test(source)) return {
+    title: "Размер изображения недопустим",
+    message: "Файл пустой или превышает 20 МБ. Выберите другое изображение и повторите загрузку.",
+    status: 400,
+  };
+  if (/(PNG|JPEG|GIF|WebP) (signature|dimensions).*invalid|WebP dimensions were not found/i.test(source)) return {
+    title: "Файл не удалось распознать как изображение",
+    message: "Файл повреждён или его содержимое не соответствует указанному формату. Экспортируйте изображение заново и повторите загрузку.",
+    status: 400,
+  };
+  if (/Image resolution is invalid or exceeds 40 megapixels/i.test(source)) return {
+    title: "Разрешение изображения недопустимо",
+    message: "Изображение должно иметь ненулевой размер и не превышать 40 мегапикселей. Уменьшите его и повторите загрузку.",
+    status: 400,
+  };
   if (/Unexpected token|JSON|не удалось разобрать/i.test(source)) return {
     title: "Данные не удалось прочитать",
     message: "Админка получила неполные или некорректные данные. Повторите действие; если ошибка останется, потребуется ручная диагностика разработчиком.",
