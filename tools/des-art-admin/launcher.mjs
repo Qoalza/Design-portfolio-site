@@ -147,6 +147,10 @@ async function main() {
   await ensureManagedRepository();
   const publishMode = await configuredPublishMode();
   await ensureProductionDataBaseline(publishMode);
+  // The managed repository may have advanced while the existing Node processes
+  // still hold the previous server and Next.js modules in memory.
+  await stopService("admin");
+  await stopService("preview");
   if (!(await reachable(adminPort))) {
     await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
       DES_ART_ADMIN_REPO: managedRepo,
