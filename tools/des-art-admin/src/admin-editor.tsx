@@ -18,6 +18,7 @@ import {
   TextArea,
   TextField,
 } from "@radix-ui/themes";
+import { useState } from "react";
 import type {
   ProjectContentBlock,
   ProjectGalleryGroup,
