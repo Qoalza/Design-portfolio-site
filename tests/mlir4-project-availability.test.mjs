@@ -18,17 +18,22 @@ test("Sarafan.Radio preserves the pre-admin unavailable states", () => {
   assert.deepEqual(sarafan.materials, { projectState: "in_progress", fileState: "unavailable" });
 });
 
-test("project cards do not expose unavailable file state in project lists", () => {
+test("project cards share the unavailable-versus-absent file contract", () => {
+  const fileControl = readFileSync(new URL("../src/components/project-file-control.tsx", import.meta.url), "utf8");
+  assert.match(fileControl, /fileState === "available"/);
+  assert.match(fileControl, /fileState === "unavailable"/);
+  assert.match(fileControl, /Файл пока недоступен/);
+  assert.match(fileControl, /project-info\.svg/);
+  assert.doesNotMatch(fileControl, /У проекта нет отдельного файла/);
+
   for (const file of [
     "../src/app/page.tsx",
     "../src/app/projects/page.tsx",
     "../src/components/main-project-card.tsx",
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), "utf8");
-    assert.doesNotMatch(source, /availability\.detail[^]*?availability\.figma === "absent"[^]*?ProjectDetailControl/s);
-    assert.doesNotMatch(source, /availability\.figma === "unavailable"/);
+    assert.match(source, /<ProjectFileControl/);
     assert.doesNotMatch(source, /У проекта нет отдельного файла/);
-    assert.doesNotMatch(source, /Файл пока недоступен/);
   }
 });
 

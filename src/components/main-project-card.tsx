@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { Project } from "../lib/projects";
 import { ProjectPlatforms } from "./project-platforms";
 import { ProjectDetailControl } from "./project-detail-control";
-import { ControlButton } from "./ui-controls";
+import { ProjectFileControl } from "./project-file-control";
 import { ProjectFrameCompositionView } from "./project-frame-composition";
 import styles from "./main-project-card.module.css";
 
@@ -76,9 +76,7 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
             ) : (
               <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
             )}
-            {project.availability.figma === "available" && project.figmaUrl ? (
-              <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
-            ) : null}
+            <ProjectFileControl fileState={project.availability.figma} figmaUrl={project.figmaUrl} />
           </div>
           {project.availability.figma === "available" && project.updatedAt ? (
             <>

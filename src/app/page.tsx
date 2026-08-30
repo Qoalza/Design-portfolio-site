@@ -5,6 +5,7 @@ import { SiteFooter } from "../components/site-footer";
 import { MainProjectCard } from "../components/main-project-card";
 import { ProjectPlatforms } from "../components/project-platforms";
 import { ProjectDetailControl } from "../components/project-detail-control";
+import { ProjectFileControl } from "../components/project-file-control";
 import { ProcessStepper } from "../components/process-stepper";
 import { ControlButton, TextButton } from "../components/ui-controls";
 import type { ProjectImage, ProjectLogo } from "../lib/project-contract";
@@ -96,12 +97,14 @@ function ProjectActions({ project }: { project: Project }) {
             breadcrumbLabel={project.title}
             className={styles.detailsButton}
           />
-      ) : (
-        <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
-      )}
-        {hasFigma ? (
-          <ControlButton className={styles.figmaButton} variant="ghost" href={figmaHref} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
-        ) : null}
+        ) : (
+          <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
+        )}
+        <ProjectFileControl
+          className={styles.figmaButton}
+          fileState={project.availability.figma}
+          figmaUrl={project.figmaUrl}
+        />
       </div>
       {hasFigma && project.updatedAt ? (
         <>

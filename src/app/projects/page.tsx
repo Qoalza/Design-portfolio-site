@@ -5,9 +5,9 @@ import { MainProjectCard } from "../../components/main-project-card";
 import { PageHeader } from "../../components/page-header";
 import { ProjectPlatforms } from "../../components/project-platforms";
 import { ProjectDetailControl } from "../../components/project-detail-control";
+import { ProjectFileControl } from "../../components/project-file-control";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
-import { ControlButton } from "../../components/ui-controls";
 import { ProjectFrameCompositionView } from "../../components/project-frame-composition";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import type { ProjectLogo } from "../../lib/project-contract";
@@ -81,9 +81,7 @@ function ProjectActions({ project }: { project: Project }) {
       ) : (
         <ProjectDetailControl availability="unavailable" className={styles.detailsButton} />
       )}
-      {project.availability.figma === "available" && project.figmaUrl ? (
-        <ControlButton variant="ghost" href={project.figmaUrl} external iconRight={`${assetRoot}/project-share.svg`}>Figma</ControlButton>
-      ) : null}
+      <ProjectFileControl fileState={project.availability.figma} figmaUrl={project.figmaUrl} />
       {project.availability.figma === "available" && project.updatedAt ? <><span className={styles.actionDivider} /><span className={styles.updated}><Image src={`${assetRoot}/project-refresh.svg`} alt="" width={16} height={16} />Обновлено {project.updatedAt}</span></> : null}
     </div>
   );
