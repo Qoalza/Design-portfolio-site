@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { ProjectFrameComposition, ProjectFrameNode } from "../lib/project-contract";
+import { hasVisibleFrameFill } from "../lib/project-frame-visibility";
 import styles from "./project-frame-composition.module.css";
 
 /* eslint-disable @next/next/no-img-element -- imported frame leaves have dynamic SVG/raster geometry and are locally snapshotted */
@@ -123,11 +124,11 @@ function FrameNodeView({ node, parentWidth, parentHeight, rootWidth, rootHeight,
   </div>;
 }
 
-export function ProjectFrameCompositionView({ composition, className = "", fillSlot = false, slotRadius }: { composition: ProjectFrameComposition; className?: string; fillSlot?: boolean; slotRadius?: number }) {
+export function ProjectFrameCompositionView({ composition, className = "", fillSlot = false, slotRadius, clipToFill = false }: { composition: ProjectFrameComposition; className?: string; fillSlot?: boolean; slotRadius?: number; clipToFill?: boolean }) {
   const visualEffects = effectStyle(composition.effects, composition.width, composition.height);
   const rootStyle: FrameStyle = {
     aspectRatio: `${composition.width} / ${composition.height}`,
-    overflow: composition.clip ? "hidden" : "visible",
+    overflow: clipToFill ? hasVisibleFrameFill(composition) ? "hidden" : "visible" : composition.clip ? "hidden" : "visible",
     "--frame-background": composition.background,
     "--frame-radius": slotRadius === undefined ? rootWidthUnit(composition.radius, composition.width) : `${slotRadius}px`,
     boxShadow: [strokeShadow(composition.stroke, composition.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,

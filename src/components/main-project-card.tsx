@@ -23,7 +23,7 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
   return (
     <article className={styles.card}>
       <div className={styles.visual} aria-hidden="true">
-        {project.catalogFrame ? <ProjectFrameCompositionView composition={project.catalogFrame} className={styles.structuredVisual} fillSlot slotRadius={12} /> : visualBack ? <span className={`${styles.visualFrame} ${styles.visualBack}`}>
+        {project.catalogFrame ? <ProjectFrameCompositionView composition={project.catalogFrame} className={styles.structuredVisual} fillSlot slotRadius={12} clipToFill /> : visualBack ? <span className={`${styles.visualFrame} ${styles.visualBack}`}>
           <Image src={visualBack.src} alt="" width={visualBack.width} height={visualBack.height} />
         </span> : null}
         {!project.catalogFrame && visualFront ? <span className={`${styles.visualFrame} ${styles.visualFront}`}>
