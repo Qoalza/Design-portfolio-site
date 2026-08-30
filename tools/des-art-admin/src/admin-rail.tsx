@@ -16,7 +16,7 @@ import type {
 } from "../../../src/lib/project-contract";
 import { groupDefaults } from "./admin-editor";
 import type { AdminProject, FieldIssue } from "./admin-model";
-import { issueFor } from "./admin-model";
+import { issueFor, pendingGalleryDevices, withPendingGalleryDevices } from "./admin-model";
 import { Field, RailGroup } from "./admin-ui";
 import { changeProjectFileState, changeProjectMaterialsState } from "../material-state.mjs";
 
@@ -183,20 +183,26 @@ function MaterialsSettings({
 function GallerySettings({ project, update }: { project: AdminProject; update: (patch: Partial<AdminProject>) => void }) {
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
     ?? { type: "gallery", title: "Галерея", description: "Интерфейсы проекта", groups: [] };
+  const pending = pendingGalleryDevices(project);
   const setEnabled = (id: ProjectGalleryGroup["id"], enabled: boolean) => {
+    const hasGroup = gallery.groups.some((group) => group.id === id);
     const next = {
       ...gallery,
       groups: enabled
-        ? [...gallery.groups, { ...groupDefaults[id], items: [] }]
+        ? gallery.groups
         : gallery.groups.filter((group) => group.id !== id),
     };
-    update({
+    const nextProject = withPendingGalleryDevices({
+      ...project,
       content: next.groups.length === 0
         ? project.content.filter((block) => block.type !== "gallery")
         : project.content.some((block) => block.type === "gallery")
           ? project.content.map((block) => block.type === "gallery" ? next : block)
           : [...project.content, next],
-    });
+    }, enabled && !hasGroup
+      ? [...new Set([...pending, id])]
+      : pending.filter((item) => item !== id));
+    update(nextProject);
   };
   return (
     <RailGroup title="Галерея" description="Одна галерея, от одного до трёх типов устройств.">
@@ -204,10 +210,11 @@ function GallerySettings({ project, update }: { project: AdminProject; update: (
         {(["desktop", "tablet", "mobile"] as const).map((id) => (
           <label className="switch-line" key={id}>
             <Text size="2">{groupDefaults[id].label}</Text>
-            <Switch radius="full" checked={gallery.groups.some((group) => group.id === id)} onCheckedChange={(enabled) => setEnabled(id, enabled)} />
+            <Switch radius="full" checked={gallery.groups.some((group) => group.id === id) || pending.includes(id)} onCheckedChange={(enabled) => setEnabled(id, enabled)} />
           </label>
         ))}
       </div>
+      {pending.length ? <Text size="1" color="orange">Добавьте изображение для включённых устройств или отключите их перед предпросмотром и публикацией.</Text> : null}
     </RailGroup>
   );
 }

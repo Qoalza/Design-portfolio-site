@@ -27,7 +27,7 @@ import type {
 } from "../../../src/lib/project-contract";
 import type { AdminProject, AdminSection } from "./admin-model";
 import type { FieldIssue } from "./admin-model";
-import { inline, issueFor, sectionSetting, textOf, withSectionSetting } from "./admin-model";
+import { inline, issueFor, pendingGalleryDevices, sectionSetting, textOf, withPendingGalleryDevices, withSectionSetting } from "./admin-model";
 import { Field, FrameField, ImagePreview, RichEditor, TagField } from "./admin-ui";
 
 type Upload = (file: File, context: string) => Promise<ProjectImage>;
@@ -255,6 +255,8 @@ function GalleryEditor({
   change: (value: Extract<ProjectContentBlock, { type: "gallery" }>) => void;
   upload: Upload;
 }) {
+  const [importing, setImporting] = useState<ProjectGalleryGroup["id"]>();
+  const [uploadErrors, setUploadErrors] = useState<Partial<Record<ProjectGalleryGroup["id"], string>>>({});
   const updateGroup = (id: string, value: ProjectGalleryGroup) => change({
     ...gallery,
     groups: gallery.groups.map((group) => group.id === id ? value : group),
@@ -276,25 +278,35 @@ function GalleryEditor({
           <div className="section-title">
             <Heading size="3">{group.label}</Heading>
             <label>
-              <Button asChild size="3" variant="soft"><span><PlusIcon />Добавить изображение</span></Button>
+              <Button asChild size="3" variant="soft" disabled={importing === group.id}><span>{importing === group.id ? "Загрузка…" : <><PlusIcon />Добавить изображение</>}</span></Button>
               <input
                 hidden
                 type="file"
                 accept="image/png,image/jpeg,image/gif,image/webp"
+                disabled={importing === group.id}
                 onChange={async (event) => {
                   const file = event.target.files?.[0];
                   if (!file) return;
-                  const image = await upload(file, `Галерея ${group.label}`);
-                  const item: ProjectGalleryItem = {
-                    ...image,
-                    frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 },
-                  };
-                  updateGroup(group.id, { ...group, items: [...group.items, item] });
                   event.target.value = "";
+                  setImporting(group.id);
+                  try {
+                    const image = await upload(file, `Галерея ${group.label}`);
+                    const item: ProjectGalleryItem = {
+                      ...image,
+                      frame: { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 },
+                    };
+                    updateGroup(group.id, { ...group, items: [...group.items, item] });
+                    setUploadErrors((value) => ({ ...value, [group.id]: undefined }));
+                  } catch (error) {
+                    setUploadErrors((value) => ({ ...value, [group.id]: error instanceof Error ? error.message : "Изображение не удалось загрузить. Выберите файл ещё раз." }));
+                  } finally {
+                    setImporting(undefined);
+                  }
                 }}
               />
             </label>
           </div>
+          {uploadErrors[group.id] ? <Callout.Root color="red" size="1"><Callout.Text>{uploadErrors[group.id]}</Callout.Text></Callout.Root> : null}
           <ol className="gallery-list">
             {group.items.map((item, index) => (
               <li key={`${item.src}-${index}`}>
@@ -333,11 +345,26 @@ export function PageEditor({
   const sections = project.content.filter((block): block is AdminSection => block.type === "section");
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
     ?? { type: "gallery", title: "Галерея", description: "Интерфейсы проекта", groups: [] };
-  const galleryChange = (value: Extract<ProjectContentBlock, { type: "gallery" }>) => update({
-    content: project.content.some((block) => block.type === "gallery")
-      ? project.content.map((block) => block.type === "gallery" ? value : block)
-      : [...project.content, value],
-  });
+  const pending = pendingGalleryDevices(project);
+  const galleryForEditing = {
+    ...gallery,
+    groups: [...gallery.groups, ...pending
+      .filter((id) => !gallery.groups.some((group) => group.id === id))
+      .map((id) => ({ ...groupDefaults[id], items: [] }))],
+  };
+  const galleryChange = (value: Extract<ProjectContentBlock, { type: "gallery" }>) => {
+    const resolvedPending = pending.filter((id) => !value.groups.some((group) => group.id === id && group.items.length > 0));
+    const publicGroups = value.groups.filter((group) => !resolvedPending.includes(group.id));
+    const nextProject = withPendingGalleryDevices({
+      ...project,
+      content: publicGroups.length === 0
+        ? project.content.filter((block) => block.type !== "gallery")
+        : project.content.some((block) => block.type === "gallery")
+          ? project.content.map((block) => block.type === "gallery" ? { ...value, groups: publicGroups } : block)
+          : [...project.content, { ...value, groups: publicGroups }],
+    }, resolvedPending);
+    update(nextProject);
+  };
   return (
     <div className="editor-stack">
       <section className="editor-section frame-editor-section">
@@ -405,7 +432,7 @@ export function PageEditor({
           requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="content.${adminId}.heading"] input`)?.focus());
         }}
       ><PlusIcon />Добавить секцию</Button>
-      <GalleryEditor gallery={gallery} change={galleryChange} upload={upload} />
+      <GalleryEditor gallery={galleryForEditing} change={galleryChange} upload={upload} />
     </div>
   );
 }

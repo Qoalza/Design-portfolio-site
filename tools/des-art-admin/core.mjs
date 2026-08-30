@@ -360,6 +360,7 @@ export class AdminStore {
     for (const name of names) {
       const draft = parseAdminDraft(await readFile(path.join(this.draftRoot, name), "utf8"), name);
       const validation = draftValidation(draft);
+      const hasPendingGalleryDevices = (draft.admin?.gallery?.pendingDeviceIds?.length ?? 0) > 0;
       let changed = false;
       let globalChanged = false;
       const canonical = published.get(draft.slug);
@@ -369,7 +370,7 @@ export class AdminStore {
       if (canonical) {
         let canonicalComparable = canonical;
         try { canonicalComparable = compileAdminDraft(createAdminDraft(canonical)); } catch { /* canonical is already validated */ }
-        changed = JSON.stringify(semanticValue(withoutGlobalPlacement(comparable))) !== JSON.stringify(semanticValue(withoutGlobalPlacement(canonicalComparable)));
+        changed = hasPendingGalleryDevices || JSON.stringify(semanticValue(withoutGlobalPlacement(comparable))) !== JSON.stringify(semanticValue(withoutGlobalPlacement(canonicalComparable)));
         globalChanged = !canonical
           || comparable.catalogOrder !== canonical.catalogOrder
           || comparable.featuredOnHome !== canonical.featuredOnHome

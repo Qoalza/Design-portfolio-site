@@ -1,6 +1,6 @@
 import { DragHandleDots2Icon, PlusIcon } from "@radix-ui/react-icons";
 import { Badge, Button, Heading, IconButton, Text, TextField } from "@radix-ui/themes";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ProjectVisibility } from "../../../src/lib/project-contract";
 import type { AdminProject, ChangeInventory } from "./admin-model";
 
@@ -55,6 +55,14 @@ export function ProjectNavigation({
     .sort((first, second) => filter === "published" ? first.catalogOrder - second.catalogOrder : second.year - first.year)
     .filter((item) => item.title.toLowerCase().includes(search.toLowerCase()));
   const [dragged, setDragged] = useState<string>();
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const selectFilter = (value: ProjectFilter) => {
+    setFilter(value);
+    requestAnimationFrame(() => tabsRef.current?.querySelector<HTMLElement>(`[data-filter="${value}"]`)?.scrollIntoView({ block: "nearest", inline: "nearest" }));
+  };
+  useEffect(() => {
+    tabsRef.current?.querySelector<HTMLElement>(`[data-filter="${filter}"]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [filter]);
   return (
     <aside className="project-nav">
       <div className="nav-heading">
@@ -64,9 +72,25 @@ export function ProjectNavigation({
         </div>
         <IconButton size="3" variant="soft" aria-label="Новый проект" onClick={create}><PlusIcon /></IconButton>
       </div>
-      <div className="nav-tabs" role="tablist">
+      <div
+        ref={tabsRef}
+        className="nav-tabs"
+        role="tablist"
+        tabIndex={0}
+        onWheel={(event) => {
+          const element = event.currentTarget;
+          if (element.scrollWidth <= element.clientWidth || event.deltaY === 0) return;
+          element.scrollLeft += event.deltaY;
+          event.preventDefault();
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+          event.currentTarget.scrollBy({ left: event.key === "ArrowLeft" ? -120 : 120, behavior: "smooth" });
+          event.preventDefault();
+        }}
+      >
         {(Object.keys(filterLabels) as ProjectFilter[]).map((item) => (
-          <button role="tab" key={item} aria-selected={filter === item} onClick={() => setFilter(item)}>
+          <button role="tab" key={item} data-filter={item} aria-selected={filter === item} onClick={() => selectFilter(item)}>
             {filterLabels[item]} <span>{counts[item]}</span>
           </button>
         ))}
@@ -94,8 +118,8 @@ export function ProjectNavigation({
               <button onClick={() => open(project.slug)}>
                 <span>{project.title}</span>
                 <small>
-                  <Badge color={project.visibility === "published" ? "green" : project.visibility === "deleted" ? "red" : "gray"}>
-                    {labels[project.visibility]}
+                  <Badge color={project.visibility === "published" ? inventory.projects.some((item) => item.slug === project.slug) ? "orange" : "green" : project.visibility === "deleted" ? "red" : "gray"}>
+                    {project.visibility === "published" && inventory.projects.some((item) => item.slug === project.slug) ? "Есть изменения" : labels[project.visibility]}
                   </Badge>
                   {project.year}
                 </small>

@@ -209,6 +209,16 @@ export function compileAdminDraft(value) {
       });
     }
   }
+  const pendingDevices = draft.admin?.gallery?.pendingDeviceIds ?? [];
+  if (pendingDevices.length) {
+    issues.push({
+      field: "admin.gallery",
+      label: "Галерея",
+      title: "Галерея ещё не подготовлена",
+      tab: "page",
+      message: "Добавьте изображение для включённого устройства или отключите устройство.",
+    });
+  }
   if (issues.length) throw new DraftValidationError(issues);
   const publicValue = clone(draft);
   delete publicValue.admin;
