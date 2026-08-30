@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { closeSync, openSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import http from "node:http";
@@ -19,6 +19,11 @@ const port = Number(process.env.DES_ART_ADMIN_PORT ?? 41731);
 const previewPort = Number(process.env.DES_ART_PREVIEW_PORT ?? 41732);
 const publishMode = process.env.DES_ART_ADMIN_PUBLISH_MODE === "live" ? "live" : "sandbox";
 const csrfToken = randomBytes(32).toString("hex");
+const adminAssetVersion = createHash("sha256")
+  .update(await readFile(path.join(directory, "public", "admin.js")))
+  .update(await readFile(path.join(directory, "public", "admin.css")))
+  .digest("hex")
+  .slice(0, 12);
 const store = new AdminStore({
   contentRoot: path.join(repoRoot, "content", "projects"),
   assetRoot: path.join(repoRoot, "public", "assets", "projects"),
@@ -116,7 +121,11 @@ async function handler(request, response) {
     if (request.method === "GET" && url.pathname === "/") {
       const template = await readFile(path.join(directory, "public", "index.html"), "utf8");
       response.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
-      response.end(template.replaceAll("__CSRF_TOKEN__", csrfToken).replaceAll("__PREVIEW_PORT__", String(previewPort)).replaceAll("__PUBLISH_MODE__", publishMode));
+      response.end(template
+        .replaceAll("__CSRF_TOKEN__", csrfToken)
+        .replaceAll("__PREVIEW_PORT__", String(previewPort))
+        .replaceAll("__PUBLISH_MODE__", publishMode)
+        .replaceAll("__ADMIN_ASSET_VERSION__", adminAssetVersion));
       return;
     }
     if (request.method === "GET" && url.pathname === "/admin.css") return staticFile(response, "admin.css", "text/css; charset=utf-8");
