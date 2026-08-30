@@ -30,13 +30,15 @@ async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
     ...options,
     headers: { "content-type": "application/json", "x-des-art-csrf": csrf, ...options.headers },
   });
-  const value = await response.json() as T & { error?: string; issues?: FieldIssue[] };
-  if (!response.ok) throw new ApiError(value.error || "Не удалось выполнить действие.", value.issues ?? []);
+  const value = await response.json() as T & { errorTitle?: string; error?: string; issues?: FieldIssue[] };
+  if (!response.ok) throw new ApiError(value.errorTitle || "Действие не выполнено", value.error || "Причину не удалось определить автоматически. Требуется ручная диагностика разработчиком.", value.issues ?? []);
   return value;
 }
 
 function safeMessage(error: unknown): string {
-  return error instanceof ApiError ? error.message : "Не удалось выполнить действие. Повторите попытку.";
+  return error instanceof ApiError
+    ? `${error.title}. ${error.message}`
+    : "Действие не выполнено. Причину не удалось определить автоматически; требуется ручная диагностика разработчиком.";
 }
 
 function App() {
@@ -149,11 +151,11 @@ function App() {
   };
 
   const upload = async (file: File, context: string) => {
-    if (!current) throw new ApiError("Сначала выберите проект.");
+    if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите загрузку.");
     const data = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result).split(",")[1]);
-      reader.onerror = () => reject(new ApiError("Не удалось прочитать изображение."));
+      reader.onerror = () => reject(new ApiError("Изображение не удалось открыть", "Выберите файл ещё раз. Если ошибка повторится, экспортируйте изображение заново и загрузите новую копию."));
       reader.readAsDataURL(file);
     });
     return api<ProjectImage>(`/api/projects/${current.slug}/upload`, {
@@ -162,12 +164,12 @@ function App() {
     });
   };
   const uploadLogo = async (file: File) => {
-    if (!current) throw new ApiError("Сначала выберите проект.");
-    const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = () => reject(new ApiError("Не удалось прочитать SVG.")); reader.readAsDataURL(file); });
+    if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите загрузку.");
+    const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = () => reject(new ApiError("SVG не удалось открыть", "Выберите файл ещё раз. Если ошибка повторится, экспортируйте SVG заново и загрузите новую копию.")); reader.readAsDataURL(file); });
     return api<AdminProject["logo"]>(`/api/projects/${current.slug}/logo`, { method: "POST", body: JSON.stringify({ name: file.name, data }) });
   };
   const importFrame = async (slot: "catalog" | "hero" | "interactive", url: string, sectionId?: string) => {
-    if (!current) throw new ApiError("Сначала выберите проект.");
+    if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите действие.");
     await flush();
     const result = await api<{ project: AdminProject }>(`/api/projects/${current.slug}/frame`, { method: "POST", body: JSON.stringify({ slot, url, sectionId }) });
     setCurrent(result.project);

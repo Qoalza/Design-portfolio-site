@@ -11,25 +11,35 @@ import {
 import { readAllProjectDocuments, writeProjectDocument } from "../../src/lib/projects.ts";
 import { compileAdminDraft, createAdminDraft, draftValidation, parseAdminDraft } from "./draft-contract.mjs";
 import { importFigmaFrame } from "./figma-frame.mjs";
+import { UserFacingError } from "./human-errors.mjs";
 
 const requireRead = (file) => readFileSync(file, "utf8");
 
 export function humanFigmaImportError(error) {
   const message = error instanceof Error ? error.message : String(error);
   if (/отклонила токен|доступ к файлу/i.test(message)) {
-    return "Figma не дала доступ к этому Frame. Проверьте подключение Figma и доступ к файлу — предыдущая версия изображения сохранена.";
+    return { title: "Figma не дала доступ к Frame", message: "Проверьте, что подключённый токен действует и у него есть доступ к этому Figma-файлу. Предыдущая рабочая версия изображения сохранена." };
   }
-  if (/больше не найден|node-id|ссылк/i.test(message)) {
-    return "Не удалось найти Frame по этой ссылке. Проверьте ссылку — предыдущая версия изображения сохранена.";
+  if (/больше не найден|Frame Figma не найден/i.test(message)) {
+    return { title: "Figma Frame не найден", message: "Frame или сам файл удалён, перемещён без доступа либо ссылка ведёт на старый node-id. Скопируйте новую ссылку на существующий Frame. Предыдущая рабочая версия сохранена." };
   }
-  const layer = /(?:Слой|элемент) «([^»]+)»/i.exec(message)?.[1];
+  if (/корректную ссылку|должна вести|ключ файла|node-id/i.test(message)) {
+    return { title: "Ссылка не ведёт на конкретный Figma Frame", message: "Скопируйте ссылку именно на выбранный Frame в Figma и вставьте её целиком. Предыдущая рабочая версия изображения сохранена." };
+  }
+  const layer = /(?:Слой|Эффект слоя|элемент) «([^»]+)»/i.exec(message)?.[1];
   if (layer) {
-    return `Не удалось без потерь подготовить элемент «${layer}». Предыдущая версия изображения сохранена; проверьте этот элемент во Frame и повторите импорт.`;
+    if (/эффект, отличный от тени/i.test(message)) return { title: `Элемент «${layer}» содержит неподдерживаемый эффект`, message: "Импортёр сохраняет тени, но не может точно воспроизвести этот эффект. Запеките эффект в готовый PNG внутри Frame и обновите импорт. Предыдущая рабочая версия сохранена." };
+    if (/fill|залив/i.test(message)) return { title: `Элемент «${layer}» содержит неподдерживаемую заливку`, message: "Экспортируйте этот элемент как готовый PNG внутри того же Frame и обновите импорт. Положение и constraints PNG будут взяты из Figma; предыдущая рабочая версия сохранена." };
+    if (/радиус|corner smoothing/i.test(message)) return { title: `Элемент «${layer}» содержит неподдерживаемое оформление углов`, message: "Экспортируйте элемент вместе с обводкой и скруглениями как готовый PNG, замените им исходный слой во Frame и обновите импорт." };
+    if (/Auto Layout/i.test(message)) return { title: `Элемент «${layer}» использует неподдерживаемый режим Auto Layout`, message: "Поместите визуальное содержимое этого элемента в готовый PNG, сохранив его положение во Frame, и обновите импорт." };
+    if (/геометри/i.test(message)) return { title: `У элемента «${layer}» нет корректного размера`, message: "Задайте элементу ненулевую ширину и высоту во Frame либо удалите пустой элемент, затем обновите импорт." };
+    if (/не вернула|не смогла экспортировать|Не удалось скачать/i.test(message)) return { title: `Элемент «${layer}» не удалось получить из Figma`, message: "Figma не предоставила файл этого элемента. Проверьте доступ к исходному изображению и повторите импорт; если ошибка останется, потребуется ручная диагностика разработчиком." };
+    return { title: `Элемент «${layer}» не удалось импортировать`, message: "Причину не удалось определить автоматически. Предыдущая рабочая версия сохранена; требуется ручная диагностика разработчиком." };
   }
   if (/временно ограничила запросы/i.test(message)) {
-    return "Figma временно ограничила загрузку. Подождите немного и повторите — предыдущая версия изображения сохранена.";
+    return { title: "Figma временно ограничила загрузку", message: "Подождите несколько минут и повторите импорт. Предыдущая рабочая версия изображения сохранена." };
   }
-  return "Не удалось обновить изображение из Figma. Проверьте ссылку и подключение Figma — предыдущая версия изображения сохранена.";
+  return { title: "Figma Frame не удалось импортировать", message: "Причину не удалось определить автоматически. Предыдущая рабочая версия изображения сохранена; требуется ручная диагностика разработчиком." };
 }
 
 function semanticValue(value) {
@@ -448,7 +458,8 @@ export class AdminStore {
     try {
       composition = await importFigmaFrame({ url, slug, slot: sectionId ? `${slot}-${sectionId}` : slot, assetRoot: this.draftAssetRoot });
     } catch (error) {
-      throw new Error(humanFigmaImportError(error));
+      const explanation = humanFigmaImportError(error);
+      throw new UserFacingError(explanation.title, explanation.message, { cause: error });
     }
     let next;
     if (slot === 'catalog') next = { ...project, catalogFrame: composition };

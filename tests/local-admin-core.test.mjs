@@ -14,14 +14,32 @@ import {
   safeUploadName,
   validateLocalRequest,
 } from "../tools/des-art-admin/core.mjs";
+import { humanError, UserFacingError } from "../tools/des-art-admin/human-errors.mjs";
 
 test("Figma import failures are explained without internal contract paths", () => {
   const layerMessage = humanFigmaImportError(new Error("Слой «Controls» использует неподдерживаемый fill GRADIENT_LINEAR."));
-  assert.match(layerMessage, /элемент «Controls»/i);
-  assert.doesNotMatch(layerMessage, /GRADIENT_LINEAR|catalogFrame|nodes\[/);
+  assert.match(layerMessage.title, /элемент «Controls»/i);
+  assert.match(layerMessage.message, /PNG/i);
+  assert.doesNotMatch(`${layerMessage.title} ${layerMessage.message}`, /GRADIENT_LINEAR|catalogFrame|nodes\[/);
 
   const linkMessage = humanFigmaImportError(new Error("Figma Frame больше не найден по node-id."));
-  assert.match(linkMessage, /не удалось найти Frame по этой ссылке/i);
+  assert.match(linkMessage.title, /Frame не найден/i);
+  assert.match(linkMessage.message, /новую ссылку/i);
+
+  const unknown = humanFigmaImportError(new Error("vendor failure 917"));
+  assert.match(unknown.message, /ручная диагностика разработчиком/i);
+  assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /917/);
+});
+
+test("user-facing errors keep known causes actionable and hide unknown diagnostics", () => {
+  assert.deepEqual(humanError(new UserFacingError("Главное изображение не обновлено", "Скопируйте новую ссылку на Frame.")), {
+    title: "Главное изображение не обновлено",
+    message: "Скопируйте новую ссылку на Frame.",
+    status: 400,
+  });
+  const unknown = humanError(new Error("catalogFrame.nodes[0].layout.gap exploded"));
+  assert.match(unknown.message, /ручная диагностика разработчиком/i);
+  assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /catalogFrame|layout\.gap/);
 });
 
 test("project slugs are readable, Unicode-safe and collision resistant", async () => {

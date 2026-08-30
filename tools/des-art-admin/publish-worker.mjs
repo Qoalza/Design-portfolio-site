@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { compileAdminDraft, parseAdminDraft } from "./draft-contract.mjs";
+import { humanError } from "./human-errors.mjs";
 
 const exec = promisify(execFile);
 export const PUBLISH_STAGES = [
@@ -202,9 +203,12 @@ export async function runPublishJob(jobFile) {
     }
     await update(jobFile, job, { status: "complete", currentStage: undefined, message: job.mode === "live" ? "Изменения опубликованы на art-des.ru" : "Локальная репетиция завершена" });
   } catch (error) {
+    const explanation = humanError(error);
+    const stageLabel = PUBLISH_STAGES.find(([stageId]) => stageId === job.currentStage)?.[1];
     await update(jobFile, job, {
       status: "failed",
-      error: error instanceof Error ? error.message : String(error),
+      errorTitle: stageLabel ? `Не удалось завершить этап «${stageLabel}»` : explanation.title,
+      error: explanation.message,
       productionState: job.productionState === "main-updated" ? "main-updated-deploy-failed" : "unchanged",
     });
   } finally {

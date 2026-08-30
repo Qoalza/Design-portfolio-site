@@ -29,7 +29,7 @@ export function ConfirmDialog({ open, title, description, confirmLabel, danger, 
 export function IssueDialog({ open, title, issues, close, navigate }: { open: boolean; title: string; issues: FieldIssue[]; close: () => void; navigate: (issue: FieldIssue) => void }) {
   return <Dialog.Root open={open} onOpenChange={(value) => { if (!value) close(); }}><Dialog.Content maxWidth="620px">
     <Dialog.Title>{title}</Dialog.Title><Dialog.Description>Исправьте отмеченные поля — после этого предпросмотр и публикация станут доступны.</Dialog.Description>
-    <div className="issue-list">{issues.map((issue, index) => <button key={`${issue.projectSlug ?? "current"}-${issue.field}-${index}`} onClick={() => navigate(issue)}><strong>{issue.projectTitle ? `${issue.projectTitle} · ` : ""}{issue.label ?? "Поле"}</strong><span>{issue.message}</span></button>)}</div>
+    <div className="issue-list">{issues.map((issue, index) => <button key={`${issue.projectSlug ?? "current"}-${issue.field}-${index}`} onClick={() => navigate(issue)}><strong>{issue.projectTitle ? `${issue.projectTitle} · ` : ""}{issue.title ?? issue.label ?? "Не удалось проверить поле"}</strong><span>{issue.message}</span></button>)}</div>
     <Flex justify="end" mt="4"><Button size="3" onClick={close}>Понятно</Button></Flex>
   </Dialog.Content></Dialog.Root>;
 }
@@ -130,7 +130,7 @@ export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; m
           ) : (
             <ExclamationTriangleIcon />
           )}
-          <Heading size="5">{job.status === "failed" ? "Публикация остановлена" : job.message}</Heading>
+          <Heading size="5">{job.status === "failed" ? job.errorTitle ?? "Публикация остановлена" : job.message}</Heading>
           {job.error ? (
             <Text color="red">{job.error}</Text>
           ) : (

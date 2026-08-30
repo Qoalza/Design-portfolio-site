@@ -59,7 +59,8 @@ test("admin draft persists an incomplete required Figma URL", () => {
     () => compileAdminDraft(draft),
     (error) => error instanceof DraftValidationError
       && error.issues[0]?.field === "materials.figmaUrl"
-      && error.issues[0]?.message === "Укажите ссылку на Figma.",
+      && error.issues[0]?.title === "Не указана ссылка на файл проекта"
+      && error.issues[0]?.message === "Вы выбрали состояние «Файл доступен». Вставьте ссылку на Figma или измените состояние файла.",
   );
 });
 
@@ -127,7 +128,8 @@ test("pending interactive frame stays in the draft and blocks preview or publish
     () => compileAdminDraft(draft),
     (error) => error instanceof DraftValidationError
       && error.issues[0]?.field === `admin.sections.${section.adminId}.interactive`
-      && error.issues[0]?.message === "Интерактивный экран ещё не подготовлен.",
+      && error.issues[0]?.title === "Интерактивный экран ещё не подготовлен"
+      && error.issues[0]?.message.includes("дождитесь успешного импорта"),
   );
 });
 
@@ -162,8 +164,29 @@ test("frame contract errors are translated into human asset instructions", () =>
   assert.deepEqual(validation.issues[0], {
     field: "catalogFrame",
     label: "Обложка карточки",
+    title: "Обложку карточки не удалось подготовить",
     tab: "card",
-    message: "Импортированная обложка повреждена. Обновите Frame по ссылке ещё раз.",
+    message: "У группы «Frame» некорректно задано расстояние между элементами. Укажите в Figma числовое значение gap не меньше 0 и обновите Frame.",
   });
   assert.equal(validation.issues[0].message.includes("catalogFrame"), false);
+});
+
+test("unknown frame contract errors request manual diagnosis instead of inventing a cause", () => {
+  const draft = createAdminDraft(project({
+    catalogFrame: {
+      source: { url: "https://www.figma.com/design/key/file?node-id=1-2", fileKey: "key", nodeId: "1:2", version: "1" },
+      width: 1200,
+      height: 800,
+      clip: true,
+      radius: 24,
+      background: "#ffffff",
+      nodes: [],
+      unexpected: true,
+    },
+  }));
+
+  const validation = draftValidation(draft);
+  assert.equal(validation.valid, false);
+  assert.equal(validation.issues[0].title, "Обложку карточки не удалось подготовить");
+  assert.equal(validation.issues[0].message, "Причину не удалось определить автоматически. Предыдущая рабочая версия сохранена; требуется ручная диагностика разработчиком.");
 });
