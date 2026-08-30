@@ -317,8 +317,8 @@ body { background: #fbfaf8; }
 .asset-field > .rt-Flex .rt-IconButton { width: 40px; padding: 0; }
 .frame-field { display: grid; gap: 14px; }
 .frame-preview-button { display: block; container-type: inline-size; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: zoom-in; }
-.frame-field-cover .frame-preview-button { display: grid; width: min(320px, 100%); aspect-ratio: 1; place-items: center; overflow: hidden; }
-.frame-field-cover .frame-preview { max-width: 100%; max-height: 100%; overflow: hidden; }
+.frame-field-cover .frame-preview-button { display: grid; width: min(320px, 100%); aspect-ratio: 1; place-items: center; overflow: visible; }
+.frame-field-cover .frame-preview { max-width: 100%; max-height: 100%; }
 .frame-preview { position: relative; container-type: size; width: 100%; overflow: hidden; }
 .frame-preview-large { max-height: 72vh; margin-top: 16px; }
 .frame-node-preview { transform-origin: center; }

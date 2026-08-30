@@ -24,6 +24,7 @@ import {
 } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
 import type { ProjectFrameComposition, ProjectFrameNode, ProjectImage, ProjectInlineContent, ProjectSectionBlock, ProjectTextMark } from "../../../src/lib/project-contract";
+import { hasVisibleFrameFill } from "../../../src/lib/project-frame-visibility";
 import { ApiError, formatTagInput, parseTagInput } from "./admin-model";
 
 export function Field({
@@ -165,10 +166,11 @@ function frameEffectStyle(effects: ProjectFrameNode["effects"], root: { width: n
   return { shadows, filter: filters.length ? filters.join(" ") : undefined, backdropFilter };
 }
 
-function frameCompositionStyle(composition: ProjectFrameComposition, aspectRatio: string): React.CSSProperties {
+function frameCompositionStyle(composition: ProjectFrameComposition, aspectRatio: string, clipToFill = false): React.CSSProperties {
   const visualEffects = frameEffectStyle(composition.effects, composition);
   return {
     aspectRatio,
+    overflow: clipToFill ? hasVisibleFrameFill(composition) ? "hidden" : "visible" : composition.clip ? "hidden" : "visible",
     background: composition.background,
     borderRadius: frameRootWidthUnit(composition.radius, composition.width),
     boxShadow: [frameStrokeShadow(composition.stroke, composition.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
@@ -275,12 +277,12 @@ export function FrameField({ title, description, composition, source, required, 
   };
   const previewAspect = composition ? `${composition.width}/${composition.height}` : undefined;
   const coverPreviewStyle = composition && previewVariant === "cover" ? {
-    ...frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`),
+    ...frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`, true),
     ...(composition.width >= composition.height ? { width: "100%", height: "auto" } : { width: "auto", height: "100%" }),
   } : composition ? frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`) : undefined;
   return <div className={`frame-field frame-field-${previewVariant}${error ? " frame-field-error" : ""}`}>
     <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
-    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={coverPreviewStyle}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={frameCompositionStyle(composition, `${composition.width}/${composition.height}`)}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
+    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={coverPreviewStyle}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={frameCompositionStyle(composition, `${composition.width}/${composition.height}`, previewVariant === "cover")}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
     <div className="frame-source"><TextField.Root size="3" value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button size="3" variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
     {busy ? <span className="frame-import-status" role="status">Получаем структуру Frame и сохраняем ассеты…</span> : null}
     {error ? <span className="frame-field-message field-error" role="alert"><strong>{error.title}</strong><span>{error.message}</span></span> : <span className="field-help">Production использует локальный snapshot и не зависит от Figma после публикации.</span>}

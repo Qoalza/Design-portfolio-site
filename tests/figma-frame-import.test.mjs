@@ -51,6 +51,7 @@ test("frame import snapshots each direct visual unit as a separate 2x raster and
     throw new Error(`Unexpected ${url}`);
   };
   const manifest = await importFigmaFrame({ url: "https://www.figma.com/design/file/Preview?node-id=1-2", token: "test-token", slug: "demo", slot: "hero", assetRoot: root, fetchImpl });
+  assert.equal(manifest.hasVisualFill, true, "a visible root Fill must be preserved as the card clipping boundary");
   assert.equal(manifest.nodes[0].name, "Preview background");
   assert.equal(manifest.stroke, undefined, "frame borders are supplied by the ready PNG layers");
   assert.deepEqual(manifest.effects, [{ type: "drop-shadow", color: "#00000040", offsetX: 0, offsetY: 8, blur: 16, spread: 2 }]);

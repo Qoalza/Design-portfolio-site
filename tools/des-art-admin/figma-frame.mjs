@@ -280,9 +280,10 @@ export async function importFigmaFrame({ url, token, slug, slot, assetRoot, fetc
       constraints: { horizontal: "STRETCH", vertical: "STRETCH" }, clip: true,
       asset: assets.get(root.id),
     } : undefined;
+    const hasVisualFill = Boolean(root.fills?.some((paint) => paint.visible !== false && (paint.opacity ?? 1) > 0));
     const manifest = {
       source: { url, fileKey, nodeId, version }, width: rootBox.width, height: rootBox.height,
-      clip: Boolean(root.clipsContent), radius: root.cornerRadius ?? 0, background: rgba(root.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ?? "transparent",
+      clip: Boolean(root.clipsContent), radius: root.cornerRadius ?? 0, background: rgba(root.fills?.find((paint) => paint.visible !== false && paint.type === "SOLID")) ?? "transparent", hasVisualFill,
       ...(effects(root).length ? { effects: effects(root) } : {}),
       ...(blendMode(root) ? { blendMode: blendMode(root) } : {}),
       nodes: [...(rootBackground ? [rootBackground] : []), ...visualUnits.map((child) => relativeNode(child, rootBox, assets, new Set(unitIds)))],

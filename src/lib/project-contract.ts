@@ -81,6 +81,7 @@ export type ProjectFrameComposition = {
   clip: boolean;
   radius: number;
   background: string;
+  hasVisualFill?: boolean;
   stroke?: ProjectFrameStroke;
   effects?: ProjectFrameEffect[];
   blendMode?: string;
@@ -430,13 +431,14 @@ function finiteSignedNumber(value: unknown, location: string): number {
 
 function frameComposition(value: unknown, location: string): ProjectFrameComposition {
   const input = record(value, location);
-  exactKeys(input, ["source", "width", "height", "clip", "radius", "background", "stroke", "effects", "blendMode", "nodes", "preview"], location);
+  exactKeys(input, ["source", "width", "height", "clip", "radius", "background", "hasVisualFill", "stroke", "effects", "blendMode", "nodes", "preview"], location);
   const source = record(input.source, `${location}.source`);
   exactKeys(source, ["url", "fileKey", "nodeId", "version"], `${location}.source`);
   if (!Array.isArray(input.nodes)) throw new Error(`${location}.nodes must be an array.`);
   return {
     source: { url: externalUrl(source.url, `${location}.source.url`), fileKey: string(source.fileKey, `${location}.source.fileKey`), nodeId: string(source.nodeId, `${location}.source.nodeId`), version: string(source.version, `${location}.source.version`) },
     width: finiteNumber(input.width, `${location}.width`, 1), height: finiteNumber(input.height, `${location}.height`, 1), clip: boolean(input.clip, `${location}.clip`), radius: finiteNumber(input.radius, `${location}.radius`), background: string(input.background, `${location}.background`, true),
+    ...optionalProperty("hasVisualFill", input.hasVisualFill === undefined ? undefined : boolean(input.hasVisualFill, `${location}.hasVisualFill`)),
     ...optionalProperty("stroke", frameStroke(input.stroke, `${location}.stroke`)),
     ...optionalProperty("effects", frameEffects(input.effects, `${location}.effects`)),
     ...optionalProperty("blendMode", input.blendMode === undefined ? undefined : string(input.blendMode, `${location}.blendMode`)),
