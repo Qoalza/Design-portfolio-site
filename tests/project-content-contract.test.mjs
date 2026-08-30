@@ -142,6 +142,32 @@ test("structured Figma compositions preserve containers, constraints and leaf fo
   assert.equal(parsed.catalogFrame.blendMode, "multiply");
 });
 
+test("structured Figma compositions allow children outside a clipped frame", () => {
+  const project = structuredClone(validProject);
+  project.heroFrame = {
+    source: { url: "https://www.figma.com/design/key/name?node-id=1-2", fileKey: "key", nodeId: "1:2", version: "7" },
+    width: 1200,
+    height: 800,
+    clip: true,
+    radius: 12,
+    background: "#ffffff",
+    nodes: [{
+      id: "2:3", name: "Decorative background", type: "asset",
+      x: -262, y: -311, width: 618, height: 618,
+      opacity: 1, rotation: 0,
+      constraints: { horizontal: "MIN", vertical: "MIN" },
+      asset: { src: "/assets/projects/test-project/frames/background.png", format: "raster", fit: "contain" },
+    }],
+  };
+
+  const parsed = validateProjectDocument(project);
+  assert.equal(parsed.heroFrame.nodes[0].x, -262);
+  assert.equal(parsed.heroFrame.nodes[0].y, -311);
+  assert.equal(parsed.heroFrame.clip, true);
+  assert.equal(parsed.heroFrame.width, 1200);
+  assert.equal(parsed.heroFrame.height, 800);
+});
+
 test("visual editor marks preserve combined formatting without markup text", () => {
   const project = structuredClone(validProject);
   project.content[0].blocks[0].content = [{

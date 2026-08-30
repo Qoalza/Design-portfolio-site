@@ -32,6 +32,7 @@ export type AdminContentBlock = AdminSection | Extract<ProjectContentBlock, { ty
 export type FieldIssue = {
   field: string;
   label?: string;
+  title?: string;
   tab?: "card" | "page";
   sectionId?: string;
   projectSlug?: string;
@@ -45,6 +46,7 @@ export type PublishJob = {
   id: string;
   status: "queued" | "running" | "complete" | "failed";
   message: string;
+  errorTitle?: string;
   error?: string;
   currentStage?: string;
   productionState?: "unchanged" | "main-updated" | "main-updated-deploy-failed";
@@ -54,11 +56,13 @@ export type PublishJob = {
 };
 
 export class ApiError extends Error {
+  title: string;
   issues: FieldIssue[];
 
-  constructor(message: string, issues: FieldIssue[] = []) {
+  constructor(title: string, message: string, issues: FieldIssue[] = []) {
     super(message);
     this.name = "ApiError";
+    this.title = title;
     this.issues = issues;
   }
 }

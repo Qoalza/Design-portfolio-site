@@ -8,6 +8,7 @@ import { spawn } from "node:child_process";
 
 import { AdminStore, validateLocalRequest } from "./core.mjs";
 import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
+import { humanError } from "./human-errors.mjs";
 import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
 import { readFigmaToken, saveFigmaToken } from "./figma-frame.mjs";
 
@@ -35,6 +36,8 @@ const imageTypes = new Map([
   [".webp", "image/webp"],
   [".svg", "image/svg+xml"],
 ]);
+
+const userError = (response, status, title, message) => json(response, status, { errorTitle: title, error: message });
 
 function reachable(targetPort) {
   return new Promise((resolve) => {
@@ -123,7 +126,7 @@ async function handler(request, response) {
       const fileName = segments.slice(3).map(decodeURIComponent).join("/");
       const source = await store.readImage(slug, fileName);
       const type = imageTypes.get(path.extname(fileName).toLowerCase());
-      if (!type) return json(response, 415, { error: "Неподдерживаемый формат изображения." });
+      if (!type) return userError(response, 415, "Изображение не удалось открыть", "Формат этого файла не поддерживается. Используйте PNG, JPG, GIF, WebP или SVG в предусмотренном поле.");
       response.writeHead(200, { "content-type": type, "cache-control": "no-store" });
       response.end(source);
       return;
@@ -167,14 +170,14 @@ async function handler(request, response) {
     if (request.method === "POST" && url.pathname === "/api/publish/start") {
       const value = await body(request);
       const readiness = await publishReadiness({ supportRoot, mode: publishMode });
-      if (!readiness.ready) return json(response, 409, { error: readiness.failures.join(". ") });
-      if (value.scope !== "project" && value.scope !== "all") return json(response, 400, { error: "Неизвестная область публикации." });
+      if (!readiness.ready) return userError(response, 409, "Публикацию нельзя запустить", "Окружение публикации не настроено полностью. Требуется ручная диагностика разработчиком перед повторным запуском.");
+      if (value.scope !== "project" && value.scope !== "all") return userError(response, 400, "Не удалось определить состав публикации", "Админка не поняла, нужно опубликовать один проект или все изменения. Закройте окно публикации и запустите нужное действие заново.");
       await store.ensureSnapshotBaseline();
       const all = await store.listProjects();
       const inventory = await store.getChangeInventory();
       const selectedSlugs = value.scope === "project" ? [value.slug] : inventory.changedSlugs;
       const selected = all.filter((project) => selectedSlugs.includes(project.slug));
-      if (value.scope === "project" && selected.length !== 1) return json(response, 404, { error: "Проект для публикации не найден." });
+      if (value.scope === "project" && selected.length !== 1) return userError(response, 404, "Проект для публикации не найден", "Обновите список проектов, снова откройте нужный проект и повторите публикацию.");
       const invalid = selected.map((project) => ({ project, validation: draftValidation(project) })).filter((item) => !item.validation.valid);
       if (invalid.length) {
         const issues = invalid.flatMap(({ project, validation }) => validation.issues.map((issue) => ({ ...issue, projectSlug: project.slug, projectTitle: project.title })));
@@ -250,13 +253,13 @@ async function handler(request, response) {
       }, 50);
       return;
     }
-    json(response, 404, { error: "Не найдено" });
+    userError(response, 404, "Раздел админки не найден", "Запрошенное действие больше недоступно. Обновите страницу и повторите его из текущего интерфейса.");
   } catch (error) {
     if (error instanceof DraftValidationError) {
-      return json(response, 422, { error: `Нужно исправить · ${error.issues.length}`, issues: error.issues });
+      return json(response, 422, { errorTitle: `Нужно исправить · ${error.issues.length}`, error: "Откройте проблему из списка — админка покажет конкретное поле и способ исправления.", issues: error.issues });
     }
-    const message = error instanceof Error ? error.message : "Неизвестная ошибка";
-    json(response, /Host|Origin|CSRF/.test(message) ? 403 : 400, { error: message });
+    const explanation = humanError(error);
+    json(response, explanation.status, { errorTitle: explanation.title, error: explanation.message });
   }
 }
 

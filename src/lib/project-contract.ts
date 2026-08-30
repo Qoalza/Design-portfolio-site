@@ -388,7 +388,7 @@ function frameNode(value: unknown, location: string): ProjectFrameNode {
   if (layoutAlign !== undefined && !["start", "center", "end", "stretch"].includes(layoutAlign)) throw new Error(`${location}.layoutAlign is not supported.`);
   return {
     id: string(input.id, `${location}.id`), name: string(input.name, `${location}.name`), type,
-    x: finiteNumber(input.x, `${location}.x`), y: finiteNumber(input.y, `${location}.y`), width: finiteNumber(input.width, `${location}.width`, 0), height: finiteNumber(input.height, `${location}.height`, 0),
+    x: finiteSignedNumber(input.x, `${location}.x`), y: finiteSignedNumber(input.y, `${location}.y`), width: finiteNumber(input.width, `${location}.width`, 0), height: finiteNumber(input.height, `${location}.height`, 0),
     opacity: finiteNumber(input.opacity, `${location}.opacity`), rotation: typeof input.rotation === "number" && Number.isFinite(input.rotation) ? input.rotation : 0,
     constraints: { horizontal, vertical },
     ...optionalProperty("clip", input.clip === undefined ? undefined : boolean(input.clip, `${location}.clip`)),
