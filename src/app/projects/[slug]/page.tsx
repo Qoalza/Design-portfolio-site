@@ -107,10 +107,13 @@ function ProjectContentBlockView({ block }: { block: ProjectSectionBlock }) {
 }
 
 function ProjectSectionView({ section, id }: { section: ProjectSectionContent; id: string }) {
+  const hasInteractiveBlock = section.blocks.some((block) => block.type === "image" || block.type === "frame");
+  const contentBlocks = section.blocks.filter((block) => block.type !== "divider");
   return (
     <ProjectSection>
       <h2 id={id}>{section.heading}</h2>
-      {section.blocks.map((block, index) => <ProjectContentBlockView key={`${block.type}-${index}`} block={block} />)}
+      {contentBlocks.map((block, index) => <ProjectContentBlockView key={`${block.type}-${index}`} block={block} />)}
+      {!hasInteractiveBlock ? <ProjectDivider /> : null}
     </ProjectSection>
   );
 }
