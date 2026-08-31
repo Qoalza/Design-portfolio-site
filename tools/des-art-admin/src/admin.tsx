@@ -332,7 +332,7 @@ function App() {
               <div className="editor-inner">
                 <div className="editor-title">
                   <div>
-                    <Flex align="center" gap="3"><Heading size="7">{current.title}</Heading><Badge color={current.visibility === "published" ? "green" : current.visibility === "deleted" ? "red" : "gray"}>{visibilityLabels[current.visibility]}</Badge></Flex>
+                    <Flex align="center" gap="3"><Heading size="7">{current.title}</Heading><Badge color={current.visibility === "published" ? currentChange ? "orange" : "green" : current.visibility === "deleted" ? "red" : "gray"}>{current.visibility === "published" && currentChange ? "Есть изменения" : visibilityLabels[current.visibility]}</Badge></Flex>
                     <Text size="2" color="gray">{publishMode === "live" ? "Черновик реального проекта" : "Редактирование локального черновика"}</Text>
                   </div>
                 </div>

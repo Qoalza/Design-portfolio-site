@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
-import { calculateLightboxFrame, calculateLightboxScale } from "../lib/project-lightbox";
+import { calculateLightboxMediaSize, calculateLightboxScale } from "../lib/project-lightbox";
 import { startScrollControllers, stopScrollControllers } from "../lib/scroll-controller";
 import styles from "./project-media-lightbox.module.css";
 import { SquareButton } from "./ui-controls";
@@ -60,12 +60,12 @@ export function ProjectMediaLightbox({
     "--gallery-frame-stroke": frame.strokeColor,
     "--gallery-frame-stroke-width": `${frame.strokeWidth}px`,
   } as FrameStyle;
-  const expandedFrame = calculateLightboxFrame(frame, targetScale);
-  const expandedFrameStyle = {
-    "--gallery-frame-radius": `${expandedFrame.radius}px`,
-    "--gallery-frame-stroke": frame.strokeColor,
-    "--gallery-frame-stroke-width": `${expandedFrame.strokeWidth}px`,
-  } as FrameStyle;
+  const expandedMediaSize = calculateLightboxMediaSize({
+    baseHeight,
+    baseWidth,
+    intrinsicHeight: intrinsicSize.height,
+    intrinsicWidth: intrinsicSize.width,
+  });
 
   useLayoutEffect(() => {
     const mediaArea = mediaAreaRef.current;
@@ -76,8 +76,8 @@ export function ProjectMediaLightbox({
       setTargetScale(calculateLightboxScale({
         availableHeight: rect.height,
         availableWidth: rect.width,
-        baseHeight,
-        baseWidth,
+        baseHeight: expandedMediaSize.height,
+        baseWidth: expandedMediaSize.width,
         dpr: window.devicePixelRatio || 1,
         intrinsicHeight: intrinsicSize.height,
         intrinsicWidth: intrinsicSize.width,
@@ -91,7 +91,7 @@ export function ProjectMediaLightbox({
       observer.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [baseHeight, baseWidth, intrinsicSize.height, intrinsicSize.width, isOpen]);
+  }, [expandedMediaSize.height, expandedMediaSize.width, intrinsicSize.height, intrinsicSize.width, isOpen]);
 
   const recordIntrinsicSize = (event: SyntheticEvent<HTMLImageElement>) => {
     const image = event.currentTarget;
@@ -180,14 +180,14 @@ export function ProjectMediaLightbox({
             />
             <div ref={mediaAreaRef} className={styles.mediaArea} onClick={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}>
               <div
-                className={`${styles.expandedFrame} ${styles.frame} ${frame.clip ? styles.frameClipped : ""}`}
+                className={styles.expandedFrame}
                 data-lightbox-current-src={intrinsicSize.currentSrc}
                 data-lightbox-dpr={intrinsicSize.dpr}
                 data-lightbox-natural-height={intrinsicSize.height}
                 data-lightbox-natural-width={intrinsicSize.width}
                 data-lightbox-target-scale={targetScale}
                 data-figma-node-id={sourceNodeId}
-                style={{ ...expandedFrameStyle, width: `${baseWidth * targetScale}px`, height: `${baseHeight * targetScale}px` }}
+                style={{ width: `${expandedMediaSize.width * targetScale}px`, height: `${expandedMediaSize.height * targetScale}px` }}
               >
                 <Image
                   className={styles.expandedImage}
@@ -195,7 +195,7 @@ export function ProjectMediaLightbox({
                   alt={alt}
                   width={width}
                   height={height}
-                  sizes={`${baseWidth * targetScale}px`}
+                  sizes={`${expandedMediaSize.width * targetScale}px`}
                   unoptimized
                   priority
                   onLoad={recordIntrinsicSize}

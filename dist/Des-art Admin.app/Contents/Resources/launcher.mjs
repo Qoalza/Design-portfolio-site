@@ -1,12 +1,14 @@
 import { execFile, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { closeSync, openSync } from "node:fs";
-import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+
+import { ensureProductionDataBaseline } from "./production-data-bootstrap.mjs";
 
 const exec = promisify(execFile);
 const resources = path.dirname(fileURLToPath(import.meta.url));
@@ -23,8 +25,6 @@ const managedRepo = path.join(supportRoot, "repository");
 const logsRoot = path.join(supportRoot, "logs");
 const adminPort = 41731;
 const previewPort = 41732;
-const productionBaselineVersion = 1;
-const activeWorkspaceNames = ["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs"];
 
 async function configuredPublishMode() {
   try {
@@ -49,38 +49,6 @@ async function stopService(name) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
   throw new Error(`Не удалось безопасно остановить локальный процесс ${name}.`);
-}
-
-async function ensureProductionDataBaseline(publishMode) {
-  if (publishMode !== "live") return;
-  const marker = path.join(supportRoot, "production-data-baseline.json");
-  const current = await readFile(marker, "utf8").then(JSON.parse).catch(() => undefined);
-  if (current?.version === productionBaselineVersion) return;
-
-  await stopService("admin");
-  await stopService("preview");
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const archiveRoot = path.join(supportRoot, "sandbox-archive", `before-production-${timestamp}`);
-  let archived = false;
-  for (const name of activeWorkspaceNames) {
-    const source = path.join(supportRoot, name);
-    try {
-      await access(source);
-      await mkdir(archiveRoot, { recursive: true });
-      await rename(source, path.join(archiveRoot, name));
-      archived = true;
-    } catch (error) {
-      if (error?.code !== "ENOENT") throw error;
-    }
-  }
-  const { stdout } = await exec("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: managedRepo });
-  await writeFile(marker, `${JSON.stringify({
-    version: productionBaselineVersion,
-    source: "canonical-main",
-    sourceSha: stdout.trim(),
-    archivedSandbox: archived,
-    createdAt: new Date().toISOString(),
-  }, null, 2)}\n`, { mode: 0o600 });
 }
 
 function reachable(port) {
@@ -146,7 +114,14 @@ async function main() {
   await mkdir(logsRoot, { recursive: true });
   await ensureManagedRepository();
   const publishMode = await configuredPublishMode();
-  await ensureProductionDataBaseline(publishMode);
+  if (publishMode === "live") {
+    await ensureProductionDataBaseline({
+      supportRoot,
+      managedRepo,
+      stopService,
+      resolveSourceSha: async () => (await exec("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: managedRepo })).stdout.trim(),
+    });
+  }
   // The managed repository may have advanced while the existing Node processes
   // still hold the previous server and Next.js modules in memory.
   await stopService("admin");

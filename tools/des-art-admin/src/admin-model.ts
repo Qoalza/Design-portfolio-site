@@ -1,5 +1,6 @@
 import type {
   ProjectContentBlock,
+  ProjectGalleryGroup,
   ProjectDocument,
   ProjectInlineContent,
 } from "../../../src/lib/project-contract";
@@ -16,9 +17,14 @@ export type AdminSectionSetting = {
   interactive?: AdminInteractiveSetting;
 };
 
+export type AdminGallerySetting = {
+  pendingDeviceIds?: ProjectGalleryGroup["id"][];
+};
+
 export type AdminProject = Omit<ProjectDocument, "content"> & {
   admin?: {
     sections?: Record<string, AdminSectionSetting>;
+    gallery?: AdminGallerySetting;
   };
   content: AdminContentBlock[];
 };
@@ -112,6 +118,23 @@ export function withSectionSetting(
         ...project.admin?.sections,
         [id]: { ...previous, ...patch },
       },
+    },
+  };
+}
+
+export function pendingGalleryDevices(project: AdminProject): ProjectGalleryGroup["id"][] {
+  return project.admin?.gallery?.pendingDeviceIds ?? [];
+}
+
+export function withPendingGalleryDevices(
+  project: AdminProject,
+  pendingDeviceIds: ProjectGalleryGroup["id"][],
+): AdminProject {
+  return {
+    ...project,
+    admin: {
+      ...project.admin,
+      gallery: pendingDeviceIds.length ? { pendingDeviceIds } : undefined,
     },
   };
 }

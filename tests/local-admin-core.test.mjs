@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -29,6 +29,10 @@ test("Figma import failures are explained without internal contract paths", () =
   const unknown = humanFigmaImportError(new Error("vendor failure 917"));
   assert.match(unknown.message, /ручная диагностика разработчиком/i);
   assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /917/);
+
+  const disconnected = humanFigmaImportError(new Error("Figma не подключена. Добавьте локальный токен с доступом file_content:read."));
+  assert.match(disconnected.title, /Figma не подключена/i);
+  assert.match(disconnected.message, /подключите/i);
 });
 
 test("user-facing errors keep known causes actionable and hide unknown diagnostics", () => {
@@ -40,6 +44,10 @@ test("user-facing errors keep known causes actionable and hide unknown diagnosti
   const unknown = humanError(new Error("catalogFrame.nodes[0].layout.gap exploded"));
   assert.match(unknown.message, /ручная диагностика разработчиком/i);
   assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /catalogFrame|layout\.gap/);
+
+  const unsupportedImage = humanError(new Error("Image MIME type is not supported."));
+  assert.match(unsupportedImage.title, /формат изображения/i);
+  assert.match(unsupportedImage.message, /PNG|JPEG|GIF|WebP/i);
 });
 
 test("project slugs are readable, Unicode-safe and collision resistant", async () => {
@@ -223,12 +231,13 @@ test("image inspection validates MIME, extension and intrinsic PNG dimensions", 
   assert.throws(() => inspectImage(Buffer.from("not image"), "image.png", "image/png"), /signature/i);
 });
 
-test("uploads use safe names, reject traversal and warn on duplicates", async () => {
+test("uploads use safe names, reject traversal and preserve different files with one name", async () => {
   assert.equal(safeUploadName("Hero Screen (1).PNG"), "hero-screen-1.png");
   assert.throws(() => safeUploadName("../secret.png"), /filename/i);
   const configured = await roots();
   const store = new AdminStore(configured);
   await store.saveProject(project());
+  await mkdir(path.join(configured.draftAssetRoot, "admin-test", "frames"), { recursive: true });
   const png = Buffer.alloc(24);
   Buffer.from("89504e470d0a1a0a", "hex").copy(png);
   png.writeUInt32BE(20, 16);
@@ -239,6 +248,14 @@ test("uploads use safe names, reject traversal and warn on duplicates", async ()
   assert.deepEqual(Object.keys(first).sort(), ["alt", "height", "src", "width"]);
   assert.equal(second.src, first.src);
   assert.equal(await readFile(path.join(configured.draftAssetRoot, "admin-test", "hero.png"), "hex"), png.toString("hex"));
+
+  const changedPng = Buffer.from(png);
+  changedPng[23] = 1;
+  const collision = await store.saveImage("admin-test", "Hero.png", "image/png", changedPng, "Updated hero alt");
+  assert.notEqual(collision.src, first.src);
+  assert.match(collision.src, /^\/assets\/projects\/admin-test\/hero-[a-f0-9]{64}\.png$/);
+  assert.equal(await readFile(path.join(configured.draftAssetRoot, "admin-test", collision.src.split("/").at(-1)), "hex"), changedPng.toString("hex"));
+
   assert.equal((await store.readImage("admin-test", "hero.png")).toString("hex"), png.toString("hex"));
   await assert.rejects(() => store.saveImage("../escape", "x.png", "image/png", png, "Alt"), /slug/i);
   await assert.rejects(() => store.readImage("admin-test", "../secret.png"), /path|filename/i);

@@ -8,6 +8,7 @@ import { promisify } from "node:util";
 
 import { compileAdminDraft, parseAdminDraft } from "./draft-contract.mjs";
 import { humanError } from "./human-errors.mjs";
+import { PRODUCTION_DATA_BASELINE_VERSION } from "./production-data-bootstrap.mjs";
 
 const exec = promisify(execFile);
 export const PUBLISH_STAGES = [
@@ -50,7 +51,7 @@ export async function publishReadiness({ supportRoot, mode = "sandbox" }) {
   if (mode === "live") {
     try {
       const baseline = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
-      if (baseline.version !== 1 || baseline.source !== "canonical-main") throw new Error("invalid baseline");
+      if (baseline.version !== PRODUCTION_DATA_BASELINE_VERSION || baseline.source !== "canonical-main") throw new Error("invalid baseline");
     } catch {
       failures.push("Рабочие данные ещё не синхронизированы с актуальным production-контентом");
     }
