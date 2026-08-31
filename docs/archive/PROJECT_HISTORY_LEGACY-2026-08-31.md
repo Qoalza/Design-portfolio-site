@@ -374,7 +374,7 @@ Goal 2 реализована в commit `c57c61da8a34a2d402eb56d0e814a91d9ff2e4d
 
 Добавлен переиспользуемый клиентский lightbox для всех `ProjectMedia`: четыре изображения Corvo открываются, сохраняют aspect ratio и quality, overlay закрывается `Escape` и кликом по свободному фону, клик по изображению не закрывает его, background scroll блокируется без скачка, scroll position и focus возвращаются. Семантика: `role="dialog"`, `aria-modal="true"`, доступное имя. Содержимое кейса, порядок секций, главная и адаптив ниже `1280 px` не изменялись.
 
-Свежий Figma export, browser capture, full/focus comparisons и два открытых lightbox находятся в `design-reference/corvo-fresh/`; `design-reference/corvo-fresh/qa.md` имеет `final result: passed`, а внешний статус остаётся `READY_FOR_USER_REVIEW`. `npm run lint`, `npm run build` и production route smoke пройдены; browser console ошибок и hydration warnings не содержит. Commit исправлений: `ae73278`. Merge, deploy, VPS, DNS и production не затрагивались.
+Свежий Figma export, browser capture, full/focus comparisons и два открытых lightbox находятся в `design-reference/corvo-fresh/`; `design-qa.md` имеет `final result: passed`, а внешний статус остаётся `READY_FOR_USER_REVIEW`. `npm run lint`, `npm run build` и production route smoke пройдены; browser console ошибок и hydration warnings не содержит. Commit исправлений: `ae73278`. Merge, deploy, VPS, DNS и production не затрагивались.
 
 По свежему Figma node `262:2382` выполнена точечная доработка текущей реализации в PR #8:
 
@@ -392,7 +392,7 @@ Goal 2 реализована в commit `c57c61da8a34a2d402eb56d0e814a91d9ff2e4d
 
 Страница `/projects/corvo` реализована по Figma node `321:29865` на ветке `feature/project-corvo`. Общий route shell читает типизированные optional frontmatter-поля, поддерживает произвольное количество MDX-секций, заголовки, списки, выделение, dividers, изображения и подписи. Локально сохранены точные Corvo logo/icons и четыре production-изображения. Карточка Corvo на главной ведёт на `/projects/corvo`; Figma action использует URL из frontmatter; Share использует Web Share API с copy fallback.
 
-Контроль: viewport `1440 × 900`, `deviceScaleFactor: 1`, full page `1440 × 4237`, fonts `loaded`, горизонтального переполнения нет. Эталон, реализация, полный и три фокусных comparison находятся в `design-reference/corvo/`; исторический QA теперь находится в `design-reference/corvo-fresh/qa.md` и имеет `final result: passed`. `npm run lint`, `npm run build` и production route smoke прошли. Новых Critical/High web-quality или accessibility-дефектов нет; отдельное Figma/WCAG-исключение малых метаданных записано в `ACCESSIBILITY_EXCEPTIONS.md`. Commit реализации: `166ba94`. Merge, deploy, DNS и VPS не затрагивались.
+Контроль: viewport `1440 × 900`, `deviceScaleFactor: 1`, full page `1440 × 4237`, fonts `loaded`, горизонтального переполнения нет. Эталон, реализация, полный и три фокусных comparison находятся в `design-reference/corvo/`; `design-qa.md` имеет `final result: passed`. `npm run lint`, `npm run build` и production route smoke прошли. Новых Critical/High web-quality или accessibility-дефектов нет; отдельное Figma/WCAG-исключение малых метаданных записано в `ACCESSIBILITY_EXCEPTIONS.md`. Commit реализации: `166ba94`. Merge, deploy, DNS и VPS не затрагивались.
 
 ### 2026-08-15 — причина регрессии platform-иконок
 

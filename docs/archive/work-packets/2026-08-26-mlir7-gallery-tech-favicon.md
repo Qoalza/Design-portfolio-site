@@ -1,5 +1,7 @@
 # WORK_PACKET_MLIR7 — Gallery motion, Tech typography, error controls и site metadata
 
+**Архивный статус:** `COMPLETED`; пользовательская приёмка получена 2026-08-26.
+
 ## 1. Классификация и результат
 
 - Size: `LARGE`; Risk: `ELEVATED`; Mode: `FULL`.

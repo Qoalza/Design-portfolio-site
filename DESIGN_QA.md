@@ -18,7 +18,7 @@
 
 ## CLOSED — Gallery motion, Tech typography, error controls и metadata (`MLIR7-*`)
 
-Активный пакет: `WORK_PACKET_MLIR7.md`. Новое evidence сохраняется только в `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
+Архивный пакет: `docs/archive/work-packets/2026-08-26-mlir7-gallery-tech-favicon.md`. Новое evidence сохраняется только в `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
 
 - `MLIR7-GAL`: единый canonical movement controller и одинаково плавные first/subsequent transitions для Desktop, Tablet и Mobile через arrows, trackpad и pointer.
 - `MLIR7-LBX`: runtime-проверка всех 15 увеличенных Gallery items без двойной рамки, неверных corners или quality overflow.
@@ -35,7 +35,7 @@ MLIR6 evidence остаётся историческим baseline и не док
 
 ## READY_FOR_REVIEW — Gallery, project components, homepage и 404 (`MLIR6-*`)
 
-Активный пакет: `WORK_PACKET_MLIR6.md`. Новое evidence сохраняется только в `design-reference/gallery-project-error-reconciliation-mlir6/`.
+Архивный пакет: `docs/archive/work-packets/2026-08-26-mlir6-gallery-project-errors.md`. Новое evidence сохраняется только в `design-reference/gallery-project-error-reconciliation-mlir6/`.
 
 - `MLIR6-GAL`: единый pre-mutation arbiter root Lenis/Gallery, одинаковое первое и последующее движение, один gesture — один step.
 - `MLIR6-LBX`: точные live Gallery frames и DPR-aware lightbox `1.5×` без двойной рамки или потери качества.
@@ -48,7 +48,7 @@ MLIR6 evidence остаётся историческим baseline и не док
 
 ## OPEN — Main Layout & Interaction Follow-up (`MLIR5-*`)
 
-Активный пакет: `WORK_PACKET_MLIR5.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish-mlir5/`.
+Архивный пакет: `docs/archive/work-packets/2026-08-25-mlir5-interaction-followup.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish-mlir5/`.
 
 - `MLIR5-SCR`: root Lenis не прерывается обычным wheel-input; Gallery Lenis не выполняют постоянную работу в покое.
 - `MLIR5-TTP`: общий Tooltip сохраняет одну строку и имеет реальный enter/exit `200 ms`.
@@ -74,7 +74,7 @@ MLIR4 runtime `0d834e9d96f78e34e4e8e4796468446c7ccbad8d` и `design-reference/ma
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Polish (`MLIR4-*`)
 
-Активный пакет: `WORK_PACKET_POLISH.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish/`.
+Архивный пакет: `docs/archive/work-packets/2026-08-25-mlir4-polish.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish/`.
 
 - `MLIR4-SYS`: актуальные typography styles, semantic variables, TextButton Large и затронутые icon sources.
 - `MLIR4-HOME`: Hero, Codex attribution и CTA «Полное CV» на главной.
@@ -90,7 +90,7 @@ MLIR4 runtime зафиксирован в `0d834e9d96f78e34e4e8e4796468446c7ccba
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Follow-up (`MLIR3-*`)
 
-Активный пакет: `WORK_PACKET_FOLLOWUP.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-followup/`.
+Архивный пакет: `docs/archive/work-packets/2026-08-24-mlir3-followup.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-followup/`.
 
 - `MLIR3-TYP`: весь видимый не-heading UI-текст должен использовать Onest без устойчивого runtime fallback.
 - `MLIR3-ICO`, `MLIR3-CTA`: все иконки должны быть сопоставлены с актуальным Figma source type; Telegram CTA должен использовать точный полный icon frame.
@@ -106,7 +106,7 @@ MLIR3 runtime зафиксирован в `fce9e2288c3a80a28da51479a5668fa33b22f
 
 ## READY_FOR_REVIEW — Main Layout & Interaction Reconciliation v2 (`MLIR2-*`)
 
-Активный пакет: `WORK_PACKET.md`. Новое evidence сохраняется в `design-reference/main-layout-interaction-reconciliation/`.
+Архивный пакет: `docs/archive/work-packets/2026-08-24-mlir2-main-layout-reconciliation.md`. Новое evidence сохраняется в `design-reference/main-layout-interaction-reconciliation/`.
 
 - `MLIR2-SQB`: отдельный SquareButton и закрытая миграция icon-only controls.
 - `MLIR2-HDR`: актуальные GeneralHeader и PageHeader.

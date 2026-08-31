@@ -1,5 +1,7 @@
 # WORK_PACKET_MLIR5 — interaction follow-up
 
+**Архивный статус:** `SUPERSEDED` последующим MLIR6 reconciliation.
+
 ## Contract
 
 - Size: `LARGE`

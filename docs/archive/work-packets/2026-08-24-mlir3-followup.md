@@ -1,5 +1,7 @@
 # WORK_PACKET_FOLLOWUP — MLIR3
 
+**Архивный статус:** `SUPERSEDED` последующим MLIR4 polish.
+
 ## 1. Классификация и цель
 
 - Size: `LARGE`

@@ -1,5 +1,7 @@
 # WORK_PACKET_MLIR6 — Gallery, project components, homepage и 404
 
+**Архивный статус:** `SUPERSEDED` последующим MLIR7 reconciliation.
+
 ## 1. Контракт Goal
 
 - Size: `LARGE`; Risk: `ELEVATED`; Mode: `FULL`.

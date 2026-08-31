@@ -1,5 +1,7 @@
 # WORK_PACKET_POLISH — MLIR4: финальная синхронизация интерфейса и Lenis-scroll
 
+**Архивный статус:** `SUPERSEDED` последующим MLIR5 follow-up.
+
 ## 1. Результат и режим
 
 - Size: `LARGE`
