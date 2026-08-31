@@ -18,7 +18,13 @@ await build({
 const bundlePath = "tools/des-art-admin/public/admin.js";
 const bundle = await readFile(bundlePath, "utf8");
 await writeFile(bundlePath, bundle.replace(/[ \t]+$/gm, ""));
-await copyFile(
-  "tools/des-art-admin/launcher.mjs",
-  "dist/Des-art Admin.app/Contents/Resources/launcher.mjs",
-);
+await Promise.all([
+  copyFile(
+    "tools/des-art-admin/launcher.mjs",
+    "dist/Des-art Admin.app/Contents/Resources/launcher.mjs",
+  ),
+  copyFile(
+    "tools/des-art-admin/production-data-bootstrap.mjs",
+    "dist/Des-art Admin.app/Contents/Resources/production-data-bootstrap.mjs",
+  ),
+]);

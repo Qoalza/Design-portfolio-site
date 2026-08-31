@@ -109,6 +109,18 @@ test("live readiness blocks publication before canonical production data bootstr
   assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
 });
 
+test("live readiness rejects the legacy production baseline before checking credentials", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-legacy-live-baseline-"));
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({
+    version: 1,
+    source: "canonical-main",
+    sourceSha: "a".repeat(40),
+  }));
+  const result = await publishReadiness({ supportRoot: root, mode: "live" });
+  assert.equal(result.ready, false);
+  assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
+});
+
 test("live publish refuses a sandbox support root", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
   const jobFile = path.join(root, "job.json");
@@ -126,5 +138,6 @@ test("live publish refuses a sandbox support root", async () => {
   await runPublishJob(jobFile);
   const result = JSON.parse(await readFile(jobFile, "utf8"));
   assert.equal(result.status, "failed");
-  assert.match(result.error, /live environment|production/i);
+  assert.equal(result.errorTitle, "Действие не выполнено");
+  assert.doesNotMatch(JSON.stringify(result), /support root|Library\/Application Support/i);
 });
