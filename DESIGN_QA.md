@@ -1,142 +1,43 @@
 # DESIGN QA
 
-Обновлено: 2026-08-25
+Обновлено: 2026-08-31.
 
 ## Назначение
 
-Короткий список открытых визуальных дефектов и пакетов pixel-perfect правок. Это не история разработки и не замена `HANDOFF.md`.
+Только текущие подтверждённые visual/interaction findings со статусами:
 
-Правила:
+`OPEN | IN_PROGRESS | READY_FOR_REVIEW`
 
-- добавлять только подтверждённые и ещё не закрытые визуальные расхождения;
-- объединять связанные дефекты по экрану или общей причине;
-- после принятого исправления удалять запись либо кратко переносить важную системную причину в `PROJECT_HISTORY.md`;
-- не создавать запись для каждой мелочи, исправленной и принятой в рамках одной задачи;
-- перед исправлением сверять с актуальной Figma, если макет мог измениться.
+Закрытые и superseded пакеты здесь не хранятся. После пользовательской приёмки запись удаляется; важный системный root cause при необходимости сохраняется в `PROJECT_HISTORY.md`, evidence остаётся в `design-reference/**`.
 
-Статусы: `OPEN`, `IN_PROGRESS`, `READY_FOR_REVIEW`, `CLOSED`.
+## OPEN — current platform icon visual fidelity
 
-## CLOSED — Gallery motion, Tech typography, error controls и metadata (`MLIR7-*`)
+Механика platform icons уже принята и **не является дефектом**:
 
-Архивный пакет: `docs/archive/work-packets/2026-08-26-mlir7-gallery-tech-favicon.md`. Новое evidence сохраняется только в `design-reference/gallery-tech-favicon-reconciliation-mlir7/`.
+- full icon frame/canvas;
+- intrinsic dimensions;
+- mask/currentColor/semantic color role;
+- отсутствие forced generic `20×20`;
+- отсутствие stale hard-coded consumer color.
 
-- `MLIR7-GAL`: единый canonical movement controller и одинаково плавные first/subsequent transitions для Desktop, Tablet и Mobile через arrows, trackpad и pointer.
-- `MLIR7-LBX`: runtime-проверка всех 15 увеличенных Gallery items без двойной рамки, неверных corners или quality overflow.
-- `MLIR7-TYP`: закрытый Figma→code inventory всех Tech consumers и Source Code Pro с активным slashed zero.
-- `MLIR7-AI`, `MLIR7-TIP`: точный Disabled TextButton AI и feedback `Ссылка скопирована`.
-- `MLIR7-404`, `MLIR7-500`: интерактивные системные кнопки `На главную` и `Перезагрузить` с подтверждёнными mouse/keyboard contracts.
-- `MLIR7-META`: единственный явный SVG browser favicon `/artur-designer-favicon.svg` и route titles `Artur Designer` после production-доказательства Next.js metadata contract.
+Этот долговечный contract находится в `DESIGN_SYSTEM.md`.
 
-MLIR6 evidence остаётся историческим baseline и не доказывает соответствие MLIR7 runtime. Все критичные блоки подтверждены из единого `CODE_SHA` `a322cf7341ee351d50f1a98cdb9d857fe46dd956`: focused tests `142/142`, lint и production build прошли; Chromium и Zen `1.21.15b` matrices прошли `22/22`. Актуальное evidence: `design-reference/gallery-tech-favicon-reconciliation-mlir7/`. Пользовательская приёмка получена 2026-08-26; MLIR7 закрыт.
+Открытым остаётся только визуальное/source соответствие конкретных current platform-icon instances.
 
-## OPEN — preloaders и loading states
+Перед закрытием:
 
-Отдельный неблокирующий backlog после MLIR7: системно определить и реализовать preloaders/loading states. Не входит в merge/deploy Goal, не блокирует публикацию принятого MLIR7 и требует отдельной классификации и исполнительного контракта.
+1. получить exact current Figma source mapping для затронутых platform icons;
+2. проверить current `main`/runtime instances;
+3. подтвердить geometry, frame, color, alignment и source family;
+4. получить пользовательскую visual acceptance конкретных current instances.
 
-## READY_FOR_REVIEW — Gallery, project components, homepage и 404 (`MLIR6-*`)
+Историческая системная причина сохраняется в `PROJECT_HISTORY.md`.
 
-Архивный пакет: `docs/archive/work-packets/2026-08-26-mlir6-gallery-project-errors.md`. Новое evidence сохраняется только в `design-reference/gallery-project-error-reconciliation-mlir6/`.
+## Не является записью этого файла
 
-- `MLIR6-GAL`: единый pre-mutation arbiter root Lenis/Gallery, одинаковое первое и последующее движение, один gesture — один step.
-- `MLIR6-LBX`: точные live Gallery frames и DPR-aware lightbox `1.5×` без двойной рамки или потери качества.
-- `MLIR6-PRJ`: Hug CTA, точные tags и card-level `Update info` на главной и `/projects`.
-- `MLIR6-ACT`, `MLIR6-TIP`: точный внутренний action-bar layout, canonical Clipboard Share и полный copy Tooltip contract.
-- `MLIR6-AI`, `MLIR6-PROC`: актуальный AI instance и корректный process/Header stacking.
-- `MLIR6-404`, `MLIR6-500R`: текущая 404 в Chromium/Zen и условная regression 500 при общей зависимости.
-
-Предыдущее MLIR5 и action-bar evidence остаётся историческим и не подтверждает MLIR6 runtime. Принятая action-bar state machine, inclusive threshold `200 px` и terminal geometry `48 + 88 px` являются regression-only контрактом. Все критичные блоки проверены в Chromium `151.0.0.0` и Zen `1.21.15b` из единого `CODE_SHA` `cca7d77f3a6cc8e5af37a26bae2abfe89f796642`; focused tests `121/121`, lint и production build прошли. Актуальное evidence: `design-reference/gallery-project-error-reconciliation-mlir6/`. Статус остаётся `READY_FOR_REVIEW` до явной пользовательской приёмки; `CLOSED` не выставлен.
-
-## OPEN — Main Layout & Interaction Follow-up (`MLIR5-*`)
-
-Архивный пакет: `docs/archive/work-packets/2026-08-25-mlir5-interaction-followup.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish-mlir5/`.
-
-- `MLIR5-SCR`: root Lenis не прерывается обычным wheel-input; Gallery Lenis не выполняют постоянную работу в покое.
-- `MLIR5-TTP`: общий Tooltip сохраняет одну строку и имеет реальный enter/exit `200 ms`.
-- `MLIR5-TXB`: AI TextButton использует системный Figma-вариант `Neutral+Accent`.
-- `MLIR5-ABA`: initial resolver и последующий порог `200 px` проверяются как независимые контракты.
-- `MLIR5-LBX`: реальный Zen pointer click открывает Gallery lightbox, а drag остаётся дискретным.
-
-MLIR4 runtime `0d834e9d96f78e34e4e8e4796468446c7ccbad8d` и `design-reference/main-layout-interaction-polish/` остаются историческим baseline и не подтверждают MLIR5. `CLOSED` разрешён только после явной пользовательской приёмки.
-
-Ручная пользовательская приёмка опровергла прежний общий PASS MLIR5: логический initial variant action bar был `Adaptive`, но первый физический rect оставался `Full` и анимировался к целевой геометрии. Предыдущее evidence сохраняется как диагностический материал и не доказывает готовность исправленного состояния.
-
-Открытый backlog, не входящий в текущую изолированную action-bar реализацию:
-
-- внутренний layout project action bar должен послойно совпасть с актуальным Figma component: frame `Обновлено…` нельзя заменять голым текстовым `span`; пользовательская приёмка текущего layout не пройдена;
-- copy-Tooltip кнопки `Поделиться` сохраняет текст `Скопировано`, а Check по умолчанию использует `Semantic/Element/invers`; accent-цвет применяется только к явно переопределённым иконкам вроде Rocket;
-- project CTA на главной и `/projects` должны быть Hug, а не `width: 122px`;
-- теги во всех project consumers должны точно использовать Figma component/typography contract;
-- первое и каждое следующее переключение Gallery должны быть одинаково мягкими;
-- lightbox: Desktop/Tablet/Mobile увеличиваются в `1.5×` от собственных базовых отображаемых размеров; общий viewport/quality clamp сохраняет единый коэффициент и не допускает размытия;
-- lightbox сохраняет точные радиусы, не добавляет собственный фон, использует кнопку с крестиком и закрывается кликом по любому свободному месту вне изображения.
-
-Изолированный initial-state action-bar fix имеет агрегатный статус `READY_FOR_REVIEW`: runtime `4a59f8cfd9c61ca710f9a39942303356d99bf5f3` устраняет доказанное расхождение initial/steady-state thresholds. Свежие Chromium и Zen `1.21.15b` evidence подтверждают direct URL, hard reload и client navigation при low/boundary/high viewport, границы `199.5/200/200.5 px`, matrix `6/6`, возврат в `Full` после information layout, terminal gap `48 px`, стабильный `scrollHeight` и отсутствие console/layout-shift ошибок. Evidence — `design-reference/action-bar-initial-state-fix/README.md`. Перечисленный выше визуальный backlog остаётся `OPEN` и не входит в этот поведенческий PASS.
-
-## READY_FOR_REVIEW — Main Layout & Interaction Polish (`MLIR4-*`)
-
-Архивный пакет: `docs/archive/work-packets/2026-08-25-mlir4-polish.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-polish/`.
-
-- `MLIR4-SYS`: актуальные typography styles, semantic variables, TextButton Large и затронутые icon sources.
-- `MLIR4-HOME`: Hero, Codex attribution и CTA «Полное CV» на главной.
-- `MLIR4-PRJ`: централизованная доступность проектов, disabled CTA и общий Tooltip.
-- `MLIR4-ABA`: geometry-driven Full/Adaptive action bar без неверного первого кадра.
-- `MLIR4-NAV`: уточнённый terminal threshold и sticky/docked section navigation.
-- `MLIR4-GAL`: Gallery lightbox и дискретная overflow-aware пагинация.
-- `MLIR4-SCR`: desktop Lenis через единый `ScrollFrameCoordinator` без конкурирующих animation loops.
-
-MLIR3 runtime `fce9e2288c3a80a28da51479a5668fa33b22fb59` и каталог `design-reference/main-layout-interaction-followup/` остаются историческим evidence предыдущего состояния. Они не подтверждают MLIR4.
-
-MLIR4 runtime зафиксирован в `0d834e9d96f78e34e4e8e4796468446c7ccbad8d`. Focused tests прошли `95/95`, lint и production build успешны, preview отдаёт тот же полный SHA. Обязательные Chromium и Zen `1.21.15b` matrices прошли `6/6`, foundation-маршруты и touch/reduced-motion fallbacks проверены на свежем evidence из этого CODE_SHA; полный индекс — `design-reference/main-layout-interaction-polish/README.md`. `CLOSED` разрешён только после явной пользовательской приёмки.
-
-## READY_FOR_REVIEW — Main Layout & Interaction Follow-up (`MLIR3-*`)
-
-Архивный пакет: `docs/archive/work-packets/2026-08-24-mlir3-followup.md`. Новое evidence сохраняется только в `design-reference/main-layout-interaction-followup/`.
-
-- `MLIR3-TYP`: весь видимый не-heading UI-текст должен использовать Onest без устойчивого runtime fallback.
-- `MLIR3-ICO`, `MLIR3-CTA`: все иконки должны быть сопоставлены с актуальным Figma source type; Telegram CTA должен использовать точный полный icon frame.
-- `MLIR3-FTR`: текст, геометрия и typography общего Footer должны быть повторно подтверждены по library node `124:4841`.
-- `MLIR3-SHD`: прозрачные project preview на главной и `/projects` не должны обрезать мягкие внешние тени.
-- `MLIR3-ABA-I`, `MLIR3-ABA-T`: первый видимый action bar должен сразу иметь правильный variant; у конца Gallery bar должен располагаться после постоянного gap `48 px`, не перекрывая Mobile и Footer.
-- `MLIR3-NAV`: последний короткий information-раздел должен активироваться по геометрии до входа в Gallery без проверки label.
-- `MLIR3-GAL`, `MLIR3-LBX`, `MLIR3-PRV`: Gallery controls зависят от фактического overflow, lightbox работает в top layer, верхний project preview остаётся неинтерактивным.
-
-Предыдущий MLIR2 runtime `69dc9b7823cebc839482a037e6dbb9abaa6ca182` и каталог `design-reference/main-layout-interaction-reconciliation/` остаются историческим evidence предыдущего состояния. Они не подтверждают MLIR3 и не используются вместо свежих проверок нового `CODE_SHA`.
-
-MLIR3 runtime зафиксирован в `fce9e2288c3a80a28da51479a5668fa33b22fb59`. Focused tests прошли 78/78, lint и production build успешны. Обязательные Chromium и Zen `1.21.15b` matrices прошли 6/6 на свежем evidence из этого `CODE_SHA`; полный отчёт находится в `design-reference/main-layout-interaction-followup/README.md`. `CLOSED` разрешён только после явной пользовательской приёмки.
-
-## READY_FOR_REVIEW — Main Layout & Interaction Reconciliation v2 (`MLIR2-*`)
-
-Архивный пакет: `docs/archive/work-packets/2026-08-24-mlir2-main-layout-reconciliation.md`. Новое evidence сохраняется в `design-reference/main-layout-interaction-reconciliation/`.
-
-- `MLIR2-SQB`: отдельный SquareButton и закрытая миграция icon-only controls.
-- `MLIR2-HDR`: актуальные GeneralHeader и PageHeader.
-- `MLIR2-META`, `MLIR2-RSM`, `MLIR2-AI`, `MLIR2-PROC`, `MLIR2-PRJ`: новые instances главной и `/projects`.
-- `MLIR2-CNT`, `MLIR2-GAL`, `MLIR2-ABA`, `MLIR2-NAV`: актуальный Corvo information layout, Gallery и две layout/scroll state machines.
-- `MLIR2-PROV`: подтверждаемая связь review preview с полным `CODE_SHA`.
-
-Прежний статус `READY_FOR_REVIEW` и evidence `design-reference/main-chapter-reconciliation-v2/README.md` относятся только к предыдущему состоянию Figma и сохраняются как исторический материал. Они не доказывают готовность текущих `MLIR2-*` блоков.
-
-Runtime-исправления follow-up собраны в `69dc9b7823cebc839482a037e6dbb9abaa6ca182`. Обязательные Chromium и Zen `1.21.15b` matrices прошли на шести viewport со свежими screenshots из этого HEAD; focused tests, lint и production build успешны, preview отдаёт тот же полный SHA. Все критичные `MLIR2-*` блоки имеют обязательное evidence в `design-reference/main-layout-interaction-reconciliation/README.md`; старые screenshots не переиспользуются как доказательство нового HEAD. `CLOSED` разрешён только после явной пользовательской приёмки.
-
-## READY_FOR_REVIEW — error pages 404/500
-
-Источник: актуальные Figma nodes `420:54056` (404) и `420:54081` (500).
-
-- Вся композиция должна оставаться по центру viewport по горизонтали и вертикали.
-- Footer должен быть прижат к нижней границе экрана.
-- Тени иллюстраций не должны обрезаться.
-- Текстовый блок должен сохранять положение относительно иллюстрации и общие горизонтальные/вертикальные constraints.
-- Общая сцена центрируется и пропорционально помещается в доступную высоту между верхом viewport и footer.
-- Иллюстрация кадрируется отдельным слоем; сообщение 500 и его тень находятся вне clipping-контекста.
-- Актуальные позиции сообщений в координатах сцены: 404 — `342×77 px`, 500 — `2×122 px`.
-- Focused production-проверка: footer снизу, горизонтальный overflow отсутствует, видимые части композиции и тень 500 не обрезаны.
-
-## READY_FOR_REVIEW — platform-иконки на `/projects`
-
-Источник: Figma node `373:50236`.
-
-- Сломаны геометрия и/или цвет вариантов `Desktop`, `Tablet`, `Mobile` и `Only Desktop`.
-- Дефект повторялся ранее в других SVG-иконках.
-- Общая причина подтверждена: tight-bound SVG с размерами `21×19`, `17×21`, `13×21` ранее принудительно рендерились как `20×20`, а жёсткий `#E2E2EC` внутри SVG не позволял общему компоненту применить цвет Figma.
-- Единый typed mapping сохраняет собственные размеры SVG, а общий mask-рендер использует `currentColor`; computed-цвет всех вариантов — Figma `#75848F`.
-- Остальные части карточек в эту группу не входят без отдельного подтверждения.
+- принятые 404/500 pages;
+- старый Admin Figma Frame preview checkpoint без воспроизведения на current source/runtime;
+- MLIR2–MLIR7 history/closed packages;
+- preloaders/loading states без подтверждённого current Figma discrepancy;
+- старые `READY_FOR_USER_REVIEW` screenshots;
+- feature backlog, архитектурные планы и deploy tasks.

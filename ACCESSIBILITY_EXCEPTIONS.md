@@ -1,59 +1,72 @@
 # Accessibility Exceptions
 
-Обновлено: 2026-08-12
+Обновлено: 2026-08-31.
 
-Этот файл содержит подтверждённые случаи, когда утверждённый макет Figma имеет приоритет над требованиями WCAG. Он не заменяет аудит доступности и заполняется только по фактическим результатам реализации и проверки.
+## Назначение
 
-## Правило фиксации
+Только подтверждённые случаи, когда current утверждённый Figma source требует видимого отклонения от WCAG и пользовательский project contract предписывает реализовать Figma.
 
-Для каждого исключения указать:
+Это не accessibility audit и не разрешение автоматически переносить старое исключение на новый Figma source/runtime.
 
-- страницу, секцию или компонент;
-- критерий WCAG и уровень, если применимо;
-- что требовалось бы для соответствия;
-- что реализовано по макету Figma;
-- возможное влияние на пользователя;
-- ссылку на Figma node или другое доказательство;
-- статус: `open`, `design_updated` или `resolved`.
+## Lifecycle
 
-## Текущие исключения
+- `needs_revalidation` — исключение было доказано на старом source, но current source/runtime изменился;
+- `open` — current source и runtime повторно проверены, конфликт сохраняется;
+- `design_updated` — current Figma изменён и требует implementation/recheck;
+- `resolved` — current implementation/source больше не нарушает критерий.
 
-### 1. Контраст приглушённой навигации и вторичного текста
+Для `open` обязательно указать:
 
-- Страница: главная; шапка, hero-теги, метаданные проектов, этапы процесса, опыт и footer.
-- Критерий: WCAG 2.2, 1.4.3 Contrast (Minimum), уровень AA.
-- Для соответствия: обычному тексту меньше 24 px требуется контраст не ниже `4.5:1`.
-- По Figma: сохранены утверждённые пары, включая `#a2acb5` на `#fcfcfd` (`2.25:1`) для отключённой навигации, `#75848f` на `#fcfcfd` (`3.76:1`) для hero-тегов и `#8c949b` на `#fcfcfd` (`3.0:1`) в footer. Другие небольшие подписи находятся в диапазоне `2.14–4.24:1`.
-- Влияние: часть небольшого вторичного текста может быть труднее прочитать пользователям со сниженной контрастной чувствительностью.
-- Доказательство: Figma node `262:2382`, дочерние nodes `262:2401`, `262:2409`, `262:2462`, `262:2816`.
-- Статус: `open`.
+- page/component;
+- WCAG criterion/level;
+- accessible alternative;
+- exact current Figma source и binding/value;
+- current runtime measurement;
+- user impact;
+- `last_verified` date;
+- evidence path.
 
-### 2. Контраст текста интерактивных элементов
+## Записи, требующие повторной проверки
 
-- Страница: главная; кнопка «Связаться» и синие текстовые ссылки.
-- Критерий: WCAG 2.2, 1.4.3 Contrast (Minimum), уровень AA.
-- Для соответствия: увеличить контраст обычного текста до `4.5:1`, изменив цвет фона или текста.
-- По Figma: сохранены `#fbfbfb` на `#1d8be3` (`3.47:1`) для основной кнопки и `#218ee6` на `#fcfcfd` (`3.37:1`) для ссылок.
-- Влияние: подписи кнопки и ссылок могут быть менее различимы для части пользователей со слабым зрением.
-- Доказательство: Figma node `262:2382`, дочерние nodes `268:2946`, `262:2494`, `262:2557`.
-- Статус: `open`.
+Следующие четыре записи были проверены 2026-08-11/12 на прежних Figma nodes `262:*` и `321:*`. Позднее проект перешёл на sources `510:*` и `373:*`. Старые measurements сохраняются как historical evidence, но не доказывают current exception.
+
+### 1. Приглушённая навигация и secondary text
+
+- Historical criterion: WCAG 2.2 1.4.3, AA.
+- Historical measurements: `#A2ACB5/#FCFCFD = 2.25:1`, `#75848F/#FCFCFD = 3.76:1`, `#8C949B/#FCFCFD = 3.0:1`.
+- Historical source: homepage node `262:2382` и descendants.
+- Current source to verify: homepage source map rooted at `510:28120`.
+- Status: `needs_revalidation`.
+
+### 2. Text interactive elements
+
+- Historical criterion: WCAG 2.2 1.4.3, AA.
+- Historical measurements: `#FBFBFB/#1D8BE3 = 3.47:1`, `#218EE6/#FCFCFD = 3.37:1`.
+- Historical source: homepage node `262:2382` и descendants.
+- Current source to verify: current button/link components and instances used by homepage.
+- Status: `needs_revalidation`.
 
 ### 3. Desktop-only reflow
 
-- Страница: главная.
-- Критерий: WCAG 2.2, 1.4.10 Reflow, уровень AA.
-- Для соответствия: обеспечить reflow без горизонтальной прокрутки при ширине `320 CSS px`.
-- По задаче и Figma: релиз ограничен desktop-диапазоном; сохранена минимальная ширина страницы `1280 px`, контрольный viewport — `1440 px`.
-- Влияние: на узких экранах и при сильном увеличении может потребоваться горизонтальная прокрутка.
-- Доказательство: Figma node `262:2382`, frame `1440 × 5976 px`; ограничение desktop-only в `HANDOFF.md`.
-- Статус: `open`.
+- Historical criterion: WCAG 2.2 1.4.10, AA.
+- Historical contract: minimum page width `1280 px`, no 320 CSS px reflow.
+- Historical source: homepage node `262:2382`.
+- Current source/runtime to verify: current homepage/projects/project layouts and any responsive work after that source.
+- Status: `needs_revalidation`.
 
-### 4. Контраст малых метаданных открытого проекта
+### 4. Small project metadata contrast
 
-- Страница: `/projects/corvo`; дата обновления, характеристики проекта и вторичный текст шапки.
-- Критерий: WCAG 2.2, 1.4.3 Contrast (Minimum), уровень AA.
-- Для соответствия: обычному тексту `12–14 px` требуется контраст не ниже `4.5:1`.
-- По Figma: сохранены `#6c7d86` на `#fcfcfd` (`4.17:1`) для части малых подписей и `#88949c` на `#fcfcfd` (`3.03:1`) для даты обновления. Основной текст кейса использует `#5c6a77` на `#fcfcfd` и проходит требование (`5.41:1`).
-- Влияние: дата и часть малых метаданных могут быть труднее различимы пользователям со сниженной контрастной чувствительностью.
-- Доказательство: Figma node `321:29865`, frame `Test open project`; локальное сравнение `design-reference/corvo/comparison-focus-top.png`.
-- Статус: `open`.
+- Historical criterion: WCAG 2.2 1.4.3, AA.
+- Historical measurements: `#6C7D86/#FCFCFD = 4.17:1`, `#88949C/#FCFCFD = 3.03:1`.
+- Historical source: Corvo node `321:29865`.
+- Current source to verify: current project header/action-bar instances under the current project source map.
+- Status: `needs_revalidation`.
+
+## Current compliance statement
+
+До отдельной read-only revalidation нельзя:
+
+- называть эти четыре записи доказанными current `open` exceptions;
+- объявлять current site полностью WCAG-compliant;
+- удалять historical measurements;
+- менять Figma или visible design ради revalidation без отдельного запроса.
