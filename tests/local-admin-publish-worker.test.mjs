@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { gunzipSync } from "node:zlib";
 import {
   PUBLISH_STAGES,
+  createReleaseArchive,
   createPublishBranch,
   publishReadiness,
   runPublishJob,
@@ -12,6 +15,25 @@ import {
 
 test("live publication branches are deterministic and contain no project title data", () => {
   assert.equal(createPublishBranch("2026-08-29T12:34:56.000Z"), "codex/content-publish-20260829-123456");
+});
+
+test("release archives omit macOS metadata that Linux would extract as AppleDouble files", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-release-archive-"));
+  const sourceRoot = path.join(root, "source");
+  const projectRoot = path.join(sourceRoot, "content", "projects");
+  const projectFile = path.join(projectRoot, "portfolio.json");
+  const archive = path.join(root, "release.tar.gz");
+  await mkdir(projectRoot, { recursive: true });
+  await writeFile(projectFile, "{\"slug\":\"portfolio\"}\n");
+  if (process.platform === "darwin") {
+    try { execFileSync("/usr/bin/xattr", ["-w", "com.apple.codex-deploy-test", "1", projectFile]); }
+    catch { context.skip("macOS extended attributes are unavailable in this environment"); return; }
+  }
+
+  await createReleaseArchive({ archive, sourceRoot });
+  const rawTar = gunzipSync(await readFile(archive)).toString("latin1");
+  assert.doesNotMatch(rawTar, /LIBARCHIVE\.xattr|SCHILY\.xattr|com\.apple\.codex-deploy-test/);
+  assert.doesNotMatch(rawTar, /\._portfolio\.json/);
 });
 
 test("dry-run publish persists every stage without external mutations", async () => {
