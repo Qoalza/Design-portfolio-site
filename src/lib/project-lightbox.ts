@@ -8,16 +8,20 @@ export type LightboxScaleInput = {
   intrinsicWidth: number;
 };
 
-export type LightboxFrameInput = {
-  radius: number;
-  strokeWidth: number;
+export type LightboxMediaSizeInput = {
+  baseHeight: number;
+  baseWidth: number;
+  intrinsicHeight: number;
+  intrinsicWidth: number;
 };
 
-export function calculateLightboxFrame(frame: LightboxFrameInput, scale: number): LightboxFrameInput {
-  if (!Number.isFinite(scale) || scale <= 0) return { radius: 0, strokeWidth: 0 };
+export function calculateLightboxMediaSize({ baseHeight, baseWidth, intrinsicHeight, intrinsicWidth }: LightboxMediaSizeInput) {
+  if (![baseHeight, baseWidth, intrinsicHeight, intrinsicWidth].every((value) => Number.isFinite(value) && value > 0)) {
+    return { width: 0, height: 0 };
+  }
   return {
-    radius: frame.radius * scale,
-    strokeWidth: frame.strokeWidth * scale,
+    width: baseWidth,
+    height: baseWidth * intrinsicHeight / intrinsicWidth,
   };
 }
 

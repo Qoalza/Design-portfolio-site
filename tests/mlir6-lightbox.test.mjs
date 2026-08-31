@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-import { calculateLightboxFrame, calculateLightboxScale } from "../src/lib/project-lightbox.ts";
+import { calculateLightboxMediaSize, calculateLightboxScale } from "../src/lib/project-lightbox.ts";
 
 const project = JSON.parse(fs.readFileSync(new URL("../content/projects/corvo.json", import.meta.url), "utf8"));
 const gallery = fs.readFileSync(new URL("../src/components/project-gallery.tsx", import.meta.url), "utf8");
@@ -15,18 +15,18 @@ test("lightbox scale is clamped by viewport, DPR quality and the 1.5x cap", () =
   assert.equal(calculateLightboxScale({ baseWidth: 400, baseHeight: 566, intrinsicWidth: 1600, intrinsicHeight: 2266, dpr: 2, availableWidth: 300, availableHeight: 900 }), 0.75);
 });
 
-test("lightbox scales Figma layer frames with their own device image", () => {
+test("lightbox uses the actual image aspect ratio without adding a frame", () => {
   assert.deepEqual(
-    calculateLightboxFrame({ radius: 12, strokeWidth: 1 }, 1.5),
-    { radius: 18, strokeWidth: 1.5 },
+    calculateLightboxMediaSize({ baseWidth: 400, baseHeight: 400, intrinsicWidth: 400, intrinsicHeight: 400 }),
+    { width: 400, height: 400 },
   );
   assert.deepEqual(
-    calculateLightboxFrame({ radius: 12, strokeWidth: 0.5 }, 1.25),
-    { radius: 15, strokeWidth: 0.625 },
+    calculateLightboxMediaSize({ baseWidth: 740, baseHeight: 512, intrinsicWidth: 1480, intrinsicHeight: 1024 }),
+    { width: 740, height: 512 },
   );
   assert.deepEqual(
-    calculateLightboxFrame({ radius: 0, strokeWidth: 0 }, 1.5),
-    { radius: 0, strokeWidth: 0 },
+    calculateLightboxMediaSize({ baseWidth: 400, baseHeight: 566, intrinsicWidth: 500, intrinsicHeight: 1000 }),
+    { width: 400, height: 800 },
   );
 });
 
@@ -45,11 +45,12 @@ test("modal measures its real media area and keeps the frame as a single layer",
   assert.match(lightbox, /ResizeObserver/);
   assert.match(lightbox, /window\.devicePixelRatio/);
   assert.match(lightbox, /calculateLightboxScale/);
-  assert.match(lightbox, /calculateLightboxFrame/);
+  assert.match(lightbox, /calculateLightboxMediaSize/);
   assert.match(lightbox, /data-figma-node-id=\{sourceNodeId\}/);
   assert.match(lightbox, /currentSrc/);
   assert.match(lightbox, /naturalWidth/);
-  assert.match(lightbox, /styles\.expandedFrame/);
+  assert.match(lightbox, /className=\{styles\.expandedFrame\}/);
+  assert.doesNotMatch(lightbox, /styles\.expandedFrame\} \$\{styles\.frame\}/);
   assert.match(lightbox, /event\.target === event\.currentTarget/);
   assert.match(lightbox, /<SquareButton/);
   assert.match(cross, /width="24" height="24" viewBox="0 0 24 24"/);

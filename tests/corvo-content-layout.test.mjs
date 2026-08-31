@@ -76,6 +76,14 @@ test("the project page renders structured image blocks through ProjectCanvas", a
   assert.match(page, /<ProjectCanvas presentation=\{block\.presentation\} images=\{block\.images\}/);
 });
 
+test("the terminal section delegates its single divider to Gallery", async () => {
+  const page = await source("src/app/projects/[slug]/page.tsx");
+
+  assert.match(page, /showDivider/);
+  assert.match(page, /!hasInteractiveBlock && showDivider/);
+  assert.match(page, /showDivider=\{index < sectionBlocks\.length - 1 \|\| galleryBlocks\.length === 0\}/);
+});
+
 test("all five information sections encode the current Figma vertical rhythm without margin collapse", async () => {
   const css = await source("src/app/projects/[slug]/page.module.css");
 
@@ -88,9 +96,10 @@ test("all five information sections encode the current Figma vertical rhythm wit
   assert.match(css, /\.contentSection:nth-child\(4\)\s*>?\s*p:nth-of-type\(2\)\s*\{\s*margin-top:\s*0;/);
   assert.match(css, /\.contentSection:nth-child\(4\)\s*>?\s*p:nth-of-type\(3\)\s*\{\s*margin-top:\s*24px;/);
   assert.match(css, /\.contentSection:last-child\s*>?\s*p \+ p\s*\{\s*margin-top:\s*0;/);
-  assert.match(css, /\.contentSection:last-child\s*\{\s*padding-bottom:\s*40px;/);
+  assert.match(css, /\.projectArticleWithGallery \.contentSection:last-child\s*\{\s*padding-bottom:\s*40px;/);
   assert.match(css, /\.projectNotice \+ \.contentDivider\s*\{\s*margin-top:\s*40px;/);
   assert.match(css, /\.contentSection > figure\s*\{\s*margin-top:\s*40px;/);
+  assert.match(css, /\.contentSection > \[data-project-frame\]\s*\{\s*margin-top:\s*40px;/);
   assert.match(css, /\.contentSection > figure \+ \.contentDivider\s*\{\s*display:\s*none;/);
   assert.match(css, /\.contentSection ul,[\s\S]*display:\s*flex;[\s\S]*gap:\s*4px;/);
   assert.match(css, /\.contentSection li \+ li\s*\{\s*margin-top:\s*0;/);

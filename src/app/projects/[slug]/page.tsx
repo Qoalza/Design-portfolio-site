@@ -106,14 +106,14 @@ function ProjectContentBlockView({ block }: { block: ProjectSectionBlock }) {
   return <ProjectDivider />;
 }
 
-function ProjectSectionView({ section, id }: { section: ProjectSectionContent; id: string }) {
+function ProjectSectionView({ section, id, showDivider }: { section: ProjectSectionContent; id: string; showDivider: boolean }) {
   const hasInteractiveBlock = section.blocks.some((block) => block.type === "image" || block.type === "frame");
   const contentBlocks = section.blocks.filter((block) => block.type !== "divider");
   return (
     <ProjectSection>
       <h2 id={id}>{section.heading}</h2>
       {contentBlocks.map((block, index) => <ProjectContentBlockView key={`${block.type}-${index}`} block={block} />)}
-      {!hasInteractiveBlock ? <ProjectDivider /> : null}
+      {!hasInteractiveBlock && showDivider ? <ProjectDivider /> : null}
     </ProjectSection>
   );
 }
@@ -227,9 +227,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               activeItemClassName={styles.activeNavigationItem}
             />
 
-            <article className={styles.projectArticle} data-project-content-column>
+            <article className={`${styles.projectArticle} ${galleryBlocks.length ? styles.projectArticleWithGallery : ""}`} data-project-content-column>
               {sectionBlocks.map((section, index) => (
-                <ProjectSectionView key={projectSections[index].id} id={projectSections[index].id} section={section} />
+                <ProjectSectionView
+                  key={projectSections[index].id}
+                  id={projectSections[index].id}
+                  section={section}
+                  showDivider={index < sectionBlocks.length - 1 || galleryBlocks.length === 0}
+                />
               ))}
             </article>
           </div>

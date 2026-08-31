@@ -257,12 +257,14 @@
 .contentSection ul > li { height: 24px; }
 .contentSection strong { color: #313a41; font-weight: 600; }
 .contentSection > figure { margin-top: 40px; }
+.contentSection > [data-project-frame] { margin-top: 40px; }
 .contentSection:first-child > p + p { margin-top: 24px; }
 .contentSection:nth-child(2) > p + p { margin-top: 0; }
 .contentSection:nth-child(3) > p + p { margin-top: 24px; }
 .contentSection:nth-child(4) > p:nth-of-type(2) { margin-top: 0; }
 .contentSection:nth-child(4) > p:nth-of-type(3) { margin-top: 24px; }
 .contentSection:last-child > p + p { margin-top: 0; }
+.projectArticleWithGallery .contentSection:last-child { padding-bottom: 40px; }
 
 .contentSection .projectNotice {
   display: flex;
@@ -305,6 +307,8 @@
 }
 
 .contentDivider { width: 100%; margin-top: 40px; border: 0; border-top: 1px solid #e2e5e7; }
+.projectNotice + .contentDivider { margin-top: 40px; }
+.contentSection > figure + .contentDivider { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .projectNavigation a,

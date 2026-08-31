@@ -20,6 +20,8 @@ test("Gallery lightbox supports explicit, Escape and backdrop dismissal", () => 
   assert.match(lightbox, /trigger\?\.focus/);
   assert.match(lightbox, /scrollPositionRef/);
   assert.match(lightbox, /window\.scrollTo\(scrollPosition\.x, scrollPosition\.y\)/);
+  assert.match(lightbox, /className=\{styles\.expandedFrame\}/);
+  assert.doesNotMatch(lightbox, /styles\.expandedFrame\} \$\{styles\.frame\}/);
 });
 
 test("upper project preview is a non-interactive image", () => {
