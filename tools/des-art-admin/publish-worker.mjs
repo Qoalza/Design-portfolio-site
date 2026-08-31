@@ -26,6 +26,13 @@ export function createPublishBranch(isoDate = new Date().toISOString()) {
   return `codex/content-publish-${compact.slice(0, 8)}-${compact.slice(8)}`;
 }
 
+export async function createReleaseArchive({ archive, sourceRoot }) {
+  await exec("tar", ["--no-mac-metadata", "--no-xattrs", "--no-acls", "--no-fflags", "--exclude=.git", "--exclude=node_modules", "--exclude=.next", "--exclude=.next-admin-preview-*", "-czf", archive, "-C", sourceRoot, "."], {
+    env: { ...process.env, COPYFILE_DISABLE: "1" },
+    maxBuffer: 10 * 1024 * 1024,
+  });
+}
+
 async function atomicJson(file, value) {
   await mkdir(path.dirname(file), { recursive: true });
   const temporary = `${file}.${process.pid}.tmp`;
@@ -167,7 +174,7 @@ export async function runPublishJob(jobFile) {
       } else if (stageId === "deploy" && job.mode === "live") {
         const config = job.liveConfig;
         const archive = path.join(job.supportRoot, "jobs", `${job.publishedSha}.tar.gz`);
-        await exec("tar", ["--exclude=.git", "--exclude=node_modules", "--exclude=.next", "--exclude=.next-admin-preview-*", "-czf", archive, "-C", worktree, "."], { maxBuffer: 10 * 1024 * 1024 });
+        await createReleaseArchive({ archive, sourceRoot: worktree });
         await uploadRelease({ archive, config, sha: job.publishedSha });
         await rm(archive, { force: true });
         await exec("ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=15", "-i", config.keyPath, `${config.user}@${config.host}`, "publish", job.publishedSha], { maxBuffer: 20 * 1024 * 1024 });
