@@ -240,9 +240,9 @@ export function CardEditor({
 }
 
 const groupDefaults: Record<ProjectGalleryGroup["id"], Omit<ProjectGalleryGroup, "items">> = {
-  desktop: { id: "desktop", label: "Desktop", icon: "/assets/device-desktop.svg", baseWidth: 740, baseHeight: 512 },
-  tablet: { id: "tablet", label: "Tablet", icon: "/assets/device-tablet.svg", baseWidth: 400, baseHeight: 566 },
-  mobile: { id: "mobile", label: "Mobile", icon: "/assets/device-mobile.svg", baseWidth: 180, baseHeight: 320 },
+  desktop: { id: "desktop", label: "Desktop", icon: "/assets/projects/corvo/desktop.svg", baseWidth: 740, baseHeight: 512 },
+  tablet: { id: "tablet", label: "Tablet", icon: "/assets/projects/corvo/tablet.svg", baseWidth: 400, baseHeight: 566 },
+  mobile: { id: "mobile", label: "Mobile", icon: "/assets/projects/corvo/mobile.svg", baseWidth: 180, baseHeight: 320 },
 };
 
 export { groupDefaults };

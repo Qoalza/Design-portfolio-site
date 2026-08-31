@@ -95,6 +95,12 @@ test("disabling the last gallery device removes the invalid empty gallery", () =
   assert.match(adminRail, /filter\(\(block\) => block\.type !== "gallery"\)/);
 });
 
+test("new Gallery devices use the checked-in Figma icon exports", () => {
+  for (const device of ["desktop", "tablet", "mobile"]) {
+    assert.match(adminEditor, new RegExp(`icon: "/assets/projects/corvo/${device}\\.svg"`));
+  }
+});
+
 test("rich text toolbar uses Radix icons instead of letter glyph controls", () => {
   assert.match(adminComponents, /FontBoldIcon/);
   assert.match(adminComponents, /FontItalicIcon/);

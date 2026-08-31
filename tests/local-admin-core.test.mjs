@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -237,6 +237,7 @@ test("uploads use safe names, reject traversal and preserve different files with
   const configured = await roots();
   const store = new AdminStore(configured);
   await store.saveProject(project());
+  await mkdir(path.join(configured.draftAssetRoot, "admin-test", "frames"), { recursive: true });
   const png = Buffer.alloc(24);
   Buffer.from("89504e470d0a1a0a", "hex").copy(png);
   png.writeUInt32BE(20, 16);

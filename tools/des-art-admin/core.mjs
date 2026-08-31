@@ -428,7 +428,9 @@ export class AdminStore {
     await mkdir(assetDirectory, { recursive: true });
     const digest = createHash("sha256").update(buffer).digest("hex");
     let duplicateOf;
-    const existingNames = await readdir(assetDirectory).catch(() => []);
+    const existingNames = (await readdir(assetDirectory, { withFileTypes: true }).catch(() => []))
+      .filter((entry) => entry.isFile())
+      .map((entry) => entry.name);
     for (const existing of existingNames) {
       const existingPath = resolveProjectAssetPath(this.draftAssetRoot, slug, existing);
       const existingBuffer = await readFile(existingPath);
