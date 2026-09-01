@@ -175,18 +175,23 @@ test("gallery uses large device-sized horizontal tiles with bottom-left ordering
   assert.match(adminEditor, /aria-label="Переместить изображение влево"/);
   assert.match(adminEditor, /aria-label="Переместить изображение вправо"/);
   assert.match(adminEditor, /className="gallery-item-delete"/);
+  assert.match(adminEditor, /className="gallery-item-controls"/);
+  assert.match(adminEditor, /const scrollGallery = \(direction: -1 \| 1\)/);
+  assert.match(adminEditor, /Прокрутить \$\{label\} влево/);
+  assert.match(adminEditor, /Прокрутить \$\{label\} вправо/);
   assert.match(adminEditor, /function galleryThumbnailSize/);
   assert.match(adminEditor, /galleryThumbnailSize\(item, group\.deviceId\)/);
   assert.match(adminCss, /\.gallery-list\s*\{[^}]*overflow-x:\s*auto/s);
   assert.match(adminCss, /\.gallery-list\[data-at-start="true"\]/);
   assert.match(adminCss, /\.gallery-group\[data-device="mobile"\]/);
-  assert.match(adminCss, /\.gallery-item-order\s*\{[^}]*bottom:\s*8px/s);
-  assert.match(adminCss, /\.gallery-item-delete\s*\{[^}]*bottom:\s*8px/s);
+  assert.match(adminCss, /\.gallery-item-controls\s*\{[^}]*background:\s*#fff/s);
+  assert.match(adminCss, /\.gallery-item-controls \.rt-IconButton\s*\{[^}]*background:\s*transparent/s);
+  assert.match(adminCss, /\.gallery-scroll-button-left\s*\{[^}]*left:\s*8px/s);
+  assert.match(adminCss, /\.gallery-scroll-button-right\s*\{[^}]*right:\s*8px/s);
   assert.match(adminCss, /--gallery-tile-width:\s*460px/);
   assert.match(adminCss, /\[data-device="tablet"\]\s*\{[^}]*--gallery-tile-height:\s*360px/s);
   assert.match(adminCss, /\[data-device="mobile"\]\s*\{[^}]*--gallery-tile-height:\s*320px/s);
   assert.match(adminCss, /\.gallery-list > li\.gallery-thumbnail\s*\{[^}]*flex:\s*0 0 auto/s);
-  assert.match(adminCss, /\.gallery-item-order \.rt-IconButton, \.gallery-item-delete\s*\{[^}]*background:\s*#fff !important/s);
 });
 
 test("rich toolbar active state is gray and clears when focus leaves the editor", () => {
