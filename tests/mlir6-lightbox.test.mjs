@@ -10,6 +10,7 @@ const cross = fs.readFileSync(new URL("../public/assets/projects/corvo/cross.svg
 
 test("lightbox scale is clamped by viewport, DPR quality and the 1.5x cap", () => {
   assert.equal(calculateLightboxScale({ baseWidth: 400, baseHeight: 566, intrinsicWidth: 1600, intrinsicHeight: 2266, dpr: 2, availableWidth: 1200, availableHeight: 1200 }), 1.5);
+  assert.equal(calculateLightboxScale({ baseWidth: 400, baseHeight: 566, intrinsicWidth: 500, intrinsicHeight: 707.5, dpr: 1, availableWidth: 1200, availableHeight: 1200 }), 1.25);
   assert.equal(calculateLightboxScale({ baseWidth: 740, baseHeight: 512, intrinsicWidth: 1480, intrinsicHeight: 1024, dpr: 2, availableWidth: 2000, availableHeight: 2000 }), 1);
   assert.equal(calculateLightboxScale({ baseWidth: 180, baseHeight: 320, intrinsicWidth: 1080, intrinsicHeight: 1920, dpr: 2, availableWidth: 216, availableHeight: 384 }), 1.2);
   assert.equal(calculateLightboxScale({ baseWidth: 400, baseHeight: 566, intrinsicWidth: 1600, intrinsicHeight: 2266, dpr: 2, availableWidth: 300, availableHeight: 900 }), 0.75);
