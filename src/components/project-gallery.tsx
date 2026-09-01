@@ -304,6 +304,8 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
 }
 
 export function ProjectGallery({ groups, title, description }: ProjectGalleryProps) {
+  const populatedGroups = groups.filter((group) => group.images.length > 0);
+  if (populatedGroups.length === 0) return null;
   return (
     <section className={styles.gallery} data-project-gallery>
       <header className={styles.title}>
@@ -311,7 +313,7 @@ export function ProjectGallery({ groups, title, description }: ProjectGalleryPro
         <p>{description}</p>
       </header>
       <div className={styles.groups}>
-        {groups.map((group) => <GalleryGroup group={group} key={group.deviceId} />)}
+        {populatedGroups.map((group) => <GalleryGroup group={group} key={group.deviceId} />)}
       </div>
     </section>
   );

@@ -95,8 +95,6 @@ function requiredIssues(draft) {
 export function compileAdminDraft(value) {
   const draft = createAdminDraft(value);
   const issues = requiredIssues(draft);
-  const pendingDevices = draft.admin?.gallery?.pendingDeviceIds ?? [];
-  if (pendingDevices.length) issues.push(fieldIssue({ field: "admin.gallery", label: "Галерея", title: "Галерея ещё не подготовлена", tab: "page", message: "Добавьте совместимое изображение для включённого устройства или отключите устройство." }));
   if (issues.length) throw new DraftValidationError(issues);
   const publicValue = clone(draft);
   delete publicValue.admin;

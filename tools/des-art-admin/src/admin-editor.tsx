@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element -- local admin previews draft files outside Next Image */
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { Badge, Button, Callout, Flex, Heading, IconButton, Switch, Text, TextArea, TextField } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
 import type { ProjectContentBlock, ProjectGalleryDeviceId, ProjectGalleryGroup, ProjectImage, ProjectSectionBlock } from "../../../src/lib/project-contract";
 import { PROJECT_VISUAL_TEMPLATES, type ProjectVisualTemplateId } from "../../../src/lib/project-visual-registry";
 import { sectionTemplateOptions } from "../figma-template-map.mjs";
 import type { AdminProject, AdminSection, FieldIssue } from "./admin-model";
-import { inline, issueFor, pendingGalleryDevices, textOf, visualSource, withoutVisualSource, withPendingGalleryDevices } from "./admin-model";
+import { inline, issueFor, textOf, visualSource, withoutVisualSource } from "./admin-model";
 import { Field, FigmaTemplateField, ImagePreview, RichEditor, TagField } from "./admin-ui";
 
 type UploadPolicy = { templateId: string; slot: string; operation: "replace" | "add" };
@@ -141,30 +141,6 @@ export const groupDefaults: Record<ProjectGalleryDeviceId, { deviceId: ProjectGa
   mobile: { deviceId: "mobile", label: "Mobile" },
 };
 
-function GalleryEditorFallback({ gallery, change, upload }: { gallery: Extract<ProjectContentBlock, { type: "gallery" }>; change: (value: Extract<ProjectContentBlock, { type: "gallery" }>) => void; upload: Upload }) {
-  const [importing, setImporting] = useState<ProjectGalleryDeviceId>();
-  const [uploadErrors, setUploadErrors] = useState<Partial<Record<ProjectGalleryDeviceId, string>>>({});
-  const updateGroup = (deviceId: ProjectGalleryDeviceId, value: ProjectGalleryGroup) => change({ ...gallery, groups: gallery.groups.map((group) => group.deviceId === deviceId ? value : group) });
-  return (
-    <section className="editor-section gallery-editor">
-      <div className="section-title"><div className="section-heading-copy"><Heading size="4">Галерея</Heading><Text size="2" color="gray">Рамки, подписи, иконки и размеры принадлежат шаблону gallery.devices-v1.</Text></div><Badge>{gallery.groups.reduce((sum, group) => sum + group.images.length, 0)} изображений</Badge></div>
-      {gallery.groups.length === 0 ? <div className="empty-inline"><Text size="2" color="gray">Выберите устройства в настройках справа.</Text></div> : null}
-      {gallery.groups.map((group) => {
-        const label = groupDefaults[group.deviceId].label;
-        const slot = PROJECT_VISUAL_TEMPLATES["gallery.devices-v1"].slots[group.deviceId];
-        const atLimit = group.images.length >= slot.maxItems;
-        const minWidth = slot.logicalWidth! * 2;
-        const minHeight = slot.logicalHeight! * 2;
-        const firstImage = group.images[0];
-        return <div className="gallery-group" data-device={group.deviceId} key={group.deviceId}><div className="section-title"><div className="section-heading-copy"><Heading size="3">{label}</Heading><Text size="1" color="gray">{firstImage ? <>Размер пула: {firstImage.width}×{firstImage.height} px. Все следующие изображения должны совпадать.</> : <>Ширина: {minWidth}–{slot.maxWidth} px · Высота: {minHeight}–{slot.maxHeight} px. Первое изображение фиксирует точный размер этого пула.</>} Изображение впишется без обрезки; внешний лейаут не изменится.</Text></div></div><label className="gallery-upload-zone" data-disabled={importing === group.deviceId || atLimit || undefined}><PlusIcon /><Text size="2" weight="medium">{atLimit ? "Достигнут лимит" : importing === group.deviceId ? "Проверяем…" : "Добавить изображение"}</Text><Text size="1" color="gray">PNG или WebP</Text><input hidden type="file" accept="image/png,image/webp" disabled={importing === group.deviceId || atLimit} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; setImporting(group.deviceId); void upload(file, `Галерея ${label}`, { templateId: "gallery.devices-v1", slot: group.deviceId, operation: "add" }).then((image) => { updateGroup(group.deviceId, { ...group, images: [...group.images, image] }); setUploadErrors((value) => ({ ...value, [group.deviceId]: undefined })); }).catch((error) => setUploadErrors((value) => ({ ...value, [group.deviceId]: error instanceof Error ? error.message : "Изображение не удалось загрузить." }))).finally(() => setImporting(undefined)); }} /></label>
-          {uploadErrors[group.deviceId] ? <Callout.Root color="red" size="1"><Callout.Text>{uploadErrors[group.deviceId]}</Callout.Text></Callout.Root> : null}
-          <ol className="gallery-list">{group.images.map((item, index) => <li key={`${item.src}-${index}`}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><Flex className="gallery-item-name" align="center" gap="2"><Text size="2">Изображение {index + 1}</Text><IconButton type="button" size="2" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => updateGroup(group.deviceId, { ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></Flex><Flex className="gallery-item-order" gap="2"><IconButton size="2" variant="ghost" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; updateGroup(group.deviceId, { ...group, images }); }}><ChevronUpIcon /></IconButton><IconButton size="2" variant="ghost" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; updateGroup(group.deviceId, { ...group, images }); }}><ChevronDownIcon /></IconButton></Flex></li>)}</ol>
-        </div>;
-      })}
-    </section>
-  );
-}
-
 function GalleryDeviceStrip({ group, label, change, upload }: {
   group: ProjectGalleryGroup;
   label: string;
@@ -205,7 +181,7 @@ function GalleryDeviceStrip({ group, label, change, upload }: {
       <div className="section-title"><div className="section-heading-copy"><Heading size="3">{label}</Heading><Text size="1" color="gray">{firstImage ? <>Размер пула: {firstImage.width}×{firstImage.height} px. Все следующие изображения должны совпадать.</> : <>Ширина: {minWidth}–{slot.maxWidth} px · Высота: {minHeight}–{slot.maxHeight} px. Первое изображение фиксирует точный размер этого пула.</>} Изображение впишется без обрезки; внешний лейаут не изменится.</Text></div></div>
       <ol className="gallery-list" ref={strip} tabIndex={0} aria-label={`Изображения ${label}`} data-at-start={edges.atStart || undefined} data-at-end={edges.atEnd || undefined} onScroll={refreshEdges}>
         <li className="gallery-upload-tile"><label className="gallery-upload-zone" data-disabled={importing === group.deviceId || atLimit || undefined}><PlusIcon /><Text size="2" weight="medium">{atLimit ? "Достигнут лимит" : importing === group.deviceId ? "Проверяем…" : "Добавить изображение"}</Text><Text size="1" color="gray">PNG или WebP</Text><input hidden type="file" accept="image/png,image/webp" disabled={importing === group.deviceId || atLimit} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; setImporting(group.deviceId); void upload(file, `Галерея ${label}`, { templateId: "gallery.devices-v1", slot: group.deviceId, operation: "add" }).then((image) => { change({ ...group, images: [...group.images, image] }); setUploadError(undefined); }).catch((error) => setUploadError(error instanceof Error ? error.message : "Изображение не удалось загрузить.")).finally(() => setImporting(undefined)); }} /></label></li>
-        {group.images.map((item, index) => <li className="gallery-thumbnail" key={`${item.src}-${index}`}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><Flex className="gallery-item-name" align="center" gap="2"><Text size="2">Изображение {index + 1}</Text><IconButton type="button" size="2" variant="solid" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => change({ ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></Flex><Flex className="gallery-item-order" gap="1"><IconButton size="1" variant="soft" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; change({ ...group, images }); }}><ChevronUpIcon /></IconButton><IconButton size="1" variant="soft" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; change({ ...group, images }); }}><ChevronDownIcon /></IconButton></Flex></li>)}
+        {group.images.map((item, index) => <li className="gallery-thumbnail" key={`${item.src}-${index}`}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><Flex className="gallery-item-order" gap="1"><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение влево" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; change({ ...group, images }); }}><ChevronLeftIcon /></IconButton><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение вправо" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; change({ ...group, images }); }}><ChevronRightIcon /></IconButton></Flex><IconButton className="gallery-item-delete" type="button" size="1" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => change({ ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></li>)}
       </ol>
       {uploadError ? <Callout.Root color="red" size="1"><Callout.Text>{uploadError}</Callout.Text></Callout.Root> : null}
     </div>
@@ -213,12 +189,10 @@ function GalleryDeviceStrip({ group, label, change, upload }: {
 }
 
 function GalleryEditor({ gallery, change, upload }: { gallery: Extract<ProjectContentBlock, { type: "gallery" }>; change: (value: Extract<ProjectContentBlock, { type: "gallery" }>) => void; upload: Upload }) {
-  if (typeof ResizeObserver === "undefined") return <GalleryEditorFallback gallery={gallery} change={change} upload={upload} />;
   const updateGroup = (deviceId: ProjectGalleryDeviceId, value: ProjectGalleryGroup) => change({ ...gallery, groups: gallery.groups.map((group) => group.deviceId === deviceId ? value : group) });
   return (
     <section className="editor-section gallery-editor">
       <div className="section-title"><div className="section-heading-copy"><Heading size="4">Галерея</Heading><Text size="2" color="gray">Рамки, подписи, иконки и размеры принадлежат шаблону gallery.devices-v1.</Text></div><Badge>{gallery.groups.reduce((sum, group) => sum + group.images.length, 0)} изображений</Badge></div>
-      {gallery.groups.length === 0 ? <div className="empty-inline"><Text size="2" color="gray">Выберите устройства в настройках справа.</Text></div> : null}
       {gallery.groups.map((group) => <GalleryDeviceStrip key={group.deviceId} group={group} label={groupDefaults[group.deviceId].label} change={(value) => updateGroup(group.deviceId, value)} upload={upload} />)}
     </section>
   );
@@ -229,12 +203,11 @@ export function PageEditor({ project, update, upload, importFigma, selectedSecti
 }) {
   const sections = project.content.filter((block): block is AdminSection => block.type === "section");
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery") ?? { type: "gallery", templateId: "gallery.devices-v1", groups: [] };
-  const pending = pendingGalleryDevices(project);
-  const galleryForEditing = { ...gallery, groups: [...gallery.groups, ...pending.filter((id) => !gallery.groups.some((group) => group.deviceId === id)).map((deviceId) => ({ deviceId, images: [] }))] };
+  const galleryGroups = (["desktop", "tablet", "mobile"] as const).map((deviceId) => gallery.groups.find((group) => group.deviceId === deviceId) ?? { deviceId, images: [] });
+  const galleryForEditing = { ...gallery, groups: galleryGroups };
   const galleryChange = (value: Extract<ProjectContentBlock, { type: "gallery" }>) => {
-    const resolvedPending = pending.filter((id) => !value.groups.some((group) => group.deviceId === id && group.images.length > 0));
-    const publicGroups = value.groups.filter((group) => !resolvedPending.includes(group.deviceId));
-    update(withPendingGalleryDevices({ ...project, content: publicGroups.length === 0 ? project.content.filter((block) => block.type !== "gallery") : project.content.some((block) => block.type === "gallery") ? project.content.map((block) => block.type === "gallery" ? { ...value, groups: publicGroups } : block) : [...project.content, { ...value, groups: publicGroups }] }, resolvedPending));
+    const nextGallery = { ...value, groups: value.groups.filter((group) => group.images.length > 0) };
+    update({ ...project, content: nextGallery.groups.length === 0 ? project.content.filter((block) => block.type !== "gallery") : project.content.some((block) => block.type === "gallery") ? project.content.map((block) => block.type === "gallery" ? nextGallery : block) : [...project.content, nextGallery] });
   };
   const heroTemplate = project.visuals.hero ? PROJECT_VISUAL_TEMPLATES[project.visuals.hero.templateId] : undefined;
   return (

@@ -1,15 +1,12 @@
 import { ChevronDownIcon, EyeOpenIcon, TrashIcon } from "@radix-ui/react-icons";
 import { Button, Callout, DropdownMenu, Flex, Select, Switch, Text, TextField } from "@radix-ui/themes";
 import type {
-  ProjectContentBlock,
   ProjectDocument,
-  ProjectGalleryGroup,
   ProjectPlatform,
   ProjectVisibility,
 } from "../../../src/lib/project-contract";
-import { groupDefaults } from "./admin-editor";
 import type { AdminProject, FieldIssue } from "./admin-model";
-import { issueFor, pendingGalleryDevices, withPendingGalleryDevices } from "./admin-model";
+import { issueFor } from "./admin-model";
 import { Field, RailGroup } from "./admin-ui";
 import { changeProjectFileState, changeProjectMaterialsState } from "../material-state.mjs";
 
@@ -34,7 +31,7 @@ export function ProjectOverview({
     <RailGroup title="Проект" description={issues.length ? `Нужно исправить · ${issues.length}` : "Готов к публикации"}>
       <Text size="2" color={project.visibility === "published" ? "green" : project.visibility === "deleted" ? "red" : "gray"}>{project.visibility === "published" ? "Опубликован" : project.visibility === "deleted" ? "Удалён" : "Черновик"}</Text>
       {issues.length ? <Button size="3" variant="soft" color="orange" onClick={reviewIssues}>Показать ошибки · {issues.length}</Button> : null}
-      {project.visibility !== "deleted" ? <Flex className="preview-split" gap="0"><Button size="3" variant="soft" color="gray" onClick={() => preview("home")}><EyeOpenIcon />Предпросмотр</Button><DropdownMenu.Root><DropdownMenu.Trigger asChild><Button size="3" variant="soft" color="gray" aria-label="Выбрать страницу предпросмотра"><ChevronDownIcon /></Button></DropdownMenu.Trigger><DropdownMenu.Content><DropdownMenu.Item onSelect={() => preview("catalog")}>Все работы</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("project")}>Страница проекта</DropdownMenu.Item></DropdownMenu.Content></DropdownMenu.Root></Flex> : null}
+      {project.visibility !== "deleted" ? <Flex className="preview-split" gap="0"><Button size="3" variant="soft" color="gray" onClick={() => preview("home")}><EyeOpenIcon />Предпросмотр</Button><DropdownMenu.Root><DropdownMenu.Trigger className="preview-split-trigger" aria-label="Выбрать страницу предпросмотра"><ChevronDownIcon /></DropdownMenu.Trigger><DropdownMenu.Content><DropdownMenu.Item onSelect={() => preview("catalog")}>Все работы</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("project")}>Страница проекта</DropdownMenu.Item></DropdownMenu.Content></DropdownMenu.Root></Flex> : null}
       {project.visibility === "draft" ? <Button size="3" onClick={publish}>Опубликовать</Button> : null}
       {project.visibility === "published" && changed ? <Button size="3" onClick={publish}>Опубликовать изменения</Button> : null}
       {project.visibility === "deleted" ? (
@@ -170,45 +167,6 @@ function MaterialsSettings({
   );
 }
 
-function GallerySettings({ project, update }: { project: AdminProject; update: (patch: Partial<AdminProject>) => void }) {
-  const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
-    ?? { type: "gallery", templateId: "gallery.devices-v1", groups: [] };
-  const pending = pendingGalleryDevices(project);
-  const setEnabled = (id: ProjectGalleryGroup["deviceId"], enabled: boolean) => {
-    const hasGroup = gallery.groups.some((group) => group.deviceId === id);
-    const next = {
-      ...gallery,
-      groups: enabled
-        ? gallery.groups
-        : gallery.groups.filter((group) => group.deviceId !== id),
-    };
-    const nextProject = withPendingGalleryDevices({
-      ...project,
-      content: next.groups.length === 0
-        ? project.content.filter((block) => block.type !== "gallery")
-        : project.content.some((block) => block.type === "gallery")
-          ? project.content.map((block) => block.type === "gallery" ? next : block)
-          : [...project.content, next],
-    }, enabled && !hasGroup
-      ? [...new Set([...pending, id])]
-      : pending.filter((item) => item !== id));
-    update(nextProject);
-  };
-  return (
-    <RailGroup title="Галерея" description="Одна галерея, от одного до трёх типов устройств.">
-      <div className="rail-switch-list">
-        {(["desktop", "tablet", "mobile"] as const).map((id) => (
-          <label className="switch-line" key={id}>
-            <Text size="2">{groupDefaults[id].label}</Text>
-            <Switch radius="full" checked={gallery.groups.some((group) => group.deviceId === id) || pending.includes(id)} onCheckedChange={(enabled) => setEnabled(id, enabled)} />
-          </label>
-        ))}
-      </div>
-      {pending.length ? <Text size="1" color="orange">Добавьте изображение для включённых устройств или отключите их перед предпросмотром и публикацией.</Text> : null}
-    </RailGroup>
-  );
-}
-
 export function PageSettings({
   project,
   update,
@@ -230,7 +188,6 @@ export function PageSettings({
         </label>
       </RailGroup>
       <MaterialsSettings project={project} update={update} issues={issues} />
-      <GallerySettings project={project} update={update} />
     </>
   );
 }

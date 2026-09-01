@@ -56,9 +56,11 @@ test("compiled draft strips local metadata and preserves only declared public sl
   assert.deepEqual(compiled.content[0].blocks, [{ type: "divider" }]);
 });
 
-test("pending gallery device remains local and blocks preview or publish", () => {
+test("legacy gallery activation metadata remains local and does not block a draft", () => {
   const draft = createAdminDraft(project({ admin: { gallery: { pendingDeviceIds: ["desktop"] } } }));
-  assert.throws(() => compileAdminDraft(draft), (error) => error instanceof DraftValidationError && error.issues[0]?.field === "admin.gallery" && /Галерея ещё не подготовлена/.test(error.issues[0]?.title));
+  const compiled = compileAdminDraft(draft);
+  assert.equal("admin" in compiled, false);
+  assert.equal(compiled.content.some((block) => block.type === "gallery"), false);
 });
 
 test("Admin keeps stable section ids and rejects legacy schema before compilation", () => {

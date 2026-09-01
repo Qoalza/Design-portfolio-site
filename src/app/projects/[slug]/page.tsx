@@ -195,7 +195,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const projectTrailItem = { href: `/projects/${project.slug}`, label: project.title };
   const sectionBlocks = project.content.filter((block): block is ProjectSectionContent => block.type === "section");
   const projectSections = getProjectSections(project.content);
-  const galleryBlocks = project.content.filter((block): block is ProjectGalleryContent => block.type === "gallery");
+  const galleryBlocks = project.content.filter((block): block is ProjectGalleryContent => block.type === "gallery" && block.groups.some((group) => group.images.length > 0));
 
   return (
     <div className={styles.page}>

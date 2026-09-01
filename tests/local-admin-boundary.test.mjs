@@ -126,13 +126,19 @@ test("Admin keeps project identity global and exposes status actions without a v
   assert.match(adminRail, /preview\("home"\)/);
   assert.match(adminRail, /Все работы/);
   assert.match(adminRail, /Страница проекта/);
+  assert.doesNotMatch(adminRail, /DropdownMenu\.Trigger asChild/);
+  assert.match(adminRail, /className="preview-split-trigger"/);
+  assert.doesNotMatch(adminComponents, /Dialog\.Trigger asChild/);
   assert.match(adminUi, /confirmation === "unpublish"/);
   assert.match(adminUi, /setVisibility\("draft"\)/);
 });
 
-test("disabling the last gallery device removes the invalid empty gallery", () => {
-  assert.match(adminRail, /next\.groups\.length === 0/);
-  assert.match(adminRail, /filter\(\(block\) => block\.type !== "gallery"\)/);
+test("gallery devices are derived from uploaded images instead of activation switches", () => {
+  assert.doesNotMatch(adminRail, /function GallerySettings/);
+  assert.doesNotMatch(adminRail, /pendingGalleryDevices/);
+  assert.doesNotMatch(adminEditor, /pendingGalleryDevices/);
+  assert.match(adminEditor, /const galleryGroups = \(\["desktop", "tablet", "mobile"\] as const\)/);
+  assert.match(adminEditor, /groups: value\.groups\.filter\(\(group\) => group\.images\.length > 0\)/);
 });
 
 test("Gallery device presentation is code-owned outside Admin data", () => {
@@ -151,16 +157,21 @@ test("rich text toolbar uses Radix icons instead of letter glyph controls", () =
   assert.doesNotMatch(adminComponents, /<u>U<\/u>/);
 });
 
-test("gallery uses device-sized horizontal tiles with conditional scroll fades", () => {
+test("gallery uses large device-sized horizontal tiles with bottom-left ordering and bottom-right deletion", () => {
   assert.match(adminEditor, /function GalleryDeviceStrip/);
   assert.match(adminEditor, /className="gallery-upload-tile"/);
   assert.match(adminEditor, /className="gallery-thumbnail"/);
   assert.match(adminEditor, /data-at-start=\{edges\.atStart/);
   assert.match(adminEditor, /data-at-end=\{edges\.atEnd/);
-  assert.match(adminEditor, /aria-label=\{`Удалить изображение/);
+  assert.match(adminEditor, /aria-label="Переместить изображение влево"/);
+  assert.match(adminEditor, /aria-label="Переместить изображение вправо"/);
+  assert.match(adminEditor, /className="gallery-item-delete"/);
   assert.match(adminCss, /\.gallery-list\s*\{[^}]*overflow-x:\s*auto/s);
   assert.match(adminCss, /\.gallery-list\[data-at-start="true"\]/);
   assert.match(adminCss, /\.gallery-group\[data-device="mobile"\]/);
+  assert.match(adminCss, /\.gallery-item-order\s*\{[^}]*bottom:\s*8px/s);
+  assert.match(adminCss, /\.gallery-item-delete\s*\{[^}]*bottom:\s*8px/s);
+  assert.match(adminCss, /--gallery-tile-width:\s*460px/);
 });
 
 test("rich toolbar active state is gray and clears when focus leaves the editor", () => {
@@ -169,6 +180,13 @@ test("rich toolbar active state is gray and clears when focus leaves the editor"
   assert.match(adminComponents, /setState\(EMPTY_EDITOR_STATE\)/);
   assert.match(adminComponents, /onBlur=\{\(\) => setState\(EMPTY_EDITOR_STATE\)\}/);
   assert.match(adminCss, /\.rich-toolbar \.rt-IconButton\.rich-toolbar-tool-active/);
+  assert.match(adminCss, /\.admin-shell \.rich-toolbar \.rt-IconButton:hover\s*\{[^}]*width:\s*32px/s);
+});
+
+test("public Portfolio omits empty gallery device pools and the gallery itself when no images remain", () => {
+  assert.match(projectGallery, /const populatedGroups = groups\.filter\(\(group\) => group\.images\.length > 0\)/);
+  assert.match(projectGallery, /if \(populatedGroups\.length === 0\) return null/);
+  assert.match(projectRoute, /block\.groups\.some\(\(group\) => group\.images\.length > 0\)/);
 });
 
 test("prepared macOS launcher bundle is complete", async () => {

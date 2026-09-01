@@ -1,13 +1,8 @@
 import type {
   ProjectContentBlock,
-  ProjectGalleryDeviceId,
   ProjectDocument,
   ProjectInlineContent,
 } from "../../../src/lib/project-contract";
-
-export type AdminGallerySetting = {
-  pendingDeviceIds?: ProjectGalleryDeviceId[];
-};
 
 export type AdminVisualSource = {
   url: string;
@@ -21,7 +16,6 @@ export type AdminVisualSource = {
 
 export type AdminProject = Omit<ProjectDocument, "content"> & {
   admin?: {
-    gallery?: AdminGallerySetting;
     visualSources?: Record<string, AdminVisualSource>;
   };
   content: AdminContentBlock[];
@@ -97,23 +91,6 @@ export const textOf = (content: ProjectInlineContent[] = []) => content
   .join("");
 
 export const inline = (value: string): ProjectInlineContent[] => [{ type: "text", text: value }];
-
-export function pendingGalleryDevices(project: AdminProject): ProjectGalleryDeviceId[] {
-  return project.admin?.gallery?.pendingDeviceIds ?? [];
-}
-
-export function withPendingGalleryDevices(
-  project: AdminProject,
-  pendingDeviceIds: ProjectGalleryDeviceId[],
-): AdminProject {
-  return {
-    ...project,
-    admin: {
-      ...project.admin,
-      gallery: pendingDeviceIds.length ? { pendingDeviceIds } : undefined,
-    },
-  };
-}
 
 export function visualSource(project: AdminProject, key: string): AdminVisualSource | undefined {
   return project.admin?.visualSources?.[key];
