@@ -48,14 +48,14 @@ Packaged Admin может использовать другую checkout-вер�
 
 Project-only publish сохраняет canonical `catalogOrder` и `homePlacement`; эти глобальные поля меняются только публикацией всех изменений. Preflight проверяет schema/profile/templates/slots/assets, catalog layout, обе позиции главной и все потребляющие preview surfaces.
 
-Без подтверждённой live-конфигурации публикация остаётся sandbox-only. Sandbox state не может быть использован для наполнения или обновления production. Live workflow, PR/merge/deploy и production boundaries описаны отдельно и не разрешаются самим фактом редактирования в Admin.
+Публикация всегда sandbox-only. Sandbox state не может быть использован для наполнения или обновления production: Admin не содержит live workflow, PR/merge/deploy, SSH или GitHub CLI. Любая non-sandbox job отклоняется до записи файлов. Release выполняется отдельным OPS-процессом после явного подтверждения.
 
 ## Legacy migration
 
 - Публичный runtime и serializer принимают только schema v3.
 - Schema v2 читается отдельным migrator, а legacy Frame требует явного mapping в утверждённый template.
 - `migrate-v3.mjs` поддерживает `--dry-run`, `--apply`, `--rollback`.
-- Backup включает draft JSON, все draft assets и SHA-256 manifest; secrets и live-config исключены.
+- Backup включает draft JSON, все draft assets и SHA-256 manifest; rollback сначала создаёт и проверяет отдельный v3 backup и pending journal, а при незавершённой операции безопасно останавливается.
 - Sarafan migration сохраняет исходные generic Frame/gallery данные в backup, переносит известные Figma source URLs в Admin-only metadata, а active public draft получает named slots code-owned templates.
 
 ## Доказанный пользовательский контур

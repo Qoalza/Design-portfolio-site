@@ -8,7 +8,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
-import { ensureProductionDataBaseline } from "./production-data-bootstrap.mjs";
+import { ensureProductionDataBaseline, extractPublishedBuildSha } from "./production-data-bootstrap.mjs";
 
 const exec = promisify(execFile);
 const resources = path.dirname(fileURLToPath(import.meta.url));
@@ -25,15 +25,6 @@ const managedRepo = path.join(supportRoot, "repository");
 const logsRoot = path.join(supportRoot, "logs");
 const adminPort = 41731;
 const previewPort = 41732;
-
-async function configuredPublishMode() {
-  try {
-    const value = JSON.parse(await readFile(path.join(supportRoot, "live-publish.json"), "utf8"));
-    return value.mode === "live" ? "live" : "sandbox";
-  } catch {
-    return "sandbox";
-  }
-}
 
 async function stopService(name) {
   const pidFile = path.join(supportRoot, `${name}.pid`);
@@ -66,6 +57,26 @@ async function openAdmin() {
   await exec("/usr/bin/open", [`http://127.0.0.1:${adminPort}`]);
 }
 
+async function confirmedPublishedSha() {
+  let response;
+  try {
+    response = await fetch("https://art-des.ru/", {
+      headers: { accept: "text/html" },
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    throw new Error("Не удалось подтвердить SHA опубликованного Portfolio. Запуск Admin остановлен до изменения локальных данных.");
+  }
+  if (!response.ok) {
+    throw new Error("Опубликованный Portfolio недоступен для проверки SHA. Запуск Admin остановлен до изменения локальных данных.");
+  }
+  const sha = extractPublishedBuildSha(await response.text());
+  if (!sha) {
+    throw new Error("Опубликованный Portfolio не вернул полный data-build-sha. Запуск Admin остановлен до изменения локальных данных.");
+  }
+  return sha;
+}
+
 async function ensureManagedRepository() {
   await mkdir(supportRoot, { recursive: true });
   try {
@@ -76,6 +87,11 @@ async function ensureManagedRepository() {
   const { stdout: status } = await exec("/usr/bin/git", ["status", "--porcelain"], { cwd: managedRepo });
   if (status.trim()) throw new Error("Управляемая копия содержит несохранённые изменения. Автоматическая синхронизация остановлена.");
   await exec("/usr/bin/git", ["fetch", "origin", "main"], { cwd: managedRepo });
+  const targetSha = (await exec("/usr/bin/git", ["rev-parse", "origin/main"], { cwd: managedRepo })).stdout.trim();
+  const publishedSha = await confirmedPublishedSha();
+  if (publishedSha !== targetSha) {
+    throw new Error("SHA опубликованного Portfolio не совпадает с origin/main. Запуск Admin остановлен до обновления managed repository и sandbox-данных.");
+  }
   await exec("/usr/bin/git", ["switch", "main"], { cwd: managedRepo });
   await exec("/usr/bin/git", ["merge", "--ff-only", "origin/main"], { cwd: managedRepo });
   const lock = await readFile(path.join(managedRepo, "package-lock.json"));
@@ -88,6 +104,7 @@ async function ensureManagedRepository() {
     await exec("npm", ["ci", "--no-audit", "--no-fund"], { cwd: managedRepo });
     await writeFile(marker, `${lockHash}\n`, { mode: 0o600 });
   }
+  return { targetSha, publishedSha };
 }
 
 async function detached(command, args, name, env = {}) {
@@ -112,16 +129,14 @@ async function waitUntilReady(port, timeout = 60_000) {
 
 async function main() {
   await mkdir(logsRoot, { recursive: true });
-  await ensureManagedRepository();
-  const publishMode = await configuredPublishMode();
-  if (publishMode === "live") {
-    await ensureProductionDataBaseline({
-      supportRoot,
-      managedRepo,
-      stopService,
-      resolveSourceSha: async () => (await exec("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: managedRepo })).stdout.trim(),
-    });
-  }
+  const { targetSha, publishedSha } = await ensureManagedRepository();
+  await ensureProductionDataBaseline({
+    supportRoot,
+    managedRepo,
+    stopService,
+    resolveSourceSha: async () => targetSha,
+    resolvePublishedSha: async () => publishedSha,
+  });
   // The managed repository may have advanced while the existing Node processes
   // still hold the previous server and Next.js modules in memory.
   await stopService("admin");
@@ -132,7 +147,6 @@ async function main() {
       DES_ART_ADMIN_SUPPORT: supportRoot,
       DES_ART_ADMIN_PORT: String(adminPort),
       DES_ART_PREVIEW_PORT: String(previewPort),
-      DES_ART_ADMIN_PUBLISH_MODE: publishMode,
     });
   }
   if (!(await reachable(previewPort))) {

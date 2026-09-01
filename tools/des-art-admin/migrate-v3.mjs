@@ -12,6 +12,7 @@ import { compileAdminDraft, createAdminDraft } from "./draft-contract.mjs";
 const SLUG = "sarafan-radio";
 const BACKUP_DIRECTORY = "v3-migration-backups";
 const STATE_FILE = "v3-migration-state.json";
+const ROLLBACK_JOURNAL_FILE = "v3-rollback-journal.json";
 const PROJECT_PREFIX = `/assets/projects/${SLUG}/`;
 
 const CROP_SPECS = {
@@ -268,8 +269,23 @@ export async function migrateAdminStoreV3({ supportRoot, mode, now = new Date().
   if (!path.isAbsolute(supportRoot)) throw new Error("supportRoot must be absolute.");
   if (mode === "rollback") {
     const stateFile = path.join(supportRoot, STATE_FILE);
+    const journalFile = path.join(supportRoot, ROLLBACK_JOURNAL_FILE);
     const state = JSON.parse(await readFile(stateFile, "utf8"));
     if (state.status !== "applied" || typeof state.backupRoot !== "string") throw new Error("There is no applied v3 migration to roll back.");
+    const existingJournal = await readFile(journalFile, "utf8").then(JSON.parse).catch(() => undefined);
+    if (existingJournal) {
+      if (existingJournal.version !== 1 || existingJournal.status !== "pending" || typeof existingJournal.v3BackupRoot !== "string") {
+        throw new Error("Rollback journal is invalid; live v3 data was not changed.");
+      }
+      await verifyBackup(existingJournal.v3BackupRoot);
+      const liveDraft = JSON.parse(await readFile(path.join(supportRoot, "drafts", `${SLUG}.json`), "utf8"));
+      if (liveDraft.schemaVersion !== 2) {
+        throw new Error("Rollback journal is pending but the live store is not a verified v2 restore. Stop without changing v3 backup.");
+      }
+      await atomicJson(stateFile, { ...state, status: "rolled-back", rolledBackAt: existingJournal.createdAt, rollbackBackupRoot: existingJournal.v3BackupRoot });
+      await rm(journalFile, { force: true });
+      return { mode, valid: true, backupRoot: state.backupRoot, rollbackBackupRoot: existingJournal.v3BackupRoot, recovered: true };
+    }
     await verifyBackup(state.backupRoot);
     const stageRoot = await mkdtemp(path.join(supportRoot, ".des-art-v3-rollback-"));
     const stagedDraft = path.join(stageRoot, "drafts", `${SLUG}.json`);
@@ -278,10 +294,19 @@ export async function migrateAdminStoreV3({ supportRoot, mode, now = new Date().
     await mkdir(path.dirname(stagedAssets), { recursive: true });
     await cp(path.join(state.backupRoot, "drafts", `${SLUG}.json`), stagedDraft, { force: false });
     await cp(path.join(state.backupRoot, "draft-assets", SLUG), stagedAssets, { recursive: true, force: false });
-    await swapStore(supportRoot, stagedDraft, stagedAssets, `rollback-${process.pid}`);
-    await rm(stageRoot, { recursive: true, force: true });
-    await atomicJson(stateFile, { ...state, status: "rolled-back", rolledBackAt: now });
-    return { mode, valid: true, backupRoot: state.backupRoot };
+    const liveDraft = path.join(supportRoot, "drafts", `${SLUG}.json`);
+    const liveAssets = path.join(supportRoot, "draft-assets", SLUG);
+    const rollbackBackupRoot = await createBackup(supportRoot, `pre-rollback-${backupId(now)}`, liveDraft, liveAssets);
+    await verifyBackup(rollbackBackupRoot);
+    await atomicJson(journalFile, { version: 1, status: "pending", createdAt: now, v3BackupRoot: rollbackBackupRoot, v2BackupRoot: state.backupRoot });
+    try {
+      await swapStore(supportRoot, stagedDraft, stagedAssets, `rollback-${process.pid}`);
+      await atomicJson(stateFile, { ...state, status: "rolled-back", rolledBackAt: now, rollbackBackupRoot });
+      await rm(journalFile, { force: true });
+      return { mode, valid: true, backupRoot: state.backupRoot, rollbackBackupRoot };
+    } finally {
+      await rm(stageRoot, { recursive: true, force: true });
+    }
   }
   if (mode !== "dry-run" && mode !== "apply") throw new Error("Mode must be dry-run, apply, or rollback.");
   const staged = await stageMigration(supportRoot, mode);

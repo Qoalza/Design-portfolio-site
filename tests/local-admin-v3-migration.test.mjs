@@ -116,8 +116,14 @@ test("Sarafan store migration is dry-runnable, backed up, reversible and re-appl
   assert.equal(restored.restored, 5);
   assert.equal(JSON.parse(await readFile(draftFile, "utf8")).admin.visualSources["sarafan-radio-section-3"].templateId, "canvas.sarafan-setup");
 
+  const editedV3 = JSON.parse(await readFile(draftFile, "utf8"));
+  editedV3.description = "Локальная v3-правка, которую rollback не должен удалить";
+  await writeFile(draftFile, `${JSON.stringify(editedV3, null, 2)}\n`);
+
   const rolledBack = await migrateAdminStoreV3({ supportRoot, mode: "rollback" });
   assert.equal(rolledBack.valid, true);
+  assert.equal(typeof rolledBack.rollbackBackupRoot, "string");
+  assert.equal(JSON.parse(await readFile(path.join(rolledBack.rollbackBackupRoot, "drafts", `${slug}.json`), "utf8")).description, editedV3.description);
   assert.equal(createHash("sha256").update(await readFile(draftFile)).digest("hex"), originalHash);
   await readFile(path.join(supportRoot, "draft-assets", slug, "gallery.png"));
 

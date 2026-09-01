@@ -42,7 +42,7 @@ canonical v3 JSON/assets
   → local Admin draft and hidden named-slot assets
   → strict compile + collection preflight
   → merged isolated preview overlay
-  → sandbox snapshot OR separately authorised live workflow
+  → local sandbox snapshot
 ```
 
 - Serializer always writes v3; public runtime rejects schema v2 and legacy Frame.
@@ -51,7 +51,7 @@ canonical v3 JSON/assets
 - Collection policy validates unique/order-compatible catalog positions and named homepage placements.
 - Project-only publish keeps global `catalogOrder` and `homePlacement` canonical.
 - Preview validates partial drafts only after merging them with the canonical collection.
-- Перед merge/release provenance каждого затронутого canonical document/asset подтверждает production source; недоказанный sandbox-derived материал является stop-line.
+- Перед merge/release read-only provenance verifier сравнивает exact base/target Git refs; недоказанный sandbox-derived материал является stop-line. Admin никогда не выполняет PR, merge или deploy.
 
 ## Compatibility and migration
 

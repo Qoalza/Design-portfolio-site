@@ -18,11 +18,11 @@ Current production release/rollback contract for `https://art-des.ru`.
 
 Read-only status/smoke можно выполнять в рамках diagnostic request.
 
-Подтверждение live publish в Admin UI является пользовательским подтверждением конкретного application workflow. Codex не должен инициировать такой workflow без прямого разрешения пользователя.
+Admin UI не имеет live publish workflow и не является разрешением на production-действие. Deploy выполняется только по этому runbook после отдельного прямого подтверждения.
 
 ## Canonical sources
 
-- Local worker: `tools/des-art-admin/publish-worker.mjs`.
+- Release выполняется OPS-оператором по exact SHA; `tools/des-art-admin/publish-worker.mjs` предназначен только для local sandbox rehearsal.
 - Restricted server command: `tools/des-art-admin/server/art-des-publish`.
 - Canonical Git base: fresh `origin/main`.
 - Production release identity: full 40-character merged SHA.
@@ -32,11 +32,8 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 
 ## Release model
 
-- Worker создаёт disposable worktree из fresh `origin/main`.
-- Content/assets компилируются только через current Shared contract.
-- Выполняются focused contract tests; live path дополнительно выполняет dependency install, lint и production build.
-- Создаются service branch и Pull Request.
-- После разрешённого merge worker повторно fetch-ит `origin/main`, подтверждает ancestry content commit и строит exact merged SHA.
+- Перед release operator подтверждает fresh `origin/main`, exact target SHA, required checks и read-only provenance report; sandbox data не является release input.
+- Merge, push и deploy остаются отдельными explicit approvals и не запускаются Admin.
 - Release archive исключает `.git`, dependencies, build directories, macOS metadata и local Admin/runtime state.
 - Ограниченный SSH key принимает только `status`, `upload <full-sha>`, `publish <full-sha>`.
 - Server собирает новый release directory, записывает `DEPLOY_SHA`, атомарно переключает `/var/www/art-des/current`, перезапускает `art-des.service` и выполняет readiness loop.
@@ -50,7 +47,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 2. clean/owned worktree или worker-owned disposable worktree;
 3. fresh `origin/main` и full target SHA;
 4. successful required checks из exact source;
-5. valid production data baseline для Admin live publish;
+5. Admin baseline, если он требуется после release, будет подтверждён public `data-build-sha`, совпадающим с deployed SHA;
 6. подтверждённый provenance каждого изменённого canonical content/assets: production source, без sandbox-derived data;
 7. `gh auth status` без вывода secrets;
 8. restricted SSH `status`;

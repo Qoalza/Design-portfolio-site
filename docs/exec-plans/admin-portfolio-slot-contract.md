@@ -1,8 +1,8 @@
 # Admin edits data, Portfolio owns visual
 
 Status: `COMPLETE`
-Started: 2026-09-01  
-Branch: `codex/admin-slot-contract`  
+Started: 2026-09-01
+Branch: `codex/admin-slot-contract`
 Base: `e9aa5b9baa377c2872b56908284263b88468470b`
 
 ## Outcome

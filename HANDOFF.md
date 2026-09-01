@@ -24,7 +24,7 @@
 ## Verification
 
 - Focused contract/Admin/migration tests: `62/62`.
-- Full repository tests: `221/221`.
+- Full repository tests: `233/233`.
 - `npm run lint`: green.
 - `npm run build`: green.
 - Gallery pixel-range и first-image-lock regression checks: green (`58/58` focused); Admin bundle, lint и production build: green. Workspace Admin перезапущена в sandbox mode; реальный Sarafan Desktop показывает диапазон `1480–2960 × 1024–2048 px` и пустой пул без мутации черновика.
@@ -36,6 +36,7 @@
 ## Stop-lines
 
 - Push, PR, merge, deploy, production mutation и публикация Sarafan не выполнялись.
+- Admin live publish удалён: launcher принимает baseline только когда public `data-build-sha` совпадает с `origin/main`; sandbox jobs не имеют пути в Git, PR, SSH или deploy.
 - Figma использовалась только read-only; token остаётся в macOS Keychain и не попадает в draft/Git/backup.
 - Packaged Admin использует старый managed checkout `96cabb7f80ad3f20afd07c5d54ad245a09495142`. Его нельзя запускать после schema-v3 migration реального draft до merge v3-кода. Для локальной работы использовать Admin из этой workspace-ветки в sandbox mode.
 - Protected untracked (`.des-art-admin-runtime-human-errors/`, `codex-context-transfer-2026-08-15/`, `codex-context-transfer-2026-08-15.zip`) и `USERSPACE/**` не читать и не трогать.

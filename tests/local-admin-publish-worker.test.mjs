@@ -1,12 +1,9 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { gunzipSync } from "node:zlib";
-
-import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
 
 const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
 function project({ title = "Черновик", visibility = "draft", catalogOrder = 4, homePlacement, admin = true } = {}) {
@@ -23,26 +20,6 @@ function project({ title = "Черновик", visibility = "draft", catalogOrde
   };
 }
 
-test("live publication branches are deterministic and contain no project title data", () => {
-  assert.equal(createPublishBranch("2026-08-29T12:34:56.000Z"), "codex/content-publish-20260829-123456");
-});
-
-test("release archives omit macOS metadata that Linux would extract as AppleDouble files", async (context) => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-release-archive-"));
-  const sourceRoot = path.join(root, "source");
-  const projectRoot = path.join(sourceRoot, "content", "projects");
-  const projectFile = path.join(projectRoot, "portfolio.json");
-  const archive = path.join(root, "release.tar.gz");
-  await mkdir(projectRoot, { recursive: true });
-  await writeFile(projectFile, "{\"slug\":\"portfolio\"}\n");
-  if (process.platform === "darwin") {
-    try { execFileSync("/usr/bin/xattr", ["-w", "com.apple.codex-deploy-test", "1", projectFile]); }
-    catch { context.skip("macOS extended attributes are unavailable"); return; }
-  }
-  await createReleaseArchive({ archive, sourceRoot });
-  const rawTar = gunzipSync(await readFile(archive)).toString("latin1");
-  assert.doesNotMatch(rawTar, /LIBARCHIVE\.xattr|SCHILY\.xattr|com\.apple\.codex-deploy-test|\._portfolio\.json/);
-});
 
 test("sandbox publish compiles Admin metadata, validates the full collection and preserves global placement in project scope", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-draft-"));
@@ -72,30 +49,20 @@ test("sandbox publish compiles Admin metadata, validates the full collection and
   assert.equal("admin" in snapshot, false);
 });
 
-test("readiness reports missing credentials without exposing secrets", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-"));
-  const result = await publishReadiness({ supportRoot: root });
-  assert.equal(typeof result.ready, "boolean");
-  assert.ok(Array.isArray(result.failures));
-  assert.doesNotMatch(JSON.stringify(result), /BEGIN .*PRIVATE KEY/);
-});
-
-test("live readiness blocks before canonical production data bootstrap", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-live-baseline-"));
-  const result = await publishReadiness({ supportRoot: root, mode: "live" });
+test("readiness rejects every non-sandbox mode without inspecting credentials", async () => {
+  const result = await publishReadiness({ mode: "live" });
   assert.equal(result.ready, false);
-  assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
+  assert.deepEqual(result.failures, ["Admin поддерживает только локальную sandbox-проверку"]);
 });
 
-test("live publish refuses a sandbox support root", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
+test("non-sandbox publish jobs are rejected before the job file is rewritten", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-non-sandbox-guard-"));
   const jobFile = path.join(root, "job.json");
-  await writeFile(jobFile, JSON.stringify({
+  const initial = {
     id: "unsafe-live", mode: "live", scope: "all", repoRoot: process.cwd(), supportRoot: root, files: [], status: "queued", message: "Подготовка",
     stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
-  }));
-  await runPublishJob(jobFile);
-  const result = JSON.parse(await readFile(jobFile, "utf8"));
-  assert.equal(result.status, "failed");
-  assert.doesNotMatch(JSON.stringify(result), /support root|Library\/Application Support/i);
+  };
+  await writeFile(jobFile, JSON.stringify(initial));
+  await assert.rejects(runPublishJob(jobFile), /only sandbox/);
+  assert.deepEqual(JSON.parse(await readFile(jobFile, "utf8")), initial);
 });

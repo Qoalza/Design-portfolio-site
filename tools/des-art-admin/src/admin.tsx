@@ -15,7 +15,6 @@ import { SavedMark } from "./admin-ui";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
 const csrf = document.body.dataset.csrf ?? "";
-const publishMode = document.body.dataset.publishMode === "live" ? "live" : "sandbox";
 const draftKey = (slug: string) => `des-art-admin:draft:${slug}`;
 const emptyInventory: ChangeInventory = { count: 0, projects: [] };
 const saveLabels: Record<SaveState, string> = {
@@ -291,7 +290,7 @@ function App() {
     <Theme accentColor="blue" grayColor="sand" radius="medium">
       <div className="admin-shell">
         <header className="admin-topbar">
-          <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color={publishMode === "live" ? "green" : "gray"}>{publishMode === "live" ? "Связано с art-des.ru" : "Тестовый контур"}</Badge></div>
+          <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color="gray">Тестовый контур</Badge></div>
           <Text color="gray">{current?.title ?? "Проекты портфолио"}</Text>
           <Flex gap="3" align="center">
             <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>
@@ -323,7 +322,7 @@ function App() {
                 <div className="editor-title">
                   <div>
                     <Flex align="center" gap="3"><Heading size="7">{current.title}</Heading><Badge color={current.visibility === "published" ? currentChange ? "orange" : "green" : current.visibility === "deleted" ? "red" : "gray"}>{current.visibility === "published" && currentChange ? "Есть изменения" : visibilityLabels[current.visibility]}</Badge></Flex>
-                    <Text size="2" color="gray">{publishMode === "live" ? "Черновик реального проекта" : "Редактирование локального черновика"}</Text>
+                    <Text size="2" color="gray">Редактирование локального черновика</Text>
                   </div>
                 </div>
                 {message ? <Callout.Root mb="4" color="orange"><Callout.Text>{message}</Callout.Text></Callout.Root> : null}
@@ -375,7 +374,7 @@ function App() {
           if (issue.sectionId) setSelectedSection(issue.sectionId);
           requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${CSS.escape(issue.field)}"]`)?.focus());
         })(); }} />
-        <ConfirmDialog open={confirmation === "project" || confirmation === "all" || confirmation === "publish-draft"} title={publishMode === "live" ? "Опубликовать на art-des.ru?" : "Запустить тестовую публикацию?"} description={publishMode === "live" ? "Админка проверит изменения, создаст Pull Request, выполнит merge и безопасно развернёт точный commit на production." : "Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся."} confirmLabel={publishMode === "live" ? "Опубликовать" : "Запустить"} close={() => setConfirmation(undefined)} confirm={() => { if (confirmation === "publish-draft") { setConfirmation(undefined); void setVisibility("published").then(() => startPublish("project", true)).catch((error) => setMessage(safeMessage(error))); return; } void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error))); }} />
+        <ConfirmDialog open={confirmation === "project" || confirmation === "all" || confirmation === "publish-draft"} title="Запустить тестовую публикацию?" description="Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся." confirmLabel="Запустить" close={() => setConfirmation(undefined)} confirm={() => { if (confirmation === "publish-draft") { setConfirmation(undefined); void setVisibility("published").then(() => startPublish("project", true)).catch((error) => setMessage(safeMessage(error))); return; } void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "unpublish"} title="Снять с публикации?" description="Проект исчезнет с главной, из «Все работы» и со своей страницы. Черновик останется в админке — его можно будет опубликовать снова." confirmLabel="Снять с публикации" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void setVisibility("draft").catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
@@ -387,7 +386,7 @@ function App() {
             <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button variant="soft" color="gray">Отмена</Button></Dialog.Close><Button disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then((value) => { setFigmaConnected(value.connected); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить подключение</Button></Flex>
           </Dialog.Content>
         </Dialog.Root>
-        <PublishOverlay job={job} mode={publishMode} close={() => setJob(null)} />
+        <PublishOverlay job={job} close={() => setJob(null)} />
       </div>
     </Theme>
   );
