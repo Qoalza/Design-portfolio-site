@@ -1,58 +1,51 @@
 # HANDOFF
 
-Обновлено: 2026-08-31.
-
-## Назначение
-
-Короткий текущий checkpoint. Фактический Git/runtime всегда перепроверяется перед действием.
+Обновлено: 2026-09-01.
 
 ## Checkout
 
 - Репозиторий: `/Users/designer/Documents/GitHub/Design-portfolio-site`.
-- Ветка документационной миграции: `codex/documentation-migration`, создана от проверенного `origin/main` (`96cabb7f80ad3f20afd07c5d54ad245a09495142`).
-- Exact `HEAD`, ahead/behind и рабочее состояние всегда получать свежей Git-проверкой: этот файл не является реестром изменяющихся SHA.
-- Protected untracked, не трогать без отдельного решения:
+- Активная ветка: `codex/admin-slot-contract`, создана от `e9aa5b9baa377c2872b56908284263b88468470b`.
+- Активный workstream: `docs/exec-plans/admin-portfolio-slot-contract.md`.
+- Packaged Admin использует отдельный managed checkout на `96cabb7f80ad3f20afd07c5d54ad245a09495142`; после миграции реального draft его не запускать до merge.
+- Перед действием перепроверять exact `HEAD`, branch и status.
+- Protected untracked, не читать и не трогать:
   - `.des-art-admin-runtime-human-errors/`;
   - `codex-context-transfer-2026-08-15/`;
   - `codex-context-transfer-2026-08-15.zip`.
-- `USERSPACE/` — локальная user-only папка, исключённая через `.git/info/exclude`; не читать и не трогать без прямого точечного запроса пользователя.
+- `USERSPACE/**` не читать и не трогать без прямого точечного запроса пользователя.
 
-## Текущее подтверждённое устройство
+## Current checkpoint
 
-- Публичные проекты используют schema-v2 JSON в `content/projects/*.json`.
-- Shared validator находится в `src/lib/project-contract.ts`.
-- Local Admin находится в `tools/des-art-admin`; current durable Admin contract — `tools/des-art-admin/SPEC.md`.
-- Все проекты, включая Corvo, работают через общий project-content contract.
-- Исторический Corvo brief не является active routing/source для обычной разработки.
-- Documentation migration разделила policy, оперативный checkpoint, active QA, долговечные contracts, runbooks, историю и evidence; legacy materials перенесены в `docs/archive/**` и `design-reference/**`.
-- Миграция не меняет code/runtime/Figma/canonical project JSON/Admin local data/production.
+- Investigation подтверждает две visual-authority модели: Portfolio-owned canonical компоненты и generic Frame authority в Admin.
+- Read-only Figma sources зафиксированы в ExecPlan: Sarafan catalog, hero и три canvas nodes.
+- Реальный локальный Sarafan draft пока schema v2, не опубликован; публичный `/projects/sarafan-radio` возвращал 404 на проверенном runtime.
+- Следующий проверяемый срез: failing tests для schema v3, registry и v2→v3 migration, затем реализация контракта.
 
-## Открытые элементы
+## Scope и режим
 
-- В `DESIGN_QA.md` открыт только вопрос visual/source fidelity конкретных current platform icons; сама механика `full frame + intrinsic size + mask/currentColor` принята.
-- Старый checkpoint по Admin Figma Frame preview не доказан на current source/runtime. Сначала нужна повторная проверка; до воспроизведения это не active QA finding.
-- Accessibility exceptions со старых Figma source требуют отдельной read-only revalidation до нового заявления о current compliance.
-- Preloaders/loading states остаются отдельным будущим backlog и не являются автоматически записью visual QA.
+- Области: `ADMIN + SHARED + PORTFOLIO`.
+- Размер: `LARGE`; риск: `HIGH`; режим: `FULL`.
+- Работа автономна до локальной приёмки с отдельными commits и тремя саморевью.
 
 ## Stop-lines
 
-- Не менять Figma без отдельного точного подтверждения.
-- Не трогать protected untracked artifacts в общей document cleanup.
-- Не читать/трогать `USERSPACE/**` без прямого точечного запроса пользователя.
-- Не выполнять merge/deploy/production action без отдельного exact approval.
-- Не менять code/runtime/canonical JSON/Admin local data в documentation migration.
+- Только read-only Figma; никаких Figma writes.
+- Не выполнять push, PR, merge, deploy или production mutation.
+- Не включать secrets, live-config или production data в backup/evidence.
+- Не менять реальный Admin store до проверенных dry-run, backup, rollback и review.
+- После schema-v3 migration реального draft запускать только Admin из текущей workspace-ветки в sandbox mode.
+- Legacy renderer удалять только после доказанного нулевого использования.
 
-## Следующий шаг
+## Next action
 
-Проверить три локальных документационных коммита и их итоговый diff. Push, PR и merge возможны только после отдельного явного разрешения; deploy в эту миграцию не входит.
+Добавить contract/migration tests, типизированный template registry и v2→v3 migrator; затем перевести canonical Portfolio consumers на v3.
 
-## Указатели
+## Pointers
 
-- Agent policy: `AGENTS.md`.
+- ExecPlan: `docs/exec-plans/admin-portfolio-slot-contract.md`.
 - Admin contract: `tools/des-art-admin/SPEC.md`.
-- Shared contract map: `docs/shared/PROJECT_CONTENT.md`.
-- Portfolio runtime invariants: `docs/portfolio/RUNTIME.md`.
-- Deploy runbook: `docs/ops/DEPLOY.md`.
+- Shared contract: `docs/shared/PROJECT_CONTENT.md`.
+- Portfolio runtime: `docs/portfolio/RUNTIME.md`.
 - Visual contract: `DESIGN_SYSTEM.md`.
-- Active visual QA: `DESIGN_QA.md`.
-- Historical context: targeted search in `PROJECT_HISTORY.md`, `docs/archive/**` and `design-reference/**`.
+- Deploy boundary: `docs/ops/DEPLOY.md`.
