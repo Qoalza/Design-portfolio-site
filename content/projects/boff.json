@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
+  "designProfile": "catalog-only-v1",
   "title": "B.Off",
   "slug": "boff",
   "description": "Управление криптовалютными платежами",
@@ -17,7 +18,6 @@
   ],
   "visibility": "published",
   "catalogOrder": 3,
-  "featuredOnHome": false,
   "detailAvailable": false,
   "materials": {
     "projectState": "in_progress",
@@ -28,11 +28,20 @@
     "Tablet",
     "Mobile"
   ],
-  "catalogImage": {
-    "src": "/assets/projects/catalog/boff-transactions.png",
-    "alt": "Интерфейс управления криптовалютными транзакциями B.Off",
-    "width": 2880,
-    "height": 1920
+  "visuals": {
+    "catalog": {
+      "templateId": "catalog.browser",
+      "assets": {
+        "screen": [
+          {
+            "src": "/assets/projects/catalog/boff-transactions.png",
+            "alt": "Интерфейс управления криптовалютными транзакциями B.Off",
+            "width": 2880,
+            "height": 1920
+          }
+        ]
+      }
+    }
   },
   "workSummary": "Декомпозировал требования в пользовательские сценарии. Проектировал макеты и компонентную библиотеку, согласовывал логику со стейкхолдерами, готовил макеты к handoff и проводил design review после реализации.",
   "content": []

@@ -12,7 +12,7 @@ import { useDesktopSmoothScrollEnabled } from "./smooth-scroll-provider";
 import { SquareButton } from "./ui-controls";
 import styles from "./project-gallery.module.css";
 
-export type { ProjectGalleryFrame, ProjectGalleryGroup, ProjectGalleryItem } from "../lib/project-contract";
+export type { ProjectGalleryGroup, ProjectGalleryItem } from "../lib/project-contract";
 
 type ProjectGalleryProps = {
   groups: ProjectGalleryGroup[];
@@ -22,7 +22,24 @@ type ProjectGalleryProps = {
 
 type PointerStart = { id: number; x: number; y: number; scrollLeft: number; captured: boolean };
 
+const DEVICE_PRESENTATION = {
+  desktop: { label: "Desktop", icon: "/assets/projects/corvo/desktop.svg", baseWidth: 740, baseHeight: 512 },
+  tablet: { label: "Tablet", icon: "/assets/projects/corvo/tablet.svg", baseWidth: 400, baseHeight: 566 },
+  mobile: { label: "Mobile", icon: "/assets/projects/corvo/mobile.svg", baseWidth: 180, baseHeight: 320 },
+} as const;
+
+function itemFrame(deviceId: ProjectGalleryGroup["deviceId"], index: number) {
+  if (deviceId === "desktop") return index === 0
+    ? { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 }
+    : { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 };
+  if (deviceId === "tablet") return index === 0
+    ? { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 }
+    : { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: .5 };
+  return { clip: true, radius: 11, strokeColor: index === 0 ? "#e8eaeb" : "#f0f1f2", strokeWidth: 1 };
+}
+
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
+  const presentation = DEVICE_PRESENTATION[group.deviceId];
   const smoothEnabled = useDesktopSmoothScrollEnabled();
   const [activeIndex, setActiveIndex] = useState(0);
   const [offsets, setOffsets] = useState([0]);
@@ -56,7 +73,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
 
   const handleWheel = useCallback((event: WheelEvent) => {
     if (smoothEnabled) {
-      const decision = galleryInputArbiter.classify(event, group.id);
+      const decision = galleryInputArbiter.classify(event, group.deviceId);
       if (decision.blockRoot) event.preventDefault();
       if (decision.galleryStep !== null) requestGalleryStep(decision.galleryStep);
       return;
@@ -68,7 +85,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     fallbackWheelLockedRef.current = true;
     requestGalleryStep(event.deltaX > 0 ? 1 : -1);
     window.setTimeout(() => { fallbackWheelLockedRef.current = false; }, 300);
-  }, [group.id, requestGalleryStep, smoothEnabled]);
+  }, [group.deviceId, requestGalleryStep, smoothEnabled]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -104,7 +121,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       observer.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [group.items]);
+  }, [group.images]);
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
@@ -123,7 +140,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     });
     lenisRef.current = lenis;
     lenisJustCreatedRef.current = true;
-    const subscriberId = `gallery-lenis-${group.id}`;
+    const subscriberId = `gallery-lenis-${group.deviceId}`;
 
     const unregisterFrame = registerScrollFrameSubscriber({
       id: subscriberId,
@@ -142,7 +159,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       }
     });
     visibilityObserver.observe(viewport);
-    const unregisterController = registerScrollController(`gallery-${group.id}`, {
+    const unregisterController = registerScrollController(`gallery-${group.deviceId}`, {
       scrollTo: (target, options = {}) => {
         lenis.scrollTo(target, {
           offset: options.offset,
@@ -165,7 +182,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       lenisJustCreatedRef.current = false;
       viewport.scrollLeft = 0;
     };
-  }, [group.id, smoothEnabled]);
+  }, [group.deviceId, smoothEnabled]);
 
   useLayoutEffect(() => {
     if (!smoothEnabled || !lenisRef.current) return;
@@ -178,9 +195,9 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
       force: true,
     });
     if (!immediate && visibleRef.current) {
-      invalidateScrollFrameSubscriber(`gallery-lenis-${group.id}`);
+      invalidateScrollFrameSubscriber(`gallery-lenis-${group.deviceId}`);
     }
-  }, [activeIndex, group.id, offsets, smoothEnabled]);
+  }, [activeIndex, group.deviceId, offsets, smoothEnabled]);
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -234,19 +251,19 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
 
   return (
     <section
-      className={`${styles.group} ${styles[group.id]}`}
-      data-gallery-group={group.id}
+      className={`${styles.group} ${styles[group.deviceId]}`}
+      data-gallery-group={group.deviceId}
       data-gallery-index={activeIndex}
       data-gallery-smooth={smoothEnabled ? "true" : "false"}
     >
       <div className={styles.groupControls}>
         <div className={styles.deviceLabel}>
-          <span className={styles.deviceIcon} style={{ maskImage: `url(${group.icon})` }} aria-hidden="true" />
-          <span>{group.label}</span>
+          <span className={styles.deviceIcon} style={{ maskImage: `url(${presentation.icon})` }} aria-hidden="true" />
+          <span>{presentation.label}</span>
         </div>
         <div className={styles.arrows}>
-          <SquareButton kind="button" variant="ghost" size="small" disabled={!previous.available} onClick={() => requestGalleryStep(-1)} ariaLabel={`Предыдущее изображение: ${group.label}`} icon="/assets/projects/chevron-left.svg" />
-          <SquareButton kind="button" variant="ghost" size="small" disabled={!next.available} onClick={() => requestGalleryStep(1)} ariaLabel={`Следующее изображение: ${group.label}`} icon="/assets/projects/chevron-right.svg" />
+          <SquareButton kind="button" variant="ghost" size="small" disabled={!previous.available} onClick={() => requestGalleryStep(-1)} ariaLabel={`Предыдущее изображение: ${presentation.label}`} icon="/assets/projects/chevron-left.svg" />
+          <SquareButton kind="button" variant="ghost" size="small" disabled={!next.available} onClick={() => requestGalleryStep(1)} ariaLabel={`Следующее изображение: ${presentation.label}`} icon="/assets/projects/chevron-right.svg" />
         </div>
       </div>
 
@@ -255,7 +272,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
         className={styles.viewport}
         data-gallery-viewport
         data-gallery-arbiter-active={smoothEnabled ? "true" : "false"}
-        data-gallery-arbiter-owner={group.id}
+        data-gallery-arbiter-owner={group.deviceId}
         onClickCapture={(event) => {
           if (!suppressClickRef.current) return;
           event.preventDefault();
@@ -268,24 +285,23 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
         onPointerCancel={handlePointerCancel}
       >
         <div ref={trackRef} className={styles.track} style={trackStyle}>
-          {group.items.map((item, index) => (
+          {group.images.map((item, index) => (
             <figure className={styles.slide} key={item.src}>
               <ProjectMediaLightbox
                 {...item}
-                baseHeight={group.baseHeight}
-                baseWidth={group.baseWidth}
-                frame={item.frame}
-                sourceNodeId={item.sourceNodeId}
-                sizes={`${group.baseWidth}px`}
+                baseHeight={presentation.baseHeight}
+                baseWidth={presentation.baseWidth}
+                frame={itemFrame(group.deviceId, index)}
+                sizes={`${presentation.baseWidth}px`}
               />
-              <span className="visually-hidden">{group.label}: изображение {index + 1}</span>
+              <span className="visually-hidden">{presentation.label}: изображение {index + 1}</span>
             </figure>
           ))}
         </div>
       </div>
 
       {next.available ? <div className={`${styles.edgeFade} ${styles.edgeFadeRight}`} aria-hidden="true" /> : null}
-      <span className="visually-hidden" aria-live="polite">{group.label}: позиция {activeIndex + 1} из {offsets.length}</span>
+      <span className="visually-hidden" aria-live="polite">{presentation.label}: позиция {activeIndex + 1} из {offsets.length}</span>
     </section>
   );
 }
@@ -298,7 +314,7 @@ export function ProjectGallery({ groups, title, description }: ProjectGalleryPro
         <p>{description}</p>
       </header>
       <div className={styles.groups}>
-        {groups.map((group) => <GalleryGroup group={group} key={group.id} />)}
+        {groups.map((group) => <GalleryGroup group={group} key={group.deviceId} />)}
       </div>
     </section>
   );

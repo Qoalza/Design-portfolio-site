@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 import { ProjectActionBar } from "../../../components/project-action-bar";
 import { ProjectCanvas } from "../../../components/project-canvas";
 import { ProjectGallery } from "../../../components/project-gallery";
-import { ProjectFrameCompositionView } from "../../../components/project-frame-composition";
 import { PageHeader } from "../../../components/page-header";
 import { ProjectSectionNavigation } from "../../../components/project-section-navigation";
 import { SiteHeader } from "../../../components/site-header";
@@ -16,7 +15,7 @@ import type {
   ProjectInlineContent,
   ProjectSectionBlock,
 } from "../../../lib/project-contract";
-import { getAllProjects, getProjectBySlug, getProjectBySlugForPreview } from "../../../lib/projects";
+import { getAllProjects, getProjectBySlug, getProjectBySlugForPreview, type Project } from "../../../lib/projects";
 import { HOME_TRAIL_ITEM } from "../../../lib/navigation-trail";
 import { createProjectSectionIds } from "../../../lib/project-section-ids.mjs";
 import { createSocialMetadata } from "../../../lib/site-metadata";
@@ -31,7 +30,7 @@ type ProjectSectionProps = {
 };
 
 type ProjectNoticeProps = ProjectSectionProps & {
-  variant?: "default" | "wide";
+  wide?: boolean;
 };
 
 type ProjectSectionContent = Extract<ProjectContentBlock, { type: "section" }>;
@@ -46,9 +45,9 @@ function ProjectDivider() {
   return <hr className={styles.contentDivider} />;
 }
 
-function ProjectNotice({ children, variant = "default" }: ProjectNoticeProps) {
+function ProjectNotice({ children, wide = false }: ProjectNoticeProps) {
   return (
-    <div className={`${styles.projectNotice} ${variant === "wide" ? styles.projectNoticeWide : ""}`}>
+    <div className={`${styles.projectNotice} ${wide ? styles.projectNoticeWide : ""}`}>
       <span className={styles.projectNoticeIconFrame} aria-hidden="true">
         <span className={styles.projectNoticeIcon} />
       </span>
@@ -73,17 +72,13 @@ function renderInlineContent(content: ProjectInlineContent[]): ReactNode[] {
   });
 }
 
-function ProjectContentBlockView({ block }: { block: ProjectSectionBlock }) {
+function ProjectContentBlockView({ block, noticeWide }: { block: ProjectSectionBlock; noticeWide: boolean }) {
   if (block.type === "paragraph") {
     return <p>{renderInlineContent(block.content)}</p>;
   }
 
   if (block.type === "heading") {
-    const content = renderInlineContent(block.content);
-    if (block.level === 3) return <h3>{content}</h3>;
-    if (block.level === 4) return <h4>{content}</h4>;
-    if (block.level === 5) return <h5>{content}</h5>;
-    return <h6>{content}</h6>;
+    return <h3>{renderInlineContent(block.content)}</h3>;
   }
 
   if (block.type === "list") {
@@ -92,27 +87,27 @@ function ProjectContentBlockView({ block }: { block: ProjectSectionBlock }) {
   }
 
   if (block.type === "notice") {
-    return <ProjectNotice variant={block.variant}>{renderInlineContent(block.content)}</ProjectNotice>;
+    return <ProjectNotice wide={noticeWide}>{renderInlineContent(block.content)}</ProjectNotice>;
   }
 
-  if (block.type === "image") {
-    return <ProjectCanvas presentation={block.presentation} images={block.images} />;
+  if (block.type === "visual") {
+    return <ProjectCanvas visual={block} />;
   }
 
-  if (block.type === "frame") {
-    return <ProjectFrameCompositionView composition={block.composition} />;
+  if (block.type === "hardBreak") {
+    return <span className={styles.hardBreak} aria-hidden="true" />;
   }
 
   return <ProjectDivider />;
 }
 
-function ProjectSectionView({ section, id, showDivider }: { section: ProjectSectionContent; id: string; showDivider: boolean }) {
-  const hasInteractiveBlock = section.blocks.some((block) => block.type === "image" || block.type === "frame");
+function ProjectSectionView({ section, id, showDivider, noticeWide }: { section: ProjectSectionContent; id: string; showDivider: boolean; noticeWide: boolean }) {
+  const hasInteractiveBlock = section.blocks.some((block) => block.type === "visual");
   const contentBlocks = section.blocks.filter((block) => block.type !== "divider");
   return (
     <ProjectSection>
       <h2 id={id}>{section.heading}</h2>
-      {contentBlocks.map((block, index) => <ProjectContentBlockView key={`${block.type}-${index}`} block={block} />)}
+      {contentBlocks.map((block, index) => <ProjectContentBlockView key={`${block.type}-${index}`} block={block} noticeWide={noticeWide} />)}
       {!hasInteractiveBlock && showDivider ? <ProjectDivider /> : null}
     </ProjectSection>
   );
@@ -123,6 +118,41 @@ function getProjectSections(content: ProjectContentBlock[]): Array<{ id: string;
     .filter((block): block is ProjectSectionContent => block.type === "section")
   const ids = createProjectSectionIds(sections.map((section) => section.heading));
   return sections.map((section, index) => ({ id: ids[index], label: section.heading }));
+}
+
+function ProjectHeroVisual({ visual }: { visual: Project["visuals"]["hero"] }) {
+  if (!visual) return null;
+  if (visual.templateId === "hero.corvo-browser") {
+    const backdrop = visual.assets.backdrop[0];
+    const foreground = visual.assets.foreground[0];
+    return (
+      <div className={styles.heroPreview}>
+        <Image className={styles.heroPreviewBack} src={backdrop.src} alt={backdrop.alt} width={backdrop.width} height={backdrop.height} priority aria-hidden={backdrop.alt.length === 0} />
+        <div className={styles.heroPreviewFront}>
+          <div className={styles.browserBar} aria-hidden="true"><i /><i /><i /></div>
+          <div className={styles.heroPreviewImage}><Image src={foreground.src} alt={foreground.alt} width={foreground.width} height={foreground.height} priority sizes="720px" /></div>
+        </div>
+      </div>
+    );
+  }
+  if (visual.templateId === "hero.sarafan-collage") {
+    const slot = (name: string) => visual.assets[name][0];
+    const illustration = slot("illustration");
+    const decoration = slot("decoration");
+    const dashboard = slot("dashboard");
+    const player = slot("player");
+    const payment = slot("payment");
+    return (
+      <div className={`${styles.heroPreview} ${styles.sarafanHero}`} aria-hidden="true">
+        <Image className={styles.sarafanHeroIllustration} src={illustration.src} alt="" width={illustration.width} height={illustration.height} />
+        <Image className={styles.sarafanHeroDecoration} src={decoration.src} alt="" width={decoration.width} height={decoration.height} />
+        <Image className={styles.sarafanHeroDashboard} src={dashboard.src} alt="" width={dashboard.width} height={dashboard.height} />
+        <Image className={styles.sarafanHeroPlayer} src={player.src} alt="" width={player.width} height={player.height} />
+        <Image className={styles.sarafanHeroPayment} src={payment.src} alt="" width={payment.width} height={payment.height} />
+      </div>
+    );
+  }
+  return null;
 }
 
 export function generateStaticParams() {
@@ -166,8 +196,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const sectionBlocks = project.content.filter((block): block is ProjectSectionContent => block.type === "section");
   const projectSections = getProjectSections(project.content);
   const galleryBlocks = project.content.filter((block): block is ProjectGalleryContent => block.type === "gallery");
-  const hero = project.hero;
-  const heroForeground = hero?.foreground ?? hero?.image;
 
   return (
     <div className={styles.page}>
@@ -190,36 +218,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             platforms={project.platforms}
           />
 
-          {project.heroFrame ? (
-            <div className={styles.heroPreview}><ProjectFrameCompositionView composition={project.heroFrame} fillSlot slotRadius={12} /></div>
-          ) : hero && heroForeground ? (
-            <div className={styles.heroPreview}>
-              {hero.presentation === "browser-composite" && hero.backdrop ? (
-                <Image
-                  className={styles.heroPreviewBack}
-                  src={hero.backdrop.src}
-                  alt={hero.backdrop.alt}
-                  width={hero.backdrop.width}
-                  height={hero.backdrop.height}
-                  priority
-                  aria-hidden={hero.backdrop.alt.length === 0}
-                />
-              ) : null}
-              <div className={styles.heroPreviewFront}>
-                <div className={styles.browserBar} aria-hidden="true"><i /><i /><i /></div>
-                <div className={styles.heroPreviewImage}>
-                  <Image
-                    src={heroForeground.src}
-                    alt={heroForeground.alt}
-                    width={heroForeground.width}
-                    height={heroForeground.height}
-                    priority
-                    sizes="720px"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : null}
+          <ProjectHeroVisual visual={project.visuals.hero} />
 
           <div className={styles.projectInformation} data-project-information-start>
             <ProjectSectionNavigation
@@ -234,6 +233,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   key={projectSections[index].id}
                   id={projectSections[index].id}
                   section={section}
+                  noticeWide={project.designProfile === "corvo-v1"}
                   showDivider={index < sectionBlocks.length - 1 || galleryBlocks.length === 0}
                 />
               ))}
@@ -242,10 +242,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
           {galleryBlocks.map((gallery, index) => (
             <ProjectGallery
-              key={`${gallery.title}-${index}`}
+              key={`gallery-${index}`}
               groups={gallery.groups}
-              title={gallery.title}
-              description={gallery.description}
+              title="Галерея"
+              description="Часть экранов интерфейса"
             />
           ))}
 

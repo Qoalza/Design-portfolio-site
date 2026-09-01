@@ -98,15 +98,15 @@ export function CardSettings({
           ))}
         </div>
       </RailGroup>
-      <RailGroup title="Главная" description="На главной может быть не более трёх проектов.">
+      <RailGroup title="Главная" description="Позиция определяется code-owned профилем.">
         <label className="switch-line">
           <div>
             <Text size="2" weight="medium">Показывать на главной</Text>
-            {project.featuredOnHome && project.homeOrder ? (
-              <Text as="p" size="1" color="gray">Позиция {project.homeOrder}</Text>
+            {project.homePlacement ? (
+              <Text as="p" size="1" color="gray">Позиция: {project.homePlacement === "primary" ? "основная" : "вторая"}</Text>
             ) : null}
           </div>
-          <Switch radius="full" checked={project.featuredOnHome} disabled={project.visibility !== "published"} onCheckedChange={home} />
+          <Switch radius="full" checked={Boolean(project.homePlacement)} disabled={project.visibility !== "published" || project.designProfile === "catalog-only-v1"} onCheckedChange={home} />
         </label>
         {project.visibility !== "published" ? <Text size="1" color="gray">Сначала переведите проект в состояние «Опубликован».</Text> : null}
       </RailGroup>
@@ -182,15 +182,15 @@ function MaterialsSettings({
 
 function GallerySettings({ project, update }: { project: AdminProject; update: (patch: Partial<AdminProject>) => void }) {
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery")
-    ?? { type: "gallery", title: "Галерея", description: "Интерфейсы проекта", groups: [] };
+    ?? { type: "gallery", templateId: "gallery.devices-v1", groups: [] };
   const pending = pendingGalleryDevices(project);
-  const setEnabled = (id: ProjectGalleryGroup["id"], enabled: boolean) => {
-    const hasGroup = gallery.groups.some((group) => group.id === id);
+  const setEnabled = (id: ProjectGalleryGroup["deviceId"], enabled: boolean) => {
+    const hasGroup = gallery.groups.some((group) => group.deviceId === id);
     const next = {
       ...gallery,
       groups: enabled
         ? gallery.groups
-        : gallery.groups.filter((group) => group.id !== id),
+        : gallery.groups.filter((group) => group.deviceId !== id),
     };
     const nextProject = withPendingGalleryDevices({
       ...project,
@@ -210,7 +210,7 @@ function GallerySettings({ project, update }: { project: AdminProject; update: (
         {(["desktop", "tablet", "mobile"] as const).map((id) => (
           <label className="switch-line" key={id}>
             <Text size="2">{groupDefaults[id].label}</Text>
-            <Switch radius="full" checked={gallery.groups.some((group) => group.id === id) || pending.includes(id)} onCheckedChange={(enabled) => setEnabled(id, enabled)} />
+            <Switch radius="full" checked={gallery.groups.some((group) => group.deviceId === id) || pending.includes(id)} onCheckedChange={(enabled) => setEnabled(id, enabled)} />
           </label>
         ))}
       </div>

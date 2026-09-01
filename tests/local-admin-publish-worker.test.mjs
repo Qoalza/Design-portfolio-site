@@ -5,13 +5,23 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { gunzipSync } from "node:zlib";
-import {
-  PUBLISH_STAGES,
-  createReleaseArchive,
-  createPublishBranch,
-  publishReadiness,
-  runPublishJob,
-} from "../tools/des-art-admin/publish-worker.mjs";
+
+import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+
+const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
+function project({ title = "Черновик", visibility = "draft", catalogOrder = 4, homePlacement, admin = true } = {}) {
+  const backdrop = image("/assets/homepage/corvo-dashboard.png");
+  const foreground = image("/assets/homepage/corvo-product.png", "Corvo");
+  const stack = { templateId: "catalog.corvo-stack", assets: { backdrop: [backdrop], foreground: [foreground] } };
+  return {
+    schemaVersion: 3, designProfile: "corvo-v1", title, slug: "draft", description: "Описание", role: "Product Designer", year: 2026,
+    tags: [], detailTags: [], visibility, catalogOrder, ...(homePlacement ? { homePlacement } : {}), detailAvailable: false,
+    materials: { projectState: "completed", fileState: "absent" }, platforms: [],
+    visuals: { catalog: stack, home: stack, hero: { templateId: "hero.corvo-browser", assets: stack.assets } },
+    content: [{ type: "section", ...(admin ? { adminId: "draft-section-1" } : {}), heading: "Секция", blocks: [] }],
+    ...(admin ? { admin: { sections: { "draft-section-1": { localCollapsed: false } } } } : {}),
+  };
+}
 
 test("live publication branches are deterministic and contain no project title data", () => {
   assert.equal(createPublishBranch("2026-08-29T12:34:56.000Z"), "codex/content-publish-20260829-123456");
@@ -27,93 +37,39 @@ test("release archives omit macOS metadata that Linux would extract as AppleDoub
   await writeFile(projectFile, "{\"slug\":\"portfolio\"}\n");
   if (process.platform === "darwin") {
     try { execFileSync("/usr/bin/xattr", ["-w", "com.apple.codex-deploy-test", "1", projectFile]); }
-    catch { context.skip("macOS extended attributes are unavailable in this environment"); return; }
+    catch { context.skip("macOS extended attributes are unavailable"); return; }
   }
-
   await createReleaseArchive({ archive, sourceRoot });
   const rawTar = gunzipSync(await readFile(archive)).toString("latin1");
-  assert.doesNotMatch(rawTar, /LIBARCHIVE\.xattr|SCHILY\.xattr|com\.apple\.codex-deploy-test/);
-  assert.doesNotMatch(rawTar, /\._portfolio\.json/);
+  assert.doesNotMatch(rawTar, /LIBARCHIVE\.xattr|SCHILY\.xattr|com\.apple\.codex-deploy-test|\._portfolio\.json/);
 });
 
-test("dry-run publish persists every stage without external mutations", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-"));
+test("sandbox publish compiles Admin metadata, validates the full collection and preserves global placement in project scope", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-draft-"));
+  const draftFile = path.join(root, "draft.json");
+  const snapshotRoot = path.join(root, "snapshots");
   const jobFile = path.join(root, "job.json");
-  await writeFile(jobFile, JSON.stringify({ id: "test", scope: "all", dryRun: true, repoRoot: process.cwd(), files: [], status: "queued", message: "Подготовка", stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })) }));
+  await mkdir(snapshotRoot);
+  await writeFile(draftFile, JSON.stringify(project()));
+  await writeFile(path.join(snapshotRoot, "draft.json"), JSON.stringify(project({ title: "Старая публикация", visibility: "published", catalogOrder: 1, homePlacement: "primary", admin: false })));
+  await writeFile(jobFile, JSON.stringify({
+    id: "draft-test", mode: "sandbox", scope: "project", repoRoot: process.cwd(), supportRoot: root, files: [draftFile], snapshotRoot,
+    status: "queued", message: "Подготовка", stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
+  }));
   await runPublishJob(jobFile);
   const result = JSON.parse(await readFile(jobFile, "utf8"));
   assert.equal(result.status, "complete");
   assert.ok(result.stages.every((stage) => stage.status === "complete"));
-});
-
-test("dry-run compiles admin metadata into isolated public staging files", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-draft-"));
-  const draftFile = path.join(root, "draft.json");
-  const jobFile = path.join(root, "job.json");
-  await writeFile(draftFile, JSON.stringify({
-    schemaVersion: 2,
-    title: "Черновик",
-    slug: "draft",
-    description: "Описание",
-    role: "Product Designer",
-    year: 2026,
-    tags: [],
-    detailTags: [],
-    visibility: "draft",
-    catalogOrder: 4,
-    featuredOnHome: false,
-    detailAvailable: false,
-    materials: { projectState: "completed", fileState: "absent" },
-    platforms: [],
-    content: [{ type: "section", adminId: "draft-section-1", heading: "Секция", blocks: [] }],
-    admin: { sections: { "draft-section-1": { noticeEnabled: false } } },
-  }));
-  const snapshotRoot = path.join(root, "snapshots");
-  await mkdir(snapshotRoot);
-  await writeFile(path.join(snapshotRoot, "draft.json"), JSON.stringify({
-    schemaVersion: 2,
-    title: "Старая публикация",
-    slug: "draft",
-    description: "Описание",
-    role: "Product Designer",
-    year: 2026,
-    tags: [],
-    detailTags: [],
-    visibility: "published",
-    catalogOrder: 1,
-    featuredOnHome: false,
-    detailAvailable: false,
-    materials: { projectState: "completed", fileState: "absent" },
-    platforms: [],
-    content: [],
-  }));
-  await writeFile(jobFile, JSON.stringify({
-    id: "draft-test",
-    scope: "project",
-    dryRun: true,
-    repoRoot: process.cwd(),
-    files: [draftFile],
-    snapshotRoot,
-    status: "queued",
-    message: "Подготовка",
-    stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
-  }));
-
-  await runPublishJob(jobFile);
   const staged = JSON.parse(await readFile(path.join(root, "staging", "draft.json"), "utf8"));
   assert.equal("admin" in staged, false);
   assert.equal("adminId" in staged.content[0], false);
   const savedDraft = JSON.parse(await readFile(draftFile, "utf8"));
-  const snapshot = JSON.parse(await readFile(path.join(root, "snapshots", "draft.json"), "utf8"));
+  const snapshot = JSON.parse(await readFile(path.join(snapshotRoot, "draft.json"), "utf8"));
   assert.equal(savedDraft.visibility, "published");
   assert.equal("admin" in savedDraft, true);
-  assert.equal(snapshot.visibility, "published");
-  assert.equal("admin" in snapshot, false);
   assert.equal(snapshot.catalogOrder, 1);
-  assert.equal(snapshot.featuredOnHome, false);
-  assert.equal(snapshot.homeOrder, undefined);
-  assert.equal(savedDraft.catalogOrder, 4);
-  assert.equal(savedDraft.featuredOnHome, false);
+  assert.equal(snapshot.homePlacement, "primary");
+  assert.equal("admin" in snapshot, false);
 });
 
 test("readiness reports missing credentials without exposing secrets", async () => {
@@ -124,20 +80,8 @@ test("readiness reports missing credentials without exposing secrets", async () 
   assert.doesNotMatch(JSON.stringify(result), /BEGIN .*PRIVATE KEY/);
 });
 
-test("live readiness blocks publication before canonical production data bootstrap", async () => {
+test("live readiness blocks before canonical production data bootstrap", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-live-baseline-"));
-  const result = await publishReadiness({ supportRoot: root, mode: "live" });
-  assert.equal(result.ready, false);
-  assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
-});
-
-test("live readiness rejects the legacy production baseline before checking credentials", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-legacy-live-baseline-"));
-  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({
-    version: 1,
-    source: "canonical-main",
-    sourceSha: "a".repeat(40),
-  }));
   const result = await publishReadiness({ supportRoot: root, mode: "live" });
   assert.equal(result.ready, false);
   assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
@@ -147,19 +91,11 @@ test("live publish refuses a sandbox support root", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
   const jobFile = path.join(root, "job.json");
   await writeFile(jobFile, JSON.stringify({
-    id: "unsafe-live",
-    mode: "live",
-    scope: "all",
-    repoRoot: process.cwd(),
-    supportRoot: root,
-    files: [],
-    status: "queued",
-    message: "Подготовка",
+    id: "unsafe-live", mode: "live", scope: "all", repoRoot: process.cwd(), supportRoot: root, files: [], status: "queued", message: "Подготовка",
     stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
   }));
   await runPublishJob(jobFile);
   const result = JSON.parse(await readFile(jobFile, "utf8"));
   assert.equal(result.status, "failed");
-  assert.equal(result.errorTitle, "Действие не выполнено");
   assert.doesNotMatch(JSON.stringify(result), /support root|Library\/Application Support/i);
 });

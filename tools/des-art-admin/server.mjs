@@ -8,9 +8,9 @@ import { spawn } from "node:child_process";
 
 import { AdminStore, validateLocalRequest } from "./core.mjs";
 import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
+import { readFigmaToken, saveFigmaToken } from "./figma-template-import.mjs";
 import { humanError } from "./human-errors.mjs";
 import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
-import { readFigmaToken, saveFigmaToken } from "./figma-frame.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(directory, "../.."));
@@ -142,8 +142,12 @@ async function handler(request, response) {
     }
     if (request.method === "GET" && url.pathname === "/api/projects") return json(response, 200, await store.listProjects());
     if (request.method === "GET" && url.pathname === "/api/figma/status") {
-      try { await readFigmaToken(); return json(response, 200, { connected: true }); }
-      catch { return json(response, 200, { connected: false }); }
+      try {
+        await readFigmaToken();
+        return json(response, 200, { connected: true });
+      } catch {
+        return json(response, 200, { connected: false });
+      }
     }
     if (request.method === "POST" && url.pathname === "/api/figma/token") {
       await saveFigmaToken((await body(request)).token);
@@ -165,10 +169,10 @@ async function handler(request, response) {
     if (request.method === "POST" && segments[0] === "api" && segments[1] === "preview" && segments[2]) {
       const slug = decodeURIComponent(segments[2]);
       const value = await body(request);
-      const context = value.context === "card" ? "card" : "page";
-      await store.preparePreview(slug, previewRoot, context);
+      const route = value.route === "home" || value.route === "catalog" ? value.route : "project";
+      await store.preparePreview(slug, previewRoot, route);
       await ensurePreview();
-      const pathname = context === "card" ? "/projects" : `/projects/${encodeURIComponent(slug)}`;
+      const pathname = route === "home" ? "/" : route === "catalog" ? "/projects" : `/projects/${encodeURIComponent(slug)}`;
       return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}${pathname}?admin-preview=1&draft=${encodeURIComponent(slug)}` });
     }
     if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot, mode: publishMode }));
@@ -225,14 +229,14 @@ async function handler(request, response) {
       if (request.method === "POST" && segments[3] === "upload") {
         const value = await body(request);
         const buffer = Buffer.from(value.data, "base64");
-        return json(response, 201, await store.saveImage(slug, value.name, value.mime, buffer, value.alt));
+        return json(response, 201, await store.saveImage(slug, value.name, value.mime, buffer, value.alt, { templateId: value.templateId, slot: value.slot, operation: value.operation }));
+      }
+      if (request.method === "POST" && segments[3] === "figma-template") {
+        return json(response, 200, await store.importFigmaVisual(slug, await body(request)));
       }
       if (request.method === "POST" && segments[3] === "logo") {
         const value = await body(request);
         return json(response, 201, await store.saveLogo(slug, value.name, Buffer.from(value.data, "base64")));
-      }
-      if (request.method === "POST" && segments[3] === "frame") {
-        return json(response, 201, await store.importFrame(slug, await body(request)));
       }
       if (request.method === "DELETE" && segments[3] === "permanent") {
         await store.permanentlyDelete(slug);

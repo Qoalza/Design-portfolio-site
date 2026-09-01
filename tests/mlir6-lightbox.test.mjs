@@ -30,15 +30,16 @@ test("lightbox uses the actual image aspect ratio without adding a frame", () =>
   );
 });
 
-test("all Gallery items carry an explicit live-frame contract", () => {
+test("Gallery data contains only device ids and images while code owns its frame contract", () => {
   const groups = project.content.find((block) => block.type === "gallery").groups;
-  const items = groups.flatMap((group) => group.items);
-  assert.equal(items.filter((item) => item.frame).length, 15);
-  assert.equal(items.filter((item) => item.sourceNodeId?.startsWith("680:")).length, 15);
-  assert.deepEqual(groups.map(({ baseWidth, baseHeight }) => [baseWidth, baseHeight]), [[740, 512], [400, 566], [180, 320]]);
-  assert.match(gallery, /baseWidth=\{group\.baseWidth\}/);
-  assert.match(gallery, /frame=\{item\.frame\}/);
-  assert.match(gallery, /sourceNodeId=\{item\.sourceNodeId\}/);
+  const items = groups.flatMap((group) => group.images);
+  assert.equal(items.length, 15);
+  assert.equal(items.some((item) => "frame" in item || "sourceNodeId" in item), false);
+  assert.deepEqual(groups.map(({ deviceId }) => deviceId), ["desktop", "tablet", "mobile"]);
+  assert.match(gallery, /const DEVICE_PRESENTATION/);
+  assert.match(gallery, /function itemFrame/);
+  assert.match(gallery, /baseWidth=\{presentation\.baseWidth\}/);
+  assert.match(gallery, /frame=\{itemFrame\(group\.deviceId, index\)\}/);
 });
 
 test("modal measures its real media area and keeps the frame as a single layer", () => {
@@ -46,7 +47,7 @@ test("modal measures its real media area and keeps the frame as a single layer",
   assert.match(lightbox, /window\.devicePixelRatio/);
   assert.match(lightbox, /calculateLightboxScale/);
   assert.match(lightbox, /calculateLightboxMediaSize/);
-  assert.match(lightbox, /data-figma-node-id=\{sourceNodeId\}/);
+  assert.doesNotMatch(lightbox, /sourceNodeId|data-figma-node-id/);
   assert.match(lightbox, /currentSrc/);
   assert.match(lightbox, /naturalWidth/);
   assert.match(lightbox, /className=\{styles\.expandedFrame\}/);

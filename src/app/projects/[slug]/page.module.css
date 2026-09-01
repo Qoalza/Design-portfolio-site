@@ -143,6 +143,14 @@
 
 .heroPreviewImage > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
+.sarafanHero { background: #f6f5f7; }
+.sarafanHero > img { position: absolute; display: block; max-width: none; }
+.sarafanHeroIllustration { top: 50px; left: 565px; width: 678px; height: 536px; }
+.sarafanHeroDecoration { top: -311px; left: -262px; width: 618px; height: 618px; opacity: .3; }
+.sarafanHeroDashboard { top: 68px; left: 55px; width: 726px; height: 618px; }
+.sarafanHeroPlayer { top: 279px; left: 657px; width: 421px; height: 230px; box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1); }
+.sarafanHeroPayment { top: 120px; left: 847px; width: 274px; height: 134px; box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1); }
+
 .actionTerminal { height: 136px; }
 
 .projectInformation {
@@ -257,13 +265,9 @@
 .contentSection ul > li { height: 24px; }
 .contentSection strong { color: #313a41; font-weight: 600; }
 .contentSection > figure { margin-top: 40px; }
-.contentSection > [data-project-frame] { margin-top: 40px; }
-.contentSection:first-child > p + p { margin-top: 24px; }
-.contentSection:nth-child(2) > p + p { margin-top: 0; }
-.contentSection:nth-child(3) > p + p { margin-top: 24px; }
-.contentSection:nth-child(4) > p:nth-of-type(2) { margin-top: 0; }
-.contentSection:nth-child(4) > p:nth-of-type(3) { margin-top: 24px; }
-.contentSection:last-child > p + p { margin-top: 0; }
+.contentSection > p + p { margin-top: 0; }
+.hardBreak { display: block; height: 8px; }
+.hardBreak + p { margin-top: 16px; }
 .projectArticleWithGallery .contentSection:last-child { padding-bottom: 40px; }
 
 .contentSection .projectNotice {

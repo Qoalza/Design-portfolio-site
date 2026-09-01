@@ -8,6 +8,7 @@ import {
   validateProjectDocument,
   type ProjectDocument,
 } from "./project-contract.ts";
+import { validateProjectCollection } from "./project-visual-registry.ts";
 
 export type { ProjectDocument, ProjectPlatform } from "./project-contract.ts";
 
@@ -58,7 +59,7 @@ function projectFileNames(contentRoot: string): string[] {
     .sort((first, second) => first.localeCompare(second, "en"));
 }
 
-export function readAllProjectDocuments(contentRoot = projectsDirectory): ProjectDocument[] {
+function readProjectDocuments(contentRoot: string, validateCollection: boolean): ProjectDocument[] {
   const projects = projectFileNames(contentRoot).map((fileName) => {
     const filePath = path.join(contentRoot, fileName);
     const project = parseProjectDocument(readFileSync(filePath, "utf8"), fileName);
@@ -74,7 +75,13 @@ export function readAllProjectDocuments(contentRoot = projectsDirectory): Projec
     throw new Error(`Project slug "${duplicate.slug}" is duplicated.`);
   }
 
+  if (validateCollection) validateProjectCollection(projects);
+
   return projects;
+}
+
+export function readAllProjectDocuments(contentRoot = projectsDirectory): ProjectDocument[] {
+  return readProjectDocuments(contentRoot, true);
 }
 
 export function getAllProjects(contentRoot = projectsDirectory): Project[] {
@@ -90,8 +97,10 @@ export function getAllProjectsForPreview(contentRoot = projectsDirectory): Proje
   const documents = process.env.DES_ART_ADMIN_PREVIEW === "1" && draftRoot && existsSync(draftRoot)
     ? (() => {
         const merged = new Map(base.map((project) => [project.slug, project]));
-        for (const project of readAllProjectDocuments(draftRoot)) merged.set(project.slug, project);
-        return [...merged.values()];
+        for (const project of readProjectDocuments(draftRoot, false)) merged.set(project.slug, project);
+        const collection = [...merged.values()];
+        validateProjectCollection(collection);
+        return collection;
       })()
     : base;
   const draftAssetRoot = process.env.DES_ART_ADMIN_DRAFT_ASSET_ROOT;
@@ -106,9 +115,9 @@ export function getAllProjectsForPreview(contentRoot = projectsDirectory): Proje
 
 export function getCatalogProjects(contentRoot = projectsDirectory): Project[] {
   return getAllProjects(contentRoot)
-    .filter((project) => project.featuredOnHome)
-    .sort((first, second) => (first.homeOrder ?? Number.MAX_SAFE_INTEGER) - (second.homeOrder ?? Number.MAX_SAFE_INTEGER))
-    .slice(0, 3);
+    .filter((project) => project.homePlacement)
+    .sort((first, second) => (first.homePlacement === "primary" ? 0 : 1) - (second.homePlacement === "primary" ? 0 : 1))
+    .slice(0, 2);
 }
 
 export function getProjectBySlug(projectSlug: string, contentRoot = projectsDirectory): Project | undefined {

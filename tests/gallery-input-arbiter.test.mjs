@@ -124,7 +124,7 @@ test("changing gallery ownership resets the previous series", () => {
 
 test("Gallery and Lenis share one pre-mutation arbiter contract", () => {
   assert.equal(lenisPackage.version, "1.3.25");
-  assert.match(gallerySource, /galleryInputArbiter\.classify\(event, group\.id\)/);
+  assert.match(gallerySource, /galleryInputArbiter\.classify\(event, group\.deviceId\)/);
   assert.match(providerSource, /virtualScroll:\s*\(data\)\s*=>/);
   assert.match(providerSource, /galleryInputArbiter\.classify\(data\.event, owner\)/);
   assert.match(providerSource, /if \(decision\.blockRoot\) return false/);

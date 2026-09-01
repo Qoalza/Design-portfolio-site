@@ -32,7 +32,6 @@ type ProjectMediaLightboxProps = {
   baseHeight: number;
   baseWidth: number;
   frame: GalleryFrameContract;
-  sourceNodeId?: string;
 };
 
 export function ProjectMediaLightbox({
@@ -46,7 +45,6 @@ export function ProjectMediaLightbox({
   baseHeight,
   baseWidth,
   frame,
-  sourceNodeId,
 }: ProjectMediaLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [intrinsicSize, setIntrinsicSize] = useState({ currentSrc: src, dpr: 1, width, height });
@@ -155,7 +153,6 @@ export function ProjectMediaLightbox({
         type="button"
         aria-label={`Увеличить изображение: ${alt}`}
         data-image-fit={fit}
-        data-figma-node-id={sourceNodeId}
         onClick={() => setIsOpen(true)}
       >
         <Image src={src} alt={alt} width={width} height={height} sizes={sizes} unoptimized priority={priority} draggable={false} onLoad={recordIntrinsicSize} />
@@ -186,7 +183,6 @@ export function ProjectMediaLightbox({
                 data-lightbox-natural-height={intrinsicSize.height}
                 data-lightbox-natural-width={intrinsicSize.width}
                 data-lightbox-target-scale={targetScale}
-                data-figma-node-id={sourceNodeId}
                 style={{ width: `${expandedMediaSize.width * targetScale}px`, height: `${expandedMediaSize.height * targetScale}px` }}
               >
                 <Image

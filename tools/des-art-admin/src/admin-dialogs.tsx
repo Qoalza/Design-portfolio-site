@@ -1,7 +1,7 @@
-import { CheckCircledIcon, ChevronDownIcon, ChevronUpIcon, DragHandleDots2Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { AlertDialog, Button, Dialog, Flex, Heading, IconButton, Switch, Text, TextField } from "@radix-ui/themes";
-import { useMemo, useState } from "react";
-import type { AdminProject, FieldIssue, PublishJob } from "./admin-model";
+import { CheckCircledIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { AlertDialog, Button, Dialog, Flex, Heading, Text, TextField } from "@radix-ui/themes";
+import { useState } from "react";
+import type { FieldIssue, PublishJob } from "./admin-model";
 import { createSlugPreview } from "./admin-model";
 
 export function NewProjectDialog({ open, existingSlugs, close, create }: { open: boolean; existingSlugs: string[]; close: () => void; create: (title: string, slug?: string) => void }) {
@@ -32,75 +32,6 @@ export function IssueDialog({ open, title, issues, close, navigate }: { open: bo
     <div className="issue-list">{issues.map((issue, index) => <button key={`${issue.projectSlug ?? "current"}-${issue.field}-${index}`} onClick={() => navigate(issue)}><strong>{issue.projectTitle ? `${issue.projectTitle} · ` : ""}{issue.title ?? issue.label ?? "Не удалось проверить поле"}</strong><span>{issue.message}</span></button>)}</div>
     <Flex justify="end" mt="4"><Button size="3" onClick={close}>Понятно</Button></Flex>
   </Dialog.Content></Dialog.Root>;
-}
-
-export function HomeLimitDialog({
-  open,
-  projects,
-  requested,
-  cancel,
-  apply,
-}: {
-  open: boolean;
-  projects: AdminProject[];
-  requested?: string;
-  cancel: () => void;
-  apply: (slugs: string[]) => void;
-}) {
-  const initial = useMemo(() => {
-    const selected = projects
-      .filter((item) => item.featuredOnHome)
-      .sort((first, second) => (first.homeOrder ?? 99) - (second.homeOrder ?? 99))
-      .map((item) => item.slug);
-    return requested && !selected.includes(requested) ? [...selected, requested] : selected;
-  }, [projects, requested]);
-  const [order, setOrder] = useState(initial);
-  const [enabled, setEnabled] = useState(() => new Set(initial));
-  const [dragged, setDragged] = useState<string>();
-  const [dropTarget, setDropTarget] = useState<string>();
-  return (
-    <Dialog.Root open={open} onOpenChange={(value) => { if (!value) cancel(); }}>
-      <Dialog.Content maxWidth="600px">
-        <Dialog.Title>На главной можно показать три проекта</Dialog.Title>
-        <Dialog.Description>Отключите один проект и расположите оставшиеся в нужном порядке.</Dialog.Description>
-        <div className="home-list">
-          {order.map((slug, index) => (
-            <div
-              key={slug}
-              data-drop-target={dropTarget === slug || undefined}
-              draggable
-              onDragStart={() => setDragged(slug)}
-              onDragOver={(event) => { event.preventDefault(); setDropTarget(slug); }}
-              onDragLeave={() => setDropTarget((value) => value === slug ? undefined : value)}
-              onDrop={() => {
-                if (!dragged || dragged === slug) return;
-                const next = [...order];
-                const from = next.indexOf(dragged);
-                const to = next.indexOf(slug);
-                if (from === -1 || to === -1) return;
-                next.splice(to, 0, next.splice(from, 1)[0]);
-                setOrder(next);
-                setDropTarget(undefined);
-              }}
-            >
-              <DragHandleDots2Icon />
-              <Switch
-                radius="full"
-                checked={enabled.has(slug)}
-                onCheckedChange={(value) => setEnabled((previous) => { const next = new Set(previous); if (value) next.add(slug); else next.delete(slug); return next; })}
-              />
-              <div className="home-project-copy"><Text weight="medium">{projects.find((item) => item.slug === slug)?.title}</Text><Text size="1" color="gray">{projects.find((item) => item.slug === slug)?.description}</Text></div>
-              <Flex gap="2"><IconButton size="3" variant="ghost" color="gray" disabled={index === 0} aria-label="Переместить выше" onClick={() => setOrder((value) => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; return next; })}><ChevronUpIcon /></IconButton><IconButton size="3" variant="ghost" color="gray" disabled={index === order.length - 1} aria-label="Переместить ниже" onClick={() => setOrder((value) => { const next = [...value]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; return next; })}><ChevronDownIcon /></IconButton></Flex>
-            </div>
-          ))}
-        </div>
-        <Flex justify="end" gap="3">
-          <Button size="3" variant="soft" color="gray" onClick={cancel}>Отмена</Button>
-          <Button size="3" disabled={enabled.size !== 3} onClick={() => apply(order.filter((slug) => enabled.has(slug)))}>Применить</Button>
-        </Flex>
-      </Dialog.Content>
-    </Dialog.Root>
-  );
 }
 
 export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; mode: "live" | "sandbox"; close: () => void }) {

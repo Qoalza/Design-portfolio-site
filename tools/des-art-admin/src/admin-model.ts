@@ -1,30 +1,28 @@
 import type {
   ProjectContentBlock,
-  ProjectGalleryGroup,
+  ProjectGalleryDeviceId,
   ProjectDocument,
   ProjectInlineContent,
 } from "../../../src/lib/project-contract";
 
-export type AdminInteractiveSetting = {
-  enabled: boolean;
-  figmaUrl?: string;
-  status?: "pending" | "connected";
-};
-
-export type AdminSectionSetting = {
-  noticeEnabled?: boolean;
-  noticeVariant?: "default" | "wide";
-  interactive?: AdminInteractiveSetting;
-};
-
 export type AdminGallerySetting = {
-  pendingDeviceIds?: ProjectGalleryGroup["id"][];
+  pendingDeviceIds?: ProjectGalleryDeviceId[];
+};
+
+export type AdminVisualSource = {
+  url: string;
+  templateId: string;
+  preview?: {
+    src: string;
+    width: number;
+    height: number;
+  };
 };
 
 export type AdminProject = Omit<ProjectDocument, "content"> & {
   admin?: {
-    sections?: Record<string, AdminSectionSetting>;
     gallery?: AdminGallerySetting;
+    visualSources?: Record<string, AdminVisualSource>;
   };
   content: AdminContentBlock[];
 };
@@ -100,41 +98,35 @@ export const textOf = (content: ProjectInlineContent[] = []) => content
 
 export const inline = (value: string): ProjectInlineContent[] => [{ type: "text", text: value }];
 
-export function sectionSetting(project: AdminProject, id: string): AdminSectionSetting {
-  return project.admin?.sections?.[id] ?? {};
-}
-
-export function withSectionSetting(
-  project: AdminProject,
-  id: string,
-  patch: Partial<AdminSectionSetting>,
-): AdminProject {
-  const previous = sectionSetting(project, id);
-  return {
-    ...project,
-    admin: {
-      ...project.admin,
-      sections: {
-        ...project.admin?.sections,
-        [id]: { ...previous, ...patch },
-      },
-    },
-  };
-}
-
-export function pendingGalleryDevices(project: AdminProject): ProjectGalleryGroup["id"][] {
+export function pendingGalleryDevices(project: AdminProject): ProjectGalleryDeviceId[] {
   return project.admin?.gallery?.pendingDeviceIds ?? [];
 }
 
 export function withPendingGalleryDevices(
   project: AdminProject,
-  pendingDeviceIds: ProjectGalleryGroup["id"][],
+  pendingDeviceIds: ProjectGalleryDeviceId[],
 ): AdminProject {
   return {
     ...project,
     admin: {
       ...project.admin,
       gallery: pendingDeviceIds.length ? { pendingDeviceIds } : undefined,
+    },
+  };
+}
+
+export function visualSource(project: AdminProject, key: string): AdminVisualSource | undefined {
+  return project.admin?.visualSources?.[key];
+}
+
+export function withoutVisualSource(project: AdminProject, key: string): AdminProject {
+  const visualSources = { ...project.admin?.visualSources };
+  delete visualSources[key];
+  return {
+    ...project,
+    admin: {
+      ...project.admin,
+      visualSources: Object.keys(visualSources).length ? visualSources : undefined,
     },
   };
 }

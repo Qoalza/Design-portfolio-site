@@ -8,7 +8,7 @@ import { ProjectDetailControl } from "../components/project-detail-control";
 import { ProjectFileControl } from "../components/project-file-control";
 import { ProcessStepper } from "../components/process-stepper";
 import { ControlButton, TextButton } from "../components/ui-controls";
-import type { ProjectImage, ProjectLogo } from "../lib/project-contract";
+import type { ProjectVisualInstance } from "../lib/project-contract";
 import { HOME_TRAIL_ITEM } from "../lib/navigation-trail";
 import { getCatalogProjects, type Project } from "../lib/projects";
 import { createSocialMetadata } from "../lib/site-metadata";
@@ -116,12 +116,22 @@ function ProjectActions({ project }: { project: Project }) {
   );
 }
 
-function RadioSymbol({ logo }: { logo: Extract<ProjectLogo, { type: "layered" }> }) {
+const radioLogoLayers = [
+  { src: "/assets/homepage/radio-logo-vector-a.svg", slot: "a" },
+  { src: "/assets/homepage/radio-logo-mask-a.svg", slot: "a" },
+  { src: "/assets/homepage/radio-logo-vector-b.svg", slot: "b" },
+  { src: "/assets/homepage/radio-logo-mask-b.svg", slot: "b" },
+  { src: "/assets/homepage/radio-logo-vector-c.svg", slot: "c" },
+  { src: "/assets/homepage/radio-logo-mask-c.svg", slot: "c" },
+  { src: "/assets/homepage/radio-logo-vector-d.svg", slot: "d" },
+] as const;
+
+function RadioSymbol() {
   const classBySlot = { a: styles.radioLogoA, b: styles.radioLogoB, c: styles.radioLogoC, d: styles.radioLogoD };
   const sizeBySlot = { a: "15px", b: "5px", c: "15px", d: "5px" };
   return (
     <span className={styles.radioSymbol} aria-hidden="true">
-      {logo.layers.map((layer) => (
+      {radioLogoLayers.map((layer) => (
         <span className={classBySlot[layer.slot]} key={`${layer.slot}-${layer.src}`}>
           <Image src={layer.src} alt="" fill sizes={sizeBySlot[layer.slot]} />
         </span>
@@ -130,13 +140,16 @@ function RadioSymbol({ logo }: { logo: Extract<ProjectLogo, { type: "layered" }>
   );
 }
 
-function RadioVisual({ images }: { images: ProjectImage[] }) {
-  if (images.length < 3) return null;
+function RadioVisual({ visual }: { visual: ProjectVisualInstance }) {
+  if (visual.templateId !== "home.sarafan-radio") return null;
+  const dashboard = visual.assets.dashboard[0];
+  const player = visual.assets.player[0];
+  const payment = visual.assets.payment[0];
   return (
     <div className={styles.projectVisual} aria-hidden="true">
-      <Image className={styles.radioDashboard} src={images[0].src} alt="" width={images[0].width} height={images[0].height} />
-      <Image className={styles.radioPlayer} src={images[1].src} alt="" width={images[1].width} height={images[1].height} />
-      <Image className={styles.radioPayment} src={images[2].src} alt="" width={images[2].width} height={images[2].height} />
+      <Image className={styles.radioDashboard} src={dashboard.src} alt="" width={dashboard.width} height={dashboard.height} />
+      <Image className={styles.radioPlayer} src={player.src} alt="" width={player.width} height={player.height} />
+      <Image className={styles.radioPayment} src={payment.src} alt="" width={payment.width} height={payment.height} />
     </div>
   );
 }
@@ -235,7 +248,7 @@ export default function Home() {
               <div className={styles.projectCopy}>
                 <div className={styles.projectHeader}>
                   <div className={styles.projectTitle}>
-                    <div><h3>{secondaryProject.title}</h3>{secondaryProject.logo?.type === "layered" ? <RadioSymbol logo={secondaryProject.logo} /> : null}</div>
+                    <div><h3>{secondaryProject.title}</h3><RadioSymbol /></div>
                     <p>{secondaryProject.subtitle ?? secondaryProject.description}</p>
                   </div>
                   <ProjectTags tags={secondaryProject.tags} />
@@ -247,7 +260,7 @@ export default function Home() {
                 <ProjectPlatforms platforms={secondaryProject.platforms} desktopOnlyLabel={secondaryProject.platforms.length === 1 && secondaryProject.platforms[0] === "Desktop"} />
                 <ProjectActions project={secondaryProject} />
               </div>
-              <RadioVisual images={secondaryProject.homeImages ?? []} />
+              {secondaryProject.visuals.home ? <RadioVisual visual={secondaryProject.visuals.home} /> : null}
             </article> : null}
           </section>
 

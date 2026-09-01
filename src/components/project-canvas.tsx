@@ -1,56 +1,46 @@
 import Image from "next/image";
-import type { ProjectImage, ProjectSectionBlock } from "../lib/project-contract";
+import type { ProjectImage, ProjectVisualInstance } from "../lib/project-contract";
 import styles from "./project-canvas.module.css";
 
-type ProjectImageBlock = Extract<ProjectSectionBlock, { type: "image" }>;
-
-type ProjectCanvasProps = Pick<ProjectImageBlock, "presentation" | "images">;
-
-function ProjectImageAsset({ image, className, sizes }: { image: ProjectImage; className?: string; sizes: string }) {
-  return (
-    <Image
-      className={className}
-      src={image.src}
-      alt={image.alt}
-      width={image.width}
-      height={image.height}
-      sizes={sizes}
-      unoptimized
-    />
-  );
+function asset(visual: ProjectVisualInstance, slot: string): ProjectImage {
+  const value = visual.assets[slot]?.[0];
+  if (!value) throw new Error(`${visual.templateId} is missing required asset slot ${slot}.`);
+  return value;
 }
 
-export function ProjectCanvas({ presentation, images }: ProjectCanvasProps) {
-  if (presentation === "quotes") {
-    return (
-      <figure className={`${styles.canvas} ${styles.quotes}`}>
-        <ProjectImageAsset image={images[0]} className={styles.quotesAsset} sizes="852px" />
-      </figure>
-    );
-  }
+function ProjectImageAsset({ image, className, sizes }: { image: ProjectImage; className?: string; sizes: string }) {
+  return <Image className={className} src={image.src} alt={image.alt} width={image.width} height={image.height} sizes={sizes} unoptimized />;
+}
 
-  if (presentation === "process") {
-    return (
-      <figure className={`${styles.canvas} ${styles.process}`}>
-        <ProjectImageAsset image={images[0]} className={styles.processAsset} sizes="906px" />
-      </figure>
-    );
+export function ProjectCanvas({ visual }: { visual: ProjectVisualInstance }) {
+  if (visual.templateId === "canvas.corvo-quotes") {
+    return <figure className={`${styles.canvas} ${styles.quotes}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.quotesAsset} sizes="852px" /></figure>;
   }
-
-  if (presentation === "controls") {
+  if (visual.templateId === "canvas.corvo-process") {
+    return <figure className={`${styles.canvas} ${styles.process}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.processAsset} sizes="906px" /></figure>;
+  }
+  if (visual.templateId === "canvas.corvo-controls") {
     return (
       <figure className={`${styles.canvas} ${styles.controls}`}>
-        <ProjectImageAsset image={images[0]} className={styles.buttonsAsset} sizes="428px" />
+        <ProjectImageAsset image={asset(visual, "buttons")} className={styles.buttonsAsset} sizes="428px" />
         <span className={styles.controlsDivider} aria-hidden="true" />
-        <ProjectImageAsset image={images[1]} className={styles.inputsAsset} sizes="531px" />
+        <ProjectImageAsset image={asset(visual, "inputs")} className={styles.inputsAsset} sizes="531px" />
       </figure>
     );
   }
-
-  const image = images[0];
-  return (
-    <figure className={`${styles.canvas} ${styles.single}`}>
-      <Image src={image.src} alt={image.alt} width={image.width} height={image.height} sizes="1000px" />
-    </figure>
-  );
+  if (visual.templateId === "canvas.sarafan-model") {
+    return <figure className={`${styles.canvas} ${styles.sarafanModel}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.sarafanModelAsset} sizes="888px" /></figure>;
+  }
+  if (visual.templateId === "canvas.sarafan-scenarios") {
+    return <figure className={`${styles.canvas} ${styles.sarafanScenarios}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.sarafanScenariosAsset} sizes="861px" /></figure>;
+  }
+  if (visual.templateId === "canvas.sarafan-setup") {
+    return (
+      <figure className={`${styles.canvas} ${styles.sarafanSetup}`}>
+        <ProjectImageAsset image={asset(visual, "desktop")} className={styles.sarafanSetupDesktop} sizes="603px" />
+        <ProjectImageAsset image={asset(visual, "panel")} className={styles.sarafanSetupPanel} sizes="464px" />
+      </figure>
+    );
+  }
+  throw new Error(`${visual.templateId} is not a section canvas template.`);
 }

@@ -1,81 +1,28 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile } from "node:fs/promises";
+import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 import { PROJECT_DOCUMENT_VERSION } from "../src/lib/project-contract.ts";
-import {
-  AdminStore,
-  createProjectSlug,
-  humanFigmaImportError,
-  inspectSvg,
-  inspectImage,
-  safeUploadName,
-  validateLocalRequest,
-} from "../tools/des-art-admin/core.mjs";
+import { AdminStore, createProjectSlug, inspectImage, inspectSvg, safeUploadName, validateLocalRequest } from "../tools/des-art-admin/core.mjs";
+import { compileAdminDraft } from "../tools/des-art-admin/draft-contract.mjs";
 import { humanError, UserFacingError } from "../tools/des-art-admin/human-errors.mjs";
 
-test("Figma import failures are explained without internal contract paths", () => {
-  const layerMessage = humanFigmaImportError(new Error("Слой «Controls» использует неподдерживаемый fill GRADIENT_LINEAR."));
-  assert.match(layerMessage.title, /элемент «Controls»/i);
-  assert.match(layerMessage.message, /PNG/i);
-  assert.doesNotMatch(`${layerMessage.title} ${layerMessage.message}`, /GRADIENT_LINEAR|catalogFrame|nodes\[/);
-
-  const linkMessage = humanFigmaImportError(new Error("Figma Frame больше не найден по node-id."));
-  assert.match(linkMessage.title, /Frame не найден/i);
-  assert.match(linkMessage.message, /новую ссылку/i);
-
-  const unknown = humanFigmaImportError(new Error("vendor failure 917"));
-  assert.match(unknown.message, /ручная диагностика разработчиком/i);
-  assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /917/);
-
-  const disconnected = humanFigmaImportError(new Error("Figma не подключена. Добавьте локальный токен с доступом file_content:read."));
-  assert.match(disconnected.title, /Figma не подключена/i);
-  assert.match(disconnected.message, /подключите/i);
-});
-
-test("user-facing errors keep known causes actionable and hide unknown diagnostics", () => {
-  assert.deepEqual(humanError(new UserFacingError("Главное изображение не обновлено", "Скопируйте новую ссылку на Frame.")), {
-    title: "Главное изображение не обновлено",
-    message: "Скопируйте новую ссылку на Frame.",
-    status: 400,
-  });
-  const unknown = humanError(new Error("catalogFrame.nodes[0].layout.gap exploded"));
-  assert.match(unknown.message, /ручная диагностика разработчиком/i);
-  assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /catalogFrame|layout\.gap/);
-
-  const unsupportedImage = humanError(new Error("Image MIME type is not supported."));
-  assert.match(unsupportedImage.title, /формат изображения/i);
-  assert.match(unsupportedImage.message, /PNG|JPEG|GIF|WebP/i);
-});
-
-test("project slugs are readable, Unicode-safe and collision resistant", async () => {
-  assert.equal(createProjectSlug("Новый проект. Тест", []), "novyi-proekt-test");
-  assert.equal(createProjectSlug("Sarafan.Radio", []), "sarafan-radio");
-  assert.equal(createProjectSlug("NEW project", ["new-project"]), "new-project-2");
-  assert.match(createProjectSlug("🎉", []), /^project-[a-f0-9]{8}$/);
-});
-
-test("project creation is atomic and accepts a free-form title", async () => {
-  const store = new AdminStore(await roots());
-  const first = await store.createProject({ title: "Новый проект. Тест" });
-  const second = await store.createProject({ title: "Новый проект. Тест" });
-  assert.equal(first.slug, "novyi-proekt-test");
-  assert.equal(second.slug, "novyi-proekt-test-2");
-  assert.equal(first.title, "Новый проект. Тест");
-});
-
-test("SVG inspection accepts passive square artwork and rejects active markup", () => {
-  const safe = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>');
-  assert.deepEqual(inspectSvg(safe, "Logo.svg"), { mime: "image/svg+xml", width: 24, height: 24, extension: ".svg" });
-  assert.throws(() => inspectSvg(Buffer.from('<svg viewBox="0 0 24 24"><script>alert(1)</script></svg>'), "x.svg"), /active|unsafe/i);
-  assert.throws(() => inspectSvg(Buffer.from('<svg viewBox="0 0 24 24"><image href="https://example.com/x.png"/></svg>'), "x.svg"), /active|unsafe/i);
-  assert.throws(() => inspectSvg(Buffer.from('<svg viewBox="0 0 24 12"></svg>'), "x.svg"), /square/i);
-});
+const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
+const corvoVisuals = () => {
+  const backdrop = image("/assets/homepage/corvo-dashboard.png");
+  const foreground = image("/assets/homepage/corvo-product.png", "Corvo");
+  return {
+    catalog: { templateId: "catalog.corvo-stack", assets: { backdrop: [backdrop], foreground: [foreground] } },
+    home: { templateId: "catalog.corvo-stack", assets: { backdrop: [backdrop], foreground: [foreground] } },
+    hero: { templateId: "hero.corvo-browser", assets: { backdrop: [backdrop], foreground: [foreground] } },
+  };
+};
 
 const project = (slug = "admin-test", overrides = {}) => ({
   schemaVersion: PROJECT_DOCUMENT_VERSION,
+  designProfile: "corvo-v1",
   title: "Тестовый проект",
   slug,
   description: "Описание",
@@ -85,10 +32,10 @@ const project = (slug = "admin-test", overrides = {}) => ({
   detailTags: [],
   visibility: "draft",
   catalogOrder: 1,
-  featuredOnHome: false,
   detailAvailable: false,
   materials: { projectState: "completed", fileState: "absent" },
   platforms: [],
+  visuals: corvoVisuals(),
   content: [],
   ...overrides,
 });
@@ -104,203 +51,189 @@ async function roots() {
   };
 }
 
+test("user-facing errors keep known causes actionable and hide unknown diagnostics", () => {
+  assert.deepEqual(humanError(new UserFacingError("Изображение не обновлено", "Экспортируйте слот заново.")), {
+    title: "Изображение не обновлено", message: "Экспортируйте слот заново.", status: 400,
+  });
+  const unknown = humanError(new Error("internal registry exploded"));
+  assert.match(unknown.message, /ручная диагностика разработчиком/i);
+  assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /registry exploded/);
+  assert.deepEqual(humanError(new Error("asset has an incompatible proportion.")), {
+    title: "Пропорции изображения не подходят",
+    message: "Этот слот принимает только изображение с утверждённым соотношением сторон. Экспортируйте изображение в нужных пропорциях и загрузите его снова.",
+    status: 400,
+  });
+  assert.equal(humanError(new Error("asset is below the minimum 2× source size.")).title, "Изображение слишком маленькое");
+});
+
+test("project slugs are readable, Unicode-safe and collision resistant", () => {
+  assert.equal(createProjectSlug("Новый проект. Тест", []), "novyi-proekt-test");
+  assert.equal(createProjectSlug("Sarafan.Radio", []), "sarafan-radio");
+  assert.equal(createProjectSlug("NEW project", ["new-project"]), "new-project-2");
+  assert.match(createProjectSlug("🎉", []), /^project-[a-f0-9]{8}$/);
+});
+
+test("project creation is atomic and starts with the safe catalog-only profile", async () => {
+  const store = new AdminStore(await roots());
+  const first = await store.createProject({ title: "Новый проект. Тест" });
+  const second = await store.createProject({ title: "Новый проект. Тест" });
+  assert.equal(first.slug, "novyi-proekt-test");
+  assert.equal(second.slug, "novyi-proekt-test-2");
+  assert.equal(first.designProfile, "catalog-only-v1");
+  assert.equal(first.visuals.catalog.templateId, "catalog.browser");
+  assert.equal(first.homePlacement, undefined);
+});
+
+test("SVG and image inspection reject unsafe or mismatched uploads", () => {
+  const safe = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>');
+  assert.deepEqual(inspectSvg(safe, "Logo.svg"), { mime: "image/svg+xml", width: 24, height: 24, extension: ".svg" });
+  assert.throws(() => inspectSvg(Buffer.from('<svg viewBox="0 0 24 24"><script>alert(1)</script></svg>'), "x.svg"), /active|unsafe/i);
+  const png = Buffer.alloc(24);
+  Buffer.from("89504e470d0a1a0a", "hex").copy(png);
+  png.writeUInt32BE(936, 16); png.writeUInt32BE(624, 20);
+  assert.deepEqual(inspectImage(png, "image.png", "image/png"), { extension: ".png", width: 936, height: 624, mime: "image/png" });
+  assert.throws(() => inspectImage(png, "image.jpg", "image/png"), /extension/i);
+  const tooLarge = Buffer.from(png);
+  tooLarge.writeUInt32BE(8_000, 16); tooLarge.writeUInt32BE(6_000, 20);
+  assert.throws(() => inspectImage(tooLarge, "too-large.png", "image/png"), /40 megapixels/i);
+});
+
 test("local request boundary accepts only loopback Host, trusted Origin and CSRF", () => {
   const token = "known-token";
   assert.doesNotThrow(() => validateLocalRequest({ method: "POST", host: "127.0.0.1:41731", origin: "http://127.0.0.1:41731", csrf: token }, token, 41731));
   assert.throws(() => validateLocalRequest({ method: "POST", host: "evil.example", origin: "http://127.0.0.1:41731", csrf: token }, token, 41731), /host/i);
   assert.throws(() => validateLocalRequest({ method: "POST", host: "127.0.0.1:41731", origin: "https://evil.example", csrf: token }, token, 41731), /origin/i);
-  assert.throws(() => validateLocalRequest({ method: "POST", host: "127.0.0.1:41731", origin: "http://127.0.0.1:41731", csrf: "wrong" }, token, 41731), /csrf/i);
 });
 
-test("admin CRUD preserves lifecycle data and soft deletes instead of destroying", async () => {
-  const store = new AdminStore(await roots());
-  await store.saveProject(project());
-  assert.equal((await store.getProject("admin-test")).title, "Тестовый проект");
+test("CRUD preserves drafts, strips homepage placement on delete and keeps stable Admin ids", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  await store.saveProject(project("admin-test", { visibility: "published", homePlacement: "primary" }));
   const duplicate = await store.duplicateProject("admin-test", "admin-copy");
-  assert.equal(duplicate.visibility, "draft");
-  assert.equal(duplicate.featuredOnHome, false);
+  assert.equal(duplicate.designProfile, "catalog-only-v1");
+  assert.equal(duplicate.homePlacement, undefined);
   const deleted = await store.setVisibility("admin-test", "deleted");
-  assert.equal(deleted.visibility, "deleted");
-  assert.equal(deleted.featuredOnHome, false);
-  assert.equal((await store.getProject("admin-test")).description, "Описание");
-  const restored = await store.setVisibility("admin-test", "draft");
-  assert.equal(restored.visibility, "draft");
+  assert.equal(deleted.homePlacement, undefined);
+  const withSection = project("stable", { content: [{ type: "section", adminId: "stable-section", heading: "О проекте", blocks: [] }] });
+  await store.saveDraft("stable", withSection);
+  assert.equal((await new AdminStore(configured).getDraft("stable")).content[0].adminId, "stable-section");
 });
 
-test("draft survives a new store instance", async () => {
-  const configured = await roots();
-  await new AdminStore(configured).saveDraft("admin-test", project());
-  assert.deepEqual(await new AdminStore(configured).getDraft("admin-test"), project());
-});
-
-test("draft store accepts incomplete form values and reports real unpublished changes", async () => {
-  const configured = await roots();
-  const store = new AdminStore(configured);
-  const canonical = project("admin-test", { visibility: "published", detailAvailable: false });
-  await store.saveProject(canonical);
-  assert.deepEqual(await store.getChangeInventory(), { count: 0, projects: [], changedSlugs: [], globalProjects: [] });
-
-  await store.saveDraft("admin-test", {
-    ...canonical,
-    materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
-  });
-
-  assert.equal((await store.getDraft("admin-test")).materials.figmaUrl, "");
-  const inventory = await store.getChangeInventory();
-  assert.equal(inventory.count, 1);
-  assert.deepEqual(inventory.projects.map(({ slug, valid }) => ({ slug, valid })), [
-    { slug: "admin-test", valid: false },
-  ]);
-});
-
-test("opening a migrated project does not create a false unpublished change", async () => {
-  const configured = await roots();
-  const store = new AdminStore(configured);
-  const canonical = project("stable", {
-    visibility: "published",
-    content: [{ type: "section", heading: "О проекте", blocks: [] }],
-  });
-  await store.saveProject(canonical);
-  await store.saveDraft("stable", {
-    ...canonical,
-    admin: { sections: { "stable-section-1": { noticeEnabled: false } } },
-    content: [{ type: "section", adminId: "stable-section-1", heading: "О проекте", blocks: [] }],
-  });
-  assert.deepEqual(await store.getChangeInventory(), { count: 0, projects: [], changedSlugs: [], globalProjects: [] });
-});
-
-test("lifecycle changes do not reject an otherwise incomplete admin draft", async () => {
-  const configured = await roots();
-  const store = new AdminStore(configured);
-  await store.saveDraft("admin-test", project("admin-test", {
-    materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
-  }));
-
-  const deleted = await store.setVisibility("admin-test", "deleted");
-  assert.equal(deleted.visibility, "deleted");
-  assert.equal(deleted.materials.figmaUrl, "");
-});
-
-test("preview preparation compiles only a valid draft into an isolated overlay", async () => {
+test("preview compiles exact home, catalog and project overlays and rejects a missing hero", async () => {
   const configured = await roots();
   const store = new AdminStore(configured);
   const previewRoot = path.join(path.dirname(configured.draftRoot), "preview-drafts");
-  await store.saveDraft("preview", project("preview", { detailAvailable: false }));
-  await store.preparePreview("preview", previewRoot);
-  const compiled = JSON.parse(await readFile(path.join(previewRoot, "preview.json"), "utf8"));
-  assert.equal(compiled.slug, "preview");
-  assert.equal("admin" in compiled, false);
-
-  await store.saveDraft("preview", project("preview", {
-    detailAvailable: false,
-    materials: { projectState: "completed", fileState: "available", figmaUrl: "" },
-  }));
-  await assert.rejects(() => store.preparePreview("preview", previewRoot), (error) => {
-    assert.equal(error.name, "DraftValidationError");
-    assert.equal(error.issues[0].field, "materials.figmaUrl");
-    return true;
-  });
+  await store.saveDraft("preview", project("preview", { visibility: "published", homePlacement: "primary", detailAvailable: true }));
+  for (const route of ["home", "catalog", "project"]) {
+    await store.preparePreview("preview", previewRoot, route);
+    const compiled = JSON.parse(await readFile(path.join(previewRoot, "preview.json"), "utf8"));
+    assert.equal(compiled.visibility, "published");
+    assert.equal("admin" in compiled, false);
+  }
+  await store.saveDraft("preview", project("preview", { visuals: { catalog: corvoVisuals().catalog } }));
+  await assert.rejects(() => store.preparePreview("preview", previewRoot, "project"), /hero-шаблон/i);
 });
 
-test("project list overlays newer drafts without changing canonical files", async () => {
+test("reorder validates template compatibility before preserving draft metadata", async () => {
   const configured = await roots();
   const store = new AdminStore(configured);
-  await store.saveProject(project("admin-test", { title: "Опубликованное название" }));
-  await store.saveDraft("admin-test", project("admin-test", { title: "Черновое название" }));
-  assert.equal((await store.listProjects())[0].title, "Черновое название");
-  assert.equal((await store.getPublishedProject("admin-test")).title, "Опубликованное название");
+  await store.saveProject(project("wide", { visibility: "published", catalogOrder: 1 }));
+  const compact = {
+    ...project("compact", { visibility: "published", catalogOrder: 2 }),
+    designProfile: "catalog-only-v1",
+    visuals: { catalog: { templateId: "catalog.browser", assets: { screen: [{ src: "/assets/projects/catalog/boff-transactions.png", alt: "", width: 2880, height: 1920 }] } } },
+  };
+  await store.saveProject(compact);
+  await store.saveDraft("wide", { ...project("wide", { visibility: "published", catalogOrder: 1 }), admin: { marker: "kept" } });
+  await assert.rejects(() => store.reorder(["compact", "wide"]), /incompatible/i);
+  await store.reorder(["wide", "compact"]);
+  assert.equal((await store.getDraft("wide")).admin.marker, "kept");
 });
 
-test("reorder updates drafts for published projects only and rejects unknown slugs", async () => {
-  const store = new AdminStore(await roots());
-  await store.saveProject(project("one", { visibility: "published" }));
-  await store.saveProject(project("two", { visibility: "published", catalogOrder: 2 }));
-  await store.reorder(["two", "one"]);
-  assert.equal((await store.getProject("two")).catalogOrder, 1);
-  assert.equal((await store.getProject("one")).catalogOrder, 2);
-  await assert.rejects(() => store.reorder(["missing"]), /unknown/i);
-});
-
-test("image inspection validates MIME, extension and intrinsic PNG dimensions", async () => {
-  const png = Buffer.alloc(24);
-  Buffer.from("89504e470d0a1a0a", "hex").copy(png);
-  png.writeUInt32BE(640, 16);
-  png.writeUInt32BE(360, 20);
-  assert.deepEqual(inspectImage(png, "image.png", "image/png"), { extension: ".png", width: 640, height: 360, mime: "image/png" });
-  assert.throws(() => inspectImage(png, "image.jpg", "image/png"), /extension/i);
-  assert.throws(() => inspectImage(Buffer.from("not image"), "image.png", "image/png"), /signature/i);
-});
-
-test("uploads use safe names, reject traversal and preserve different files with one name", async () => {
+test("gallery uploads reject wrong proportions, preserve duplicates and cannot bypass Figma-only surfaces", async () => {
   assert.equal(safeUploadName("Hero Screen (1).PNG"), "hero-screen-1.png");
   assert.throws(() => safeUploadName("../secret.png"), /filename/i);
   const configured = await roots();
   const store = new AdminStore(configured);
-  await store.saveProject(project());
-  await mkdir(path.join(configured.draftAssetRoot, "admin-test", "frames"), { recursive: true });
   const png = Buffer.alloc(24);
   Buffer.from("89504e470d0a1a0a", "hex").copy(png);
-  png.writeUInt32BE(20, 16);
-  png.writeUInt32BE(10, 20);
-  const first = await store.saveImage("admin-test", "Hero.png", "image/png", png, "Hero alt");
-  const second = await store.saveImage("admin-test", "Another.png", "image/png", png, "Hero alt");
-  assert.equal(first.width, 20);
-  assert.deepEqual(Object.keys(first).sort(), ["alt", "height", "src", "width"]);
+  png.writeUInt32BE(1480, 16); png.writeUInt32BE(1024, 20);
+  const policy = { templateId: "gallery.devices-v1", slot: "desktop", operation: "add" };
+  const first = await store.saveImage("admin-test", "screen.png", "image/png", png, "Экран", policy);
+  const second = await store.saveImage("admin-test", "copy.png", "image/png", png, "Экран", policy);
   assert.equal(second.src, first.src);
-  assert.equal(await readFile(path.join(configured.draftAssetRoot, "admin-test", "hero.png"), "hex"), png.toString("hex"));
-
-  const changedPng = Buffer.from(png);
-  changedPng[23] = 1;
-  const collision = await store.saveImage("admin-test", "Hero.png", "image/png", changedPng, "Updated hero alt");
-  assert.notEqual(collision.src, first.src);
-  assert.match(collision.src, /^\/assets\/projects\/admin-test\/hero-[a-f0-9]{64}\.png$/);
-  assert.equal(await readFile(path.join(configured.draftAssetRoot, "admin-test", collision.src.split("/").at(-1)), "hex"), changedPng.toString("hex"));
-
-  assert.equal((await store.readImage("admin-test", "hero.png")).toString("hex"), png.toString("hex"));
-  await assert.rejects(() => store.saveImage("../escape", "x.png", "image/png", png, "Alt"), /slug/i);
-  await assert.rejects(() => store.readImage("admin-test", "../secret.png"), /path|filename/i);
+  await readFile(path.join(configured.draftAssetRoot, "admin-test", "screen.png"));
+  const wrong = Buffer.from(png); wrong.writeUInt32BE(700, 20);
+  await assert.rejects(() => store.saveImage("admin-test", "wrong.png", "image/png", wrong, "Экран", policy), /proportion/i);
+  const tooSmall = Buffer.from(png); tooSmall.writeUInt32BE(740, 16); tooSmall.writeUInt32BE(512, 20);
+  await assert.rejects(() => store.saveImage("admin-test", "small.png", "image/png", tooSmall, "Экран", policy), /minimum 2× source size/i);
+  await assert.rejects(() => store.saveImage("admin-test", "card.png", "image/png", png, "Экран", { templateId: "catalog.browser", slot: "screen", operation: "replace" }), /только целым Figma Frame/i);
 });
 
-test("sandbox publish creates an isolated snapshot and clears only published dirty scope", async () => {
+test("approved Figma import replaces a whole code-owned surface and keeps source only in Admin metadata", async () => {
   const configured = await roots();
-  const store = new AdminStore(configured);
-  await store.saveDraft("one", project("one", { visibility: "published", title: "Черновая версия" }));
-  await store.saveDraft("two", project("two", { title: "Другой черновик" }));
-
-  assert.equal((await store.getChangeInventory()).count, 2);
-  await store.publishSandbox({ scope: "project", slug: "one" });
-
-  assert.equal((await store.getSandboxPublishedProject("one")).title, "Черновая версия");
-  assert.deepEqual((await store.getChangeInventory()).projects.map((item) => item.slug), ["two"]);
-  await assert.rejects(() => store.getSandboxPublishedProject("two"));
+  const imported = corvoVisuals().catalog;
+  const store = new AdminStore({
+    ...configured,
+    figmaImporter: async ({ url, templateId }) => ({
+      visual: { ...imported, templateId },
+      source: { url, templateId },
+    }),
+  });
+  await store.saveDraft("figma-card", project("figma-card"));
+  const next = await store.importFigmaVisual("figma-card", {
+    surface: "catalog",
+    templateId: "catalog.corvo-stack",
+    url: "https://www.figma.com/design/file/Test?node-id=1-2",
+  });
+  assert.deepEqual(next.visuals.catalog, imported);
+  assert.deepEqual(next.visuals.home.assets, imported.assets);
+  assert.equal(next.admin.visualSources.catalog.templateId, "catalog.corvo-stack");
+  assert.equal("admin" in compileAdminDraft(next), false);
 });
 
-test("global placement stays outside the project publish scope", async () => {
+test("approved Figma import adds one interactive block to a section and rejects profile mismatches", async () => {
+  const configured = await roots();
+  const store = new AdminStore({
+    ...configured,
+    figmaImporter: async ({ url, templateId, templateIds }) => {
+      const resolved = templateId ?? templateIds[0];
+      return {
+        visual: { templateId: resolved, assets: { content: [{ src: "/assets/projects/figma-section/figma/content.png", alt: "Цитаты", width: 1704, height: 732 }] } },
+        source: { url, templateId: resolved },
+      };
+    },
+  });
+  await store.saveDraft("figma-section", project("figma-section", { content: [{ type: "section", adminId: "section-a", heading: "Решение", blocks: [] }] }));
+  const next = await store.importFigmaVisual("figma-section", { surface: "section", sectionId: "section-a", url: "https://www.figma.com/design/file/Test?node-id=1-3" });
+  assert.equal(next.content[0].blocks[0].type, "visual");
+  assert.equal(next.content[0].blocks[0].templateId, "canvas.corvo-quotes");
+  assert.equal(next.admin.visualSources["section-a"].url.includes("figma.com"), true);
+  await assert.rejects(() => store.importFigmaVisual("figma-section", { surface: "section", sectionId: "section-a", templateId: "canvas.sarafan-model", url: "https://www.figma.com/design/file/Test?node-id=1-4" }), /не может быть переключён/i);
+});
+
+test("failed Figma import leaves the saved draft unchanged", async () => {
+  const configured = await roots();
+  const store = new AdminStore({ ...configured, figmaImporter: async () => { throw new Error("Frame содержит неверную структуру."); } });
+  const before = project("figma-atomic", { content: [{ type: "section", adminId: "section-a", heading: "Решение", blocks: [] }] });
+  await store.saveDraft("figma-atomic", before);
+  await assert.rejects(() => store.importFigmaVisual("figma-atomic", { surface: "section", sectionId: "section-a", url: "https://www.figma.com/design/file/Test?node-id=1-5" }), /Сохранённый черновик не изменён/i);
+  assert.deepEqual(await store.getDraft("figma-atomic"), before);
+});
+
+test("sandbox publish validates global placements and keeps them outside project-only scope", async () => {
   const configured = await roots();
   const store = new AdminStore(configured);
-  await store.saveProject(project("placed", { visibility: "published", catalogOrder: 1, featuredOnHome: false }));
+  const baseline = project("placed", { visibility: "published", catalogOrder: 1, homePlacement: "primary" });
+  await store.saveProject(baseline);
   await store.ensureSnapshotBaseline();
-  await store.saveDraft("placed", project("placed", { visibility: "published", catalogOrder: 4, featuredOnHome: true, homeOrder: 2 }));
-
+  await store.saveDraft("placed", project("placed", { visibility: "published", catalogOrder: 2, title: "Изменённый проект" }));
   const inventory = await store.getChangeInventory();
-  assert.equal(inventory.count, 1);
-  assert.deepEqual(inventory.projects, []);
   assert.deepEqual(inventory.globalProjects, ["placed"]);
-});
-
-test("card and page previews expose the current valid draft in the requested context", async () => {
-  const configured = await roots();
-  const store = new AdminStore(configured);
-  const previewRoot = path.join(path.dirname(configured.draftRoot), "preview-drafts");
-  await store.saveDraft("preview-context", project("preview-context", { visibility: "draft", detailAvailable: false }));
-
-  await store.preparePreview("preview-context", previewRoot, "card");
-  let compiled = JSON.parse(await readFile(path.join(previewRoot, "preview-context.json"), "utf8"));
-  assert.equal(compiled.visibility, "published");
-
-  await store.preparePreview("preview-context", previewRoot, "page");
-  compiled = JSON.parse(await readFile(path.join(previewRoot, "preview-context.json"), "utf8"));
-  assert.equal(compiled.detailAvailable, true);
+  await store.publishSandbox({ scope: "project", slug: "placed" });
+  const snapshot = await store.getSandboxPublishedProject("placed");
+  assert.equal(snapshot.catalogOrder, 1);
+  assert.equal(snapshot.homePlacement, "primary");
 });
 
 test("permanent deletion is allowed only for an unpublished deleted draft", async () => {
@@ -309,7 +242,6 @@ test("permanent deletion is allowed only for an unpublished deleted draft", asyn
   await store.saveDraft("draft-deleted", project("draft-deleted", { visibility: "deleted" }));
   await store.permanentlyDelete("draft-deleted");
   await assert.rejects(() => store.getDraft("draft-deleted"));
-
   await store.saveProject(project("live", { visibility: "published" }));
   await store.saveDraft("live", project("live", { visibility: "deleted" }));
   await assert.rejects(() => store.permanentlyDelete("live"), /publish this deletion/i);

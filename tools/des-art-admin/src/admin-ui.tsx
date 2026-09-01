@@ -9,12 +9,13 @@ import {
   RowsIcon,
   TextIcon,
   UnderlineIcon,
-  ExclamationTriangleIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
 import {
   Button,
   AlertDialog,
+  Badge,
+  Callout,
   Dialog,
   Flex,
   IconButton,
@@ -23,9 +24,9 @@ import {
   Tooltip,
 } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import type { ProjectFrameComposition, ProjectFrameNode, ProjectImage, ProjectInlineContent, ProjectSectionBlock, ProjectTextMark } from "../../../src/lib/project-contract";
-import { hasVisibleFrameFill } from "../../../src/lib/project-frame-visibility";
-import { ApiError, formatTagInput, parseTagInput } from "./admin-model";
+import type { ProjectImage, ProjectInlineContent, ProjectSectionBlock, ProjectTextMark } from "../../../src/lib/project-contract";
+import { formatTagInput, parseTagInput } from "./admin-model";
+import type { AdminVisualSource } from "./admin-model";
 
 export function Field({
   label,
@@ -138,155 +139,69 @@ export function ImagePreview({ src, label, children }: { src: string; label: str
   return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
 }
 
-function frameRootWidthUnit(value: number, rootWidth: number) { return `${value / rootWidth * 100}cqw`; }
-function frameRootHeightUnit(value: number, rootHeight: number) { return `${value / rootHeight * 100}cqh`; }
-function frameScaledLength(value: number, root: { width: number; height: number }) {
-  const magnitude = Math.abs(value);
-  const length = `min(${magnitude / root.width * 100}cqw, ${magnitude / root.height * 100}cqh)`;
-  return value < 0 ? `calc(0px - ${length})` : length;
-}
-function frameStrokeShadow(stroke: ProjectFrameNode["stroke"], rootWidth: number) {
-  if (!stroke) return undefined;
-  if (stroke.align === "INSIDE") return `inset 0 0 0 ${frameRootWidthUnit(stroke.width, rootWidth)} ${stroke.color}`;
-  if (stroke.align === "OUTSIDE") return `0 0 0 ${frameRootWidthUnit(stroke.width, rootWidth)} ${stroke.color}`;
-  const half = frameRootWidthUnit(stroke.width / 2, rootWidth);
-  return `inset 0 0 0 ${half} ${stroke.color}, 0 0 0 ${half} ${stroke.color}`;
-}
-
-function frameEffectStyle(effects: ProjectFrameNode["effects"], root: { width: number; height: number }) {
-  const shadows: string[] = [];
-  const filters: string[] = [];
-  let backdropFilter: string | undefined;
-  for (const effect of effects ?? []) {
-    if (effect.type === "drop-shadow" || effect.type === "inner-shadow") {
-      shadows.push(`${effect.type === "inner-shadow" ? "inset " : ""}${frameRootWidthUnit(effect.offsetX, root.width)} ${frameRootHeightUnit(effect.offsetY, root.height)} ${frameRootWidthUnit(effect.blur, root.width)} ${frameRootWidthUnit(effect.spread, root.width)} ${effect.color}`);
-    } else if (effect.type === "layer-blur") filters.push(`blur(${frameRootWidthUnit(effect.radius, root.width)})`);
-    else if (effect.type === "background-blur") backdropFilter = `blur(${frameRootWidthUnit(effect.radius, root.width)})`;
-  }
-  return { shadows, filter: filters.length ? filters.join(" ") : undefined, backdropFilter };
-}
-
-function frameCompositionStyle(composition: ProjectFrameComposition, aspectRatio: string, clipToFill = false): React.CSSProperties {
-  const visualEffects = frameEffectStyle(composition.effects, composition);
-  return {
-    aspectRatio,
-    overflow: clipToFill ? hasVisibleFrameFill(composition) ? "hidden" : "visible" : composition.clip ? "hidden" : "visible",
-    background: composition.background,
-    borderRadius: frameRootWidthUnit(composition.radius, composition.width),
-    boxShadow: [frameStrokeShadow(composition.stroke, composition.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
-    filter: visualEffects.filter,
-    backdropFilter: visualEffects.backdropFilter,
-    mixBlendMode: composition.blendMode as React.CSSProperties["mixBlendMode"],
-  };
-}
-
-function FrameNodePreview({ node, parent, root, inLayout = false }: { node: ProjectFrameNode; parent: { width: number; height: number }; root: { width: number; height: number }; inLayout?: boolean }) {
-  const transforms: string[] = [];
-  const style: React.CSSProperties = inLayout ? {
-    position: "relative", width: `${node.width / parent.width * 100}%`, height: `${node.height / parent.height * 100}%`,
-    flex: node.layoutGrow ? `${node.layoutGrow} 1 0` : node.constraints.horizontal === "STRETCH" ? "1 1 auto" : "0 0 auto",
-  } : {
-    position: "absolute",
-  };
-  if (!inLayout) {
-    if (node.constraints.horizontal === "SCALE") {
-      style.left = `${node.x / parent.width * 100}%`;
-      style.width = `${node.width / parent.width * 100}%`;
-    } else if (node.constraints.horizontal === "STRETCH") {
-      style.left = frameScaledLength(node.x, root);
-      style.right = frameScaledLength(parent.width - node.x - node.width, root);
-    } else style.width = frameScaledLength(node.width, root);
-    if (node.constraints.horizontal === "MAX") style.right = frameScaledLength(parent.width - node.x - node.width, root);
-    else if (node.constraints.horizontal === "CENTER") {
-      style.left = `calc(50% + ${frameScaledLength(node.x + node.width / 2 - parent.width / 2, root)})`;
-      transforms.push("translateX(-50%)");
-    }
-    else if (node.constraints.horizontal === "MIN") style.left = frameScaledLength(node.x, root);
-    if (node.constraints.vertical === "SCALE") {
-      style.top = `${node.y / parent.height * 100}%`;
-      style.height = `${node.height / parent.height * 100}%`;
-    } else if (node.constraints.vertical === "STRETCH") {
-      style.top = frameScaledLength(node.y, root);
-      style.bottom = frameScaledLength(parent.height - node.y - node.height, root);
-    } else style.height = frameScaledLength(node.height, root);
-    if (node.constraints.vertical === "MAX") style.bottom = frameScaledLength(parent.height - node.y - node.height, root);
-    else if (node.constraints.vertical === "CENTER") {
-      style.top = `calc(50% + ${frameScaledLength(node.y + node.height / 2 - parent.height / 2, root)})`;
-      transforms.push("translateY(-50%)");
-    }
-    else if (node.constraints.vertical === "MIN") style.top = frameScaledLength(node.y, root);
-  }
-  if (node.rotation) transforms.push(`rotate(${node.rotation}deg)`);
-  if (transforms.length) style.transform = transforms.join(" ");
-  const visualEffects = frameEffectStyle(node.effects, root);
-  Object.assign(style, {
-    opacity: node.opacity,
-    overflow: node.asset?.bounds ? "visible" : node.clip ? "hidden" : "visible",
-    borderRadius: node.radius === undefined ? undefined : frameRootWidthUnit(node.radius, root.width),
-    background: node.background,
-    boxShadow: [frameStrokeShadow(node.stroke, root.width), ...visualEffects.shadows].filter(Boolean).join(", ") || undefined,
-    filter: visualEffects.filter,
-    backdropFilter: visualEffects.backdropFilter,
-    mixBlendMode: node.blendMode as React.CSSProperties["mixBlendMode"],
-    zIndex: node.zIndex,
-  });
-  if (inLayout && node.layoutAlign) style.alignSelf = node.layoutAlign === "start" ? "flex-start" : node.layoutAlign === "end" ? "flex-end" : node.layoutAlign;
-  if (node.layout) {
-    const [top, right, bottom, left] = node.layout.padding;
-    Object.assign(style, {
-      display: "flex", boxSizing: "border-box", flexDirection: node.layout.direction === "horizontal" ? "row" : "column",
-      gap: node.layout.direction === "horizontal" ? frameRootWidthUnit(node.layout.gap, root.width) : frameRootHeightUnit(node.layout.gap, root.height),
-      padding: `${frameRootHeightUnit(top, root.height)} ${frameRootWidthUnit(right, root.width)} ${frameRootHeightUnit(bottom, root.height)} ${frameRootWidthUnit(left, root.width)}`,
-      justifyContent: node.layout.align === "space-between" ? "space-between" : node.layout.align === "end" ? "flex-end" : node.layout.align,
-      alignItems: node.layout.crossAlign === "end" ? "flex-end" : node.layout.crossAlign === "start" || node.layout.crossAlign === undefined ? "flex-start" : node.layout.crossAlign,
-    });
-  }
-  const assetStyle: React.CSSProperties | undefined = node.asset ? node.asset.bounds ? {
-    position: "absolute",
-    left: `${node.asset.bounds.x / node.width * 100}%`,
-    top: `${node.asset.bounds.y / node.height * 100}%`,
-    width: `${node.asset.bounds.width / node.width * 100}%`,
-    height: `${node.asset.bounds.height / node.height * 100}%`,
-    objectFit: node.asset.fit,
-    opacity: node.asset.opacity,
-  } : { width: "100%", height: "100%", objectFit: node.asset.fit, opacity: node.asset.opacity } : undefined;
-  return <div className="frame-node-preview" style={style}>
-    {node.asset ? <img src={node.asset.src} alt="" style={assetStyle} /> : null}
-    {node.children?.map((child) => <FrameNodePreview key={child.id} node={child} parent={node} root={root} inLayout={Boolean(node.layout) && !child.absoluteInLayout} />)}
-  </div>;
-}
-
-export function FrameField({ title, description, composition, source, required, importing, previewVariant = "hero", onImport }: {
-  title: string; description: string; composition?: ProjectFrameComposition; source?: string; required?: boolean; importing?: boolean; previewVariant?: "hero" | "cover" | "interactive"; onImport: (url: string) => Promise<void>;
+export function FigmaTemplateField({
+  title,
+  description,
+  templateId,
+  templateLabel,
+  source,
+  previewShape = "surface",
+  importFrame,
+  remove,
+}: {
+  title: string;
+  description: string;
+  templateId: string;
+  templateLabel: string;
+  source?: AdminVisualSource;
+  previewShape?: "card" | "surface";
+  importFrame: (url: string) => Promise<void>;
+  remove?: () => void;
 }) {
-  const [value, setValue] = useState(source ?? composition?.source.url ?? "");
-  const [error, setError] = useState<{ title: string; message: string }>();
-  const [submitting, setSubmitting] = useState(false);
-  const busy = Boolean(importing || submitting);
+  const [url, setUrl] = useState(source?.url ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
   const submit = async () => {
-    if (busy) return;
+    setBusy(true);
     setError(undefined);
-    setSubmitting(true);
-    try { await onImport(value.trim()); }
-    catch (reason) {
-      setError(reason instanceof ApiError
-        ? { title: reason.title, message: reason.message }
-        : { title: "Figma Frame не удалось импортировать", message: "Причину не удалось определить автоматически. Требуется ручная диагностика разработчиком." });
+    try {
+      await importFrame(url.trim());
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Figma Frame не удалось импортировать.");
+    } finally {
+      setBusy(false);
     }
-    finally { setSubmitting(false); }
   };
-  const previewAspect = composition ? `${composition.width}/${composition.height}` : undefined;
-  const coverPreviewStyle = composition && previewVariant === "cover" ? {
-    ...frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`, true),
-    ...(composition.width >= composition.height ? { width: "100%", height: "auto" } : { width: "auto", height: "100%" }),
-  } : composition ? frameCompositionStyle(composition, previewAspect ?? `${composition.width}/${composition.height}`) : undefined;
-  return <div className={`frame-field frame-field-${previewVariant}${error ? " frame-field-error" : ""}`}>
-    <div className="asset-copy"><Text weight="medium">{title}{required ? " *" : ""}</Text><Text as="p" size="1" color="gray">{description}</Text></div>
-    {composition ? <Dialog.Root><Dialog.Trigger><button className="frame-preview-button" type="button" aria-label={`Увеличить ${title}`}><div className={`frame-preview${error ? " frame-preview-broken" : ""}`} style={coverPreviewStyle}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}{error ? <span className="frame-warning"><ExclamationTriangleIcon /></span> : null}</div></button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{title}</Dialog.Title><div className="frame-preview frame-preview-large" style={frameCompositionStyle(composition, `${composition.width}/${composition.height}`, previewVariant === "cover")}>{composition.nodes.map((node) => <FrameNodePreview key={node.id} node={node} parent={composition} root={composition} />)}</div><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root> : null}
-    <div className="frame-source"><TextField.Root size="3" value={value} placeholder="Вставьте ссылку на Figma Frame" onChange={(event) => setValue(event.target.value)} aria-invalid={Boolean(error)} disabled={busy} /><Button size="3" variant="outline" color="gray" disabled={!value.trim() || busy} onClick={() => void submit()}>{busy ? <><span className="spinner" aria-hidden="true" />Импортируется…</> : composition ? "Обновить" : "Импортировать"}</Button></div>
-    {busy ? <span className="frame-import-status" role="status">Получаем структуру Frame и сохраняем ассеты…</span> : null}
-    {error ? <span className="frame-field-message field-error" role="alert"><strong>{error.title}</strong><span>{error.message}</span></span> : <span className="field-help">Production использует локальный snapshot и не зависит от Figma после публикации.</span>}
-  </div>;
+  return (
+    <div className="figma-template-field">
+      <div className="section-heading-copy">
+        <Text weight="medium">{title}</Text>
+        <Text as="p" size="2" color="gray">{description}</Text>
+        <Flex align="center" gap="2" wrap="wrap"><Badge color="gray">{templateLabel}</Badge><Text size="1" color="gray">{templateId}</Text></Flex>
+      </div>
+      <div className="figma-source">
+        <TextField.Root
+          size="3"
+          value={url}
+          placeholder="https://www.figma.com/design/…?node-id=…"
+          aria-label={`Ссылка на Figma Frame: ${title}`}
+          onChange={(event) => setUrl(event.target.value)}
+          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void submit(); } }}
+        />
+        {source?.preview ? (
+          <div className="figma-frame-preview" data-shape={previewShape} style={previewShape === "surface" ? { aspectRatio: `${source.preview.width} / ${source.preview.height}` } : undefined}>
+            <ImagePreview src={source.preview.src} label={`Превью: ${title}`}><img src={source.preview.src} alt="" /></ImagePreview>
+          </div>
+        ) : source ? <div className="figma-preview-pending"><Text size="2" color="gray">Превью появится после обновления Frame из Figma.</Text></div> : null}
+        <Flex gap="2" wrap="wrap">
+          <Button type="button" size="3" disabled={busy || !url.trim()} onClick={() => void submit()}>{busy ? "Импортируем…" : source ? "Обновить из Figma" : "Загрузить Frame"}</Button>
+          {remove ? <Button type="button" size="3" variant="ghost" color="red" disabled={busy} onClick={remove}>Удалить интерактивный блок</Button> : null}
+        </Flex>
+        <Text size="1" color="gray">Admin берёт содержимое Frame, а размеры, фон, отступы и поведение применяет Portfolio.</Text>
+        {error ? <Callout.Root color="red" size="1"><Callout.Text>{error}</Callout.Text></Callout.Root> : null}
+      </div>
+    </div>
+  );
 }
 
 export function TagField({ value, onChange, label, hint }: { value: string[]; onChange: (value: string[]) => void; label: string; hint?: string }) {
@@ -400,7 +315,7 @@ function blocksFromEditor(root: HTMLElement): ProjectSectionBlock[] {
   for (const element of elements) {
     const tag = element.tagName.toLowerCase();
     if (tag === "h3" || tag === "h4" || tag === "h5" || tag === "h6") {
-      result.push({ type: "heading", level: Number(tag.slice(1)) as 3 | 4 | 5 | 6, content: inlineFromNode(element) });
+      result.push({ type: "heading", level: 3, content: inlineFromNode(element) });
     } else if (tag === "ul" || tag === "ol") {
       const items = Array.from(element.children).filter((item) => item.tagName.toLowerCase() === "li").map(inlineFromNode);
       if (items.length) result.push({ type: "list", style: tag === "ol" ? "ordered" : "unordered", items });

@@ -27,3 +27,17 @@
 .buttonsAsset { top: 20px; left: 20px; width: 428px; height: 228px; }
 .inputsAsset { top: 20px; left: 469px; width: 531px; height: 228px; }
 .controlsDivider { position: relative; z-index: 1; grid-column: 2; background: #e3e6e8; }
+
+.sarafanModel { height: 357px; }
+.sarafanModelAsset { top: 56px; left: 56px; width: 888px; height: 240px; }
+.sarafanScenarios { height: 480px; }
+.sarafanScenariosAsset { top: 65px; left: 70px; width: 861px; height: 349.5px; }
+.sarafanSetup { height: 732px; }
+.sarafanSetupDesktop { top: 151px; left: 68px; width: 603px; height: 414px; }
+.sarafanSetupPanel {
+  top: 72px;
+  left: 480px;
+  width: 464px;
+  height: 588px;
+  box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1);
+}

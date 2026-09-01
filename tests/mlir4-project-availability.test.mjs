@@ -6,7 +6,6 @@ test("only Corvo exposes an available project detail route", () => {
   assert.equal(readProject("corvo").detailAvailable, true);
   assert.equal(readProject("sarafan-radio").detailAvailable, false);
   assert.equal(readProject("boff").detailAvailable, false);
-  assert.equal(readProject("example-project").detailAvailable, false);
   const projects = readFileSync(new URL("../src/lib/projects.ts", import.meta.url), "utf8");
   assert.match(projects, /export type ProjectAvailability/);
   assert.match(projects, /detail:\s*project\.detailAvailable \? "available" : "unavailable"/);

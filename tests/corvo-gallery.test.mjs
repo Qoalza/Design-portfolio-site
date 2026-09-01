@@ -19,10 +19,10 @@ test("Corvo gallery defines three independent groups with five current assets ea
   const gallery = project.content.find((block) => block.type === "gallery");
 
   for (const device of ["desktop", "tablet", "mobile"]) {
-    const group = gallery.groups.find(({ id }) => id === device);
-    assert.equal(group.items.length, 5);
+    const group = gallery.groups.find(({ deviceId }) => deviceId === device);
+    assert.equal(group.images.length, 5);
     for (let index = 1; index <= 5; index += 1) {
-      assert.equal(group.items[index - 1].src, `/assets/projects/corvo/gallery/${device}-0${index}.png`);
+      assert.equal(group.images[index - 1].src, `/assets/projects/corvo/gallery/${device}-0${index}.png`);
     }
   }
 });
@@ -103,9 +103,9 @@ test("Gallery previews serve the original high-density Figma exports without ano
 test("Mobile Gallery exports retain two device pixels at the maximum lightbox size", async () => {
   const project = JSON.parse(await source("content/projects/corvo.json"));
   const gallery = project.content.find((block) => block.type === "gallery");
-  const mobile = gallery.groups.find(({ id }) => id === "mobile");
+  const mobile = gallery.groups.find(({ deviceId }) => deviceId === "mobile");
 
-  assert.equal(mobile.items.filter(({ width, height }) => width === 1080 && height === 1920).length, 5);
+  assert.equal(mobile.images.filter(({ width, height }) => width === 1080 && height === 1920).length, 5);
   for (let index = 1; index <= 5; index += 1) {
     assert.deepEqual(
       await pngSize(`public/assets/projects/corvo/gallery/mobile-0${index}.png`),

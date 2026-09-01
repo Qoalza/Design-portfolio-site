@@ -1,11 +1,12 @@
 import "@radix-ui/themes/styles.css";
 import "./admin.css";
 import { EyeOpenIcon } from "@radix-ui/react-icons";
-import { Badge, Box, Button, Callout, Dialog, Flex, Heading, Tabs, Text, TextField, Theme } from "@radix-ui/themes";
+import { Badge, Box, Button, Callout, Dialog, DropdownMenu, Flex, Heading, Tabs, Text, TextField, Theme } from "@radix-ui/themes";
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { ProjectImage, ProjectVisibility } from "../../../src/lib/project-contract";
-import { ConfirmDialog, HomeLimitDialog, IssueDialog, NewProjectDialog, PublishOverlay } from "./admin-dialogs";
+import type { ProjectVisualTemplateId } from "../../../src/lib/project-visual-registry";
+import { ConfirmDialog, IssueDialog, NewProjectDialog, PublishOverlay } from "./admin-dialogs";
 import { CardEditor, PageEditor } from "./admin-editor";
 import type { AdminProject, ChangeInventory, FieldIssue, PublishJob } from "./admin-model";
 import { ApiError } from "./admin-model";
@@ -52,7 +53,6 @@ function App() {
   const [message, setMessage] = useState("");
   const [issues, setIssues] = useState<FieldIssue[]>([]);
   const [selectedSection, setSelectedSection] = useState<string>();
-  const [homeRequest, setHomeRequest] = useState<string>();
   const [job, setJob] = useState<PublishJob | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<"project" | "all" | "delete" | "shutdown">();
@@ -74,16 +74,16 @@ function App() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([api<AdminProject[]>("/api/projects"), api<ChangeInventory>("/api/changes")])
-      .then(([nextProjects, nextInventory]) => {
+    Promise.all([api<AdminProject[]>("/api/projects"), api<ChangeInventory>("/api/changes"), api<{ connected: boolean }>("/api/figma/status")])
+      .then(([nextProjects, nextInventory, figma]) => {
         if (!active) return;
         setProjects(nextProjects);
         setInventory(nextInventory);
+        setFigmaConnected(figma.connected);
       })
       .catch((error) => { if (active) setMessage(safeMessage(error)); });
     return () => { active = false; };
   }, []);
-  useEffect(() => { void api<{ connected: boolean }>("/api/figma/status").then((value) => setFigmaConnected(value.connected)).catch(() => setFigmaConnected(false)); }, []);
 
   useEffect(() => { latest.current = current; }, [current]);
   useEffect(() => {
@@ -150,7 +150,7 @@ function App() {
     setCurrent((value) => value ? { ...value, ...patch } : null);
   };
 
-  const upload = async (file: File, context: string) => {
+  const upload = async (file: File, context: string, policy: { templateId: string; slot: string; operation: "replace" | "add" }) => {
     if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите загрузку.");
     const data = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -160,7 +160,7 @@ function App() {
     });
     return api<ProjectImage>(`/api/projects/${current.slug}/upload`, {
       method: "POST",
-      body: JSON.stringify({ name: file.name, mime: file.type, data, alt: context }),
+      body: JSON.stringify({ name: file.name, mime: file.type, data, alt: context, ...policy }),
     });
   };
   const uploadLogo = async (file: File) => {
@@ -168,17 +168,20 @@ function App() {
     const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = () => reject(new ApiError("SVG не удалось открыть", "Выберите файл ещё раз. Если ошибка повторится, экспортируйте SVG заново и загрузите новую копию.")); reader.readAsDataURL(file); });
     return api<AdminProject["logo"]>(`/api/projects/${current.slug}/logo`, { method: "POST", body: JSON.stringify({ name: file.name, data }) });
   };
-  const importFrame = async (slot: "catalog" | "hero" | "interactive", url: string, sectionId?: string) => {
-    if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите действие.");
+  const importFigma = async (surface: "catalog" | "hero" | "section", templateId: ProjectVisualTemplateId | undefined, url: string, sectionId?: string) => {
+    if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите импорт.");
     await flush();
-    const result = await api<{ project: AdminProject }>(`/api/projects/${current.slug}/frame`, { method: "POST", body: JSON.stringify({ slot, url, sectionId }) });
-    setCurrent(result.project);
+    const next = await api<AdminProject>(`/api/projects/${current.slug}/figma-template`, {
+      method: "POST",
+      body: JSON.stringify({ surface, templateId, url, sectionId }),
+    });
     dirty.current = false;
+    localStorage.removeItem(draftKey(next.slug));
+    setCurrent(next);
     setSaveState("saved");
     await refresh();
   };
-
-  const preview = () => {
+  const preview = (route: "home" | "catalog" | "project" = "project") => {
     if (!current) return;
     const popup = window.open("about:blank", "des-art-preview");
     if (popup) popup.document.title = "Подготовка предпросмотра…";
@@ -187,7 +190,7 @@ function App() {
         await flush();
         const result = await api<{ ready: true; url: string }>(`/api/preview/${current.slug}`, {
           method: "POST",
-          body: JSON.stringify({ context: tab === "card" ? "card" : "page" }),
+          body: JSON.stringify({ route }),
         });
         if (popup) popup.location.href = result.url;
         else window.open(result.url, "des-art-preview");
@@ -216,28 +219,14 @@ function App() {
   const requestHome = (enabled: boolean) => {
     if (!current) return;
     if (!enabled) {
-      update({ featuredOnHome: false, homeOrder: undefined });
+      update({ homePlacement: undefined });
       return;
     }
-    const selected = projects.filter((item) => item.featuredOnHome && item.slug !== current.slug);
-    if (selected.length >= 3) setHomeRequest(current.slug);
-    else update({ featuredOnHome: true, homeOrder: selected.length + 1 });
-  };
-
-  const applyHome = async (slugs: string[]) => {
-    await Promise.all(projects
-      .filter((item) => item.featuredOnHome || slugs.includes(item.slug) || item.slug === homeRequest)
-      .map((item) => api(`/api/drafts/${item.slug}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          ...item,
-          featuredOnHome: slugs.includes(item.slug),
-          homeOrder: slugs.includes(item.slug) ? slugs.indexOf(item.slug) + 1 : undefined,
-        }),
-      })));
-    setHomeRequest(undefined);
-    await refresh();
-    if (current) await openProject(current.slug);
+    const placement = current.designProfile === "corvo-v1" ? "primary" : current.designProfile === "sarafan-v1" ? "secondary" : undefined;
+    if (!placement) { setMessage("Для этого code-owned профиля позиция на главной не предусмотрена."); return; }
+    const occupied = projects.find((item) => item.slug !== current.slug && item.homePlacement === placement && item.visibility === "published");
+    if (occupied) { setMessage(`Позиция ${placement} уже занята проектом «${occupied.title}». Изменение размещения требует правки кода.`); return; }
+    update({ homePlacement: placement });
   };
 
   const createProject = async (title: string, slug?: string) => {
@@ -303,11 +292,11 @@ function App() {
           <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color={publishMode === "live" ? "green" : "gray"}>{publishMode === "live" ? "Связано с art-des.ru" : "Тестовый контур"}</Badge></div>
           <Text color="gray">{current?.title ?? "Проекты портфолио"}</Text>
           <Flex gap="3" align="center">
-            <Button size="3" variant="outline" color="gray" onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "не подключена"}</Button>
             <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>
               {saveState === "saved" ? <SavedMark>{saveLabels[saveState]}</SavedMark> : saveLabels[saveState]}
             </Text>
-            {current ? <Button size="3" variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button> : null}
+            <Button type="button" size="3" variant="soft" color={figmaConnected ? "green" : "gray"} onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "подключить"}</Button>
+            {current ? <DropdownMenu.Root><DropdownMenu.Trigger><Button size="3" variant="soft" color="gray"><EyeOpenIcon />Предпросмотр</Button></DropdownMenu.Trigger><DropdownMenu.Content><DropdownMenu.Item onSelect={() => preview("home")}>Главная</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("catalog")}>Все работы</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("project")}>Страница проекта</DropdownMenu.Item></DropdownMenu.Content></DropdownMenu.Root> : null}
           </Flex>
         </header>
         <main className="admin-workspace">
@@ -340,8 +329,8 @@ function App() {
                 <Tabs.Root value={tab} onValueChange={setTab}>
                   <Tabs.List><Tabs.Trigger value="card">Карточка</Tabs.Trigger><Tabs.Trigger value="page">Страница проекта</Tabs.Trigger></Tabs.List>
                   <Box pt="5">
-                    <Tabs.Content value="card"><CardEditor project={current} update={update} uploadLogo={uploadLogo} importFrame={importFrame} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
-                    <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} importFrame={importFrame} selectedSection={selectedSection} selectSection={setSelectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
+                    <Tabs.Content value="card"><CardEditor project={current} update={update} uploadLogo={uploadLogo} importFigma={importFigma} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
+                    <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} importFigma={importFigma} selectedSection={selectedSection} selectSection={setSelectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
                   </Box>
                 </Tabs.Root>
               </div>
@@ -355,7 +344,7 @@ function App() {
                 <ProjectActions
                   project={current}
                   changed={Boolean(currentChange)}
-                  preview={preview}
+                  preview={() => preview("project")}
                   publish={() => void startPublish("project").catch((error) => setMessage(safeMessage(error)))}
                   setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
                   permanentDelete={() => setConfirmation("delete")}
@@ -371,7 +360,6 @@ function App() {
             ) : null}
           </aside>
         </main>
-        <HomeLimitDialog key={homeRequest ?? "closed"} open={Boolean(homeRequest)} projects={projects} requested={homeRequest} cancel={() => setHomeRequest(undefined)} apply={(slugs) => void applyHome(slugs).catch((error) => setMessage(safeMessage(error)))} />
         <NewProjectDialog key={createOpen ? "open" : "closed"} open={createOpen} existingSlugs={projects.map((project) => project.slug)} close={() => setCreateOpen(false)} create={(title, slug) => void createProject(title, slug).catch((error) => setMessage(safeMessage(error)))} />
         <IssueDialog open={reviewIssues.length > 0} title="Что нужно исправить" issues={reviewIssues} close={() => setReviewIssues([])} navigate={(issue) => { void (async () => {
           setReviewIssues([]);
@@ -383,8 +371,15 @@ function App() {
         <ConfirmDialog open={confirmation === "project" || confirmation === "all"} title={publishMode === "live" ? "Опубликовать на art-des.ru?" : "Запустить тестовую публикацию?"} description={publishMode === "live" ? "Админка проверит изменения, создаст Pull Request, выполнит merge и безопасно развернёт точный commit на production." : "Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся."} confirmLabel={publishMode === "live" ? "Опубликовать" : "Запустить"} close={() => setConfirmation(undefined)} confirm={() => void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error)))} />
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
+        <Dialog.Root open={figmaOpen} onOpenChange={setFigmaOpen}>
+          <Dialog.Content maxWidth="520px">
+            <Dialog.Title>Подключить Figma</Dialog.Title>
+            <Dialog.Description size="2" mb="4">Токен нужен только локальной Admin для чтения Frame. Он хранится в macOS Keychain и не попадает в проект или Git.</Dialog.Description>
+            <TextField.Root type="password" size="3" placeholder="Personal access token" value={figmaToken} onChange={(event) => setFigmaToken(event.target.value)} />
+            <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button variant="soft" color="gray">Отмена</Button></Dialog.Close><Button disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then((value) => { setFigmaConnected(value.connected); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить подключение</Button></Flex>
+          </Dialog.Content>
+        </Dialog.Root>
         <PublishOverlay job={job} mode={publishMode} close={() => setJob(null)} />
-        <Dialog.Root open={figmaOpen} onOpenChange={setFigmaOpen}><Dialog.Content maxWidth="520px"><Dialog.Title>Подключение Figma</Dialog.Title><Dialog.Description>Токен хранится только в macOS Keychain. Нужен доступ file_content:read.</Dialog.Description><label className="dialog-field"><Text size="2" weight="medium">Personal access token</Text><TextField.Root size="3" type="password" value={figmaToken} onChange={(event) => setFigmaToken(event.target.value)} /></label><Flex justify="end" gap="3" mt="5"><Dialog.Close><Button size="3" variant="soft" color="gray">Отмена</Button></Dialog.Close><Button size="3" disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then(() => { setFigmaConnected(true); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить в Keychain</Button></Flex></Dialog.Content></Dialog.Root>
       </div>
     </Theme>
   );

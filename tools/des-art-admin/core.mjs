@@ -9,41 +9,12 @@ import {
   resolveProjectDocumentPath,
 } from "../../src/lib/project-contract.ts";
 import { readAllProjectDocuments, writeProjectDocument } from "../../src/lib/projects.ts";
+import { PROJECT_VISUAL_TEMPLATES, validateAssetForSlot, validateProjectCollection } from "../../src/lib/project-visual-registry.ts";
 import { compileAdminDraft, createAdminDraft, draftValidation, parseAdminDraft } from "./draft-contract.mjs";
-import { importFigmaFrame } from "./figma-frame.mjs";
+import { importFigmaTemplate } from "./figma-template-import.mjs";
 import { UserFacingError } from "./human-errors.mjs";
 
 const requireRead = (file) => readFileSync(file, "utf8");
-
-export function humanFigmaImportError(error) {
-  const message = error instanceof Error ? error.message : String(error);
-  if (/Figma не подключена/i.test(message)) {
-    return { title: "Figma не подключена", message: "Подключите локальный токен Figma с доступом file_content:read и повторите импорт. Предыдущая рабочая версия изображения сохранена." };
-  }
-  if (/отклонила токен|доступ к файлу/i.test(message)) {
-    return { title: "Figma не дала доступ к Frame", message: "Проверьте, что подключённый токен действует и у него есть доступ к этому Figma-файлу. Предыдущая рабочая версия изображения сохранена." };
-  }
-  if (/больше не найден|Frame Figma не найден/i.test(message)) {
-    return { title: "Figma Frame не найден", message: "Frame или сам файл удалён, перемещён без доступа либо ссылка ведёт на старый node-id. Скопируйте новую ссылку на существующий Frame. Предыдущая рабочая версия сохранена." };
-  }
-  if (/корректную ссылку|должна вести|ключ файла|node-id/i.test(message)) {
-    return { title: "Ссылка не ведёт на конкретный Figma Frame", message: "Скопируйте ссылку именно на выбранный Frame в Figma и вставьте её целиком. Предыдущая рабочая версия изображения сохранена." };
-  }
-  const layer = /(?:Слой|Эффект слоя|элемент) «([^»]+)»/i.exec(message)?.[1];
-  if (layer) {
-    if (/эффект, отличный от тени/i.test(message)) return { title: `Элемент «${layer}» содержит неподдерживаемый эффект`, message: "Импортёр сохраняет тени, но не может точно воспроизвести этот эффект. Запеките эффект в готовый PNG внутри Frame и обновите импорт. Предыдущая рабочая версия сохранена." };
-    if (/fill|залив/i.test(message)) return { title: `Элемент «${layer}» содержит неподдерживаемую заливку`, message: "Экспортируйте этот элемент как готовый PNG внутри того же Frame и обновите импорт. Положение и constraints PNG будут взяты из Figma; предыдущая рабочая версия сохранена." };
-    if (/радиус|corner smoothing/i.test(message)) return { title: `Элемент «${layer}» содержит неподдерживаемое оформление углов`, message: "Экспортируйте элемент вместе с обводкой и скруглениями как готовый PNG, замените им исходный слой во Frame и обновите импорт." };
-    if (/Auto Layout/i.test(message)) return { title: `Элемент «${layer}» использует неподдерживаемый режим Auto Layout`, message: "Поместите визуальное содержимое этого элемента в готовый PNG, сохранив его положение во Frame, и обновите импорт." };
-    if (/геометри/i.test(message)) return { title: `У элемента «${layer}» нет корректного размера`, message: "Задайте элементу ненулевую ширину и высоту во Frame либо удалите пустой элемент, затем обновите импорт." };
-    if (/не вернула|не смогла экспортировать|Не удалось скачать/i.test(message)) return { title: `Элемент «${layer}» не удалось получить из Figma`, message: "Figma не предоставила файл этого элемента. Проверьте доступ к исходному изображению и повторите импорт; если ошибка останется, потребуется ручная диагностика разработчиком." };
-    return { title: `Элемент «${layer}» не удалось импортировать`, message: "Причину не удалось определить автоматически. Предыдущая рабочая версия сохранена; требуется ручная диагностика разработчиком." };
-  }
-  if (/временно ограничила запросы/i.test(message)) {
-    return { title: "Figma временно ограничила загрузку", message: "Подождите несколько минут и повторите импорт. Предыдущая рабочая версия изображения сохранена." };
-  }
-  return { title: "Figma Frame не удалось импортировать", message: "Причину не удалось определить автоматически. Предыдущая рабочая версия изображения сохранена; требуется ручная диагностика разработчиком." };
-}
 
 function semanticValue(value) {
   if (Array.isArray(value)) return value.map(semanticValue);
@@ -184,12 +155,13 @@ async function canonicalDraftPath(root, slug) {
 }
 
 export class AdminStore {
-  constructor({ contentRoot, assetRoot, draftRoot, draftAssetRoot = assetRoot, snapshotRoot = path.join(path.dirname(draftRoot), "published-snapshots") }) {
+  constructor({ contentRoot, assetRoot, draftRoot, draftAssetRoot = assetRoot, snapshotRoot = path.join(path.dirname(draftRoot), "published-snapshots"), figmaImporter = importFigmaTemplate }) {
     this.contentRoot = contentRoot;
     this.assetRoot = assetRoot;
     this.draftRoot = draftRoot;
     this.draftAssetRoot = draftAssetRoot;
     this.snapshotRoot = snapshotRoot;
+    this.figmaImporter = figmaImporter;
   }
 
   async listProjects() {
@@ -260,7 +232,7 @@ export class AdminStore {
     let slug = createProjectSlug(requested, existing);
     for (;;) {
       const file = resolveProjectDocumentPath(this.draftRoot, slug);
-      const project = createAdminDraft({ schemaVersion: 2, title: cleanTitle, slug, description: "", role: "", year: new Date().getFullYear(), tags: [], detailTags: [], visibility: "draft", catalogOrder: existing.length + 1, featuredOnHome: false, detailAvailable: false, materials: { projectState: "completed", fileState: "absent" }, platforms: [], content: [] });
+      const project = createAdminDraft({ schemaVersion: 3, designProfile: "catalog-only-v1", title: cleanTitle, slug, description: "", role: "", year: new Date().getFullYear(), tags: [], detailTags: [], visibility: "draft", catalogOrder: existing.length + 1, detailAvailable: false, materials: { projectState: "completed", fileState: "absent" }, platforms: [], visuals: { catalog: { templateId: "catalog.browser", assets: {} } }, content: [] });
       try {
         const firstSection = { type: "section", adminId: `${slug}-section-1`, heading: "Новая секция", blocks: [] };
         project.content = [firstSection];
@@ -280,8 +252,13 @@ export class AdminStore {
       title: `${source.title} — копия`,
       slug: newSlug,
       visibility: "draft",
-      featuredOnHome: false,
-      homeOrder: undefined,
+      designProfile: "catalog-only-v1",
+      homePlacement: undefined,
+      detailAvailable: false,
+      visuals: { catalog: { templateId: "catalog.browser", assets: {} } },
+      content: source.content.map((block) => block.type === "section"
+        ? { ...block, blocks: block.blocks.filter((item) => item.type !== "visual" && item.type !== "notice") }
+        : undefined).filter(Boolean),
     });
     await this.saveDraft(newSlug, copy);
     return copy;
@@ -292,7 +269,7 @@ export class AdminStore {
     const next = createAdminDraft({
       ...current,
       visibility,
-      ...(visibility === "published" ? {} : { featuredOnHome: false, homeOrder: undefined }),
+      ...(visibility === "published" ? {} : { homePlacement: undefined }),
     });
     await this.saveDraft(slug, next);
     return next;
@@ -306,7 +283,9 @@ export class AdminStore {
     if (slugs.length !== published.length || slugs.some((slug) => bySlug.get(slug)?.visibility !== "published")) {
       throw new Error("Only published projects can be reordered.");
     }
-    for (const [index, slug] of slugs.entries()) await this.saveDraft(slug, { ...bySlug.get(slug), catalogOrder: index + 1 });
+    const reorderedDrafts = slugs.map((slug, index) => ({ ...bySlug.get(slug), catalogOrder: index + 1 }));
+    validateProjectCollection(reorderedDrafts.map((project) => compileAdminDraft(project)));
+    for (const project of reorderedDrafts) await this.saveDraft(project.slug, project);
     return this.listProjects();
   }
 
@@ -325,14 +304,120 @@ export class AdminStore {
     return parseAdminDraft(await readFile(file, "utf8"), path.basename(file));
   }
 
-  async preparePreview(slug, previewRoot, context = "page") {
+  async importFigmaVisual(slug, { url, surface, templateId, sectionId }) {
+    if (!["catalog", "hero", "section"].includes(surface)) {
+      throw new UserFacingError("Frame не импортирован", "Не удалось определить, куда должен попасть этот Figma Frame.");
+    }
+    const current = await this.getProject(slug);
+    let section;
+    let resolvedTemplateId = templateId;
+    let candidateTemplateIds;
+    if (surface === "catalog" && current.visuals.catalog.templateId !== templateId) {
+      throw new UserFacingError("Frame не импортирован", "Шаблон карточки назначается в коде и не может быть переключён из Admin.");
+    }
+    if (surface === "hero" && current.visuals.hero?.templateId !== templateId) {
+      throw new UserFacingError("Frame не импортирован", "Hero-шаблон назначается в коде и не может быть переключён из Admin.");
+    }
+    if (surface === "section") {
+      section = current.content.find((block) => block.type === "section" && block.adminId === sectionId);
+      if (!section) throw new UserFacingError("Frame не импортирован", "Секция больше не найдена. Обновите проект и повторите импорт.");
+      const existing = section.blocks.find((block) => block.type === "visual");
+      if (existing && templateId !== existing.templateId) {
+        throw new UserFacingError("Frame не импортирован", "Тип существующего интерактивного блока назначен в коде и не может быть переключён из Admin.");
+      }
+      resolvedTemplateId = existing?.templateId;
+      if (!existing) {
+        if (templateId !== undefined) throw new UserFacingError("Frame не импортирован", "Тип нового интерактивного блока определяется автоматически по утверждённому Figma Frame.");
+        candidateTemplateIds = Object.entries(PROJECT_VISUAL_TEMPLATES)
+          .filter(([, definition]) => definition.surface === "section" && definition.profiles.includes(current.designProfile))
+          .map(([candidate]) => candidate);
+      }
+    }
+    if (resolvedTemplateId !== undefined) {
+      const template = PROJECT_VISUAL_TEMPLATES[resolvedTemplateId];
+      if (!template || template.surface !== surface || !template.profiles.includes(current.designProfile)) {
+        throw new UserFacingError("Frame не импортирован", "Этот утверждённый шаблон не подходит профилю или выбранной части проекта.");
+      }
+    } else if (!candidateTemplateIds?.length) {
+      throw new UserFacingError("Frame не импортирован", "Для этого профиля не назначены интерактивные шаблоны.");
+    }
+
+    let imported;
+    try {
+      imported = await this.figmaImporter({
+        url,
+        slug,
+        templateId: resolvedTemplateId,
+        templateIds: candidateTemplateIds,
+        assetRoot: this.draftAssetRoot,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Figma Frame не удалось прочитать.";
+      throw new UserFacingError("Frame не импортирован", `${message} Сохранённый черновик не изменён.`, { cause: error });
+    }
+    const importedTemplate = PROJECT_VISUAL_TEMPLATES[imported.visual?.templateId];
+    if (!importedTemplate || importedTemplate.surface !== surface || !importedTemplate.profiles.includes(current.designProfile)
+      || (candidateTemplateIds && !candidateTemplateIds.includes(imported.visual.templateId))) {
+      throw new UserFacingError("Frame не импортирован", "Importer вернул шаблон вне разрешённого профиля. Сохранённый черновик не изменён.");
+    }
+
+    const sourceKey = surface === "section" ? sectionId : surface;
+    let visuals = current.visuals;
+    let content = current.content;
+    if (surface === "catalog") {
+      visuals = {
+        ...visuals,
+        catalog: imported.visual,
+        ...(current.designProfile === "corvo-v1" ? { home: { templateId: "catalog.corvo-stack", assets: imported.visual.assets } }
+          : current.designProfile === "sarafan-v1" ? { home: { templateId: "home.sarafan-radio", assets: imported.visual.assets } }
+            : {}),
+      };
+    } else if (surface === "hero") {
+      visuals = { ...visuals, hero: imported.visual };
+    } else {
+      content = content.map((block) => {
+        if (block !== section) return block;
+        const hasVisual = block.blocks.some((item) => item.type === "visual");
+        return {
+          ...block,
+          blocks: hasVisual
+            ? block.blocks.map((item) => item.type === "visual" ? { type: "visual", ...imported.visual } : item)
+            : [...block.blocks, { type: "visual", ...imported.visual }],
+        };
+      });
+    }
+    const next = createAdminDraft({
+      ...current,
+      visuals,
+      content,
+      admin: {
+        ...current.admin,
+        visualSources: {
+          ...current.admin?.visualSources,
+          [sourceKey]: imported.source,
+        },
+      },
+    });
+    await this.saveDraft(slug, next);
+    return next;
+  }
+
+  async preparePreview(slug, previewRoot, route = "project") {
     const draft = await this.getProject(slug);
     const compiled = compileAdminDraft(draft);
+    if (route === "project" && !compiled.visuals.hero) {
+      throw new Error("Для предпросмотра страницы проекта сначала заполните утверждённый hero-шаблон.");
+    }
     const project = {
       ...compiled,
       visibility: "published",
-      ...(context === "page" ? { detailAvailable: true } : {}),
+      ...(route === "project" ? { detailAvailable: true } : {}),
     };
+    await mkdir(this.contentRoot, { recursive: true });
+    const baseline = readAllProjectDocuments(this.contentRoot);
+    const previewCollection = baseline.filter((item) => item.slug !== slug).concat(project);
+    validateProjectCollection(previewCollection);
+    parseProjectDocument(JSON.stringify(project), `${slug}.json`);
     const file = await canonicalDraftPath(previewRoot, slug);
     const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
     await writeFile(temporary, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
@@ -356,8 +441,7 @@ export class AdminStore {
     const withoutGlobalPlacement = (project) => {
       const content = { ...project };
       delete content.catalogOrder;
-      delete content.featuredOnHome;
-      delete content.homeOrder;
+      delete content.homePlacement;
       return content;
     };
     for (const name of names) {
@@ -376,8 +460,7 @@ export class AdminStore {
         changed = hasPendingGalleryDevices || JSON.stringify(semanticValue(withoutGlobalPlacement(comparable))) !== JSON.stringify(semanticValue(withoutGlobalPlacement(canonicalComparable)));
         globalChanged = !canonical
           || comparable.catalogOrder !== canonical.catalogOrder
-          || comparable.featuredOnHome !== canonical.featuredOnHome
-          || comparable.homeOrder !== canonical.homeOrder;
+          || comparable.homePlacement !== canonical.homePlacement;
       } else { changed = true; globalChanged = true; }
       if (changed) projects.push({ slug: draft.slug, title: draft.title, valid: validation.valid, issues: validation.issues });
       if (changed || globalChanged) changedSlugs.push(draft.slug);
@@ -395,11 +478,23 @@ export class AdminStore {
       : inventory.projects;
     if (scope === "project" && selected.length !== 1) throw new Error("У проекта нет неопубликованных изменений.");
     await mkdir(this.snapshotRoot, { recursive: true });
+    const baseline = await this.listSandboxPublished();
+    const baselineBySlug = new Map(baseline.map((project) => [project.slug, project]));
+    const replacements = new Map();
     for (const item of selected) {
-      const compiled = compileAdminDraft(await this.getProject(item.slug));
-      const destination = resolveProjectDocumentPath(this.snapshotRoot, item.slug);
+      let compiled = compileAdminDraft(await this.getProject(item.slug));
+      if (scope === "project") {
+        const current = baselineBySlug.get(item.slug);
+        if (current) compiled = { ...compiled, catalogOrder: current.catalogOrder, homePlacement: current.homePlacement };
+      }
+      replacements.set(item.slug, compiled);
+    }
+    const next = baseline.filter((project) => !replacements.has(project.slug)).concat([...replacements.values()]);
+    validateProjectCollection(next);
+    for (const project of replacements.values()) {
+      const destination = resolveProjectDocumentPath(this.snapshotRoot, project.slug);
       const temporary = `${destination}.${process.pid}.${Date.now()}.tmp`;
-      await writeFile(temporary, `${JSON.stringify(compiled, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+      await writeFile(temporary, `${JSON.stringify(project, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
       await rename(temporary, destination);
     }
     return selected.map((item) => item.slug);
@@ -420,10 +515,17 @@ export class AdminStore {
     await rm(path.join(this.draftAssetRoot, slug), { recursive: true, force: true });
   }
 
-  async saveImage(slug, fileName, mime, buffer, alt) {
+  async saveImage(slug, fileName, mime, buffer, alt, { templateId, slot, operation }) {
     if (typeof alt !== "string" || alt.trim().length === 0) throw new Error("Alt text is required.");
     const inspected = inspectImage(buffer, fileName, mime);
     const safeName = safeUploadName(fileName);
+    const template = PROJECT_VISUAL_TEMPLATES[templateId];
+    const slotDefinition = template?.slots?.[slot];
+    if (template?.surface !== "gallery") {
+      throw new UserFacingError("Изображение не загружено", "Карточка, главное изображение и интерактивные блоки обновляются только целым Figma Frame.");
+    }
+    if (!template || !slotDefinition || !slotDefinition.operations.includes(operation)) throw new Error("Этот slot или тип операции не разрешён утверждённым шаблоном.");
+    validateAssetForSlot(templateId, slot, { src: `/assets/projects/${slug}/${safeName}`, alt: alt.trim(), width: inspected.width, height: inspected.height }, `Загруженный файл для ${templateId}.${slot}`);
     const assetDirectory = path.dirname(resolveProjectAssetPath(this.draftAssetRoot, slug, safeName));
     await mkdir(assetDirectory, { recursive: true });
     const digest = createHash("sha256").update(buffer).digest("hex");
@@ -462,30 +564,6 @@ export class AdminStore {
     await writeFile(temporary, buffer, { mode: 0o600 });
     await rename(temporary, destination);
     return { type: "image", src: `/assets/projects/${slug}/logo.svg` };
-  }
-
-  async importFrame(slug, { url, slot, sectionId }) {
-    if (!['catalog', 'hero', 'interactive'].includes(slot)) throw new Error("Неизвестное назначение Figma Frame.");
-    const project = await this.getProject(slug);
-    let composition;
-    try {
-      composition = await importFigmaFrame({ url, slug, slot: sectionId ? `${slot}-${sectionId}` : slot, assetRoot: this.draftAssetRoot });
-    } catch (error) {
-      const explanation = humanFigmaImportError(error);
-      throw new UserFacingError(explanation.title, explanation.message, { cause: error });
-    }
-    let next;
-    if (slot === 'catalog') next = { ...project, catalogFrame: composition };
-    else if (slot === 'hero') next = { ...project, heroFrame: composition };
-    else {
-      const content = project.content.map((block) => {
-        if (block.type !== 'section' || block.adminId !== sectionId) return block;
-        return { ...block, blocks: [...block.blocks.filter((item) => item.type !== 'frame'), { type: 'frame', composition }] };
-      });
-      next = { ...project, content, admin: { ...project.admin, sections: { ...project.admin?.sections, [sectionId]: { ...project.admin?.sections?.[sectionId], interactive: { enabled: true, figmaUrl: url, status: 'connected' } } } } };
-    }
-    await this.saveDraft(slug, next);
-    return { project: next, composition };
   }
 
   async readImage(slug, fileName) {

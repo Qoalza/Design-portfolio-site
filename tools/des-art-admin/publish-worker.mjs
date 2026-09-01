@@ -9,6 +9,8 @@ import { promisify } from "node:util";
 import { compileAdminDraft, parseAdminDraft } from "./draft-contract.mjs";
 import { humanError } from "./human-errors.mjs";
 import { PRODUCTION_DATA_BASELINE_VERSION } from "./production-data-bootstrap.mjs";
+import { readAllProjectDocuments } from "../../src/lib/projects.ts";
+import { validateProjectCollection } from "../../src/lib/project-visual-registry.ts";
 
 const exec = promisify(execFile);
 export const PUBLISH_STAGES = [
@@ -42,6 +44,21 @@ async function atomicJson(file, value) {
 
 function publishedDraft(project) {
   return project.visibility === "draft" ? { ...project, visibility: "published" } : project;
+}
+
+function candidateCollection(baselineRoot, compiledProjects, scope) {
+  const baseline = readAllProjectDocuments(baselineRoot);
+  const currentBySlug = new Map(baseline.map((project) => [project.slug, project]));
+  const replacements = new Map(compiledProjects.map((project) => {
+    const current = currentBySlug.get(project.slug);
+    const replacement = scope === "project" && current
+      ? { ...project, catalogOrder: current.catalogOrder, homePlacement: current.homePlacement }
+      : project;
+    return [replacement.slug, replacement];
+  }));
+  const next = baseline.filter((project) => !replacements.has(project.slug)).concat([...replacements.values()]);
+  validateProjectCollection(next);
+  return replacements;
 }
 
 async function liveConfig(supportRoot) {
@@ -109,7 +126,10 @@ export async function runPublishJob(jobFile) {
     for (const [stageId, label] of PUBLISH_STAGES) {
       await update(jobFile, job, { currentStage: stageId, message: label });
       if (stageId === "validate") {
-        for (const file of job.files) compileAdminDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
+        const compiled = [];
+        for (const file of job.files) compiled.push(compileAdminDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file))));
+        const baselineRoot = job.mode === "live" ? path.join(job.repoRoot, "content", "projects") : job.snapshotRoot;
+        candidateCollection(baselineRoot, compiled, job.scope);
       } else if (stageId === "prepare") {
         await mkdir(stageRoot, { recursive: true });
         for (const file of job.files) {
@@ -129,7 +149,7 @@ export async function runPublishJob(jobFile) {
             if (job.scope === "project") {
               try {
                 const baseline = JSON.parse(await readFile(destination, "utf8"));
-                compiled = { ...compiled, catalogOrder: baseline.catalogOrder, featuredOnHome: baseline.featuredOnHome, homeOrder: baseline.homeOrder };
+                compiled = { ...compiled, catalogOrder: baseline.catalogOrder, homePlacement: baseline.homePlacement };
               } catch {}
             }
             await atomicJson(destination, compiled);
@@ -201,8 +221,7 @@ export async function runPublishJob(jobFile) {
             compiled = {
               ...compiled,
               catalogOrder: baseline.catalogOrder,
-              featuredOnHome: baseline.featuredOnHome,
-              homeOrder: baseline.homeOrder,
+              homePlacement: baseline.homePlacement,
             };
           } catch {}
         }

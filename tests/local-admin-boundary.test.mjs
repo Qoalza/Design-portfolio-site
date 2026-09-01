@@ -13,6 +13,7 @@ const adminDialogs = await readFile(new URL("../tools/des-art-admin/src/admin-di
 const adminEditor = await readFile(new URL("../tools/des-art-admin/src/admin-editor.tsx", import.meta.url), "utf8");
 const adminRail = await readFile(new URL("../tools/des-art-admin/src/admin-rail.tsx", import.meta.url), "utf8");
 const adminComponents = await readFile(new URL("../tools/des-art-admin/src/admin-ui.tsx", import.meta.url), "utf8");
+const projectGallery = await readFile(new URL("../src/components/project-gallery.tsx", import.meta.url), "utf8");
 const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const deployCommand = await readFile(new URL("../tools/des-art-admin/server/art-des-publish", import.meta.url), "utf8");
@@ -30,7 +31,7 @@ test("publish mode is server-owned and sandbox is the safe default", () => {
 });
 
 test("launcher uses argument arrays instead of shell command construction", () => {
-  assert.match(launcher, /exec\("\/usr\/bin\/git", \[/);
+  assert.match(launcher, /exec\("\/usr\/bin\/git", \["clone"/);
   assert.match(launcher, /spawn\(command, args/);
   assert.doesNotMatch(launcher, /shell:\s*true/);
   assert.match(launcher, /Library", "Application Support", "Des-art Admin/);
@@ -40,9 +41,7 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /live-publish\.json/);
   assert.match(launcher, /npm-lock\.sha256/);
   assert.match(launcher, /createHash\("sha256"\)/);
-  assert.match(launcher, /production-data-baseline\.json/);
-  assert.match(launcher, /activeWorkspaceNames = \["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs"\]/);
-  assert.match(launcher, /source: "canonical-main"/);
+  assert.match(launcher, /ensureProductionDataBaseline/);
 });
 
 test("admin is not an App Router route and preview access is env-gated", async () => {
@@ -85,9 +84,25 @@ test("publication stepper styles markers without constraining Radix labels", () 
 test("each section renders its own settings inside the section editor", () => {
   assert.match(adminEditor, /className="section-settings"/);
   assert.match(adminEditor, /Примечание/);
-  assert.match(adminEditor, /Интерактивный экран/);
+  assert.match(adminEditor, /Визуальное поведение задаёт Portfolio/);
+  assert.match(adminEditor, /Добавить интерактивный блок/);
+  assert.match(adminEditor, /importFigma\("section"/);
   assert.doesNotMatch(adminRail, /selected-section-settings/);
   assert.doesNotMatch(adminRail, /function SectionSettings/);
+});
+
+test("card, hero and interactive visuals accept one approved Figma Frame without exposing internal slots", () => {
+  assert.match(adminComponents, /export function FigmaTemplateField/);
+  assert.match(adminEditor, /Превью карточки/);
+  assert.match(adminEditor, /Главное изображение открытого проекта/);
+  assert.match(adminComponents, /Загрузить Frame/);
+  assert.doesNotMatch(adminEditor, /VisualSlotEditor|Заменить изображение/);
+  assert.doesNotMatch(adminEditor, /Тип интерактивного блока|<Select/);
+  assert.match(server, /\/api\/figma\/status/);
+  assert.match(server, /segments\[3\] === "figma-template"/);
+  assert.match(adminCss, /\.figma-template-field\s*\{[^}]*min-width:\s*0/s);
+  assert.match(adminCss, /\.figma-frame-preview\[data-shape="card"\][^{]*\{[^}]*aspect-ratio:\s*1/s);
+  assert.match(adminCss, /\.figma-frame-preview\[data-shape="surface"\][^{]*img[^}]*max-width:\s*100%/s);
 });
 
 test("disabling the last gallery device removes the invalid empty gallery", () => {
@@ -95,10 +110,11 @@ test("disabling the last gallery device removes the invalid empty gallery", () =
   assert.match(adminRail, /filter\(\(block\) => block\.type !== "gallery"\)/);
 });
 
-test("new Gallery devices use the checked-in Figma icon exports", () => {
+test("Gallery device presentation is code-owned outside Admin data", () => {
   for (const device of ["desktop", "tablet", "mobile"]) {
-    assert.match(adminEditor, new RegExp(`icon: "/assets/projects/corvo/${device}\\.svg"`));
+    assert.match(projectGallery, new RegExp(`icon: "/assets/projects/corvo/${device}\\.svg"`));
   }
+  assert.doesNotMatch(adminEditor, /icon:\s*"\/assets\/projects/);
 });
 
 test("rich text toolbar uses Radix icons instead of letter glyph controls", () => {

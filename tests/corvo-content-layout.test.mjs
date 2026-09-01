@@ -25,10 +25,10 @@ test("Corvo uses code-built canvases and no stale full-frame project screenshots
   const project = JSON.parse(await source("content/projects/corvo.json"));
   const sourceDocument = JSON.stringify(project);
 
-  for (const presentation of ["quotes", "process", "controls"]) {
-    assert.ok(project.content.some((section) => section.type === "section" && section.blocks.some((block) => block.type === "image" && block.presentation === presentation)));
+  for (const templateId of ["canvas.corvo-quotes", "canvas.corvo-process", "canvas.corvo-controls"]) {
+    assert.ok(project.content.some((section) => section.type === "section" && section.blocks.some((block) => block.type === "visual" && block.templateId === templateId)));
   }
-  assert.ok(project.content.some((section) => section.type === "section" && section.blocks.some((block) => block.type === "notice" && block.variant === "wide")));
+  assert.ok(project.content.some((section) => section.type === "section" && section.blocks.some((block) => block.type === "notice" && block.templateId === "notice.info-v1")));
   assert.doesNotMatch(sourceDocument, /overview\.png|process-interface\.png|result-interface\.png/);
 });
 
@@ -37,9 +37,9 @@ test("ProjectCanvas keeps the code shell in CSS and mounts structured image expo
   const project = await source("content/projects/corvo.json");
   const css = await source("src/components/project-canvas.module.css");
 
-  assert.match(component, /presentation === "quotes"/);
-  assert.match(component, /presentation === "process"/);
-  assert.match(component, /presentation === "controls"/);
+  assert.match(component, /visual\.templateId === "canvas\.corvo-quotes"/);
+  assert.match(component, /visual\.templateId === "canvas\.corvo-process"/);
+  assert.match(component, /visual\.templateId === "canvas\.corvo-controls"/);
   assert.match(project, /corvo-quotes\.png/);
   assert.match(project, /corvo-process\.png/);
   assert.match(project, /corvo-buttons\.png/);
@@ -73,7 +73,7 @@ test("the project page renders structured image blocks through ProjectCanvas", a
   const page = await source("src/app/projects/[slug]/page.tsx");
 
   assert.match(page, /import \{ ProjectCanvas \}/);
-  assert.match(page, /<ProjectCanvas presentation=\{block\.presentation\} images=\{block\.images\}/);
+  assert.match(page, /<ProjectCanvas visual=\{block\}/);
 });
 
 test("the terminal section delegates its single divider to Gallery", async () => {
@@ -90,16 +90,13 @@ test("all five information sections encode the current Figma vertical rhythm wit
   assert.match(css, /\.contentSection\s*\{[\s\S]*display:\s*flex;[\s\S]*flex-direction:\s*column;/);
   assert.match(css, /\.contentSection:first-child h2\s*\{\s*padding-top:\s*32px;/);
   assert.match(css, /\.contentSection:not\(:first-child\) h2\s*\{\s*padding-top:\s*40px;/);
-  assert.match(css, /\.contentSection:first-child\s*>?\s*p \+ p\s*\{\s*margin-top:\s*24px;/);
-  assert.match(css, /\.contentSection:nth-child\(2\)\s*>?\s*p \+ p\s*\{\s*margin-top:\s*0;/);
-  assert.match(css, /\.contentSection:nth-child\(3\)\s*>?\s*p \+ p\s*\{\s*margin-top:\s*24px;/);
-  assert.match(css, /\.contentSection:nth-child\(4\)\s*>?\s*p:nth-of-type\(2\)\s*\{\s*margin-top:\s*0;/);
-  assert.match(css, /\.contentSection:nth-child\(4\)\s*>?\s*p:nth-of-type\(3\)\s*\{\s*margin-top:\s*24px;/);
-  assert.match(css, /\.contentSection:last-child\s*>?\s*p \+ p\s*\{\s*margin-top:\s*0;/);
+  assert.match(css, /\.contentSection > p \+ p\s*\{\s*margin-top:\s*0;/);
+  assert.match(css, /\.hardBreak\s*\{[^}]*height:\s*8px;/);
+  assert.match(css, /\.hardBreak \+ p\s*\{\s*margin-top:\s*16px;/);
+  assert.doesNotMatch(css, /\.contentSection:nth-child\(/);
   assert.match(css, /\.projectArticleWithGallery \.contentSection:last-child\s*\{\s*padding-bottom:\s*40px;/);
   assert.match(css, /\.projectNotice \+ \.contentDivider\s*\{\s*margin-top:\s*40px;/);
   assert.match(css, /\.contentSection > figure\s*\{\s*margin-top:\s*40px;/);
-  assert.match(css, /\.contentSection > \[data-project-frame\]\s*\{\s*margin-top:\s*40px;/);
   assert.match(css, /\.contentSection > figure \+ \.contentDivider\s*\{\s*display:\s*none;/);
   assert.match(css, /\.contentSection ul,[\s\S]*display:\s*flex;[\s\S]*gap:\s*4px;/);
   assert.match(css, /\.contentSection li \+ li\s*\{\s*margin-top:\s*0;/);

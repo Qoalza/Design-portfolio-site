@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
+  "designProfile": "sarafan-v1",
   "title": "Сараффан.Радио",
   "slug": "sarafan-radio",
   "description": "Платформа для организации мероприятий",
@@ -15,8 +16,7 @@
   ],
   "visibility": "published",
   "catalogOrder": 2,
-  "featuredOnHome": true,
-  "homeOrder": 2,
+  "homePlacement": "secondary",
   "detailAvailable": false,
   "materials": {
     "projectState": "in_progress",
@@ -58,32 +58,66 @@
       }
     ]
   },
-  "catalogImage": {
-    "src": "/assets/projects/catalog/sarafan-radio.png",
-    "alt": "Интерфейс платформы для организации мероприятий Сараффан.Радио",
-    "width": 2880,
-    "height": 2752
-  },
-  "homeImages": [
-    {
-      "src": "/assets/homepage/radio-dashboard.png",
-      "alt": "",
-      "width": 2880,
-      "height": 2518
+  "visuals": {
+    "catalog": {
+      "templateId": "catalog.sarafan-collage",
+      "assets": {
+        "dashboard": [
+          {
+            "src": "/assets/homepage/radio-dashboard.png",
+            "alt": "",
+            "width": 2880,
+            "height": 2518
+          }
+        ],
+        "player": [
+          {
+            "src": "/assets/homepage/radio-player.png",
+            "alt": "",
+            "width": 1688,
+            "height": 612
+          }
+        ],
+        "payment": [
+          {
+            "src": "/assets/homepage/radio-payment.png",
+            "alt": "",
+            "width": 760,
+            "height": 1100
+          }
+        ]
+      }
     },
-    {
-      "src": "/assets/homepage/radio-player.png",
-      "alt": "",
-      "width": 1688,
-      "height": 612
-    },
-    {
-      "src": "/assets/homepage/radio-payment.png",
-      "alt": "",
-      "width": 760,
-      "height": 1100
+    "home": {
+      "templateId": "home.sarafan-radio",
+      "assets": {
+        "dashboard": [
+          {
+            "src": "/assets/homepage/radio-dashboard.png",
+            "alt": "",
+            "width": 2880,
+            "height": 2518
+          }
+        ],
+        "player": [
+          {
+            "src": "/assets/homepage/radio-player.png",
+            "alt": "",
+            "width": 1688,
+            "height": 612
+          }
+        ],
+        "payment": [
+          {
+            "src": "/assets/homepage/radio-payment.png",
+            "alt": "",
+            "width": 760,
+            "height": 1100
+          }
+        ]
+      }
     }
-  ],
+  },
   "workSummary": "Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.",
   "content": []
 }

@@ -26,8 +26,8 @@ test("Gallery lightbox supports explicit, Escape and backdrop dismissal", () => 
 
 test("upper project preview is a non-interactive image", () => {
   const heroBlock = projectPage.slice(
-    projectPage.indexOf("className={styles.heroPreview}"),
-    projectPage.indexOf("data-project-information-start"),
+    projectPage.indexOf("function ProjectHeroVisual"),
+    projectPage.indexOf("export function generateStaticParams"),
   );
   assert.match(heroBlock, /<Image/);
   assert.doesNotMatch(heroBlock, /ProjectMediaLightbox|<button|href=/);

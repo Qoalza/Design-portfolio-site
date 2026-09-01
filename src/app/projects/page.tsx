@@ -8,7 +8,6 @@ import { ProjectDetailControl } from "../../components/project-detail-control";
 import { ProjectFileControl } from "../../components/project-file-control";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
-import { ProjectFrameCompositionView } from "../../components/project-frame-composition";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import type { ProjectLogo } from "../../lib/project-contract";
 import { getAllProjects, getAllProjectsForPreview, type Project } from "../../lib/projects";
@@ -41,17 +40,31 @@ function ProjectLogoMark({ logo }: { logo: ProjectLogo }) {
 }
 
 function ProjectVisual({ project }: { project: Project }) {
-  if (project.catalogFrame) return <div className={`${styles.compactVisual} ${styles.structuredVisualSlot}`} aria-hidden="true"><ProjectFrameCompositionView composition={project.catalogFrame} fillSlot slotRadius={12} clipToFill /></div>;
-  const image = project.catalogImage;
-  if (!image) return null;
-  return (
-    <div className={styles.compactVisual} aria-hidden="true">
-      <div className={styles.browserFrame}>
-        <span className={styles.browserDots}><i /><i /><i /></span>
-        <Image src={image.src} alt="" fill sizes="468px" />
+  const visual = project.visuals.catalog;
+  if (visual.templateId === "catalog.browser") {
+    const image = visual.assets.screen[0];
+    return (
+      <div className={styles.compactVisual} aria-hidden="true">
+        <div className={styles.browserFrame}>
+          <span className={styles.browserDots}><i /><i /><i /></span>
+          <Image src={image.src} alt="" fill sizes="468px" />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+  if (visual.templateId === "catalog.sarafan-collage") {
+    const dashboard = visual.assets.dashboard[0];
+    const player = visual.assets.player[0];
+    const payment = visual.assets.payment[0];
+    return (
+      <div className={`${styles.compactVisual} ${styles.sarafanCatalog}`} aria-hidden="true">
+        <Image className={styles.sarafanDashboard} src={dashboard.src} alt="" width={dashboard.width} height={dashboard.height} />
+        <Image className={styles.sarafanPlayer} src={player.src} alt="" width={player.width} height={player.height} />
+        <Image className={styles.sarafanPayment} src={payment.src} alt="" width={payment.width} height={payment.height} />
+      </div>
+    );
+  }
+  return null;
 }
 
 function ProjectDetails({ project }: { project: Project }) {

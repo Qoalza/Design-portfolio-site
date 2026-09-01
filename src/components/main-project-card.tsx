@@ -3,7 +3,6 @@ import type { Project } from "../lib/projects";
 import { ProjectPlatforms } from "./project-platforms";
 import { ProjectDetailControl } from "./project-detail-control";
 import { ProjectFileControl } from "./project-file-control";
-import { ProjectFrameCompositionView } from "./project-frame-composition";
 import styles from "./main-project-card.module.css";
 
 const assetRoot = "/assets/homepage";
@@ -17,16 +16,17 @@ export function MainProjectCard({ project, headingLevel = "h2" }: MainProjectCar
   const Heading = headingLevel;
   const description = project.subtitle ?? project.description;
   const role = project.role;
-  const visualBack = project.hero?.backdrop;
-  const visualFront = project.hero?.foreground ?? project.hero?.image;
+  const visual = project.visuals.home ?? project.visuals.catalog;
+  const visualBack = visual.assets.backdrop?.[0];
+  const visualFront = visual.assets.foreground?.[0];
 
   return (
     <article className={styles.card}>
       <div className={styles.visual} aria-hidden="true">
-        {project.catalogFrame ? <ProjectFrameCompositionView composition={project.catalogFrame} className={styles.structuredVisual} fillSlot slotRadius={12} clipToFill /> : visualBack ? <span className={`${styles.visualFrame} ${styles.visualBack}`}>
+        {visual.templateId === "catalog.corvo-stack" && visualBack ? <span className={`${styles.visualFrame} ${styles.visualBack}`}>
           <Image src={visualBack.src} alt="" width={visualBack.width} height={visualBack.height} />
         </span> : null}
-        {!project.catalogFrame && visualFront ? <span className={`${styles.visualFrame} ${styles.visualFront}`}>
+        {visual.templateId === "catalog.corvo-stack" && visualFront ? <span className={`${styles.visualFrame} ${styles.visualFront}`}>
           <Image src={visualFront.src} alt="" width={visualFront.width} height={visualFront.height} />
         </span> : null}
       </div>

@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
+  "designProfile": "corvo-v1",
   "title": "Corvo",
   "slug": "corvo",
   "description": "B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком.",
@@ -20,8 +21,7 @@
   ],
   "visibility": "published",
   "catalogOrder": 1,
-  "featuredOnHome": true,
-  "homeOrder": 1,
+  "homePlacement": "primary",
   "detailAvailable": true,
   "materials": {
     "projectState": "in_progress",
@@ -38,25 +38,69 @@
     "type": "image",
     "src": "/assets/projects/corvo/logo.svg"
   },
-  "hero": {
-    "presentation": "browser-composite",
-    "image": {
-      "src": "/assets/projects/corvo/hero-preview.png",
-      "alt": "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний",
-      "width": 2960,
-      "height": 2400
+  "visuals": {
+    "catalog": {
+      "templateId": "catalog.corvo-stack",
+      "assets": {
+        "backdrop": [
+          {
+            "src": "/assets/homepage/corvo-dashboard.png",
+            "alt": "",
+            "width": 2960,
+            "height": 2400
+          }
+        ],
+        "foreground": [
+          {
+            "src": "/assets/homepage/corvo-product.png",
+            "alt": "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний",
+            "width": 2960,
+            "height": 2400
+          }
+        ]
+      }
     },
-    "backdrop": {
-      "src": "/assets/homepage/corvo-dashboard.png",
-      "alt": "",
-      "width": 2960,
-      "height": 2400
+    "home": {
+      "templateId": "catalog.corvo-stack",
+      "assets": {
+        "backdrop": [
+          {
+            "src": "/assets/homepage/corvo-dashboard.png",
+            "alt": "",
+            "width": 2960,
+            "height": 2400
+          }
+        ],
+        "foreground": [
+          {
+            "src": "/assets/homepage/corvo-product.png",
+            "alt": "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний",
+            "width": 2960,
+            "height": 2400
+          }
+        ]
+      }
     },
-    "foreground": {
-      "src": "/assets/homepage/corvo-product.png",
-      "alt": "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний",
-      "width": 2960,
-      "height": 2400
+    "hero": {
+      "templateId": "hero.corvo-browser",
+      "assets": {
+        "backdrop": [
+          {
+            "src": "/assets/homepage/corvo-dashboard.png",
+            "alt": "",
+            "width": 2960,
+            "height": 2400
+          }
+        ],
+        "foreground": [
+          {
+            "src": "/assets/homepage/corvo-product.png",
+            "alt": "Интерфейс Corvo с открытой панелью фильтров рекламных кампаний",
+            "width": 2960,
+            "height": 2400
+          }
+        ]
+      }
     }
   },
   "workSummary": "Спроектировал сервис с нуля: от дизайн-системы и согласования решений со стейкхолдерами до передачи в разработку. Выстроил процесс работы с командой разработки, сопровождал реализацию и прорабатывал запросы со стороны бизнес-аналитики.",
@@ -75,6 +119,9 @@
           ]
         },
         {
+          "type": "hardBreak"
+        },
+        {
           "type": "paragraph",
           "content": [
             {
@@ -85,7 +132,7 @@
         },
         {
           "type": "notice",
-          "variant": "default",
+          "templateId": "notice.info-v1",
           "content": [
             {
               "type": "text",
@@ -154,16 +201,18 @@
           ]
         },
         {
-          "type": "image",
-          "presentation": "quotes",
-          "images": [
-            {
-              "src": "/assets/projects/corvo/canvas/corvo-quotes.png",
-              "alt": "Отзывы участников команды о требованиях к продукту Corvo",
-              "width": 1704,
-              "height": 732
-            }
-          ]
+          "type": "visual",
+          "templateId": "canvas.corvo-quotes",
+          "assets": {
+            "content": [
+              {
+                "src": "/assets/projects/corvo/canvas/corvo-quotes.png",
+                "alt": "Отзывы участников команды о требованиях к продукту Corvo",
+                "width": 1704,
+                "height": 732
+              }
+            ]
+          }
         },
         {
           "type": "divider"
@@ -184,6 +233,9 @@
           ]
         },
         {
+          "type": "hardBreak"
+        },
+        {
           "type": "paragraph",
           "content": [
             {
@@ -193,16 +245,18 @@
           ]
         },
         {
-          "type": "image",
-          "presentation": "process",
-          "images": [
-            {
-              "src": "/assets/projects/corvo/canvas/corvo-process.png",
-              "alt": "Схема процесса от требований до реализации Corvo",
-              "width": 1812,
-              "height": 780
-            }
-          ]
+          "type": "visual",
+          "templateId": "canvas.corvo-process",
+          "assets": {
+            "content": [
+              {
+                "src": "/assets/projects/corvo/canvas/corvo-process.png",
+                "alt": "Схема процесса от требований до реализации Corvo",
+                "width": 1812,
+                "height": 780
+              }
+            ]
+          }
         },
         {
           "type": "divider"
@@ -232,6 +286,9 @@
           ]
         },
         {
+          "type": "hardBreak"
+        },
+        {
           "type": "paragraph",
           "content": [
             {
@@ -242,7 +299,7 @@
         },
         {
           "type": "notice",
-          "variant": "wide",
+          "templateId": "notice.info-v1",
           "content": [
             {
               "type": "text",
@@ -251,22 +308,26 @@
           ]
         },
         {
-          "type": "image",
-          "presentation": "controls",
-          "images": [
-            {
-              "src": "/assets/projects/corvo/canvas/corvo-buttons.png",
-              "alt": "Пример структуры кнопок дизайн-системы Corvo",
-              "width": 856,
-              "height": 456
-            },
-            {
-              "src": "/assets/projects/corvo/canvas/corvo-inputs.png",
-              "alt": "Пример структуры полей ввода дизайн-системы Corvo",
-              "width": 1062,
-              "height": 456
-            }
-          ]
+          "type": "visual",
+          "templateId": "canvas.corvo-controls",
+          "assets": {
+            "buttons": [
+              {
+                "src": "/assets/projects/corvo/canvas/corvo-buttons.png",
+                "alt": "Пример структуры кнопок дизайн-системы Corvo",
+                "width": 856,
+                "height": 456
+              }
+            ],
+            "inputs": [
+              {
+                "src": "/assets/projects/corvo/canvas/corvo-inputs.png",
+                "alt": "Пример структуры полей ввода дизайн-системы Corvo",
+                "width": 1062,
+                "height": 456
+              }
+            ]
+          }
         },
         {
           "type": "divider"
@@ -299,228 +360,110 @@
     },
     {
       "type": "gallery",
-      "title": "Галерея",
-      "description": "Часть экранов интерфейса",
+      "templateId": "gallery.devices-v1",
       "groups": [
         {
-          "id": "desktop",
-          "label": "Desktop",
-          "icon": "/assets/projects/corvo/desktop.svg",
-          "baseWidth": 740,
-          "baseHeight": 512,
-          "items": [
+          "deviceId": "desktop",
+          "images": [
             {
               "src": "/assets/projects/corvo/gallery/desktop-01.png",
               "alt": "Desktop-интерфейс Corvo: экран 1",
               "width": 2960,
-              "height": 2048,
-              "sourceNodeId": "680:48078",
-              "frame": {
-                "clip": false,
-                "radius": 0,
-                "strokeColor": "transparent",
-                "strokeWidth": 0
-              }
+              "height": 2048
             },
             {
               "src": "/assets/projects/corvo/gallery/desktop-02.png",
               "alt": "Desktop-интерфейс Corvo: экран 2",
               "width": 2960,
-              "height": 2048,
-              "sourceNodeId": "680:48799",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 1
-              }
+              "height": 2048
             },
             {
               "src": "/assets/projects/corvo/gallery/desktop-03.png",
               "alt": "Desktop-интерфейс Corvo: экран 3",
               "width": 2960,
-              "height": 2048,
-              "sourceNodeId": "680:48813",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 1
-              }
+              "height": 2048
             },
             {
               "src": "/assets/projects/corvo/gallery/desktop-04.png",
               "alt": "Desktop-интерфейс Corvo: экран 4",
               "width": 2960,
-              "height": 2048,
-              "sourceNodeId": "680:48814",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 1
-              }
+              "height": 2048
             },
             {
               "src": "/assets/projects/corvo/gallery/desktop-05.png",
               "alt": "Desktop-интерфейс Corvo: экран 5",
               "width": 2960,
-              "height": 2048,
-              "sourceNodeId": "680:48815",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 1
-              }
+              "height": 2048
             }
           ]
         },
         {
-          "id": "tablet",
-          "label": "Tablet",
-          "icon": "/assets/projects/corvo/tablet.svg",
-          "baseWidth": 400,
-          "baseHeight": 566,
-          "items": [
+          "deviceId": "tablet",
+          "images": [
             {
               "src": "/assets/projects/corvo/gallery/tablet-01.png",
               "alt": "Планшетный интерфейс Corvo: экран 1",
               "width": 1600,
-              "height": 2266,
-              "sourceNodeId": "680:48156",
-              "frame": {
-                "clip": false,
-                "radius": 0,
-                "strokeColor": "transparent",
-                "strokeWidth": 0
-              }
+              "height": 2266
             },
             {
               "src": "/assets/projects/corvo/gallery/tablet-02.png",
               "alt": "Планшетный интерфейс Corvo: экран 2",
               "width": 1600,
-              "height": 2266,
-              "sourceNodeId": "680:48802",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 0.5
-              }
+              "height": 2266
             },
             {
               "src": "/assets/projects/corvo/gallery/tablet-03.png",
               "alt": "Планшетный интерфейс Corvo: экран 3",
               "width": 1600,
-              "height": 2266,
-              "sourceNodeId": "680:48812",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 0.5
-              }
+              "height": 2266
             },
             {
               "src": "/assets/projects/corvo/gallery/tablet-04.png",
               "alt": "Планшетный интерфейс Corvo: экран 4",
               "width": 1600,
-              "height": 2266,
-              "sourceNodeId": "680:48858",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 0.5
-              }
+              "height": 2266
             },
             {
               "src": "/assets/projects/corvo/gallery/tablet-05.png",
               "alt": "Планшетный интерфейс Corvo: экран 5",
               "width": 1600,
-              "height": 2266,
-              "sourceNodeId": "680:48859",
-              "frame": {
-                "clip": true,
-                "radius": 12,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 0.5
-              }
+              "height": 2266
             }
           ]
         },
         {
-          "id": "mobile",
-          "label": "Mobile",
-          "icon": "/assets/projects/corvo/mobile.svg",
-          "baseWidth": 180,
-          "baseHeight": 320,
-          "items": [
+          "deviceId": "mobile",
+          "images": [
             {
               "src": "/assets/projects/corvo/gallery/mobile-01.png",
               "alt": "Мобильный интерфейс Corvo: экран 1",
               "width": 1080,
-              "height": 1920,
-              "sourceNodeId": "680:48159",
-              "frame": {
-                "clip": true,
-                "radius": 11,
-                "strokeColor": "#e8eaeb",
-                "strokeWidth": 1
-              }
+              "height": 1920
             },
             {
               "src": "/assets/projects/corvo/gallery/mobile-02.png",
               "alt": "Мобильный интерфейс Corvo: экран 2",
               "width": 1080,
-              "height": 1920,
-              "sourceNodeId": "680:48803",
-              "frame": {
-                "clip": true,
-                "radius": 11,
-                "strokeColor": "#f0f1f2",
-                "strokeWidth": 1
-              }
+              "height": 1920
             },
             {
               "src": "/assets/projects/corvo/gallery/mobile-03.png",
               "alt": "Мобильный интерфейс Corvo: экран 3",
               "width": 1080,
-              "height": 1920,
-              "sourceNodeId": "680:48805",
-              "frame": {
-                "clip": true,
-                "radius": 11,
-                "strokeColor": "#f0f1f2",
-                "strokeWidth": 1
-              }
+              "height": 1920
             },
             {
               "src": "/assets/projects/corvo/gallery/mobile-04.png",
               "alt": "Мобильный интерфейс Corvo: экран 4",
               "width": 1080,
-              "height": 1920,
-              "sourceNodeId": "680:48860",
-              "frame": {
-                "clip": true,
-                "radius": 11,
-                "strokeColor": "#f0f1f2",
-                "strokeWidth": 1
-              }
+              "height": 1920
             },
             {
               "src": "/assets/projects/corvo/gallery/mobile-05.png",
               "alt": "Мобильный интерфейс Corvo: экран 5",
               "width": 1080,
-              "height": 1920,
-              "sourceNodeId": "680:48861",
-              "frame": {
-                "clip": true,
-                "radius": 11,
-                "strokeColor": "#f0f1f2",
-                "strokeWidth": 1
-              }
+              "height": 1920
             }
           ]
         }
