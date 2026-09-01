@@ -184,6 +184,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <PageHeader
             title={project.title}
             description={project.subtitle ?? project.description}
+            isProjectPage
             symbol={project.logo?.type === "image" ? project.logo.src : undefined}
             tags={projectLabels}
             platforms={project.platforms}

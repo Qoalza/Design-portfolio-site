@@ -10,6 +10,7 @@
 
 .simple { min-height: 176px; }
 .withInfo { min-height: 209px; }
+.projectPage { padding-right: 20px; }
 
 .head {
   display: flex;

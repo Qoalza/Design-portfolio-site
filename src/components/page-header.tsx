@@ -5,6 +5,7 @@ import styles from "./page-header.module.css";
 
 type PageHeaderProps = {
   description: string;
+  isProjectPage?: boolean;
   platforms?: ProjectPlatform[];
   symbol?: string;
   tags?: string[];
@@ -13,6 +14,7 @@ type PageHeaderProps = {
 
 export function PageHeader({
   description,
+  isProjectPage = false,
   platforms = [],
   symbol,
   tags = [],
@@ -22,7 +24,7 @@ export function PageHeader({
 
   return (
     <header
-      className={`${styles.pageHeader} ${showInfo ? styles.withInfo : styles.simple}`}
+      className={`${styles.pageHeader} ${showInfo ? styles.withInfo : styles.simple} ${isProjectPage ? styles.projectPage : ""}`}
       data-page-header
     >
       <div className={styles.head}>
