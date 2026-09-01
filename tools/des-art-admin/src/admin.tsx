@@ -1,13 +1,12 @@
 import "@radix-ui/themes/styles.css";
 import "./admin.css";
-import { EyeOpenIcon } from "@radix-ui/react-icons";
-import { Badge, Box, Button, Callout, Dialog, DropdownMenu, Flex, Heading, Tabs, Text, TextField, Theme } from "@radix-ui/themes";
+import { Badge, Box, Button, Callout, Dialog, Flex, Heading, Tabs, Text, TextField, Theme } from "@radix-ui/themes";
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { ProjectImage, ProjectVisibility } from "../../../src/lib/project-contract";
 import type { ProjectVisualTemplateId } from "../../../src/lib/project-visual-registry";
 import { ConfirmDialog, IssueDialog, NewProjectDialog, PublishOverlay } from "./admin-dialogs";
-import { CardEditor, PageEditor } from "./admin-editor";
+import { CardEditor, PageEditor, ProjectIdentityEditor } from "./admin-editor";
 import type { AdminProject, ChangeInventory, FieldIssue, PublishJob } from "./admin-model";
 import { ApiError } from "./admin-model";
 import { ProjectNavigation, type ProjectFilter, visibilityLabels } from "./admin-navigation";
@@ -55,7 +54,7 @@ function App() {
   const [selectedSection, setSelectedSection] = useState<string>();
   const [job, setJob] = useState<PublishJob | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-  const [confirmation, setConfirmation] = useState<"project" | "all" | "delete" | "shutdown">();
+  const [confirmation, setConfirmation] = useState<"project" | "all" | "publish-draft" | "unpublish" | "delete" | "shutdown">();
   const [reviewIssues, setReviewIssues] = useState<FieldIssue[]>([]);
   const [figmaConnected, setFigmaConnected] = useState(false);
   const [figmaOpen, setFigmaOpen] = useState(false);
@@ -217,6 +216,8 @@ function App() {
     await refresh();
   };
 
+  const requestPublishDraft = () => setConfirmation("publish-draft");
+
   const requestHome = (enabled: boolean) => {
     if (!current) return;
     if (!enabled) {
@@ -297,7 +298,6 @@ function App() {
               {saveState === "saved" ? <SavedMark>{saveLabels[saveState]}</SavedMark> : saveLabels[saveState]}
             </Text>
             <Button type="button" size="3" variant="soft" color={figmaConnected ? "green" : "gray"} onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "подключить"}</Button>
-            {current ? <DropdownMenu.Root><DropdownMenu.Trigger><Button size="3" variant="soft" color="gray"><EyeOpenIcon />Предпросмотр</Button></DropdownMenu.Trigger><DropdownMenu.Content><DropdownMenu.Item onSelect={() => preview("home")}>Главная</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("catalog")}>Все работы</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("project")}>Страница проекта</DropdownMenu.Item></DropdownMenu.Content></DropdownMenu.Root> : null}
           </Flex>
         </header>
         <main className="admin-workspace">
@@ -327,10 +327,11 @@ function App() {
                   </div>
                 </div>
                 {message ? <Callout.Root mb="4" color="orange"><Callout.Text>{message}</Callout.Text></Callout.Root> : null}
+                <ProjectIdentityEditor project={current} update={update} uploadLogo={uploadLogo} issues={issues.length ? issues : currentChange?.issues ?? []} />
                 <Tabs.Root value={tab} onValueChange={setTab}>
                   <Tabs.List><Tabs.Trigger value="card">Карточка</Tabs.Trigger><Tabs.Trigger value="page">Страница проекта</Tabs.Trigger></Tabs.List>
                   <Box pt="5">
-                    <Tabs.Content value="card"><CardEditor project={current} update={update} uploadLogo={uploadLogo} importFigma={importFigma} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
+                    <Tabs.Content value="card"><CardEditor project={current} update={update} importFigma={importFigma} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
                     <Tabs.Content value="page"><PageEditor project={current} update={update} upload={upload} importFigma={importFigma} selectedSection={selectedSection} selectSection={setSelectedSection} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
                   </Box>
                 </Tabs.Root>
@@ -342,21 +343,22 @@ function App() {
           <aside className="project-rail">
             {current ? (
               <div className="rail-stack">
-                <ProjectActions
-                  project={current}
-                  changed={Boolean(currentChange)}
-                  preview={() => preview("project")}
-                  publish={() => void startPublish("project").catch((error) => setMessage(safeMessage(error)))}
-                  setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
-                  permanentDelete={() => setConfirmation("delete")}
-                  issues={issues.length ? issues : currentChange?.issues ?? []}
-                  reviewIssues={() => setReviewIssues(issues.length ? issues : currentChange?.issues ?? [])}
-                />
                 {tab === "card" ? (
                   <CardSettings project={current} update={update} home={requestHome} />
                 ) : (
                       <PageSettings project={current} update={update} issues={issues.length ? issues : currentChange?.issues ?? []} />
                 )}
+                <ProjectActions
+                  project={current}
+                  changed={Boolean(currentChange)}
+                  preview={preview}
+                  publish={() => { if (current.visibility === "draft") requestPublishDraft(); else void startPublish("project").catch((error) => setMessage(safeMessage(error))); }}
+                  setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
+                  unpublish={() => setConfirmation("unpublish")}
+                  permanentDelete={() => setConfirmation("delete")}
+                  issues={issues.length ? issues : currentChange?.issues ?? []}
+                  reviewIssues={() => setReviewIssues(issues.length ? issues : currentChange?.issues ?? [])}
+                />
               </div>
             ) : null}
           </aside>
@@ -369,7 +371,8 @@ function App() {
           if (issue.sectionId) setSelectedSection(issue.sectionId);
           requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${CSS.escape(issue.field)}"]`)?.focus());
         })(); }} />
-        <ConfirmDialog open={confirmation === "project" || confirmation === "all"} title={publishMode === "live" ? "Опубликовать на art-des.ru?" : "Запустить тестовую публикацию?"} description={publishMode === "live" ? "Админка проверит изменения, создаст Pull Request, выполнит merge и безопасно развернёт точный commit на production." : "Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся."} confirmLabel={publishMode === "live" ? "Опубликовать" : "Запустить"} close={() => setConfirmation(undefined)} confirm={() => void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error)))} />
+        <ConfirmDialog open={confirmation === "project" || confirmation === "all" || confirmation === "publish-draft"} title={publishMode === "live" ? "Опубликовать на art-des.ru?" : "Запустить тестовую публикацию?"} description={publishMode === "live" ? "Админка проверит изменения, создаст Pull Request, выполнит merge и безопасно развернёт точный commit на production." : "Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся."} confirmLabel={publishMode === "live" ? "Опубликовать" : "Запустить"} close={() => setConfirmation(undefined)} confirm={() => { if (confirmation === "publish-draft") { setConfirmation(undefined); void setVisibility("published").then(() => startPublish("project", true)).catch((error) => setMessage(safeMessage(error))); return; } void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error))); }} />
+        <ConfirmDialog open={confirmation === "unpublish"} title="Снять с публикации?" description="Проект исчезнет с главной, из «Все работы» и со своей страницы. Черновик останется в админке — его можно будет опубликовать снова." confirmLabel="Снять с публикации" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void setVisibility("draft").catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
         <Dialog.Root open={figmaOpen} onOpenChange={setFigmaOpen}>

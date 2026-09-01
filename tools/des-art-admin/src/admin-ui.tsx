@@ -136,7 +136,16 @@ export function AssetField({
 }
 
 export function ImagePreview({ src, label, children }: { src: string; label: string; children: React.ReactNode }) {
-  return <Dialog.Root><Dialog.Trigger><button className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="1100px"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
+  const trigger = useRef<HTMLButtonElement>(null);
+  const [preview, setPreview] = useState({ width: 0, naturalWidth: 0 });
+  const measure = () => {
+    const image = trigger.current?.querySelector("img");
+    if (!image) return;
+    const { width } = image.getBoundingClientRect();
+    setPreview({ width, naturalWidth: image.naturalWidth });
+  };
+  const width = preview.width > 0 && preview.naturalWidth > 0 ? `${preview.width + preview.naturalWidth}px` : undefined;
+  return <Dialog.Root><Dialog.Trigger asChild><button ref={trigger} className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`} onClick={measure}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="none"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" style={width ? { width } : undefined} src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
 }
 
 export function FigmaTemplateField({
@@ -180,23 +189,23 @@ export function FigmaTemplateField({
         <Flex align="center" gap="2" wrap="wrap"><Badge color="gray">{templateLabel}</Badge><Text size="1" color="gray">{templateId}</Text></Flex>
       </div>
       <div className="figma-source">
-        <TextField.Root
+        <div className="figma-source-actions">
+          <TextField.Root
           size="3"
           value={url}
           placeholder="https://www.figma.com/design/…?node-id=…"
           aria-label={`Ссылка на Figma Frame: ${title}`}
           onChange={(event) => setUrl(event.target.value)}
           onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void submit(); } }}
-        />
+          />
+          <Button type="button" size="3" disabled={busy || !url.trim()} onClick={() => void submit()}>{busy ? "Импортируем…" : source ? "Обновить" : "Импортировать"}</Button>
+          {remove ? <IconButton type="button" size="3" variant="ghost" color="red" aria-label={`Удалить ${title}`} disabled={busy} onClick={remove}><TrashIcon /></IconButton> : null}
+        </div>
         {source?.preview ? (
           <div className="figma-frame-preview" data-shape={previewShape} style={previewShape === "surface" ? { aspectRatio: `${source.preview.width} / ${source.preview.height}` } : undefined}>
             <ImagePreview src={source.preview.src} label={`Превью: ${title}`}><img src={source.preview.src} alt="" /></ImagePreview>
           </div>
         ) : source ? <div className="figma-preview-pending"><Text size="2" color="gray">Превью появится после обновления Frame из Figma.</Text></div> : null}
-        <Flex gap="2" wrap="wrap">
-          <Button type="button" size="3" disabled={busy || !url.trim()} onClick={() => void submit()}>{busy ? "Импортируем…" : source ? "Обновить из Figma" : "Загрузить Frame"}</Button>
-          {remove ? <Button type="button" size="3" variant="ghost" color="red" disabled={busy} onClick={remove}>Удалить интерактивный блок</Button> : null}
-        </Flex>
         <Text size="1" color="gray">Admin берёт содержимое Frame, а размеры, фон, отступы и поведение применяет Portfolio.</Text>
         {error ? <Callout.Root color="red" size="1"><Callout.Text>{error}</Callout.Text></Callout.Root> : null}
       </div>
@@ -236,7 +245,7 @@ function Tool({ label, children, onClick, active }: { label: string; children: R
     <Tooltip content={label}>
       <IconButton
         type="button"
-        size="3"
+        size="2"
         variant={active ? "soft" : "ghost"}
         color={active ? "blue" : "gray"}
         aria-label={label}

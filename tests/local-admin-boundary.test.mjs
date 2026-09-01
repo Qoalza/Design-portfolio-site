@@ -85,7 +85,8 @@ test("each section renders its own settings inside the section editor", () => {
   assert.match(adminEditor, /className="section-settings"/);
   assert.match(adminEditor, /Примечание/);
   assert.match(adminEditor, /Визуальное поведение задаёт Portfolio/);
-  assert.match(adminEditor, /Добавить интерактивный блок/);
+  assert.match(adminEditor, />Интерактивный блок<\/Button>/);
+  assert.match(adminEditor, /<SectionSettings[\s\S]{0,120}\{visual \?/);
   assert.match(adminEditor, /importFigma\("section"/);
   assert.doesNotMatch(adminRail, /selected-section-settings/);
   assert.doesNotMatch(adminRail, /function SectionSettings/);
@@ -97,7 +98,9 @@ test("card, hero and interactive visuals accept one approved Figma Frame without
   assert.match(adminEditor, /Главное изображение открытого проекта/);
   assert.match(adminEditor, /Ширина:\s*\{minWidth\}–\{slot\.maxWidth\} px/);
   assert.match(adminEditor, /Первое изображение фиксирует точный размер этого пула/);
-  assert.match(adminComponents, /Загрузить Frame/);
+  assert.match(adminComponents, /source \? "Обновить" : "Импортировать"/);
+  assert.match(adminComponents, /className="figma-source-actions"/);
+  assert.match(adminComponents, /aria-label=\{`Удалить \$\{title\}`\}/);
   assert.doesNotMatch(adminEditor, /VisualSlotEditor|Заменить изображение/);
   assert.doesNotMatch(adminEditor, /Тип интерактивного блока|<Select/);
   assert.match(server, /\/api\/figma\/status/);
@@ -105,6 +108,18 @@ test("card, hero and interactive visuals accept one approved Figma Frame without
   assert.match(adminCss, /\.figma-template-field\s*\{[^}]*min-width:\s*0/s);
   assert.match(adminCss, /\.figma-frame-preview\[data-shape="card"\][^{]*\{[^}]*aspect-ratio:\s*1/s);
   assert.match(adminCss, /\.figma-frame-preview\[data-shape="surface"\][^{]*img[^}]*max-width:\s*100%/s);
+});
+
+test("Admin keeps project identity global and exposes status actions without a visibility select", () => {
+  assert.match(adminUi, /<ProjectIdentityEditor/);
+  assert.match(adminEditor, /export function ProjectIdentityEditor/);
+  assert.doesNotMatch(adminRail, /<Select\.Root value=\{project\.visibility\}/);
+  assert.match(adminRail, /Снять с публикации/);
+  assert.match(adminRail, /preview\("home"\)/);
+  assert.match(adminRail, /Все работы/);
+  assert.match(adminRail, /Страница проекта/);
+  assert.match(adminUi, /confirmation === "unpublish"/);
+  assert.match(adminUi, /setVisibility\("draft"\)/);
 });
 
 test("disabling the last gallery device removes the invalid empty gallery", () => {

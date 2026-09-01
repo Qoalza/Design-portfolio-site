@@ -1,7 +1,9 @@
-import { EyeOpenIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon, EyeOpenIcon, TrashIcon } from "@radix-ui/react-icons";
 import {
   Button,
   Callout,
+  DropdownMenu,
+  Flex,
   Select,
   Switch,
   Text,
@@ -26,39 +28,35 @@ export function ProjectActions({
   preview,
   publish,
   setVisibility,
+  unpublish,
   permanentDelete,
   issues,
   reviewIssues,
 }: {
   project: AdminProject;
   changed: boolean;
-  preview: () => void;
+  preview: (route: "home" | "catalog" | "project") => void;
   publish: () => void;
   setVisibility: (visibility: ProjectVisibility) => void;
+  unpublish: () => void;
   permanentDelete: () => void;
   issues: FieldIssue[];
   reviewIssues: () => void;
 }) {
   return (
     <RailGroup title="Проект" description={issues.length ? `Нужно исправить · ${issues.length}` : "Готов к публикации"}>
-      <Select.Root value={project.visibility} onValueChange={(value) => setVisibility(value as ProjectVisibility)}>
-        <Select.Trigger />
-        <Select.Content>
-          <Select.Item value="draft">Черновик</Select.Item>
-          <Select.Item value="published">Опубликован</Select.Item>
-          <Select.Item value="deleted">Удалён</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      <Text size="2" color={project.visibility === "published" ? "green" : project.visibility === "deleted" ? "red" : "gray"}>{project.visibility === "published" ? "Опубликован" : project.visibility === "deleted" ? "Удалён" : "Черновик"}</Text>
       {issues.length ? <Button size="3" variant="soft" color="orange" onClick={reviewIssues}>Показать ошибки · {issues.length}</Button> : null}
-      <Button size="3" variant="soft" color="gray" onClick={preview}><EyeOpenIcon />Предпросмотр</Button>
-      {changed ? <Button size="3" onClick={publish}>Опубликовать этот проект</Button> : null}
+      {project.visibility !== "deleted" ? <Flex className="preview-split" gap="0"><Button size="3" variant="soft" color="gray" onClick={() => preview("home")}><EyeOpenIcon />Предпросмотр</Button><DropdownMenu.Root><DropdownMenu.Trigger asChild><Button size="3" variant="soft" color="gray" aria-label="Выбрать страницу предпросмотра"><ChevronDownIcon /></Button></DropdownMenu.Trigger><DropdownMenu.Content><DropdownMenu.Item onSelect={() => preview("catalog")}>Все работы</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("project")}>Страница проекта</DropdownMenu.Item></DropdownMenu.Content></DropdownMenu.Root></Flex> : null}
+      {project.visibility === "draft" ? <Button size="3" onClick={publish}>Опубликовать</Button> : null}
+      {project.visibility === "published" && changed ? <Button size="3" onClick={publish}>Опубликовать изменения</Button> : null}
       {project.visibility === "deleted" ? (
         <>
           <Button size="3" variant="soft" onClick={() => setVisibility("draft")}>Восстановить</Button>
           <Button size="3" variant="ghost" color="red" onClick={permanentDelete}>Удалить навсегда</Button>
         </>
       ) : (
-        <Button size="3" variant="ghost" color="red" onClick={() => setVisibility("deleted")}>Переместить в удалённые</Button>
+        <div className="rail-danger-actions">{project.visibility === "published" ? <Button size="3" variant="ghost" color="gray" onClick={unpublish}>Снять с публикации</Button> : null}<Button size="3" variant="ghost" color="red" onClick={() => setVisibility("deleted")}><TrashIcon />Переместить в удалённые</Button></div>
       )}
     </RailGroup>
   );

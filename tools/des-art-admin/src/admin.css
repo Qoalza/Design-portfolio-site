@@ -31,7 +31,8 @@ button, input, textarea, select { font: inherit; }
   position: sticky;
   top: 64px;
   height: calc(100vh - 64px);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--sand-1);
 }
 .project-nav {
@@ -182,7 +183,9 @@ button, input, textarea, select { font: inherit; }
 .asset-copy { display: grid; gap: 5px; }
 .figma-template-field { display: grid; gap: 18px; min-width: 0; }
 .figma-source { display: grid; gap: 12px; min-width: 0; }
-.figma-source .rt-TextFieldRoot { width: 100%; }
+.figma-source-actions { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.figma-source-actions .rt-TextFieldRoot { width: 100%; min-width: 0; flex: 1 1 auto; }
+.figma-source-actions .rt-Button, .figma-source-actions .rt-IconButton { flex: 0 0 auto; }
 .figma-frame-preview { display: grid; max-width: 100%; place-items: start; overflow: hidden; border: 1px solid var(--sand-6); border-radius: 10px; background: var(--sand-2); }
 .figma-frame-preview[data-shape="card"] { width: min(320px, 100%); aspect-ratio: 1; place-items: center; }
 .figma-frame-preview[data-shape="card"] img { display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -230,17 +233,17 @@ button, input, textarea, select { font: inherit; }
 .gallery-editor { gap: 18px; }
 .gallery-group { display: grid; gap: 12px; padding-top: 16px; border-top: 1px solid var(--sand-6); }
 .gallery-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
-.gallery-list li { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 7px; border-radius: 6px; background: var(--sand-2); }
-.gallery-list img { width: 58px; height: 38px; border-radius: 4px; object-fit: cover; }
+.gallery-list li { display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; background: var(--sand-2); }
+.gallery-list img { display: block; width: 140px; max-height: 96px; border-radius: 4px; object-fit: contain; }
 .gallery-item-name { min-width: 0; }
 .gallery-item-order { flex: 0 0 auto; }
 .gallery-item-order { gap: 8px !important; }
-.gallery-item-order .rt-IconButton { flex: 0 0 40px; }
+.gallery-item-order .rt-IconButton { flex: 0 0 32px; }
 .empty-inline { display: grid; min-height: 84px; place-items: center; border: 1px dashed var(--sand-7); border-radius: 8px; }
 .empty-state { display: grid; min-height: 70vh; place-items: center; text-align: center; }
 .empty-state > div { display: grid; gap: 8px; }
 
-.rail-stack { position: sticky; top: 84px; }
+.rail-stack { position: static; }
 .rail-group { display: grid; gap: 14px; padding: 16px 0 20px; border: 0; border-bottom: 1px solid var(--sand-6); background: var(--sand-1); }
 .rail-group[data-selected="true"] { border-color: var(--accent-7); }
 .rail-group > .rt-Button, .rail-group > .rt-SelectTrigger { width: 100%; }
@@ -325,7 +328,7 @@ body { background: #fbfaf8; }
 .asset-field > .rt-Flex .rt-Button,
 .asset-field > .rt-Flex .rt-IconButton { width: auto; min-width: 40px; flex: 0 0 auto; }
 .asset-field > .rt-Flex .rt-IconButton { width: 40px; padding: 0; }
-.asset-lightbox { width: min(1100px, calc(100vw - 48px)); }
+.asset-lightbox { width: min(1600px, calc(100vw - 48px)); }
 .image-preview-trigger { display: contents; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
 
 .section-editor-heading > .rt-Flex,
@@ -335,11 +338,27 @@ body { background: #fbfaf8; }
 .admin-shell .rt-Flex:has(> .rt-IconButton.rt-variant-ghost + .rt-IconButton.rt-variant-ghost) {
   column-gap: 8px !important;
 }
-.image-lightbox-content { display: block; max-width: 100%; max-height: 72vh; margin: 16px auto 0; object-fit: contain; }
+.image-lightbox-content { display: block; width: auto; max-width: 100%; max-height: calc(100vh - 168px); margin: 16px auto 0; object-fit: contain; }
 .add-section-button { width: 100%; }
 .rich-toolbar {
-  min-height: 56px;
+  min-height: 48px;
   gap: 8px;
+}
+.rich-toolbar .rt-IconButton { flex: 0 0 32px; }
+.figma-source-actions { flex-wrap: nowrap; }
+.gallery-upload-zone { display: grid; width: min(560px, 100%); aspect-ratio: 740 / 512; place-items: center; align-content: center; gap: 6px; border: 1px dashed var(--sand-7); border-radius: 9px; background: transparent; color: var(--accent-10); cursor: pointer; text-align: center; }
+.gallery-upload-zone[data-disabled="true"] { color: var(--sand-9); cursor: default; }
+.gallery-upload-zone[data-disabled="true"] > * { pointer-events: none; }
+.gallery-group[data-device="tablet"] .gallery-upload-zone { width: min(340px, 100%); aspect-ratio: 400 / 566; }
+.gallery-group[data-device="mobile"] .gallery-upload-zone { width: min(220px, 100%); aspect-ratio: 180 / 320; }
+.preview-split { width: 100%; }
+.preview-split > .rt-Button:first-child { flex: 1 1 auto; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.preview-split > .rt-Button:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.rail-danger-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-top: 8px; }
+@media (max-width: 640px) {
+  .figma-source-actions { align-items: stretch; flex-wrap: wrap; }
+  .figma-source-actions .rt-TextFieldRoot { flex-basis: 100%; }
+  .rail-danger-actions { grid-template-columns: 1fr; }
 }
 @media (max-width: 1320px) {
   .section-settings-grid { grid-template-columns: 1fr; }
