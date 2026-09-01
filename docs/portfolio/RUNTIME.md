@@ -44,6 +44,17 @@ Relevant owners: `src/components/site-header.tsx`, `src/components/project-actio
 - Lightbox находится в top layer, сохраняет aspect ratio/quality constraints, scroll lock и focus return.
 - Historical screenshots не доказывают current Gallery behavior; проверять current code/runtime.
 
+## Project visual templates
+
+- Portfolio renders only approved templates from `src/lib/project-visual-registry.ts`; generic Frame is not a public rendering path.
+- Project JSON supplies `templateId` and named assets only. CSS/React own geometry, background, dot pattern, frame, radius, shadow, clipping and responsive behavior.
+- Homepage, `/projects` and `/projects/[slug]` consume the same v3 contract. Admin preview overlays draft data into these exact routes rather than imitating their layout.
+- Partial draft overlays are merged with canonical projects before collection validation, so one changed project cannot invalidate catalog placement merely because its neighbours are absent from the overlay.
+- Gallery JSON supplies device IDs and images; device chrome, icon, label and logical sizes are code-owned.
+- Corvo content rhythm uses semantic `hardBreak`; visual order must not depend on section `nth-child`.
+
+Relevant owners: `src/lib/project-contract.ts`, `src/lib/project-visual-registry.ts`, `src/lib/projects.ts`, `src/components/project-canvas.tsx`, `src/components/project-gallery.tsx` and project route components.
+
 ## Source boundary
 
 Этот документ не хранит:

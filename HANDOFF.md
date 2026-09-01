@@ -5,41 +5,40 @@
 ## Checkout
 
 - Репозиторий: `/Users/designer/Documents/GitHub/Design-portfolio-site`.
-- Активная ветка: `codex/admin-slot-contract`, создана от `e9aa5b9baa377c2872b56908284263b88468470b`.
-- Активный workstream: `docs/exec-plans/admin-portfolio-slot-contract.md`.
-- Packaged Admin использует отдельный managed checkout на `96cabb7f80ad3f20afd07c5d54ad245a09495142`; после миграции реального draft его не запускать до merge.
-- Перед действием перепроверять exact `HEAD`, branch и status.
-- Protected untracked, не читать и не трогать:
-  - `.des-art-admin-runtime-human-errors/`;
-  - `codex-context-transfer-2026-08-15/`;
-  - `codex-context-transfer-2026-08-15.zip`.
-- `USERSPACE/**` не читать и не трогать без прямого точечного запроса пользователя.
+- Ветка: `codex/admin-slot-contract`, base `e9aa5b9baa377c2872b56908284263b88468470b`.
+- Завершённый workstream: `docs/exec-plans/admin-portfolio-slot-contract.md`.
+- Реализация: `437c9ca`; reversible migration: `cec1d79`; финальная документация — текущий docs commit.
+- Protected untracked и `USERSPACE/**` не затронуты.
 
 ## Current checkpoint
 
-- Investigation подтверждает две visual-authority модели: Portfolio-owned canonical компоненты и generic Frame authority в Admin.
-- Read-only Figma sources зафиксированы в ExecPlan: Sarafan catalog, hero и три canvas nodes.
-- Реальный локальный Sarafan draft пока schema v2, не опубликован; публичный `/projects/sarafan-radio` возвращал 404 на проверенном runtime.
-- Следующий проверяемый срез: failing tests для schema v3, registry и v2→v3 migration, затем реализация контракта.
+- Goal `Admin edits data, Portfolio owns visual` локально завершена и прошла три саморевью.
+- Portfolio и Admin используют ProjectDocument schema v3 и общий registry утверждённых templates/slots.
+- Card, hero и section visuals заменяются одним read-only Figma Frame URL. Admin автоматически раскладывает Frame по скрытым slots и показывает bounded root preview; template пользователь не выбирает.
+- Generic public/Admin Frame renderer удалён. Legacy v2 читается только отдельным migrator.
+- Canonical Boff, Corvo и Sarafan переведены на v3. Corvo остаётся baseline; Sarafan использует code-owned catalog/home/hero и три dotted canvas templates.
+- Реальный локальный Sarafan draft мигрирован на v3, повторно импортирован из пяти утверждённых Figma nodes и не опубликован.
 
-## Scope и режим
+## Verification
 
-- Области: `ADMIN + SHARED + PORTFOLIO`.
-- Размер: `LARGE`; риск: `HIGH`; режим: `FULL`.
-- Работа автономна до локальной приёмки с отдельными commits и тремя саморевью.
+- Focused contract/Admin/migration tests: `62/62`.
+- Full repository tests: `221/221`.
+- `npm run lint`: green.
+- `npm run build`: green.
+- Реальные preview routes проверены: `/`, `/projects`, `/projects/corvo`, `/projects/sarafan-radio`.
+- Temporary-store backup → apply → rollback → apply: green.
+- Real backup: `/Users/designer/Library/Application Support/Des-art Admin/v3-migration-backups/20260901T121213552Z`.
 
 ## Stop-lines
 
-- Только read-only Figma; никаких Figma writes.
-- Не выполнять push, PR, merge, deploy или production mutation.
-- Не включать secrets, live-config или production data в backup/evidence.
-- Не менять реальный Admin store до проверенных dry-run, backup, rollback и review.
-- После schema-v3 migration реального draft запускать только Admin из текущей workspace-ветки в sandbox mode.
-- Legacy renderer удалять только после доказанного нулевого использования.
+- Push, PR, merge, deploy, production mutation и публикация Sarafan не выполнялись.
+- Figma использовалась только read-only; token остаётся в macOS Keychain и не попадает в draft/Git/backup.
+- Packaged Admin использует старый managed checkout `96cabb7f80ad3f20afd07c5d54ad245a09495142`. Его нельзя запускать после schema-v3 migration реального draft до merge v3-кода. Для локальной работы использовать Admin из этой workspace-ветки в sandbox mode.
+- Protected untracked (`.des-art-admin-runtime-human-errors/`, `codex-context-transfer-2026-08-15/`, `codex-context-transfer-2026-08-15.zip`) и `USERSPACE/**` не читать и не трогать.
 
 ## Next action
 
-Добавить contract/migration tests, типизированный template registry и v2→v3 migrator; затем перевести canonical Portfolio consumers на v3.
+Пользовательская локальная приёмка текущей ветки. Любые push/PR/merge/deploy/production действия требуют отдельного прямого запроса.
 
 ## Pointers
 
@@ -48,4 +47,3 @@
 - Shared contract: `docs/shared/PROJECT_CONTENT.md`.
 - Portfolio runtime: `docs/portfolio/RUNTIME.md`.
 - Visual contract: `DESIGN_SYSTEM.md`.
-- Deploy boundary: `docs/ops/DEPLOY.md`.

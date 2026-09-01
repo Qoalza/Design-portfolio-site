@@ -1,6 +1,6 @@
 # Admin edits data, Portfolio owns visual
 
-Status: `IN_PROGRESS`  
+Status: `COMPLETE`
 Started: 2026-09-01  
 Branch: `codex/admin-slot-contract`  
 Base: `e9aa5b9baa377c2872b56908284263b88468470b`
@@ -61,13 +61,10 @@ Approved template IDs:
 
 ## Milestones and commits
 
-1. Baseline and durable workstream — `docs: start admin slot contract workstream`.
-2. Schema v3, registry, validators and migrator — `feat: define project visual slot contract`.
-3. Portfolio-owned templates and canonical migration — `feat: render approved project visual templates`.
-4. Slot-only Admin and exact preview routes — `feat: constrain Admin to declared content slots`.
-5. Semantic content rhythm and global placement validation — `fix: enforce project placement and content rhythm`.
-6. Reversible real-draft migration — `feat: add reversible Admin v3 migration`.
-7. Legacy cleanup and durable docs — `docs: close admin slot contract migration`.
+1. Baseline and durable workstream — `e90bf0c docs: start admin slot contract workstream`.
+2. Schema v3, registry, Portfolio-owned templates, semantic rhythm, placement validation and slot-only Admin were kept in one buildable integration commit — `437c9ca feat: enforce project visual slot contract`.
+3. Reversible real-draft migration — `cec1d79 feat: add reversible Admin v3 migration`.
+4. Legacy cleanup and durable docs — `docs: close admin slot contract migration`.
 
 Each milestone starts with a focused failing test or explicit failing check, ends with the nearest sufficient verification, and remains independently reviewable. During transition, legacy compatibility may exist only inside the migrator and is removed before completion.
 
@@ -88,6 +85,13 @@ Each milestone starts with a focused failing test or explicit failing check, end
 
 Any finding returns the workstream to the relevant milestone; the affected review is repeated after the fix.
 
+## User corrections incorporated during implementation
+
+- Card, hero and interactive content remain replaceable by one approved read-only Figma Frame URL. The importer converts the whole Frame into registry-owned slots; it does not restore generic Frame layout authority.
+- Existing and newly added interactive sections expose one Figma URL. For a new section the compatible code-owned template is resolved automatically; no template selector is shown.
+- Every imported root Frame has an Admin-only preview. Card preview is square; hero and section previews preserve the source proportion while scaling down to the editor width.
+- An early UI iteration exposed separate internal assets and oversized raw images. It was rejected during visual review and replaced by the whole-Frame source adapter and bounded previews above.
+
 ## Baseline
 
 - `npm run lint`: green on `e9aa5b9`.
@@ -106,3 +110,11 @@ Any finding returns the workstream to the relevant milestone; the affected revie
 - Sarafan uses five code-owned surfaces and three canvas templates without generic Frame.
 - Public/Admin consumers contain no `catalogFrame`, `heroFrame`, public section `type: "frame"`, or user-authored visual properties.
 - Three reviews are clean and all required tests, lint and build pass.
+
+## Completion evidence
+
+- Architecture review: public/Admin consumers contain no legacy Frame authority; remaining `catalogFrame`, `heroFrame` and `type: "frame"` references are limited to the dedicated migrator and rejection fixtures.
+- User/visual review: Admin shows one whole-Frame URL and bounded preview for card, hero and all three Sarafan canvases; a new section resolves its code-owned template automatically. Real Portfolio previews passed on `/`, `/projects`, `/projects/corvo` and `/projects/sarafan-radio`.
+- Real local Sarafan draft is schema v3 with five Figma source records and five root previews; compiled preview contains no `admin`, `catalogFrame` or `heroFrame`. The draft remains unpublished and its incompatible gallery remains backup-only.
+- Reversible migration was verified as backup → apply → rollback → apply on a temporary store. Real backup: `/Users/designer/Library/Application Support/Des-art Admin/v3-migration-backups/20260901T121213552Z`.
+- Final checks on 2026-09-01: focused slot/Admin/migration suite `62/62`; full repository suite `221/221`; `npm run lint`; `npm run build`; `git diff --check`.

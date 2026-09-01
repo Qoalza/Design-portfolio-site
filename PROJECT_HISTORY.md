@@ -92,3 +92,11 @@ Shared map: `docs/shared/PROJECT_CONTENT.md`.
 - `DESIGN_QA.md` сохранил closed/superseded MLIR entries.
 - `AGENTS.md` и несколько исторических docs продолжили описывать MDX как current project storage.
 - Принято перейти к selective documentation routing, короткому handoff, active-only QA и архиву legacy plans/evidence.
+
+## 2026-09-01 — Admin slot contract и schema v3
+
+- Project content переведён на schema v3: Portfolio владеет утверждёнными catalog/home/hero/canvas/gallery templates, Admin — только их named content slots.
+- Generic Frame layout authority удалена из Admin и публичного runtime; legacy v2 читается только migration tooling. Figma URL сохранён как read-only source-adapter для целого утверждённого Frame: importer раскладывает его по скрытым slots, а публичный документ ссылки и geometry не получает.
+- Canonical Boff, Corvo и Sarafan migrated на v3; Corvo сохраняет baseline, Sarafan использует code-owned collage/hero и три dotted canvas templates.
+- Главная получила named `primary/secondary` placement, каталог — template compatibility preflight, текстовый flow — semantic `hardBreak`.
+- Реальный локальный Sarafan draft обратимо мигрирован с SHA-256 backup и оставлен неопубликованным; acceptance выполнялась workspace Admin в sandbox mode.

@@ -1,6 +1,6 @@
 # DESIGN SYSTEM
 
-Обновлено: 2026-08-31.
+Обновлено: 2026-09-01.
 
 ## Назначение
 
@@ -110,3 +110,15 @@ Code не обязан повторять `Master → Skin` двумя React com
 - Пользователь не обязан указывать внутренний code file; Codex определяет owner по фактической архитектуре.
 - Shared renderer/data change дополнительно следует `docs/shared/PROJECT_CONTENT.md` и contract tests.
 - Runtime scroll, route history, sticky/action-bar state machines не являются частью этого документа.
+
+## Project visual templates
+
+- Утверждённый project surface — typed code-owned template, а не пользовательская Frame composition.
+- Для сложных project surfaces Admin принимает утверждённый Figma Frame целиком и автоматически заполняет named content assets registry; отдельные внутренние слоты и визуальные параметры пользователю не доступны.
+- Admin preview подтверждает выбранный целый source Frame, но не становится источником визуальных правил: карточка показывается в квадратном preview-контейнере, hero/canvas сохраняют пропорцию и уменьшаются до ширины редактора.
+- Asset replacement сохраняет geometry, background, dots, radius, shadow, clipping и responsive behavior компонента.
+- Общий Sarafan/Corvo canvas shell: ширина `1000px`, фон `#f5f6f7`, точки `#e3e6e8` диаметром `3px`, шаг `32px`.
+- Sarafan model: content `888×240`, `x=56`, `y=56`.
+- Sarafan scenarios: content `861×349.5`, `x=70`, `y=65`.
+- Sarafan setup: desktop `603×414`, `x=68`, `y=151`; panel `464×588`, `x=480`, `y=72`, с утверждённой тенью.
+- Эти параметры меняются только новым source mapping и code change; импорт нового содержимого Frame не является разрешением пересматривать дизайн.
