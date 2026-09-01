@@ -341,6 +341,7 @@ body { background: #fbfaf8; }
 .preview-split { width: 100%; }
 .preview-split > .rt-Button:first-child { flex: 1 1 auto; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .preview-split-trigger { display: grid; width: 40px; min-width: 40px; height: 40px; min-height: 40px; flex: 0 0 40px; padding: 0; place-items: center; appearance: none; border: 0; border-left: 1px solid var(--sand-6); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: var(--radius-3); border-bottom-right-radius: var(--radius-3); background: var(--sand-3); color: var(--sand-11); cursor: pointer; }
+.preview-split-trigger > svg { width: 16px; height: 16px; }
 .preview-split-trigger:hover, .preview-split-trigger[data-state="open"] { background: var(--sand-4); color: var(--sand-12); }
 .preview-split-trigger:focus-visible { outline: 2px solid var(--accent-8); outline-offset: 2px; }
 @media (max-width: 640px) {
