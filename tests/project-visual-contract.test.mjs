@@ -78,6 +78,18 @@ test("registry enforces slot names, counts, ratio and minimum source size", () =
   assert.throws(() => validateProjectDocument(tooSmall), /minimum/i);
 });
 
+test("gallery device pools inherit exact dimensions from their first image", () => {
+  const mixed = project({
+    designProfile: "corvo-v1",
+    visuals: {
+      catalog: { templateId: "catalog.corvo-stack", assets: { backdrop: [image("back", 2960, 2400)], foreground: [image("front", 2960, 2400)] } },
+      hero: { templateId: "hero.corvo-browser", assets: { backdrop: [image("back", 2960, 2400)], foreground: [image("front", 2960, 2400)] } },
+    },
+    content: [{ type: "gallery", templateId: "gallery.devices-v1", groups: [{ deviceId: "desktop", images: [image("one", 1480, 1024), image("two", 1920, 1080)] }] }],
+  });
+  assert.throws(() => validateProjectDocument(mixed), /first image dimensions/i);
+});
+
 test("profile, homepage and catalog positions are validated globally", () => {
   const primary = project({ slug: "corvo", designProfile: "corvo-v1", homePlacement: "primary", visuals: {
     catalog: { templateId: "catalog.corvo-stack", assets: { backdrop: [image("back", 2960, 2400)], foreground: [image("front", 2960, 2400)] } },

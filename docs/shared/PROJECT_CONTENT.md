@@ -45,7 +45,7 @@ canonical v3 JSON/assets
 ```
 
 - Serializer always writes v3; public runtime rejects schema v2 and legacy Frame.
-- Asset policy validates allowed operations, MIME, count and at least `2×` logical size. Code-owned composition slots keep an exact ratio within `0.1%`; gallery device slots accept an orientation-safe ratio range and contain the source inside the fixed device frame.
+- Asset policy validates allowed operations, MIME, count and at least `2×` logical size. Code-owned composition slots keep an exact ratio within `0.1%`. Gallery device slots use independent width/height ranges (Desktop `1480–2960 × 1024–2048 px`, Tablet `800–1600 × 1132–2266 px`, Mobile `360–1080 × 640–1920 px`); the first image fixes exact dimensions for that device pool. Portfolio contains every accepted source inside the fixed device frame.
 - Card, hero and section visual surfaces cannot be changed through the generic upload endpoint; only the approved read-only Figma importer can replace them as a whole.
 - Collection policy validates unique/order-compatible catalog positions and named homepage placements.
 - Project-only publish keeps global `catalogOrder` and `homePlacement` canonical.

@@ -276,6 +276,10 @@ function galleryGroup(value: unknown, location: string): ProjectGalleryGroup {
   if (!Array.isArray(input.images) || input.images.length === 0) throw new Error(`${location}.images must be a non-empty array.`);
   const images = input.images.map((item, index) => image(item, `${location}.images[${index}]`));
   validateTemplateAssets("gallery.devices-v1", { [deviceId]: images }, location);
+  const [firstImage, ...remainingImages] = images;
+  if (remainingImages.some((item) => item.width !== firstImage.width || item.height !== firstImage.height)) {
+    throw new Error(`${location}.images must use the first image dimensions.`);
+  }
   return { deviceId, images };
 }
 

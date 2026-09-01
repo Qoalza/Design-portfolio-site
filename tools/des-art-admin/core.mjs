@@ -526,6 +526,12 @@ export class AdminStore {
     }
     if (!template || !slotDefinition || !slotDefinition.operations.includes(operation)) throw new Error("Этот slot или тип операции не разрешён утверждённым шаблоном.");
     validateAssetForSlot(templateId, slot, { src: `/assets/projects/${slug}/${safeName}`, alt: alt.trim(), width: inspected.width, height: inspected.height }, `Загруженный файл для ${templateId}.${slot}`);
+    const project = await this.getProject(slug);
+    const gallery = project.content.find((block) => block.type === "gallery" && block.templateId === "gallery.devices-v1");
+    const firstImage = gallery?.groups.find((group) => group.deviceId === slot)?.images[0];
+    if (firstImage && (firstImage.width !== inspected.width || firstImage.height !== inspected.height)) {
+      throw new Error("Gallery pool images must use the first image dimensions.");
+    }
     const assetDirectory = path.dirname(resolveProjectAssetPath(this.draftAssetRoot, slug, safeName));
     await mkdir(assetDirectory, { recursive: true });
     const digest = createHash("sha256").update(buffer).digest("hex");
