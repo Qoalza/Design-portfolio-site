@@ -63,6 +63,21 @@ test("transparent Sarafan canvas panels use an alpha-aware shadow", async () => 
   assert.doesNotMatch(css, /\.sarafanSetupPanel\s*\{[^}]*box-shadow:/s);
 });
 
+test("transparent Sarafan collage layers use alpha-aware shadows in every public preview", async () => {
+  const stylesheets = await Promise.all([
+    source("src/app/page.module.css"),
+    source("src/app/projects/page.module.css"),
+    source("src/app/projects/[slug]/page.module.css"),
+  ]);
+  const selectors = ["radioPlayer", "radioPayment", "sarafanPlayer", "sarafanPayment", "sarafanHeroPlayer", "sarafanHeroPayment"];
+
+  for (const selector of selectors) {
+    const rule = new RegExp(`\\.${selector}\\s*\\{[^}]*\\}`, "s").exec(stylesheets.join("\n"))?.[0] ?? "";
+    assert.match(rule, /filter:\s*drop-shadow\(0 20px 100px rgba\(18,\s*18,\s*19,\s*\.1\)\)/);
+    assert.doesNotMatch(rule, /box-shadow:/);
+  }
+});
+
 test("ProjectCanvas raster exports have at least two intrinsic pixels per CSS pixel", async () => {
   const assets = [
     ["public/assets/projects/corvo/canvas/corvo-quotes.png", 852, 366],

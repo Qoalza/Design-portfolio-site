@@ -38,8 +38,8 @@
 .sarafanCatalog { overflow: visible; }
 .sarafanCatalog > img { position: absolute; display: block; max-width: none; }
 .sarafanDashboard { top: 13px; left: 45px; width: 428px; height: 373px; }
-.sarafanPlayer { top: 216px; left: 18px; width: 265px; height: 96px; box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1); }
-.sarafanPayment { top: 200px; left: 381px; width: 120px; height: 173px; box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1); }
+.sarafanPlayer { top: 216px; left: 18px; width: 265px; height: 96px; filter: drop-shadow(0 20px 100px rgba(18, 18, 19, .1)); }
+.sarafanPayment { top: 200px; left: 381px; width: 120px; height: 173px; filter: drop-shadow(0 20px 100px rgba(18, 18, 19, .1)); }
 .browserDots { position: absolute; z-index: 1; top: 0; right: 0; left: 0; display: flex; height: 20px; align-items: center; gap: 4px; padding-left: 12px; background: #f7f7f7; }
 .browserDots i { width: 6px; height: 6px; border-radius: 50%; background: #c9c9c9; }
 .browserDots i:first-child { background: #ff6258; }.browserDots i:nth-child(2) { background: #ffbe2e; }.browserDots i:last-child { background: #29c841; }

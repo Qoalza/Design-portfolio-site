@@ -148,8 +148,8 @@
 .sarafanHeroIllustration { top: 50px; left: 565px; width: 678px; height: 536px; }
 .sarafanHeroDecoration { top: -311px; left: -262px; width: 618px; height: 618px; opacity: .3; }
 .sarafanHeroDashboard { top: 68px; left: 55px; width: 726px; height: 618px; }
-.sarafanHeroPlayer { top: 279px; left: 657px; width: 421px; height: 230px; box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1); }
-.sarafanHeroPayment { top: 120px; left: 847px; width: 274px; height: 134px; box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1); }
+.sarafanHeroPlayer { top: 279px; left: 657px; width: 421px; height: 230px; filter: drop-shadow(0 20px 100px rgba(18, 18, 19, .1)); }
+.sarafanHeroPayment { top: 120px; left: 847px; width: 274px; height: 134px; filter: drop-shadow(0 20px 100px rgba(18, 18, 19, .1)); }
 
 .actionTerminal { height: 136px; }
 
