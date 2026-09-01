@@ -10,7 +10,7 @@ import { CardEditor, PageEditor, ProjectIdentityEditor } from "./admin-editor";
 import type { AdminProject, ChangeInventory, FieldIssue, PublishJob } from "./admin-model";
 import { ApiError } from "./admin-model";
 import { ProjectNavigation, type ProjectFilter, visibilityLabels } from "./admin-navigation";
-import { CardSettings, PageSettings, ProjectActions } from "./admin-rail";
+import { CardSettings, PageSettings, ProjectDangerActions, ProjectOverview } from "./admin-rail";
 import { SavedMark } from "./admin-ui";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
@@ -328,7 +328,7 @@ function App() {
                 </div>
                 {message ? <Callout.Root mb="4" color="orange"><Callout.Text>{message}</Callout.Text></Callout.Root> : null}
                 <ProjectIdentityEditor project={current} update={update} uploadLogo={uploadLogo} issues={issues.length ? issues : currentChange?.issues ?? []} />
-                <Tabs.Root value={tab} onValueChange={setTab}>
+                <Tabs.Root className="project-tabs" value={tab} onValueChange={setTab}>
                   <Tabs.List><Tabs.Trigger value="card">Карточка</Tabs.Trigger><Tabs.Trigger value="page">Страница проекта</Tabs.Trigger></Tabs.List>
                   <Box pt="5">
                     <Tabs.Content value="card"><CardEditor project={current} update={update} importFigma={importFigma} issues={issues.length ? issues : currentChange?.issues ?? []} /></Tabs.Content>
@@ -343,21 +343,25 @@ function App() {
           <aside className="project-rail">
             {current ? (
               <div className="rail-stack">
-                {tab === "card" ? (
-                  <CardSettings project={current} update={update} home={requestHome} />
-                ) : (
-                      <PageSettings project={current} update={update} issues={issues.length ? issues : currentChange?.issues ?? []} />
-                )}
-                <ProjectActions
+                <ProjectOverview
                   project={current}
                   changed={Boolean(currentChange)}
                   preview={preview}
                   publish={() => { if (current.visibility === "draft") requestPublishDraft(); else void startPublish("project").catch((error) => setMessage(safeMessage(error))); }}
                   setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
-                  unpublish={() => setConfirmation("unpublish")}
-                  permanentDelete={() => setConfirmation("delete")}
                   issues={issues.length ? issues : currentChange?.issues ?? []}
                   reviewIssues={() => setReviewIssues(issues.length ? issues : currentChange?.issues ?? [])}
+                />
+                {tab === "card" ? (
+                  <CardSettings project={current} update={update} home={requestHome} />
+                ) : (
+                      <PageSettings project={current} update={update} issues={issues.length ? issues : currentChange?.issues ?? []} />
+                )}
+                <ProjectDangerActions
+                  project={current}
+                  setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
+                  unpublish={() => setConfirmation("unpublish")}
+                  permanentDelete={() => setConfirmation("delete")}
                 />
               </div>
             ) : null}

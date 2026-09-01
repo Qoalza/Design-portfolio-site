@@ -202,7 +202,7 @@ export function FigmaTemplateField({
           {remove ? <IconButton type="button" size="3" variant="ghost" color="red" aria-label={`Удалить ${title}`} disabled={busy} onClick={remove}><TrashIcon /></IconButton> : null}
         </div>
         {source?.preview ? (
-          <div className="figma-frame-preview" data-shape={previewShape} style={previewShape === "surface" ? { aspectRatio: `${source.preview.width} / ${source.preview.height}` } : undefined}>
+          <div className="figma-frame-preview" data-shape={previewShape}>
             <ImagePreview src={source.preview.src} label={`Превью: ${title}`}><img src={source.preview.src} alt="" /></ImagePreview>
           </div>
         ) : source ? <div className="figma-preview-pending"><Text size="2" color="gray">Превью появится после обновления Frame из Figma.</Text></div> : null}
@@ -246,8 +246,9 @@ function Tool({ label, children, onClick, active }: { label: string; children: R
       <IconButton
         type="button"
         size="2"
+        className={active ? "rich-toolbar-tool-active" : undefined}
         variant={active ? "soft" : "ghost"}
-        color={active ? "blue" : "gray"}
+        color="gray"
         aria-label={label}
         aria-pressed={active}
         onMouseDown={(event) => event.preventDefault()}
@@ -365,7 +366,10 @@ export function RichEditor({ value, onChange }: { value: ProjectSectionBlock[]; 
   const refreshState = () => {
     const node = editor.current;
     const selection = window.getSelection();
-    if (!node || !selection?.anchorNode || !node.contains(selection.anchorNode)) return;
+    if (!node || !selection?.anchorNode || !node.contains(selection.anchorNode)) {
+      setState(EMPTY_EDITOR_STATE);
+      return;
+    }
     const anchor = selection.anchorNode.nodeType === Node.ELEMENT_NODE
       ? selection.anchorNode as Element
       : selection.anchorNode.parentElement;
@@ -497,6 +501,7 @@ export function RichEditor({ value, onChange }: { value: ProjectSectionBlock[]; 
         onKeyUp={refreshState}
         onMouseUp={refreshState}
         onFocus={refreshState}
+        onBlur={() => setState(EMPTY_EDITOR_STATE)}
         onPaste={(event) => {
           event.preventDefault();
           const text = event.clipboardData.getData("text/plain");

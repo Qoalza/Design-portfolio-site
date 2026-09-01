@@ -1,14 +1,5 @@
 import { ChevronDownIcon, EyeOpenIcon, TrashIcon } from "@radix-ui/react-icons";
-import {
-  Button,
-  Callout,
-  DropdownMenu,
-  Flex,
-  Select,
-  Switch,
-  Text,
-  TextField,
-} from "@radix-ui/themes";
+import { Button, Callout, DropdownMenu, Flex, Select, Switch, Text, TextField } from "@radix-ui/themes";
 import type {
   ProjectContentBlock,
   ProjectDocument,
@@ -22,14 +13,12 @@ import { issueFor, pendingGalleryDevices, withPendingGalleryDevices } from "./ad
 import { Field, RailGroup } from "./admin-ui";
 import { changeProjectFileState, changeProjectMaterialsState } from "../material-state.mjs";
 
-export function ProjectActions({
+export function ProjectOverview({
   project,
   changed,
   preview,
   publish,
   setVisibility,
-  unpublish,
-  permanentDelete,
   issues,
   reviewIssues,
 }: {
@@ -38,8 +27,6 @@ export function ProjectActions({
   preview: (route: "home" | "catalog" | "project") => void;
   publish: () => void;
   setVisibility: (visibility: ProjectVisibility) => void;
-  unpublish: () => void;
-  permanentDelete: () => void;
   issues: FieldIssue[];
   reviewIssues: () => void;
 }) {
@@ -51,15 +38,20 @@ export function ProjectActions({
       {project.visibility === "draft" ? <Button size="3" onClick={publish}>Опубликовать</Button> : null}
       {project.visibility === "published" && changed ? <Button size="3" onClick={publish}>Опубликовать изменения</Button> : null}
       {project.visibility === "deleted" ? (
-        <>
-          <Button size="3" variant="soft" onClick={() => setVisibility("draft")}>Восстановить</Button>
-          <Button size="3" variant="ghost" color="red" onClick={permanentDelete}>Удалить навсегда</Button>
-        </>
-      ) : (
-        <div className="rail-danger-actions">{project.visibility === "published" ? <Button size="3" variant="ghost" color="gray" onClick={unpublish}>Снять с публикации</Button> : null}<Button size="3" variant="ghost" color="red" onClick={() => setVisibility("deleted")}><TrashIcon />Переместить в удалённые</Button></div>
-      )}
+        <Button size="3" variant="soft" onClick={() => setVisibility("draft")}>Восстановить</Button>
+      ) : null}
     </RailGroup>
   );
+}
+
+export function ProjectDangerActions({ project, setVisibility, unpublish, permanentDelete }: {
+  project: AdminProject;
+  setVisibility: (visibility: ProjectVisibility) => void;
+  unpublish: () => void;
+  permanentDelete: () => void;
+}) {
+  if (project.visibility === "deleted") return <div className="rail-danger-actions"><Button size="3" variant="ghost" color="red" onClick={permanentDelete}><TrashIcon />Удалить навсегда</Button></div>;
+  return <div className="rail-danger-actions">{project.visibility === "published" ? <Button size="3" variant="ghost" color="gray" onClick={unpublish}>Снять с публикации</Button> : null}<Button size="3" variant="ghost" color="red" onClick={() => setVisibility("deleted")}><TrashIcon />Переместить в удалённые</Button></div>;
 }
 
 export function CardSettings({

@@ -84,9 +84,9 @@ test("publication stepper styles markers without constraining Radix labels", () 
 test("each section renders its own settings inside the section editor", () => {
   assert.match(adminEditor, /className="section-settings"/);
   assert.match(adminEditor, /Примечание/);
+  assert.match(adminEditor, /section-toggle-interactive/);
   assert.match(adminEditor, /Визуальное поведение задаёт Portfolio/);
-  assert.match(adminEditor, />Интерактивный блок<\/Button>/);
-  assert.match(adminEditor, /<SectionSettings[\s\S]{0,120}\{visual \?/);
+  assert.match(adminEditor, /interactiveEnabled=\{Boolean\(visual\) \|\| addingVisual\}/);
   assert.match(adminEditor, /importFigma\("section"/);
   assert.doesNotMatch(adminRail, /selected-section-settings/);
   assert.doesNotMatch(adminRail, /function SectionSettings/);
@@ -108,12 +108,20 @@ test("card, hero and interactive visuals accept one approved Figma Frame without
   assert.match(adminCss, /\.figma-template-field\s*\{[^}]*min-width:\s*0/s);
   assert.match(adminCss, /\.figma-frame-preview\[data-shape="card"\][^{]*\{[^}]*aspect-ratio:\s*1/s);
   assert.match(adminCss, /\.figma-frame-preview\[data-shape="surface"\][^{]*img[^}]*max-width:\s*100%/s);
+  assert.match(adminCss, /\.figma-frame-preview\[data-shape="surface"\]\s*\{[^}]*width:\s*fit-content/s);
+  assert.doesNotMatch(adminComponents, /style=\{previewShape === "surface"/);
 });
 
 test("Admin keeps project identity global and exposes status actions without a visibility select", () => {
   assert.match(adminUi, /<ProjectIdentityEditor/);
+  assert.match(adminUi, /className="project-tabs"/);
   assert.match(adminEditor, /export function ProjectIdentityEditor/);
+  assert.match(adminCss, /\.project-identity\s*\{[^}]*background:\s*#fff/s);
   assert.doesNotMatch(adminRail, /<Select\.Root value=\{project\.visibility\}/);
+  assert.match(adminRail, /export function ProjectOverview/);
+  assert.match(adminRail, /export function ProjectDangerActions/);
+  assert.ok(adminUi.indexOf("<ProjectOverview") < adminUi.indexOf("<CardSettings"));
+  assert.ok(adminUi.indexOf("<ProjectDangerActions") > adminUi.indexOf("<CardSettings"));
   assert.match(adminRail, /Снять с публикации/);
   assert.match(adminRail, /preview\("home"\)/);
   assert.match(adminRail, /Все работы/);
@@ -141,6 +149,26 @@ test("rich text toolbar uses Radix icons instead of letter glyph controls", () =
   assert.doesNotMatch(adminComponents, /<strong>B<\/strong>/);
   assert.doesNotMatch(adminComponents, /<em>I<\/em>/);
   assert.doesNotMatch(adminComponents, /<u>U<\/u>/);
+});
+
+test("gallery uses device-sized horizontal tiles with conditional scroll fades", () => {
+  assert.match(adminEditor, /function GalleryDeviceStrip/);
+  assert.match(adminEditor, /className="gallery-upload-tile"/);
+  assert.match(adminEditor, /className="gallery-thumbnail"/);
+  assert.match(adminEditor, /data-at-start=\{edges\.atStart/);
+  assert.match(adminEditor, /data-at-end=\{edges\.atEnd/);
+  assert.match(adminEditor, /aria-label=\{`Удалить изображение/);
+  assert.match(adminCss, /\.gallery-list\s*\{[^}]*overflow-x:\s*auto/s);
+  assert.match(adminCss, /\.gallery-list\[data-at-start="true"\]/);
+  assert.match(adminCss, /\.gallery-group\[data-device="mobile"\]/);
+});
+
+test("rich toolbar active state is gray and clears when focus leaves the editor", () => {
+  assert.match(adminComponents, /className=\{active \? "rich-toolbar-tool-active"/);
+  assert.match(adminComponents, /color="gray"/);
+  assert.match(adminComponents, /setState\(EMPTY_EDITOR_STATE\)/);
+  assert.match(adminComponents, /onBlur=\{\(\) => setState\(EMPTY_EDITOR_STATE\)\}/);
+  assert.match(adminCss, /\.rich-toolbar \.rt-IconButton\.rich-toolbar-tool-active/);
 });
 
 test("prepared macOS launcher bundle is complete", async () => {

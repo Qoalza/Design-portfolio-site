@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- local admin previews draft files outside Next Image */
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { Badge, Button, Callout, Flex, Heading, IconButton, Switch, Text, TextArea, TextField } from "@radix-ui/themes";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ProjectContentBlock, ProjectGalleryDeviceId, ProjectGalleryGroup, ProjectImage, ProjectSectionBlock } from "../../../src/lib/project-contract";
 import { PROJECT_VISUAL_TEMPLATES, type ProjectVisualTemplateId } from "../../../src/lib/project-visual-registry";
 import { sectionTemplateOptions } from "../figma-template-map.mjs";
@@ -22,7 +22,10 @@ function updateSection(project: AdminProject, target: AdminSection, next: AdminS
   return { ...project, content: project.content.map((block) => block === target ? next : block) };
 }
 
-function SectionSettings({ project, section, change }: { project: AdminProject; section: AdminSection; change: (project: AdminProject) => void }) {
+function SectionSettings({ project, section, change, interactiveEnabled, setInteractiveEnabled, interactiveAvailable }: {
+  project: AdminProject; section: AdminSection; change: (project: AdminProject) => void;
+  interactiveEnabled: boolean; setInteractiveEnabled: (enabled: boolean) => void; interactiveAvailable: boolean;
+}) {
   const notice = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "notice" }> => block.type === "notice");
   const setNotice = (enabled: boolean) => change(updateSection(project, section, {
     ...section,
@@ -37,8 +40,9 @@ function SectionSettings({ project, section, change }: { project: AdminProject; 
   return (
     <div className="section-settings">
       <div className="section-settings-heading"><Text weight="medium">Настройки секции</Text><Text size="1" color="gray">Визуальное поведение задаёт Portfolio</Text></div>
-      <label className="switch-line"><div><Text size="2" weight="medium">Примечание</Text><Text as="p" size="1" color="gray">Ширина и оформление фиксированы шаблоном</Text></div><Switch radius="full" checked={Boolean(notice)} onCheckedChange={setNotice} /></label>
+      <label className="switch-line section-toggle"><div><Text weight="medium">Примечание</Text><Text as="p" size="2" color="gray">Ширина и оформление фиксированы шаблоном</Text></div><Switch radius="full" checked={Boolean(notice)} onCheckedChange={setNotice} /></label>
       {notice ? <Field label="Текст примечания"><TextArea size="3" rows={3} value={textOf(notice.content)} onChange={(event) => changeNoticeContent(event.target.value)} /></Field> : null}
+      <label className="switch-line section-toggle section-toggle-interactive"><div><Text weight="medium">Интерактивный блок</Text><Text as="p" size="2" color="gray">Добавляется из утверждённого Figma Frame и оформляется Portfolio</Text></div><Switch radius="full" checked={interactiveEnabled} disabled={!interactiveAvailable} onCheckedChange={setInteractiveEnabled} /></label>
     </div>
   );
 }
@@ -63,7 +67,20 @@ function SectionEditor({ section, project, index, count, selected, select, chang
       </div>
       <Field field={`content.${section.adminId}.heading`} label="Заголовок секции" error={issueFor(issues, `content.${section.adminId}.heading`)}><TextField.Root size="3" value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} /></Field>
       <Field label="Описание секции"><RichEditor value={section.blocks} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)))} /></Field>
-      <SectionSettings project={project} section={section} change={change} />
+      <SectionSettings
+        project={project}
+        section={section}
+        change={change}
+        interactiveEnabled={Boolean(visual) || addingVisual}
+        interactiveAvailable={options.length > 0}
+        setInteractiveEnabled={(enabled) => {
+          if (enabled) setAddingVisual(true);
+          else {
+            setAddingVisual(false);
+            if (visual) removeVisual();
+          }
+        }}
+      />
       {visual ? (
         <FigmaTemplateField
           key={`${project.slug}:${section.adminId}:${visualSource(project, section.adminId)?.url ?? "empty"}`}
@@ -87,9 +104,8 @@ function SectionEditor({ section, project, index, count, selected, select, chang
             templateLabel="Определится по Frame"
             importFrame={(url) => importFigma("section", undefined, url, section.adminId)}
           />
-          <Button type="button" variant="ghost" color="gray" onClick={() => setAddingVisual(false)}>Отмена</Button>
         </div>
-      ) : <Button type="button" size="2" variant="ghost" color="gray" onClick={() => setAddingVisual(true)}><PlusIcon />Интерактивный блок</Button>}
+      ) : null}
     </section>
   );
 }
@@ -125,7 +141,7 @@ export const groupDefaults: Record<ProjectGalleryDeviceId, { deviceId: ProjectGa
   mobile: { deviceId: "mobile", label: "Mobile" },
 };
 
-function GalleryEditor({ gallery, change, upload }: { gallery: Extract<ProjectContentBlock, { type: "gallery" }>; change: (value: Extract<ProjectContentBlock, { type: "gallery" }>) => void; upload: Upload }) {
+function GalleryEditorFallback({ gallery, change, upload }: { gallery: Extract<ProjectContentBlock, { type: "gallery" }>; change: (value: Extract<ProjectContentBlock, { type: "gallery" }>) => void; upload: Upload }) {
   const [importing, setImporting] = useState<ProjectGalleryDeviceId>();
   const [uploadErrors, setUploadErrors] = useState<Partial<Record<ProjectGalleryDeviceId, string>>>({});
   const updateGroup = (deviceId: ProjectGalleryDeviceId, value: ProjectGalleryGroup) => change({ ...gallery, groups: gallery.groups.map((group) => group.deviceId === deviceId ? value : group) });
@@ -145,6 +161,65 @@ function GalleryEditor({ gallery, change, upload }: { gallery: Extract<ProjectCo
           <ol className="gallery-list">{group.images.map((item, index) => <li key={`${item.src}-${index}`}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><Flex className="gallery-item-name" align="center" gap="2"><Text size="2">Изображение {index + 1}</Text><IconButton type="button" size="2" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => updateGroup(group.deviceId, { ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></Flex><Flex className="gallery-item-order" gap="2"><IconButton size="2" variant="ghost" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; updateGroup(group.deviceId, { ...group, images }); }}><ChevronUpIcon /></IconButton><IconButton size="2" variant="ghost" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; updateGroup(group.deviceId, { ...group, images }); }}><ChevronDownIcon /></IconButton></Flex></li>)}</ol>
         </div>;
       })}
+    </section>
+  );
+}
+
+function GalleryDeviceStrip({ group, label, change, upload }: {
+  group: ProjectGalleryGroup;
+  label: string;
+  change: (value: ProjectGalleryGroup) => void;
+  upload: Upload;
+}) {
+  const [importing, setImporting] = useState<ProjectGalleryDeviceId>();
+  const [uploadError, setUploadError] = useState<string>();
+  const strip = useRef<HTMLOListElement>(null);
+  const [edges, setEdges] = useState({ atStart: true, atEnd: true });
+  const slot = PROJECT_VISUAL_TEMPLATES["gallery.devices-v1"].slots[group.deviceId];
+  const atLimit = group.images.length >= slot.maxItems;
+  const minWidth = slot.logicalWidth! * 2;
+  const minHeight = slot.logicalHeight! * 2;
+  const firstImage = group.images[0];
+  const refreshEdges = () => {
+    const node = strip.current;
+    if (!node) return;
+    const next = {
+      atStart: node.scrollLeft <= 1,
+      atEnd: node.scrollLeft + node.clientWidth >= node.scrollWidth - 1,
+    };
+    setEdges((current) => current.atStart === next.atStart && current.atEnd === next.atEnd ? current : next);
+  };
+  useEffect(() => {
+    const node = strip.current;
+    if (!node) return;
+    const frame = requestAnimationFrame(refreshEdges);
+    const observer = new ResizeObserver(refreshEdges);
+    observer.observe(node);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [group.images.length]);
+  return (
+    <div className="gallery-group" data-device={group.deviceId}>
+      <div className="section-title"><div className="section-heading-copy"><Heading size="3">{label}</Heading><Text size="1" color="gray">{firstImage ? <>Размер пула: {firstImage.width}×{firstImage.height} px. Все следующие изображения должны совпадать.</> : <>Ширина: {minWidth}–{slot.maxWidth} px · Высота: {minHeight}–{slot.maxHeight} px. Первое изображение фиксирует точный размер этого пула.</>} Изображение впишется без обрезки; внешний лейаут не изменится.</Text></div></div>
+      <ol className="gallery-list" ref={strip} tabIndex={0} aria-label={`Изображения ${label}`} data-at-start={edges.atStart || undefined} data-at-end={edges.atEnd || undefined} onScroll={refreshEdges}>
+        <li className="gallery-upload-tile"><label className="gallery-upload-zone" data-disabled={importing === group.deviceId || atLimit || undefined}><PlusIcon /><Text size="2" weight="medium">{atLimit ? "Достигнут лимит" : importing === group.deviceId ? "Проверяем…" : "Добавить изображение"}</Text><Text size="1" color="gray">PNG или WebP</Text><input hidden type="file" accept="image/png,image/webp" disabled={importing === group.deviceId || atLimit} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; setImporting(group.deviceId); void upload(file, `Галерея ${label}`, { templateId: "gallery.devices-v1", slot: group.deviceId, operation: "add" }).then((image) => { change({ ...group, images: [...group.images, image] }); setUploadError(undefined); }).catch((error) => setUploadError(error instanceof Error ? error.message : "Изображение не удалось загрузить.")).finally(() => setImporting(undefined)); }} /></label></li>
+        {group.images.map((item, index) => <li className="gallery-thumbnail" key={`${item.src}-${index}`}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><Flex className="gallery-item-name" align="center" gap="2"><Text size="2">Изображение {index + 1}</Text><IconButton type="button" size="2" variant="solid" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => change({ ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></Flex><Flex className="gallery-item-order" gap="1"><IconButton size="1" variant="soft" color="gray" aria-label="Переместить изображение выше" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; change({ ...group, images }); }}><ChevronUpIcon /></IconButton><IconButton size="1" variant="soft" color="gray" aria-label="Переместить изображение ниже" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; change({ ...group, images }); }}><ChevronDownIcon /></IconButton></Flex></li>)}
+      </ol>
+      {uploadError ? <Callout.Root color="red" size="1"><Callout.Text>{uploadError}</Callout.Text></Callout.Root> : null}
+    </div>
+  );
+}
+
+function GalleryEditor({ gallery, change, upload }: { gallery: Extract<ProjectContentBlock, { type: "gallery" }>; change: (value: Extract<ProjectContentBlock, { type: "gallery" }>) => void; upload: Upload }) {
+  if (typeof ResizeObserver === "undefined") return <GalleryEditorFallback gallery={gallery} change={change} upload={upload} />;
+  const updateGroup = (deviceId: ProjectGalleryDeviceId, value: ProjectGalleryGroup) => change({ ...gallery, groups: gallery.groups.map((group) => group.deviceId === deviceId ? value : group) });
+  return (
+    <section className="editor-section gallery-editor">
+      <div className="section-title"><div className="section-heading-copy"><Heading size="4">Галерея</Heading><Text size="2" color="gray">Рамки, подписи, иконки и размеры принадлежат шаблону gallery.devices-v1.</Text></div><Badge>{gallery.groups.reduce((sum, group) => sum + group.images.length, 0)} изображений</Badge></div>
+      {gallery.groups.length === 0 ? <div className="empty-inline"><Text size="2" color="gray">Выберите устройства в настройках справа.</Text></div> : null}
+      {gallery.groups.map((group) => <GalleryDeviceStrip key={group.deviceId} group={group} label={groupDefaults[group.deviceId].label} change={(value) => updateGroup(group.deviceId, value)} upload={upload} />)}
     </section>
   );
 }
