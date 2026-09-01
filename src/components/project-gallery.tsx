@@ -291,6 +291,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
                 {...item}
                 baseHeight={presentation.baseHeight}
                 baseWidth={presentation.baseWidth}
+                fit="contain"
                 frame={itemFrame(group.deviceId, index)}
                 sizes={`${presentation.baseWidth}px`}
               />

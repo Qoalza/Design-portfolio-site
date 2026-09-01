@@ -60,7 +60,7 @@ test("user-facing errors keep known causes actionable and hide unknown diagnosti
   assert.doesNotMatch(`${unknown.title} ${unknown.message}`, /registry exploded/);
   assert.deepEqual(humanError(new Error("asset has an incompatible proportion.")), {
     title: "Пропорции изображения не подходят",
-    message: "Этот слот принимает только изображение с утверждённым соотношением сторон. Экспортируйте изображение в нужных пропорциях и загрузите его снова.",
+    message: "Для выбранного устройства допустим диапазон пропорций. Выберите подходящий тип устройства или изображение той же ориентации и загрузите его снова.",
     status: 400,
   });
   assert.equal(humanError(new Error("asset is below the minimum 2× source size.")).title, "Изображение слишком маленькое");
@@ -150,7 +150,7 @@ test("reorder validates template compatibility before preserving draft metadata"
   assert.equal((await store.getDraft("wide")).admin.marker, "kept");
 });
 
-test("gallery uploads reject wrong proportions, preserve duplicates and cannot bypass Figma-only surfaces", async () => {
+test("gallery uploads accept safe device ratio ranges, reject wrong orientation, preserve duplicates and cannot bypass Figma-only surfaces", async () => {
   assert.equal(safeUploadName("Hero Screen (1).PNG"), "hero-screen-1.png");
   assert.throws(() => safeUploadName("../secret.png"), /filename/i);
   const configured = await roots();
@@ -163,7 +163,9 @@ test("gallery uploads reject wrong proportions, preserve duplicates and cannot b
   const second = await store.saveImage("admin-test", "copy.png", "image/png", png, "Экран", policy);
   assert.equal(second.src, first.src);
   await readFile(path.join(configured.draftAssetRoot, "admin-test", "screen.png"));
-  const wrong = Buffer.from(png); wrong.writeUInt32BE(700, 20);
+  const widescreen = Buffer.from(png); widescreen.writeUInt32BE(1920, 16); widescreen.writeUInt32BE(1080, 20);
+  await store.saveImage("admin-test", "widescreen.png", "image/png", widescreen, "Экран 16:9", policy);
+  const wrong = Buffer.from(png); wrong.writeUInt32BE(1000, 16); wrong.writeUInt32BE(1600, 20);
   await assert.rejects(() => store.saveImage("admin-test", "wrong.png", "image/png", wrong, "Экран", policy), /proportion/i);
   const tooSmall = Buffer.from(png); tooSmall.writeUInt32BE(740, 16); tooSmall.writeUInt32BE(512, 20);
   await assert.rejects(() => store.saveImage("admin-test", "small.png", "image/png", tooSmall, "Экран", policy), /minimum 2× source size/i);

@@ -18,6 +18,7 @@
 - Generic public/Admin Frame renderer удалён. Legacy v2 читается только отдельным migrator.
 - Canonical Boff, Corvo и Sarafan переведены на v3. Corvo остаётся baseline; Sarafan использует code-owned catalog/home/hero и три dotted canvas templates.
 - Реальный локальный Sarafan draft мигрирован на v3, повторно импортирован из пяти утверждённых Figma nodes и не опубликован.
+- Gallery device slots больше не требуют exact ratio: Desktop принимает отношение ширины к высоте `1–2.5`, Tablet `0.5–1`, Mobile `0.4–0.75`; Portfolio вписывает отличающиеся пропорции через `contain` в неизменную code-owned рамку.
 
 ## Verification
 
@@ -25,6 +26,7 @@
 - Full repository tests: `221/221`.
 - `npm run lint`: green.
 - `npm run build`: green.
+- Gallery ratio-range regression checks, Admin bundle/lint и реальный Corvo/Admin visual smoke: green.
 - Реальные preview routes проверены: `/`, `/projects`, `/projects/corvo`, `/projects/sarafan-radio`.
 - Temporary-store backup → apply → rollback → apply: green.
 - Real backup: `/Users/designer/Library/Application Support/Des-art Admin/v3-migration-backups/20260901T121213552Z`.

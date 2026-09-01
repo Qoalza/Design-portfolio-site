@@ -13,6 +13,8 @@ export type ProjectVisualAssetSlot = {
   minItems: number;
   maxItems: number;
   ratio?: number;
+  minRatio?: number;
+  maxRatio?: number;
   logicalWidth?: number;
   logicalHeight?: number;
 };
@@ -37,13 +39,14 @@ const singlePng = (label: string, ratio: number, logicalWidth: number, logicalHe
   logicalHeight,
 });
 
-const galleryPng = (label: string, ratio: number, logicalWidth: number, logicalHeight: number): ProjectVisualAssetSlot => ({
+const galleryPng = (label: string, minRatio: number, maxRatio: number, logicalWidth: number, logicalHeight: number): ProjectVisualAssetSlot => ({
   label,
   operations: ["replace", "add", "remove", "reorder"],
   mime: ["image/png", "image/webp"],
   minItems: 0,
   maxItems: 20,
-  ratio,
+  minRatio,
+  maxRatio,
   logicalWidth,
   logicalHeight,
 });
@@ -126,9 +129,9 @@ export const PROJECT_VISUAL_TEMPLATES = {
   "gallery.devices-v1": {
     surface: "gallery", label: "Галерея устройств", profiles: ["corvo-v1", "sarafan-v1"],
     slots: {
-      desktop: galleryPng("Desktop", 740 / 512, 740, 512),
-      tablet: galleryPng("Tablet", 400 / 566, 400, 566),
-      mobile: galleryPng("Mobile", 180 / 320, 180, 320),
+      desktop: galleryPng("Desktop", 1, 2.5, 740, 512),
+      tablet: galleryPng("Tablet", 0.5, 1, 400, 566),
+      mobile: galleryPng("Mobile", 0.4, 0.75, 180, 320),
     },
   },
   "notice.info-v1": {
@@ -182,6 +185,11 @@ export function validateAssetForSlot(templateId: ProjectVisualTemplateId, slotNa
   if (slot.ratio !== undefined) {
     const delta = Math.abs(image.width / image.height - slot.ratio) / slot.ratio;
     if (delta > 0.001) throw new Error(`${location} has an incompatible proportion.`);
+  }
+  const actualRatio = image.width / image.height;
+  if ((slot.minRatio !== undefined && actualRatio < slot.minRatio)
+    || (slot.maxRatio !== undefined && actualRatio > slot.maxRatio)) {
+    throw new Error(`${location} has an incompatible proportion.`);
   }
   if (slot.logicalWidth !== undefined && slot.logicalHeight !== undefined
     && (image.width < slot.logicalWidth * 2 || image.height < slot.logicalHeight * 2)) {

@@ -95,6 +95,8 @@ test("card, hero and interactive visuals accept one approved Figma Frame without
   assert.match(adminComponents, /export function FigmaTemplateField/);
   assert.match(adminEditor, /Превью карточки/);
   assert.match(adminEditor, /Главное изображение открытого проекта/);
+  assert.match(adminEditor, /Ширина ÷ высота/);
+  assert.match(adminEditor, /Изображение впишется без обрезки/);
   assert.match(adminComponents, /Загрузить Frame/);
   assert.doesNotMatch(adminEditor, /VisualSlotEditor|Заменить изображение/);
   assert.doesNotMatch(adminEditor, /Тип интерактивного блока|<Select/);

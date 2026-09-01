@@ -84,6 +84,13 @@ test("Gallery geometry matches the current Desktop, Tablet and Mobile instances"
   assert.match(css, /width:\s*1176px/);
 });
 
+test("Gallery preserves its code-owned device frame while containing variable-ratio uploads", async () => {
+  const component = await source("src/components/project-gallery.tsx");
+  const css = await source("src/components/project-gallery.module.css");
+  assert.match(component, /fit="contain"/);
+  assert.match(css, /data-image-fit="contain"[^}]*object-fit:\s*contain/s);
+});
+
 test("Gallery exposes only the right edge fade while a next item exists", async () => {
   const component = await source("src/components/project-gallery.tsx");
   const css = await source("src/components/project-gallery.module.css");
