@@ -175,6 +175,17 @@ test("gallery uploads use pixel ranges and lock each device pool to its first im
   await assert.rejects(() => store.saveImage("admin-test", "card.png", "image/png", png, "Экран", { templateId: "catalog.browser", slot: "screen", operation: "replace" }), /только целым Figma Frame/i);
 });
 
+test("legacy gallery activation metadata does not create a validation or change-summary error", async () => {
+  const configured = await roots();
+  const store = new AdminStore(configured);
+  const canonical = project("legacy-gallery", { visibility: "published" });
+  await store.saveProject(canonical);
+  await store.saveDraft("legacy-gallery", { ...canonical, admin: { gallery: { pendingDeviceIds: ["desktop", "tablet"] } } });
+  const summary = await store.getChangeInventory();
+  assert.equal(summary.count, 0);
+  assert.deepEqual(summary.projects, []);
+});
+
 test("approved Figma import replaces a whole code-owned surface and keeps source only in Admin metadata", async () => {
   const configured = await roots();
   const imported = corvoVisuals().catalog;

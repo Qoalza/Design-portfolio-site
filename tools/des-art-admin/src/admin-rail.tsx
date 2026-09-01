@@ -2,7 +2,6 @@ import { ChevronDownIcon, EyeOpenIcon, TrashIcon } from "@radix-ui/react-icons";
 import { Button, Callout, DropdownMenu, Flex, Select, Switch, Text, TextField } from "@radix-ui/themes";
 import type {
   ProjectDocument,
-  ProjectPlatform,
   ProjectVisibility,
 } from "../../../src/lib/project-contract";
 import type { AdminProject, FieldIssue } from "./admin-model";
@@ -60,11 +59,6 @@ export function CardSettings({
   update: (patch: Partial<AdminProject>) => void;
   home: (enabled: boolean) => void;
 }) {
-  const platform = (item: ProjectPlatform, enabled: boolean) => update({
-    platforms: enabled
-      ? [...new Set([...project.platforms, item])]
-      : project.platforms.filter((value) => value !== item),
-  });
   return (
     <>
       <RailGroup title="Настройки карточки">
@@ -74,16 +68,6 @@ export function CardSettings({
         <Field label="Год">
           <TextField.Root size="3" type="number" value={String(project.year)} onChange={(event) => update({ year: Number(event.target.value) })} />
         </Field>
-      </RailGroup>
-      <RailGroup title="Платформы">
-        <div className="rail-switch-list">
-          {(["Desktop", "Tablet", "Mobile"] as ProjectPlatform[]).map((item) => (
-            <label className="switch-line" key={item}>
-              <Text size="2">{item}</Text>
-              <Switch radius="full" checked={project.platforms.includes(item)} onCheckedChange={(value) => platform(item, value)} />
-            </label>
-          ))}
-        </div>
       </RailGroup>
       <RailGroup title="Главная" description="Позиция определяется code-owned профилем.">
         <label className="switch-line">

@@ -340,7 +340,7 @@ body { background: #fbfaf8; }
 .gallery-group[data-device="mobile"] .gallery-upload-zone { width: min(220px, 100%); aspect-ratio: 180 / 320; }
 .preview-split { width: 100%; }
 .preview-split > .rt-Button:first-child { flex: 1 1 auto; border-top-right-radius: 0; border-bottom-right-radius: 0; }
-.preview-split-trigger { display: grid; width: 40px; min-width: 40px; min-height: 40px; padding: 0; place-items: center; border: 0; border-top-right-radius: var(--radius-3); border-bottom-right-radius: var(--radius-3); background: var(--sand-3); color: var(--sand-11); cursor: pointer; }
+.preview-split-trigger { display: grid; width: 40px; min-width: 40px; height: 40px; min-height: 40px; flex: 0 0 40px; padding: 0; place-items: center; appearance: none; border: 0; border-left: 1px solid var(--sand-6); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: var(--radius-3); border-bottom-right-radius: var(--radius-3); background: var(--sand-3); color: var(--sand-11); cursor: pointer; }
 .preview-split-trigger:hover, .preview-split-trigger[data-state="open"] { background: var(--sand-4); color: var(--sand-12); }
 .preview-split-trigger:focus-visible { outline: 2px solid var(--accent-8); outline-offset: 2px; }
 @media (max-width: 640px) {
@@ -384,7 +384,7 @@ body { background: #fbfaf8; }
 .rich-toolbar { min-height: 56px; gap: 4px; padding: 10px; }
 .admin-shell .rich-toolbar .rt-IconButton,
 .admin-shell .rich-toolbar .rt-IconButton:hover,
-.admin-shell .rich-toolbar .rt-IconButton:focus-visible { width: 32px; min-width: 32px; height: 32px; min-height: 32px; flex: 0 0 32px; }
+.admin-shell .rich-toolbar .rt-IconButton:focus-visible { width: 32px; min-width: 32px; height: 32px; min-height: 32px; flex: 0 0 32px; padding: 0 !important; }
 .admin-shell .rich-toolbar .rt-IconButton:hover { width: 32px; min-width: 32px; height: 32px; min-height: 32px; }
 .rich-toolbar .rt-IconButton.rich-toolbar-tool-active { background: var(--sand-4); color: var(--sand-12); }
 .rich-toolbar .rt-IconButton.rich-toolbar-tool-active:hover { background: var(--sand-5); color: var(--sand-12); }
@@ -398,8 +398,8 @@ body { background: #fbfaf8; }
 .project-tabs { margin-top: 32px; }
 
 .gallery-group { --gallery-tile-width: 460px; --gallery-tile-height: 320px; }
-.gallery-group[data-device="tablet"] { --gallery-tile-width: 330px; --gallery-tile-height: 468px; }
-.gallery-group[data-device="mobile"] { --gallery-tile-width: 250px; --gallery-tile-height: 445px; }
+.gallery-group[data-device="tablet"] { --gallery-tile-width: 330px; --gallery-tile-height: 360px; }
+.gallery-group[data-device="mobile"] { --gallery-tile-width: 250px; --gallery-tile-height: 320px; }
 .gallery-list { display: flex; gap: 12px; max-width: 100%; margin: 0; padding: 2px; overflow-x: auto; overflow-y: hidden; list-style: none; scroll-behavior: smooth; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent); }
 .gallery-list::-webkit-scrollbar { display: none; }
 .gallery-list[data-at-start="true"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent); }

@@ -12,6 +12,7 @@ const adminUi = await readFile(new URL("../tools/des-art-admin/src/admin.tsx", i
 const adminDialogs = await readFile(new URL("../tools/des-art-admin/src/admin-dialogs.tsx", import.meta.url), "utf8");
 const adminEditor = await readFile(new URL("../tools/des-art-admin/src/admin-editor.tsx", import.meta.url), "utf8");
 const adminRail = await readFile(new URL("../tools/des-art-admin/src/admin-rail.tsx", import.meta.url), "utf8");
+const adminCore = await readFile(new URL("../tools/des-art-admin/core.mjs", import.meta.url), "utf8");
 const adminComponents = await readFile(new URL("../tools/des-art-admin/src/admin-ui.tsx", import.meta.url), "utf8");
 const projectGallery = await readFile(new URL("../src/components/project-gallery.tsx", import.meta.url), "utf8");
 const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", import.meta.url), "utf8");
@@ -139,6 +140,12 @@ test("gallery devices are derived from uploaded images instead of activation swi
   assert.doesNotMatch(adminEditor, /pendingGalleryDevices/);
   assert.match(adminEditor, /const galleryGroups = \(\["desktop", "tablet", "mobile"\] as const\)/);
   assert.match(adminEditor, /groups: value\.groups\.filter\(\(group\) => group\.images\.length > 0\)/);
+  assert.doesNotMatch(adminCore, /pendingDeviceIds/);
+});
+
+test("card settings do not expose unrelated platform switches", () => {
+  assert.doesNotMatch(adminRail, /<RailGroup title="Платформы">/);
+  assert.doesNotMatch(adminRail, /ProjectPlatform/);
 });
 
 test("Gallery device presentation is code-owned outside Admin data", () => {
@@ -172,6 +179,8 @@ test("gallery uses large device-sized horizontal tiles with bottom-left ordering
   assert.match(adminCss, /\.gallery-item-order\s*\{[^}]*bottom:\s*8px/s);
   assert.match(adminCss, /\.gallery-item-delete\s*\{[^}]*bottom:\s*8px/s);
   assert.match(adminCss, /--gallery-tile-width:\s*460px/);
+  assert.match(adminCss, /\[data-device="tablet"\]\s*\{[^}]*--gallery-tile-height:\s*360px/s);
+  assert.match(adminCss, /\[data-device="mobile"\]\s*\{[^}]*--gallery-tile-height:\s*320px/s);
 });
 
 test("rich toolbar active state is gray and clears when focus leaves the editor", () => {
@@ -181,6 +190,7 @@ test("rich toolbar active state is gray and clears when focus leaves the editor"
   assert.match(adminComponents, /onBlur=\{\(\) => setState\(EMPTY_EDITOR_STATE\)\}/);
   assert.match(adminCss, /\.rich-toolbar \.rt-IconButton\.rich-toolbar-tool-active/);
   assert.match(adminCss, /\.admin-shell \.rich-toolbar \.rt-IconButton:hover\s*\{[^}]*width:\s*32px/s);
+  assert.match(adminCss, /\.admin-shell \.rich-toolbar \.rt-IconButton:focus-visible\s*\{[^}]*padding:\s*0 !important/s);
 });
 
 test("public Portfolio omits empty gallery device pools and the gallery itself when no images remain", () => {
