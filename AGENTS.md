@@ -104,6 +104,16 @@ Production, VPS, DNS, SSL, firewall, secrets/access, real data, migrations и п
 
 # Shared contract и escalation
 
+## Жёсткая граница данных Admin
+
+Для каждого merge/release, который затрагивает Admin, Shared contract или Admin migration, действует одностороннее правило: **данные движутся только `production → новая локальная Admin`; данные sandbox никогда не движутся в `Git`, `main`, canonical content/assets, publish или production.**
+
+- Production baseline — только подтверждённый exact deployed SHA и его canonical content/assets.
+- Sandbox data — любые local drafts, draft-assets, preview overlays, jobs, snapshots, migration backups, временные импорты и результаты локальной приёмки.
+- Merge Admin-кода разрешён только как «чистый»: staged changes не содержат sandbox data, а новая Admin получает initial state исключительно из production baseline.
+- До merge, publish или deploy проверить provenance затронутых canonical content/assets; при невозможности доказать production source остановиться и запросить решение.
+- Не выполнять rollback, export, import или bootstrap реального sandbox store как способ наполнить canonical/production state.
+
 Локальные implementation decisions можно принимать автономно, если сохраняются scope, observable behavior outside scope, interfaces, persistent formats, source/ownership, dependencies и safety boundaries.
 
 Остановить dependent work и запросить решение, если требуется незапланированно изменить:

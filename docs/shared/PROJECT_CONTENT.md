@@ -19,6 +19,7 @@ Executable code and current contract tests take precedence over this map.
 - `content/projects/*.json` and `public/assets/projects/<slug>/` are canonical published sources tracked in Git.
 - Admin drafts/assets/preview/jobs/snapshots/backups are local state outside the canonical worktree.
 - Admin-only metadata is removed before public validation and serialization.
+- Для любого Admin/Shared merge или release действует односторонняя граница: **`production → новая локальная Admin`; никогда `sandbox → production`.** Новая Admin bootstrap-ится только из подтверждённого exact production baseline. Local drafts, draft-assets, preview overlays, jobs, snapshots, backups и sandbox-imports не могут стать canonical JSON/assets, попасть в Git/`main` или участвовать в publish/deploy.
 
 ## Schema v3
 
@@ -50,6 +51,7 @@ canonical v3 JSON/assets
 - Collection policy validates unique/order-compatible catalog positions and named homepage placements.
 - Project-only publish keeps global `catalogOrder` and `homePlacement` canonical.
 - Preview validates partial drafts only after merging them with the canonical collection.
+- Перед merge/release provenance каждого затронутого canonical document/asset подтверждает production source; недоказанный sandbox-derived материал является stop-line.
 
 ## Compatibility and migration
 

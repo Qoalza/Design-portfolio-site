@@ -16,6 +16,10 @@ Admin работает только на `127.0.0.1`, использует от�
 
 Packaged Admin может использовать другую checkout-версию. После schema migration реального store его нельзя запускать до попадания v3-кода в managed checkout; при локальной приёмке используется Admin из текущей workspace-ветки с sandbox publish mode.
 
+### Одностороннее направление данных
+
+При интеграции или обновлении Admin действует абсолютная граница: **`production → новая локальная Admin`; никогда `sandbox → production`.** Новая Admin получает исходное состояние только из подтверждённого production baseline (exact deployed SHA и canonical content/assets). Local drafts, draft-assets, preview overlays, jobs, snapshots, backups и результаты sandbox acceptance не могут быть source для Git, `main`, canonical content/assets, publish или deploy. Перед merge/release provenance каждого затронутого canonical content/assets должен быть доказан; недоказанный sandbox-derived материал блокирует операцию.
+
 ## Черновик и preview
 
 - Изменение страхуется в `localStorage`, затем атомарно сохраняется локальным server process.
@@ -44,7 +48,7 @@ Packaged Admin может использовать другую checkout-вер�
 
 Project-only publish сохраняет canonical `catalogOrder` и `homePlacement`; эти глобальные поля меняются только публикацией всех изменений. Preflight проверяет schema/profile/templates/slots/assets, catalog layout, обе позиции главной и все потребляющие preview surfaces.
 
-Без подтверждённой live-конфигурации публикация остаётся sandbox-only. Live workflow, PR/merge/deploy и production boundaries описаны отдельно и не разрешаются самим фактом редактирования в Admin.
+Без подтверждённой live-конфигурации публикация остаётся sandbox-only. Sandbox state не может быть использован для наполнения или обновления production. Live workflow, PR/merge/deploy и production boundaries описаны отдельно и не разрешаются самим фактом редактирования в Admin.
 
 ## Legacy migration
 

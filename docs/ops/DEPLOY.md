@@ -26,6 +26,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 - Restricted server command: `tools/des-art-admin/server/art-des-publish`.
 - Canonical Git base: fresh `origin/main`.
 - Production release identity: full 40-character merged SHA.
+- Для Admin/Shared release действует односторонняя граница данных: **`production → новая локальная Admin`; никогда `sandbox → production`.** Local drafts, draft-assets, preview overlays, jobs, snapshots, migration backups и sandbox imports не являются release input.
 
 Если runbook конфликтует с current code/config/live read-only state, остановиться и выяснить причину.
 
@@ -50,10 +51,11 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 3. fresh `origin/main` и full target SHA;
 4. successful required checks из exact source;
 5. valid production data baseline для Admin live publish;
-6. `gh auth status` без вывода secrets;
-7. restricted SSH `status`;
-8. previous release/rollback boundary;
-9. отсутствие непредвиденных data/config migrations.
+6. подтверждённый provenance каждого изменённого canonical content/assets: production source, без sandbox-derived data;
+7. `gh auth status` без вывода secrets;
+8. restricted SSH `status`;
+9. previous release/rollback boundary;
+10. отсутствие непредвиденных data/config migrations.
 
 При любом несоответствии остановиться до merge/deploy.
 
