@@ -56,6 +56,13 @@ test("ProjectCanvas keeps the code shell in CSS and mounts structured image expo
   assert.match(css, /grid-template-columns:\s*448px 1px 551px/);
 });
 
+test("transparent Sarafan canvas panels use an alpha-aware shadow", async () => {
+  const css = await source("src/components/project-canvas.module.css");
+
+  assert.match(css, /\.sarafanSetupPanel\s*\{[^}]*filter:\s*drop-shadow\(0 20px 100px rgba\(18, 18, 19, \.1\)\)/s);
+  assert.doesNotMatch(css, /\.sarafanSetupPanel\s*\{[^}]*box-shadow:/s);
+});
+
 test("ProjectCanvas raster exports have at least two intrinsic pixels per CSS pixel", async () => {
   const assets = [
     ["public/assets/projects/corvo/canvas/corvo-quotes.png", 852, 366],

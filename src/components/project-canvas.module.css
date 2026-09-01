@@ -39,5 +39,5 @@
   left: 480px;
   width: 464px;
   height: 588px;
-  box-shadow: 0 20px 100px -10px rgba(18, 18, 19, .1);
+  filter: drop-shadow(0 20px 100px rgba(18, 18, 19, .1));
 }
