@@ -39,7 +39,7 @@ test("Gallery data contains only device ids and images while code owns its frame
   assert.match(gallery, /const DEVICE_PRESENTATION/);
   assert.match(gallery, /function itemFrame/);
   assert.match(gallery, /baseWidth=\{presentation\.baseWidth\}/);
-  assert.match(gallery, /frame=\{itemFrame\(group\.deviceId, index\)\}/);
+  assert.match(gallery, /frame=\{itemFrame\(group\.deviceId\)\}/);
 });
 
 test("modal measures its real media area and keeps the frame as a single layer", () => {

@@ -28,14 +28,10 @@ const DEVICE_PRESENTATION = {
   mobile: { label: "Mobile", icon: "/assets/projects/corvo/mobile.svg", baseWidth: 180, baseHeight: 320 },
 } as const;
 
-function itemFrame(deviceId: ProjectGalleryGroup["deviceId"], index: number) {
-  if (deviceId === "desktop") return index === 0
-    ? { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 }
-    : { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 };
-  if (deviceId === "tablet") return index === 0
-    ? { clip: false, radius: 0, strokeColor: "transparent", strokeWidth: 0 }
-    : { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: .5 };
-  return { clip: true, radius: 11, strokeColor: index === 0 ? "#e8eaeb" : "#f0f1f2", strokeWidth: 1 };
+function itemFrame(deviceId: ProjectGalleryGroup["deviceId"]) {
+  if (deviceId === "desktop") return { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: 1 };
+  if (deviceId === "tablet") return { clip: true, radius: 12, strokeColor: "#e8eaeb", strokeWidth: .5 };
+  return { clip: true, radius: 11, strokeColor: "#e8eaeb", strokeWidth: 1 };
 }
 
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
@@ -292,7 +288,7 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
                 baseHeight={presentation.baseHeight}
                 baseWidth={presentation.baseWidth}
                 fit="contain"
-                frame={itemFrame(group.deviceId, index)}
+                frame={itemFrame(group.deviceId)}
                 sizes={`${presentation.baseWidth}px`}
               />
               <span className="visually-hidden">{presentation.label}: изображение {index + 1}</span>

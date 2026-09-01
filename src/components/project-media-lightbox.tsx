@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
-import { calculateLightboxMediaSize, calculateLightboxScale } from "../lib/project-lightbox";
+import { calculateContainedPreviewSize, calculateLightboxMediaSize, calculateLightboxScale } from "../lib/project-lightbox";
 import { startScrollControllers, stopScrollControllers } from "../lib/scroll-controller";
 import styles from "./project-media-lightbox.module.css";
 import { SquareButton } from "./ui-controls";
@@ -53,10 +53,15 @@ export function ProjectMediaLightbox({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const mediaAreaRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef({ x: 0, y: 0 });
+  const previewMediaSize = fit === "contain"
+    ? calculateContainedPreviewSize({ baseHeight, baseWidth, intrinsicHeight: height, intrinsicWidth: width })
+    : { width: baseWidth, height: baseHeight };
   const previewFrameStyle = {
     "--gallery-frame-radius": `${frame.radius}px`,
     "--gallery-frame-stroke": frame.strokeColor,
     "--gallery-frame-stroke-width": `${frame.strokeWidth}px`,
+    width: `${previewMediaSize.width}px`,
+    height: `${previewMediaSize.height}px`,
   } as FrameStyle;
   const expandedMediaSize = calculateLightboxMediaSize({
     baseHeight,

@@ -15,6 +15,14 @@ export type LightboxMediaSizeInput = {
   intrinsicWidth: number;
 };
 
+export function calculateContainedPreviewSize({ baseHeight, baseWidth, intrinsicHeight, intrinsicWidth }: LightboxMediaSizeInput) {
+  if (![baseHeight, baseWidth, intrinsicHeight, intrinsicWidth].every((value) => Number.isFinite(value) && value > 0)) {
+    return { width: 0, height: 0 };
+  }
+  const scale = Math.min(baseWidth / intrinsicWidth, baseHeight / intrinsicHeight);
+  return { width: intrinsicWidth * scale, height: intrinsicHeight * scale };
+}
+
 export function calculateLightboxMediaSize({ baseHeight, baseWidth, intrinsicHeight, intrinsicWidth }: LightboxMediaSizeInput) {
   if (![baseHeight, baseWidth, intrinsicHeight, intrinsicWidth].every((value) => Number.isFinite(value) && value > 0)) {
     return { width: 0, height: 0 };

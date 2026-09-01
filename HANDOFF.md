@@ -19,6 +19,7 @@
 - Canonical Boff, Corvo и Sarafan переведены на v3. Corvo остаётся baseline; Sarafan использует code-owned catalog/home/hero и три dotted canvas templates.
 - Реальный локальный Sarafan draft мигрирован на v3, повторно импортирован из пяти утверждённых Figma nodes и не опубликован.
 - Gallery device slots используют независимые диапазоны ширины и высоты: Desktop `1480–2960 × 1024–2048 px`, Tablet `800–1600 × 1132–2266 px`, Mobile `360–1080 × 640–1920 px`. Первый файл фиксирует точные `Ш×В` своего пула; Portfolio вписывает его через `contain` в неизменную code-owned рамку.
+- Gallery frame больше не наследует first-item исключение Corvo: clipping, radius и stroke применяются ко всем изображениям; variable-ratio media центрируется по собственным границам внутри фиксированного device slot без окрашенной letterbox-подложки.
 
 ## Verification
 
@@ -27,6 +28,7 @@
 - `npm run lint`: green.
 - `npm run build`: green.
 - Gallery pixel-range и first-image-lock regression checks: green (`58/58` focused); Admin bundle, lint и production build: green. Workspace Admin перезапущена в sandbox mode; реальный Sarafan Desktop показывает диапазон `1480–2960 × 1024–2048 px` и пустой пул без мутации черновика.
+- Sarafan gallery-frame visual QA: passed; focused gallery/lightbox tests `19/19`, lint и production build green. Corvo frame smoke остаётся `740×512`, Sarafan `3:2` media frame — `740×493.33` внутри неизменного `740×512` slot.
 - Реальные preview routes проверены: `/`, `/projects`, `/projects/corvo`, `/projects/sarafan-radio`.
 - Temporary-store backup → apply → rollback → apply: green.
 - Real backup: `/Users/designer/Library/Application Support/Des-art Admin/v3-migration-backups/20260901T121213552Z`.

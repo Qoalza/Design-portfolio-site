@@ -88,6 +88,10 @@ test("Gallery preserves its code-owned device frame while containing variable-ra
   const component = await source("src/components/project-gallery.tsx");
   const css = await source("src/components/project-gallery.module.css");
   assert.match(component, /fit="contain"/);
+  assert.match(component, /frame=\{itemFrame\(group\.deviceId\)\}/);
+  assert.doesNotMatch(component, /strokeColor:\s*"transparent"|radius:\s*0|clip:\s*false/);
+  assert.match(css, /\.slide\s*\{[^}]*place-items:\s*center/s);
+  assert.doesNotMatch(css, /data-image-fit="contain"\]\s*\{[^}]*background:/s);
   assert.match(css, /data-image-fit="contain"[^}]*object-fit:\s*contain/s);
 });
 
