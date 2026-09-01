@@ -141,6 +141,18 @@ export const groupDefaults: Record<ProjectGalleryDeviceId, { deviceId: ProjectGa
   mobile: { deviceId: "mobile", label: "Mobile" },
 };
 
+const galleryThumbnailBounds: Record<ProjectGalleryDeviceId, { width: number; height: number }> = {
+  desktop: { width: 460, height: 320 },
+  tablet: { width: 330, height: 360 },
+  mobile: { width: 250, height: 320 },
+};
+
+function galleryThumbnailSize(image: ProjectImage, deviceId: ProjectGalleryDeviceId) {
+  const bounds = galleryThumbnailBounds[deviceId];
+  const scale = Math.min(bounds.width / image.width, bounds.height / image.height);
+  return { width: Math.round(image.width * scale), height: Math.round(image.height * scale) };
+}
+
 function GalleryDeviceStrip({ group, label, change, upload }: {
   group: ProjectGalleryGroup;
   label: string;
@@ -181,7 +193,7 @@ function GalleryDeviceStrip({ group, label, change, upload }: {
       <div className="section-title"><div className="section-heading-copy"><Heading size="3">{label}</Heading><Text size="1" color="gray">{firstImage ? <>Размер пула: {firstImage.width}×{firstImage.height} px. Все следующие изображения должны совпадать.</> : <>Ширина: {minWidth}–{slot.maxWidth} px · Высота: {minHeight}–{slot.maxHeight} px. Первое изображение фиксирует точный размер этого пула.</>} Изображение впишется без обрезки; внешний лейаут не изменится.</Text></div></div>
       <ol className="gallery-list" ref={strip} tabIndex={0} aria-label={`Изображения ${label}`} data-at-start={edges.atStart || undefined} data-at-end={edges.atEnd || undefined} onScroll={refreshEdges}>
         <li className="gallery-upload-tile"><label className="gallery-upload-zone" data-disabled={importing === group.deviceId || atLimit || undefined}><PlusIcon /><Text size="2" weight="medium">{atLimit ? "Достигнут лимит" : importing === group.deviceId ? "Проверяем…" : "Добавить изображение"}</Text><Text size="1" color="gray">PNG или WebP</Text><input hidden type="file" accept="image/png,image/webp" disabled={importing === group.deviceId || atLimit} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; setImporting(group.deviceId); void upload(file, `Галерея ${label}`, { templateId: "gallery.devices-v1", slot: group.deviceId, operation: "add" }).then((image) => { change({ ...group, images: [...group.images, image] }); setUploadError(undefined); }).catch((error) => setUploadError(error instanceof Error ? error.message : "Изображение не удалось загрузить.")).finally(() => setImporting(undefined)); }} /></label></li>
-        {group.images.map((item, index) => <li className="gallery-thumbnail" key={`${item.src}-${index}`}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><Flex className="gallery-item-order" gap="1"><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение влево" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; change({ ...group, images }); }}><ChevronLeftIcon /></IconButton><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение вправо" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; change({ ...group, images }); }}><ChevronRightIcon /></IconButton></Flex><IconButton className="gallery-item-delete" type="button" size="1" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => change({ ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></li>)}
+        {group.images.map((item, index) => <li className="gallery-thumbnail" key={`${item.src}-${index}`} style={galleryThumbnailSize(item, group.deviceId)}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><Flex className="gallery-item-order" gap="1"><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение влево" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; change({ ...group, images }); }}><ChevronLeftIcon /></IconButton><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение вправо" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; change({ ...group, images }); }}><ChevronRightIcon /></IconButton></Flex><IconButton className="gallery-item-delete" type="button" size="1" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => change({ ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></li>)}
       </ol>
       {uploadError ? <Callout.Root color="red" size="1"><Callout.Text>{uploadError}</Callout.Text></Callout.Root> : null}
     </div>
