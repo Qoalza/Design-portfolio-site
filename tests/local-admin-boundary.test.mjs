@@ -73,8 +73,8 @@ test("admin workflows use internal dialogs and manual SVG logos", () => {
   assert.match(adminDialogs, /AlertDialog/);
   assert.match(adminEditor, /accept="image\/svg\+xml,\.svg"/);
   assert.match(server, /saveLogo/);
-  assert.match(adminComponents, /<Dialog\.Trigger asChild>/);
-  assert.match(adminComponents, /<button ref=\{trigger\} className="image-preview-trigger"/);
+  assert.match(adminComponents, /<Dialog\.Trigger ref=\{trigger\} className="image-preview-trigger"/);
+  assert.match(adminComponents, /<Dialog\.Trigger[^>]*>\s*<button type="button">\{children\}<\/button>/s);
   assert.doesNotMatch(adminCss, /\.image-preview-trigger\s*\{\s*display:\s*contents/);
 });
 
@@ -134,7 +134,7 @@ test("Admin keeps project identity global and exposes status actions without a v
   assert.match(adminRail, /className="preview-split-trigger"/);
   assert.match(adminRail, /<DropdownMenu\.Trigger[^>]*>\s*<button type="button" className="preview-split-trigger">/s);
   assert.match(adminCss, /\.preview-split-trigger\s*>\s*svg\s*\{[^}]*width:\s*16px[^}]*height:\s*16px/s);
-  assert.match(adminComponents, /<Dialog\.Trigger asChild>/);
+  assert.doesNotMatch(adminComponents, /Dialog\.Trigger asChild/);
   assert.match(adminUi, /confirmation === "unpublish"/);
   assert.match(adminUi, /setVisibility\("draft"\)/);
 });

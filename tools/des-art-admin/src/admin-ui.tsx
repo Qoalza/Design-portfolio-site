@@ -145,7 +145,7 @@ export function ImagePreview({ src, label, children }: { src: string; label: str
     setPreview({ width, naturalWidth: image.naturalWidth });
   };
   const width = preview.width > 0 && preview.naturalWidth > 0 ? `${preview.width + preview.naturalWidth}px` : undefined;
-  return <Dialog.Root><Dialog.Trigger asChild><button ref={trigger} className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`} onClick={measure}>{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="none"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" style={width ? { width } : undefined} src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
+  return <Dialog.Root><Dialog.Trigger ref={trigger} className="image-preview-trigger" type="button" aria-label={`Увеличить ${label}`} onClick={measure}><button type="button">{children}</button></Dialog.Trigger><Dialog.Content className="asset-lightbox" maxWidth="none"><Dialog.Title>{label}</Dialog.Title><img className="image-lightbox-content" style={width ? { width } : undefined} src={src} alt="" /><Flex justify="end" mt="4"><Dialog.Close><Button size="3" variant="outline" color="gray">Закрыть</Button></Dialog.Close></Flex></Dialog.Content></Dialog.Root>;
 }
 
 export function FigmaTemplateField({
