@@ -114,6 +114,15 @@ Production, VPS, DNS, SSL, firewall, secrets/access, real data, migrations и п
 - До merge, publish или deploy проверить provenance затронутых canonical content/assets; при невозможности доказать production source остановиться и запросить решение.
 - Не выполнять rollback, export, import или bootstrap реального sandbox store как способ наполнить canonical/production state.
 
+### Обязательный выбор при первом переводе Admin в live
+
+Если при запросе пользователя «перевести Admin в live» существует test/sandbox state, **до архивирования, bootstrap или запуска live Admin обязательно спросить, какой путь выбрать**. Нельзя выбрать путь по умолчанию, по содержимому файлов или по предыдущему релизу:
+
+1. **Чистый production baseline** — sandbox state только локально архивируется; новая live Admin получает исключительно exact deployed production content/assets. Это текущий обычный путь.
+2. **Перенести только неопубликованную разницу** — production остаётся baseline, а только подтверждённые изменения sandbox относительно его исходного production baseline накладываются в local live drafts без Git, publish, deploy или изменения canonical данных.
+
+Второй путь требует отдельного явного выбора пользователя и безопасного three-way merge: `исходный production baseline → sandbox draft` накладывается на `текущий production baseline`. Неизменённые sandbox поля всегда берутся из current production; конфликт останавливает перенос без частичного применения. Нельзя копировать sandbox draft/assets целиком. Пока механизм такого переноса не реализован и не проверен, выбор второго пути является stop-line, а не разрешением на ручной или файловый перенос.
+
 Локальные implementation decisions можно принимать автономно, если сохраняются scope, observable behavior outside scope, interfaces, persistent formats, source/ownership, dependencies и safety boundaries.
 
 Остановить dependent work и запросить решение, если требуется незапланированно изменить:

@@ -47,6 +47,13 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 2. **Первый перевод Admin в live** — одноразовый локальный bootstrap после successful deploy этого SHA.
 3. **Обычная публикация контента** — пользователь нажимает «Опубликовать» уже в live Admin.
 
+Если перед первым live bootstrap существует test/sandbox state, запрос «перевести Admin в live» недостаточен: до любых перемещений данных оператор обязан спросить пользователя, какой из двух путей выбрать. Выбор не выводится из предыдущих действий и не выбирается автоматически.
+
+- **Путь 1 — чистый production baseline.** Sandbox state архивируется только локально, а новая live Admin начинается исключительно с exact deployed production content/assets.
+- **Путь 2 — перенести только неопубликованную разницу.** Только подтверждённая разница между sandbox draft и его исходным production baseline накладывается на current production baseline в local live drafts. Это не publish: Git, canonical data/assets, deploy и production не меняются.
+
+Путь 2 — не копирование целого sandbox store. Он требует three-way merge `исходный production baseline → sandbox draft → current production baseline`: поля, не изменённые в sandbox, остаются current production; конфликт останавливает перенос без частичного применения. Пока такой механизм не реализован и не прошёл focused tests, выбор пути 2 останавливает live transition и требует отдельной implementation Git-группы.
+
 ### Непересекающиеся данные
 
 До и во время первого bootstrap действует правило: **`production → новая локальная Admin`; никогда `sandbox → Git/main/canonical content/assets/publish/production`.**
@@ -83,6 +90,8 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 ### C. Однократно перевести packaged Admin в live
 
 Этот шаг локальный, но затрагивает реальные local data, поэтому требует отдельной команды пользователя после пункта B.
+
+Если существует test/sandbox state, сначала зафиксировать выбранный пользователем путь 1 или путь 2 из раздела выше. Без выбора нельзя архивировать или переносить данные. Описанная ниже последовательность — путь 1; путь 2 добавляет только проверенный перенос semantic delta из созданного local archive в новые live drafts и никогда не заменяет production baseline.
 
 Входные условия:
 
