@@ -115,6 +115,17 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 
 Если marker не удалось записать после успешного archive, не удалять archive. Journal сохраняет transition и generation; повторный launcher после SHA-gate продолжает только эту проверенную generation и не создаёт второй archive. Если generation не проходит проверку, launcher останавливается до ручной диагностики.
 
+### C.1 Existing v4 production-live baseline
+
+Valid marker v4 с `source: "production-live"` обозначает уже существующую live Admin и не является первым bootstrap. После deploy launcher сначала подтверждает полный public `data-build-sha`, равный fresh `origin/main` и managed checkout, затем повышает marker только до v5 `legacy-live`:
+
+1. Сохраняет active store root `.`, existing archive, drafts, draft-assets, previews, snapshots и jobs без перемещений или изменений.
+2. Записывает подтверждённый current deployed SHA в `sourceSha` и обновляет `lastObservedAt`.
+3. Не создаёт `clean|overlay` request, archive, transfer, generation или publish job.
+4. Запускает только live server.
+
+При ошибке live config, public SHA-gate, managed checkout или baseline validation launcher останавливается до старта server. Он не меняет marker/local store и не делает fallback в sandbox. Для existing v4 пути `clean` и `overlay` не спрашиваются и не допускаются.
+
 ### D. Обычная работа после live bootstrap
 
 После marker v5 Admin связана с опубликованным Portfolio:

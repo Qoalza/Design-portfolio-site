@@ -20,6 +20,7 @@ Executable code and current contract tests take precedence over this map.
 - Admin drafts/assets/preview/jobs/snapshots/backups are local state outside the canonical worktree.
 - Admin-only metadata is removed before public validation and serialization.
 - До первого live bootstrap действует односторонняя граница: **`production → новая local Admin`; sandbox не попадает в Git, canonical source или production во время bootstrap.** По отдельному выбору sandbox project-authoring state может стать local live drafts поверх exact production; bootstrap их не публикует. После marker v5 обычная отдельная live-публикация остаётся единственным путём этих drafts в Portfolio.
+- Existing `production-live` marker v4 — не bootstrap: после подтверждения current deployed SHA он повышается только до v5 `legacy-live`, сохраняя active local store без archive, transfer или sandbox fallback.
 
 ## Schema v3
 

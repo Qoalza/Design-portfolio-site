@@ -93,7 +93,7 @@ Production, VPS, DNS, SSL, firewall, secrets/access, real data, migrations и п
 # Фактическая архитектура
 
 - Portfolio: Next.js App Router, TypeScript, React, npm; без Tailwind.
-- Опубликованные проекты: schema-v2 JSON в `content/projects/*.json`.
+- Опубликованные проекты: schema-v3 JSON в `content/projects/*.json`.
 - Исполняемый Shared contract: `src/lib/project-contract.ts`.
 - Admin: отдельный local bundle/server в `tools/des-art-admin`, React + Radix Themes; Radix не импортируется публичным App Router.
 - MDX остаётся вспомогательной/тестовой возможностью и не является текущим хранилищем проектов.

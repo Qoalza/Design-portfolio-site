@@ -6,7 +6,7 @@
 
 - `src/app` — публичный Portfolio на Next.js App Router.
 - `src/components`, `src/lib` — публичные компоненты, runtime-механики и общий контракт проектов.
-- `content/projects/*.json` — канонические опубликованные проектные документы schema v2.
+- `content/projects/*.json` — канонические опубликованные проектные документы schema v3.
 - `public/assets` — публичные локальные ассеты.
 - `tools/des-art-admin` — локальный Des-art Admin: UI, draft compiler, preview и publish worker.
 - `tests` — focused contract, runtime и Admin tests.

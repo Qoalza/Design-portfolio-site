@@ -29,6 +29,8 @@ Packaged Admin может использовать другую checkout-вер�
 
 При `overlay` current production — основа, а каждое физически присутствующее sandbox-значение побеждает: включая пустые значения, visibility/deleted, секции, gallery, порядок, `catalogOrder` и `homePlacement`. Production-only проекты остаются canonical, sandbox-only проект становится local draft. Переносятся только draft JSON и реально referenced draft-assets; jobs, previews, snapshots и runtime state остаются в архиве. `sandbox-origin-v1` является evidence, но его отсутствие не блокирует overlay. Ручной выбор полей, semantic conflict screen и transition UI отсутствуют. Staging, archive и activation защищены lock/journal: marker переключает generation одной атомарной записью; при сбое retry продолжает ту же проверенную generation и не создаёт второй archive.
 
+Существующий valid marker v4 с `source: "production-live"` не является первым bootstrap. После подтверждения полного public SHA, совпадающего с `origin/main`, launcher повышает только metadata до v5 `legacy-live`: сохраняет active store, archive и drafts, записывает подтверждённый current `sourceSha` и `lastObservedAt`. Для этого пути не создаются request `clean|overlay`, archive, transfer или generation. Ошибка live config, public SHA, managed checkout или marker останавливает запуск без sandbox fallback.
+
 ## Черновик и preview
 
 - Изменение страхуется в `localStorage`, затем атомарно сохраняется локальным server process.
