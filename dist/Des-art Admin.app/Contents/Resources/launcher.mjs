@@ -1,11 +1,11 @@
 import { execFile, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { closeSync, openSync } from "node:fs";
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 import { ensureProductionDataBaseline, extractPublishedBuildSha } from "./production-data-bootstrap.mjs";
@@ -175,6 +175,38 @@ async function launchSandboxWithoutBootstrap() {
   await openAdmin();
 }
 
+async function transitionRuntime() {
+  return import(pathToFileURL(path.join(managedRepo, "tools", "des-art-admin", "live-transition.mjs")).href);
+}
+
+async function canonicalProjects() {
+  const root = path.join(managedRepo, "content", "projects");
+  const names = (await readdir(root)).filter((name) => name.endsWith(".json")).sort();
+  return Promise.all(names.map(async (name) => JSON.parse(await readFile(path.join(root, name), "utf8"))));
+}
+
+async function emptySandboxStore() {
+  for (const name of ["drafts", "draft-assets", "preview-drafts", "jobs", "published-snapshots"]) {
+    const entries = await readdir(path.join(supportRoot, name)).catch((error) => error?.code === "ENOENT" ? [] : Promise.reject(error));
+    if (entries.length) return false;
+  }
+  return true;
+}
+
+async function initializeSandboxOrigin({ targetSha }) {
+  const runtime = await transitionRuntime();
+  if (await runtime.readSandboxOrigin(supportRoot) || !(await emptySandboxStore())) return;
+  let publishedSha;
+  try { publishedSha = await confirmedPublishedSha(); } catch { return; }
+  if (publishedSha !== targetSha) return;
+  await runtime.saveSandboxOrigin({
+    supportRoot,
+    sourceSha: targetSha,
+    projects: await canonicalProjects(),
+    assetHashes: await runtime.collectAssetHashes(path.join(managedRepo, "public", "assets", "projects")),
+  });
+}
+
 async function main() {
   const publishMode = await configuredPublishMode();
   let targetSha;
@@ -183,19 +215,68 @@ async function main() {
     try {
       publishedSha = await confirmedPublishedSha();
       ({ targetSha } = await ensureManagedRepository({ publishedSha }));
-      await ensureProductionDataBaseline({
+      const baselineMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
+      const hasLiveBaseline = baselineMarker?.version === 4 && baselineMarker?.source === "production-live";
+      const runtime = await transitionRuntime();
+      const transition = hasLiveBaseline ? undefined : await runtime.readLiveTransitionRequest(supportRoot);
+      if (!hasLiveBaseline && !transition) throw new Error("Перед первым переводом Admin в live выберите путь: чистый production baseline или перенос неопубликованных черновиков.");
+      const transitionOrigin = transition?.selection === "delta" ? await runtime.readSandboxOrigin(supportRoot) : undefined;
+      const transitionProduction = transition?.selection === "delta" ? await canonicalProjects() : undefined;
+      if (transition?.selection === "delta") {
+        if (!transitionOrigin && !transition.units?.length) throw new Error("Для старого тестового контура сначала выберите поля на странице «Проверка переноса».");
+        if (transitionOrigin && runtime.buildUnpublishedDraftTransfer({
+          origin: transitionOrigin,
+          sandboxProjects: await runtime.readSandboxDraftProjects(supportRoot),
+          productionProjects: transitionProduction,
+        }).reviewRequired) throw new Error("Sandbox origin не покрывает текущие черновики. Сначала выполните локальную проверку переноса.");
+      }
+      const transferDrafts = transition?.selection === "delta"
+            ? async ({ archiveRoot }) => {
+              const origin = await runtime.readSandboxOrigin(archiveRoot);
+              const stagingRoot = path.join(supportRoot, `.live-transition-${process.pid}-${Date.now()}.staging`);
+              let activated = false;
+              try {
+                const staged = await runtime.stageUnpublishedDraftTransfer({
+                  archiveRoot,
+                  stagingRoot,
+                  origin,
+                  legacyUnits: transition.units,
+                  productionProjects: transitionProduction,
+                });
+                if (staged.reviewRequired) throw new Error("Не удалось подтвердить исходное состояние sandbox. Перенос остановлен.");
+                const activation = await runtime.activateStagedDraftTransfer({ supportRoot, stagingRoot });
+                activated = true;
+                return {
+                  drafts: staged.drafts.map((draft) => draft.slug),
+                  assetHashes: staged.assetHashes,
+                  activated: activation.activated,
+                  rollback: async () => {
+                    await activation.rollback();
+                    await rm(stagingRoot, { recursive: true, force: true });
+                  },
+                  finalize: async () => rm(stagingRoot, { recursive: true, force: true }),
+                };
+              } finally {
+                if (!activated) await rm(stagingRoot, { recursive: true, force: true });
+              }
+            }
+            : undefined;
+          await ensureProductionDataBaseline({
         supportRoot,
         managedRepo,
         stopService,
-        resolveSourceSha: async () => targetSha,
-        resolvePublishedSha: async () => publishedSha,
+            resolveSourceSha: async () => targetSha,
+            resolvePublishedSha: async () => publishedSha,
+            prepareTransferredDrafts: transferDrafts,
       });
+          if (transition) await runtime.consumeLiveTransitionRequest(supportRoot);
     } catch {
       await launchSandboxWithoutBootstrap();
       return;
     }
   } else {
     ({ targetSha } = await ensureManagedRepository());
+    await initializeSandboxOrigin({ targetSha });
   }
   await mkdir(logsRoot, { recursive: true });
   // The managed repository may have advanced while the existing Node processes

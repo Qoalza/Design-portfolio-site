@@ -1,9 +1,10 @@
-import { access, mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const PRODUCTION_DATA_BASELINE_VERSION = 4;
 
-const activeWorkspaceNames = ["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs"];
+const activeWorkspaceNames = ["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs", "sandbox-origin-v1.json"];
+const TRANSITION_JOURNAL = "live-transition-journal-v1.json";
 
 async function hasCanonicalProjects(managedRepo) {
   const contentRoot = path.join(managedRepo, "content", "projects");
@@ -65,9 +66,9 @@ async function archiveSandboxTransaction({ supportRoot, timestamp, move }) {
       await move(source, destination);
       moved.push({ source, destination });
     }
-    if (!stagingCreated) return { archived: false, archivePath: undefined };
+    if (!stagingCreated) return { archived: false, archivePath: undefined, archiveRoot: undefined };
     await move(target.stagingRoot, target.archiveRoot);
-    return { archived: true, archivePath: target.archivePath };
+    return { archived: true, archivePath: target.archivePath, archiveRoot: target.archiveRoot };
   } catch (error) {
     const restoreErrors = [];
     for (const entry of moved.reverse()) {
@@ -92,9 +93,15 @@ export async function ensureProductionDataBaseline({
   resolvePublishedSha,
   move = rename,
   now = () => new Date(),
+  prepareTransferredDrafts,
+  writeMarker = atomicJson,
 }) {
   const marker = path.join(supportRoot, "production-data-baseline.json");
+  const journal = path.join(supportRoot, TRANSITION_JOURNAL);
   const current = await readFile(marker, "utf8").then(JSON.parse).catch(() => undefined);
+  if (await readFile(journal, "utf8").catch(() => undefined)) {
+    throw new Error("Предыдущий перенос live drafts не завершён. Автоматический повтор остановлен до проверки локального journal.");
+  }
   if (!(await hasCanonicalProjects(managedRepo))) {
     throw new Error("Канонические проекты portfolio не найдены. Миграция тестовых данных остановлена.");
   }
@@ -113,7 +120,7 @@ export async function ensureProductionDataBaseline({
     if (current.sourceSha?.toLowerCase() === sourceSha.toLowerCase()) {
       return { migrated: false, archived: false };
     }
-    await atomicJson(marker, {
+    await writeMarker(marker, {
       ...current,
       sourceSha,
       lastObservedAt: now().toISOString(),
@@ -124,15 +131,34 @@ export async function ensureProductionDataBaseline({
   await stopService("admin");
   await stopService("preview");
   const timestamp = now().toISOString();
-  const { archived, archivePath } = await archiveSandboxTransaction({ supportRoot, timestamp, move });
-  await atomicJson(marker, {
-    version: PRODUCTION_DATA_BASELINE_VERSION,
-    source: "production-live",
-    sourceSha,
-    archivedSandbox: archived,
-    archivePath,
-    activatedAt: timestamp,
-    lastObservedAt: timestamp,
-  });
-  return { migrated: true, archived };
+  const { archived, archivePath, archiveRoot } = await archiveSandboxTransaction({ supportRoot, timestamp, move });
+  let transfer;
+  if (prepareTransferredDrafts) {
+    if (!archived || !archiveRoot) throw new Error("Перенос неопубликованных черновиков невозможен: тестовый архив не создан.");
+    await atomicJson(journal, { version: 1, status: "pending", sourceSha, archivePath, createdAt: timestamp });
+    transfer = await prepareTransferredDrafts({ archiveRoot, archivePath, sourceSha, journalPath: journal });
+  }
+  try {
+    await writeMarker(marker, {
+      version: PRODUCTION_DATA_BASELINE_VERSION,
+      source: "production-live",
+      sourceSha,
+      archivedSandbox: archived,
+      archivePath,
+      activatedAt: timestamp,
+      lastObservedAt: timestamp,
+    });
+  } catch (error) {
+    try { await transfer?.rollback?.(); } catch (rollbackError) {
+      throw new AggregateError([error, rollbackError], "Не удалось записать marker и вернуть live drafts в staging.");
+    }
+    throw error;
+  }
+  if (prepareTransferredDrafts) {
+    await transfer?.finalize?.();
+    await rm(journal, { force: true });
+  }
+  const transferEvidence = transfer && Object.fromEntries(Object.entries(transfer)
+    .filter(([key]) => key !== "rollback" && key !== "finalize"));
+  return { migrated: true, archived, ...(transfer ? { transfer: transferEvidence } : {}) };
 }

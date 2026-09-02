@@ -23,6 +23,12 @@ Packaged Admin может использовать другую checkout-вер�
 
 `verify-production-content-provenance.mjs` — read-only evidence только для начальной интеграции `main → Admin-v3 candidate`: он доказывает, что три v2→v3 migration не внесли sandbox-данные. Он не применяется как запрет на последующие намеренные content changes, опубликованные live Admin.
 
+### Выбор пути при первом переходе в live
+
+До первого live bootstrap Admin не выбирает путь самостоятельно. По запросу пользователя Codex сначала фиксирует локальный одноразовый `live-transition-request-v1`: либо `clean` — чистый production baseline, либо `delta` — перенос только неопубликованной разницы в local live drafts. Сам request не запускает migration, не архивирует данные и не публикует сайт.
+
+Для нового sandbox сохраняется immutable `sandbox-origin-v1` только после совпадения полного публичного `data-build-sha` и `origin/main`: baseline-проекты с `adminId` и manifest хэшей исходных assets. При `delta` semantic three-way merge накладывает изменённые поля и секции sandbox поверх свежего production; неизменённое остаётся production. Удаления, unpublish, пустые значения, `catalogOrder` и `homePlacement` не переносятся; новый проект остаётся local draft. Если origin отсутствует, Admin показывает локальную проверку переноса и принимает только явно выбранные поля/секции. Staging, archive и activation защищены journal: при любой ошибке marker live не создаётся, а частично активированные drafts возвращаются в staging; повторный запуск останавливается на journal, не выполняя второй перенос.
+
 ## Черновик и preview
 
 - Изменение страхуется в `localStorage`, затем атомарно сохраняется локальным server process.

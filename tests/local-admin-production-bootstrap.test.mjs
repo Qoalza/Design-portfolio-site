@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -150,6 +150,41 @@ test("bootstrap restores every moved sandbox directory when archive transaction 
   await access(path.join(supportRoot, "drafts", "local.json"));
   await access(path.join(supportRoot, "jobs", "job.json"));
   await assert.rejects(access(path.join(supportRoot, "production-data-baseline.json")));
+});
+
+test("failed marker rolls activated transferred drafts back and leaves a journal stop-line", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-production-bootstrap-journal-"));
+  const supportRoot = path.join(root, "support");
+  const managedRepo = path.join(root, "repository");
+  await mkdir(path.join(managedRepo, "content", "projects"), { recursive: true });
+  await mkdir(path.join(supportRoot, "drafts"), { recursive: true });
+  await writeFile(path.join(managedRepo, "content", "projects", "corvo.json"), "{\"slug\":\"corvo\"}\n");
+  await writeFile(path.join(supportRoot, "drafts", "sandbox.json"), "{}\n");
+  let archiveRoot;
+  await assert.rejects(ensureProductionDataBaseline({
+    supportRoot,
+    managedRepo,
+    stopService: async () => {},
+    resolveSourceSha: async () => "a".repeat(40),
+    resolvePublishedSha: async () => "a".repeat(40),
+    prepareTransferredDrafts: async ({ archiveRoot: archive }) => {
+      archiveRoot = archive;
+      await mkdir(path.join(supportRoot, "drafts"), { recursive: true });
+      await writeFile(path.join(supportRoot, "drafts", "live.json"), "{}\n");
+      return { rollback: async () => rm(path.join(supportRoot, "drafts"), { recursive: true, force: true }) };
+    },
+    writeMarker: async () => { throw new Error("injected marker failure"); },
+  }), /injected marker failure/);
+  await access(path.join(archiveRoot, "drafts", "sandbox.json"));
+  await assert.rejects(access(path.join(supportRoot, "drafts", "live.json")));
+  await access(path.join(supportRoot, "live-transition-journal-v1.json"));
+  await assert.rejects(ensureProductionDataBaseline({
+    supportRoot,
+    managedRepo,
+    stopService: async () => {},
+    resolveSourceSha: async () => "a".repeat(40),
+    resolvePublishedSha: async () => "a".repeat(40),
+  }), /journal/);
 });
 
 test("published build SHA parser accepts only a full SHA from the HTML root", () => {

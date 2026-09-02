@@ -13,6 +13,8 @@ import { readFigmaToken, saveFigmaToken } from "./figma-template-import.mjs";
 import { humanError } from "./human-errors.mjs";
 import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
 import { createPreviewRuntimeIdentity, previewHealthMatches } from "./preview-runtime.mjs";
+import { buildLegacyTransferReview, readSandboxOrigin, saveLiveTransitionRequest } from "./live-transition.mjs";
+import { readAllProjectDocuments } from "../../src/lib/projects.ts";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(directory, "../.."));
@@ -121,16 +123,21 @@ async function ensurePreview() {
         DES_ART_PREVIEW_PORT: String(previewPort),
         DES_ART_ADMIN_DRAFT_ROOT: previewRoot,
         DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(supportRoot, "draft-assets"),
+        DES_ART_PREVIEW_PROTOCOL: String(previewRuntime.protocol),
+        DES_ART_PREVIEW_REPO_ROOT: previewRuntime.repoRoot,
+        DES_ART_PREVIEW_FINGERPRINT: previewRuntime.fingerprint,
+        DES_ART_PREVIEW_GIT_SHA: previewRuntime.gitSha ?? "",
       },
     });
     await writeFile(path.join(supportRoot, "preview.pid"), `${child.pid}\n`, { mode: 0o600 });
+    await writeFile(previewMarker, `${JSON.stringify({ ...previewRuntime, pid: child.pid, command: "next dev" })}\n`, { mode: 0o600 });
     child.unref();
   } finally {
     closeSync(output);
   }
   const started = Date.now();
   while (Date.now() - started < 60_000) {
-    if (await reachable(previewPort)) return;
+    if (await healthyPreview()) return;
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   throw new Error("Предпросмотр не запустился. Повторите попытку.");
@@ -150,6 +157,11 @@ async function body(request, limit = 25 * 1024 * 1024) {
     chunks.push(chunk);
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+}
+
+async function localDrafts() {
+  const names = (await readdir(path.join(supportRoot, "drafts")).catch(() => [])).filter((name) => name.endsWith(".json"));
+  return Promise.all(names.map(async (name) => JSON.parse(await readFile(path.join(supportRoot, "drafts", name), "utf8"))));
 }
 
 async function staticFile(response, name, type) {
@@ -192,6 +204,17 @@ async function handler(request, response) {
       return;
     }
     if (request.method === "GET" && url.pathname === "/api/projects") return json(response, 200, await store.listProjects());
+    if (request.method === "GET" && url.pathname === "/api/live-transition/review") {
+      if (publishMode !== "sandbox") return userError(response, 409, "Проверка переноса недоступна", "Проверка старого тестового контура выполняется только до первого перехода в live.");
+      const origin = await readSandboxOrigin(supportRoot);
+      if (origin) return json(response, 200, { reviewRequired: false, originSha: origin.sourceSha, projects: [] });
+      return json(response, 200, { reviewRequired: true, ...buildLegacyTransferReview({ sandboxProjects: await localDrafts(), productionProjects: readAllProjectDocuments(path.join(repoRoot, "content", "projects")) }) });
+    }
+    if (request.method === "POST" && url.pathname === "/api/live-transition/request") {
+      if (publishMode !== "sandbox") return userError(response, 409, "Переход уже начат", "Выбор пути разрешён только в тестовом контуре до первого перехода в live.");
+      const value = await body(request);
+      return json(response, 201, await saveLiveTransitionRequest({ supportRoot, selection: value.selection, units: value.units }));
+    }
     if (request.method === "GET" && url.pathname === "/api/figma/status") {
       try {
         await readFigmaToken();
