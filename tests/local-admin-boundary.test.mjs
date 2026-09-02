@@ -181,6 +181,12 @@ test("Admin keeps project identity global and exposes status actions without a v
   assert.match(adminRail, /className="preview-split-trigger"/);
   assert.match(adminRail, /<DropdownMenu\.Trigger[^>]*>\s*<button type="button" className="preview-split-trigger">/s);
   assert.match(adminCss, /\.preview-split-trigger\s*>\s*svg\s*\{[^}]*width:\s*16px[^}]*height:\s*16px/s);
+  assert.match(adminRail, /className="project-action-row"/);
+  assert.match(adminRail, /className="project-publish-button"/);
+  assert.match(adminRail, /<IconButton size="3" variant="ghost" color="gray" aria-label="Сбросить до опубликованной версии" title="Сбросить до опубликованной версии" onClick=\{reset\}><ReloadIcon \/>/);
+  assert.doesNotMatch(adminRail, /ResetIcon/);
+  assert.match(adminCss, /\.project-action-row\s*\{[^}]*width:\s*100%/s);
+  assert.match(adminCss, /\.project-publish-button\s*\{[^}]*flex:\s*1 1 auto/s);
   assert.doesNotMatch(adminComponents, /Dialog\.Trigger asChild/);
   assert.match(adminUi, /confirmation === "unpublish"/);
   assert.match(adminUi, /setVisibility\("draft"\)/);
