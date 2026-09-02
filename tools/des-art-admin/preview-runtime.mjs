@@ -27,5 +27,5 @@ export function previewHealthMatches(value, expected) {
     && value.protocol === expected.protocol
     && value.repoRoot === expected.repoRoot
     && value.fingerprint === expected.fingerprint
-    && (value.gitSha ?? null) === (expected.gitSha ?? null);
+    && (value.gitSha || null) === (expected.gitSha || null);
 }

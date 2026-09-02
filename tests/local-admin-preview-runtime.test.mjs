@@ -30,3 +30,8 @@ test("preview health accepts only the exact running identity", () => {
   assert.equal(previewHealthMatches({ preview: true, ...expected, fingerprint: "0".repeat(64) }, expected), false);
   assert.equal(previewHealthMatches({ preview: true, ...expected, repoRoot: "/other" }, expected), false);
 });
+
+test("preview health treats an omitted committed SHA as null", () => {
+  const expected = { protocol: PREVIEW_RUNTIME_PROTOCOL, repoRoot: "/repo", fingerprint: "f".repeat(64), gitSha: null };
+  assert.equal(previewHealthMatches({ preview: true, ...expected, gitSha: "" }, expected), true);
+});
