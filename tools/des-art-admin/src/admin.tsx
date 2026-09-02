@@ -149,9 +149,9 @@ function App() {
     setSelectedSection(server.content.find((block) => block.type === "section")?.adminId);
   };
 
-  const update = (patch: Partial<AdminProject>) => {
+  const update = (patch: Partial<AdminProject>, explicitTextOnly = false) => {
     const keys = Object.keys(patch) as Array<keyof AdminProject>;
-    const textOnly = current && keys.length === 1 && textHistoryKeys.has(keys[0]);
+    const textOnly = current && keys.length === 1 && (textHistoryKeys.has(keys[0]) || (explicitTextOnly && keys[0] === "content"));
     if (textOnly && current) {
       const key = keys[0];
       const entry: TextHistoryEntry = { slug: current.slug, key, before: structuredClone(current[key]), after: structuredClone(patch[key]), at: Date.now() };

@@ -12,6 +12,7 @@ import { Field, FigmaTemplateField, ImagePreview, RichEditor, TagField } from ".
 type UploadPolicy = { templateId: string; slot: string; operation: "replace" | "add" };
 type Upload = (file: File, context: string, policy: UploadPolicy) => Promise<ProjectImage>;
 type ImportFigma = (surface: "catalog" | "hero" | "section", templateId: ProjectVisualTemplateId | undefined, url: string, sectionId?: string) => Promise<void>;
+type ProjectUpdate = (patch: Partial<AdminProject>, textOnly?: boolean) => void;
 
 function replaceSectionText(section: AdminSection, value: ProjectSectionBlock[]): AdminSection {
   const managed = section.blocks.filter((block) => block.type === "notice" || block.type === "visual" || block.type === "hardBreak");
@@ -23,7 +24,7 @@ function updateSection(project: AdminProject, target: AdminSection, next: AdminS
 }
 
 function SectionSettings({ project, section, change, interactiveEnabled, setInteractiveEnabled, interactiveAvailable }: {
-  project: AdminProject; section: AdminSection; change: (project: AdminProject) => void;
+  project: AdminProject; section: AdminSection; change: (project: AdminProject, textOnly?: boolean) => void;
   interactiveEnabled: boolean; setInteractiveEnabled: (enabled: boolean) => void; interactiveAvailable: boolean;
 }) {
   const notice = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "notice" }> => block.type === "notice");
@@ -36,7 +37,7 @@ function SectionSettings({ project, section, change, interactiveEnabled, setInte
   const changeNoticeContent = (value: string) => change(updateSection(project, section, {
     ...section,
     blocks: section.blocks.map((block) => block.type === "notice" ? { ...block, content: inline(value) } : block),
-  }));
+  }), true);
   return (
     <div className="section-settings">
       <div className="section-settings-heading"><Text weight="medium">Настройки секции</Text><Text size="1" color="gray">Визуальное поведение задаёт Portfolio</Text></div>
@@ -49,7 +50,7 @@ function SectionSettings({ project, section, change, interactiveEnabled, setInte
 
 function SectionEditor({ section, project, index, count, selected, select, change, move, remove, issues, importFigma }: {
   section: AdminSection; project: AdminProject; index: number; count: number; selected: boolean; select: () => void;
-  change: (value: AdminProject) => void; move: (delta: number) => void; remove: () => void; issues: FieldIssue[]; importFigma: ImportFigma;
+  change: (value: AdminProject, textOnly?: boolean) => void; move: (delta: number) => void; remove: () => void; issues: FieldIssue[]; importFigma: ImportFigma;
 }) {
   const visual = section.blocks.find((block): block is Extract<ProjectSectionBlock, { type: "visual" }> => block.type === "visual");
   const options = sectionTemplateOptions(project.designProfile, PROJECT_VISUAL_TEMPLATES) as Array<{ templateId: ProjectVisualTemplateId; label: string }>;
@@ -65,8 +66,8 @@ function SectionEditor({ section, project, index, count, selected, select, chang
         <Flex align="center" gap="2"><Heading size="3">Секция {index + 1}</Heading>{index > 0 ? <IconButton type="button" size="2" variant="ghost" color="red" aria-label={`Удалить секцию ${index + 1}`} onClick={(event) => { event.stopPropagation(); remove(); }}><TrashIcon /></IconButton> : null}</Flex>
         <Flex gap="2"><IconButton type="button" size="2" variant="ghost" color="gray" aria-label="Переместить выше" disabled={index === 0} onClick={() => move(-1)}><ChevronUpIcon /></IconButton><IconButton type="button" size="2" variant="ghost" color="gray" aria-label="Переместить ниже" disabled={index === count - 1} onClick={() => move(1)}><ChevronDownIcon /></IconButton></Flex>
       </div>
-      <Field field={`content.${section.adminId}.heading`} label="Заголовок секции" error={issueFor(issues, `content.${section.adminId}.heading`)}><TextField.Root size="3" value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }))} /></Field>
-      <Field label="Описание секции"><RichEditor value={section.blocks} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)))} /></Field>
+      <Field field={`content.${section.adminId}.heading`} label="Заголовок секции" error={issueFor(issues, `content.${section.adminId}.heading`)}><TextField.Root size="3" value={section.heading} onChange={(event) => change(updateSection(project, section, { ...section, heading: event.target.value }), true)} /></Field>
+      <Field label="Описание секции"><RichEditor value={section.blocks} onChange={(value) => change(updateSection(project, section, replaceSectionText(section, value)), true)} /></Field>
       <SectionSettings
         project={project}
         section={section}
@@ -111,13 +112,13 @@ function SectionEditor({ section, project, index, count, selected, select, chang
 }
 
 export function ProjectIdentityEditor({ project, update, uploadLogo, issues }: {
-  project: AdminProject; update: (patch: Partial<AdminProject>) => void; uploadLogo: (file: File) => Promise<AdminProject["logo"]>; issues: FieldIssue[];
+  project: AdminProject; update: ProjectUpdate; uploadLogo: (file: File) => Promise<AdminProject["logo"]>; issues: FieldIssue[];
 }) {
   return <section className="editor-section project-identity"><div className="form-grid"><Field field="title" label="Название" error={issueFor(issues, "title")} wide><TextField.Root size="3" value={project.title} onChange={(event) => update({ title: event.target.value })} /></Field></div><div className="asset-field logo-field"><div className="asset-copy"><Text weight="medium">Логотип проекта</Text><Text as="p" size="1" color="gray">Необязательно. Этот слот не управляет специальным знаком Sarafan на главной.</Text></div>{project.logo ? <div className="logo-preview">{project.logo.type === "image" ? <ImagePreview src={project.logo.src} label="Логотип проекта"><img src={project.logo.src} alt="" /></ImagePreview> : <Text size="1" color="gray">Составной legacy-логотип будет заменён миграцией</Text>}</div> : <div className="asset-placeholder"><Text size="1" color="gray">Логотип не добавлен</Text></div>}<Flex gap="2"><label><Button asChild size="3" variant="outline" color="gray"><span>{project.logo ? "Заменить" : "Загрузить SVG"}</span></Button><input hidden type="file" accept="image/svg+xml,.svg" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void uploadLogo(file).then((logo) => update({ logo })); }} /></label>{project.logo ? <IconButton size="3" variant="ghost" color="red" aria-label="Удалить логотип" onClick={() => update({ logo: undefined })}><TrashIcon /></IconButton> : null}</Flex></div></section>;
 }
 
 export function CardEditor({ project, update, importFigma, issues }: {
-  project: AdminProject; update: (patch: Partial<AdminProject>) => void; importFigma: ImportFigma; issues: FieldIssue[];
+  project: AdminProject; update: ProjectUpdate; importFigma: ImportFigma; issues: FieldIssue[];
 }) {
   const catalogTemplate = PROJECT_VISUAL_TEMPLATES[project.visuals.catalog.templateId];
   return (
@@ -220,7 +221,7 @@ function GalleryEditor({ gallery, change, upload }: { gallery: Extract<ProjectCo
 }
 
 export function PageEditor({ project, update, upload, importFigma, selectedSection, selectSection, issues }: {
-  project: AdminProject; update: (patch: Partial<AdminProject>) => void; upload: Upload; importFigma: ImportFigma; selectedSection?: string; selectSection: (id: string) => void; issues: FieldIssue[];
+  project: AdminProject; update: ProjectUpdate; upload: Upload; importFigma: ImportFigma; selectedSection?: string; selectSection: (id: string) => void; issues: FieldIssue[];
 }) {
   const sections = project.content.filter((block): block is AdminSection => block.type === "section");
   const gallery = project.content.find((block): block is Extract<ProjectContentBlock, { type: "gallery" }> => block.type === "gallery") ?? { type: "gallery", templateId: "gallery.devices-v1", groups: [] };
@@ -236,7 +237,7 @@ export function PageEditor({ project, update, upload, importFigma, selectedSecti
       {project.visuals.hero && heroTemplate ? <section className="editor-section visual-editor-section"><FigmaTemplateField key={`${project.slug}:hero:${visualSource(project, "hero")?.url ?? "empty"}`} title="Главное изображение открытого проекта" description="Вставьте ссылку на утверждённый hero Frame целиком." templateId={project.visuals.hero.templateId} templateLabel={heroTemplate.label} source={visualSource(project, "hero")} importFrame={(url) => importFigma("hero", project.visuals.hero!.templateId, url)} /></section> : <section className="editor-section visual-editor-section"><FigmaTemplateField key={`${project.slug}:hero:auto`} title="Главное изображение открытого проекта" description="Вставьте ссылку на hero Frame целиком. Admin сама определит утверждённый вариант и откроет страницу только после успешного импорта." templateId="auto" templateLabel="Определится по Frame" importFrame={(url) => importFigma("hero", undefined, url)} /></section>}
       <section className="editor-section editor-section-primary"><TagField label="Подробные теги" hint="Отображаются наверху открытого проекта · разделитель /" value={project.detailTags} onChange={(detailTags) => update({ detailTags })} /></section>
       <div className="content-heading"><div className="section-heading-copy"><Heading size="4">Содержание страницы</Heading><Text size="2" color="gray">В каждой секции можно добавить один утверждённый интерактивный блок по ссылке на Figma Frame.</Text></div></div>
-      {sections.map((section, index) => <SectionEditor key={section.adminId} section={section} project={project} index={index} count={sections.length} selected={selectedSection === section.adminId} select={() => selectSection(section.adminId)} change={(value) => update(value)} move={(delta) => { const from = project.content.indexOf(section); let to = from + delta; while (to >= 0 && to < project.content.length && project.content[to].type !== "section") to += delta; if (to < 0 || to >= project.content.length) return; const content = [...project.content]; [content[from], content[to]] = [content[to], content[from]]; update({ content }); }} remove={() => update(withoutVisualSource({ ...project, content: project.content.filter((block) => block !== section) }, section.adminId))} issues={issues} importFigma={importFigma} />)}
+      {sections.map((section, index) => <SectionEditor key={section.adminId} section={section} project={project} index={index} count={sections.length} selected={selectedSection === section.adminId} select={() => selectSection(section.adminId)} change={(value, textOnly) => update({ content: value.content }, textOnly)} move={(delta) => { const from = project.content.indexOf(section); let to = from + delta; while (to >= 0 && to < project.content.length && project.content[to].type !== "section") to += delta; if (to < 0 || to >= project.content.length) return; const content = [...project.content]; [content[from], content[to]] = [content[to], content[from]]; update({ content }); }} remove={() => update({ content: withoutVisualSource({ ...project, content: project.content.filter((block) => block !== section) }, section.adminId).content })} issues={issues} importFigma={importFigma} />)}
       <Button className="add-section-button" size="3" variant="soft" color="gray" onClick={() => { const adminId = `${project.slug}-section-${Date.now()}`; const section: AdminSection = { type: "section", adminId, heading: "Новая секция", blocks: [] }; update({ content: [...project.content.filter((block) => block.type !== "gallery"), section, ...project.content.filter((block) => block.type === "gallery")] }); selectSection(adminId); requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="content.${adminId}.heading"] input`)?.focus()); }}><PlusIcon />Добавить секцию</Button>
       <GalleryEditor gallery={galleryForEditing} change={galleryChange} upload={upload} />
     </div>
