@@ -1,6 +1,6 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
-import { mkdir, rename, rm } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 
@@ -85,7 +85,7 @@ async function normalizedPng(buffer, destination) {
   return { width: metadata.width, height: metadata.height };
 }
 
-async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary, publicRoot }) {
+async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary }) {
   const children = (root.children ?? []).filter((child) => child.visible !== false);
   if (children.length !== spec.slots.length) {
     throw new Error(`Frame содержит ${children.length} верхнеуровневых элементов вместо утверждённых ${spec.slots.length}.`);
@@ -106,12 +106,12 @@ async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary
     if (!url) throw new Error(`Figma не вернула элемент «${child.name ?? child.id}».`);
     const destination = path.join(temporary, `${slot.name}.png`);
     const dimensions = await normalizedPng(await download(fetchImpl, url, child.name ?? child.id), destination);
-    assets[slot.name] = [{ src: `${publicRoot}/${slot.name}.png`, alt: slot.alt, ...dimensions }];
+    assets[slot.name] = [{ alt: slot.alt, ...dimensions }];
   }
   return assets;
 }
 
-async function importRootCrops({ root, spec, temporary, publicRoot, source }) {
+async function importRootCrops({ root, spec, temporary, source }) {
   const bounds = box(root);
   if (!bounds || !withinTolerance(bounds.width, spec.width) || !withinTolerance(bounds.height, spec.height)) {
     throw new Error(`Frame имеет размер ${bounds?.width ?? 0}×${bounds?.height ?? 0}, ожидается утверждённый ${spec.width}×${spec.height}.`);
@@ -128,9 +128,30 @@ async function importRootCrops({ root, spec, temporary, publicRoot, source }) {
     const width = Math.round(slot.width * 2);
     const height = Math.round(slot.height * 2);
     await sharp(source).extract({ left, top, width, height }).png().toFile(destination);
-    assets[slot.name] = [{ src: `${publicRoot}/${slot.name}.png`, alt: slot.alt, width, height }];
+    assets[slot.name] = [{ alt: slot.alt, width, height }];
   }
   return assets;
+}
+
+async function pngManifest(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = entries.filter((entry) => entry.isFile() && entry.name.endsWith(".png")).map((entry) => entry.name).sort();
+  if (files.length === 0 || entries.length !== files.length) throw new Error("Figma import не создал ожидаемый набор PNG.");
+  return Promise.all(files.map(async (file) => ({
+    file,
+    sha256: createHash("sha256").update(await readFile(path.join(directory, file))).digest("hex"),
+  })));
+}
+
+function manifestFolder(manifest) {
+  return createHash("sha256").update(JSON.stringify(manifest)).digest("hex");
+}
+
+function withPublicAssetUrls(assets, publicRoot) {
+  return Object.fromEntries(Object.entries(assets).map(([slot, items]) => [slot, items.map((item) => ({
+    ...item,
+    src: `${publicRoot}/${slot}.png`,
+  }))]));
 }
 
 export async function importFigmaTemplate({ url, token, slug, templateId, templateIds, assetRoot, fetchImpl = fetch }) {
@@ -165,12 +186,8 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
       throw new Error(`Frame содержит ${visibleChildren.length} верхнеуровневых элементов вместо утверждённых ${spec.slots.length}.`);
     }
   }
-  const version = String(nodeData.version ?? createHash("sha256").update(JSON.stringify(root)).digest("hex").slice(0, 12));
-  const folder = createHash("sha256").update(`preview-v1:${resolvedTemplateId}:${parsed.fileKey}:${parsed.nodeId}:${version}`).digest("hex").slice(0, 16);
   const projectRoot = path.join(assetRoot, slug, "figma");
-  const destination = path.join(projectRoot, folder);
-  const temporary = path.join(projectRoot, `.${folder}.${process.pid}.${Date.now()}.tmp`);
-  const publicRoot = `/assets/projects/${slug}/figma/${folder}`;
+  const temporary = path.join(projectRoot, `.import-${process.pid}-${randomUUID()}.tmp`);
   await mkdir(temporary, { recursive: true });
   try {
     const previewData = await figmaJson(fetchImpl, `https://api.figma.com/v1/images/${encodeURIComponent(parsed.fileKey)}?ids=${encodeURIComponent(root.id)}&format=png&scale=2&use_absolute_bounds=true`, auth);
@@ -178,17 +195,29 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
     if (!previewUrl) throw new Error("Figma не вернула превью корневого Frame.");
     const rootSource = await download(fetchImpl, previewUrl, root.name ?? root.id);
     const previewDimensions = await normalizedPng(rootSource, path.join(temporary, "preview.png"));
-    const assets = spec.kind === "children"
-      ? await importChildren({ fetchImpl, fileKey: parsed.fileKey, root, token: auth, spec, temporary, publicRoot })
-      : await importRootCrops({ root, spec, temporary, publicRoot, source: rootSource });
+    const rawAssets = spec.kind === "children"
+      ? await importChildren({ fetchImpl, fileKey: parsed.fileKey, root, token: auth, spec, temporary })
+      : await importRootCrops({ root, spec, temporary, source: rootSource });
+    const manifest = await pngManifest(temporary);
+    const folder = manifestFolder(manifest);
+    const destination = path.join(projectRoot, folder);
+    const publicRoot = `/assets/projects/${slug}/figma/${folder}`;
+    const assets = withPublicAssetUrls(rawAssets, publicRoot);
     validateTemplateAssets(resolvedTemplateId, assets, `Figma Frame для ${resolvedTemplateId}`);
     await mkdir(projectRoot, { recursive: true });
+    let changed = true;
     await rename(temporary, destination).catch(async (error) => {
       if (error?.code !== "EEXIST" && error?.code !== "ENOTEMPTY") throw error;
+      const existing = await pngManifest(destination);
+      if (JSON.stringify(existing) !== JSON.stringify(manifest)) {
+        throw new Error("Figma import столкнулся с папкой с другим содержимым. Сохранённый черновик не изменён.");
+      }
+      changed = false;
       await rm(temporary, { recursive: true, force: true });
     });
     return {
       visual: { templateId: resolvedTemplateId, assets },
+      changed,
       source: {
         url: parsed.url,
         templateId: resolvedTemplateId,

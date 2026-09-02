@@ -409,7 +409,7 @@ export class AdminStore {
       },
     });
     await this.saveDraft(slug, next);
-    return next;
+    return { project: next, changed: imported.changed !== false };
   }
 
   async preparePreview(slug, previewRoot, route = "project") {

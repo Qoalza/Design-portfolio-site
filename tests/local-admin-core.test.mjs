@@ -197,15 +197,16 @@ test("approved Figma import replaces a whole code-owned surface and keeps source
     }),
   });
   await store.saveDraft("figma-card", project("figma-card"));
-  const next = await store.importFigmaVisual("figma-card", {
+  const result = await store.importFigmaVisual("figma-card", {
     surface: "catalog",
     templateId: "catalog.corvo-stack",
     url: "https://www.figma.com/design/file/Test?node-id=1-2",
   });
-  assert.deepEqual(next.visuals.catalog, imported);
-  assert.deepEqual(next.visuals.home.assets, imported.assets);
-  assert.equal(next.admin.visualSources.catalog.templateId, "catalog.corvo-stack");
-  assert.equal("admin" in compileAdminDraft(next), false);
+  assert.equal(result.changed, true);
+  assert.deepEqual(result.project.visuals.catalog, imported);
+  assert.deepEqual(result.project.visuals.home.assets, imported.assets);
+  assert.equal(result.project.admin.visualSources.catalog.templateId, "catalog.corvo-stack");
+  assert.equal("admin" in compileAdminDraft(result.project), false);
 });
 
 test("the first hero Frame activates a closed project only after automatic approved-template import", async () => {
@@ -224,15 +225,16 @@ test("the first hero Frame activates a closed project only after automatic appro
   };
   await store.saveDraft("boff", boff);
 
-  const next = await store.importFigmaVisual("boff", {
+  const result = await store.importFigmaVisual("boff", {
     surface: "hero",
     url: "https://www.figma.com/design/file/Test?node-id=1-2",
   });
 
-  assert.equal(next.detailAvailable, true);
-  assert.deepEqual(next.visuals.hero, hero);
-  assert.equal(next.admin.visualSources.hero.templateId, "hero.corvo-browser");
-  assert.equal(compileAdminDraft(next).detailAvailable, true);
+  assert.equal(result.changed, true);
+  assert.equal(result.project.detailAvailable, true);
+  assert.deepEqual(result.project.visuals.hero, hero);
+  assert.equal(result.project.admin.visualSources.hero.templateId, "hero.corvo-browser");
+  assert.equal(compileAdminDraft(result.project).detailAvailable, true);
 });
 
 test("approved Figma import adds one interactive block to a section and rejects profile mismatches", async () => {
@@ -248,10 +250,11 @@ test("approved Figma import adds one interactive block to a section and rejects 
     },
   });
   await store.saveDraft("figma-section", project("figma-section", { content: [{ type: "section", adminId: "section-a", heading: "Решение", blocks: [] }] }));
-  const next = await store.importFigmaVisual("figma-section", { surface: "section", sectionId: "section-a", url: "https://www.figma.com/design/file/Test?node-id=1-3" });
-  assert.equal(next.content[0].blocks[0].type, "visual");
-  assert.equal(next.content[0].blocks[0].templateId, "canvas.corvo-quotes");
-  assert.equal(next.admin.visualSources["section-a"].url.includes("figma.com"), true);
+  const result = await store.importFigmaVisual("figma-section", { surface: "section", sectionId: "section-a", url: "https://www.figma.com/design/file/Test?node-id=1-3" });
+  assert.equal(result.changed, true);
+  assert.equal(result.project.content[0].blocks[0].type, "visual");
+  assert.equal(result.project.content[0].blocks[0].templateId, "canvas.corvo-quotes");
+  assert.equal(result.project.admin.visualSources["section-a"].url.includes("figma.com"), true);
   await assert.rejects(() => store.importFigmaVisual("figma-section", { surface: "section", sectionId: "section-a", templateId: "canvas.sarafan-model", url: "https://www.figma.com/design/file/Test?node-id=1-4" }), /не может быть переключён/i);
 });
 

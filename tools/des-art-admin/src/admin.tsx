@@ -12,6 +12,7 @@ import { ApiError } from "./admin-model";
 import { ProjectNavigation, type ProjectFilter, visibilityLabels } from "./admin-navigation";
 import { CardSettings, PageSettings, ProjectDangerActions, ProjectOverview } from "./admin-rail";
 import { SavedMark } from "./admin-ui";
+import { PreviewWindowController } from "./preview-window.mjs";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
 const csrf = document.body.dataset.csrf ?? "";
@@ -61,6 +62,7 @@ function App() {
   const [figmaToken, setFigmaToken] = useState("");
   const dirty = useRef(false);
   const latest = useRef<AdminProject | null>(null);
+  const previewWindow = useRef<PreviewWindowController | null>(null);
 
   const refresh = async () => {
     const [nextProjects, nextInventory] = await Promise.all([
@@ -171,20 +173,27 @@ function App() {
   const importFigma = async (surface: "catalog" | "hero" | "section", templateId: ProjectVisualTemplateId | undefined, url: string, sectionId?: string) => {
     if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите импорт.");
     await flush();
-    const next = await api<AdminProject>(`/api/projects/${current.slug}/figma-template`, {
+    const result = await api<{ project: AdminProject; changed: boolean }>(`/api/projects/${current.slug}/figma-template`, {
       method: "POST",
       body: JSON.stringify({ surface, templateId, url, sectionId }),
     });
+    const next = result.project;
     dirty.current = false;
     localStorage.removeItem(draftKey(next.slug));
     setCurrent(next);
     setSaveState("saved");
+    setMessage(result.changed ? "" : "Figma не отдала визуальных изменений: сохранён прежний набор изображений.");
     await refresh();
   };
   const preview = (route: "home" | "catalog" | "project" = "project") => {
     if (!current) return;
-    const popup = window.open("about:blank", "des-art-preview");
-    if (popup) popup.document.title = "Подготовка предпросмотра…";
+    const controller = previewWindow.current ?? new PreviewWindowController({ open: window.open.bind(window) });
+    previewWindow.current = controller;
+    const attempt = controller.begin();
+    if (attempt.blocked) {
+      setMessage("Браузер заблокировал окно предпросмотра. Разрешите всплывающие окна для Admin и повторите попытку.");
+      return;
+    }
     void (async () => {
       try {
         await flush();
@@ -192,10 +201,11 @@ function App() {
           method: "POST",
           body: JSON.stringify({ route }),
         });
-        if (popup) popup.location.href = result.url;
-        else window.open(result.url, "des-art-preview");
+        const navigation = controller.navigate(attempt, result.url);
+        if (navigation === "closed") setMessage("Окно предпросмотра было закрыто до подготовки страницы. Нажмите «Предпросмотр» ещё раз.");
+        if (navigation === "blocked") setMessage("Браузер заблокировал обновление окна предпросмотра. Разрешите всплывающие окна и повторите попытку.");
       } catch (error) {
-        popup?.close();
+        controller.fail(attempt);
         const nextIssues = error instanceof ApiError ? error.issues : [];
         setIssues(nextIssues);
         if (nextIssues.length) setReviewIssues(nextIssues);

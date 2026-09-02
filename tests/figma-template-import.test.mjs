@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, mkdtemp, readdir } from "node:fs/promises";
+import { access, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -8,7 +8,7 @@ import sharp from "sharp";
 
 import { importFigmaTemplate, parseFigmaNodeUrl } from "../tools/des-art-admin/figma-template-import.mjs";
 
-const png = (width, height) => sharp({ create: { width, height, channels: 4, background: "#ffffff" } }).png().toBuffer();
+const png = (width, height, background = "#ffffff") => sharp({ create: { width, height, channels: 4, background } }).png().toBuffer();
 
 test("Figma links must target a concrete node", () => {
   assert.deepEqual(parseFigmaNodeUrl("https://www.figma.com/design/fileKey/Project?node-id=921-58611&t=x"), {
@@ -168,4 +168,41 @@ test("incompatible Frame structure fails before replacing any working template a
     fetchImpl,
   }), /верхнеуровневых элементов/);
   assert.deepEqual(await readdir(path.join(root, "sarafan-radio", "figma")).catch(() => []), []);
+});
+
+test("same Figma node and version receive a new asset URL only when generated PNG bytes change", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "figma-template-content-hash-"));
+  let source = await png(2000, 714, "#ffffff");
+  const fetchImpl = async (url) => {
+    const value = String(url);
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "unchanged-version", nodes: { "1:2": { document: {
+      id: "1:2", name: "Model", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 357 },
+    } } } }), { status: 200 });
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root" } }), { status: 200 });
+    if (value === "https://download/root") return new Response(source, { status: 200 });
+    throw new Error("Unexpected " + value);
+  };
+  const request = {
+    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    token: "test-token",
+    slug: "sarafan-radio",
+    templateId: "canvas.sarafan-model",
+    assetRoot: root,
+    fetchImpl,
+  };
+
+  const first = await importFigmaTemplate(request);
+  source = await png(2000, 714, "#000000");
+  const second = await importFigmaTemplate(request);
+  const third = await importFigmaTemplate(request);
+
+  assert.equal(first.changed, true);
+  assert.equal(second.changed, true);
+  assert.equal(third.changed, false);
+  assert.notEqual(first.source.preview.src, second.source.preview.src);
+  assert.equal(second.source.preview.src, third.source.preview.src);
+  const secondPreview = await readFile(path.join(root, "sarafan-radio", "figma", path.basename(path.dirname(second.source.preview.src)), "preview.png"));
+  assert.deepEqual(secondPreview, source);
+  await writeFile(path.join(root, "sarafan-radio", "figma", path.basename(path.dirname(second.source.preview.src)), "preview.png"), "corrupted");
+  await assert.rejects(() => importFigmaTemplate(request), /другим содержимым/i);
 });
