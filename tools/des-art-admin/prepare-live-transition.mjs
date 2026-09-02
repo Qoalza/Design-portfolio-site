@@ -1,10 +1,10 @@
-import { readFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 
 import { saveLiveTransitionRequest } from "./live-transition.mjs";
 
 function usage() {
-  return "Usage: node tools/des-art-admin/prepare-live-transition.mjs --support-root <absolute-path> --selection <clean|delta> [--units-file <absolute-json-path>]";
+  return "Usage: node tools/des-art-admin/prepare-live-transition.mjs --support-root <absolute-path> --choice <clean|overlay> --target-sha <40-char-sha>";
 }
 
 export function parseTransitionRequestArgs(argv) {
@@ -15,33 +15,23 @@ export function parseTransitionRequestArgs(argv) {
     if (!key?.startsWith("--") || value === undefined || values.has(key)) throw new Error(usage());
     values.set(key, value);
   }
-  if ([...values.keys()].some((key) => !["--support-root", "--selection", "--units-file"].includes(key))) throw new Error(usage());
+  if ([...values.keys()].some((key) => !["--support-root", "--choice", "--target-sha"].includes(key))) throw new Error(usage());
   const supportRoot = values.get("--support-root");
-  const selection = values.get("--selection");
-  const unitsFile = values.get("--units-file");
-  if (!supportRoot || !path.isAbsolute(supportRoot) || !["clean", "delta"].includes(selection ?? "")) throw new Error(usage());
-  if (unitsFile && !path.isAbsolute(unitsFile)) throw new Error("Transition units file must be an absolute path.");
-  if (selection === "clean" && unitsFile) throw new Error("A clean baseline cannot include selected sandbox units.");
-  return { supportRoot: path.resolve(supportRoot), selection, unitsFile };
-}
-
-export async function loadTransitionUnits(unitsFile) {
-  if (!unitsFile) return undefined;
-  const units = JSON.parse(await readFile(unitsFile, "utf8"));
-  if (!Array.isArray(units)) throw new Error("Transition units file must contain a JSON array.");
-  return units;
+  const choice = values.get("--choice");
+  const targetSha = values.get("--target-sha");
+  if (!supportRoot || !path.isAbsolute(supportRoot) || !["clean", "overlay"].includes(choice ?? "") || !/^[0-9a-f]{40}$/i.test(targetSha ?? "")) throw new Error(usage());
+  return { supportRoot: path.resolve(supportRoot), choice, targetSha: targetSha.toLowerCase() };
 }
 
 async function main() {
-  const { supportRoot, selection, unitsFile } = parseTransitionRequestArgs(process.argv.slice(2));
-  await recordTransitionRequest({ supportRoot, selection, unitsFile });
+  const { supportRoot, choice, targetSha } = parseTransitionRequestArgs(process.argv.slice(2));
+  await recordTransitionRequest({ supportRoot, choice, targetSha });
   // This command does not start Admin, archive data, or publish.
-  process.stdout.write(`Saved local ${selection} live-transition request. No data was moved.\n`);
+  process.stdout.write(`Saved local ${choice} live-transition request. No data was moved.\n`);
 }
 
-export async function recordTransitionRequest({ supportRoot, selection, unitsFile }) {
-  const units = await loadTransitionUnits(unitsFile);
-  return saveLiveTransitionRequest({ supportRoot, selection, units });
+export async function recordTransitionRequest({ supportRoot, choice, targetSha, transitionId = randomUUID(), requestedAt = new Date().toISOString() }) {
+  return saveLiveTransitionRequest({ supportRoot, choice, targetSha, transitionId, requestedAt });
 }
 
 if (import.meta.url === new URL(process.argv[1], "file:").href) {

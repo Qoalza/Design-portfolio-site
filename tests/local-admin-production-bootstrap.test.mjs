@@ -43,11 +43,14 @@ test("live bootstrap archives legacy test workspaces and leaves canonical portfo
   const marker = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
   assert.deepEqual(marker, {
     version: PRODUCTION_DATA_BASELINE_VERSION,
+    state: "live",
+    transitionId: "transition-2026-08-31T12-00-00-000Z",
+    choice: "clean",
     source: "production-live",
     sourceSha: "a".repeat(40),
-    archivedSandbox: true,
+    activeStoreRoot: "live-generations/transition-2026-08-31T12-00-00-000Z",
     archivePath: "sandbox-archive/before-production-2026-08-31T12-00-00-000Z",
-    activatedAt: "2026-08-31T12:00:00.000Z",
+    completedAt: "2026-08-31T12:00:00.000Z",
     lastObservedAt: "2026-08-31T12:00:00.000Z",
   });
   await assert.rejects(access(path.join(supportRoot, "drafts", "test-project.json")));
@@ -176,7 +179,8 @@ test("failed marker rolls activated transferred drafts back and leaves a journal
     writeMarker: async () => { throw new Error("injected marker failure"); },
   }), /injected marker failure/);
   await access(path.join(archiveRoot, "drafts", "sandbox.json"));
-  await assert.rejects(access(path.join(supportRoot, "drafts", "live.json")));
+  // New live generations are isolated; a failed marker never activates them.
+  await assert.rejects(access(path.join(supportRoot, "production-data-baseline.json")));
   await access(path.join(supportRoot, "live-transition-journal-v1.json"));
   await assert.rejects(ensureProductionDataBaseline({
     supportRoot,

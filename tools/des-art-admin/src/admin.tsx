@@ -15,6 +15,7 @@ import { SavedMark } from "./admin-ui";
 import { PreviewWindowController } from "./preview-window.mjs";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
+type TextHistoryEntry = { slug: string; key: keyof AdminProject; before: unknown; after: unknown; at: number };
 const csrf = document.body.dataset.csrf ?? "";
 const publishMode = document.body.dataset.publishMode === "live" ? "live" : "sandbox";
 const draftKey = (slug: string) => `des-art-admin:draft:${slug}`;
@@ -55,7 +56,7 @@ function App() {
   const [selectedSection, setSelectedSection] = useState<string>();
   const [job, setJob] = useState<PublishJob | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-  const [confirmation, setConfirmation] = useState<"project" | "all" | "publish-draft" | "unpublish" | "delete" | "shutdown">();
+  const [confirmation, setConfirmation] = useState<"project" | "all" | "publish-draft" | "unpublish" | "delete" | "reset" | "shutdown">();
   const [reviewIssues, setReviewIssues] = useState<FieldIssue[]>([]);
   const [figmaConnected, setFigmaConnected] = useState(false);
   const [figmaOpen, setFigmaOpen] = useState(false);
@@ -63,6 +64,9 @@ function App() {
   const dirty = useRef(false);
   const latest = useRef<AdminProject | null>(null);
   const previewWindow = useRef<PreviewWindowController | null>(null);
+  const undoHistory = useRef<TextHistoryEntry[]>([]);
+  const redoHistory = useRef<TextHistoryEntry[]>([]);
+  const textHistoryKeys = new Set<keyof AdminProject>(["title", "description", "subtitle", "role", "year", "tags", "detailTags", "platforms", "workSummary"]);
 
   const refresh = async () => {
     const [nextProjects, nextInventory] = await Promise.all([
@@ -146,10 +150,40 @@ function App() {
   };
 
   const update = (patch: Partial<AdminProject>) => {
+    const keys = Object.keys(patch) as Array<keyof AdminProject>;
+    const textOnly = current && keys.length === 1 && textHistoryKeys.has(keys[0]);
+    if (textOnly && current) {
+      const key = keys[0];
+      const entry: TextHistoryEntry = { slug: current.slug, key, before: structuredClone(current[key]), after: structuredClone(patch[key]), at: Date.now() };
+      const previous = undoHistory.current.at(-1);
+      if (previous && previous.slug === entry.slug && previous.key === entry.key && entry.at - previous.at < 700) {
+        previous.after = entry.after; previous.at = entry.at;
+      } else undoHistory.current = [...undoHistory.current.slice(-4), entry];
+      redoHistory.current = [];
+    } else if (keys.some((key) => !textHistoryKeys.has(key))) {
+      undoHistory.current = []; redoHistory.current = [];
+    }
     dirty.current = true;
     setIssues([]);
     setCurrent((value) => value ? { ...value, ...patch } : null);
   };
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (!event.metaKey || event.key.toLowerCase() !== "z" || !latest.current) return;
+      const source = event.shiftKey ? redoHistory.current : undoHistory.current;
+      const entry = source.at(-1);
+      if (!entry || entry.slug !== latest.current.slug) return;
+      event.preventDefault();
+      source.pop();
+      const inverse: TextHistoryEntry = { ...entry, before: structuredClone(entry.after), after: structuredClone(entry.before), at: Date.now() };
+      (event.shiftKey ? undoHistory.current : redoHistory.current).push(inverse);
+      dirty.current = true;
+      setCurrent((value) => value ? { ...value, [entry.key]: structuredClone(event.shiftKey ? entry.after : entry.before) } : null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const upload = async (file: File, context: string, policy: { templateId: string; slot: string; operation: "replace" | "add" }) => {
     await flush();
@@ -297,6 +331,18 @@ function App() {
     await refresh();
   };
 
+  const resetToProduction = async () => {
+    if (!current) return;
+    const next = await api<AdminProject>(`/api/projects/${current.slug}/reset-to-production`, { method: "POST" });
+    localStorage.removeItem(draftKey(current.slug));
+    undoHistory.current = []; redoHistory.current = [];
+    dirty.current = false;
+    setCurrent(next);
+    setSaveState("saved");
+    setIssues([]);
+    await refresh();
+  };
+
   return (
     <Theme accentColor="blue" grayColor="sand" radius="medium">
       <div className="admin-shell">
@@ -361,6 +407,8 @@ function App() {
                   setVisibility={(visibility) => void setVisibility(visibility).catch((error) => setMessage(safeMessage(error)))}
                   issues={issues.length ? issues : currentChange?.issues ?? []}
                   reviewIssues={() => setReviewIssues(issues.length ? issues : currentChange?.issues ?? [])}
+                  reset={() => setConfirmation("reset")}
+                  resettable={publishMode === "live" && Boolean(inventory.resettableSlugs?.includes(current.slug))}
                 />
                 {tab === "card" ? (
                   <CardSettings project={current} update={update} home={requestHome} />
@@ -388,6 +436,7 @@ function App() {
         <ConfirmDialog open={confirmation === "project" || confirmation === "all" || confirmation === "publish-draft"} title={publishMode === "live" ? "Опубликовать на art-des.ru?" : "Запустить тестовую публикацию?"} description={publishMode === "live" ? "Админка проверит изменения, создаст Pull Request, выполнит merge и безопасно развернёт точный commit на production." : "Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся."} confirmLabel={publishMode === "live" ? "Опубликовать" : "Запустить"} close={() => setConfirmation(undefined)} confirm={() => { if (confirmation === "publish-draft") { setConfirmation(undefined); void setVisibility("published").then(() => startPublish("project", true)).catch((error) => setMessage(safeMessage(error))); return; } void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "unpublish"} title="Снять с публикации?" description="Проект исчезнет с главной, из «Все работы» и со своей страницы. Черновик останется в админке — его можно будет опубликовать снова." confirmLabel="Снять с публикации" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void setVisibility("draft").catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
+        <ConfirmDialog open={confirmation === "reset"} title="Сбросить изменения проекта?" description="Все неопубликованные изменения этого проекта будут удалены. Данные восстановятся из текущей опубликованной версии на art-des.ru. Это действие нельзя отменить" confirmLabel="Сбросить изменения" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void resetToProduction().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "shutdown"} title="Завершить админку?" description="Все сохранённые черновики останутся на Mac и будут доступны при следующем запуске." confirmLabel="Завершить" close={() => setConfirmation(undefined)} confirm={() => void api("/api/shutdown", { method: "POST" })} />
         <Dialog.Root open={figmaOpen} onOpenChange={setFigmaOpen}>
           <Dialog.Content maxWidth="520px">

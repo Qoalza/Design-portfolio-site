@@ -50,9 +50,9 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 Если перед первым live bootstrap существует test/sandbox state, запрос «перевести Admin в live» недостаточен: до любых перемещений данных оператор обязан спросить пользователя, какой из двух путей выбрать. Выбор не выводится из предыдущих действий и не выбирается автоматически.
 
 - **Путь 1 — чистый production baseline.** Sandbox state архивируется только локально, а новая live Admin начинается исключительно с exact deployed production content/assets.
-- **Путь 2 — перенести только неопубликованную разницу.** Только подтверждённая разница между sandbox draft и его исходным production baseline накладывается на current production baseline в local live drafts. Это не publish: Git, canonical data/assets, deploy и production не меняются.
+- **Путь 2 — перенести sandbox-черновики.** Production остаётся baseline, а каждый присутствующий sandbox project-authoring value побеждает production, включая пустые значения, visibility, удаление, порядок и placement. Переносятся только drafts и referenced draft-assets; jobs, preview, snapshots и runtime state остаются в archive. Это не publish: Git, canonical data/assets, deploy и production не меняются.
 
-Путь 2 — не копирование целого sandbox store. Он требует three-way merge `исходный production baseline → sandbox draft → current production baseline`: поля, не изменённые в sandbox, остаются current production; конфликт одной semantic unit останавливает перенос до archive и без частичного применения. Страница проекта — неделимая unit: `detailAvailable` и hero применяются только вместе. Для старого sandbox без origin Codex показывает read-only review, получает выбор пользователя и только затем сохраняет local request; Admin UI этот выбор не показывает и не сохраняет. Выбор привязан к hash exact production-цели и недействителен, если эта цель изменилась до bootstrap. Обходить эту проверку ручным переносом файлов нельзя.
+Путь 2 не делает manual review или conflict selection. Request `overlay` привязан к full target SHA; изменение SHA останавливает transition. Результат может быть publish-invalid draft и исправляется уже в live Admin. Только отдельная обычная кнопка «Опубликовать» позже способна выпустить эти данные.
 
 ### Непересекающиеся данные
 
@@ -108,8 +108,8 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 1. Останавливает только собственные локальные Admin/preview processes.
 2. Транзакционно переносит существующее test/sandbox state (`drafts`, `preview-drafts`, `draft-assets`, `published-snapshots`, `jobs`) в новый local archive `sandbox-archive/before-production-…`.
 3. При ошибке переноса возвращает уже перенесённые каталоги на прежние места; marker не создаётся.
-4. Только после успешного переноса атомарно записывает `production-data-baseline.json` v4: source `production-live`, exact `sourceSha`, время и путь к локальному archive.
-5. Запускает Admin в mode `live`; она читает canonical исходное состояние из managed checkout этого exact SHA, а не из архива.
+4. Собирает отдельный generation store, затем одной атомарной записью `production-data-baseline.json` v5 переключает active store: source, exact `sourceSha`, transition ID и путь к archive.
+5. Запускает Admin в mode `live`; она читает canonical исходное состояние и local drafts из active generation, а не из архива.
 
 Архив создаётся ровно один раз. При следующих корректных live starts тот же SHA не переписывает marker и не архивирует рабочие live drafts. Новый observed production SHA обновляет только `lastObservedAt`/`sourceSha`; он не является поводом перезаписывать live drafts.
 
@@ -117,7 +117,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 
 ### D. Обычная работа после live bootstrap
 
-После marker v4 Admin связана с опубликованным Portfolio:
+После marker v5 Admin связана с опубликованным Portfolio:
 
 - пользователь редактирует реальные локальные live drafts поверх production baseline;
 - обычная кнопка «Опубликовать» остаётся единственным UI-путём content release и показывает real-time этапы: `Проверка → Подготовка файлов → Lint, build и tests → Git и Pull Request → Merge → Deploy → Публичная проверка`;

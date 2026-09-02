@@ -19,7 +19,7 @@ Executable code and current contract tests take precedence over this map.
 - `content/projects/*.json` and `public/assets/projects/<slug>/` are canonical published sources tracked in Git.
 - Admin drafts/assets/preview/jobs/snapshots/backups are local state outside the canonical worktree.
 - Admin-only metadata is removed before public validation and serialization.
-- До первого live bootstrap для любого Admin/Shared merge или release действует односторонняя граница: **`production → новая локальная Admin`; никогда `sandbox → production`.** Новая Admin bootstrap-ится только из подтверждённого exact production baseline; её изолированные drafts, assets, previews, jobs, snapshots, backups и imports архивируются локально и не могут попасть в Git/`main`. После v4 marker пользовательские live-правки считаются рабочими данными и публикуются только прежним live workflow Admin.
+- До первого live bootstrap действует односторонняя граница: **`production → новая local Admin`; sandbox не попадает в Git, canonical source или production во время bootstrap.** По отдельному выбору sandbox project-authoring state может стать local live drafts поверх exact production; bootstrap их не публикует. После marker v5 обычная отдельная live-публикация остаётся единственным путём этих drafts в Portfolio.
 
 ## Schema v3
 
@@ -51,7 +51,7 @@ canonical v3 JSON/assets
 - Collection policy validates unique/order-compatible catalog positions and named homepage placements.
 - Project-only publish keeps global `catalogOrder` and `homePlacement` canonical.
 - Preview validates partial drafts only after merging them with the canonical collection.
-- Перед merge/release read-only provenance verifier сравнивает exact base/target Git refs; недоказанный sandbox-derived материал является stop-line. Admin никогда не выполняет PR, merge или deploy.
+- Перед code merge/release read-only provenance verifier сравнивает exact base/target Git refs; недоказанный sandbox-derived материал является stop-line. Пользовательский live publish worker после отдельного нажатия «Опубликовать» выполняет свой PR/merge/deploy workflow.
 
 ## Compatibility and migration
 

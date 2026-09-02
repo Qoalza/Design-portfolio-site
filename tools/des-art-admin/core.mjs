@@ -476,7 +476,11 @@ export class AdminStore {
       if (globalChanged) globalProjects.push(draft.slug);
     }
     projects.sort((first, second) => first.title.localeCompare(second.title, "ru"));
-    return { count: changedSlugs.length, projects, changedSlugs, globalProjects };
+    const resettableSlugs = [];
+    for (const slug of changedSlugs) {
+      try { await this.getPublishedProject(slug); resettableSlugs.push(slug); } catch {}
+    }
+    return { count: changedSlugs.length, projects, changedSlugs, globalProjects, resettableSlugs };
   }
 
   async publishSandbox({ scope, slug }) {
@@ -522,6 +526,35 @@ export class AdminStore {
     }
     await rm(resolveProjectDocumentPath(this.draftRoot, slug), { force: true });
     await rm(path.join(this.draftAssetRoot, slug), { recursive: true, force: true });
+  }
+
+  async resetToProduction(slug) {
+    await this.getPublishedProject(slug);
+    const draft = resolveProjectDocumentPath(this.draftRoot, slug);
+    const quarantined = `${draft}.reset-${process.pid}-${Date.now()}`;
+    const assets = path.join(this.draftAssetRoot, slug);
+    const quarantinedAssets = `${assets}.reset-${process.pid}-${Date.now()}`;
+    let movedDraft = false;
+    let movedAssets = false;
+    try {
+      await rename(draft, quarantined); movedDraft = true;
+    } catch (error) { if (error?.code !== "ENOENT") throw error; }
+    try {
+      await rename(assets, quarantinedAssets); movedAssets = true;
+    } catch (error) { if (error?.code !== "ENOENT") throw error; }
+    try {
+      const canonical = await this.getPublishedProject(slug);
+      const snapshot = resolveProjectDocumentPath(this.snapshotRoot, slug);
+      await mkdir(this.snapshotRoot, { recursive: true });
+      await writeFile(snapshot, `${JSON.stringify(canonical, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+      await rm(quarantined, { force: true });
+      await rm(quarantinedAssets, { recursive: true, force: true });
+      return canonical;
+    } catch (error) {
+      if (movedDraft) await rename(quarantined, draft).catch(() => {});
+      if (movedAssets) await rename(quarantinedAssets, assets).catch(() => {});
+      throw error;
+    }
   }
 
   async saveImage(slug, fileName, mime, buffer, alt, { templateId, slot, operation }) {

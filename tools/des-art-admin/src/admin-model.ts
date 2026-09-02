@@ -38,7 +38,7 @@ export type FieldIssue = {
   message: string;
 };
 export type ChangeProject = { slug: string; title: string; valid: boolean; issues: FieldIssue[] };
-export type ChangeInventory = { count: number; projects: ChangeProject[] };
+export type ChangeInventory = { count: number; projects: ChangeProject[]; resettableSlugs?: string[] };
 
 export type PublishJob = {
   id: string;

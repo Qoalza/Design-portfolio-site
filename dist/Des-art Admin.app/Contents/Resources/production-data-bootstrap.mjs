@@ -1,7 +1,7 @@
-import { access, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-export const PRODUCTION_DATA_BASELINE_VERSION = 4;
+export const PRODUCTION_DATA_BASELINE_VERSION = 5;
 
 const activeWorkspaceNames = ["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs", "sandbox-origin-v1.json"];
 const TRANSITION_JOURNAL = "live-transition-journal-v1.json";
@@ -99,7 +99,8 @@ export async function ensureProductionDataBaseline({
   const marker = path.join(supportRoot, "production-data-baseline.json");
   const journal = path.join(supportRoot, TRANSITION_JOURNAL);
   const current = await readFile(marker, "utf8").then(JSON.parse).catch(() => undefined);
-  if (await readFile(journal, "utf8").catch(() => undefined)) {
+  const existingJournal = await readFile(journal, "utf8").then(JSON.parse).catch(() => undefined);
+  if (existingJournal && existingJournal.state !== "completed") {
     throw new Error("Предыдущий перенос live drafts не завершён. Автоматический повтор остановлен до проверки локального journal.");
   }
   if (!(await hasCanonicalProjects(managedRepo))) {
@@ -116,7 +117,16 @@ export async function ensureProductionDataBaseline({
   if (publishedSha.toLowerCase() !== sourceSha.toLowerCase()) {
     throw new Error("SHA опубликованного Portfolio не совпадает с каноническим main. Синхронизация данных остановлена.");
   }
-  if (current?.version === PRODUCTION_DATA_BASELINE_VERSION && current.source === "production-live") {
+  if (current?.version === 4 && current.source === "production-live") {
+    const upgraded = {
+      version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId: "legacy-v4", choice: "legacy-live",
+      source: "production-live", sourceSha: current.sourceSha, activeStoreRoot: ".", archivePath: current.archivePath ?? null,
+      completedAt: current.activatedAt ?? now().toISOString(), lastObservedAt: current.lastObservedAt ?? now().toISOString(),
+    };
+    await writeMarker(marker, upgraded);
+    return { migrated: false, archived: false, upgradedV4: true, activeStoreRoot: "." };
+  }
+  if (current?.version === PRODUCTION_DATA_BASELINE_VERSION && current.source === "production-live" && current.state !== "recovery_required") {
     if (current.sourceSha?.toLowerCase() === sourceSha.toLowerCase()) {
       return { migrated: false, archived: false };
     }
@@ -132,32 +142,33 @@ export async function ensureProductionDataBaseline({
   await stopService("preview");
   const timestamp = now().toISOString();
   const { archived, archivePath, archiveRoot } = await archiveSandboxTransaction({ supportRoot, timestamp, move });
+  const transitionId = `transition-${timestamp.replace(/[:.]/g, "-")}`;
+  const generationRoot = path.join(supportRoot, "live-generations", transitionId);
+  await atomicJson(journal, { version: 2, state: "archived", sourceSha, archivePath, transitionId, createdAt: timestamp });
+  await mkdir(generationRoot, { recursive: true });
+  await cp(path.join(managedRepo, "content", "projects"), path.join(generationRoot, "published-snapshots"), { recursive: true, force: false });
+  await mkdir(path.join(generationRoot, "preview-drafts"), { recursive: true });
+  await mkdir(path.join(generationRoot, "jobs"), { recursive: true });
   let transfer;
   if (prepareTransferredDrafts) {
     if (!archived || !archiveRoot) throw new Error("Перенос неопубликованных черновиков невозможен: тестовый архив не создан.");
-    await atomicJson(journal, { version: 1, status: "pending", sourceSha, archivePath, createdAt: timestamp });
-    transfer = await prepareTransferredDrafts({ archiveRoot, archivePath, sourceSha, journalPath: journal });
+    await atomicJson(journal, { version: 2, state: "staging", sourceSha, archivePath, transitionId, createdAt: timestamp });
+    transfer = await prepareTransferredDrafts({ archiveRoot, archivePath, sourceSha, journalPath: journal, generationRoot, transitionId });
   }
   try {
     await writeMarker(marker, {
-      version: PRODUCTION_DATA_BASELINE_VERSION,
+      version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId, choice: prepareTransferredDrafts ? "overlay" : "clean",
       source: "production-live",
       sourceSha,
-      archivedSandbox: archived,
-      archivePath,
-      activatedAt: timestamp,
+      activeStoreRoot: path.relative(supportRoot, generationRoot), archivePath: archivePath ?? null,
+      completedAt: timestamp,
       lastObservedAt: timestamp,
     });
   } catch (error) {
-    try { await transfer?.rollback?.(); } catch (rollbackError) {
-      throw new AggregateError([error, rollbackError], "Не удалось записать marker и вернуть live drafts в staging.");
-    }
+    await atomicJson(journal, { version: 2, state: "recovery_required", sourceSha, archivePath, transitionId, createdAt: timestamp });
     throw error;
   }
-  if (prepareTransferredDrafts) {
-    await transfer?.finalize?.();
-    await rm(journal, { force: true });
-  }
+  await atomicJson(journal, { version: 2, state: "completed", sourceSha, archivePath, transitionId, completedAt: now().toISOString() });
   const transferEvidence = transfer && Object.fromEntries(Object.entries(transfer)
     .filter(([key]) => key !== "rollback" && key !== "finalize"));
   return { migrated: true, archived, ...(transfer ? { transfer: transferEvidence } : {}) };

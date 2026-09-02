@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { access, mkdir, readdir } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import http from "node:http";
 
 function usage() {
   return "Usage: node tools/des-art-admin/run-candidate-sandbox.mjs --support-root <empty-temporary-directory> [--repo-root <absolute-path>] [--port <1024-65535>] [--preview-port <1024-65535>]";
@@ -55,16 +56,30 @@ async function main() {
   await access(path.join(options.repoRoot, "tools", "des-art-admin", "server.mjs"));
   await mkdir(options.supportRoot, { recursive: true });
   if ((await readdir(options.supportRoot)).length) throw new Error("Candidate sandbox support root must be empty.");
-  process.stdout.write(`Candidate Admin sandbox: http://127.0.0.1:${options.port}/\n`);
   const child = spawn(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], {
     cwd: options.repoRoot,
     env: candidateSandboxEnvironment(options),
     stdio: "inherit",
   });
-  await new Promise((resolve, reject) => {
+  const exited = new Promise((resolve, reject) => {
     child.once("error", reject);
-    child.once("exit", (code) => resolve(code));
+    child.once("exit", (code) => code === 0 ? resolve() : reject(new Error(`Candidate Admin server exited with status ${code ?? "unknown"}.`)));
   });
+  const ready = new Promise((resolve, reject) => {
+    const deadline = Date.now() + 30_000;
+    const check = () => {
+      const request = http.get({ hostname: "127.0.0.1", port: options.port, path: "/", timeout: 600 }, (response) => {
+        response.resume();
+        if (response.statusCode === 200) resolve(); else retry();
+      });
+      const retry = () => Date.now() >= deadline ? reject(new Error("Candidate Admin sandbox did not become ready.")) : setTimeout(check, 150);
+      request.on("error", retry); request.on("timeout", () => { request.destroy(); retry(); });
+    };
+    check();
+  });
+  await Promise.race([ready, exited]);
+  process.stdout.write(`Candidate Admin sandbox: http://127.0.0.1:${options.port}/\n`);
+  await exited;
 }
 
 if (import.meta.url === new URL(process.argv[1], "file:").href) {

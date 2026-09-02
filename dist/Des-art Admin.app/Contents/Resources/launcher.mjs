@@ -217,51 +217,17 @@ async function main() {
       publishedSha = await confirmedPublishedSha();
       ({ targetSha } = await ensureManagedRepository({ publishedSha }));
       const baselineMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
-      const hasLiveBaseline = baselineMarker?.version === 4 && baselineMarker?.source === "production-live";
+      const hasLiveBaseline = (baselineMarker?.version === 4 || baselineMarker?.version === 5) && baselineMarker?.source === "production-live";
       const runtime = await transitionRuntime();
       const transition = hasLiveBaseline ? undefined : await runtime.readLiveTransitionRequest(supportRoot);
       if (!hasLiveBaseline && !transition) throw new Error("Перед первым переводом Admin в live выберите путь: чистый production baseline или перенос неопубликованных черновиков.");
-      const transitionOrigin = transition?.selection === "delta" ? await runtime.readSandboxOrigin(supportRoot) : undefined;
-      const transitionProduction = transition?.selection === "delta" ? await canonicalProjects() : undefined;
-      if (transition?.selection === "delta") {
-        if (!transitionOrigin && !transition.units?.length) throw new Error("Для старого тестового контура сначала выберите поля на странице «Проверка переноса».");
-        const sandboxProjects = await runtime.readSandboxDraftProjects(supportRoot);
-        const preview = transitionOrigin
-          ? runtime.buildUnpublishedDraftTransfer({ origin: transitionOrigin, sandboxProjects, productionProjects: transitionProduction })
-          : runtime.buildLegacySelectedDraftTransfer({ sandboxProjects, productionProjects: transitionProduction, units: transition.units });
-        if (preview.reviewRequired) throw new Error("Sandbox origin не покрывает текущие черновики. Сначала выполните локальную проверку переноса.");
-        if (preview.blocked) throw new Error(`Production изменил те же данные: ${preview.conflicts.map(({ slug, unit }) => `${slug}/${unit}`).join(", ")}. Перенос остановлен до архивирования.`);
-      }
-      const transferDrafts = transition?.selection === "delta"
-            ? async ({ archiveRoot }) => {
-              const origin = await runtime.readSandboxOrigin(archiveRoot);
-              const stagingRoot = path.join(supportRoot, `.live-transition-${process.pid}-${Date.now()}.staging`);
-              let activated = false;
-              try {
-                const staged = await runtime.stageUnpublishedDraftTransfer({
-                  archiveRoot,
-                  stagingRoot,
-                  origin,
-                  legacyUnits: transition.units,
-                  productionProjects: transitionProduction,
-                });
-                if (staged.reviewRequired || staged.blocked) throw new Error("Не удалось безопасно подтвердить перенос черновиков. Перенос остановлен до активации live drafts.");
-                const activation = await runtime.activateStagedDraftTransfer({ supportRoot, stagingRoot });
-                activated = true;
-                return {
-                  drafts: staged.drafts.map((draft) => draft.slug),
-                  assetHashes: staged.assetHashes,
-                  activated: activation.activated,
-                  rollback: async () => {
-                    await activation.rollback();
-                    await rm(stagingRoot, { recursive: true, force: true });
-                  },
-                  finalize: async () => rm(stagingRoot, { recursive: true, force: true }),
-                };
-              } finally {
-                if (!activated) await rm(stagingRoot, { recursive: true, force: true });
-              }
-            }
+      if (transition && transition.targetSha !== targetSha) throw new Error("Production SHA изменился после выбора пути. Запишите новый live-transition request.");
+      const transitionProduction = transition?.choice === "overlay" ? await canonicalProjects() : undefined;
+      const transferDrafts = transition?.choice === "overlay"
+        ? async ({ archiveRoot, generationRoot }) => {
+          const staged = await runtime.stageUnpublishedDraftTransfer({ archiveRoot, stagingRoot: generationRoot, productionProjects: transitionProduction, choice: "overlay" });
+          return { drafts: staged.drafts.map((draft) => draft.slug), assetHashes: staged.assetHashes };
+        }
             : undefined;
       liveTransitionStarted = true;
       await ensureProductionDataBaseline({
@@ -281,6 +247,9 @@ async function main() {
     ({ targetSha } = await ensureManagedRepository());
     await initializeSandboxOrigin({ targetSha });
   }
+  const activeMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
+  const activeStoreRoot = activeMarker?.version === 5 && typeof activeMarker.activeStoreRoot === "string"
+    ? path.resolve(supportRoot, activeMarker.activeStoreRoot) : supportRoot;
   await mkdir(logsRoot, { recursive: true });
   // The managed repository may have advanced while the existing Node processes
   // still hold the previous server and Next.js modules in memory.
@@ -293,14 +262,15 @@ async function main() {
       DES_ART_ADMIN_PORT: String(adminPort),
       DES_ART_PREVIEW_PORT: String(previewPort),
       DES_ART_ADMIN_PUBLISH_MODE: publishMode,
+      DES_ART_ADMIN_STORE_ROOT: activeStoreRoot,
     });
   }
   if (!(await reachable(previewPort))) {
     await detached("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], "preview", {
       DES_ART_ADMIN_PREVIEW: "1",
       DES_ART_PREVIEW_PORT: String(previewPort),
-      DES_ART_ADMIN_DRAFT_ROOT: path.join(supportRoot, "preview-drafts"),
-      DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(supportRoot, "draft-assets"),
+      DES_ART_ADMIN_DRAFT_ROOT: path.join(activeStoreRoot, "preview-drafts"),
+      DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(activeStoreRoot, "draft-assets"),
     });
   }
   await waitUntilReady(adminPort);

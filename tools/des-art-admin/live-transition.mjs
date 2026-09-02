@@ -4,9 +4,9 @@ import path from "node:path";
 import { parseAdminDraft } from "./draft-contract.mjs";
 
 export const SANDBOX_ORIGIN_VERSION = 1;
-export const LIVE_TRANSITION_REQUEST_VERSION = 1;
+export const LIVE_TRANSITION_REQUEST_VERSION = 2;
 export const sandboxOriginPath = (supportRoot) => path.join(supportRoot, "sandbox-origin-v1.json");
-export const liveTransitionRequestPath = (supportRoot) => path.join(supportRoot, "live-transition-request-v1.json");
+export const liveTransitionRequestPath = (supportRoot) => path.join(supportRoot, "live-transition-request-v2.json");
 
 const clone = (value) => structuredClone(value);
 
@@ -218,18 +218,17 @@ export function buildSandboxOrigin({ sourceSha, projects, assetHashes }) {
   };
 }
 
-export function createLiveTransitionRequest({ selection, units } = {}) {
-  if (selection !== "clean" && selection !== "delta") throw new Error("Live transition selection is required.");
-  if (units !== undefined && (!Array.isArray(units) || units.some((unit) => !unit
-    || typeof unit.slug !== "string"
-    || typeof unit.key !== "string"
-    || !/^[0-9a-f]{64}$/i.test(unit.fingerprint)))) {
-    throw new Error("Live transition review selection is invalid.");
-  }
+export function createLiveTransitionRequest({ choice, targetSha, transitionId, requestedAt } = {}) {
+  if (choice !== "clean" && choice !== "overlay") throw new Error("Live transition choice is required.");
+  if (!/^[0-9a-f]{40}$/i.test(targetSha ?? "")) throw new Error("Live transition request requires an exact production SHA.");
+  if (typeof transitionId !== "string" || !/^[a-z0-9][a-z0-9-]{7,}$/i.test(transitionId)) throw new Error("Live transition request requires a transition ID.");
+  if (typeof requestedAt !== "string" || Number.isNaN(Date.parse(requestedAt))) throw new Error("Live transition request requires requestedAt.");
   return {
     version: LIVE_TRANSITION_REQUEST_VERSION,
-    selection,
-    ...(units ? { units: units.map(({ slug, key, fingerprint }) => ({ slug, key, fingerprint: fingerprint.toLowerCase() })) } : {}),
+    choice,
+    targetSha: targetSha.toLowerCase(),
+    transitionId,
+    requestedAt,
   };
 }
 
@@ -258,18 +257,44 @@ export async function readSandboxOrigin(supportRoot) {
   } catch (error) { if (error?.code === "ENOENT") return undefined; throw error; }
 }
 
-export async function saveLiveTransitionRequest({ supportRoot, selection, units }) {
+export async function saveLiveTransitionRequest({ supportRoot, choice, targetSha, transitionId, requestedAt }) {
   if (await readLiveTransitionRequest(supportRoot)) throw new Error("Live transition request already exists.");
-  const request = createLiveTransitionRequest({ selection, units });
+  const request = createLiveTransitionRequest({ choice, targetSha, transitionId, requestedAt });
   await atomicJson(liveTransitionRequestPath(supportRoot), request);
   return request;
 }
 
 export async function readLiveTransitionRequest(supportRoot) {
   try {
+    await access(path.join(supportRoot, "live-transition-request-v1.json"));
+    throw new Error("Legacy live-transition request v1 is not accepted. Record a new clean or overlay choice.");
+  } catch (error) { if (error?.code !== "ENOENT") throw error; }
+  try {
     const request = JSON.parse(await readFile(liveTransitionRequestPath(supportRoot), "utf8"));
     return createLiveTransitionRequest(request);
   } catch (error) { if (error?.code === "ENOENT") return undefined; throw error; }
+}
+
+function overlayValue(production, sandbox) {
+  if (Array.isArray(sandbox)) return clone(sandbox);
+  if (!sandbox || typeof sandbox !== "object") return clone(sandbox);
+  const result = production && typeof production === "object" && !Array.isArray(production) ? clone(production) : {};
+  for (const [key, value] of Object.entries(sandbox)) result[key] = overlayValue(result[key], value);
+  return result;
+}
+
+/** Production is the base; every present sandbox value wins. This deliberately
+ * does not inspect origin or attempt conflict resolution. */
+export function buildOverlayDraftTransfer({ sandboxProjects, productionProjects }) {
+  const production = new Map(productionProjects.map((project) => [project.slug, project]));
+  const drafts = [];
+  for (const sandbox of sandboxProjects) {
+    const current = production.get(sandbox.slug);
+    const next = current ? overlayValue(current, sandbox) : { ...clone(sandbox), visibility: "draft" };
+    if (!current) next.visibility = "draft";
+    if (!current || !same(next, current)) drafts.push(next);
+  }
+  return { blocked: false, reviewRequired: false, conflicts: [], drafts };
 }
 
 export async function consumeLiveTransitionRequest(supportRoot) {
@@ -455,9 +480,25 @@ function draftAssetSources(draft) {
   return sources;
 }
 
-export async function stageUnpublishedDraftTransfer({ archiveRoot, stagingRoot, origin, productionProjects, legacyUnits }) {
+function changedDraftAssetSources(sandbox, production) {
+  const prefix = `/assets/projects/${sandbox.slug}/`;
+  const sources = new Set();
+  const visit = (candidate, current) => {
+    if (same(candidate, current)) return;
+    if (Array.isArray(candidate)) { candidate.forEach((item, index) => visit(item, current?.[index])); return; }
+    if (!candidate || typeof candidate !== "object") return;
+    if (typeof candidate.src === "string" && candidate.src.startsWith(prefix)) sources.add(candidate.src.slice(prefix.length));
+    for (const [key, value] of Object.entries(candidate)) visit(value, current?.[key]);
+  };
+  visit(sandbox, production);
+  return sources;
+}
+
+export async function stageUnpublishedDraftTransfer({ archiveRoot, stagingRoot, origin, productionProjects, legacyUnits, choice }) {
   const sandboxProjects = await readSandboxDraftProjects(archiveRoot);
-  const result = origin
+  const result = choice === "overlay"
+    ? buildOverlayDraftTransfer({ sandboxProjects, productionProjects })
+    : origin
     ? buildUnpublishedDraftTransfer({ origin, sandboxProjects, productionProjects })
     : legacyUnits?.length
       ? buildLegacySelectedDraftTransfer({ sandboxProjects, productionProjects, units: legacyUnits })
@@ -469,11 +510,15 @@ export async function stageUnpublishedDraftTransfer({ archiveRoot, stagingRoot, 
     [...draftAssetSources(project)].map((source) => `/assets/projects/${project.slug}/${source}`)
   )));
   await mkdir(destination, { recursive: true });
+  const sandboxBySlug = new Map(sandboxProjects.map((project) => [project.slug, project]));
+  const productionBySlug = new Map(productionProjects.map((project) => [project.slug, project]));
   for (const draft of result.drafts) {
     parseAdminDraft(JSON.stringify(draft), `${draft.slug}.json`);
     const file = path.join(destination, `${draft.slug}.json`);
     await writeFile(file, `${JSON.stringify(draft, null, 2)}\n`, { encoding: "utf8", mode: 0o600, flag: "wx" });
-    for (const source of draftAssetSources(draft)) {
+    const sandbox = sandboxBySlug.get(draft.slug);
+    const changedSources = sandbox ? changedDraftAssetSources(sandbox, productionBySlug.get(draft.slug)) : new Set();
+    for (const source of changedSources) {
       const from = path.join(archiveRoot, "draft-assets", draft.slug, source);
       try { await access(from); } catch {
         if (canonicalAssets.has(`/assets/projects/${draft.slug}/${source}`)) continue;

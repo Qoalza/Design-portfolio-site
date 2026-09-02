@@ -6,6 +6,7 @@ import path from "node:path";
 
 import {
   buildSandboxOrigin,
+  buildOverlayDraftTransfer,
   buildLegacySelectedDraftTransfer,
   buildUnpublishedDraftTransfer,
   buildLegacyTransferReview,
@@ -154,13 +155,18 @@ test("delta transfer creates new sandbox projects as unpublished live drafts and
   assert.equal(result.drafts[0].catalogOrder, undefined);
 });
 
-test("missing origin requires manual review and transition request is explicit", () => {
-  const result = buildUnpublishedDraftTransfer({ origin: undefined, sandboxProjects: [project("legacy")], productionProjects: [] });
-  assert.equal(result.reviewRequired, true);
-  assert.equal(result.drafts.length, 0);
-  assert.throws(() => createLiveTransitionRequest({ path: "delta" }), /selection/i);
-  assert.throws(() => createLiveTransitionRequest({ selection: "delta", units: [{ slug: "legacy", key: "title" }] }), /selection/i);
-  assert.deepEqual(createLiveTransitionRequest({ selection: "clean" }).selection, "clean");
+test("overlay has no manual review: sandbox values including empty, deletion and placement win", () => {
+  const result = buildOverlayDraftTransfer({
+    sandboxProjects: [project("legacy", { title: "", visibility: "deleted", catalogOrder: 9, homePlacement: "secondary", content: [] })],
+    productionProjects: [project("legacy", { title: "Production", visibility: "published", catalogOrder: 1, homePlacement: "primary", content: [section("a", "Production")] })],
+  });
+  assert.equal(result.reviewRequired, false);
+  assert.equal(result.drafts[0].title, "");
+  assert.equal(result.drafts[0].visibility, "deleted");
+  assert.equal(result.drafts[0].catalogOrder, 9);
+  assert.deepEqual(result.drafts[0].content, []);
+  assert.throws(() => createLiveTransitionRequest({ choice: "overlay" }), /SHA/);
+  assert.equal(createLiveTransitionRequest({ choice: "clean", targetSha: "a".repeat(40), transitionId: "transition-test", requestedAt: "2026-09-02T00:00:00.000Z" }).choice, "clean");
 });
 
 test("legacy review exposes only additive or replacement units and never deletion or global placement", () => {
@@ -270,9 +276,9 @@ test("origin is immutable and a selected transition request is consumed once", a
   await saveSandboxOrigin({ supportRoot, sourceSha: "a".repeat(40), projects: [project("base")], assetHashes: {} });
   await saveSandboxOrigin({ supportRoot, sourceSha: "b".repeat(40), projects: [project("other")], assetHashes: {} });
   assert.equal((await readSandboxOrigin(supportRoot)).sourceSha, "a".repeat(40));
-  await saveLiveTransitionRequest({ supportRoot, selection: "delta" });
-  await assert.rejects(saveLiveTransitionRequest({ supportRoot, selection: "clean" }), /already exists/);
-  assert.equal((await consumeLiveTransitionRequest(supportRoot)).selection, "delta");
+  await saveLiveTransitionRequest({ supportRoot, choice: "overlay", targetSha: "a".repeat(40), transitionId: "transition-test", requestedAt: "2026-09-02T00:00:00.000Z" });
+  await assert.rejects(saveLiveTransitionRequest({ supportRoot, choice: "clean", targetSha: "a".repeat(40), transitionId: "transition-other", requestedAt: "2026-09-02T00:00:00.000Z" }), /already exists/);
+  assert.equal((await consumeLiveTransitionRequest(supportRoot)).choice, "overlay");
   await assert.rejects(() => consumeLiveTransitionRequest(supportRoot));
 });
 

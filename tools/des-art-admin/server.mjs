@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { closeSync, openSync } from "node:fs";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,6 +17,7 @@ import { createPreviewRuntimeIdentity, previewHealthMatches } from "./preview-ru
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(directory, "../.."));
 const supportRoot = path.resolve(process.env.DES_ART_ADMIN_SUPPORT ?? path.join(repoRoot, ".des-art-admin-runtime"));
+const storeRoot = path.resolve(process.env.DES_ART_ADMIN_STORE_ROOT ?? supportRoot);
 const port = Number(process.env.DES_ART_ADMIN_PORT ?? 41731);
 const previewPort = Number(process.env.DES_ART_PREVIEW_PORT ?? 41732);
 const publishMode = process.env.DES_ART_ADMIN_PUBLISH_MODE === "live" ? "live" : "sandbox";
@@ -30,12 +31,12 @@ const adminAssetVersion = createHash("sha256")
 const store = new AdminStore({
   contentRoot: path.join(repoRoot, "content", "projects"),
   assetRoot: path.join(repoRoot, "public", "assets", "projects"),
-  draftRoot: path.join(supportRoot, "drafts"),
-  draftAssetRoot: path.join(supportRoot, "draft-assets"),
-  snapshotRoot: path.join(supportRoot, "published-snapshots"),
+  draftRoot: path.join(storeRoot, "drafts"),
+  draftAssetRoot: path.join(storeRoot, "draft-assets"),
+  snapshotRoot: path.join(storeRoot, "published-snapshots"),
 });
-const jobsRoot = path.join(supportRoot, "jobs");
-const previewRoot = path.join(supportRoot, "preview-drafts");
+const jobsRoot = path.join(storeRoot, "jobs");
+const previewRoot = path.join(storeRoot, "preview-drafts");
 const logsRoot = path.join(supportRoot, "logs");
 const previewMarker = path.join(supportRoot, "preview-runtime.json");
 const imageTypes = new Map([
@@ -285,6 +286,12 @@ async function handler(request, response) {
       if (request.method === "POST" && segments[3] === "visibility") {
         const value = await body(request);
         return json(response, 200, await store.setVisibility(slug, value.visibility));
+      }
+      if (request.method === "POST" && segments[3] === "reset-to-production") {
+        if (publishMode !== "live") return userError(response, 403, "Сброс недоступен", "Сброс до опубликованной версии доступен только в live Admin.");
+        const value = await store.resetToProduction(slug);
+        await rm(path.join(previewRoot, `${slug}.json`), { force: true });
+        return json(response, 200, value);
       }
       if (request.method === "POST" && segments[3] === "upload") {
         const value = await body(request);
