@@ -135,18 +135,55 @@ async function waitUntilReady(port, timeout = 60_000) {
   throw new Error(`Local service on port ${port} did not start.`);
 }
 
+async function launchSandboxWithoutBootstrap() {
+  if (await reachable(adminPort)) {
+    await openAdmin();
+    return;
+  }
+  await access(path.join(managedRepo, ".git"));
+  await access(path.join(managedRepo, "node_modules"));
+  await mkdir(logsRoot, { recursive: true });
+  await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
+    DES_ART_ADMIN_REPO: managedRepo,
+    DES_ART_ADMIN_SUPPORT: supportRoot,
+    DES_ART_ADMIN_PORT: String(adminPort),
+    DES_ART_PREVIEW_PORT: String(previewPort),
+    DES_ART_ADMIN_PUBLISH_MODE: "sandbox",
+  });
+  if (!(await reachable(previewPort))) {
+    await detached("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], "preview", {
+      DES_ART_ADMIN_PREVIEW: "1",
+      DES_ART_PREVIEW_PORT: String(previewPort),
+      DES_ART_ADMIN_DRAFT_ROOT: path.join(supportRoot, "preview-drafts"),
+      DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(supportRoot, "draft-assets"),
+    });
+  }
+  await waitUntilReady(adminPort);
+  await waitUntilReady(previewPort);
+  await openAdmin();
+}
+
 async function main() {
   const publishMode = await configuredPublishMode();
-  const publishedSha = publishMode === "live" ? await confirmedPublishedSha() : undefined;
-  const { targetSha } = await ensureManagedRepository({ publishedSha });
+  let targetSha;
+  let publishedSha;
   if (publishMode === "live") {
-    await ensureProductionDataBaseline({
-      supportRoot,
-      managedRepo,
-      stopService,
-      resolveSourceSha: async () => targetSha,
-      resolvePublishedSha: async () => publishedSha,
-    });
+    try {
+      publishedSha = await confirmedPublishedSha();
+      ({ targetSha } = await ensureManagedRepository({ publishedSha }));
+      await ensureProductionDataBaseline({
+        supportRoot,
+        managedRepo,
+        stopService,
+        resolveSourceSha: async () => targetSha,
+        resolvePublishedSha: async () => publishedSha,
+      });
+    } catch {
+      await launchSandboxWithoutBootstrap();
+      return;
+    }
+  } else {
+    ({ targetSha } = await ensureManagedRepository());
   }
   await mkdir(logsRoot, { recursive: true });
   // The managed repository may have advanced while the existing Node processes

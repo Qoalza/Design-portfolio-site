@@ -49,6 +49,8 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /npm-lock\.sha256/);
   assert.match(launcher, /createHash\("sha256"\)/);
   assert.match(launcher, /ensureProductionDataBaseline/);
+  assert.match(launcher, /launchSandboxWithoutBootstrap/);
+  assert.match(launcher, /await launchSandboxWithoutBootstrap\(\);/);
 });
 
 test("admin is not an App Router route and preview access is env-gated", async () => {
