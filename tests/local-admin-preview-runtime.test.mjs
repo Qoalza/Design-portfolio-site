@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, realpath, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, realpath, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -9,6 +9,13 @@ import {
   createPreviewRuntimeIdentity,
   previewHealthMatches,
 } from "../tools/des-art-admin/preview-runtime.mjs";
+
+const server = await readFile(new URL("../tools/des-art-admin/server.mjs", import.meta.url), "utf8");
+
+test("preview request allows a cold Portfolio route to finish compiling", () => {
+  assert.match(server, /const PREVIEW_REQUEST_TIMEOUT_MS = 5000;/);
+  assert.match(server, /timeout: PREVIEW_REQUEST_TIMEOUT_MS/);
+});
 
 test("preview runtime identity binds the actual root and executable source bytes", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-preview-runtime-"));

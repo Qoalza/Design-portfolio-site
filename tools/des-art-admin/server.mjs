@@ -20,6 +20,7 @@ const supportRoot = path.resolve(process.env.DES_ART_ADMIN_SUPPORT ?? path.join(
 const storeRoot = path.resolve(process.env.DES_ART_ADMIN_STORE_ROOT ?? supportRoot);
 const port = Number(process.env.DES_ART_ADMIN_PORT ?? 41731);
 const previewPort = Number(process.env.DES_ART_PREVIEW_PORT ?? 41732);
+const PREVIEW_REQUEST_TIMEOUT_MS = 5000;
 const publishMode = process.env.DES_ART_ADMIN_PUBLISH_MODE === "live" ? "live" : "sandbox";
 const maintenanceMode = process.env.DES_ART_ADMIN_MAINTENANCE === "1";
 const csrfToken = randomBytes(32).toString("hex");
@@ -81,7 +82,7 @@ const previewRuntime = await createPreviewRuntimeIdentity({
 
 function requestPreview(pathname) {
   return new Promise((resolve) => {
-    const request = http.get({ hostname: "127.0.0.1", port: previewPort, path: pathname, timeout: 700 }, (result) => {
+    const request = http.get({ hostname: "127.0.0.1", port: previewPort, path: pathname, timeout: PREVIEW_REQUEST_TIMEOUT_MS }, (result) => {
       const chunks = [];
       result.on("data", (chunk) => chunks.push(chunk));
       result.on("end", () => resolve({ status: result.statusCode ?? 0, body: Buffer.concat(chunks).toString("utf8") }));
