@@ -29,6 +29,12 @@ const fingerprintMatches = (value, fingerprint) => typeof fingerprint === "strin
   && /^[0-9a-f]{64}$/i.test(fingerprint)
   && unitFingerprint(value) === fingerprint.toLowerCase();
 const ignoredKeys = new Set(["slug", "schemaVersion", "catalogOrder", "homePlacement", "visibility", "admin", "content"]);
+const legacyFieldLabels = {
+  detailAvailable: "Страница проекта",
+};
+const legacyVisualLabels = {
+  hero: "Главное изображение страницы проекта",
+};
 
 function normalizeOriginProjects(projects = []) {
   return projects.map((project) => {
@@ -285,11 +291,11 @@ export function buildLegacyTransferReview({ sandboxProjects, productionProjects 
     const units = [];
     for (const [key, value] of Object.entries(sandbox)) {
       if (ignoredKeys.has(key) || key === "content" || key === "visuals" || !hasValue(value) || same(currentDraft?.[key], value)) continue;
-      units.push({ key, kind: "field", label: key, fingerprint: unitFingerprint(currentDraft?.[key]) });
+      units.push({ key, kind: "field", label: legacyFieldLabels[key] ?? key, fingerprint: unitFingerprint(currentDraft?.[key]) });
     }
     for (const [surface, value] of Object.entries(sandbox.visuals ?? {})) {
       if (!hasVisualValue(value) || same(currentDraft?.visuals?.[surface], value)) continue;
-      units.push({ key: `visual:${surface}`, kind: "visual", label: surface, fingerprint: unitFingerprint(currentDraft?.visuals?.[surface]) });
+      units.push({ key: `visual:${surface}`, kind: "visual", label: legacyVisualLabels[surface] ?? surface, fingerprint: unitFingerprint(currentDraft?.visuals?.[surface]) });
     }
     for (const item of sandbox.content ?? []) {
       if (!hasValue(item)) continue;

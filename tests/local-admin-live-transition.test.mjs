@@ -173,6 +173,23 @@ test("legacy review exposes only additive or replacement units and never deletio
   assert.ok(!review.projects[0].units.some((unit) => /catalogOrder|homePlacement|visibility/.test(unit.key)));
 });
 
+test("legacy transfer review presents page activation and hero with human labels", () => {
+  const sandbox = project("sarafan", {
+    detailAvailable: true,
+    visuals: {
+      catalog: { templateId: "catalog.browser", assets: {} },
+      hero: { templateId: "hero.sarafan-collage", assets: { image: [{ src: "/assets/projects/sarafan/hero.png" }] } },
+    },
+  });
+  const review = buildLegacyTransferReview({ sandboxProjects: [sandbox], productionProjects: [project("sarafan")] });
+  const labels = Object.fromEntries(review.projects[0].units.map((unit) => [unit.key, unit.label]));
+
+  assert.equal(labels.detailAvailable, "Страница проекта");
+  assert.equal(labels["visual:hero"], "Главное изображение страницы проекта");
+  assert.ok(!Object.values(labels).includes("detailAvailable"));
+  assert.ok(!Object.values(labels).includes("hero"));
+});
+
 test("legacy review applies only explicitly selected units and never transfers a deletion", () => {
   const sandbox = project("sarafan", { title: "Sandbox", description: "Sandbox description", catalogOrder: 9, content: [{ type: "section", adminId: "about", heading: "Sandbox about", blocks: [] }] });
   const production = project("sarafan", { title: "Production", description: "Production description", catalogOrder: 2, homePlacement: "primary", content: [{ type: "section", adminId: "about", heading: "Production about", blocks: [] }] });
