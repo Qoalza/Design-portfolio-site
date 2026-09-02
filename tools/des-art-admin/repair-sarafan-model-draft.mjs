@@ -14,8 +14,8 @@ function clone(value) {
 
 function visualReferences(draft) {
   return draft.content.flatMap((section) => section.type !== "section" ? [] : section.blocks
-    .filter((block) => block.type === "visual")
-    .map((visual) => ({ section, visual, source: draft.admin?.visualSources?.[section.adminId] })));
+    .map((visual, blockIndex) => ({ section, visual, blockIndex, source: draft.admin?.visualSources?.[section.adminId] }))
+    .filter(({ visual }) => visual.type === "visual" || typeof visual.templateId === "string"));
 }
 
 export function findSarafanModelRepair(draft) {
@@ -25,8 +25,8 @@ export function findSarafanModelRepair(draft) {
   });
   if (matches.length !== 1) throw new Error(`Ожидался ровно один локальный блок «Модель», найдено ${matches.length}. Черновик не изменён.`);
   const match = matches[0];
-  if (match.visual.templateId === TARGET_TEMPLATE) throw new Error("Локальный блок «Модель» уже использует актуальный шаблон.");
-  if (match.visual.templateId !== "canvas.sarafan-scenarios") throw new Error("Найденный блок не является ошибочно назначенным шаблоном «Сценарии».");
+  if (match.visual.templateId === TARGET_TEMPLATE && match.visual.type === "visual") throw new Error("Локальный блок «Модель» уже использует актуальный шаблон.");
+  if (match.visual.templateId !== TARGET_TEMPLATE && match.visual.templateId !== "canvas.sarafan-scenarios") throw new Error("Найденный блок не является ошибочно назначенным шаблоном «Сценарии».");
   return match;
 }
 
@@ -38,7 +38,7 @@ export function applySarafanModelRepair(draft, imported) {
   const next = clone(draft);
   next.content = next.content.map((section) => section.adminId !== match.section.adminId ? section : {
     ...section,
-    blocks: section.blocks.map((block) => block.type === "visual" ? imported.visual : block),
+    blocks: section.blocks.map((block, blockIndex) => blockIndex === match.blockIndex ? { type: "visual", ...imported.visual } : block),
   });
   next.admin = {
     ...next.admin,

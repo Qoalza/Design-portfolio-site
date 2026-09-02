@@ -22,6 +22,7 @@ test("repair selects only the mistaken Model source and atomically replaces its 
     visual: { templateId: "canvas.sarafan-model", assets: { content: [{ src: "/assets/projects/sarafan-radio/figma/new/content.png", alt: "Модель", width: 1520, height: 768 }] } },
     source: { url: modelUrl, templateId: "canvas.sarafan-model", preview: { src: "/assets/projects/sarafan-radio/figma/new/preview.png", width: 2000, height: 960 } },
   });
+  assert.equal(repaired.content[0].blocks[0].type, "visual");
   assert.equal(repaired.content[0].blocks[0].templateId, "canvas.sarafan-model");
   assert.equal(repaired.admin.visualSources.model.templateId, "canvas.sarafan-model");
 });
@@ -31,6 +32,13 @@ test("repair refuses missing, repeated or already-correct Model sources", () => 
   const correct = draft();
   correct.content[0].blocks[0].templateId = "canvas.sarafan-model";
   assert.throws(() => findSarafanModelRepair(correct), /уже использует/i);
+});
+
+test("repair accepts an interrupted Model import that is missing only its visual discriminator", () => {
+  const interrupted = draft();
+  interrupted.content[0].blocks[0] = { ...interrupted.content[0].blocks[0], type: undefined, templateId: "canvas.sarafan-model" };
+  interrupted.admin.visualSources.model.templateId = "canvas.sarafan-model";
+  assert.equal(findSarafanModelRepair(interrupted).section.adminId, "model");
 });
 
 test("repair backup copies only the affected draft JSON and its referenced asset folder", async () => {
