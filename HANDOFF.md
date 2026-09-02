@@ -6,28 +6,29 @@
 
 - Репозиторий: `/Users/designer/Documents/GitHub/Design-portfolio-site`.
 - Ветка: `codex/auto-hero-activation`; base `origin/main` — `2d83e87f90624d08e6923bdfc26ba97a54c62474`.
-- Текущая Git-группа: безопасный перенос неопубликованной разницы sandbox → local live drafts.
+- Текущая Git-группа: стабилизация deterministic `clean|overlay` live-transition, reset и текстовой истории.
 - Protected untracked и `USERSPACE/**` не затронуты.
 
 ## Current checkpoint
 
-- Semantic transfer сравнивает отдельные поля, visual surfaces, sections и gallery с immutable origin и current production. Конфликт, удалённый production unit или неоднозначная секция останавливают переход до archive/staging. Страница проекта теперь неделима: `detailAvailable` и hero переносятся только вместе; неполная страница не предлагается.
-- Request первого перехода не доступен в Admin UI или HTTP API. Codex сначала получает явный выбор пользователя, затем отдельная локальная operator-команда сохраняет одноразовый request; сама команда не запускает Admin, archive или publish.
+- Request первого перехода не доступен в Admin UI или HTTP API. Codex сначала получает явный выбор пользователя, затем отдельная локальная operator-команда сохраняет одноразовый request `clean|overlay`, привязанный к full production SHA; сама команда не запускает Admin, archive или publish.
+- При `overlay` production остаётся baseline, а все присутствующие sandbox project-authoring values побеждают в local live draft, включая пустые значения, удаление, visibility, порядок и placement. Jobs, previews, snapshots и runtime state остаются только в archive. Это не publish.
+- Новый live store изолирован в generation. Lock защищает от одновременного запуска; после archive journal позволяет повторно активировать только ту же проверенную generation без второго archive.
+- Reset виден только у изменённого production-проекта в verified live, имеет отдельное confirmation и затрагивает только его local state. В sandbox и у draft-only проекта кнопки нет.
+- Cmd+Z/Shift+Cmd+Z хранят до пяти текстовых операций текущего проекта; media, Figma, структуры и action buttons не входят в историю.
 - Для проверки ещё не влитого candidate добавлен отдельный sandbox runner: только новый пустой support-root внутри системной temporary directory и принудительный sandbox mode. Обычный App Support, live config и production не используются.
-- Launcher проверяет оба пути до archive, не запускает fallback sandbox после начала transition, а пакет Admin пересобран из актуальных исходников.
+- Launcher проверяет выбранный путь и SHA до archive, не запускает fallback sandbox после начала transition, а пакет Admin пересобран из актуальных исходников.
 - Read-only provenance для кандидата без canonical-изменений фиксирует `noCanonicalChanges: true`; assets и неизвестные project JSON по-прежнему отклоняются.
 - Правило данных неизменно: `production → local Admin`; local drafts не попадают в Git, canonical content/assets, publish или production.
-- **RESOLVED candidate/runtime issue:** launcher намеренно переключает managed repository на `origin/main`; candidate теперь принимается только отдельным isolated sandbox runner, а не обычной packaged Admin. Кнопка перехода и raw transfer units удалены из Admin UI.
-- Audit `origin/main..034d06a`: диапазон линейный, без merge-узлов и без изменений canonical `content/projects`/`public/assets/projects`; Hot Fix `efb1f6c` обязателен и совместим с preview-runtime.
-- Первый self-review data boundary пройден: UI/server не сохраняют transition request, выбор `clean|delta` обязателен в operator-команде, и page unit не бывает частичной. Второй self-review candidate/diff/package пройден; exact read-only provenance `origin/main → candidate` подтвердил `noCanonicalChanges: true`.
+- UI transition и ручной field-review отсутствуют. Известная отдельная UI-проблема raw-labels `detailAvailable`/`hero` записана как `OPEN` в `DESIGN_QA.md` и не исправлялась в этой Git-группе.
+- Два self-review пройдены: data/state safety выявил и устранил recovery marker/generation и stale-lock gaps; UX/candidate/docs выявил и обновил устаревший boundary-test, ожидавший удалённый manual-review flow.
 
 ## Verification
 
-- Focused transfer/operator/boundary tests: `53/53`.
+- Focused transfer/operator/core/boundary tests: green.
 - Full repository tests: `290/290`; `npm run lint`: green; production build: green.
 - Admin bundle source/package parity: green.
-- Production build exact `034d06ae6f5d4e4afa70f9cd4be70cb8ac3fc1b0`: green.
-- Read-only provenance `origin/main → 034d06ae6f5d4e4afa70f9cd4be70cb8ac3fc1b0`: `noCanonicalChanges: true`.
+- Exact candidate SHA intentionally не записывается в self-referential handoff commit; он сообщается в финальном отчёте.
 
 ## Stop-lines
 
@@ -37,7 +38,7 @@
 
 ## Next action
 
-Показать пользователю результат проверенной Git-группы и ждать отдельного решения по следующему этапу. Любые merge/push/deploy/production действия требуют отдельного прямого запроса.
+Показать пользователю результат проверенной Git-группы и ждать отдельного решения по merge exact branch → main. Любые merge/push/deploy/production действия требуют отдельного прямого запроса.
 
 ## Pointers
 
