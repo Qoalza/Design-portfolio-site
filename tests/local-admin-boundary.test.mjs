@@ -59,14 +59,13 @@ test("first live transition requires an explicit operator request and is not ava
   assert.match(launcher, /hasLiveBaseline/);
   assert.match(launcher, /выберите путь: чистый production baseline или перенос неопубликованных черновиков/);
   assert.match(launcher, /prepareTransferredDrafts: transferDrafts/);
-  assert.match(launcher, /preview\.blocked/);
-  assert.match(launcher, /buildLegacySelectedDraftTransfer/);
-  assert.match(launcher, /staged\.reviewRequired \|\| staged\.blocked/);
+  assert.match(launcher, /choice === "overlay"/);
+  assert.match(transitionOperator, /--choice <clean\|overlay>/);
+  assert.match(transitionOperator, /--target-sha <40-char-sha>/);
   assert.doesNotMatch(server, /\/api\/live-transition\//);
   assert.doesNotMatch(adminUi, /Переход в live…/);
   assert.doesNotMatch(adminUi, /Чистый production baseline/);
   assert.doesNotMatch(adminUi, /Перенести неопубликованные изменения в live drafts/);
-  assert.match(transitionOperator, /--selection/);
   assert.match(transitionOperator, /saveLiveTransitionRequest/);
   assert.match(transitionOperator, /does not start Admin, archive data, or publish/);
 });
