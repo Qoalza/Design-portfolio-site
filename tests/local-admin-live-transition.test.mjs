@@ -155,6 +155,28 @@ test("delta drafts are staged atomically away from canonical production files", 
   assert.equal(JSON.parse(await readFile(canonical, "utf8")).title, "Production");
 });
 
+test("staging keeps an unchanged production asset without requiring a sandbox copy", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-transition-canonical-asset-"));
+  const archiveRoot = path.join(root, "archive");
+  const stagingRoot = path.join(root, "staging");
+  const visual = { catalog: { templateId: "catalog.browser", assets: { screen: [{ src: "/assets/projects/sarafan/canonical.png", alt: "Canonical", width: 2880, height: 1920 }] } } };
+  const base = project("sarafan", { title: "Base", visuals: visual });
+  const sandbox = project("sarafan", { title: "Sandbox title", visuals: visual });
+  const production = project("sarafan", { title: "Production title", visuals: visual });
+  await mkdir(path.join(archiveRoot, "drafts"), { recursive: true });
+  await writeFile(path.join(archiveRoot, "drafts", "sarafan.json"), `${JSON.stringify(sandbox)}\n`);
+
+  const result = await stageUnpublishedDraftTransfer({
+    archiveRoot,
+    stagingRoot,
+    origin: buildSandboxOrigin({ sourceSha: "a".repeat(40), projects: [base], assetHashes: {} }),
+    productionProjects: [production],
+  });
+
+  assert.equal(result.drafts[0].title, "Sandbox title");
+  await assert.rejects(access(path.join(stagingRoot, "draft-assets", "sarafan", "canonical.png")));
+});
+
 test("staging rejects an asset that is neither archived nor already canonical", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-transition-missing-asset-"));
   const archiveRoot = path.join(root, "archive");

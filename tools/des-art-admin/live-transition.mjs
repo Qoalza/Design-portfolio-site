@@ -281,7 +281,9 @@ export async function stageUnpublishedDraftTransfer({ archiveRoot, stagingRoot, 
   if (result.reviewRequired) return result;
   const destination = path.join(stagingRoot, "drafts");
   const assetHashes = {};
-  const canonicalAssets = new Set(productionProjects.flatMap((project) => [...draftAssetSources(project)]));
+  const canonicalAssets = new Set(productionProjects.flatMap((project) => (
+    [...draftAssetSources(project)].map((source) => `/assets/projects/${project.slug}/${source}`)
+  )));
   await mkdir(destination, { recursive: true });
   for (const draft of result.drafts) {
     parseAdminDraft(JSON.stringify(draft), `${draft.slug}.json`);
