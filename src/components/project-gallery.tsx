@@ -5,6 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { galleryInputArbiter } from "../lib/gallery-input-arbiter";
 import { getGalleryLayout, getGalleryOffsetTarget, getGalleryPointerGesture, shouldScheduleGalleryFrame, type StepDirection } from "../lib/main-chapter-interactions";
 import type { ProjectGalleryGroup } from "../lib/project-contract";
+import { galleryPresentation } from "../lib/project-gallery-layout";
 import { registerScrollController } from "../lib/scroll-controller";
 import { invalidateScrollFrameSubscriber, registerScrollFrameSubscriber } from "../lib/scroll-frame-coordinator";
 import { ProjectMediaLightbox } from "./project-media-lightbox";
@@ -23,9 +24,9 @@ type ProjectGalleryProps = {
 type PointerStart = { id: number; x: number; y: number; scrollLeft: number; captured: boolean };
 
 const DEVICE_PRESENTATION = {
-  desktop: { label: "Desktop", icon: "/assets/projects/corvo/desktop.svg", baseWidth: 740, baseHeight: 512 },
-  tablet: { label: "Tablet", icon: "/assets/projects/corvo/tablet.svg", baseWidth: 400, baseHeight: 566 },
-  mobile: { label: "Mobile", icon: "/assets/projects/corvo/mobile.svg", baseWidth: 180, baseHeight: 320 },
+  desktop: { label: "Desktop", icon: "/assets/projects/corvo/desktop.svg" },
+  tablet: { label: "Tablet", icon: "/assets/projects/corvo/tablet.svg" },
+  mobile: { label: "Mobile", icon: "/assets/projects/corvo/mobile.svg" },
 } as const;
 
 function itemFrame(deviceId: ProjectGalleryGroup["deviceId"]) {
@@ -36,6 +37,7 @@ function itemFrame(deviceId: ProjectGalleryGroup["deviceId"]) {
 
 function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
   const presentation = DEVICE_PRESENTATION[group.deviceId];
+  const media = galleryPresentation(group.deviceId, group.images[0]);
   const smoothEnabled = useDesktopSmoothScrollEnabled();
   const [activeIndex, setActiveIndex] = useState(0);
   const [offsets, setOffsets] = useState([0]);
@@ -243,7 +245,11 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
     }
   };
 
-  const trackStyle = { "--gallery-offset": `${offsets[activeIndex] ?? 0}px` } as CSSProperties;
+  const trackStyle = {
+    "--gallery-offset": `${offsets[activeIndex] ?? 0}px`,
+    "--gallery-item-width": `${media.width}px`,
+    "--gallery-item-height": `${media.height}px`,
+  } as CSSProperties;
 
   return (
     <section
@@ -285,11 +291,11 @@ function GalleryGroup({ group }: { group: ProjectGalleryGroup }) {
             <figure className={styles.slide} key={item.src}>
               <ProjectMediaLightbox
                 {...item}
-                baseHeight={presentation.baseHeight}
-                baseWidth={presentation.baseWidth}
+                baseHeight={media.height}
+                baseWidth={media.width}
                 fit="contain"
                 frame={itemFrame(group.deviceId)}
-                sizes={`${presentation.baseWidth}px`}
+                sizes={`${media.width}px`}
               />
               <span className="visually-hidden">{presentation.label}: изображение {index + 1}</span>
             </figure>

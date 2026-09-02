@@ -4,6 +4,7 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promise
 import path from "node:path";
 
 import {
+  galleryImagesShareProportion,
   parseProjectDocument,
   resolveProjectAssetPath,
   resolveProjectDocumentPath,
@@ -557,7 +558,7 @@ export class AdminStore {
     }
   }
 
-  async saveImage(slug, fileName, mime, buffer, alt, { templateId, slot, operation }) {
+  async saveImage(slug, fileName, mime, buffer, alt, { templateId, slot, operation, referenceSrc }) {
     if (typeof alt !== "string" || alt.trim().length === 0) throw new Error("Alt text is required.");
     const inspected = inspectImage(buffer, fileName, mime);
     const safeName = safeUploadName(fileName);
@@ -570,9 +571,10 @@ export class AdminStore {
     validateAssetForSlot(templateId, slot, { src: `/assets/projects/${slug}/${safeName}`, alt: alt.trim(), width: inspected.width, height: inspected.height }, `Загруженный файл для ${templateId}.${slot}`);
     const project = await this.getProject(slug);
     const gallery = project.content.find((block) => block.type === "gallery" && block.templateId === "gallery.devices-v1");
-    const firstImage = gallery?.groups.find((group) => group.deviceId === slot)?.images[0];
-    if (firstImage && (firstImage.width !== inspected.width || firstImage.height !== inspected.height)) {
-      throw new Error("Gallery pool images must use the first image dimensions.");
+    const firstImage = gallery?.groups.find((group) => group.deviceId === slot)?.images[0]
+      ?? await this.galleryReference(slug, referenceSrc);
+    if (firstImage && !galleryImagesShareProportion(firstImage, inspected)) {
+      throw new Error("Gallery pool images must use the first image proportion.");
     }
     const assetDirectory = path.dirname(resolveProjectAssetPath(this.draftAssetRoot, slug, safeName));
     await mkdir(assetDirectory, { recursive: true });
@@ -602,6 +604,19 @@ export class AdminStore {
       width: inspected.width,
       height: inspected.height,
     };
+  }
+
+  async galleryReference(slug, referenceSrc) {
+    if (referenceSrc === undefined) return undefined;
+    const prefix = `/assets/projects/${slug}/`;
+    if (typeof referenceSrc !== "string" || !referenceSrc.startsWith(prefix)) {
+      throw new Error("Gallery reference must be a current project asset.");
+    }
+    const name = referenceSrc.slice(prefix.length);
+    const extension = path.extname(name).toLowerCase();
+    const mime = extension === ".png" ? "image/png" : extension === ".webp" ? "image/webp" : undefined;
+    if (!mime) throw new Error("Gallery reference must be a PNG or WebP asset.");
+    return inspectImage(await readFile(resolveProjectAssetPath(this.draftAssetRoot, slug, name)), name, mime);
   }
 
   async saveLogo(slug, fileName, buffer) {

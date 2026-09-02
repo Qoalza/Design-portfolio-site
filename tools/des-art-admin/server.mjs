@@ -310,7 +310,7 @@ async function handler(request, response) {
       if (request.method === "POST" && segments[3] === "upload") {
         const value = await body(request);
         const buffer = Buffer.from(value.data, "base64");
-        return json(response, 201, await store.saveImage(slug, value.name, value.mime, buffer, value.alt, { templateId: value.templateId, slot: value.slot, operation: value.operation }));
+        return json(response, 201, await store.saveImage(slug, value.name, value.mime, buffer, value.alt, { templateId: value.templateId, slot: value.slot, operation: value.operation, referenceSrc: value.referenceSrc }));
       }
       if (request.method === "POST" && segments[3] === "figma-template") {
         return json(response, 200, await store.importFigmaVisual(slug, await body(request)));

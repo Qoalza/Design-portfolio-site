@@ -206,8 +206,8 @@ export function validateAssetForSlot(templateId: ProjectVisualTemplateId, slotNa
   if (!compatible) {
     throw new Error(`${location} is below the minimum 2× source size.`);
   }
-  if ((slot.maxWidth !== undefined && image.width > slot.maxWidth)
-    || (slot.maxHeight !== undefined && image.height > slot.maxHeight)) {
+  if (template.surface !== "gallery" && ((slot.maxWidth !== undefined && image.width > slot.maxWidth)
+    || (slot.maxHeight !== undefined && image.height > slot.maxHeight))) {
     throw new Error(`${location} is outside the allowed pixel range.`);
   }
 }

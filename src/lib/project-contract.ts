@@ -277,10 +277,19 @@ function galleryGroup(value: unknown, location: string): ProjectGalleryGroup {
   const images = input.images.map((item, index) => image(item, `${location}.images[${index}]`));
   validateTemplateAssets("gallery.devices-v1", { [deviceId]: images }, location);
   const [firstImage, ...remainingImages] = images;
-  if (remainingImages.some((item) => item.width !== firstImage.width || item.height !== firstImage.height)) {
-    throw new Error(`${location}.images must use the first image dimensions.`);
+  if (remainingImages.some((item) => !galleryImagesShareProportion(firstImage, item))) {
+    throw new Error(`${location}.images must use the first image proportion.`);
   }
   return { deviceId, images };
+}
+
+export function galleryImagesShareProportion(
+  reference: Pick<ProjectImage, "width" | "height">,
+  candidate: Pick<ProjectImage, "width" | "height">,
+): boolean {
+  const referenceRatio = reference.width / reference.height;
+  return Number.isFinite(referenceRatio) && referenceRatio > 0
+    && Math.abs(candidate.width / candidate.height - referenceRatio) / referenceRatio <= 0.001;
 }
 
 function contentBlock(value: unknown, location: string, profile: ProjectDesignProfile): ProjectContentBlock {

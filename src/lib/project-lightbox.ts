@@ -47,7 +47,7 @@ export function calculateLightboxScale({
   }
 
   return Math.min(
-    1.5,
+    2,
     availableWidth / baseWidth,
     availableHeight / baseHeight,
     intrinsicWidth / (baseWidth * dpr),

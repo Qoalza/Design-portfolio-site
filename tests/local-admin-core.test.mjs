@@ -63,7 +63,7 @@ test("user-facing errors keep known causes actionable and hide unknown diagnosti
     message: "Пропорции изображения не соответствуют утверждённому визуальному слоту. Экспортируйте Frame в исходных пропорциях и повторите загрузку.",
     status: 400,
   });
-  assert.equal(humanError(new Error("Gallery pool images must use the first image dimensions.")).title, "Размер не совпадает с первым изображением");
+  assert.equal(humanError(new Error("Gallery pool images must use the first image proportion.")).title, "Пропорции не совпадают с первым изображением");
   assert.equal(humanError(new Error("asset is below the minimum 2× source size.")).title, "Изображение слишком маленькое");
 });
 
@@ -170,7 +170,7 @@ test("reorder validates template compatibility before preserving draft metadata"
   assert.equal((await store.getDraft("wide")).admin.marker, "kept");
 });
 
-test("gallery uploads use pixel ranges and lock each device pool to its first image dimensions", async () => {
+test("gallery uploads allow high-density sources with the first image proportion", async () => {
   assert.equal(safeUploadName("Hero Screen (1).PNG"), "hero-screen-1.png");
   assert.throws(() => safeUploadName("../secret.png"), /filename/i);
   const configured = await roots();
@@ -178,17 +178,23 @@ test("gallery uploads use pixel ranges and lock each device pool to its first im
   await store.saveDraft("admin-test", project("admin-test", { content: [{ type: "gallery", templateId: "gallery.devices-v1", groups: [{ deviceId: "desktop", images: [] }] }] }));
   const png = Buffer.alloc(24);
   Buffer.from("89504e470d0a1a0a", "hex").copy(png);
-  png.writeUInt32BE(1480, 16); png.writeUInt32BE(1024, 20);
+  png.writeUInt32BE(1480, 16); png.writeUInt32BE(1280, 20);
   const policy = { templateId: "gallery.devices-v1", slot: "desktop", operation: "add" };
   const first = await store.saveImage("admin-test", "screen.png", "image/png", png, "Экран", policy);
   await store.saveDraft("admin-test", project("admin-test", { content: [{ type: "gallery", templateId: "gallery.devices-v1", groups: [{ deviceId: "desktop", images: [first] }] }] }));
-  const second = await store.saveImage("admin-test", "copy.png", "image/png", png, "Экран", policy);
-  assert.equal(second.src, first.src);
+  const highDensity = Buffer.from(png); highDensity.writeUInt32BE(4440, 16); highDensity.writeUInt32BE(3840, 20);
+  const second = await store.saveImage("admin-test", "copy.png", "image/png", highDensity, "Экран", policy);
+  assert.notEqual(second.src, first.src);
+  assert.deepEqual({ width: second.width, height: second.height }, { width: 4440, height: 3840 });
+  await store.saveDraft("batch-test", project("batch-test", { content: [{ type: "gallery", templateId: "gallery.devices-v1", groups: [{ deviceId: "desktop", images: [] }] }] }));
+  const batchFirst = await store.saveImage("batch-test", "first.png", "image/png", png, "Экран", policy);
+  const batchSecond = await store.saveImage("batch-test", "second.png", "image/png", highDensity, "Экран", { ...policy, referenceSrc: batchFirst.src });
+  assert.equal(batchSecond.width, 4440);
   await readFile(path.join(configured.draftAssetRoot, "admin-test", "screen.png"));
-  const widescreen = Buffer.from(png); widescreen.writeUInt32BE(1920, 16); widescreen.writeUInt32BE(1080, 20);
-  await assert.rejects(() => store.saveImage("admin-test", "widescreen.png", "image/png", widescreen, "Экран 16:9", policy), /first image dimensions/i);
-  const tooLarge = Buffer.from(png); tooLarge.writeUInt32BE(2961, 16); tooLarge.writeUInt32BE(2049, 20);
-  await assert.rejects(() => store.saveImage("admin-test", "large.png", "image/png", tooLarge, "Экран", policy), /pixel range/i);
+  const incompatible = Buffer.from(png); incompatible.writeUInt32BE(2960, 16); incompatible.writeUInt32BE(1280, 20);
+  await assert.rejects(() => store.saveImage("admin-test", "incompatible.png", "image/png", incompatible, "Экран 16:9", policy), /first image proportion/i);
+  const tooManyPixels = Buffer.from(png); tooManyPixels.writeUInt32BE(8001, 16); tooManyPixels.writeUInt32BE(5000, 20);
+  await assert.rejects(() => store.saveImage("admin-test", "large.png", "image/png", tooManyPixels, "Экран", policy), /resolution/i);
   const tooSmall = Buffer.from(png); tooSmall.writeUInt32BE(1479, 16); tooSmall.writeUInt32BE(1023, 20);
   await assert.rejects(() => store.saveImage("admin-test", "small.png", "image/png", tooSmall, "Экран", policy), /minimum 2× source size/i);
   await assert.rejects(() => store.saveImage("admin-test", "card.png", "image/png", png, "Экран", { templateId: "catalog.browser", slot: "screen", operation: "replace" }), /только целым Figma Frame/i);

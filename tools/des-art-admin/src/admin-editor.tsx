@@ -8,8 +8,9 @@ import { sectionTemplateOptions } from "../figma-template-map.mjs";
 import type { AdminProject, AdminSection, FieldIssue } from "./admin-model";
 import { inline, issueFor, textOf, visualSource, withoutVisualSource } from "./admin-model";
 import { Field, FigmaTemplateField, ImagePreview, RichEditor, TagField } from "./admin-ui";
+import { uploadGalleryBatch, type GalleryUploadBatchResult } from "./gallery-upload-batch";
 
-type UploadPolicy = { templateId: string; slot: string; operation: "replace" | "add" };
+type UploadPolicy = { templateId: string; slot: string; operation: "replace" | "add"; referenceSrc?: string };
 type Upload = (file: File, context: string, policy: UploadPolicy) => Promise<ProjectImage>;
 type ImportFigma = (surface: "catalog" | "hero" | "section", templateId: ProjectVisualTemplateId | undefined, url: string, sectionId?: string) => Promise<void>;
 type ProjectUpdate = (patch: Partial<AdminProject>, textOnly?: boolean) => void;
@@ -161,7 +162,7 @@ function GalleryDeviceStrip({ group, label, change, upload }: {
   upload: Upload;
 }) {
   const [importing, setImporting] = useState<ProjectGalleryDeviceId>();
-  const [uploadError, setUploadError] = useState<string>();
+  const [uploadSummary, setUploadSummary] = useState<GalleryUploadBatchResult<ProjectImage>>();
   const strip = useRef<HTMLOListElement>(null);
   const [edges, setEdges] = useState({ atStart: true, atEnd: true });
   const slot = PROJECT_VISUAL_TEMPLATES["gallery.devices-v1"].slots[group.deviceId];
@@ -196,16 +197,16 @@ function GalleryDeviceStrip({ group, label, change, upload }: {
   }, [group.images.length]);
   return (
     <div className="gallery-group" data-device={group.deviceId}>
-      <div className="section-title"><div className="section-heading-copy"><Heading size="3">{label}</Heading><Text size="1" color="gray">{firstImage ? <>Размер пула: {firstImage.width}×{firstImage.height} px. Все следующие изображения должны совпадать.</> : <>Ширина: {minWidth}–{slot.maxWidth} px · Высота: {minHeight}–{slot.maxHeight} px. Первое изображение фиксирует точный размер этого пула.</>} Изображение впишется без обрезки; внешний лейаут не изменится.</Text></div></div>
+      <div className="section-title"><div className="section-heading-copy"><Heading size="3">{label}</Heading><Text size="1" color="gray">{firstImage ? <>Пропорция пула: {firstImage.width}×{firstImage.height}. Все следующие изображения должны совпадать по пропорции.</> : <>Ширина: {minWidth}–{slot.maxWidth} px · Высота: {minHeight}–{slot.maxHeight} px. Первое изображение фиксирует точный размер этого пула.</>} Изображение впишется без обрезки; внешний лейаут не изменится.</Text></div></div>
       <div className="gallery-scroll-viewport">
         <ol className="gallery-list" ref={strip} tabIndex={0} aria-label={`Изображения ${label}`} data-at-start={edges.atStart || undefined} data-at-end={edges.atEnd || undefined} onScroll={refreshEdges}>
-          <li className="gallery-upload-tile"><label className="gallery-upload-zone" data-disabled={importing === group.deviceId || atLimit || undefined}><PlusIcon /><Text size="2" weight="medium">{atLimit ? "Достигнут лимит" : importing === group.deviceId ? "Проверяем…" : "Добавить изображение"}</Text><Text size="1" color="gray">PNG или WebP</Text><input hidden type="file" accept="image/png,image/webp" disabled={importing === group.deviceId || atLimit} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; setImporting(group.deviceId); void upload(file, `Галерея ${label}`, { templateId: "gallery.devices-v1", slot: group.deviceId, operation: "add" }).then((image) => { change({ ...group, images: [...group.images, image] }); setUploadError(undefined); }).catch((error) => setUploadError(error instanceof Error ? error.message : "Изображение не удалось загрузить.")).finally(() => setImporting(undefined)); }} /></label></li>
+          <li className="gallery-upload-tile"><label className="gallery-upload-zone" data-disabled={importing === group.deviceId || atLimit || undefined}><PlusIcon /><Text size="2" weight="medium">{atLimit ? "Достигнут лимит" : importing === group.deviceId ? "Проверяем…" : "Добавить изображение"}</Text><Text size="1" color="gray">PNG или WebP</Text><input hidden multiple type="file" accept="image/png,image/webp" disabled={importing === group.deviceId || atLimit} onChange={(event) => { const files = Array.from(event.target.files ?? []); event.target.value = ""; if (files.length === 0) return; setImporting(group.deviceId); void uploadGalleryBatch(files, slot.maxItems - group.images.length, firstImage?.src, (file, referenceSrc) => upload(file, `Галерея ${label}`, { templateId: "gallery.devices-v1", slot: group.deviceId, operation: "add", referenceSrc })).then((result) => { if (result.accepted.length > 0) change({ ...group, images: [...group.images, ...result.accepted] }); setUploadSummary(result); }).finally(() => setImporting(undefined)); }} /></label></li>
           {group.images.map((item, index) => <li className="gallery-thumbnail" key={`${item.src}-${index}`} style={galleryThumbnailSize(item, group.deviceId)}><ImagePreview src={item.src} label={`Изображение ${index + 1}`}><img src={item.src} alt="" /></ImagePreview><div className="gallery-item-controls"><Flex className="gallery-item-order" gap="1"><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение влево" disabled={index === 0} onClick={() => { const images = [...group.images]; [images[index - 1], images[index]] = [images[index], images[index - 1]]; change({ ...group, images }); }}><ChevronLeftIcon /></IconButton><IconButton size="1" variant="ghost" color="gray" aria-label="Переместить изображение вправо" disabled={index === group.images.length - 1} onClick={() => { const images = [...group.images]; [images[index + 1], images[index]] = [images[index], images[index + 1]]; change({ ...group, images }); }}><ChevronRightIcon /></IconButton></Flex><IconButton className="gallery-item-delete" type="button" size="1" variant="ghost" color="red" aria-label={`Удалить изображение ${index + 1}`} onClick={() => change({ ...group, images: group.images.filter((_, itemIndex) => itemIndex !== index) })}><TrashIcon /></IconButton></div></li>)}
         </ol>
         {!edges.atStart ? <IconButton className="gallery-scroll-button gallery-scroll-button-left" type="button" size="2" variant="solid" color="gray" aria-label={`Прокрутить ${label} влево`} onClick={() => scrollGallery(-1)}><ChevronLeftIcon /></IconButton> : null}
         {!edges.atEnd ? <IconButton className="gallery-scroll-button gallery-scroll-button-right" type="button" size="2" variant="solid" color="gray" aria-label={`Прокрутить ${label} вправо`} onClick={() => scrollGallery(1)}><ChevronRightIcon /></IconButton> : null}
       </div>
-      {uploadError ? <Callout.Root color="red" size="1"><Callout.Text>{uploadError}</Callout.Text></Callout.Root> : null}
+      {uploadSummary ? <Callout.Root color={uploadSummary.rejected.length > 0 ? "orange" : "green"} size="1"><Callout.Text>{uploadSummary.accepted.length > 0 ? `Добавлено: ${uploadSummary.accepted.length}.` : "Новые изображения не добавлены."}{uploadSummary.rejected.length > 0 ? ` Не добавлены: ${uploadSummary.rejected.map((item) => `${item.fileName} — ${item.reason}`).join("; ")}` : null}</Callout.Text></Callout.Root> : null}
     </div>
   );
 }

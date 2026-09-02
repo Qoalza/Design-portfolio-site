@@ -184,7 +184,7 @@ function App() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const upload = async (file: File, context: string, policy: { templateId: string; slot: string; operation: "replace" | "add" }) => {
+  const upload = async (file: File, context: string, policy: { templateId: string; slot: string; operation: "replace" | "add"; referenceSrc?: string }) => {
     await flush();
     if (!current) throw new ApiError("Проект не выбран", "Сначала выберите проект и повторите загрузку.");
     const data = await new Promise<string>((resolve, reject) => {
