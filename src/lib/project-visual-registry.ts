@@ -80,14 +80,14 @@ export const PROJECT_VISUAL_TEMPLATES = {
     },
   },
   "hero.corvo-browser": {
-    surface: "hero", label: "Corvo — browser hero", profiles: ["corvo-v1"],
+    surface: "hero", label: "Browser hero", profiles: ["catalog-only-v1", "corvo-v1", "sarafan-v1"],
     slots: {
       backdrop: singlePng("Фоновый экран", 2960 / 2400, 740, 600),
       foreground: singlePng("Передний экран", 2960 / 2400, 740, 600),
     },
   },
   "hero.sarafan-collage": {
-    surface: "hero", label: "Sarafan — hero collage", profiles: ["sarafan-v1"],
+    surface: "hero", label: "Collage hero", profiles: ["catalog-only-v1", "corvo-v1", "sarafan-v1"],
     slots: {
       illustration: singlePng("Иллюстрация", 2714 / 2144, 678, 536),
       decoration: singlePng("Декоративный круг", 1, 618, 618),

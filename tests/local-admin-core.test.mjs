@@ -208,6 +208,33 @@ test("approved Figma import replaces a whole code-owned surface and keeps source
   assert.equal("admin" in compileAdminDraft(next), false);
 });
 
+test("the first hero Frame activates a closed project only after automatic approved-template import", async () => {
+  const configured = await roots();
+  const hero = corvoVisuals().hero;
+  const store = new AdminStore({
+    ...configured,
+    figmaImporter: async ({ url, templateIds }) => {
+      assert.deepEqual(templateIds, ["hero.corvo-browser", "hero.sarafan-collage"]);
+      return { visual: hero, source: { url, templateId: hero.templateId } };
+    },
+  });
+  const boff = {
+    ...project("boff", { designProfile: "catalog-only-v1", detailAvailable: false }),
+    visuals: { catalog: { templateId: "catalog.browser", assets: { screen: [{ src: "/assets/projects/catalog/boff-transactions.png", alt: "Экран", width: 2880, height: 1920 }] } } },
+  };
+  await store.saveDraft("boff", boff);
+
+  const next = await store.importFigmaVisual("boff", {
+    surface: "hero",
+    url: "https://www.figma.com/design/file/Test?node-id=1-2",
+  });
+
+  assert.equal(next.detailAvailable, true);
+  assert.deepEqual(next.visuals.hero, hero);
+  assert.equal(next.admin.visualSources.hero.templateId, "hero.corvo-browser");
+  assert.equal(compileAdminDraft(next).detailAvailable, true);
+});
+
 test("approved Figma import adds one interactive block to a section and rejects profile mismatches", async () => {
   const configured = await roots();
   const store = new AdminStore({
@@ -235,6 +262,18 @@ test("failed Figma import leaves the saved draft unchanged", async () => {
   await store.saveDraft("figma-atomic", before);
   await assert.rejects(() => store.importFigmaVisual("figma-atomic", { surface: "section", sectionId: "section-a", url: "https://www.figma.com/design/file/Test?node-id=1-5" }), /Сохранённый черновик не изменён/i);
   assert.deepEqual(await store.getDraft("figma-atomic"), before);
+});
+
+test("a failed first hero import keeps the project page closed", async () => {
+  const configured = await roots();
+  const store = new AdminStore({ ...configured, figmaImporter: async () => { throw new Error("Frame содержит неверную структуру."); } });
+  const before = {
+    ...project("closed-project", { designProfile: "catalog-only-v1", detailAvailable: false }),
+    visuals: { catalog: { templateId: "catalog.browser", assets: { screen: [{ src: "/assets/projects/catalog/boff-transactions.png", alt: "Экран", width: 2880, height: 1920 }] } } },
+  };
+  await store.saveDraft("closed-project", before);
+  await assert.rejects(() => store.importFigmaVisual("closed-project", { surface: "hero", url: "https://www.figma.com/design/file/Test?node-id=1-5" }), /Сохранённый черновик не изменён/i);
+  assert.deepEqual(await store.getDraft("closed-project"), before);
 });
 
 test("sandbox publish validates global placements and keeps them outside project-only scope", async () => {

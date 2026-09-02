@@ -145,7 +145,10 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
   if (!root || !ROOT_TYPES.has(root.type)) throw new Error("Figma Frame не найден по указанной ссылке.");
   const matches = candidates.filter((candidate) => {
     const candidateSpec = FIGMA_TEMPLATE_IMPORTS[candidate];
-    if (candidateSpec.kind !== "root-crops") return candidates.length === 1;
+    if (candidateSpec.kind === "children") {
+      const visibleChildren = (root.children ?? []).filter((child) => child.visible !== false);
+      return candidates.length === 1 || visibleChildren.length === candidateSpec.slots.length;
+    }
     const bounds = box(root);
     return bounds && withinTolerance(bounds.width, candidateSpec.width) && withinTolerance(bounds.height, candidateSpec.height);
   });

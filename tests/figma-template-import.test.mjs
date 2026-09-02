@@ -51,6 +51,32 @@ test("approved child mapping imports one Figma Frame into hidden named assets", 
   await access(path.join(root, "sarafan-radio", "figma", path.basename(path.dirname(result.visual.assets.dashboard[0].src)), "preview.png"));
 });
 
+test("first hero import detects the approved variant from its Frame structure", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "figma-template-auto-hero-"));
+  const dimensions = [[2960, 2400], [2960, 2400]];
+  const fetchImpl = async (url) => {
+    const value = String(url);
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "43", nodes: { "1:2": { document: {
+      id: "1:2", name: "Hero", type: "FRAME", children: dimensions.map((_, index) => ({ id: `2:${index + 1}`, name: `Asset ${index + 1}`, type: "FRAME" })),
+    } } } }), { status: 200 });
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root", "2:1": "https://download/1", "2:2": "https://download/2" } }), { status: 200 });
+    if (value === "https://download/root") return new Response(await png(1480, 1200), { status: 200 });
+    const index = Number(value.at(-1)) - 1;
+    if (value.startsWith("https://download/") && dimensions[index]) return new Response(await png(...dimensions[index]), { status: 200 });
+    throw new Error("Unexpected " + value);
+  };
+  const result = await importFigmaTemplate({
+    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    token: "test-token",
+    slug: "boff",
+    templateIds: ["hero.corvo-browser", "hero.sarafan-collage"],
+    assetRoot: root,
+    fetchImpl,
+  });
+  assert.equal(result.visual.templateId, "hero.corvo-browser");
+  assert.deepEqual(Object.keys(result.visual.assets), ["backdrop", "foreground"]);
+});
+
 test("approved canvas import crops content from the whole Figma Frame and keeps shell geometry in code", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-crop-"));
   const source = await png(2000, 714);

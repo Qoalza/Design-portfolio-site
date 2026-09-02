@@ -315,8 +315,17 @@ export class AdminStore {
     if (surface === "catalog" && current.visuals.catalog.templateId !== templateId) {
       throw new UserFacingError("Frame не импортирован", "Шаблон карточки назначается в коде и не может быть переключён из Admin.");
     }
-    if (surface === "hero" && current.visuals.hero?.templateId !== templateId) {
-      throw new UserFacingError("Frame не импортирован", "Hero-шаблон назначается в коде и не может быть переключён из Admin.");
+    if (surface === "hero") {
+      if (current.visuals.hero && current.visuals.hero.templateId !== templateId) {
+        throw new UserFacingError("Frame не импортирован", "Hero-шаблон назначается в коде и не может быть переключён из Admin.");
+      }
+      resolvedTemplateId = current.visuals.hero?.templateId;
+      if (!current.visuals.hero) {
+        if (templateId !== undefined) throw new UserFacingError("Frame не импортирован", "Первый hero-шаблон определяется автоматически по утверждённому Figma Frame.");
+        candidateTemplateIds = Object.entries(PROJECT_VISUAL_TEMPLATES)
+          .filter(([, definition]) => definition.surface === "hero" && definition.profiles.includes(current.designProfile))
+          .map(([candidate]) => candidate);
+      }
     }
     if (surface === "section") {
       section = current.content.find((block) => block.type === "section" && block.adminId === sectionId);
@@ -388,6 +397,7 @@ export class AdminStore {
     }
     const next = createAdminDraft({
       ...current,
+      ...(surface === "hero" ? { detailAvailable: true } : {}),
       visuals,
       content,
       admin: {

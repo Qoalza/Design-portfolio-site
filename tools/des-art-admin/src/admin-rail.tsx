@@ -166,9 +166,9 @@ export function PageSettings({
         <label className="switch-line">
           <div>
             <Text size="2" weight="medium">Страница проекта</Text>
-            <Text as="p" size="1" color="gray">{project.detailAvailable ? "Доступна" : "Недоступна · в карточке «Скоро»"}</Text>
+            <Text as="p" size="1" color="gray">{project.detailAvailable ? "Доступна" : project.visuals.hero ? "Недоступна · в карточке «Скоро»" : "Сначала добавьте hero Frame на вкладке страницы"}</Text>
           </div>
-          <Switch radius="full" checked={project.detailAvailable} onCheckedChange={(detailAvailable) => update({ detailAvailable })} />
+          <Switch radius="full" checked={project.detailAvailable} disabled={!project.visuals.hero} onCheckedChange={(detailAvailable) => update({ detailAvailable })} />
         </label>
       </RailGroup>
       <MaterialsSettings project={project} update={update} issues={issues} />
