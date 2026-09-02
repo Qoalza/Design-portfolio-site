@@ -113,7 +113,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 
 Архив создаётся ровно один раз. При следующих корректных live starts тот же SHA не переписывает marker и не архивирует рабочие live drafts. Новый observed production SHA обновляет только `lastObservedAt`/`sourceSha`; он не является поводом перезаписывать live drafts.
 
-Если marker не удалось записать после успешного archive, не удалять archive и не запускать повторный bootstrap вслепую. Остановиться, сохранить exact error и сначала сверить archive/marker state read-only.
+Если marker не удалось записать после успешного archive, не удалять archive. Journal сохраняет transition и generation; повторный launcher после SHA-gate продолжает только эту проверенную generation и не создаёт второй archive. Если generation не проходит проверку, launcher останавливается до ручной диагностики.
 
 ### D. Обычная работа после live bootstrap
 
@@ -123,6 +123,8 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 - обычная кнопка «Опубликовать» остаётся единственным UI-путём content release и показывает real-time этапы: `Проверка → Подготовка файлов → Lint, build и tests → Git и Pull Request → Merge → Deploy → Публичная проверка`;
 - live worker использует disposable worktree от fresh `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project-only publish, создаёт PR, merge, deploy и проверяет public SHA/routes;
 - sandbox mode не имеет Git/PR/SSH/deploy path;
+- для изменённого production-проекта доступен локальный reset только этого проекта до exact published baseline; он не публикует и не затрагивает другие drafts;
+- Cmd+Z и Shift+Cmd+Z возвращают или повторяют до пяти последних текстовых действий текущего проекта; изображения, Figma, структуры и action buttons в эту историю не входят;
 - Codex не запускает кнопку, не читает ключи и не выполняет content release без отдельной прямой команды пользователя.
 
 ### Stop conditions и evidence

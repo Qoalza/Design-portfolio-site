@@ -13,6 +13,11 @@ async function hasCanonicalProjects(managedRepo) {
   return entries.some((entry) => entry.isFile() && entry.name.endsWith(".json"));
 }
 
+async function hasGenerationSnapshots(generationRoot) {
+  const entries = await readdir(path.join(generationRoot, "published-snapshots"), { withFileTypes: true }).catch(() => []);
+  return entries.some((entry) => entry.isFile() && entry.name.endsWith(".json"));
+}
+
 async function atomicJson(file, value) {
   const temporary = `${file}.${process.pid}.tmp`;
   await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
@@ -26,8 +31,19 @@ async function acquireTransitionLock(supportRoot) {
   try {
     handle = await open(file, "wx", 0o600);
   } catch (error) {
-    if (error?.code === "EEXIST") throw new Error("Другой переход в live уже выполняется. Повторный запуск остановлен.");
-    throw error;
+    if (error?.code === "EEXIST") {
+      const owner = await readFile(file, "utf8").then(JSON.parse).catch(() => undefined);
+      const pid = Number(owner?.pid);
+      let alive = false;
+      if (Number.isInteger(pid) && pid > 0) {
+        try { process.kill(pid, 0); alive = true; } catch {}
+      }
+      if (alive) throw new Error("Другой переход в live уже выполняется. Повторный запуск остановлен.");
+      await unlink(file);
+      handle = await open(file, "wx", 0o600);
+    } else {
+      throw error;
+    }
   }
   await handle.writeFile(`${JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() })}\n`);
   return async () => {
@@ -138,6 +154,7 @@ export async function ensureProductionDataBaseline({
     }
     const recoveryGeneration = path.join(supportRoot, "live-generations", existingJournal.transitionId);
     await access(recoveryGeneration).catch(() => { throw new Error("Незавершённый переход не содержит проверенной generation. Автоматический повтор остановлен до проверки локального journal."); });
+    if (!(await hasGenerationSnapshots(recoveryGeneration))) throw new Error("Незавершённый переход не содержит canonical production snapshots. Автоматический повтор остановлен до проверки local journal.");
     await writeMarker(marker, {
       version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId: existingJournal.transitionId,
       choice: existingJournal.choice === "overlay" ? "overlay" : "clean", source: "production-live", sourceSha,
@@ -188,6 +205,7 @@ export async function ensureProductionDataBaseline({
       await atomicJson(journal, { version: 2, state: "staging", sourceSha, archivePath, transitionId, choice, createdAt: timestamp });
       transfer = await prepareTransferredDrafts({ archiveRoot, archivePath, sourceSha, journalPath: journal, generationRoot, transitionId });
     }
+    if (!(await hasGenerationSnapshots(generationRoot))) throw new Error("Новая generation не содержит canonical production snapshots.");
     await writeMarker(marker, {
       version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId, choice,
       source: "production-live",

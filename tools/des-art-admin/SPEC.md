@@ -43,6 +43,8 @@ Packaged Admin может использовать другую checkout-вер�
 ## Интерфейс и контент
 
 - Центр содержит вкладки `Карточка` и `Страница проекта`; публикация и global placement остаются в боковых панелях.
+- Только в verified live у изменённого production-проекта рядом с публикацией есть ghost reset control с tooltip «Сбросить до опубликованной версии». Он скрыт для sandbox, совпадающего production и draft-only проектов; после подтверждения удаляет только draft, draft-assets, preview и локальную insurance copy этого slug.
+- Текстовые fields, section headings, notice и rich text имеют только memory history текущего проекта: до пяти `Cmd+Z` и пяти `Shift+Cmd+Z`, с группировкой 700 ms. Media, Figma, структуры, switches, selects, visibility, placement, publish и reset не входят в историю; structural action очищает её.
 - Визуальная поверхность показывает утверждённый шаблон read-only и одно поле ссылки на Figma Frame; внутренние content slots не выставляются пользователю отдельными файлами.
 - После успешного импорта Admin показывает preview целого исходного Frame: карточка — в квадратном контейнере, hero и интерактивный блок — в собственной пропорции, уменьшенной до ширины редактора. Preview является только подтверждением выбранного source и не задаёт layout Portfolio.
 - Секция редактирует заголовок, rich text, текст notice и может добавить один интерактивный блок из совместимых с профилем шаблонов. После вставки ссылки importer проверяет целый Frame, автоматически определяет допустимый section template по профилю и геометрии source и атомарно создаёт или обновляет `visual` block. Пользователь не выбирает template.
