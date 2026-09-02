@@ -166,16 +166,7 @@ async function launchSandboxWithoutBootstrap() {
     DES_ART_PREVIEW_PORT: String(previewPort),
     DES_ART_ADMIN_PUBLISH_MODE: "sandbox",
   });
-  if (!(await reachable(previewPort))) {
-    await detached("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], "preview", {
-      DES_ART_ADMIN_PREVIEW: "1",
-      DES_ART_PREVIEW_PORT: String(previewPort),
-      DES_ART_ADMIN_DRAFT_ROOT: path.join(supportRoot, "preview-drafts"),
-      DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(supportRoot, "draft-assets"),
-    });
-  }
   await waitUntilReady(adminPort);
-  await waitUntilReady(previewPort);
   await openAdmin();
 }
 
@@ -276,16 +267,7 @@ async function main() {
       DES_ART_ADMIN_STORE_ROOT: activeStoreRoot,
     });
   }
-  if (!(await reachable(previewPort))) {
-    await detached("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], "preview", {
-      DES_ART_ADMIN_PREVIEW: "1",
-      DES_ART_PREVIEW_PORT: String(previewPort),
-      DES_ART_ADMIN_DRAFT_ROOT: path.join(activeStoreRoot, "preview-drafts"),
-      DES_ART_ADMIN_DRAFT_ASSET_ROOT: path.join(activeStoreRoot, "draft-assets"),
-    });
-  }
   await waitUntilReady(adminPort);
-  await waitUntilReady(previewPort);
   await openAdmin();
 }
 

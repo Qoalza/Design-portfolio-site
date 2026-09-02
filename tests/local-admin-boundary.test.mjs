@@ -44,7 +44,6 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.doesNotMatch(launcher, /shell:\s*true/);
   assert.match(launcher, /Library", "Application Support", "Des-art Admin/);
   assert.match(launcher, /process\.env\.DES_ART_ADMIN_SUPPORT/);
-  assert.match(launcher, /DES_ART_ADMIN_PREVIEW/);
   assert.match(launcher, /merge", "--ff-only", "origin\/main/);
   assert.match(launcher, /live-publish\.json/);
   assert.match(launcher, /DES_ART_ADMIN_PUBLISH_MODE/);
@@ -56,6 +55,12 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /function isProductionLiveBaseline\(marker\)/);
   assert.match(launcher, /if \(!hasLiveBaseline && !liveTransitionStarted\) await launchSandboxWithoutBootstrap\(\)\.catch/);
   assert.doesNotMatch(launcher, /if \(!liveTransitionStarted\) await launchSandboxWithoutBootstrap\(\)\.catch/);
+});
+
+test("Admin server exclusively owns the preview process identity", () => {
+  assert.match(launcher, /await stopService\("preview"\)/);
+  assert.doesNotMatch(launcher, /detached\("npm", \["run", "dev"/);
+  assert.doesNotMatch(launcher, /DES_ART_ADMIN_PREVIEW/);
 });
 
 test("first live transition requires an explicit operator request and is not available in the Admin UI", () => {
@@ -90,8 +95,8 @@ test("admin is not an App Router route and preview access is env-gated", async (
   assert.match(projectRoute, /process\.env\.DES_ART_ADMIN_PREVIEW === "1"/);
   assert.match(projectRoute, /!isAdminPreview && project\.availability\.detail/);
   assert.match(previewAssetRoute, /DES_ART_ADMIN_PREVIEW !== "1"/);
-  assert.match(launcher, /DES_ART_ADMIN_DRAFT_ROOT/);
-  assert.match(launcher, /DES_ART_ADMIN_DRAFT_ASSET_ROOT/);
+  assert.match(server, /DES_ART_ADMIN_DRAFT_ROOT/);
+  assert.match(server, /DES_ART_ADMIN_DRAFT_ASSET_ROOT/);
   assert.match(server, /segments\[1\] === "preview"/);
   assert.match(server, /ensurePreview/);
   assert.match(server, /preview-drafts/);
