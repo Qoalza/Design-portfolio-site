@@ -75,10 +75,11 @@ export async function verifyProductionContentProvenance({ base, target, cwd = pr
   const contentChanges = changed.filter((line) => line.includes("content/projects/"));
   const assetChanges = changed.filter((line) => line.includes("public/assets/"));
   if (assetChanges.length) throw new Error("Provenance rejected: canonical public assets changed.");
-  if (!contentChanges.length || contentChanges.some((line) => !/^M\s+content\/projects\/(boff|corvo|sarafan-radio)\.json$/.test(line))) {
+  const report = { version: 1, baseSha: (await git(["rev-parse", base], { cwd })).trim(), targetSha: (await git(["rev-parse", target], { cwd })).trim(), projects: [] };
+  if (!contentChanges.length) return { ...report, noCanonicalChanges: true };
+  if (contentChanges.some((line) => !/^M\s+content\/projects\/(boff|corvo|sarafan-radio)\.json$/.test(line))) {
     throw new Error("Provenance rejected: only the three declared project documents may change.");
   }
-  const report = { version: 1, baseSha: (await git(["rev-parse", base], { cwd })).trim(), targetSha: (await git(["rev-parse", target], { cwd })).trim(), projects: [] };
   for (const file of [...PROJECTS].filter((name) => contentChanges.some((line) => line.endsWith(name)))) {
     const before = await documentAt(base, file);
     const after = await documentAt(target, file);
