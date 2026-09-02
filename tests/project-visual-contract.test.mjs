@@ -95,6 +95,14 @@ test("Sarafan model accepts the current complete-card crop independently from sc
   ));
 });
 
+test("Sarafan model keeps the legacy migration crop preview-valid until its Frame is refreshed", () => {
+  assert.doesNotThrow(() => validateTemplateAssets(
+    "canvas.sarafan-model",
+    { content: [image("legacy-model", 1776, 480)] },
+    "legacy Sarafan model",
+ ));
+});
+
 test("gallery device pools inherit exact dimensions from their first image", () => {
   const mixed = project({
     designProfile: "corvo-v1",
