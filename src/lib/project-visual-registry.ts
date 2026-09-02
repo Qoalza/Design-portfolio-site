@@ -118,7 +118,7 @@ export const PROJECT_VISUAL_TEMPLATES = {
   },
   "canvas.sarafan-model": {
     surface: "section", label: "Sarafan — модель", profiles: ["sarafan-v1"],
-    slots: { content: singlePng("Модель", 888 / 240, 888, 240) },
+    slots: { content: singlePng("Модель", 760 / 384, 760, 384) },
   },
   "canvas.sarafan-scenarios": {
     surface: "section", label: "Sarafan — сценарии", profiles: ["sarafan-v1"],

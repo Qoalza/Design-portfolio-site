@@ -51,12 +51,12 @@ export const FIGMA_TEMPLATE_IMPORTS = {
     ],
   },
   "canvas.sarafan-model": {
-    kind: "root-crops", width: 1000, height: 357,
-    slots: [{ name: "content", alt: "Модель продукта Sarafan.Radio", x: 56, y: 56, width: 888, height: 240 }],
+    kind: "root-crops", width: 1000, height: 480,
+    slots: [{ name: "content", alt: "Модель продукта Sarafan.Radio", x: 120, y: 48, width: 760, height: 384 }],
   },
   "canvas.sarafan-scenarios": {
     kind: "root-crops", width: 1000, height: 480,
-    slots: [{ name: "content", alt: "Сценарии работы Sarafan.Radio", x: 120, y: 48, width: 760, height: 384 }],
+    slots: [{ name: "content", alt: "Сценарии работы Sarafan.Radio", x: 70, y: 65, width: 861, height: 349.5 }],
   },
   "canvas.sarafan-setup": {
     kind: "root-crops", width: 1000, height: 732,
@@ -66,6 +66,19 @@ export const FIGMA_TEMPLATE_IMPORTS = {
     ],
   },
 };
+
+const SARAFAN_FILE_KEY = "5ZzspE0OrqesDcTP0RRPHr";
+
+export const FIGMA_TEMPLATE_SOURCES = {
+  "canvas.sarafan-model": [{ fileKey: SARAFAN_FILE_KEY, nodeId: "992:24663" }],
+  "canvas.sarafan-scenarios": [{ fileKey: SARAFAN_FILE_KEY, nodeId: "989:24607" }],
+};
+
+export function templateMatchesFigmaSource(templateId, source) {
+  const approved = FIGMA_TEMPLATE_SOURCES[templateId];
+  if (!approved) return true;
+  return approved.some((entry) => entry.fileKey === source.fileKey && entry.nodeId === source.nodeId);
+}
 
 export function sectionTemplateOptions(profile, registry) {
   return Object.entries(registry)

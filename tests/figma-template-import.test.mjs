@@ -77,67 +77,68 @@ test("first hero import detects the approved variant from its Frame structure", 
   assert.deepEqual(Object.keys(result.visual.assets), ["backdrop", "foreground"]);
 });
 
-test("approved canvas import crops content from the whole Figma Frame and keeps shell geometry in code", async () => {
+test("approved Sarafan model import crops the current whole Figma Frame and keeps shell geometry in code", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-crop-"));
-  const source = await png(2000, 714);
+  const source = await png(2000, 960);
   const fetchImpl = async (url) => {
     const value = String(url);
-    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "7", nodes: { "1:2": { document: {
-      id: "1:2", name: "Model", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 357 },
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "7", nodes: { "992:24663": { document: {
+      id: "992:24663", name: "Model", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 480 },
     } } } }), { status: 200 });
-    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root" } }), { status: 200 });
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "992:24663": "https://download/root" } }), { status: 200 });
     if (value === "https://download/root") return new Response(source, { status: 200 });
     throw new Error("Unexpected " + value);
   };
   const result = await importFigmaTemplate({
-    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    url: "https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Project?node-id=992-24663",
     token: "test-token",
     slug: "sarafan-radio",
     templateId: "canvas.sarafan-model",
     assetRoot: root,
     fetchImpl,
   });
-  assert.deepEqual({ width: result.visual.assets.content[0].width, height: result.visual.assets.content[0].height }, { width: 1776, height: 480 });
-  assert.deepEqual({ width: result.source.preview.width, height: result.source.preview.height }, { width: 2000, height: 714 });
+  assert.equal(result.visual.templateId, "canvas.sarafan-model");
+  assert.deepEqual({ width: result.visual.assets.content[0].width, height: result.visual.assets.content[0].height }, { width: 1520, height: 768 });
+  assert.deepEqual({ width: result.source.preview.width, height: result.source.preview.height }, { width: 2000, height: 960 });
 });
 
-test("new section import detects its code-owned template from the whole Frame", async () => {
+test("new section import resolves identical Sarafan frame geometry through the approved source pair", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-auto-"));
   const source = await png(2000, 960);
   const fetchImpl = async (url) => {
     const value = String(url);
-    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "8", nodes: { "1:2": { document: {
-      id: "1:2", name: "Scenarios", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 480 },
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "8", nodes: { "992:24663": { document: {
+      id: "992:24663", name: "Model", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 480 },
     } } } }), { status: 200 });
-    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root" } }), { status: 200 });
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "992:24663": "https://download/root" } }), { status: 200 });
     if (value === "https://download/root") return new Response(source, { status: 200 });
     throw new Error("Unexpected " + value);
   };
   const result = await importFigmaTemplate({
-    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    url: "https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Project?node-id=992-24663",
     token: "test-token",
     slug: "sarafan-radio",
     templateIds: ["canvas.sarafan-model", "canvas.sarafan-scenarios", "canvas.sarafan-setup"],
     assetRoot: root,
     fetchImpl,
   });
-  assert.equal(result.visual.templateId, "canvas.sarafan-scenarios");
+  assert.equal(result.visual.templateId, "canvas.sarafan-model");
 });
 
-test("Sarafan scenarios imports the complete current Figma card bounds", async () => {
+test("Sarafan scenarios keep their approved source and legacy crop independently from Model", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-scenarios-bounds-"));
   const source = await png(2000, 960);
   const fetchImpl = async (url) => {
     const value = String(url);
-    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "9", nodes: { "1:2": { document: {
-      id: "1:2", name: "Interactive flow", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 480 },
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "9", nodes: { "989:24607": { document: {
+      id: "989:24607", name: "Interactive flow", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 480 },
     } } } }), { status: 200 });
-    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root" } }), { status: 200 });
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "989:24607": "https://download/root" } }), { status: 200 });
     if (value === "https://download/root") return new Response(source, { status: 200 });
     throw new Error("Unexpected " + value);
   };
   const result = await importFigmaTemplate({
-    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    url: "https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Project?node-id=989-24607",
     token: "test-token",
     slug: "sarafan-radio",
     templateId: "canvas.sarafan-scenarios",
@@ -147,8 +148,21 @@ test("Sarafan scenarios imports the complete current Figma card bounds", async (
 
   assert.deepEqual(
     { width: result.visual.assets.content[0].width, height: result.visual.assets.content[0].height },
-    { width: 1520, height: 768 },
+    { width: 1722, height: 699 },
   );
+});
+
+test("Sarafan source bindings reject a different approved frame before writing assets", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "figma-template-source-binding-"));
+  await assert.rejects(() => importFigmaTemplate({
+    url: "https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Project?node-id=992-24663",
+    token: "test-token",
+    slug: "sarafan-radio",
+    templateId: "canvas.sarafan-scenarios",
+    assetRoot: root,
+    fetchImpl: async () => { throw new Error("The importer must reject before Figma export."); },
+  }), /утверждённому источнику/i);
+  assert.deepEqual(await readdir(path.join(root, "sarafan-radio", "figma")).catch(() => []), []);
 });
 
 test("incompatible Frame structure fails before replacing any working template assets", async () => {
@@ -172,18 +186,18 @@ test("incompatible Frame structure fails before replacing any working template a
 
 test("same Figma node and version receive a new asset URL only when generated PNG bytes change", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-content-hash-"));
-  let source = await png(2000, 714, "#ffffff");
+  let source = await png(2000, 960, "#ffffff");
   const fetchImpl = async (url) => {
     const value = String(url);
-    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "unchanged-version", nodes: { "1:2": { document: {
-      id: "1:2", name: "Model", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 357 },
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "unchanged-version", nodes: { "992:24663": { document: {
+      id: "992:24663", name: "Model", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 480 },
     } } } }), { status: 200 });
-    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root" } }), { status: 200 });
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "992:24663": "https://download/root" } }), { status: 200 });
     if (value === "https://download/root") return new Response(source, { status: 200 });
     throw new Error("Unexpected " + value);
   };
   const request = {
-    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    url: "https://www.figma.com/design/5ZzspE0OrqesDcTP0RRPHr/Project?node-id=992-24663",
     token: "test-token",
     slug: "sarafan-radio",
     templateId: "canvas.sarafan-model",
@@ -192,7 +206,7 @@ test("same Figma node and version receive a new asset URL only when generated PN
   };
 
   const first = await importFigmaTemplate(request);
-  source = await png(2000, 714, "#000000");
+  source = await png(2000, 960, "#000000");
   const second = await importFigmaTemplate(request);
   const third = await importFigmaTemplate(request);
 

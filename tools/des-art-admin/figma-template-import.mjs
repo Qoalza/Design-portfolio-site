@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 import sharp from "sharp";
 
 import { validateTemplateAssets } from "../../src/lib/project-visual-registry.ts";
-import { FIGMA_TEMPLATE_IMPORTS } from "./figma-template-map.mjs";
+import { FIGMA_TEMPLATE_IMPORTS, templateMatchesFigmaSource } from "./figma-template-map.mjs";
 
 const execFileAsync = promisify(execFile);
 const FIGMA_HOSTS = new Set(["figma.com", "www.figma.com"]);
@@ -77,12 +77,21 @@ function withinTolerance(actual, expected) {
   return Math.abs(actual - expected) / expected <= 0.001;
 }
 
-async function normalizedPng(buffer, destination) {
+export async function inspectImportedPng(file, { requiresTransparency = false } = {}) {
+  const [metadata, statistics] = await Promise.all([sharp(file).metadata(), sharp(file).stats()]);
+  if (!metadata.width || !metadata.height || metadata.format !== "png") throw new Error("Figma import создал некорректный PNG.");
+  if (requiresTransparency && (!metadata.hasAlpha || statistics.isOpaque)) {
+    throw new Error("Figma export потерял прозрачные поля утверждённого блока.");
+  }
+  return { width: metadata.width, height: metadata.height, hasAlpha: Boolean(metadata.hasAlpha), isOpaque: Boolean(statistics.isOpaque) };
+}
+
+async function normalizedPng(buffer, destination, options) {
   const pipeline = sharp(buffer);
   const metadata = await pipeline.metadata();
   if (!metadata.width || !metadata.height || metadata.width * metadata.height > 40_000_000) throw new Error("Figma вернула изображение с недопустимым разрешением.");
   await pipeline.png().toFile(destination);
-  return { width: metadata.width, height: metadata.height };
+  return inspectImportedPng(destination, options);
 }
 
 async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary }) {
@@ -128,7 +137,9 @@ async function importRootCrops({ root, spec, temporary, source }) {
     const width = Math.round(slot.width * 2);
     const height = Math.round(slot.height * 2);
     await sharp(source).extract({ left, top, width, height }).png().toFile(destination);
-    assets[slot.name] = [{ alt: slot.alt, width, height }];
+    const output = await inspectImportedPng(destination, { requiresTransparency: slot.requiresTransparency });
+    if (output.width !== width || output.height !== height) throw new Error("Figma import сохранил PNG с неверными размерами.");
+    assets[slot.name] = [{ alt: slot.alt, width: output.width, height: output.height }];
   }
   return assets;
 }
@@ -140,6 +151,7 @@ async function pngManifest(directory) {
   return Promise.all(files.map(async (file) => ({
     file,
     sha256: createHash("sha256").update(await readFile(path.join(directory, file))).digest("hex"),
+    ...(await inspectImportedPng(path.join(directory, file))),
   })));
 }
 
@@ -160,11 +172,15 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
     throw new Error("Для этого утверждённого шаблона не настроен импорт из Figma.");
   }
   const parsed = parseFigmaNodeUrl(url);
+  if (templateId && !templateMatchesFigmaSource(templateId, parsed)) {
+    throw new Error("Этот Frame не соответствует утверждённому источнику выбранного интерактивного шаблона.");
+  }
   const auth = token || await readFigmaToken();
   const nodeData = await figmaJson(fetchImpl, `https://api.figma.com/v1/files/${encodeURIComponent(parsed.fileKey)}/nodes?ids=${encodeURIComponent(parsed.nodeId)}`, auth);
   const root = nodeData.nodes?.[parsed.nodeId]?.document;
   if (!root || !ROOT_TYPES.has(root.type)) throw new Error("Figma Frame не найден по указанной ссылке.");
   const matches = candidates.filter((candidate) => {
+    if (!templateMatchesFigmaSource(candidate, parsed)) return false;
     const candidateSpec = FIGMA_TEMPLATE_IMPORTS[candidate];
     if (candidateSpec.kind === "children") {
       const visibleChildren = (root.children ?? []).filter((child) => child.visible !== false);
@@ -208,7 +224,10 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
     let changed = true;
     await rename(temporary, destination).catch(async (error) => {
       if (error?.code !== "EEXIST" && error?.code !== "ENOTEMPTY") throw error;
-      const existing = await pngManifest(destination);
+      let existing;
+      try { existing = await pngManifest(destination); } catch {
+        throw new Error("Figma import столкнулся с папкой с другим содержимым. Сохранённый черновик не изменён.");
+      }
       if (JSON.stringify(existing) !== JSON.stringify(manifest)) {
         throw new Error("Figma import столкнулся с папкой с другим содержимым. Сохранённый черновик не изменён.");
       }

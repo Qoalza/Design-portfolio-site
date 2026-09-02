@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { closeSync, openSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import http from "node:http";
@@ -11,6 +12,7 @@ import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
 import { readFigmaToken, saveFigmaToken } from "./figma-template-import.mjs";
 import { humanError } from "./human-errors.mjs";
 import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
+import { createPreviewRuntimeIdentity, previewHealthMatches } from "./preview-runtime.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(directory, "../.."));
@@ -18,6 +20,7 @@ const supportRoot = path.resolve(process.env.DES_ART_ADMIN_SUPPORT ?? path.join(
 const port = Number(process.env.DES_ART_ADMIN_PORT ?? 41731);
 const previewPort = Number(process.env.DES_ART_PREVIEW_PORT ?? 41732);
 const publishMode = process.env.DES_ART_ADMIN_PUBLISH_MODE === "live" ? "live" : "sandbox";
+const maintenanceMode = process.env.DES_ART_ADMIN_MAINTENANCE === "1";
 const csrfToken = randomBytes(32).toString("hex");
 const adminAssetVersion = createHash("sha256")
   .update(await readFile(path.join(directory, "public", "admin.js")))
@@ -34,6 +37,7 @@ const store = new AdminStore({
 const jobsRoot = path.join(supportRoot, "jobs");
 const previewRoot = path.join(supportRoot, "preview-drafts");
 const logsRoot = path.join(supportRoot, "logs");
+const previewMarker = path.join(supportRoot, "preview-runtime.json");
 const imageTypes = new Map([
   [".png", "image/png"],
   [".jpg", "image/jpeg"],
@@ -44,19 +48,66 @@ const imageTypes = new Map([
 
 const userError = (response, status, title, message) => json(response, status, { errorTitle: title, error: message });
 
-function reachable(targetPort) {
+function currentGitSha() {
+  try {
+    if (execFileSync("/usr/bin/git", ["status", "--porcelain"], { cwd: repoRoot, encoding: "utf8" }).trim()) return null;
+    return execFileSync("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  } catch { return null; }
+}
+
+const previewRuntime = await createPreviewRuntimeIdentity({
+  repoRoot,
+  gitSha: currentGitSha(),
+  sourceFiles: [
+    "tools/des-art-admin/server.mjs",
+    "tools/des-art-admin/core.mjs",
+    "tools/des-art-admin/figma-template-import.mjs",
+    "tools/des-art-admin/preview-runtime.mjs",
+    "src/lib/project-contract.ts",
+    "src/lib/project-visual-registry.ts",
+    "src/app/admin-preview-health/route.ts",
+  ],
+});
+
+function requestPreview(pathname) {
   return new Promise((resolve) => {
-    const request = http.get({ hostname: "127.0.0.1", port: targetPort, path: "/", timeout: 700 }, (result) => {
-      result.resume();
-      resolve(Boolean(result.statusCode));
+    const request = http.get({ hostname: "127.0.0.1", port: previewPort, path: pathname, timeout: 700 }, (result) => {
+      const chunks = [];
+      result.on("data", (chunk) => chunks.push(chunk));
+      result.on("end", () => resolve({ status: result.statusCode ?? 0, body: Buffer.concat(chunks).toString("utf8") }));
     });
-    request.on("error", () => resolve(false));
-    request.on("timeout", () => { request.destroy(); resolve(false); });
+    request.on("error", () => resolve({ status: 0, body: "" }));
+    request.on("timeout", () => { request.destroy(); resolve({ status: 0, body: "" }); });
   });
 }
 
+async function healthyPreview() {
+  const result = await requestPreview("/admin-preview-health");
+  if (result.status !== 200) return false;
+  try { return previewHealthMatches(JSON.parse(result.body), previewRuntime); } catch { return false; }
+}
+
+async function stopOwnedStalePreview() {
+  const marker = JSON.parse(await readFile(previewMarker, "utf8").catch(() => "null"));
+  if (!marker || marker.repoRoot !== previewRuntime.repoRoot || marker.protocol !== previewRuntime.protocol || !Number.isSafeInteger(marker.pid)) {
+    throw new Error("На preview-порту работает неизвестная версия. Admin не будет останавливать её автоматически.");
+  }
+  let command = "";
+  try { command = execFileSync("/bin/ps", ["-p", String(marker.pid), "-o", "command="], { encoding: "utf8" }); } catch {}
+  if (!command.includes("next") || !command.includes(String(previewPort))) {
+    throw new Error("Сохранённый Preview PID не подтверждён. Admin не будет останавливать другой процесс.");
+  }
+  try { process.kill(-marker.pid, "SIGTERM"); } catch { throw new Error("Не удалось безопасно остановить устаревший Preview."); }
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    if ((await requestPreview("/admin-preview-health")).status === 0) return;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error("Устаревший Preview не завершился. Автоматический перезапуск остановлен.");
+}
+
 async function ensurePreview() {
-  if (await reachable(previewPort)) return;
+  if (await healthyPreview()) return;
+  if ((await requestPreview("/admin-preview-health")).status !== 0) await stopOwnedStalePreview();
   await mkdir(logsRoot, { recursive: true });
   const output = openSync(path.join(logsRoot, "preview.log"), "a", 0o600);
   try {
@@ -173,6 +224,9 @@ async function handler(request, response) {
       await store.preparePreview(slug, previewRoot, route);
       await ensurePreview();
       const pathname = route === "home" ? "/" : route === "catalog" ? "/projects" : `/projects/${encodeURIComponent(slug)}`;
+      if ((await requestPreview(`${pathname}?admin-preview=1&draft=${encodeURIComponent(slug)}`)).status !== 200) {
+        throw new Error("Предпросмотр не открыл страницу проекта. Черновик не опубликован.");
+      }
       return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}${pathname}?admin-preview=1&draft=${encodeURIComponent(slug)}` });
     }
     if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot, mode: publishMode }));
@@ -181,6 +235,7 @@ async function handler(request, response) {
       return json(response, 200, names[0] ? JSON.parse(await readFile(path.join(jobsRoot, names[0]), "utf8")) : null);
     }
     if (request.method === "POST" && url.pathname === "/api/publish/start") {
+      if (maintenanceMode) return userError(response, 403, "Публикация отключена", "Этот запуск Admin выполняет только безопасный локальный ремонт черновика.");
       const value = await body(request);
       const readiness = await publishReadiness({ supportRoot, mode: publishMode });
       if (!readiness.ready) return userError(response, 409, "Публикацию нельзя запустить", "Окружение публикации не настроено полностью. Требуется ручная диагностика разработчиком перед повторным запуском.");
