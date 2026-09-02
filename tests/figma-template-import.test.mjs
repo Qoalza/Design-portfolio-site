@@ -124,6 +124,33 @@ test("new section import detects its code-owned template from the whole Frame", 
   assert.equal(result.visual.templateId, "canvas.sarafan-scenarios");
 });
 
+test("Sarafan scenarios imports the complete current Figma card bounds", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "figma-template-scenarios-bounds-"));
+  const source = await png(2000, 960);
+  const fetchImpl = async (url) => {
+    const value = String(url);
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "9", nodes: { "1:2": { document: {
+      id: "1:2", name: "Interactive flow", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1000, height: 480 },
+    } } } }), { status: 200 });
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root" } }), { status: 200 });
+    if (value === "https://download/root") return new Response(source, { status: 200 });
+    throw new Error("Unexpected " + value);
+  };
+  const result = await importFigmaTemplate({
+    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    token: "test-token",
+    slug: "sarafan-radio",
+    templateId: "canvas.sarafan-scenarios",
+    assetRoot: root,
+    fetchImpl,
+  });
+
+  assert.deepEqual(
+    { width: result.visual.assets.content[0].width, height: result.visual.assets.content[0].height },
+    { width: 1520, height: 768 },
+  );
+});
+
 test("incompatible Frame structure fails before replacing any working template assets", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-invalid-"));
   const fetchImpl = async (url) => {

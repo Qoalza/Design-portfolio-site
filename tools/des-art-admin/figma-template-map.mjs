@@ -56,7 +56,7 @@ export const FIGMA_TEMPLATE_IMPORTS = {
   },
   "canvas.sarafan-scenarios": {
     kind: "root-crops", width: 1000, height: 480,
-    slots: [{ name: "content", alt: "Сценарии работы Sarafan.Radio", x: 70, y: 65, width: 861, height: 349.5 }],
+    slots: [{ name: "content", alt: "Сценарии работы Sarafan.Radio", x: 120, y: 48, width: 760, height: 384 }],
   },
   "canvas.sarafan-setup": {
     kind: "root-crops", width: 1000, height: 732,
