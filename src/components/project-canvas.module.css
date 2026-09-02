@@ -28,8 +28,8 @@
 .inputsAsset { top: 20px; left: 469px; width: 531px; height: 228px; }
 .controlsDivider { position: relative; z-index: 1; grid-column: 2; background: #e3e6e8; }
 
-.sarafanModel { height: 357px; }
-.sarafanModelAsset { top: 56px; left: 56px; width: 888px; height: 240px; }
+.sarafanModel { height: 480px; }
+.sarafanModelAsset { top: 48px; left: 120px; width: 760px; height: 384px; }
 .sarafanScenarios { height: 480px; }
 .sarafanScenariosAsset { top: 48px; left: 120px; width: 760px; height: 384px; }
 .sarafanScenariosLegacyAsset { top: 65px; left: 70px; width: 861px; height: 349.5px; }

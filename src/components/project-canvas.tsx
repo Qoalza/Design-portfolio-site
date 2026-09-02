@@ -29,7 +29,7 @@ export function ProjectCanvas({ visual }: { visual: ProjectVisualInstance }) {
     );
   }
   if (visual.templateId === "canvas.sarafan-model") {
-    return <figure className={`${styles.canvas} ${styles.sarafanModel}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.sarafanModelAsset} sizes="888px" /></figure>;
+    return <figure className={`${styles.canvas} ${styles.sarafanModel}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.sarafanModelAsset} sizes="760px" /></figure>;
   }
   if (visual.templateId === "canvas.sarafan-scenarios") {
     const content = asset(visual, "content");
