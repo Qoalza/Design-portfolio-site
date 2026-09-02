@@ -18,6 +18,7 @@ const adminCore = await readFile(new URL("../tools/des-art-admin/core.mjs", impo
 const adminComponents = await readFile(new URL("../tools/des-art-admin/src/admin-ui.tsx", import.meta.url), "utf8");
 const projectGallery = await readFile(new URL("../src/components/project-gallery.tsx", import.meta.url), "utf8");
 const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", import.meta.url), "utf8");
+const figmaImporter = await readFile(new URL("../tools/des-art-admin/figma-template-import.mjs", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const deployCommand = await readFile(new URL("../tools/des-art-admin/server/art-des-publish", import.meta.url), "utf8");
 
@@ -112,6 +113,11 @@ test("admin UI keeps Radix Themes inside the local admin boundary", () => {
   assert.equal(packageJson.dependencies["@radix-ui/themes"], "3.3.0");
   assert.match(adminUi, /<Theme accentColor="blue" grayColor="sand" radius="medium"/);
   assert.doesNotMatch(projectRoute, /@radix-ui\/themes/);
+});
+
+test("Admin startup loads image processing only when a Figma import is requested", () => {
+  assert.doesNotMatch(figmaImporter, /^import sharp from "sharp";$/m);
+  assert.match(figmaImporter, /import\("sharp"\)/);
 });
 
 test("admin workflows use internal dialogs and manual SVG logos", () => {

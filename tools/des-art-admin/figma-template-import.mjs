@@ -4,8 +4,6 @@ import { mkdir, readFile, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 
-import sharp from "sharp";
-
 import { validateTemplateAssets } from "../../src/lib/project-visual-registry.ts";
 import { FIGMA_TEMPLATE_IMPORTS, templateMatchesFigmaSource } from "./figma-template-map.mjs";
 
@@ -14,6 +12,12 @@ const FIGMA_HOSTS = new Set(["figma.com", "www.figma.com"]);
 const KEYCHAIN_SERVICE = "des-art-admin-figma";
 const KEYCHAIN_ACCOUNT = "file-content-read";
 const ROOT_TYPES = new Set(["FRAME", "COMPONENT", "INSTANCE", "GROUP", "SECTION"]);
+let imageProcessor;
+
+async function sharp() {
+  if (!imageProcessor) imageProcessor = import("sharp").then((module) => module.default);
+  return imageProcessor;
+}
 
 export function parseFigmaNodeUrl(value) {
   let url;
@@ -78,7 +82,8 @@ function withinTolerance(actual, expected) {
 }
 
 export async function inspectImportedPng(file, { requiresTransparency = false } = {}) {
-  const [metadata, statistics] = await Promise.all([sharp(file).metadata(), sharp(file).stats()]);
+  const processImage = await sharp();
+  const [metadata, statistics] = await Promise.all([processImage(file).metadata(), processImage(file).stats()]);
   if (!metadata.width || !metadata.height || metadata.format !== "png") throw new Error("Figma import создал некорректный PNG.");
   if (requiresTransparency && (!metadata.hasAlpha || statistics.isOpaque)) {
     throw new Error("Figma export потерял прозрачные поля утверждённого блока.");
@@ -87,7 +92,7 @@ export async function inspectImportedPng(file, { requiresTransparency = false } 
 }
 
 async function normalizedPng(buffer, destination, options) {
-  const pipeline = sharp(buffer);
+  const pipeline = (await sharp())(buffer);
   const metadata = await pipeline.metadata();
   if (!metadata.width || !metadata.height || metadata.width * metadata.height > 40_000_000) throw new Error("Figma вернула изображение с недопустимым разрешением.");
   await pipeline.png().toFile(destination);
@@ -125,7 +130,8 @@ async function importRootCrops({ root, spec, temporary, source }) {
   if (!bounds || !withinTolerance(bounds.width, spec.width) || !withinTolerance(bounds.height, spec.height)) {
     throw new Error(`Frame имеет размер ${bounds?.width ?? 0}×${bounds?.height ?? 0}, ожидается утверждённый ${spec.width}×${spec.height}.`);
   }
-  const metadata = await sharp(source).metadata();
+  const processImage = await sharp();
+  const metadata = await processImage(source).metadata();
   if (!metadata.width || !metadata.height || !withinTolerance(metadata.width, spec.width * 2) || !withinTolerance(metadata.height, spec.height * 2)) {
     throw new Error("Figma экспортировала Frame не в утверждённом размере 2×.");
   }
@@ -136,7 +142,7 @@ async function importRootCrops({ root, spec, temporary, source }) {
     const top = Math.round(slot.y * 2);
     const width = Math.round(slot.width * 2);
     const height = Math.round(slot.height * 2);
-    await sharp(source).extract({ left, top, width, height }).png().toFile(destination);
+    await processImage(source).extract({ left, top, width, height }).png().toFile(destination);
     const output = await inspectImportedPng(destination, { requiresTransparency: slot.requiresTransparency });
     if (output.width !== width || output.height !== height) throw new Error("Figma import сохранил PNG с неверными размерами.");
     assets[slot.name] = [{ alt: slot.alt, width: output.width, height: output.height }];
