@@ -25,11 +25,11 @@ Packaged Admin может использовать другую checkout-вер�
 
 ### Выбор пути при первом переходе в live
 
-До первого live bootstrap Admin не выбирает путь самостоятельно. По запросу пользователя Codex сначала фиксирует локальный одноразовый `live-transition-request-v1`: либо `clean` — чистый production baseline, либо `delta` — перенос только неопубликованной разницы в local live drafts. Сам request не запускает migration, не архивирует данные и не публикует сайт.
+До первого live bootstrap Admin не выбирает путь самостоятельно и не показывает для этого кнопку или форму. По запросу пользователя Codex сначала спрашивает путь, затем через локальную operator-команду фиксирует одноразовый `live-transition-request-v1`: либо `clean` — чистый production baseline, либо `delta` — перенос только неопубликованной разницы в local live drafts. Сам request не запускает migration, не архивирует данные и не публикует сайт.
 
-Для нового sandbox сохраняется immutable `sandbox-origin-v1` только после совпадения полного публичного `data-build-sha` и `origin/main`: baseline-проекты с `adminId` и manifest хэшей исходных assets. При `delta` semantic three-way merge накладывает изменённые поля и секции sandbox поверх свежего production; неизменённое остаётся production. Удаления, unpublish, пустые значения, `catalogOrder` и `homePlacement` не переносятся; новый проект остаётся local draft. Одновременное изменение одной semantic unit (поле, visual surface, section или gallery) останавливает перенос до archive и staging.
+Для нового sandbox сохраняется immutable `sandbox-origin-v1` только после совпадения полного публичного `data-build-sha` и `origin/main`: baseline-проекты с `adminId` и manifest хэшей исходных assets. При `delta` semantic three-way merge накладывает изменённые поля и секции sandbox поверх свежего production; неизменённое остаётся production. Страница проекта является неделимой semantic unit: доступность страницы и её hero переносятся вместе либо не переносятся. Удаления, unpublish, пустые значения, `catalogOrder` и `homePlacement` не переносятся; новый проект остаётся local draft. Одновременное изменение одной semantic unit (поле, visual surface, section или gallery) останавливает перенос до archive и staging.
 
-Если origin отсутствует, Admin показывает локальную проверку переноса и принимает только явно выбранные поля, visual surfaces и секции. Каждый выбранный unit получает hash exact production-цели, показанной во время проверки; изменение или исчезновение этой цели до live bootstrap останавливает перенос без частичного draft. Секции без доказанного совпадения считаются добавлением, а не заменой. Staging, archive и activation защищены journal: при любой ошибке marker live не создаётся, а частично активированные drafts возвращаются в staging; повторный запуск останавливается на journal, не выполняя второй перенос.
+Если origin отсутствует, Codex запускает read-only проверку переноса и после явного выбора пользователя сохраняет только выбранные поля, visual surfaces и секции. Неполная страница проекта не предлагается к переносу; полная переносится только одной целой unit. Каждый выбранный unit получает hash exact production-цели, показанной во время проверки; изменение или исчезновение этой цели до live bootstrap останавливает перенос без частичного draft. Секции без доказанного совпадения считаются добавлением, а не заменой. Staging, archive и activation защищены journal: при любой ошибке marker live не создаётся, а частично активированные drafts возвращаются в staging; повторный запуск останавливается на journal, не выполняя второй перенос.
 
 ## Черновик и preview
 
@@ -40,6 +40,7 @@ Packaged Admin может использовать другую checkout-вер�
 - Homepage и catalog читают merged canonical + partial draft overlay; коллекция валидируется после merge.
 - Draft asset URL переписывается только в env-gated preview runtime. Canonical JSON/assets не перезаписываются.
 - Каждый preview-порт использует отдельный `.next-admin-preview-<port>`.
+- Для проверки ещё не влитого candidate используется только `run-candidate-sandbox.mjs`: новый пустой support-root внутри системной temporary directory и принудительный sandbox mode; обычный App Support, live config и production не используются.
 
 ## Интерфейс и контент
 

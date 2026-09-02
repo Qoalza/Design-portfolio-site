@@ -4,6 +4,8 @@ import test from "node:test";
 
 const server = await readFile(new URL("../tools/des-art-admin/server.mjs", import.meta.url), "utf8");
 const launcher = await readFile(new URL("../tools/des-art-admin/launcher.mjs", import.meta.url), "utf8");
+const transitionOperator = await readFile(new URL("../tools/des-art-admin/prepare-live-transition.mjs", import.meta.url), "utf8");
+const candidateSandbox = await readFile(new URL("../tools/des-art-admin/run-candidate-sandbox.mjs", import.meta.url), "utf8");
 const projectRoute = await readFile(new URL("../src/app/projects/[slug]/page.tsx", import.meta.url), "utf8");
 const projectsRoute = await readFile(new URL("../src/app/projects/page.tsx", import.meta.url), "utf8");
 const previewAssetRoute = await readFile(new URL("../src/app/admin-preview-assets/[slug]/[...file]/route.ts", import.meta.url), "utf8");
@@ -53,20 +55,28 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /if \(!liveTransitionStarted\) await launchSandboxWithoutBootstrap\(\)\.catch/);
 });
 
-test("first live transition requires an explicit local path and exposes only sandbox review controls", () => {
+test("first live transition requires an explicit operator request and is not available in the Admin UI", () => {
   assert.match(launcher, /hasLiveBaseline/);
   assert.match(launcher, /выберите путь: чистый production baseline или перенос неопубликованных черновиков/);
   assert.match(launcher, /prepareTransferredDrafts: transferDrafts/);
   assert.match(launcher, /preview\.blocked/);
   assert.match(launcher, /buildLegacySelectedDraftTransfer/);
   assert.match(launcher, /staged\.reviewRequired \|\| staged\.blocked/);
-  assert.match(server, /\/api\/live-transition\/review/);
-  assert.match(server, /\/api\/live-transition\/request/);
-  assert.match(server, /publishMode !== "sandbox"/);
-  assert.match(adminUi, /Переход в live…/);
-  assert.match(adminUi, /Чистый production baseline/);
-  assert.match(adminUi, /Перенести неопубликованные изменения в live drafts/);
-  assert.match(adminUi, /fingerprint: unit\.fingerprint/);
+  assert.doesNotMatch(server, /\/api\/live-transition\//);
+  assert.doesNotMatch(adminUi, /Переход в live…/);
+  assert.doesNotMatch(adminUi, /Чистый production baseline/);
+  assert.doesNotMatch(adminUi, /Перенести неопубликованные изменения в live drafts/);
+  assert.match(transitionOperator, /--selection/);
+  assert.match(transitionOperator, /saveLiveTransitionRequest/);
+  assert.match(transitionOperator, /does not start Admin, archive data, or publish/);
+});
+
+test("candidate sandbox runner is isolated from the normal Admin and cannot enable live mode", () => {
+  assert.match(candidateSandbox, /--support-root/);
+  assert.match(candidateSandbox, /Candidate sandbox support root must be inside the system temporary directory/);
+  assert.match(candidateSandbox, /DES_ART_ADMIN_PUBLISH_MODE: "sandbox"/);
+  assert.doesNotMatch(candidateSandbox, /live-publish\.json/);
+  assert.match(candidateSandbox, /tools\/des-art-admin\/server\.mjs/);
 });
 
 test("admin is not an App Router route and preview access is env-gated", async () => {

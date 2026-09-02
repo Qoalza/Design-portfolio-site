@@ -28,13 +28,7 @@ const unitFingerprint = (value) => createHash("sha256").update(`live-transition-
 const fingerprintMatches = (value, fingerprint) => typeof fingerprint === "string"
   && /^[0-9a-f]{64}$/i.test(fingerprint)
   && unitFingerprint(value) === fingerprint.toLowerCase();
-const ignoredKeys = new Set(["slug", "schemaVersion", "catalogOrder", "homePlacement", "visibility", "admin", "content"]);
-const legacyFieldLabels = {
-  detailAvailable: "Страница проекта",
-};
-const legacyVisualLabels = {
-  hero: "Главное изображение страницы проекта",
-};
+const ignoredKeys = new Set(["slug", "schemaVersion", "catalogOrder", "homePlacement", "visibility", "admin", "content", "detailAvailable"]);
 
 function normalizeOriginProjects(projects = []) {
   return projects.map((project) => {
@@ -56,6 +50,22 @@ function hasValue(value) {
 function hasVisualValue(value) {
   if (!value || typeof value !== "object") return false;
   return Object.values(value.assets ?? {}).some((items) => Array.isArray(items) && items.length > 0);
+}
+
+function projectPageState(project = {}) {
+  return {
+    detailAvailable: project.detailAvailable === true,
+    hero: project.visuals?.hero,
+  };
+}
+
+function hasCompleteProjectPage(project) {
+  const page = projectPageState(project);
+  return page.detailAvailable && hasVisualValue(page.hero);
+}
+
+function pageChanged(base, sandbox) {
+  return !same(projectPageState(base), projectPageState(sandbox));
 }
 
 function itemKey(item) {
@@ -126,6 +136,7 @@ function mergeContent({ slug, base = [], sandbox = [], production = [], conflict
 function mergeVisuals({ slug, base = {}, sandbox = {}, production = {}, conflicts }) {
   const result = clone(production);
   for (const surface of Object.keys(sandbox)) {
+    if (surface === "hero") continue;
     const before = base?.[surface];
     const candidate = sandbox[surface];
     const current = production?.[surface];
@@ -144,12 +155,28 @@ function mergeVisuals({ slug, base = {}, sandbox = {}, production = {}, conflict
   return result;
 }
 
+function mergeProjectPage({ slug, base, sandbox, production, result, conflicts }) {
+  if (!pageChanged(base, sandbox) || !hasCompleteProjectPage(sandbox)) return;
+  const before = projectPageState(base);
+  const candidate = projectPageState(sandbox);
+  const current = projectPageState(production);
+  if (!same(before, current) && !same(candidate, current)) {
+    addConflict(conflicts, slug, "page");
+    return;
+  }
+  result.detailAvailable = true;
+  result.visuals ??= {};
+  result.visuals.hero = clone(candidate.hero);
+}
+
 function hasTransferableChange(base, sandbox) {
   for (const key of Object.keys(sandbox)) {
     if (ignoredKeys.has(key) || key === "visuals" || same(base?.[key], sandbox[key]) || !hasValue(sandbox[key])) continue;
     return true;
   }
+  if (pageChanged(base, sandbox) && hasCompleteProjectPage(sandbox)) return true;
   for (const surface of Object.keys(sandbox.visuals ?? {})) {
+    if (surface === "hero") continue;
     if (!same(base?.visuals?.[surface], sandbox.visuals[surface]) && hasVisualValue(sandbox.visuals[surface])) return true;
   }
   for (const item of sandbox.content ?? []) {
@@ -172,6 +199,7 @@ function mergeExistingProject(base, sandbox, production, conflicts) {
     if (!same(sandbox[key], production[key])) result[key] = clone(sandbox[key]);
   }
   result.visuals = mergeVisuals({ slug: sandbox.slug, base: base?.visuals, sandbox: sandbox.visuals, production: production.visuals, conflicts });
+  mergeProjectPage({ slug: sandbox.slug, base, sandbox, production, result, conflicts });
   result.content = mergeContent({ slug: sandbox.slug, base: base?.content, sandbox: sandbox.content, production: production.content, conflicts });
   result.catalogOrder = production.catalogOrder;
   if (production.homePlacement === undefined) delete result.homePlacement;
@@ -291,11 +319,15 @@ export function buildLegacyTransferReview({ sandboxProjects, productionProjects 
     const units = [];
     for (const [key, value] of Object.entries(sandbox)) {
       if (ignoredKeys.has(key) || key === "content" || key === "visuals" || !hasValue(value) || same(currentDraft?.[key], value)) continue;
-      units.push({ key, kind: "field", label: legacyFieldLabels[key] ?? key, fingerprint: unitFingerprint(currentDraft?.[key]) });
+      units.push({ key, kind: "field", label: key, fingerprint: unitFingerprint(currentDraft?.[key]) });
     }
     for (const [surface, value] of Object.entries(sandbox.visuals ?? {})) {
+      if (surface === "hero") continue;
       if (!hasVisualValue(value) || same(currentDraft?.visuals?.[surface], value)) continue;
-      units.push({ key: `visual:${surface}`, kind: "visual", label: legacyVisualLabels[surface] ?? surface, fingerprint: unitFingerprint(currentDraft?.visuals?.[surface]) });
+      units.push({ key: `visual:${surface}`, kind: "visual", label: surface, fingerprint: unitFingerprint(currentDraft?.visuals?.[surface]) });
+    }
+    if (hasCompleteProjectPage(sandbox) && !same(projectPageState(currentDraft), projectPageState(sandbox))) {
+      units.push({ key: "page", kind: "page", label: "Страница проекта", fingerprint: unitFingerprint(projectPageState(currentDraft)) });
     }
     for (const item of sandbox.content ?? []) {
       if (!hasValue(item)) continue;
@@ -330,7 +362,17 @@ function selectedLegacyProject({ sandbox, production, units, conflicts }) {
     result[key] = clone(value);
   }
   result.visuals ??= {};
+  const page = chosen.get("page");
+  if (page) {
+    if (!hasCompleteProjectPage(sandbox) || !fingerprintMatches(projectPageState(current), page.fingerprint)) {
+      addConflict(conflicts, sandbox.slug, "legacy:page");
+    } else {
+      result.detailAvailable = true;
+      result.visuals.hero = clone(sandbox.visuals.hero);
+    }
+  }
   for (const [surface, value] of Object.entries(sandbox.visuals ?? {})) {
+    if (surface === "hero") continue;
     const key = `visual:${surface}`;
     const unit = chosen.get(key);
     if (!unit || !hasVisualValue(value)) continue;

@@ -15,8 +15,6 @@ import { SavedMark } from "./admin-ui";
 import { PreviewWindowController } from "./preview-window.mjs";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
-type TransferUnit = { key: string; kind: "field" | "section" | "content" | "visual"; label: string; fingerprint: string };
-type TransitionReview = { reviewRequired: boolean; originSha?: string; projects: { slug: string; title: string; isNew: boolean; units: TransferUnit[] }[] };
 const csrf = document.body.dataset.csrf ?? "";
 const publishMode = document.body.dataset.publishMode === "live" ? "live" : "sandbox";
 const draftKey = (slug: string) => `des-art-admin:draft:${slug}`;
@@ -62,10 +60,6 @@ function App() {
   const [figmaConnected, setFigmaConnected] = useState(false);
   const [figmaOpen, setFigmaOpen] = useState(false);
   const [figmaToken, setFigmaToken] = useState("");
-  const [transitionOpen, setTransitionOpen] = useState(false);
-  const [transitionReview, setTransitionReview] = useState<TransitionReview>();
-  const [transferSelection, setTransferSelection] = useState<"clean" | "delta">("clean");
-  const [selectedTransferUnits, setSelectedTransferUnits] = useState<string[]>([]);
   const dirty = useRef(false);
   const latest = useRef<AdminProject | null>(null);
   const previewWindow = useRef<PreviewWindowController | null>(null);
@@ -303,30 +297,6 @@ function App() {
     await refresh();
   };
 
-  const openTransition = async () => {
-    const review = await api<TransitionReview>("/api/live-transition/review");
-    setTransitionReview(review);
-    setTransferSelection("clean");
-    setSelectedTransferUnits([]);
-    setTransitionOpen(true);
-  };
-
-  const saveTransitionRequest = async () => {
-    if (!transitionReview) return;
-    const units = transitionReview.projects.flatMap((project) => project.units
-      .filter((unit) => selectedTransferUnits.includes(`${project.slug}:${unit.key}`))
-      .map((unit) => ({ slug: project.slug, key: unit.key, fingerprint: unit.fingerprint })));
-    if (transferSelection === "delta" && transitionReview.reviewRequired && !units.length) {
-      setMessage("Выберите хотя бы одно добавленное или изменённое поле для переноса в live drafts.");
-      return;
-    }
-    await api("/api/live-transition/request", { method: "POST", body: JSON.stringify({ selection: transferSelection, ...(units.length ? { units } : {}) }) });
-    setTransitionOpen(false);
-    setMessage(transferSelection === "clean"
-      ? "Выбран чистый production baseline. Реальный переход в live выполняется отдельной командой."
-      : "Выбран перенос неопубликованных изменений в local live drafts. Реальный переход в live выполняется отдельной командой.");
-  };
-
   return (
     <Theme accentColor="blue" grayColor="sand" radius="medium">
       <div className="admin-shell">
@@ -337,7 +307,6 @@ function App() {
             <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>
               {saveState === "saved" ? <SavedMark>{saveLabels[saveState]}</SavedMark> : saveLabels[saveState]}
             </Text>
-            {publishMode === "sandbox" ? <Button type="button" size="3" variant="soft" color="gray" onClick={() => void openTransition().catch((error) => setMessage(safeMessage(error)))}>Переход в live…</Button> : null}
             <Button type="button" size="3" variant="soft" color={figmaConnected ? "green" : "gray"} onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "подключить"}</Button>
           </Flex>
         </header>
@@ -426,27 +395,6 @@ function App() {
             <Dialog.Description size="2" mb="4">Токен нужен только локальной Admin для чтения Frame. Он хранится в macOS Keychain и не попадает в проект или Git.</Dialog.Description>
             <TextField.Root type="password" size="3" placeholder="Personal access token" value={figmaToken} onChange={(event) => setFigmaToken(event.target.value)} />
             <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button variant="soft" color="gray">Отмена</Button></Dialog.Close><Button disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then((value) => { setFigmaConnected(value.connected); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить подключение</Button></Flex>
-          </Dialog.Content>
-        </Dialog.Root>
-        <Dialog.Root open={transitionOpen} onOpenChange={setTransitionOpen}>
-          <Dialog.Content maxWidth="680px">
-            <Dialog.Title>Проверка переноса в live</Dialog.Title>
-            <Dialog.Description size="2" mb="4">Перед первым переходом выберите один путь. Запрос сохраняется только локально и сам по себе ничего не архивирует, не публикует и не меняет сайт.</Dialog.Description>
-            <Flex direction="column" gap="3">
-              <Button variant={transferSelection === "clean" ? "solid" : "soft"} color="blue" onClick={() => setTransferSelection("clean")}>1. Чистый production baseline</Button>
-              <Text size="2" color="gray">Текущие данные тестового контура будут только локально заархивированы. Новая live Admin начнёт работу с опубликованного Portfolio.</Text>
-              <Button variant={transferSelection === "delta" ? "solid" : "soft"} color="blue" onClick={() => setTransferSelection("delta")}>2. Перенести неопубликованные изменения в live drafts</Button>
-              <Text size="2" color="gray">Переносится только добавленная или изменённая разница. Удаления, порядок каталога и размещение на главной не переносятся и не публикуются.</Text>
-            </Flex>
-            {transferSelection === "delta" && transitionReview?.reviewRequired ? <Box mt="5">
-              <Heading size="3" mb="2">Выберите, что перенести</Heading>
-              <Flex direction="column" gap="3">{transitionReview.projects.map((project) => <Box key={project.slug}><Text weight="bold">{project.title || project.slug}</Text><Flex direction="column" gap="1" mt="1">{project.units.map((unit) => {
-                const id = `${project.slug}:${unit.key}`;
-                return <label key={id}><input type="checkbox" checked={selectedTransferUnits.includes(id)} onChange={(event) => setSelectedTransferUnits((current) => event.target.checked ? [...current, id] : current.filter((item) => item !== id))} /> {unit.label}</label>;
-              })}</Flex></Box>)}</Flex>
-            </Box> : null}
-            {transferSelection === "delta" && !transitionReview?.reviewRequired ? <Callout.Root mt="5" color="green"><Callout.Text>Исходное состояние тестового контура подтверждено. При отдельном запуске в live будет перенесена только семантическая разница поверх свежего production.</Callout.Text></Callout.Root> : null}
-            <Flex justify="end" gap="3" mt="5"><Button variant="soft" color="gray" onClick={() => setTransitionOpen(false)}>Отмена</Button><Button onClick={() => void saveTransitionRequest().catch((error) => setMessage(safeMessage(error)))}>Сохранить выбор</Button></Flex>
           </Dialog.Content>
         </Dialog.Root>
         <PublishOverlay job={job} mode={publishMode} close={() => setJob(null)} />

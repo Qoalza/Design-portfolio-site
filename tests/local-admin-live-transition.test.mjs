@@ -173,7 +173,7 @@ test("legacy review exposes only additive or replacement units and never deletio
   assert.ok(!review.projects[0].units.some((unit) => /catalogOrder|homePlacement|visibility/.test(unit.key)));
 });
 
-test("legacy transfer review presents page activation and hero with human labels", () => {
+test("legacy review exposes a complete project page as one atomic unit", () => {
   const sandbox = project("sarafan", {
     detailAvailable: true,
     visuals: {
@@ -182,12 +182,44 @@ test("legacy transfer review presents page activation and hero with human labels
     },
   });
   const review = buildLegacyTransferReview({ sandboxProjects: [sandbox], productionProjects: [project("sarafan")] });
-  const labels = Object.fromEntries(review.projects[0].units.map((unit) => [unit.key, unit.label]));
+  const units = review.projects[0].units;
+  const page = units.find((unit) => unit.key === "page");
 
-  assert.equal(labels.detailAvailable, "Страница проекта");
-  assert.equal(labels["visual:hero"], "Главное изображение страницы проекта");
-  assert.ok(!Object.values(labels).includes("detailAvailable"));
-  assert.ok(!Object.values(labels).includes("hero"));
+  assert.equal(page?.label, "Страница проекта");
+  assert.ok(!units.some((unit) => unit.key === "detailAvailable" || unit.key === "visual:hero"));
+});
+
+test("legacy review does not offer an incomplete project page for transfer", () => {
+  const sandbox = project("sarafan", { detailAvailable: true });
+  const review = buildLegacyTransferReview({ sandboxProjects: [sandbox], productionProjects: [project("sarafan")] });
+
+  assert.equal(review.projects.length, 0);
+});
+
+test("legacy page transfer applies page availability and hero together", () => {
+  const hero = { templateId: "hero.sarafan-collage", assets: { image: [{ src: "/assets/projects/sarafan/hero.png" }] } };
+  const sandbox = project("sarafan", { detailAvailable: true, visuals: { catalog: { templateId: "catalog.browser", assets: {} }, hero } });
+  const production = project("sarafan", { detailAvailable: false });
+  const review = buildLegacyTransferReview({ sandboxProjects: [sandbox], productionProjects: [production] });
+  const page = review.projects[0].units.find((unit) => unit.key === "page");
+  const result = buildLegacySelectedDraftTransfer({ sandboxProjects: [sandbox], productionProjects: [production], units: [{ slug: "sarafan", ...page }] });
+
+  assert.equal(result.blocked, false);
+  assert.equal(result.drafts[0].detailAvailable, true);
+  assert.deepEqual(result.drafts[0].visuals.hero, hero);
+});
+
+test("three-way delta transfer treats a project page as one atomic unit", () => {
+  const baseHero = { templateId: "hero.sarafan-collage", assets: { image: [{ src: "/assets/projects/sarafan/base.png" }] } };
+  const sandboxHero = { templateId: "hero.sarafan-collage", assets: { image: [{ src: "/assets/projects/sarafan/sandbox.png" }] } };
+  const productionHero = { templateId: "hero.sarafan-collage", assets: { image: [{ src: "/assets/projects/sarafan/production.png" }] } };
+  const base = project("sarafan", { detailAvailable: true, visuals: { catalog: { templateId: "catalog.browser", assets: {} }, hero: baseHero } });
+  const sandbox = project("sarafan", { detailAvailable: true, visuals: { catalog: { templateId: "catalog.browser", assets: {} }, hero: sandboxHero } });
+  const production = project("sarafan", { detailAvailable: true, visuals: { catalog: { templateId: "catalog.browser", assets: {} }, hero: productionHero } });
+  const result = buildUnpublishedDraftTransfer({ origin: buildSandboxOrigin({ sourceSha: "a".repeat(40), projects: [base], assetHashes: {} }), sandboxProjects: [sandbox], productionProjects: [production] });
+
+  assert.equal(result.blocked, true);
+  assert.deepEqual(result.conflicts, [{ slug: "sarafan", unit: "page" }]);
 });
 
 test("legacy review applies only explicitly selected units and never transfers a deletion", () => {

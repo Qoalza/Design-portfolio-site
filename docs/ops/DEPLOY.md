@@ -52,7 +52,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 - **Путь 1 — чистый production baseline.** Sandbox state архивируется только локально, а новая live Admin начинается исключительно с exact deployed production content/assets.
 - **Путь 2 — перенести только неопубликованную разницу.** Только подтверждённая разница между sandbox draft и его исходным production baseline накладывается на current production baseline в local live drafts. Это не publish: Git, canonical data/assets, deploy и production не меняются.
 
-Путь 2 — не копирование целого sandbox store. Он требует three-way merge `исходный production baseline → sandbox draft → current production baseline`: поля, не изменённые в sandbox, остаются current production; конфликт одной semantic unit останавливает перенос до archive и без частичного применения. Для старого sandbox без origin пользователь выбирает units в локальной проверке; выбор привязан к hash exact production-цели и недействителен, если эта цель изменилась до bootstrap. Обходить эту проверку ручным переносом файлов нельзя.
+Путь 2 — не копирование целого sandbox store. Он требует three-way merge `исходный production baseline → sandbox draft → current production baseline`: поля, не изменённые в sandbox, остаются current production; конфликт одной semantic unit останавливает перенос до archive и без частичного применения. Страница проекта — неделимая unit: `detailAvailable` и hero применяются только вместе. Для старого sandbox без origin Codex показывает read-only review, получает выбор пользователя и только затем сохраняет local request; Admin UI этот выбор не показывает и не сохраняет. Выбор привязан к hash exact production-цели и недействителен, если эта цель изменилась до bootstrap. Обходить эту проверку ручным переносом файлов нельзя.
 
 ### Непересекающиеся данные
 
@@ -74,6 +74,8 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 5. Для initial v2→v3 integration выполнить read-only provenance `main → candidate`. Для последующих намеренных content releases этот verifier не запрещает пользовательские изменения, но provenance изменённых canonical content/assets всё равно обязателен.
 6. Провести два review: сначала data boundary/rollback/bootstrap, затем полный candidate, diff, index, package и release path.
 
+Для пользовательской проверки candidate до merge использовать только `run-candidate-sandbox.mjs` с новым пустым support-root внутри системной temporary directory. Он принудительно запускает sandbox mode и не получает доступ к normal App Support, live config или production state.
+
 Если невозможно доказать, что changed canonical content/assets происходят из production source или осознанной live-публикации, остановиться: merge и deploy запрещены.
 
 ### B. Выпустить exact code SHA
@@ -91,7 +93,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 
 Этот шаг локальный, но затрагивает реальные local data, поэтому требует отдельной команды пользователя после пункта B.
 
-Если существует test/sandbox state, сначала зафиксировать выбранный пользователем путь 1 или путь 2 из раздела выше. Без выбора нельзя архивировать или переносить данные. Описанная ниже последовательность — путь 1; путь 2 добавляет только проверенный перенос semantic delta из созданного local archive в новые live drafts и никогда не заменяет production baseline.
+Если существует test/sandbox state, Codex сначала обязан спросить и получить выбранный пользователем путь 1 или путь 2 из раздела выше, затем сохранить одноразовый local request operator-командой. Без выбора нельзя архивировать или переносить данные; Admin UI не является способом зафиксировать этот выбор. Описанная ниже последовательность — путь 1; путь 2 добавляет только проверенный перенос semantic delta из созданного local archive в новые live drafts и никогда не заменяет production baseline.
 
 Входные условия:
 
