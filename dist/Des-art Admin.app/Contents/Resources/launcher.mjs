@@ -26,6 +26,15 @@ const logsRoot = path.join(supportRoot, "logs");
 const adminPort = 41731;
 const previewPort = 41732;
 
+async function configuredPublishMode() {
+  try {
+    const value = JSON.parse(await readFile(path.join(supportRoot, "live-publish.json"), "utf8"));
+    return value.mode === "live" ? "live" : "sandbox";
+  } catch {
+    return "sandbox";
+  }
+}
+
 async function stopService(name) {
   const pidFile = path.join(supportRoot, `${name}.pid`);
   const pid = Number((await readFile(pidFile, "utf8").catch(() => "")).trim());
@@ -77,7 +86,7 @@ async function confirmedPublishedSha() {
   return sha;
 }
 
-async function ensureManagedRepository() {
+async function ensureManagedRepository({ publishedSha } = {}) {
   await mkdir(supportRoot, { recursive: true });
   try {
     await access(path.join(managedRepo, ".git"));
@@ -88,8 +97,7 @@ async function ensureManagedRepository() {
   if (status.trim()) throw new Error("Управляемая копия содержит несохранённые изменения. Автоматическая синхронизация остановлена.");
   await exec("/usr/bin/git", ["fetch", "origin", "main"], { cwd: managedRepo });
   const targetSha = (await exec("/usr/bin/git", ["rev-parse", "origin/main"], { cwd: managedRepo })).stdout.trim();
-  const publishedSha = await confirmedPublishedSha();
-  if (publishedSha !== targetSha) {
+  if (publishedSha && publishedSha !== targetSha) {
     throw new Error("SHA опубликованного Portfolio не совпадает с origin/main. Запуск Admin остановлен до обновления managed repository и sandbox-данных.");
   }
   await exec("/usr/bin/git", ["switch", "main"], { cwd: managedRepo });
@@ -128,15 +136,19 @@ async function waitUntilReady(port, timeout = 60_000) {
 }
 
 async function main() {
+  const publishMode = await configuredPublishMode();
+  const publishedSha = publishMode === "live" ? await confirmedPublishedSha() : undefined;
+  const { targetSha } = await ensureManagedRepository({ publishedSha });
+  if (publishMode === "live") {
+    await ensureProductionDataBaseline({
+      supportRoot,
+      managedRepo,
+      stopService,
+      resolveSourceSha: async () => targetSha,
+      resolvePublishedSha: async () => publishedSha,
+    });
+  }
   await mkdir(logsRoot, { recursive: true });
-  const { targetSha, publishedSha } = await ensureManagedRepository();
-  await ensureProductionDataBaseline({
-    supportRoot,
-    managedRepo,
-    stopService,
-    resolveSourceSha: async () => targetSha,
-    resolvePublishedSha: async () => publishedSha,
-  });
   // The managed repository may have advanced while the existing Node processes
   // still hold the previous server and Next.js modules in memory.
   await stopService("admin");
@@ -147,6 +159,7 @@ async function main() {
       DES_ART_ADMIN_SUPPORT: supportRoot,
       DES_ART_ADMIN_PORT: String(adminPort),
       DES_ART_PREVIEW_PORT: String(previewPort),
+      DES_ART_ADMIN_PUBLISH_MODE: publishMode,
     });
   }
   if (!(await reachable(previewPort))) {

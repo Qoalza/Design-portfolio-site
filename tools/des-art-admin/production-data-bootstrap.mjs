@@ -1,7 +1,7 @@
 import { access, mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-export const PRODUCTION_DATA_BASELINE_VERSION = 3;
+export const PRODUCTION_DATA_BASELINE_VERSION = 4;
 
 const activeWorkspaceNames = ["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs"];
 
@@ -109,12 +109,16 @@ export async function ensureProductionDataBaseline({
   if (publishedSha.toLowerCase() !== sourceSha.toLowerCase()) {
     throw new Error("SHA опубликованного Portfolio не совпадает с каноническим main. Синхронизация данных остановлена.");
   }
-  if (
-    current?.version === PRODUCTION_DATA_BASELINE_VERSION
-    && current.source === "canonical-main"
-    && current.sourceSha?.toLowerCase() === sourceSha.toLowerCase()
-  ) {
-    return { migrated: false, archived: false };
+  if (current?.version === PRODUCTION_DATA_BASELINE_VERSION && current.source === "production-live") {
+    if (current.sourceSha?.toLowerCase() === sourceSha.toLowerCase()) {
+      return { migrated: false, archived: false };
+    }
+    await atomicJson(marker, {
+      ...current,
+      sourceSha,
+      lastObservedAt: now().toISOString(),
+    });
+    return { migrated: false, archived: false, observedProductionUpdated: true };
   }
 
   await stopService("admin");
@@ -123,11 +127,12 @@ export async function ensureProductionDataBaseline({
   const { archived, archivePath } = await archiveSandboxTransaction({ supportRoot, timestamp, move });
   await atomicJson(marker, {
     version: PRODUCTION_DATA_BASELINE_VERSION,
-    source: "canonical-main",
+    source: "production-live",
     sourceSha,
     archivedSandbox: archived,
     archivePath,
-    createdAt: timestamp,
+    activatedAt: timestamp,
+    lastObservedAt: timestamp,
   });
   return { migrated: true, archived };
 }

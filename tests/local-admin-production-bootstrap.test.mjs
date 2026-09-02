@@ -20,6 +20,7 @@ test("live bootstrap archives legacy test workspaces and leaves canonical portfo
   await writeFile(path.join(managedRepo, "content", "projects", "corvo.json"), "{\"slug\":\"corvo\"}\n");
   await mkdir(path.join(supportRoot, "drafts"), { recursive: true });
   await mkdir(path.join(supportRoot, "draft-assets", "test-project"), { recursive: true });
+  await mkdir(path.join(supportRoot, "preview-drafts"), { recursive: true });
   await mkdir(path.join(supportRoot, "published-snapshots"), { recursive: true });
   await mkdir(path.join(supportRoot, "jobs"), { recursive: true });
   await writeFile(path.join(supportRoot, "drafts", "test-project.json"), "{\"slug\":\"test-project\"}\n");
@@ -42,11 +43,12 @@ test("live bootstrap archives legacy test workspaces and leaves canonical portfo
   const marker = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
   assert.deepEqual(marker, {
     version: PRODUCTION_DATA_BASELINE_VERSION,
-    source: "canonical-main",
+    source: "production-live",
     sourceSha: "a".repeat(40),
     archivedSandbox: true,
     archivePath: "sandbox-archive/before-production-2026-08-31T12-00-00-000Z",
-    createdAt: "2026-08-31T12:00:00.000Z",
+    activatedAt: "2026-08-31T12:00:00.000Z",
+    lastObservedAt: "2026-08-31T12:00:00.000Z",
   });
   await assert.rejects(access(path.join(supportRoot, "drafts", "test-project.json")));
   await assert.rejects(access(path.join(supportRoot, "draft-assets", "test-project", "test.png")));
@@ -57,7 +59,7 @@ test("live bootstrap archives legacy test workspaces and leaves canonical portfo
   await access(path.join(managedRepo, "content", "projects", "corvo.json"));
 });
 
-test("current bootstrap marker is idempotent only for the same confirmed production SHA", async () => {
+test("later production observation updates only the marker and preserves live drafts", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-production-bootstrap-current-"));
   const supportRoot = path.join(root, "support");
   const managedRepo = path.join(root, "repository");
@@ -66,23 +68,29 @@ test("current bootstrap marker is idempotent only for the same confirmed product
   await writeFile(path.join(managedRepo, "content", "projects", "corvo.json"), "{\"slug\":\"corvo\"}\n");
   await writeFile(path.join(supportRoot, "production-data-baseline.json"), `${JSON.stringify({
     version: PRODUCTION_DATA_BASELINE_VERSION,
-    source: "canonical-main",
+    source: "production-live",
     sourceSha: "b".repeat(40),
     archivedSandbox: true,
-    createdAt: "2026-08-31T12:00:00.000Z",
+    activatedAt: "2026-08-31T12:00:00.000Z",
+    lastObservedAt: "2026-08-31T12:00:00.000Z",
   })}\n`);
+  await mkdir(path.join(supportRoot, "drafts"), { recursive: true });
+  await writeFile(path.join(supportRoot, "drafts", "live.json"), "live draft\n");
   let stopped = false;
 
   const result = await ensureProductionDataBaseline({
     supportRoot,
     managedRepo,
     stopService: async () => { stopped = true; },
-    resolveSourceSha: async () => "b".repeat(40),
-    resolvePublishedSha: async () => "b".repeat(40),
+    resolveSourceSha: async () => "c".repeat(40),
+    resolvePublishedSha: async () => "c".repeat(40),
   });
 
-  assert.deepEqual(result, { migrated: false, archived: false });
+  assert.deepEqual(result, { migrated: false, archived: false, observedProductionUpdated: true });
   assert.equal(stopped, false);
+  await access(path.join(supportRoot, "drafts", "live.json"));
+  const marker = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
+  assert.equal(marker.sourceSha, "c".repeat(40));
 });
 
 test("bootstrap rejects a public SHA mismatch before stopping services or moving sandbox data", async () => {

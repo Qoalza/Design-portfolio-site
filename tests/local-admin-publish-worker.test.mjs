@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
 
 const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
 function project({ title = "Черновик", visibility = "draft", catalogOrder = 4, homePlacement, admin = true } = {}) {
@@ -49,20 +50,49 @@ test("sandbox publish compiles Admin metadata, validates the full collection and
   assert.equal("admin" in snapshot, false);
 });
 
-test("readiness rejects every non-sandbox mode without inspecting credentials", async () => {
-  const result = await publishReadiness({ mode: "live" });
-  assert.equal(result.ready, false);
-  assert.deepEqual(result.failures, ["Admin поддерживает только локальную sandbox-проверку"]);
+test("live publication keeps the established seven real-time stages and deterministic branch name", () => {
+  assert.deepEqual(PUBLISH_STAGES.map(([id]) => id), ["validate", "prepare", "checks", "git", "merge", "deploy", "verify"]);
+  assert.equal(createPublishBranch("2026-08-29T12:34:56.000Z"), "codex/content-publish-20260829-123456");
 });
 
-test("non-sandbox publish jobs are rejected before the job file is rewritten", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "des-art-non-sandbox-guard-"));
+test("live publish configuration is process-only and never serialized into a job", async () => {
+  const source = await readFile(new URL("../tools/des-art-admin/publish-worker.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /job\.liveConfig/);
+});
+
+test("release archive excludes local runtime and macOS metadata inputs", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-release-archive-"));
+  const archive = path.join(root, "release.tar.gz");
+  await mkdir(path.join(root, "source", ".git"), { recursive: true });
+  await mkdir(path.join(root, "source", "node_modules"), { recursive: true });
+  await mkdir(path.join(root, "source", ".next"), { recursive: true });
+  await writeFile(path.join(root, "source", "index.txt"), "public release\n");
+  await writeFile(path.join(root, "source", ".git", "config"), "private\n");
+  await writeFile(path.join(root, "source", "node_modules", "private.js"), "private\n");
+  await writeFile(path.join(root, "source", ".next", "cache"), "private\n");
+  await createReleaseArchive({ archive, sourceRoot: path.join(root, "source") });
+  const entries = execFileSync("tar", ["-tzf", archive], { encoding: "utf8" });
+  assert.match(entries, /index\.txt/);
+  assert.doesNotMatch(entries, /\.git|node_modules|\.next/);
+});
+
+test("live readiness requires a live production baseline", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-live-baseline-"));
+  const result = await publishReadiness({ supportRoot: root, mode: "live" });
+  assert.equal(result.ready, false);
+  assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
+});
+
+test("live publish rejects a sandbox support root without making a release", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
   const jobFile = path.join(root, "job.json");
   const initial = {
     id: "unsafe-live", mode: "live", scope: "all", repoRoot: process.cwd(), supportRoot: root, files: [], status: "queued", message: "Подготовка",
     stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
   };
   await writeFile(jobFile, JSON.stringify(initial));
-  await assert.rejects(runPublishJob(jobFile), /only sandbox/);
-  assert.deepEqual(JSON.parse(await readFile(jobFile, "utf8")), initial);
+  await runPublishJob(jobFile);
+  const result = JSON.parse(await readFile(jobFile, "utf8"));
+  assert.equal(result.status, "failed");
+  assert.doesNotMatch(JSON.stringify(result), /support root|Library\/Application Support/i);
 });

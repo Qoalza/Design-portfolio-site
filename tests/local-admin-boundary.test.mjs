@@ -25,11 +25,13 @@ test("admin server binds only to IPv4 loopback and validates local requests", ()
   assert.doesNotMatch(server, /0\.0\.0\.0/);
 });
 
-test("publish mode is fixed to local sandbox and cannot be enabled from configuration", () => {
-  assert.match(server, /const publishMode = "sandbox"/);
-  assert.doesNotMatch(server, /DES_ART_ADMIN_PUBLISH_MODE|live-publish\.json/);
-  assert.doesNotMatch(adminUi, /publishMode|Связано с art-des\.ru|Опубликовать на art-des\.ru/);
-  assert.doesNotMatch(adminDialogs, /mode === "live"|art-des\.ru/);
+test("publish mode is launcher-owned and exposes the established live workflow", () => {
+  assert.match(server, /DES_ART_ADMIN_PUBLISH_MODE/);
+  assert.match(server, /publishMode\s*=.*\?\s*"live"\s*:\s*"sandbox"/s);
+  assert.match(adminUi, /publishMode/);
+  assert.match(adminUi, /Связано с art-des\.ru/);
+  assert.match(adminUi, /Опубликовать на art-des\.ru/);
+  assert.match(adminDialogs, /mode === "live"/);
   assert.doesNotMatch(server, /value\.dryRun\s*!==\s*true/);
 });
 
@@ -41,7 +43,8 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /process\.env\.DES_ART_ADMIN_SUPPORT/);
   assert.match(launcher, /DES_ART_ADMIN_PREVIEW/);
   assert.match(launcher, /merge", "--ff-only", "origin\/main/);
-  assert.doesNotMatch(launcher, /live-publish\.json|DES_ART_ADMIN_PUBLISH_MODE/);
+  assert.match(launcher, /live-publish\.json/);
+  assert.match(launcher, /DES_ART_ADMIN_PUBLISH_MODE/);
   assert.match(launcher, /confirmedPublishedSha/);
   assert.match(launcher, /npm-lock\.sha256/);
   assert.match(launcher, /createHash\("sha256"\)/);

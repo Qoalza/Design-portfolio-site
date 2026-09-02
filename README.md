@@ -44,7 +44,7 @@ npm run admin:build
 
 Обычный `npm run build` запускает Admin build через `prebuild`.
 
-Пользовательский запуск, local storage, preview, Figma read-only import и sandbox-only rehearsal описаны в:
+Пользовательский запуск, local storage, preview, Figma read-only import, одноразовый live bootstrap и обычная live-публикация описаны в:
 
 - `tools/des-art-admin/README.md`;
 - `tools/des-art-admin/SPEC.md`.

@@ -12,7 +12,7 @@
 
 ## Current checkpoint
 
-- Goal `Admin edits data, Portfolio owns visual` локально завершена и прошла три саморевью.
+- Goal `Admin edits data, Portfolio owns visual` локально завершена; восстанавливается прежний live workflow Admin после ошибочного sandbox-only отключения.
 - Portfolio и Admin используют ProjectDocument schema v3 и общий registry утверждённых templates/slots.
 - Card, hero и section visuals заменяются одним read-only Figma Frame URL. Admin автоматически раскладывает Frame по скрытым slots и показывает bounded root preview; template пользователь не выбирает.
 - Generic public/Admin Frame renderer удалён. Legacy v2 читается только отдельным migrator.
@@ -23,27 +23,22 @@
 
 ## Verification
 
-- Focused contract/Admin/migration tests: `62/62`.
-- Full repository tests: `233/233`.
-- `npm run lint`: green.
-- `npm run build`: green.
-- Gallery pixel-range и first-image-lock regression checks: green (`58/58` focused); Admin bundle, lint и production build: green. Workspace Admin перезапущена в sandbox mode; реальный Sarafan Desktop показывает диапазон `1480–2960 × 1024–2048 px` и пустой пул без мутации черновика.
-- Sarafan gallery-frame visual QA: passed; focused gallery/lightbox tests `19/19`, lint и production build green. Corvo frame smoke остаётся `740×512`, Sarafan `3:2` media frame — `740×493.33` внутри неизменного `740×512` slot.
-- Реальные preview routes проверены: `/`, `/projects`, `/projects/corvo`, `/projects/sarafan-radio`.
-- Temporary-store backup → apply → rollback → apply: green.
-- Real backup: `/Users/designer/Library/Application Support/Des-art Admin/v3-migration-backups/20260901T121213552Z`.
+- Focused live bootstrap/publish/boundary tests: `30/30`.
+- Full repository tests: `236/236`; `npm run lint`: green; production build: green.
+- Admin bundle source/package parity: green.
+- Integration-only provenance `origin/main → candidate`: green; only the declared Boff, Corvo and Sarafan v2→v3 migrations changed canonical content, with unchanged asset bytes.
 
 ## Stop-lines
 
 - Push, PR, merge, deploy, production mutation и публикация Sarafan не выполнялись.
-- Admin live publish удалён: launcher принимает baseline только когда public `data-build-sha` совпадает с `origin/main`; sandbox jobs не имеют пути в Git, PR, SSH или deploy.
+- Без valid local `live-publish.json` Admin остаётся sandbox. Первый valid live launch требует совпадения public `data-build-sha` с `origin/main`, единожды архивирует изолированный тестовый store и записывает v4 marker. После этого прежняя «Опубликовать» выполняет семь live-этапов; Codex не запускает её без отдельной команды.
 - Figma использовалась только read-only; token остаётся в macOS Keychain и не попадает в draft/Git/backup.
-- Packaged Admin использует старый managed checkout `96cabb7f80ad3f20afd07c5d54ad245a09495142`. Его нельзя запускать после schema-v3 migration реального draft до merge v3-кода. Для локальной работы использовать Admin из этой workspace-ветки в sandbox mode.
+- Первый запуск новой packaged Admin с valid `live-publish.json` запрещён до отдельной команды пользователя после deploy exact SHA: он архивирует реальные локальные тестовые данные и включает live.
 - Protected untracked (`.des-art-admin-runtime-human-errors/`, `codex-context-transfer-2026-08-15/`, `codex-context-transfer-2026-08-15.zip`) и `USERSPACE/**` не читать и не трогать.
 
 ## Next action
 
-Пользовательская локальная приёмка текущей ветки. Любые push/PR/merge/deploy/production действия требуют отдельного прямого запроса.
+Завершить two-review candidate verification и показать результат. Любые push/PR/merge/deploy/production действия требуют отдельного прямого запроса.
 
 ## Pointers
 

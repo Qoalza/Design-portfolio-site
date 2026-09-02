@@ -22,7 +22,7 @@ Admin UI не имеет live publish workflow и не является разр
 
 ## Canonical sources
 
-- Release выполняется OPS-оператором по exact SHA; `tools/des-art-admin/publish-worker.mjs` предназначен только для local sandbox rehearsal.
+- Release выполняется OPS-оператором по exact SHA. После одноразового valid live bootstrap `tools/des-art-admin/publish-worker.mjs` также выполняет прежний пользовательский live workflow из Admin: exact worktree → checks → PR → merge → upload/deploy → public SHA/routes verification. Sandbox mode этого пути не имеет.
 - Restricted server command: `tools/des-art-admin/server/art-des-publish`.
 - Canonical Git base: fresh `origin/main`.
 - Production release identity: full 40-character merged SHA.

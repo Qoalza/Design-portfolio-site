@@ -17,7 +17,7 @@ const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(direct
 const supportRoot = path.resolve(process.env.DES_ART_ADMIN_SUPPORT ?? path.join(repoRoot, ".des-art-admin-runtime"));
 const port = Number(process.env.DES_ART_ADMIN_PORT ?? 41731);
 const previewPort = Number(process.env.DES_ART_PREVIEW_PORT ?? 41732);
-const publishMode = "sandbox";
+const publishMode = process.env.DES_ART_ADMIN_PUBLISH_MODE === "live" ? "live" : "sandbox";
 const csrfToken = randomBytes(32).toString("hex");
 const adminAssetVersion = createHash("sha256")
   .update(await readFile(path.join(directory, "public", "admin.js")))

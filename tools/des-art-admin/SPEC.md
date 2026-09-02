@@ -18,7 +18,9 @@ Packaged Admin может использовать другую checkout-вер�
 
 ### Одностороннее направление данных
 
-При интеграции или обновлении Admin действует абсолютная граница: **`production → новая локальная Admin`; никогда `sandbox → production`.** Новая Admin получает исходное состояние только из подтверждённого production baseline (exact deployed SHA и canonical content/assets). Local drafts, draft-assets, preview overlays, jobs, snapshots, backups и результаты sandbox acceptance не могут быть source для Git, `main`, canonical content/assets, publish или deploy. Перед merge/release provenance каждого затронутого canonical content/assets должен быть доказан; недоказанный sandbox-derived материал блокирует операцию.
+До первого live bootstrap действует абсолютная граница: **`production → новая локальная Admin`; никогда `sandbox → production`.** Изолированная копия, включая local drafts, draft-assets, preview overlays, jobs, snapshots, backups и sandbox acceptance, не может стать source для Git, `main`, canonical content/assets, publish или deploy. Первый valid live start требует exact deployed SHA, равный `origin/main`, и транзакционно архивирует эту копию. Только после marker v4 Admin становится live: её последующие пользовательские правки — это рабочие изменения, которые прежняя кнопка «Опубликовать» публикует через защищённый live workflow.
+
+`verify-production-content-provenance.mjs` — read-only evidence только для начальной интеграции `main → Admin-v3 candidate`: он доказывает, что три v2→v3 migration не внесли sandbox-данные. Он не применяется как запрет на последующие намеренные content changes, опубликованные live Admin.
 
 ## Черновик и preview
 
@@ -48,7 +50,7 @@ Packaged Admin может использовать другую checkout-вер�
 
 Project-only publish сохраняет canonical `catalogOrder` и `homePlacement`; эти глобальные поля меняются только публикацией всех изменений. Preflight проверяет schema/profile/templates/slots/assets, catalog layout, обе позиции главной и все потребляющие preview surfaces.
 
-Публикация всегда sandbox-only. Sandbox state не может быть использован для наполнения или обновления production: Admin не содержит live workflow, PR/merge/deploy, SSH или GitHub CLI. Любая non-sandbox job отклоняется до записи файлов. Release выполняется отдельным OPS-процессом после явного подтверждения.
+Без valid `live-publish.json` публикация sandbox-only и не имеет Git/PR/SSH/deploy-пути. С valid local config прежний live workflow доступен без изменения UX: одна кнопка «Опубликовать», confirmation dialog и polling каждые 600 ms для семи этапов. Live job создаёт disposable worktree от `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project publish, создаёт PR, выполняет merge, upload, deploy и проверяет exact public SHA/routes. Codex не запускает этот workflow, merge, push, deploy или доступ к ключу без отдельной команды пользователя.
 
 ## Legacy migration
 
@@ -64,4 +66,4 @@ Project-only publish сохраняет canonical `catalogOrder` и `homePlaceme
 - Выходящий за pixel-range, не совпадающий с первым размером пула, слишком маленький, неправильной пропорции для code-owned composition или MIME asset отклоняется до записи; правильный сохраняется без изменения visual rules.
 - Section/gallery add-remove-reorder и global placement проходят общий strict preflight.
 - `/`, `/projects` и project route используют настоящий Portfolio renderer с текущим draft overlay.
-- Sandbox publish обновляет только локальный snapshot и не меняет GitHub, VPS или production.
+- Sandbox publish обновляет только локальный snapshot. После первого подтверждённого live bootstrap обычная live publish-кнопка изменяет production прежним real-time workflow.
