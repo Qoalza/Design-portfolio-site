@@ -96,6 +96,46 @@ test("later production observation updates only the marker and preserves live dr
   assert.equal(marker.sourceSha, "c".repeat(40));
 });
 
+test("legacy v4 live baseline upgrades to the current confirmed SHA without archiving live drafts", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-production-bootstrap-v4-live-"));
+  const supportRoot = path.join(root, "support");
+  const managedRepo = path.join(root, "repository");
+  await mkdir(path.join(managedRepo, "content", "projects"), { recursive: true });
+  await writeFile(path.join(managedRepo, "content", "projects", "corvo.json"), "{\"slug\":\"corvo\"}\n");
+  await mkdir(path.join(supportRoot, "drafts"), { recursive: true });
+  await writeFile(path.join(supportRoot, "drafts", "live.json"), "live draft\n");
+  await writeFile(path.join(supportRoot, "production-data-baseline.json"), `${JSON.stringify({
+    version: 4,
+    source: "production-live",
+    sourceSha: "b".repeat(40),
+    archivePath: "sandbox-archive/before-production-legacy",
+    activatedAt: "2026-08-31T12:00:00.000Z",
+    lastObservedAt: "2026-08-31T12:00:00.000Z",
+  })}\n`);
+  let stopped = false;
+
+  const result = await ensureProductionDataBaseline({
+    supportRoot,
+    managedRepo,
+    stopService: async () => { stopped = true; },
+    resolveSourceSha: async () => "c".repeat(40),
+    resolvePublishedSha: async () => "c".repeat(40),
+    now: () => new Date("2026-09-02T12:00:00.000Z"),
+  });
+
+  assert.deepEqual(result, { migrated: false, archived: false, upgradedV4: true, activeStoreRoot: "." });
+  assert.equal(stopped, false);
+  await access(path.join(supportRoot, "drafts", "live.json"));
+  const marker = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
+  assert.equal(marker.version, PRODUCTION_DATA_BASELINE_VERSION);
+  assert.equal(marker.choice, "legacy-live");
+  assert.equal(marker.sourceSha, "c".repeat(40));
+  assert.equal(marker.activeStoreRoot, ".");
+  assert.equal(marker.archivePath, "sandbox-archive/before-production-legacy");
+  assert.equal(marker.completedAt, "2026-08-31T12:00:00.000Z");
+  assert.equal(marker.lastObservedAt, "2026-09-02T12:00:00.000Z");
+});
+
 test("bootstrap rejects a public SHA mismatch before stopping services or moving sandbox data", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-production-bootstrap-mismatch-"));
   const supportRoot = path.join(root, "support");

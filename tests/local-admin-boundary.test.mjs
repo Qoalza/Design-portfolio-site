@@ -52,7 +52,9 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /createHash\("sha256"\)/);
   assert.match(launcher, /ensureProductionDataBaseline/);
   assert.match(launcher, /launchSandboxWithoutBootstrap/);
-  assert.match(launcher, /if \(!liveTransitionStarted\) await launchSandboxWithoutBootstrap\(\)\.catch/);
+  assert.match(launcher, /function isProductionLiveBaseline\(marker\)/);
+  assert.match(launcher, /if \(!hasLiveBaseline && !liveTransitionStarted\) await launchSandboxWithoutBootstrap\(\)\.catch/);
+  assert.doesNotMatch(launcher, /if \(!liveTransitionStarted\) await launchSandboxWithoutBootstrap\(\)\.catch/);
 });
 
 test("first live transition requires an explicit operator request and is not available in the Admin UI", () => {

@@ -167,8 +167,8 @@ export async function ensureProductionDataBaseline({
   if (current?.version === 4 && current.source === "production-live") {
     const upgraded = {
       version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId: "legacy-v4", choice: "legacy-live",
-      source: "production-live", sourceSha: current.sourceSha, activeStoreRoot: ".", archivePath: current.archivePath ?? null,
-      completedAt: current.activatedAt ?? now().toISOString(), lastObservedAt: current.lastObservedAt ?? now().toISOString(),
+      source: "production-live", sourceSha, activeStoreRoot: ".", archivePath: current.archivePath ?? null,
+      completedAt: current.activatedAt ?? now().toISOString(), lastObservedAt: now().toISOString(),
     };
     await writeMarker(marker, upgraded);
     return { migrated: false, archived: false, upgradedV4: true, activeStoreRoot: "." };

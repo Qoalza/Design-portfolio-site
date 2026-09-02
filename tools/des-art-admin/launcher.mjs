@@ -35,6 +35,10 @@ async function configuredPublishMode() {
   }
 }
 
+function isProductionLiveBaseline(marker) {
+  return (marker?.version === 4 || marker?.version === 5) && marker?.source === "production-live";
+}
+
 async function stopService(name) {
   const pidFile = path.join(supportRoot, `${name}.pid`);
   const pid = Number((await readFile(pidFile, "utf8").catch(() => "")).trim());
@@ -208,7 +212,12 @@ async function initializeSandboxOrigin({ targetSha }) {
 }
 
 async function main() {
+  const baselineMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
+  const hasLiveBaseline = isProductionLiveBaseline(baselineMarker);
   const publishMode = await configuredPublishMode();
+  if (hasLiveBaseline && publishMode !== "live") {
+    throw new Error("Существующая live Admin требует валидный локальный live-publish.json. Запуск в sandbox остановлен до изменения локальных данных.");
+  }
   let targetSha;
   let publishedSha;
   if (publishMode === "live") {
@@ -216,8 +225,6 @@ async function main() {
     try {
       publishedSha = await confirmedPublishedSha();
       ({ targetSha } = await ensureManagedRepository({ publishedSha }));
-      const baselineMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
-      const hasLiveBaseline = (baselineMarker?.version === 4 || baselineMarker?.version === 5) && baselineMarker?.source === "production-live";
       let runtime;
       let transition;
       if (!hasLiveBaseline) {
@@ -244,7 +251,7 @@ async function main() {
       });
           if (transition) await runtime.consumeLiveTransitionRequest(supportRoot);
     } catch (error) {
-      if (!liveTransitionStarted) await launchSandboxWithoutBootstrap().catch(() => {});
+      if (!hasLiveBaseline && !liveTransitionStarted) await launchSandboxWithoutBootstrap().catch(() => {});
       throw error;
     }
   } else {
