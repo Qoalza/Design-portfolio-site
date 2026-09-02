@@ -86,6 +86,17 @@ async function confirmedPublishedSha() {
   return sha;
 }
 
+async function clearGeneratedAgentRules() {
+  const agentFile = path.join(managedRepo, "AGENTS.md");
+  const current = await readFile(agentFile, "utf8").catch(() => undefined);
+  if (!current) return;
+  const cleaned = current.replace(/\n<!-- BEGIN:nextjs-agent-rules -->[\s\S]*?<!-- END:nextjs-agent-rules -->\n?$/, "");
+  if (cleaned === current) return;
+  const { stdout: expected } = await exec("/usr/bin/git", ["show", "HEAD:AGENTS.md"], { cwd: managedRepo }).catch(() => ({ stdout: "" }));
+  if (cleaned !== expected) return;
+  await writeFile(agentFile, expected);
+}
+
 async function ensureManagedRepository({ publishedSha } = {}) {
   await mkdir(supportRoot, { recursive: true });
   try {
@@ -93,6 +104,7 @@ async function ensureManagedRepository({ publishedSha } = {}) {
   } catch {
     await exec("/usr/bin/git", ["clone", "--no-hardlinks", sourceRoot, managedRepo]);
   }
+  await clearGeneratedAgentRules();
   const { stdout: status } = await exec("/usr/bin/git", ["status", "--porcelain"], { cwd: managedRepo });
   if (status.trim()) throw new Error("Управляемая копия содержит несохранённые изменения. Автоматическая синхронизация остановлена.");
   await exec("/usr/bin/git", ["fetch", "origin", "main"], { cwd: managedRepo });

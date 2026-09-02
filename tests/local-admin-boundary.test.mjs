@@ -69,6 +69,14 @@ test("admin is not an App Router route and preview access is env-gated", async (
   assert.match(projectsRoute, /if \(isAdminPreview\) await connection\(\)/);
 });
 
+test("launcher removes only an exact Next-generated agent rules block before checking managed changes", () => {
+  assert.match(launcher, /async function clearGeneratedAgentRules\(\)/);
+  assert.match(launcher, /BEGIN:nextjs-agent-rules/);
+  assert.match(launcher, /HEAD:AGENTS\.md/);
+  assert.match(launcher, /if \(cleaned !== expected\) return/);
+  assert.ok(launcher.indexOf("await clearGeneratedAgentRules();") < launcher.indexOf("git\", [\"status\", \"--porcelain\"]"));
+});
+
 test("admin UI keeps Radix Themes inside the local admin boundary", () => {
   assert.equal(packageJson.dependencies["@radix-ui/themes"], "3.3.0");
   assert.match(adminUi, /<Theme accentColor="blue" grayColor="sand" radius="medium"/);
