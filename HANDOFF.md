@@ -17,14 +17,16 @@
 - Read-only provenance для кандидата без canonical-изменений фиксирует `noCanonicalChanges: true`; assets и неизвестные project JSON по-прежнему отклоняются.
 - Правило данных неизменно: `production → local Admin`; local drafts не попадают в Git, canonical content/assets, publish или production.
 - **OPEN runtime issue:** launcher намеренно переключает managed repository на `origin/main`; поэтому packaged Admin показывает raw labels `detailAvailable` и `hero` из уже опубликованного main, а не подписи из unmerged candidate. Это mismatch candidate/runtime, не ошибка данных. Не выбирать units в этом UI до отдельного кандидатского runtime-path или выпуска кода; никакие данные, архивы, publish или live transition из-за этого не выполнялись.
+- Audit `origin/main..034d06a`: диапазон линейный, без merge-узлов и без изменений canonical `content/projects`/`public/assets/projects`; Hot Fix `efb1f6c` обязателен и совместим с preview-runtime.
+- **OPEN release gates:** UI сохраняет transfer request напрямую, хотя действующее правило требует сначала явного выбора пути через Codex; `detailAvailable` и `hero` показаны/переносятся независимыми units, хотя составляют одну страницу проекта. Это fail-closed для production, но путь переноса delta не готов к использованию до отдельного исправления.
 
 ## Verification
 
 - Focused transfer/bootstrap/boundary tests: `50/50`.
-- Full repository tests: `280/280`; `npm run lint`: green.
+- Full repository tests: `282/282`; `npm run lint`: green.
 - Admin bundle source/package parity: green.
-- Production build exact `f69633e3f49190428114d40d63a56f68081915b1`: green.
-- Read-only provenance `origin/main → f69633e3f49190428114d40d63a56f68081915b1`: `noCanonicalChanges: true`.
+- Production build exact `034d06ae6f5d4e4afa70f9cd4be70cb8ac3fc1b0`: green.
+- Read-only provenance `origin/main → 034d06ae6f5d4e4afa70f9cd4be70cb8ac3fc1b0`: `noCanonicalChanges: true`.
 
 ## Stop-lines
 
@@ -34,7 +36,7 @@
 
 ## Next action
 
-Показать результаты второго self-review. Любые merge/push/deploy/production действия требуют отдельного прямого запроса.
+До merge решить и реализовать candidate runtime-path и единственный approved способ сохранить путь перехода; затем повторить exact-candidate проверки. Любые merge/push/deploy/production действия требуют отдельного прямого запроса.
 
 ## Pointers
 
