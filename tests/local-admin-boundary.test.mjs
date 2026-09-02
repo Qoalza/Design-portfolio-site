@@ -70,6 +70,10 @@ test("first live transition requires an explicit operator request and is not ava
   assert.match(transitionOperator, /does not start Admin, archive data, or publish/);
 });
 
+test("existing live baseline starts without importing a transition module from managed main", () => {
+  assert.match(launcher, /if \(!hasLiveBaseline\) \{\s*runtime = await transitionRuntime\(\);\s*transition = await runtime\.readLiveTransitionRequest\(supportRoot\);/s);
+});
+
 test("candidate sandbox runner is isolated from the normal Admin and cannot enable live mode", () => {
   assert.match(candidateSandbox, /--support-root/);
   assert.match(candidateSandbox, /Candidate sandbox support root must be inside the system temporary directory/);

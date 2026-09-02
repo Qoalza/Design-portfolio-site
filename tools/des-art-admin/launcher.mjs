@@ -218,8 +218,12 @@ async function main() {
       ({ targetSha } = await ensureManagedRepository({ publishedSha }));
       const baselineMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
       const hasLiveBaseline = (baselineMarker?.version === 4 || baselineMarker?.version === 5) && baselineMarker?.source === "production-live";
-      const runtime = await transitionRuntime();
-      const transition = hasLiveBaseline ? undefined : await runtime.readLiveTransitionRequest(supportRoot);
+      let runtime;
+      let transition;
+      if (!hasLiveBaseline) {
+        runtime = await transitionRuntime();
+        transition = await runtime.readLiveTransitionRequest(supportRoot);
+      }
       if (!hasLiveBaseline && !transition) throw new Error("Перед первым переводом Admin в live выберите путь: чистый production baseline или перенос неопубликованных черновиков.");
       if (transition && transition.targetSha !== targetSha) throw new Error("Production SHA изменился после выбора пути. Запишите новый live-transition request.");
       const transitionProduction = transition?.choice === "overlay" ? await canonicalProjects() : undefined;
