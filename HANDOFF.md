@@ -16,6 +16,7 @@
 - Launcher проверяет оба пути до archive, не запускает fallback sandbox после начала transition, а пакет Admin пересобран из актуальных исходников.
 - Read-only provenance для кандидата без canonical-изменений фиксирует `noCanonicalChanges: true`; assets и неизвестные project JSON по-прежнему отклоняются.
 - Правило данных неизменно: `production → local Admin`; local drafts не попадают в Git, canonical content/assets, publish или production.
+- **OPEN runtime issue:** в запущенной локальной Admin проверка переноса всё ещё показывает raw labels `detailAvailable` и `hero`, хотя source уже содержит понятные подписи. Это mismatch запущенного runtime/source; не выбирать units в этом UI до отдельной диагностики. Никакие данные, архивы, publish или live transition из-за этого не выполнялись.
 
 ## Verification
 
