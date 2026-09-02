@@ -55,6 +55,8 @@ test("ProjectCanvas keeps the code shell in CSS and mounts structured image expo
   assert.match(css, /\.controls[\s\S]*height:\s*268px/);
   assert.match(css, /grid-template-columns:\s*448px 1px 551px/);
   assert.match(css, /\.sarafanScenariosAsset\s*\{[^}]*top:\s*48px;[^}]*left:\s*120px;[^}]*width:\s*760px;[^}]*height:\s*384px;/s);
+  assert.match(component, /styles\.sarafanScenariosLegacyAsset/);
+  assert.match(css, /\.sarafanScenariosLegacyAsset\s*\{[^}]*top:\s*65px;[^}]*left:\s*70px;[^}]*width:\s*861px;[^}]*height:\s*349\.5px;/s);
 });
 
 test("transparent Sarafan canvas panels use an alpha-aware shadow", async () => {

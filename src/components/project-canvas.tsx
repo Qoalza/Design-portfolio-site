@@ -32,7 +32,9 @@ export function ProjectCanvas({ visual }: { visual: ProjectVisualInstance }) {
     return <figure className={`${styles.canvas} ${styles.sarafanModel}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.sarafanModelAsset} sizes="888px" /></figure>;
   }
   if (visual.templateId === "canvas.sarafan-scenarios") {
-    return <figure className={`${styles.canvas} ${styles.sarafanScenarios}`}><ProjectImageAsset image={asset(visual, "content")} className={styles.sarafanScenariosAsset} sizes="861px" /></figure>;
+    const content = asset(visual, "content");
+    const legacy = content.width === 1722 && content.height === 699;
+    return <figure className={`${styles.canvas} ${styles.sarafanScenarios}`}><ProjectImageAsset image={content} className={legacy ? styles.sarafanScenariosLegacyAsset : styles.sarafanScenariosAsset} sizes={legacy ? "861px" : "760px"} /></figure>;
   }
   if (visual.templateId === "canvas.sarafan-setup") {
     return (

@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   PROJECT_VISUAL_TEMPLATES,
+  validateTemplateAssets,
   validateProjectCollection,
 } from "../src/lib/project-visual-registry.ts";
 import {
@@ -76,6 +77,14 @@ test("registry enforces slot names, counts, ratio and minimum source size", () =
   assert.throws(() => validateProjectDocument(wrongRatio), /proportion/i);
   const tooSmall = project({ visuals: { catalog: { templateId: "catalog.browser", assets: { screen: [image("small", 935, 623)] } } } });
   assert.throws(() => validateProjectDocument(tooSmall), /minimum/i);
+});
+
+test("Sarafan scenarios keeps legacy crops preview-valid until their Frame is refreshed", () => {
+  assert.doesNotThrow(() => validateTemplateAssets(
+    "canvas.sarafan-scenarios",
+    { content: [image("legacy-scenarios", 1722, 699)] },
+    "legacy Sarafan scenarios",
+  ));
 });
 
 test("gallery device pools inherit exact dimensions from their first image", () => {

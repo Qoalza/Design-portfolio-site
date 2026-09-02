@@ -17,6 +17,11 @@ export type ProjectVisualAssetSlot = {
   logicalHeight?: number;
   maxWidth?: number;
   maxHeight?: number;
+  legacyDimensions?: readonly {
+    ratio?: number;
+    logicalWidth?: number;
+    logicalHeight?: number;
+  }[];
 };
 
 export type ProjectVisualTemplateDefinition = {
@@ -117,7 +122,12 @@ export const PROJECT_VISUAL_TEMPLATES = {
   },
   "canvas.sarafan-scenarios": {
     surface: "section", label: "Sarafan — сценарии", profiles: ["sarafan-v1"],
-    slots: { content: singlePng("Сценарии", 760 / 384, 760, 384) },
+    slots: {
+      content: {
+        ...singlePng("Сценарии", 760 / 384, 760, 384),
+        legacyDimensions: [{ ratio: 861 / 349.5, logicalWidth: 861, logicalHeight: 349.5 }],
+      },
+    },
   },
   "canvas.sarafan-setup": {
     surface: "section", label: "Sarafan — настройка", profiles: ["sarafan-v1"],
@@ -182,12 +192,13 @@ export function validateAssetForSlot(templateId: ProjectVisualTemplateId, slotNa
   if (!slot) throw new Error(`${location} uses unknown slot "${slotName}".`);
   const mime = assetMime(image.src);
   if (!mime || !slot.mime.includes(mime)) throw new Error(`${location} uses an unsupported MIME type.`);
-  if (slot.ratio !== undefined) {
-    const delta = Math.abs(image.width / image.height - slot.ratio) / slot.ratio;
-    if (delta > 0.001) throw new Error(`${location} has an incompatible proportion.`);
-  }
-  if (slot.logicalWidth !== undefined && slot.logicalHeight !== undefined
-    && (image.width < slot.logicalWidth * 2 || image.height < slot.logicalHeight * 2)) {
+  const dimensions = [slot, ...(slot.legacyDimensions ?? [])];
+  const ratioMatches = dimensions.filter((candidate) => candidate.ratio === undefined
+    || Math.abs(image.width / image.height - candidate.ratio) / candidate.ratio <= 0.001);
+  if (ratioMatches.length === 0) throw new Error(`${location} has an incompatible proportion.`);
+  const compatible = ratioMatches.find((candidate) => candidate.logicalWidth === undefined || candidate.logicalHeight === undefined
+    || (image.width >= candidate.logicalWidth * 2 && image.height >= candidate.logicalHeight * 2));
+  if (!compatible) {
     throw new Error(`${location} is below the minimum 2× source size.`);
   }
   if ((slot.maxWidth !== undefined && image.width > slot.maxWidth)
