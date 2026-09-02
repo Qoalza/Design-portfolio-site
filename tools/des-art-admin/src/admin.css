@@ -344,6 +344,8 @@ body { background: #fbfaf8; }
 .preview-split-trigger > svg { width: 16px; height: 16px; }
 .preview-split-trigger:hover, .preview-split-trigger[data-state="open"] { background: var(--sand-4); color: var(--sand-12); }
 .preview-split-trigger:focus-visible { outline: 2px solid var(--accent-8); outline-offset: 2px; }
+.project-action-row { width: 100%; }
+.project-publish-button { min-width: 0; flex: 1 1 auto; }
 @media (max-width: 640px) {
   .figma-source-actions { align-items: stretch; flex-wrap: wrap; }
   .figma-source-actions .rt-TextFieldRoot { flex-basis: 100%; }

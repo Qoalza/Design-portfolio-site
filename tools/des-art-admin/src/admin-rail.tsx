@@ -1,5 +1,5 @@
-import { ChevronDownIcon, EyeOpenIcon, ResetIcon, TrashIcon } from "@radix-ui/react-icons";
-import { Button, Callout, DropdownMenu, Flex, Select, Switch, Text, TextField } from "@radix-ui/themes";
+import { ChevronDownIcon, EyeOpenIcon, ReloadIcon, TrashIcon } from "@radix-ui/react-icons";
+import { Button, Callout, DropdownMenu, Flex, IconButton, Select, Switch, Text, TextField } from "@radix-ui/themes";
 import type {
   ProjectDocument,
   ProjectVisibility,
@@ -35,10 +35,10 @@ export function ProjectOverview({
       <Text size="2" color={project.visibility === "published" ? "green" : project.visibility === "deleted" ? "red" : "gray"}>{project.visibility === "published" ? "Опубликован" : project.visibility === "deleted" ? "Удалён" : "Черновик"}</Text>
       {issues.length ? <Button size="3" variant="soft" color="orange" onClick={reviewIssues}>Показать ошибки · {issues.length}</Button> : null}
       {project.visibility !== "deleted" ? <Flex className="preview-split" gap="0"><Button size="3" variant="soft" color="gray" onClick={() => preview("home")}><EyeOpenIcon />Предпросмотр</Button><DropdownMenu.Root><DropdownMenu.Trigger aria-label="Выбрать страницу предпросмотра"><button type="button" className="preview-split-trigger"><ChevronDownIcon /></button></DropdownMenu.Trigger><DropdownMenu.Content><DropdownMenu.Item onSelect={() => preview("catalog")}>Все работы</DropdownMenu.Item><DropdownMenu.Item onSelect={() => preview("project")}>Страница проекта</DropdownMenu.Item></DropdownMenu.Content></DropdownMenu.Root></Flex> : null}
-      <Flex gap="2">
+      <Flex className="project-action-row" gap="2">
         {project.visibility === "draft" ? <Button size="3" onClick={publish}>Опубликовать</Button> : null}
-        {project.visibility === "published" && changed ? <Button size="3" onClick={publish}>Опубликовать изменения</Button> : null}
-        {resettable ? <Button size="3" variant="ghost" color="gray" aria-label="Сбросить до опубликованной версии" title="Сбросить до опубликованной версии" onClick={reset}><ResetIcon /></Button> : null}
+        {project.visibility === "published" && changed ? <Button className="project-publish-button" size="3" onClick={publish}>Опубликовать изменения</Button> : null}
+        {resettable ? <IconButton size="3" variant="ghost" color="gray" aria-label="Сбросить до опубликованной версии" title="Сбросить до опубликованной версии" onClick={reset}><ReloadIcon /></IconButton> : null}
       </Flex>
       {project.visibility === "deleted" ? (
         <Button size="3" variant="soft" onClick={() => setVisibility("draft")}>Восстановить</Button>
