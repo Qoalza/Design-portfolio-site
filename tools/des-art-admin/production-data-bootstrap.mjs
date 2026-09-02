@@ -1,10 +1,11 @@
-import { access, cp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, open, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const PRODUCTION_DATA_BASELINE_VERSION = 5;
 
 const activeWorkspaceNames = ["drafts", "preview-drafts", "draft-assets", "published-snapshots", "jobs", "sandbox-origin-v1.json"];
 const TRANSITION_JOURNAL = "live-transition-journal-v1.json";
+const TRANSITION_LOCK = "live-transition.lock";
 
 async function hasCanonicalProjects(managedRepo) {
   const contentRoot = path.join(managedRepo, "content", "projects");
@@ -16,6 +17,23 @@ async function atomicJson(file, value) {
   const temporary = `${file}.${process.pid}.tmp`;
   await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
   await rename(temporary, file);
+}
+
+async function acquireTransitionLock(supportRoot) {
+  const file = path.join(supportRoot, TRANSITION_LOCK);
+  await mkdir(supportRoot, { recursive: true });
+  let handle;
+  try {
+    handle = await open(file, "wx", 0o600);
+  } catch (error) {
+    if (error?.code === "EEXIST") throw new Error("Другой переход в live уже выполняется. Повторный запуск остановлен.");
+    throw error;
+  }
+  await handle.writeFile(`${JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() })}\n`);
+  return async () => {
+    await handle.close().catch(() => {});
+    await unlink(file).catch(() => {});
+  };
 }
 
 export function extractPublishedBuildSha(html) {
@@ -100,9 +118,6 @@ export async function ensureProductionDataBaseline({
   const journal = path.join(supportRoot, TRANSITION_JOURNAL);
   const current = await readFile(marker, "utf8").then(JSON.parse).catch(() => undefined);
   const existingJournal = await readFile(journal, "utf8").then(JSON.parse).catch(() => undefined);
-  if (existingJournal && existingJournal.state !== "completed") {
-    throw new Error("Предыдущий перенос live drafts не завершён. Автоматический повтор остановлен до проверки локального journal.");
-  }
   if (!(await hasCanonicalProjects(managedRepo))) {
     throw new Error("Канонические проекты portfolio не найдены. Миграция тестовых данных остановлена.");
   }
@@ -116,6 +131,21 @@ export async function ensureProductionDataBaseline({
   }
   if (publishedSha.toLowerCase() !== sourceSha.toLowerCase()) {
     throw new Error("SHA опубликованного Portfolio не совпадает с каноническим main. Синхронизация данных остановлена.");
+  }
+  if (existingJournal && existingJournal.state !== "completed") {
+    if (existingJournal.state !== "recovery_required" || existingJournal.sourceSha?.toLowerCase() !== sourceSha.toLowerCase() || typeof existingJournal.transitionId !== "string") {
+      throw new Error("Предыдущий перенос live drafts не завершён. Автоматический повтор остановлен до проверки локального journal.");
+    }
+    const recoveryGeneration = path.join(supportRoot, "live-generations", existingJournal.transitionId);
+    await access(recoveryGeneration).catch(() => { throw new Error("Незавершённый переход не содержит проверенной generation. Автоматический повтор остановлен до проверки локального journal."); });
+    await writeMarker(marker, {
+      version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId: existingJournal.transitionId,
+      choice: existingJournal.choice === "overlay" ? "overlay" : "clean", source: "production-live", sourceSha,
+      activeStoreRoot: path.relative(supportRoot, recoveryGeneration), archivePath: existingJournal.archivePath ?? null,
+      completedAt: existingJournal.createdAt ?? now().toISOString(), lastObservedAt: now().toISOString(),
+    });
+    await atomicJson(journal, { ...existingJournal, state: "completed", completedAt: now().toISOString() });
+    return { migrated: true, recovered: true, archived: true };
   }
   if (current?.version === 4 && current.source === "production-live") {
     const upgraded = {
@@ -138,38 +168,43 @@ export async function ensureProductionDataBaseline({
     return { migrated: false, archived: false, observedProductionUpdated: true };
   }
 
-  await stopService("admin");
-  await stopService("preview");
-  const timestamp = now().toISOString();
-  const { archived, archivePath, archiveRoot } = await archiveSandboxTransaction({ supportRoot, timestamp, move });
-  const transitionId = `transition-${timestamp.replace(/[:.]/g, "-")}`;
-  const generationRoot = path.join(supportRoot, "live-generations", transitionId);
-  await atomicJson(journal, { version: 2, state: "archived", sourceSha, archivePath, transitionId, createdAt: timestamp });
-  await mkdir(generationRoot, { recursive: true });
-  await cp(path.join(managedRepo, "content", "projects"), path.join(generationRoot, "published-snapshots"), { recursive: true, force: false });
-  await mkdir(path.join(generationRoot, "preview-drafts"), { recursive: true });
-  await mkdir(path.join(generationRoot, "jobs"), { recursive: true });
-  let transfer;
-  if (prepareTransferredDrafts) {
-    if (!archived || !archiveRoot) throw new Error("Перенос неопубликованных черновиков невозможен: тестовый архив не создан.");
-    await atomicJson(journal, { version: 2, state: "staging", sourceSha, archivePath, transitionId, createdAt: timestamp });
-    transfer = await prepareTransferredDrafts({ archiveRoot, archivePath, sourceSha, journalPath: journal, generationRoot, transitionId });
-  }
+  const releaseLock = await acquireTransitionLock(supportRoot);
   try {
+    await stopService("admin");
+    await stopService("preview");
+    const timestamp = now().toISOString();
+    const { archived, archivePath, archiveRoot } = await archiveSandboxTransaction({ supportRoot, timestamp, move });
+    const transitionId = `transition-${timestamp.replace(/[:.]/g, "-")}`;
+    const generationRoot = path.join(supportRoot, "live-generations", transitionId);
+    const choice = prepareTransferredDrafts ? "overlay" : "clean";
+    await atomicJson(journal, { version: 2, state: "archived", sourceSha, archivePath, transitionId, choice, createdAt: timestamp });
+    await mkdir(generationRoot, { recursive: true });
+    await cp(path.join(managedRepo, "content", "projects"), path.join(generationRoot, "published-snapshots"), { recursive: true, force: false });
+    await mkdir(path.join(generationRoot, "preview-drafts"), { recursive: true });
+    await mkdir(path.join(generationRoot, "jobs"), { recursive: true });
+    let transfer;
+    if (prepareTransferredDrafts) {
+      if (!archived || !archiveRoot) throw new Error("Перенос неопубликованных черновиков невозможен: тестовый архив не создан.");
+      await atomicJson(journal, { version: 2, state: "staging", sourceSha, archivePath, transitionId, choice, createdAt: timestamp });
+      transfer = await prepareTransferredDrafts({ archiveRoot, archivePath, sourceSha, journalPath: journal, generationRoot, transitionId });
+    }
     await writeMarker(marker, {
-      version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId, choice: prepareTransferredDrafts ? "overlay" : "clean",
+      version: PRODUCTION_DATA_BASELINE_VERSION, state: "live", transitionId, choice,
       source: "production-live",
       sourceSha,
       activeStoreRoot: path.relative(supportRoot, generationRoot), archivePath: archivePath ?? null,
       completedAt: timestamp,
       lastObservedAt: timestamp,
     });
+    await atomicJson(journal, { version: 2, state: "completed", sourceSha, archivePath, transitionId, choice, completedAt: now().toISOString() });
+    const transferEvidence = transfer && Object.fromEntries(Object.entries(transfer)
+      .filter(([key]) => key !== "rollback" && key !== "finalize"));
+    return { migrated: true, archived, ...(transfer ? { transfer: transferEvidence } : {}) };
   } catch (error) {
-    await atomicJson(journal, { version: 2, state: "recovery_required", sourceSha, archivePath, transitionId, createdAt: timestamp });
+    const latest = await readFile(journal, "utf8").then(JSON.parse).catch(() => ({}));
+    await atomicJson(journal, { ...latest, version: 2, state: "recovery_required", sourceSha, createdAt: latest.createdAt ?? now().toISOString() });
     throw error;
+  } finally {
+    await releaseLock();
   }
-  await atomicJson(journal, { version: 2, state: "completed", sourceSha, archivePath, transitionId, completedAt: now().toISOString() });
-  const transferEvidence = transfer && Object.fromEntries(Object.entries(transfer)
-    .filter(([key]) => key !== "rollback" && key !== "finalize"));
-  return { migrated: true, archived, ...(transfer ? { transfer: transferEvidence } : {}) };
 }

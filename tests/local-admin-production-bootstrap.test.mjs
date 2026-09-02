@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -155,7 +155,7 @@ test("bootstrap restores every moved sandbox directory when archive transaction 
   await assert.rejects(access(path.join(supportRoot, "production-data-baseline.json")));
 });
 
-test("failed marker rolls activated transferred drafts back and leaves a journal stop-line", async () => {
+test("failed marker keeps the archive and retries the same generation without a second archive", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-production-bootstrap-journal-"));
   const supportRoot = path.join(root, "support");
   const managedRepo = path.join(root, "repository");
@@ -170,11 +170,11 @@ test("failed marker rolls activated transferred drafts back and leaves a journal
     stopService: async () => {},
     resolveSourceSha: async () => "a".repeat(40),
     resolvePublishedSha: async () => "a".repeat(40),
-    prepareTransferredDrafts: async ({ archiveRoot: archive }) => {
+    prepareTransferredDrafts: async ({ archiveRoot: archive, generationRoot }) => {
       archiveRoot = archive;
-      await mkdir(path.join(supportRoot, "drafts"), { recursive: true });
-      await writeFile(path.join(supportRoot, "drafts", "live.json"), "{}\n");
-      return { rollback: async () => rm(path.join(supportRoot, "drafts"), { recursive: true, force: true }) };
+      await mkdir(path.join(generationRoot, "drafts"), { recursive: true });
+      await writeFile(path.join(generationRoot, "drafts", "live.json"), "{}\n");
+      return {};
     },
     writeMarker: async () => { throw new Error("injected marker failure"); },
   }), /injected marker failure/);
@@ -182,13 +182,16 @@ test("failed marker rolls activated transferred drafts back and leaves a journal
   // New live generations are isolated; a failed marker never activates them.
   await assert.rejects(access(path.join(supportRoot, "production-data-baseline.json")));
   await access(path.join(supportRoot, "live-transition-journal-v1.json"));
-  await assert.rejects(ensureProductionDataBaseline({
+  const recovered = await ensureProductionDataBaseline({
     supportRoot,
     managedRepo,
     stopService: async () => {},
     resolveSourceSha: async () => "a".repeat(40),
     resolvePublishedSha: async () => "a".repeat(40),
-  }), /journal/);
+  });
+  assert.equal(recovered.recovered, true);
+  const marker = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
+  await access(path.join(supportRoot, marker.activeStoreRoot, "drafts", "live.json"));
 });
 
 test("published build SHA parser accepts only a full SHA from the HTML root", () => {

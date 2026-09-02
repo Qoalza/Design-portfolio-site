@@ -176,8 +176,7 @@ function App() {
       if (!entry || entry.slug !== latest.current.slug) return;
       event.preventDefault();
       source.pop();
-      const inverse: TextHistoryEntry = { ...entry, before: structuredClone(entry.after), after: structuredClone(entry.before), at: Date.now() };
-      (event.shiftKey ? undoHistory.current : redoHistory.current).push(inverse);
+      (event.shiftKey ? undoHistory.current : redoHistory.current).push(entry);
       dirty.current = true;
       setCurrent((value) => value ? { ...value, [entry.key]: structuredClone(event.shiftKey ? entry.after : entry.before) } : null);
     };

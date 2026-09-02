@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -83,6 +83,25 @@ test("project creation is atomic and starts with the safe catalog-only profile",
   assert.equal(first.designProfile, "catalog-only-v1");
   assert.equal(first.visuals.catalog.templateId, "catalog.browser");
   assert.equal(first.homePlacement, undefined);
+});
+
+test("reset restores only one production project and removes its local draft assets", async () => {
+  const root = await roots();
+  await mkdir(root.contentRoot, { recursive: true });
+  await mkdir(path.join(root.draftAssetRoot, "corvo"), { recursive: true });
+  const canonical = project("corvo", { title: "Published", visibility: "published" });
+  await writeFile(path.join(root.contentRoot, "corvo.json"), `${JSON.stringify(canonical)}\n`);
+  await writeFile(path.join(root.draftAssetRoot, "corvo", "local.png"), "local asset");
+  const store = new AdminStore(root);
+  await store.saveDraft("corvo", { ...canonical, title: "Local text" });
+  await store.saveDraft("other", project("other", { title: "Other draft" }));
+
+  const reset = await store.resetToProduction("corvo");
+  assert.equal(reset.title, "Published");
+  await assert.rejects(access(path.join(root.draftRoot, "corvo.json")));
+  await assert.rejects(access(path.join(root.draftAssetRoot, "corvo", "local.png")));
+  assert.equal(JSON.parse(await readFile(path.join(root.draftRoot, "other.json"), "utf8")).title, "Other draft");
+  assert.equal(JSON.parse(await readFile(path.join(root.snapshotRoot, "corvo.json"), "utf8")).title, "Published");
 });
 
 test("SVG and image inspection reject unsafe or mismatched uploads", () => {

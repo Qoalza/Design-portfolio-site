@@ -56,6 +56,15 @@ function currentGitSha() {
   } catch { return null; }
 }
 
+async function hasVerifiedLiveBaseline() {
+  if (publishMode !== "live") return false;
+  try {
+    const marker = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
+    return marker?.version === 5 && marker.state === "live"
+      && typeof marker.sourceSha === "string" && marker.sourceSha === currentGitSha();
+  } catch { return false; }
+}
+
 const previewRuntime = await createPreviewRuntimeIdentity({
   repoRoot,
   gitSha: currentGitSha(),
@@ -213,7 +222,11 @@ async function handler(request, response) {
     if (request.method === "POST" && url.pathname === "/api/projects") {
       return json(response, 201, await store.createProject(await body(request)));
     }
-    if (request.method === "GET" && url.pathname === "/api/changes") return json(response, 200, await store.getChangeInventory());
+    if (request.method === "GET" && url.pathname === "/api/changes") {
+      const inventory = await store.getChangeInventory();
+      if (!(await hasVerifiedLiveBaseline())) inventory.resettableSlugs = [];
+      return json(response, 200, inventory);
+    }
     if (request.method === "POST" && url.pathname === "/api/validate") {
       const value = await body(request);
       if (value.scope === "project") {
@@ -288,7 +301,7 @@ async function handler(request, response) {
         return json(response, 200, await store.setVisibility(slug, value.visibility));
       }
       if (request.method === "POST" && segments[3] === "reset-to-production") {
-        if (publishMode !== "live") return userError(response, 403, "Сброс недоступен", "Сброс до опубликованной версии доступен только в live Admin.");
+        if (!(await hasVerifiedLiveBaseline())) return userError(response, 403, "Сброс недоступен", "Не удалось подтвердить текущую опубликованную версию для безопасного сброса.");
         const value = await store.resetToProduction(slug);
         await rm(path.join(previewRoot, `${slug}.json`), { force: true });
         return json(response, 200, value);
