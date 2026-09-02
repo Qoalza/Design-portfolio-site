@@ -18,7 +18,7 @@ Current production release/rollback contract for `https://art-des.ru`.
 
 Read-only status/smoke можно выполнять в рамках diagnostic request.
 
-Admin UI не имеет live publish workflow и не является разрешением на production-действие. Deploy выполняется только по этому runbook после отдельного прямого подтверждения.
+Кнопка «Опубликовать» в уже переведённой в live Admin запускает пользовательскую публикацию контента и её семь отображаемых этапов. Она не является разрешением на выпуск кода Admin, на первый live bootstrap или на произвольные production-действия. Codex не нажимает её без отдельной прямой команды пользователя.
 
 ## Canonical sources
 
@@ -38,6 +38,94 @@ Admin UI не имеет live publish workflow и не является разр
 - Ограниченный SSH key принимает только `status`, `upload <full-sha>`, `publish <full-sha>`.
 - Server собирает новый release directory, записывает `DEPLOY_SHA`, атомарно переключает `/var/www/art-des/current`, перезапускает `art-des.service` и выполняет readiness loop.
 - При readiness failure предыдущий release symlink восстанавливается.
+
+## Admin: выпуск кода и перевод в live
+
+Это обязательный порядок для каждого release, который затрагивает Admin, Shared contract или миграции Admin. Он разделяет три разных действия, которые нельзя объединять одной командой или считать следствиями друг друга:
+
+1. **Выпуск кода Admin** — merge и deploy exact Git SHA.
+2. **Первый перевод Admin в live** — одноразовый локальный bootstrap после successful deploy этого SHA.
+3. **Обычная публикация контента** — пользователь нажимает «Опубликовать» уже в live Admin.
+
+### Непересекающиеся данные
+
+До и во время первого bootstrap действует правило: **`production → новая локальная Admin`; никогда `sandbox → Git/main/canonical content/assets/publish/production`.**
+
+- Production baseline — canonical `content/projects` и `public/assets` из exact deployed SHA.
+- Sandbox state — `drafts`, `preview-drafts`, `draft-assets`, `published-snapshots`, `jobs`, previews, backups, локальные импорты и результаты приёмки.
+- Sandbox state не добавляется в commit, PR, release archive, deploy upload, provenance evidence или canonical source.
+- Наличие одинакового текста или изображений в sandbox не делает его production source. Источник подтверждается только Git SHA опубликованного Portfolio.
+
+### A. Подготовить и проверить code candidate
+
+До merge выполнить на exact candidate SHA:
+
+1. Проверить `git status`, index и ownership всех tracked/untracked изменений. Не трогать чужие или protected local files.
+2. Убедиться, что staged diff не содержит sandbox state, `live-publish.json`, secrets, runtime state или macOS metadata.
+3. Запустить релевантные Admin/Shared tests; для изменённой логики — lint; для routes, packaging, contract или release path — production build.
+4. Пересобрать Admin bundle и проверить, что packaged resources совпадают с source.
+5. Для initial v2→v3 integration выполнить read-only provenance `main → candidate`. Для последующих намеренных content releases этот verifier не запрещает пользовательские изменения, но provenance изменённых canonical content/assets всё равно обязателен.
+6. Провести два review: сначала data boundary/rollback/bootstrap, затем полный candidate, diff, index, package и release path.
+
+Если невозможно доказать, что changed canonical content/assets происходят из production source или осознанной live-публикации, остановиться: merge и deploy запрещены.
+
+### B. Выпустить exact code SHA
+
+Каждая строка ниже требует отдельного user approval; завершение предыдущей строки не даёт разрешения на следующую:
+
+1. Fast-forward merge точной ветки candidate в `main`.
+2. Push exact resulting `main` SHA.
+3. Deploy этого exact SHA после fresh read-only preflight.
+4. Read-only public verification: `/` возвращает полный `data-build-sha`, равный exact deployed SHA; `/projects` и затронутые routes доступны; affected flow проходит focused smoke.
+
+Первый запуск новой packaged Admin **не** выполняется до успешного deploy и public SHA verification. Если public SHA отсутствует, короче 40 hex-символов, сайт недоступен или SHA не совпадает с fresh `origin/main`, live transition не выполняется.
+
+### C. Однократно перевести packaged Admin в live
+
+Этот шаг локальный, но затрагивает реальные local data, поэтому требует отдельной команды пользователя после пункта B.
+
+Входные условия:
+
+- valid local `live-publish.json` с `mode: "live"`; файл остаётся только на Mac и не попадает в Git, архивы или логи;
+- managed checkout чистый и указывает на fresh `origin/main`;
+- `origin/main` и public `data-build-sha` совпадают полным SHA;
+- managed checkout содержит canonical production projects;
+- launcher и bundle соответствуют уже deployed exact SHA.
+
+При первом подтверждённом запуске launcher выполняет строго следующую последовательность:
+
+1. Останавливает только собственные локальные Admin/preview processes.
+2. Транзакционно переносит существующее test/sandbox state (`drafts`, `preview-drafts`, `draft-assets`, `published-snapshots`, `jobs`) в новый local archive `sandbox-archive/before-production-…`.
+3. При ошибке переноса возвращает уже перенесённые каталоги на прежние места; marker не создаётся.
+4. Только после успешного переноса атомарно записывает `production-data-baseline.json` v4: source `production-live`, exact `sourceSha`, время и путь к локальному archive.
+5. Запускает Admin в mode `live`; она читает canonical исходное состояние из managed checkout этого exact SHA, а не из архива.
+
+Архив создаётся ровно один раз. При следующих корректных live starts тот же SHA не переписывает marker и не архивирует рабочие live drafts. Новый observed production SHA обновляет только `lastObservedAt`/`sourceSha`; он не является поводом перезаписывать live drafts.
+
+Если marker не удалось записать после успешного archive, не удалять archive и не запускать повторный bootstrap вслепую. Остановиться, сохранить exact error и сначала сверить archive/marker state read-only.
+
+### D. Обычная работа после live bootstrap
+
+После marker v4 Admin связана с опубликованным Portfolio:
+
+- пользователь редактирует реальные локальные live drafts поверх production baseline;
+- обычная кнопка «Опубликовать» остаётся единственным UI-путём content release и показывает real-time этапы: `Проверка → Подготовка файлов → Lint, build и tests → Git и Pull Request → Merge → Deploy → Публичная проверка`;
+- live worker использует disposable worktree от fresh `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project-only publish, создаёт PR, merge, deploy и проверяет public SHA/routes;
+- sandbox mode не имеет Git/PR/SSH/deploy path;
+- Codex не запускает кнопку, не читает ключи и не выполняет content release без отдельной прямой команды пользователя.
+
+### Stop conditions и evidence
+
+Остановиться без merge, deploy или bootstrap при любом из условий:
+
+- неполный/несовпадающий public SHA;
+- dirty managed checkout или неясное local state;
+- sandbox-derived data в candidate/release input;
+- failure checks, bundle parity, provenance или public verification;
+- непредвиденная schema/data migration;
+- archive transaction/marker error.
+
+Для каждого завершённого Admin release сохранить только безопасное evidence: candidate SHA, merged SHA, deployed SHA, проверки, public SHA verification и путь к local archive (без содержимого drafts/assets, секретов или host credentials). Текущий operational checkpoint — в `HANDOFF.md`; долговечный порядок — в этом разделе.
 
 ## Preflight
 
