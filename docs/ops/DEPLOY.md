@@ -52,7 +52,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 - **Путь 1 — чистый production baseline.** Sandbox state архивируется только локально, а новая live Admin начинается исключительно с exact deployed production content/assets.
 - **Путь 2 — перенести только неопубликованную разницу.** Только подтверждённая разница между sandbox draft и его исходным production baseline накладывается на current production baseline в local live drafts. Это не publish: Git, canonical data/assets, deploy и production не меняются.
 
-Путь 2 — не копирование целого sandbox store. Он требует three-way merge `исходный production baseline → sandbox draft → current production baseline`: поля, не изменённые в sandbox, остаются current production; конфликт останавливает перенос без частичного применения. Пока такой механизм не реализован и не прошёл focused tests, выбор пути 2 останавливает live transition и требует отдельной implementation Git-группы.
+Путь 2 — не копирование целого sandbox store. Он требует three-way merge `исходный production baseline → sandbox draft → current production baseline`: поля, не изменённые в sandbox, остаются current production; конфликт одной semantic unit останавливает перенос до archive и без частичного применения. Для старого sandbox без origin пользователь выбирает units в локальной проверке; выбор привязан к hash exact production-цели и недействителен, если эта цель изменилась до bootstrap. Обходить эту проверку ручным переносом файлов нельзя.
 
 ### Непересекающиеся данные
 

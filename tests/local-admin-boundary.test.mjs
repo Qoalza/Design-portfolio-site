@@ -50,19 +50,23 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.match(launcher, /createHash\("sha256"\)/);
   assert.match(launcher, /ensureProductionDataBaseline/);
   assert.match(launcher, /launchSandboxWithoutBootstrap/);
-  assert.match(launcher, /await launchSandboxWithoutBootstrap\(\);/);
+  assert.match(launcher, /if \(!liveTransitionStarted\) await launchSandboxWithoutBootstrap\(\)\.catch/);
 });
 
 test("first live transition requires an explicit local path and exposes only sandbox review controls", () => {
   assert.match(launcher, /hasLiveBaseline/);
   assert.match(launcher, /выберите путь: чистый production baseline или перенос неопубликованных черновиков/);
   assert.match(launcher, /prepareTransferredDrafts: transferDrafts/);
+  assert.match(launcher, /preview\.blocked/);
+  assert.match(launcher, /buildLegacySelectedDraftTransfer/);
+  assert.match(launcher, /staged\.reviewRequired \|\| staged\.blocked/);
   assert.match(server, /\/api\/live-transition\/review/);
   assert.match(server, /\/api\/live-transition\/request/);
   assert.match(server, /publishMode !== "sandbox"/);
   assert.match(adminUi, /Переход в live…/);
   assert.match(adminUi, /Чистый production baseline/);
   assert.match(adminUi, /Перенести неопубликованные изменения в live drafts/);
+  assert.match(adminUi, /fingerprint: unit\.fingerprint/);
 });
 
 test("admin is not an App Router route and preview access is env-gated", async () => {

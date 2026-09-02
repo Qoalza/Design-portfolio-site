@@ -15,7 +15,7 @@ import { SavedMark } from "./admin-ui";
 import { PreviewWindowController } from "./preview-window.mjs";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
-type TransferUnit = { key: string; kind: "field" | "section" | "content"; label: string };
+type TransferUnit = { key: string; kind: "field" | "section" | "content" | "visual"; label: string; fingerprint: string };
 type TransitionReview = { reviewRequired: boolean; originSha?: string; projects: { slug: string; title: string; isNew: boolean; units: TransferUnit[] }[] };
 const csrf = document.body.dataset.csrf ?? "";
 const publishMode = document.body.dataset.publishMode === "live" ? "live" : "sandbox";
@@ -315,7 +315,7 @@ function App() {
     if (!transitionReview) return;
     const units = transitionReview.projects.flatMap((project) => project.units
       .filter((unit) => selectedTransferUnits.includes(`${project.slug}:${unit.key}`))
-      .map((unit) => ({ slug: project.slug, key: unit.key })));
+      .map((unit) => ({ slug: project.slug, key: unit.key, fingerprint: unit.fingerprint })));
     if (transferSelection === "delta" && transitionReview.reviewRequired && !units.length) {
       setMessage("Выберите хотя бы одно добавленное или изменённое поле для переноса в live drafts.");
       return;

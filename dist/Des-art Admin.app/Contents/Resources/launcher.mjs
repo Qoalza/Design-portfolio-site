@@ -212,6 +212,7 @@ async function main() {
   let targetSha;
   let publishedSha;
   if (publishMode === "live") {
+    let liveTransitionStarted = false;
     try {
       publishedSha = await confirmedPublishedSha();
       ({ targetSha } = await ensureManagedRepository({ publishedSha }));
@@ -224,11 +225,12 @@ async function main() {
       const transitionProduction = transition?.selection === "delta" ? await canonicalProjects() : undefined;
       if (transition?.selection === "delta") {
         if (!transitionOrigin && !transition.units?.length) throw new Error("Для старого тестового контура сначала выберите поля на странице «Проверка переноса».");
-        if (transitionOrigin && runtime.buildUnpublishedDraftTransfer({
-          origin: transitionOrigin,
-          sandboxProjects: await runtime.readSandboxDraftProjects(supportRoot),
-          productionProjects: transitionProduction,
-        }).reviewRequired) throw new Error("Sandbox origin не покрывает текущие черновики. Сначала выполните локальную проверку переноса.");
+        const sandboxProjects = await runtime.readSandboxDraftProjects(supportRoot);
+        const preview = transitionOrigin
+          ? runtime.buildUnpublishedDraftTransfer({ origin: transitionOrigin, sandboxProjects, productionProjects: transitionProduction })
+          : runtime.buildLegacySelectedDraftTransfer({ sandboxProjects, productionProjects: transitionProduction, units: transition.units });
+        if (preview.reviewRequired) throw new Error("Sandbox origin не покрывает текущие черновики. Сначала выполните локальную проверку переноса.");
+        if (preview.blocked) throw new Error(`Production изменил те же данные: ${preview.conflicts.map(({ slug, unit }) => `${slug}/${unit}`).join(", ")}. Перенос остановлен до архивирования.`);
       }
       const transferDrafts = transition?.selection === "delta"
             ? async ({ archiveRoot }) => {
@@ -243,7 +245,7 @@ async function main() {
                   legacyUnits: transition.units,
                   productionProjects: transitionProduction,
                 });
-                if (staged.reviewRequired) throw new Error("Не удалось подтвердить исходное состояние sandbox. Перенос остановлен.");
+                if (staged.reviewRequired || staged.blocked) throw new Error("Не удалось безопасно подтвердить перенос черновиков. Перенос остановлен до активации live drafts.");
                 const activation = await runtime.activateStagedDraftTransfer({ supportRoot, stagingRoot });
                 activated = true;
                 return {
@@ -261,7 +263,8 @@ async function main() {
               }
             }
             : undefined;
-          await ensureProductionDataBaseline({
+      liveTransitionStarted = true;
+      await ensureProductionDataBaseline({
         supportRoot,
         managedRepo,
         stopService,
@@ -270,9 +273,9 @@ async function main() {
             prepareTransferredDrafts: transferDrafts,
       });
           if (transition) await runtime.consumeLiveTransitionRequest(supportRoot);
-    } catch {
-      await launchSandboxWithoutBootstrap();
-      return;
+    } catch (error) {
+      if (!liveTransitionStarted) await launchSandboxWithoutBootstrap().catch(() => {});
+      throw error;
     }
   } else {
     ({ targetSha } = await ensureManagedRepository());

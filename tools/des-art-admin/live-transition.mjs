@@ -9,7 +9,25 @@ export const sandboxOriginPath = (supportRoot) => path.join(supportRoot, "sandbo
 export const liveTransitionRequestPath = (supportRoot) => path.join(supportRoot, "live-transition-request-v1.json");
 
 const clone = (value) => structuredClone(value);
-const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.keys(value)
+    .sort((left, right) => left.localeCompare(right, "en"))
+    .map((key) => [key, stableValue(value[key])])
+    .filter(([, item]) => item !== undefined));
+}
+
+function stableJson(value) {
+  return JSON.stringify(stableValue(value)) ?? "undefined";
+}
+
+const same = (left, right) => stableJson(left) === stableJson(right);
+const unitFingerprint = (value) => createHash("sha256").update(`live-transition-v1:${stableJson(value)}`).digest("hex");
+const fingerprintMatches = (value, fingerprint) => typeof fingerprint === "string"
+  && /^[0-9a-f]{64}$/i.test(fingerprint)
+  && unitFingerprint(value) === fingerprint.toLowerCase();
 const ignoredKeys = new Set(["slug", "schemaVersion", "catalogOrder", "homePlacement", "visibility", "admin", "content"]);
 
 function normalizeOriginProjects(projects = []) {
@@ -29,61 +47,126 @@ function hasValue(value) {
   return value !== undefined && value !== null;
 }
 
-function overlayWithoutDeletion(base, sandbox, production) {
-  if (same(base, sandbox)) return clone(production);
-  if (!hasValue(sandbox) && hasValue(base)) return clone(production);
-  if (Array.isArray(sandbox)) {
-    const before = Array.isArray(base) ? base : [];
-    const current = Array.isArray(production) ? clone(production) : [];
-    for (const [index, value] of sandbox.entries()) {
-      current[index] = overlayWithoutDeletion(before[index], value, current[index]);
-    }
-    return current;
-  }
-  if (sandbox && typeof sandbox === "object") {
-    const before = base && typeof base === "object" ? base : {};
-    const current = production && typeof production === "object" ? clone(production) : {};
-    for (const [key, value] of Object.entries(sandbox)) {
-      if (!(key in before) || !same(before[key], value)) current[key] = overlayWithoutDeletion(before[key], value, current[key]);
-    }
-    return current;
-  }
-  return clone(sandbox);
+function hasVisualValue(value) {
+  if (!value || typeof value !== "object") return false;
+  return Object.values(value.assets ?? {}).some((items) => Array.isArray(items) && items.length > 0);
 }
 
-function itemKey(item, index) {
+function itemKey(item) {
   if (item?.type === "section" && typeof item.adminId === "string") return `section:${item.adminId}`;
   if (item?.type === "gallery") return "gallery";
-  return `${item?.type ?? "unknown"}:${index}`;
+  return undefined;
 }
 
-function mergeContent({ base = [], sandbox = [], production = [] }) {
-  const baseline = new Map(base.map((item, index) => [itemKey(item, index), item]));
-  const merged = production.map(clone);
-  const positions = new Map(merged.map((item, index) => [itemKey(item, index), index]));
-  for (const [index, item] of sandbox.entries()) {
-    const key = itemKey(item, index);
-    const before = baseline.get(key);
-    if (before && same(before, item)) continue;
-    if (before && !hasValue(item)) continue;
-    const currentIndex = positions.get(key);
-    if (currentIndex === undefined) {
-      merged.push(clone(item));
-      positions.set(key, merged.length - 1);
-    } else {
-      merged[currentIndex] = overlayWithoutDeletion(before, item, merged[currentIndex]);
+function withoutAdminId(item) {
+  if (item?.type !== "section") return item;
+  return Object.fromEntries(Object.entries(item).filter(([key]) => key !== "adminId"));
+}
+
+function resolvedProductionContent(base = [], production = []) {
+  const available = base.filter((item) => item?.type === "section" && typeof item.adminId === "string");
+  const claimed = new Set();
+  return production.map((item) => {
+    if (item?.type !== "section" || typeof item.adminId === "string") return clone(item);
+    const publicItem = withoutAdminId(item);
+    const exact = available.filter((candidate) => !claimed.has(candidate.adminId) && same(withoutAdminId(candidate), publicItem));
+    const heading = exact.length === 1 ? exact : available.filter((candidate) => !claimed.has(candidate.adminId) && candidate.heading === item.heading);
+    if (heading.length !== 1) return clone(item);
+    const [matched] = heading;
+    claimed.add(matched.adminId);
+    return { ...clone(item), adminId: matched.adminId };
+  });
+}
+
+function addConflict(conflicts, slug, unit) {
+  if (!conflicts.some((conflict) => conflict.slug === slug && conflict.unit === unit)) conflicts.push({ slug, unit });
+}
+
+function mergeContent({ slug, base = [], sandbox = [], production = [], conflicts }) {
+  const baseline = new Map(base.map((item) => [itemKey(item), item]).filter(([key]) => key));
+  const merged = resolvedProductionContent(base, production);
+  const positions = new Map(merged.map((item, index) => [itemKey(item), index]).filter(([key]) => key));
+  for (const item of sandbox) {
+    const key = itemKey(item);
+    if (!key) {
+      addConflict(conflicts, slug, "content");
+      continue;
     }
+    const before = baseline.get(key);
+    const sandboxChanged = !before || !same(before, item);
+    if (!sandboxChanged || (before && !hasValue(item))) continue;
+    const currentIndex = positions.get(key);
+    if (!before) {
+      if (currentIndex === undefined) {
+        merged.push(clone(item));
+        positions.set(key, merged.length - 1);
+      } else if (!same(merged[currentIndex], item)) addConflict(conflicts, slug, key);
+      continue;
+    }
+    if (currentIndex === undefined) {
+      addConflict(conflicts, slug, key);
+      continue;
+    }
+    const current = merged[currentIndex];
+    if (!same(before, current) && !same(item, current)) {
+      addConflict(conflicts, slug, key);
+      continue;
+    }
+    if (!same(item, current)) merged[currentIndex] = clone(item);
   }
   return merged;
 }
 
-function mergeExistingProject(base, sandbox, production) {
+function mergeVisuals({ slug, base = {}, sandbox = {}, production = {}, conflicts }) {
+  const result = clone(production);
+  for (const surface of Object.keys(sandbox)) {
+    const before = base?.[surface];
+    const candidate = sandbox[surface];
+    const current = production?.[surface];
+    if (!hasVisualValue(candidate) || same(before, candidate)) continue;
+    if (before === undefined) {
+      if (current === undefined || same(current, candidate)) result[surface] = clone(candidate);
+      else addConflict(conflicts, slug, `visual:${surface}`);
+      continue;
+    }
+    if (current === undefined || (!same(before, current) && !same(candidate, current))) {
+      addConflict(conflicts, slug, `visual:${surface}`);
+      continue;
+    }
+    if (!same(candidate, current)) result[surface] = clone(candidate);
+  }
+  return result;
+}
+
+function hasTransferableChange(base, sandbox) {
+  for (const key of Object.keys(sandbox)) {
+    if (ignoredKeys.has(key) || key === "visuals" || same(base?.[key], sandbox[key]) || !hasValue(sandbox[key])) continue;
+    return true;
+  }
+  for (const surface of Object.keys(sandbox.visuals ?? {})) {
+    if (!same(base?.visuals?.[surface], sandbox.visuals[surface]) && hasVisualValue(sandbox.visuals[surface])) return true;
+  }
+  for (const item of sandbox.content ?? []) {
+    const key = itemKey(item);
+    if (!key) return true;
+    const before = (base?.content ?? []).find((candidate) => itemKey(candidate) === key);
+    if ((!before || !same(before, item)) && (!before || hasValue(item))) return true;
+  }
+  return false;
+}
+
+function mergeExistingProject(base, sandbox, production, conflicts) {
   const result = clone(production);
   for (const key of Object.keys(sandbox)) {
-    if (ignoredKeys.has(key) || same(base?.[key], sandbox[key]) || !hasValue(sandbox[key])) continue;
-    result[key] = overlayWithoutDeletion(base?.[key], sandbox[key], production[key]);
+    if (ignoredKeys.has(key) || key === "visuals" || same(base?.[key], sandbox[key]) || !hasValue(sandbox[key])) continue;
+    if (production[key] === undefined || (!same(base?.[key], production[key]) && !same(sandbox[key], production[key]))) {
+      addConflict(conflicts, sandbox.slug, `field:${key}`);
+      continue;
+    }
+    if (!same(sandbox[key], production[key])) result[key] = clone(sandbox[key]);
   }
-  result.content = mergeContent({ base: base?.content, sandbox: sandbox.content, production: production.content });
+  result.visuals = mergeVisuals({ slug: sandbox.slug, base: base?.visuals, sandbox: sandbox.visuals, production: production.visuals, conflicts });
+  result.content = mergeContent({ slug: sandbox.slug, base: base?.content, sandbox: sandbox.content, production: production.content, conflicts });
   result.catalogOrder = production.catalogOrder;
   if (production.homePlacement === undefined) delete result.homePlacement;
   else result.homePlacement = production.homePlacement;
@@ -103,10 +186,17 @@ export function buildSandboxOrigin({ sourceSha, projects, assetHashes }) {
 
 export function createLiveTransitionRequest({ selection, units } = {}) {
   if (selection !== "clean" && selection !== "delta") throw new Error("Live transition selection is required.");
-  if (units !== undefined && (!Array.isArray(units) || units.some((unit) => !unit || typeof unit.slug !== "string" || typeof unit.key !== "string"))) {
+  if (units !== undefined && (!Array.isArray(units) || units.some((unit) => !unit
+    || typeof unit.slug !== "string"
+    || typeof unit.key !== "string"
+    || !/^[0-9a-f]{64}$/i.test(unit.fingerprint)))) {
     throw new Error("Live transition review selection is invalid.");
   }
-  return { version: LIVE_TRANSITION_REQUEST_VERSION, selection, ...(units ? { units: clone(units) } : {}) };
+  return {
+    version: LIVE_TRANSITION_REQUEST_VERSION,
+    selection,
+    ...(units ? { units: units.map(({ slug, key, fingerprint }) => ({ slug, key, fingerprint: fingerprint.toLowerCase() })) } : {}),
+  };
 }
 
 async function atomicJson(file, value) {
@@ -157,25 +247,32 @@ export async function consumeLiveTransitionRequest(supportRoot) {
 }
 
 export function buildUnpublishedDraftTransfer({ origin, sandboxProjects, productionProjects }) {
-  if (!origin || origin.version !== SANDBOX_ORIGIN_VERSION) return { reviewRequired: true, drafts: [] };
+  if (!origin || origin.version !== SANDBOX_ORIGIN_VERSION) return { reviewRequired: true, blocked: false, conflicts: [], drafts: [] };
   const baseline = new Map(origin.projects.map((project) => [project.slug, project]));
   const production = new Map(productionProjects.map((project) => [project.slug, project]));
   const drafts = [];
+  const conflicts = [];
   for (const sandbox of sandboxProjects) {
     if (sandbox.visibility === "deleted") continue;
     const current = production.get(sandbox.slug);
+    const before = baseline.get(sandbox.slug);
     if (!current) {
+      if (before) {
+        if (hasTransferableChange(before, sandbox)) addConflict(conflicts, sandbox.slug, "project");
+        continue;
+      }
       const next = { ...clone(sandbox), visibility: "draft" };
       delete next.homePlacement;
       delete next.catalogOrder;
       drafts.push(next);
       continue;
     }
-    if (!baseline.has(sandbox.slug)) return { reviewRequired: true, drafts: [] };
-    const next = mergeExistingProject(baseline.get(sandbox.slug), sandbox, current);
+    if (!before) return { reviewRequired: true, blocked: false, conflicts: [], drafts: [] };
+    const next = mergeExistingProject(before, sandbox, current, conflicts);
     if (!same(next, current)) drafts.push(next);
   }
-  return { reviewRequired: false, drafts };
+  if (conflicts.length) return { reviewRequired: false, blocked: true, conflicts, drafts: [] };
+  return { reviewRequired: false, blocked: false, conflicts: [], drafts };
 }
 
 export function buildLegacyTransferReview({ sandboxProjects, productionProjects }) {
@@ -184,38 +281,75 @@ export function buildLegacyTransferReview({ sandboxProjects, productionProjects 
   for (const sandbox of sandboxProjects) {
     if (sandbox.visibility === "deleted") continue;
     const current = production.get(sandbox.slug);
+    const currentDraft = current ? normalizeOriginProjects([current])[0] : undefined;
     const units = [];
     for (const [key, value] of Object.entries(sandbox)) {
-      if (ignoredKeys.has(key) || key === "content" || !hasValue(value) || same(current?.[key], value)) continue;
-      units.push({ key, kind: "field", label: key });
+      if (ignoredKeys.has(key) || key === "content" || key === "visuals" || !hasValue(value) || same(currentDraft?.[key], value)) continue;
+      units.push({ key, kind: "field", label: key, fingerprint: unitFingerprint(currentDraft?.[key]) });
     }
-    for (const [index, item] of (sandbox.content ?? []).entries()) {
+    for (const [surface, value] of Object.entries(sandbox.visuals ?? {})) {
+      if (!hasVisualValue(value) || same(currentDraft?.visuals?.[surface], value)) continue;
+      units.push({ key: `visual:${surface}`, kind: "visual", label: surface, fingerprint: unitFingerprint(currentDraft?.visuals?.[surface]) });
+    }
+    for (const item of sandbox.content ?? []) {
       if (!hasValue(item)) continue;
-      const key = itemKey(item, index);
-      const currentItem = (current?.content ?? []).find((candidate, candidateIndex) => itemKey(candidate, candidateIndex) === key);
-      if (!same(currentItem, item)) units.push({ key, kind: item?.type === "section" ? "section" : "content", label: item?.heading ?? item?.type ?? "content" });
+      const key = itemKey(item);
+      if (!key) continue;
+      const currentItem = (currentDraft?.content ?? []).find((candidate) => itemKey(candidate) === key);
+      if (!same(currentItem, item)) units.push({
+        key,
+        kind: item?.type === "section" ? "section" : "content",
+        label: item?.type === "section" && currentItem?.type === "section"
+          ? `${item.heading} → ${currentItem.heading}`
+          : item?.heading ?? item?.type ?? "content",
+        fingerprint: unitFingerprint(currentItem),
+      });
     }
     if (units.length) projects.push({ slug: sandbox.slug, title: sandbox.title, isNew: !current, units });
   }
   return { version: 1, projects };
 }
 
-function selectedLegacyProject({ sandbox, production, units }) {
-  const chosen = new Set(units.map((unit) => unit.key));
-  const result = clone(production ?? { schemaVersion: sandbox.schemaVersion, slug: sandbox.slug, visibility: "draft", content: [] });
+function selectedLegacyProject({ sandbox, production, units, conflicts }) {
+  const chosen = new Map(units.map((unit) => [unit.key, unit]));
+  const current = production ? normalizeOriginProjects([production])[0] : undefined;
+  const result = clone(current ?? { schemaVersion: sandbox.schemaVersion, slug: sandbox.slug, visibility: "draft", content: [] });
   for (const [key, value] of Object.entries(sandbox)) {
-    if (!ignoredKeys.has(key) && chosen.has(key) && hasValue(value)) result[key] = clone(value);
+    const unit = chosen.get(key);
+    if (ignoredKeys.has(key) || key === "visuals" || !unit || !hasValue(value)) continue;
+    if (!fingerprintMatches(current?.[key], unit.fingerprint)) {
+      addConflict(conflicts, sandbox.slug, `legacy:${key}`);
+      continue;
+    }
+    result[key] = clone(value);
   }
-  const currentContent = new Map((result.content ?? []).map((item, index) => [itemKey(item, index), item]));
-  for (const [index, item] of (sandbox.content ?? []).entries()) {
-    const key = itemKey(item, index);
-    if (chosen.has(key) && hasValue(item)) currentContent.set(key, clone(item));
+  result.visuals ??= {};
+  for (const [surface, value] of Object.entries(sandbox.visuals ?? {})) {
+    const key = `visual:${surface}`;
+    const unit = chosen.get(key);
+    if (!unit || !hasVisualValue(value)) continue;
+    if (!fingerprintMatches(current?.visuals?.[surface], unit.fingerprint)) {
+      addConflict(conflicts, sandbox.slug, `legacy:${key}`);
+      continue;
+    }
+    result.visuals[surface] = clone(value);
+  }
+  const currentContent = new Map((result.content ?? []).map((item) => [itemKey(item), item]).filter(([key]) => key));
+  for (const item of sandbox.content ?? []) {
+    const key = itemKey(item);
+    const unit = key ? chosen.get(key) : undefined;
+    if (!key || !unit || !hasValue(item)) continue;
+    if (!fingerprintMatches(currentContent.get(key), unit.fingerprint)) {
+      addConflict(conflicts, sandbox.slug, `legacy:${key}`);
+      continue;
+    }
+    currentContent.set(key, clone(item));
   }
   result.content = [...currentContent.values()];
-  if (production) {
-    result.catalogOrder = production.catalogOrder;
-    result.homePlacement = production.homePlacement;
-    result.visibility = production.visibility;
+  if (current) {
+    result.catalogOrder = current.catalogOrder;
+    result.homePlacement = current.homePlacement;
+    result.visibility = current.visibility;
   }
   return result;
 }
@@ -228,13 +362,15 @@ export function buildLegacySelectedDraftTransfer({ sandboxProjects, productionPr
   }
   const production = new Map(productionProjects.map((project) => [project.slug, project]));
   const drafts = [];
+  const conflicts = [];
   for (const sandbox of sandboxProjects) {
     if (sandbox.visibility === "deleted" || !selected.has(sandbox.slug)) continue;
-    const draft = selectedLegacyProject({ sandbox, production: production.get(sandbox.slug), units: selected.get(sandbox.slug) });
+    const draft = selectedLegacyProject({ sandbox, production: production.get(sandbox.slug), units: selected.get(sandbox.slug), conflicts });
     if (!production.has(sandbox.slug)) draft.visibility = "draft";
     drafts.push(draft);
   }
-  return { reviewRequired: false, drafts };
+  if (conflicts.length) return { reviewRequired: false, blocked: true, conflicts, drafts: [] };
+  return { reviewRequired: false, blocked: false, conflicts: [], drafts };
 }
 
 async function fileHash(file) {
@@ -278,7 +414,7 @@ export async function stageUnpublishedDraftTransfer({ archiveRoot, stagingRoot, 
     : legacyUnits?.length
       ? buildLegacySelectedDraftTransfer({ sandboxProjects, productionProjects, units: legacyUnits })
       : { reviewRequired: true, drafts: [] };
-  if (result.reviewRequired) return result;
+  if (result.reviewRequired || result.blocked) return result;
   const destination = path.join(stagingRoot, "drafts");
   const assetHashes = {};
   const canonicalAssets = new Set(productionProjects.flatMap((project) => (
