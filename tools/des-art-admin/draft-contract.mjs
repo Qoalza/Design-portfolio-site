@@ -29,6 +29,8 @@ function removeFileMetadata(value) {
   if (typeof result.src === "string" && Number.isFinite(result.width) && Number.isFinite(result.height)) {
     delete result.mime;
     delete result.duplicateOf;
+    delete result.hasAlpha;
+    delete result.isOpaque;
   }
   return result;
 }

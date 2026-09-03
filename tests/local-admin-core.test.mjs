@@ -262,6 +262,34 @@ test("the first hero Frame activates a closed project only after automatic appro
   assert.equal(compileAdminDraft(result.project).detailAvailable, true);
 });
 
+test("Figma transparency inspection metadata never enters the public hero contract", async () => {
+  const configured = await roots();
+  const hero = corvoVisuals().hero;
+  hero.assets.backdrop[0] = { ...hero.assets.backdrop[0], hasAlpha: true, isOpaque: false };
+  hero.assets.foreground[0] = { ...hero.assets.foreground[0], hasAlpha: true, isOpaque: false };
+  const store = new AdminStore({
+    ...configured,
+    figmaImporter: async ({ url, templateIds }) => ({
+      visual: hero,
+      source: { url, templateId: templateIds[0] },
+    }),
+  });
+  const closed = {
+    ...project("transparent-hero", { designProfile: "catalog-only-v1", detailAvailable: false }),
+    visuals: { catalog: { templateId: "catalog.browser", assets: { screen: [{ src: "/assets/projects/catalog/transparent-hero.png", alt: "Экран", width: 2880, height: 1920 }] } } },
+  };
+  await store.saveDraft("transparent-hero", closed);
+
+  const result = await store.importFigmaVisual("transparent-hero", {
+    surface: "hero",
+    url: "https://www.figma.com/design/file/Test?node-id=1-2",
+  });
+
+  assert.equal(result.project.visuals.hero.assets.backdrop[0].hasAlpha, undefined);
+  assert.equal(result.project.visuals.hero.assets.foreground[0].isOpaque, undefined);
+  assert.equal(compileAdminDraft(result.project).detailAvailable, true);
+});
+
 test("approved Figma import adds one interactive block to a section and rejects profile mismatches", async () => {
   const configured = await roots();
   const store = new AdminStore({
