@@ -12,7 +12,7 @@
 ## Current checkpoint
 
 - Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
-- Milestones 1–4 завершены: защитные manifests/refs, диагностика, resume workflow, truthful readiness и self-contained signed app bundle.
+- Milestones 1–5 завершены: защитные manifests/refs, диагностика, resume workflow, truthful readiness, self-contained signed app bundle и полная изолированная приёмка.
 - Before/after manifest идентичен: `237` файлов, SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`.
 - Sarafan draft неизменен: `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`; draft-assets: `37`.
 - Удалённые branch names, commit SHA и общий tree SHA сохранены в ExecPlan. `git gc`, reflog cleanup и удаление job-файлов не выполнялись.
@@ -33,6 +33,11 @@
 - Milestone 2 focused Admin core/publish/boundary tests: `53/53`; Admin bundle rebuilt; lint and diff check green.
 - Milestone 3 fault-injection plus Admin core/publish/boundary tests: `59/59`; Admin bundle rebuilt; lint and diff check green.
 - Milestone 4 focused readiness/package suite: `41/41`; embedded runtime executed, strict codesign verification green.
+- Milestone 5 full suite: `309/309`; lint, production build and diff check green.
+- Candidate sandbox on `127.0.0.1:42731/42732`: Admin page, projects API and readiness API green; readiness reported configured access with upload still unverified. Candidate stopped cleanly.
+- Post-candidate live manifest: exact path/size/SHA comparison `237/237`, changed files `0`; Sarafan draft and all `37` draft-assets unchanged.
+- Read-only app inventory: exactly one installed `/Applications/Des-art Admin.app`; no indexed Spotlight duplicate was returned. Installation/replacement was not performed.
+- Provenance review: repair diff contains no canonical project content/assets, local drafts, jobs, snapshots, archives or `USERSPACE/**`.
 
 ## Stop-lines
 
@@ -44,7 +49,7 @@
 
 ## Next action
 
-Milestone 5: полный Admin/Shared regression, production build, candidate sandbox/LaunchServices acceptance, live before/after manifest audit и staged provenance review. Никакой установки в `/Applications` до exact-SHA gate.
+Milestone 6: review completed milestone-5 commit, then push branch and create the repair PR. Merge, deploy and installation in `/Applications` remain behind separate exact-SHA confirmation.
 
 ## Pointers
 

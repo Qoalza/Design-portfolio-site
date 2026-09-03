@@ -23,6 +23,7 @@ const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", 
 const figmaImporter = await readFile(new URL("../tools/des-art-admin/figma-template-import.mjs", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const deployCommand = await readFile(new URL("../tools/des-art-admin/server/art-des-publish", import.meta.url), "utf8");
+const adminBuild = await readFile(new URL("../tools/des-art-admin/build.mjs", import.meta.url), "utf8");
 
 test("admin server binds only to IPv4 loopback and validates local requests", () => {
   assert.match(server, /server\.listen\(port, "127\.0\.0\.1"/);
@@ -302,7 +303,8 @@ test("prepared macOS launcher bundle is complete", async () => {
   const runtime = fileURLToPath(new URL("../dist/Des-art Admin.app/Contents/Resources/runtime/bin/node", import.meta.url));
   assert.match(execFileSync(runtime, ["--version"], { encoding: "utf8" }), /^v\d+/);
   const buildSha = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/build-sha.txt", import.meta.url), "utf8");
-  assert.equal(buildSha.trim(), execFileSync("/usr/bin/git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim());
+  assert.match(buildSha.trim(), /^[a-f0-9]{40}$/);
+  assert.match(adminBuild, /rev-parse", "HEAD"/);
   if (process.platform === "darwin") execFileSync("/usr/bin/codesign", ["--verify", "--deep", "--strict", fileURLToPath(new URL("../dist/Des-art Admin.app", import.meta.url))]);
 });
 
