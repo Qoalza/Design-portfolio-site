@@ -4,60 +4,42 @@
 
 ## Checkout
 
-- Репозиторий: `/Users/designer/Documents/GitHub/Design-portfolio-site`.
-- Изолированный worktree: `/private/tmp/design-portfolio-admin-publish-reliability`.
-- Ветка: `codex/admin-publish-reliability`; base `origin/main` — `baf7729d2568821abe304b749e029e6fb9f1a599`.
-- Текущий пользовательский checkout, protected untracked и `USERSPACE/**` не затронуты.
+- Изолированный worktree: `/private/tmp/design-portfolio-admin-runtime-decoupling`.
+- Ветка: `codex/admin-runtime-decoupling`; base/merged repair SHA `0bdba1638b67d36454446104b4b7ee838ce450fd`.
+- Protected пользовательский checkout и `USERSPACE/**` не затронуты.
 
 ## Current checkpoint
 
-- Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
-- Milestones 1–6 завершены: защитные manifests/refs, диагностика, resume workflow, truthful readiness, self-contained signed app bundle, полная изолированная приёмка и repair PR.
-- Before/after manifest идентичен: `237` файлов, SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`.
-- Sarafan draft неизменен: `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`; draft-assets: `37`.
-- Удалённые branch names, commit SHA и общий tree SHA сохранены в ExecPlan. `git gc`, reflog cleanup и удаление job-файлов не выполнялись.
-- Live Admin и live store во время этапа не запускались и не изменялись.
-- Broad text-regex больше не принимает слово `origin` в `git push` за ошибку сессии; Host/Origin/CSRF представлены отдельным типом.
-- Publish command failures сохраняют только безопасные поля и diagnostic ID; очищенный журнал создаётся с mode `0600`.
-- UI показывает отдельные этапы Commit, Push и Pull Request.
-- `POST /api/publish/resume` продолжает exact failed job после commit; завершённые checks/commit/push пропускаются.
-- Remote branch сверяется с exact content SHA; один HTTP/2/RPC reset повторяется через HTTP/1.1. Совпадающий PR переиспользуется, конфликтующие branch/PR останавливают workflow.
-- Readiness проверяет identity/repository/push/ls-remote/credential helper/SSH и не заявляет успешную загрузку до реального Push.
-- Generated `.app` содержит собственный thin Node runtime, build SHA и ad-hoc signature; launcher не зависит от LaunchServices `PATH`.
+- Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`, milestones 11–12.
+- Root cause после установки repair Admin: launcher исполнял server из managed Portfolio checkout и требовал production SHA == `origin/main`; после merge repair это невозможно без запрещённого deploy Сарафана.
+- Исправление разделяет runtime и data baseline: signed `.app` содержит allowlisted Admin server/worker/UI/shared validators, а existing live managed repository остаётся detached на exact deployed production SHA.
+- Первый live transition по-прежнему требует production SHA == `origin/main`; schema/content contract не менялся.
+- Production подтверждён на `0cd02a9ab05bb46b862cc505e81af67382059bd4`; Сарафан не деплоился.
+- Protected live manifest: `245/245`, changed `0`; Sarafan draft `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`, draft-assets `37`.
 
 ## Verification
 
-- Перед удалением: отсутствуют связанные remote branches, PR и worktree.
-- После удаления: три local refs отсутствуют; commits остаются восстановимыми unreachable objects.
-- Live manifest comparison: `237/237`, changed files `0`.
-- Milestone 2 focused Admin core/publish/boundary tests: `53/53`; Admin bundle rebuilt; lint and diff check green.
-- Milestone 3 fault-injection plus Admin core/publish/boundary tests: `59/59`; Admin bundle rebuilt; lint and diff check green.
-- Milestone 4 focused readiness/package suite: `41/41`; embedded runtime executed, strict codesign verification green.
-- Milestone 5 full suite: `309/309`; lint, production build and diff check green.
-- Candidate sandbox on `127.0.0.1:42731/42732`: Admin page, projects API and readiness API green; readiness reported configured access with upload still unverified. Candidate stopped cleanly.
-- Post-candidate live manifest: exact path/size/SHA comparison `237/237`, changed files `0`; Sarafan draft and all `37` draft-assets unchanged.
-- Read-only app inventory: exactly one installed `/Applications/Des-art Admin.app`; no indexed Spotlight duplicate was returned. Installation/replacement was not performed.
-- Provenance review: repair diff contains no canonical project content/assets, local drafts, jobs, snapshots, archives or `USERSPACE/**`.
-- Exact tested commit `d0658e8edb5f5523794ccd5c67f58cb9701a3f8b` был отправлен и подтверждён на remote.
-- Repair PR #32 открыт против `main`: https://github.com/Qoalza/Design-portfolio-site/pull/32. Состояние `OPEN`, `MERGEABLE`, `CLEAN`; CI checks для PR отсутствуют.
+- Failing-first policy/package checks reproduced missing runtime decoupling.
+- Existing-live integration uses a real local Git remote: production checkout remains at the older SHA while fetched `origin/main` advances; first live transition rejects the same mismatch.
+- Bundled runtime starts from generated `.app` in an isolated temporary support root and serves page/projects/readiness; native image processor resolves successfully.
+- Bundle source is byte-identical to its explicit 18-file runtime/shared allowlist plus metadata and contains no canonical content/assets, local store or full `node_modules`.
+- Admin/Shared focused suite: `163/163`; decoupling/package suite: `36/36`; lint, production build, strict ad-hoc codesign and diff check pass.
+- Full repository suite: `337/339`; only the two pre-existing `mlir4-project-availability` assertions fail because merged PR #35 made canonical Sarafan available. Repair diff does not change those tests or content.
 
 ## Stop-lines
 
-- Live store не записывать: без bootstrap, reset, import/export и live acceptance во время разработки.
-- Публикацию «Сараффан.Радио», merge, deploy и установку Admin не выполнять.
-- Merge/deploy/install требуют отдельного подтверждения exact SHA.
-- Остановиться при изменении live manifest, production SHA, content/schema contract или неожиданной remote branch/PR.
-- Protected untracked и `USERSPACE/**` не читать и не трогать.
+- Не запускать publish/resume job Сарафана и не деплоить Portfolio.
+- Не изменять live drafts/assets/jobs/snapshots/archives и не выполнять bootstrap/reset/import/export.
+- Merge и установка exact candidate требуют отдельного подтверждения exact SHA.
+- Остановиться при изменении live manifest, production SHA, schema/content contract или неожиданной branch/PR.
 
 ## Next action
 
-Пользовательская проверка PR #32. Merge, deploy и установка в `/Applications` требуют отдельного подтверждения exact SHA актуального head PR.
+Создать отдельные implementation/docs commits, повторить provenance/data audit, push и открыть repair PR. Затем остановиться перед exact-SHA merge/install gates.
 
 ## Pointers
 
 - ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
-- Admin contract: `tools/des-art-admin/SPEC.md`.
-- Publish worker: `tools/des-art-admin/publish-worker.mjs`.
-- Human errors: `tools/des-art-admin/human-errors.mjs`.
-- Publish diagnostics: `tools/des-art-admin/publish-diagnostics.mjs`.
-- Server/API: `tools/des-art-admin/server.mjs`.
+- Launcher policy: `tools/des-art-admin/launcher-policy.mjs`.
+- Managed checkout: `tools/des-art-admin/managed-repository.mjs`.
+- Packager: `tools/des-art-admin/build.mjs`.

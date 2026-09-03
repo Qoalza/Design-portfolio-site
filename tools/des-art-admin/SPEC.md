@@ -15,7 +15,7 @@ Admin редактирует данные в заранее объявленны
 
 Admin работает только на `127.0.0.1`, использует отдельный bundle Radix Themes и не импортируется публичным App Router. Черновики, draft-assets, preview overlays, jobs, snapshots и migration backups хранятся в `~/Library/Application Support/Des-art Admin`, а не в рабочем Git-дереве.
 
-Packaged Admin может использовать другую checkout-версию. После schema migration реального store его нельзя запускать до попадания v3-кода в managed checkout; при локальной приёмке используется Admin из текущей workspace-ветки с sandbox publish mode.
+Packaged Admin исполняет allowlisted Admin server/worker/UI и exact shared validators из подписанного app bundle. Managed checkout является production/content/preview baseline и для существующей live Admin закрепляется на подтверждённом deployed SHA; при локальной приёмке используется Admin из текущей workspace-ветки с sandbox publish mode. Schema/contract migration остаётся отдельной stop-line и не может полагаться на такое разделение версий без отдельного плана.
 
 ### Одностороннее направление данных
 
@@ -29,7 +29,7 @@ Packaged Admin может использовать другую checkout-вер�
 
 При `overlay` current production — основа, а каждое физически присутствующее sandbox-значение побеждает: включая пустые значения, visibility/deleted, секции, gallery, порядок, `catalogOrder` и `homePlacement`. Production-only проекты остаются canonical, sandbox-only проект становится local draft. Переносятся только draft JSON и реально referenced draft-assets; jobs, previews, snapshots и runtime state остаются в архиве. `sandbox-origin-v1` является evidence, но его отсутствие не блокирует overlay. Ручной выбор полей, semantic conflict screen и transition UI отсутствуют. Staging, archive и activation защищены lock/journal: marker переключает generation одной атомарной записью; при сбое retry продолжает ту же проверенную generation и не создаёт второй archive.
 
-Существующий valid marker v4 с `source: "production-live"` не является первым bootstrap. После подтверждения полного public SHA, совпадающего с `origin/main`, launcher повышает только metadata до v5 `legacy-live`: сохраняет active store, archive и drafts, записывает подтверждённый current `sourceSha` и `lastObservedAt`. Для этого пути не создаются request `clean|overlay`, archive, transfer или generation. Ошибка live config, public SHA, managed checkout или marker останавливает запуск без sandbox fallback.
+Существующий valid marker v4/v5 с `source: "production-live"` не является первым bootstrap. После подтверждения полного public SHA launcher закрепляет managed checkout на этом exact deployed SHA; расхождение с более новым `origin/main` допустимо и не двигает production baseline. Marker v4 при необходимости повышается только до v5 `legacy-live`, сохраняя active store, archive и drafts. Для этого пути не создаются request `clean|overlay`, archive, transfer или generation. Ошибка live config, public SHA, managed checkout или marker останавливает запуск без sandbox fallback.
 
 ## Черновик и preview
 
@@ -68,7 +68,7 @@ Project-only publish сохраняет canonical `catalogOrder` и `homePlaceme
 
 Readiness подтверждает GitHub identity, exact repository, write permission, `git ls-remote`, согласованный GitHub credential helper и SSH status. Она означает только «окружение настроено» и никогда не выдаёт dry-run или read-only probe за доказательство реальной загрузки Git-пакета: это подтверждается только этапом Push.
 
-Generated macOS app bundle содержит собственный Node runtime текущей архитектуры, full build Git SHA и ad-hoc signature. Launcher вызывает runtime по абсолютному пути внутри bundle и не зависит от `PATH` Spotlight/LaunchServices.
+Generated macOS app bundle содержит собственный Node runtime текущей архитектуры, allowlisted Admin runtime source, full build Git SHA и ad-hoc signature. Launcher вызывает runtime и bundled server по абсолютным путям внутри bundle и не зависит от `PATH` Spotlight/LaunchServices. Native image processing разрешается из `node_modules` managed repository; canonical content/assets и весь local store остаются вне bundle.
 
 ## Legacy migration
 

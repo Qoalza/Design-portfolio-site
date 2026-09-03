@@ -70,7 +70,7 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 1. Проверить `git status`, index и ownership всех tracked/untracked изменений. Не трогать чужие или protected local files.
 2. Убедиться, что staged diff не содержит sandbox state, `live-publish.json`, secrets, runtime state или macOS metadata.
 3. Запустить релевантные Admin/Shared tests; для изменённой логики — lint; для routes, packaging, contract или release path — production build.
-4. Пересобрать Admin bundle и проверить, что packaged resources совпадают с source.
+4. Пересобрать Admin bundle и проверить, что packaged Admin runtime resources совпадают с source allowlist, а canonical content/assets, local store и `node_modules` отсутствуют.
 5. Для initial v2→v3 integration выполнить read-only provenance `main → candidate`. Для последующих намеренных content releases этот verifier не запрещает пользовательские изменения, но provenance изменённых canonical content/assets всё равно обязателен.
 6. Провести два review: сначала data boundary/rollback/bootstrap, затем полный candidate, diff, index, package и release path.
 
@@ -115,9 +115,9 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 
 Если marker не удалось записать после успешного archive, не удалять archive. Journal сохраняет transition и generation; повторный launcher после SHA-gate продолжает только эту проверенную generation и не создаёт второй archive. Если generation не проходит проверку, launcher останавливается до ручной диагностики.
 
-### C.1 Existing v4 production-live baseline
+### C.1 Existing production-live baseline
 
-Valid marker v4 с `source: "production-live"` обозначает уже существующую live Admin и не является первым bootstrap. После deploy launcher сначала подтверждает полный public `data-build-sha`, равный fresh `origin/main` и managed checkout, затем повышает marker только до v5 `legacy-live`:
+Valid marker v4/v5 с `source: "production-live"` обозначает уже существующую live Admin и не является первым bootstrap. Launcher подтверждает полный public `data-build-sha`, fetch-ит fresh `origin/main` для будущего publish workflow, но закрепляет managed checkout на exact deployed SHA. `origin/main` может быть новее production; Admin runtime при этом запускается из подписанного app bundle. Marker v4 повышается только до v5 `legacy-live`:
 
 1. Сохраняет active store root `.`, existing archive, drafts, draft-assets, previews, snapshots и jobs без перемещений или изменений.
 2. Записывает подтверждённый current deployed SHA в `sourceSha` и обновляет `lastObservedAt`.
