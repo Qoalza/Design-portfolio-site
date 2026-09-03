@@ -97,7 +97,6 @@ Production, VPS, DNS, SSL, firewall, secrets/access, real data, migrations и п
 - Опубликованные проекты: schema-v3 JSON в `content/projects/*.json`.
 - Исполняемый Shared contract: `src/lib/project-contract.ts`.
 - Admin: отдельный local bundle/server в `tools/des-art-admin`, React + Radix Themes; Radix не импортируется публичным App Router.
-- MDX остаётся вспомогательной/тестовой возможностью и не является текущим хранилищем проектов.
 - Новые зависимости требуют явной необходимости и конкретной стабильной версии.
 - Публичный runtime не получает стороннюю UI-библиотеку, CMS, БД или авторизацию без отдельного согласования.
 - Admin может использовать уже утверждённые Radix dependencies внутри существующей bundle boundary; расширение этой boundary требует отдельного решения.
