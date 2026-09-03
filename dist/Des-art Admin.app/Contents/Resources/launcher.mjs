@@ -9,6 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 import { ensureProductionDataBaseline, extractPublishedBuildSha } from "./production-data-bootstrap.mjs";
+import { synchronizeManagedRepositoryCheckout } from "./managed-repository.mjs";
 
 const exec = promisify(execFile);
 const resources = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +24,11 @@ const supportRoot = path.resolve(
 );
 const managedRepo = path.join(supportRoot, "repository");
 const logsRoot = path.join(supportRoot, "logs");
+const bundledAdminRoot = path.join(resources, "source", "tools", "des-art-admin");
+const managedAdminRoot = path.join(managedRepo, "tools", "des-art-admin");
+const adminServerFile = await access(path.join(bundledAdminRoot, "server.mjs"))
+  .then(() => path.join(bundledAdminRoot, "server.mjs"))
+  .catch(() => path.join(managedAdminRoot, "server.mjs"));
 const adminPort = 41731;
 const previewPort = 41732;
 
@@ -101,7 +107,7 @@ async function clearGeneratedAgentRules() {
   await writeFile(agentFile, expected);
 }
 
-async function ensureManagedRepository({ publishedSha } = {}) {
+async function ensureManagedRepository({ publishedSha, hasLiveBaseline = false, publishMode = "sandbox" } = {}) {
   await mkdir(supportRoot, { recursive: true });
   try {
     await access(path.join(managedRepo, ".git"));
@@ -111,13 +117,9 @@ async function ensureManagedRepository({ publishedSha } = {}) {
   await clearGeneratedAgentRules();
   const { stdout: status } = await exec("/usr/bin/git", ["status", "--porcelain"], { cwd: managedRepo });
   if (status.trim()) throw new Error("Управляемая копия содержит несохранённые изменения. Автоматическая синхронизация остановлена.");
-  await exec("/usr/bin/git", ["fetch", "origin", "main"], { cwd: managedRepo });
-  const targetSha = (await exec("/usr/bin/git", ["rev-parse", "origin/main"], { cwd: managedRepo })).stdout.trim();
-  if (publishedSha && publishedSha !== targetSha) {
-    throw new Error("SHA опубликованного Portfolio не совпадает с origin/main. Запуск Admin остановлен до обновления managed repository и sandbox-данных.");
-  }
-  await exec("/usr/bin/git", ["switch", "main"], { cwd: managedRepo });
-  await exec("/usr/bin/git", ["merge", "--ff-only", "origin/main"], { cwd: managedRepo });
+  const { targetSha } = await synchronizeManagedRepositoryCheckout({
+    repoRoot: managedRepo, publishMode, hasLiveBaseline, publishedSha, execImpl: exec,
+  });
   const lock = await readFile(path.join(managedRepo, "package-lock.json"));
   const lockHash = createHash("sha256").update(lock).digest("hex");
   const marker = path.join(supportRoot, "npm-lock.sha256");
@@ -159,7 +161,7 @@ async function launchSandboxWithoutBootstrap() {
   await access(path.join(managedRepo, ".git"));
   await access(path.join(managedRepo, "node_modules"));
   await mkdir(logsRoot, { recursive: true });
-  await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
+  await detached(process.execPath, ["--experimental-strip-types", adminServerFile], "admin", {
     DES_ART_ADMIN_REPO: managedRepo,
     DES_ART_ADMIN_SUPPORT: supportRoot,
     DES_ART_ADMIN_PORT: String(adminPort),
@@ -215,7 +217,7 @@ async function main() {
     let liveTransitionStarted = false;
     try {
       publishedSha = await confirmedPublishedSha();
-      ({ targetSha } = await ensureManagedRepository({ publishedSha }));
+      ({ targetSha } = await ensureManagedRepository({ publishedSha, hasLiveBaseline, publishMode }));
       let runtime;
       let transition;
       if (!hasLiveBaseline) {
@@ -246,7 +248,7 @@ async function main() {
       throw error;
     }
   } else {
-    ({ targetSha } = await ensureManagedRepository());
+    ({ targetSha } = await ensureManagedRepository({ publishMode }));
     await initializeSandboxOrigin({ targetSha });
   }
   const activeMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
@@ -258,7 +260,7 @@ async function main() {
   await stopService("admin");
   await stopService("preview");
   if (!(await reachable(adminPort))) {
-    await detached(process.execPath, ["--experimental-strip-types", "tools/des-art-admin/server.mjs"], "admin", {
+    await detached(process.execPath, ["--experimental-strip-types", adminServerFile], "admin", {
       DES_ART_ADMIN_REPO: managedRepo,
       DES_ART_ADMIN_SUPPORT: supportRoot,
       DES_ART_ADMIN_PORT: String(adminPort),

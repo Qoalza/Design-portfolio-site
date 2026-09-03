@@ -8,6 +8,34 @@ const exec = promisify(execFile);
 const appRoot = "dist/Des-art Admin.app";
 const resources = path.join(appRoot, "Contents", "Resources");
 const runtime = path.join(resources, "runtime", "bin", "node");
+const bundledSource = path.join(resources, "source");
+const bundledRuntimeFiles = [
+  "admin-errors.mjs",
+  "core.mjs",
+  "draft-contract.mjs",
+  "figma-template-import.mjs",
+  "figma-template-map.mjs",
+  "human-errors.mjs",
+  "material-state.mjs",
+  "preview-runtime.mjs",
+  "production-data-bootstrap.mjs",
+  "publish-diagnostics.mjs",
+  "publish-worker.mjs",
+  "server.mjs",
+  "public/admin.css",
+  "public/admin.js",
+  "public/index.html",
+];
+const bundledSharedFiles = [
+  "project-contract.ts",
+  "project-visual-registry.ts",
+  "projects.ts",
+];
+
+async function copyIntoBundle(source, destination) {
+  await mkdir(path.dirname(destination), { recursive: true });
+  await copyFile(source, destination);
+}
 
 await build({
   entryPoints: ["tools/des-art-admin/src/admin.tsx"],
@@ -26,15 +54,34 @@ await build({
 const bundlePath = "tools/des-art-admin/public/admin.js";
 const bundle = await readFile(bundlePath, "utf8");
 await writeFile(bundlePath, bundle.replace(/[ \t]+$/gm, ""));
+await rm(bundledSource, { recursive: true, force: true });
+await mkdir(bundledSource, { recursive: true });
+await writeFile(path.join(bundledSource, "package.json"), '{"private":true,"type":"module"}\n', { mode: 0o644 });
 await Promise.all([
   copyFile(
     "tools/des-art-admin/launcher.mjs",
     "dist/Des-art Admin.app/Contents/Resources/launcher.mjs",
   ),
   copyFile(
+    "tools/des-art-admin/launcher-policy.mjs",
+    "dist/Des-art Admin.app/Contents/Resources/launcher-policy.mjs",
+  ),
+  copyFile(
+    "tools/des-art-admin/managed-repository.mjs",
+    "dist/Des-art Admin.app/Contents/Resources/managed-repository.mjs",
+  ),
+  copyFile(
     "tools/des-art-admin/production-data-bootstrap.mjs",
     "dist/Des-art Admin.app/Contents/Resources/production-data-bootstrap.mjs",
   ),
+  ...bundledRuntimeFiles.map((file) => copyIntoBundle(
+    path.join("tools", "des-art-admin", file),
+    path.join(bundledSource, "tools", "des-art-admin", file),
+  )),
+  ...bundledSharedFiles.map((file) => copyIntoBundle(
+    path.join("src", "lib", file),
+    path.join(bundledSource, "src", "lib", file),
+  )),
 ]);
 
 const configuredSha = process.env.DES_ART_ADMIN_BUILD_SHA ?? process.env.NEXT_PUBLIC_BUILD_SHA;

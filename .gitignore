@@ -45,4 +45,7 @@ next-env.d.ts
 # Generated self-contained Admin runtime and ad-hoc signature.
 dist/Des-art Admin.app/Contents/Resources/runtime/
 dist/Des-art Admin.app/Contents/Resources/build-sha.txt
+dist/Des-art Admin.app/Contents/Resources/source/
+dist/Des-art Admin.app/Contents/Resources/launcher-policy.mjs
+dist/Des-art Admin.app/Contents/Resources/managed-repository.mjs
 dist/Des-art Admin.app/Contents/_CodeSignature/

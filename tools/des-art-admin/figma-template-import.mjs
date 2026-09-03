@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { mkdir, readFile, readdir, rename, rm } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { promisify } from "node:util";
 
@@ -14,8 +15,14 @@ const KEYCHAIN_ACCOUNT = "file-content-read";
 const ROOT_TYPES = new Set(["FRAME", "COMPONENT", "INSTANCE", "GROUP", "SECTION"]);
 let imageProcessor;
 
+export function loadImageProcessor(repositoryRoot = process.env.DES_ART_ADMIN_REPO ?? process.cwd()) {
+  return createRequire(path.join(repositoryRoot, "package.json"))("sharp");
+}
+
 async function sharp() {
-  if (!imageProcessor) imageProcessor = import("sharp").then((module) => module.default);
+  if (!imageProcessor) {
+    imageProcessor = Promise.resolve(loadImageProcessor());
+  }
   return imageProcessor;
 }
 
