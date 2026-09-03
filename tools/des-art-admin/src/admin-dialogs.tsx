@@ -63,7 +63,10 @@ export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; m
           )}
           <Heading size="5">{job.status === "failed" ? job.errorTitle ?? "Публикация остановлена" : job.message}</Heading>
           {job.error ? (
-            <Text color="red">{job.error}</Text>
+            <>
+              <Text color="red">{job.error}</Text>
+              {job.diagnosticId ? <Text size="1" color="gray">Диагностика: {job.diagnosticId}</Text> : null}
+            </>
           ) : (
             <Text color="gray">{mode === "live" ? "Изменения проходят проверки перед публикацией на art-des.ru." : "Это безопасная локальная репетиция. Production не изменяется."}</Text>
           )}

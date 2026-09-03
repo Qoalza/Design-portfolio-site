@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
 
 const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
 function project({ title = "Черновик", visibility = "draft", catalogOrder = 4, homePlacement, admin = true } = {}) {
@@ -50,9 +51,61 @@ test("sandbox publish compiles Admin metadata, validates the full collection and
   assert.equal("admin" in snapshot, false);
 });
 
-test("live publication keeps the established seven real-time stages and deterministic branch name", () => {
-  assert.deepEqual(PUBLISH_STAGES.map(([id]) => id), ["validate", "prepare", "checks", "git", "merge", "deploy", "verify"]);
+test("live publication exposes commit, push and pull request as separate real-time stages", () => {
+  assert.deepEqual(PUBLISH_STAGES.map(([id]) => id), ["validate", "prepare", "checks", "commit", "push", "pr", "merge", "deploy", "verify"]);
   assert.equal(createPublishBranch("2026-08-29T12:34:56.000Z"), "codex/content-publish-20260829-123456");
+});
+
+test("publish command failures expose safe typed metadata and write a private redacted diagnostic", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-diagnostic-"));
+  const run = createPublishCommandRunner({
+    diagnosticRoot: root,
+    jobId: "job-safe",
+    execImpl: async () => {
+      const error = new Error("Command failed: git push -u origin branch\nAuthorization: Bearer gho_supersecret\nfatal: Authentication failed for https://oauth2:password@github.com/Qoalza/Design-portfolio-site.git");
+      error.code = 128;
+      error.stderr = "Authorization: Bearer github_pat_supersecret\nfatal: Authentication failed for https://oauth2:password@github.com/Qoalza/Design-portfolio-site.git";
+      throw error;
+    },
+  });
+  const failure = await run("push", "git", ["push", "-u", "origin", "branch"]).then(() => null, (error) => error);
+  assert.equal(failure.failedOperation, "push");
+  assert.equal(failure.failureCode, "AUTHENTICATION_FAILED");
+  assert.equal(failure.exitCode, 128);
+  assert.equal(failure.retryable, false);
+  assert.equal(failure.attempt, 1);
+  assert.match(failure.diagnosticId, /^[a-f0-9-]+$/);
+  assert.doesNotMatch(failure.message, /supersecret|password|oauth2/i);
+  const diagnosticFile = path.join(root, `${failure.diagnosticId}.log`);
+  assert.equal((await stat(diagnosticFile)).mode & 0o777, 0o600);
+  const diagnostic = await readFile(diagnosticFile, "utf8");
+  assert.doesNotMatch(diagnostic, /gho_supersecret|github_pat_supersecret|oauth2:password/i);
+  assert.match(diagnostic, /\[REDACTED\]/);
+});
+
+test("publish worker persists command failure metadata without exposing technical output", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-job-failure-"));
+  const draftFile = path.join(root, "draft.json");
+  const snapshotRoot = path.join(root, "snapshots");
+  const jobFile = path.join(root, "job.json");
+  await mkdir(snapshotRoot);
+  await writeFile(draftFile, JSON.stringify(project()));
+  await writeFile(path.join(snapshotRoot, "draft.json"), JSON.stringify(project({ visibility: "published", admin: false })));
+  await writeFile(jobFile, JSON.stringify({
+    id: "failed-command", mode: "sandbox", scope: "all", repoRoot: path.join(root, "missing-repository"), supportRoot: root,
+    files: [draftFile], snapshotRoot, status: "queued", message: "Подготовка",
+    stages: PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: "pending" })),
+  }));
+  await runPublishJob(jobFile);
+  const result = JSON.parse(await readFile(jobFile, "utf8"));
+  assert.equal(result.status, "failed");
+  assert.equal(result.failedOperation, "checks.tests");
+  assert.equal(result.failureCode, "COMMAND_FAILED");
+  assert.equal(result.retryable, false);
+  assert.equal(result.attempt, 1);
+  assert.match(result.diagnosticId, /^[a-f0-9-]+$/);
+  assert.doesNotMatch(`${result.errorTitle} ${result.error}`, /ENOENT|missing-repository|spawn/i);
+  assert.equal((await stat(path.join(root, "jobs", "diagnostics", result.id, `${result.diagnosticId}.log`))).mode & 0o777, 0o600);
 });
 
 test("live publish configuration is process-only and never serialized into a job", async () => {

@@ -131,7 +131,7 @@ Valid marker v4 с `source: "production-live"` обозначает уже су�
 После marker v5 Admin связана с опубликованным Portfolio:
 
 - пользователь редактирует реальные локальные live drafts поверх production baseline;
-- обычная кнопка «Опубликовать» остаётся единственным UI-путём content release и показывает real-time этапы: `Проверка → Подготовка файлов → Lint, build и tests → Git и Pull Request → Merge → Deploy → Публичная проверка`;
+- обычная кнопка «Опубликовать» остаётся единственным UI-путём content release и показывает real-time этапы: `Проверка → Подготовка файлов → Lint, build и tests → Commit → Push → Pull Request → Merge → Deploy → Публичная проверка`;
 - live worker использует disposable worktree от fresh `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project-only publish, создаёт PR, merge, deploy и проверяет public SHA/routes;
 - sandbox mode не имеет Git/PR/SSH/deploy path;
 - для изменённого production-проекта доступен локальный reset только этого проекта до exact published baseline; он не публикует и не затрагивает другие drafts;

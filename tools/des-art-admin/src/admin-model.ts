@@ -50,6 +50,12 @@ export type PublishJob = {
   productionState?: "unchanged" | "main-updated" | "main-updated-deploy-failed";
   publishedSha?: string;
   pullRequestUrl?: string;
+  failedOperation?: string;
+  failureCode?: string;
+  exitCode?: number | null;
+  retryable?: boolean;
+  attempt?: number;
+  diagnosticId?: string;
   stages: Array<{ id: string; label: string; status: "pending" | "complete" }>;
 };
 

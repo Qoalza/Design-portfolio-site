@@ -62,7 +62,7 @@ Packaged Admin может использовать другую checkout-вер�
 
 Project-only publish сохраняет canonical `catalogOrder` и `homePlacement`; эти глобальные поля меняются только публикацией всех изменений. Preflight проверяет schema/profile/templates/slots/assets, catalog layout, обе позиции главной и все потребляющие preview surfaces.
 
-Без valid `live-publish.json` публикация sandbox-only и не имеет Git/PR/SSH/deploy-пути. С valid local config прежний live workflow доступен без изменения UX: одна кнопка «Опубликовать», confirmation dialog и polling каждые 600 ms для семи этапов. Live job создаёт disposable worktree от `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project publish, создаёт PR, выполняет merge, upload, deploy и проверяет exact public SHA/routes. Codex не запускает этот workflow, merge, push, deploy или доступ к ключу без отдельной команды пользователя.
+Без valid `live-publish.json` публикация sandbox-only и не имеет Git/PR/SSH/deploy-пути. С valid local config live workflow доступен через одну кнопку «Опубликовать», confirmation dialog и polling каждые 600 ms. Commit, Push и Pull Request показываются отдельными этапами; сбой команды сохраняет в job только безопасную классификацию и diagnostic ID, а очищенный технический журнал записывается с правами `0600`. Live job создаёт disposable worktree от `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project publish, создаёт PR, выполняет merge, upload, deploy и проверяет exact public SHA/routes. Codex не запускает этот workflow, merge, push, deploy или доступ к ключу без отдельной команды пользователя.
 
 ## Legacy migration
 

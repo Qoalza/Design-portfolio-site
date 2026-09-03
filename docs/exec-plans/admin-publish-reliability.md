@@ -78,3 +78,5 @@ Refs удаляются без bundle по прямому решению пол�
 - 2026-09-03: pre-operation live manifest recorded with unchanged Sarafan draft SHA `01bf5357…aa42` and `37` draft-assets.
 - 2026-09-03: удалены только три перечисленных local refs; commits сохранены как unreachable Git objects, без `gc` и очистки reflog.
 - 2026-09-03: post-operation manifest совпал: `237/237` файлов, manifest SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`, изменений `0`.
+- 2026-09-03: milestone 2 implemented. Broad `Host|Origin|CSRF` text matching removed; local request failures are typed, publish commands persist safe failure metadata and private sanitized diagnostics, and UI exposes separate Commit / Push / Pull Request stages.
+- 2026-09-03: milestone 2 verification: focused Admin core/publish/boundary suite `53/53`, Admin bundle rebuilt, `npm run lint` and `git diff --check` green.
