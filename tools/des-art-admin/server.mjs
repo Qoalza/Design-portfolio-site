@@ -139,7 +139,8 @@ async function ensurePreview() {
   await mkdir(logsRoot, { recursive: true });
   const output = openSync(path.join(logsRoot, "preview.log"), "a", 0o600);
   try {
-    const child = spawn("npm", ["run", "dev", "--", "-H", "127.0.0.1", "-p", String(previewPort)], {
+    const nextCli = path.join(repoRoot, "node_modules", "next", "dist", "bin", "next");
+    const child = spawn(process.execPath, [nextCli, "dev", "-H", "127.0.0.1", "-p", String(previewPort)], {
       cwd: repoRoot,
       detached: true,
       stdio: ["ignore", output, output],
