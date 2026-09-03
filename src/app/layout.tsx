@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import type { ReactNode } from "react";
 import { NavigationTrailProvider } from "../components/contextual-navigation";
 import { NavigationScrollController } from "../components/navigation-scroll-controller";
@@ -42,9 +43,11 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <script dangerouslySetInnerHTML={{ __html: PROJECT_ACTION_BAR_BOOTSTRAP }} />
       </head>
       <body>
+        <Script id="project-action-bar-bootstrap" strategy="beforeInteractive">
+          {PROJECT_ACTION_BAR_BOOTSTRAP}
+        </Script>
         <SmoothScrollProvider>
           <NavigationTrailProvider>
             <NavigationScrollController />

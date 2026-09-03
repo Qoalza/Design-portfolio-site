@@ -73,11 +73,21 @@ test("runtime applies the shared geometry threshold without magic scrollY", () =
 test("the first user-visible action variant is bootstrapped without a blank shell or transition", () => {
   const component = readFileSync(new URL("../src/components/project-action-bar.tsx", import.meta.url), "utf8");
   const rootLayout = readFileSync(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
+  const navigationScrollController = readFileSync(
+    new URL("../src/components/navigation-scroll-controller.tsx", import.meta.url),
+    "utf8",
+  );
   const bootstrap = readFileSync(new URL("../src/lib/project-action-bar-bootstrap.ts", import.meta.url), "utf8");
   const styles = readFileSync(new URL("../src/components/project-action-bar.module.css", import.meta.url), "utf8");
 
   assert.doesNotMatch(component, /<script|ACTION_BAR_BOOTSTRAP/);
   assert.match(rootLayout, /PROJECT_ACTION_BAR_BOOTSTRAP/);
+  assert.match(rootLayout, /import Script from "next\/script"/);
+  assert.match(rootLayout, /<Script[\s\S]*id="project-action-bar-bootstrap"[\s\S]*strategy="beforeInteractive"/);
+  assert.doesNotMatch(rootLayout, /<script\b/);
+  assert.match(navigationScrollController, /import Script from "next\/script"/);
+  assert.match(navigationScrollController, /<Script[\s\S]*id="navigation-scroll-restoration"/);
+  assert.doesNotMatch(navigationScrollController, /<script\b/);
   assert.match(bootstrap, /MutationObserver/);
   assert.match(bootstrap, /projectActionTransitions='false'/);
   assert.match(component, /project-action-bar-transition-ready/);

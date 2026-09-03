@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import Script from "next/script";
 import { useLayoutEffect, useRef } from "react";
 import { getPrimaryScrollController } from "../lib/scroll-controller";
 
@@ -112,5 +113,9 @@ export function NavigationScrollController() {
     }
   }, [pathname]);
 
-  return <script dangerouslySetInnerHTML={{ __html: scrollRestorationScript }} />;
+  return (
+    <Script id="navigation-scroll-restoration" strategy="afterInteractive">
+      {scrollRestorationScript}
+    </Script>
+  );
 }
