@@ -4,9 +4,9 @@ import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, ensurePullRequest, pendingPublishStages, publishReadiness, pushPublishCommit, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, ensurePullRequest, isReusablePublishJob, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
 import { PublishCommandError } from "../tools/des-art-admin/admin-errors.mjs";
-import { createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
+import { classifyCommandFailure, createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
 
 const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
 function project({ title = "Черновик", visibility = "draft", catalogOrder = 4, homePlacement, admin = true } = {}) {
@@ -84,6 +84,12 @@ test("publish command failures expose safe typed metadata and write a private re
   assert.match(diagnostic, /\[REDACTED\]/);
 });
 
+test("a sideband disconnect after an HTTP/1.1 push remains a retryable network failure", () => {
+  assert.deepEqual(classifyCommandFailure({
+    stderr: "send-pack: unexpected disconnect while reading sideband packet\nfatal: the remote end hung up unexpectedly\nEverything up-to-date",
+  }), { failureCode: "NETWORK_UNAVAILABLE", retryable: true });
+});
+
 test("publish worker persists command failure metadata without exposing technical output", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-job-failure-"));
   const draftFile = path.join(root, "draft.json");
@@ -109,7 +115,7 @@ test("publish worker persists command failure metadata without exposing technica
   assert.equal((await stat(path.join(root, "diagnostics", result.id, `${result.diagnosticId}.log`))).mode & 0o777, 0o600);
 });
 
-test("push resume reuses the exact remote SHA and retries an HTTP/2 reset once through HTTP/1.1", async () => {
+test("push resume reuses the exact remote SHA and retries an HTTP/2 reset once without chunked transfer", async () => {
   const sha = "a".repeat(40);
   const existingCalls = [];
   const existing = await pushPublishCommit({ command: async (operation, command, args) => {
@@ -120,16 +126,48 @@ test("push resume reuses the exact remote SHA and retries an HTTP/2 reset once t
   assert.equal(existingCalls.length, 1);
 
   const retryCalls = [];
+  let verificationCount = 0;
   const retried = await pushPublishCommit({ command: async (operation, command, args, options, attempt) => {
     retryCalls.push({ operation, command, args, attempt });
     if (operation === "push.lookup") return { stdout: "" };
+    if (operation === "push.verify") return { stdout: verificationCount++ === 0 ? "" : `${sha}\trefs/heads/codex/content-publish-test\n` };
     if (attempt === 1) throw new PublishCommandError({ failedOperation: "push", failureCode: "HTTP2_RPC_RESET", exitCode: 128, retryable: true, attempt: 1, diagnosticId: "first" });
     return { stdout: "" };
   }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: sha });
   assert.deepEqual(retried, { state: "pushed", attempt: 2 });
-  assert.deepEqual(retryCalls[2].args.slice(0, 3), ["-c", "http.version=HTTP/1.1", "push"]);
-  assert.equal(retryCalls[2].args.at(-1), `${sha}:refs/heads/codex/content-publish-test`);
+  const retry = retryCalls.find((call) => call.operation === "push" && call.attempt === 2);
+  assert.deepEqual(retry.args.slice(0, 4), ["-c", "http.version=HTTP/1.1", "-c", "http.postBuffer=536870912"]);
+  assert.equal(retry.args.at(-1), `${sha}:refs/heads/codex/content-publish-test`);
   assert.equal(retryCalls.filter((call) => call.operation === "push").length, 2);
+});
+
+test("push verifies the remote SHA after a transport error before reporting failure", async () => {
+  const sha = "a".repeat(40);
+  const calls = [];
+  const result = await pushPublishCommit({ command: async (operation) => {
+    calls.push(operation);
+    if (operation === "push.lookup") return { stdout: "" };
+    if (operation === "push.verify") return { stdout: `${sha}\trefs/heads/codex/content-publish-test\n` };
+    throw new PublishCommandError({ failedOperation: "push", failureCode: "NETWORK_UNAVAILABLE", exitCode: 1, retryable: true, attempt: 1, diagnosticId: "disconnect" });
+  }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: sha });
+  assert.deepEqual(result, { state: "pushed-after-transport-error", attempt: 1 });
+  assert.deepEqual(calls, ["push.lookup", "push", "push.verify"]);
+});
+
+test("push stops when a successful command cannot be confirmed at the exact remote SHA", async () => {
+  await assert.rejects(() => pushPublishCommit({ command: async (operation) => {
+    if (operation === "push.lookup" || operation === "push.verify") return { stdout: "" };
+    return { stdout: "" };
+  }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: "a".repeat(40) }), (error) => error.title === "Push не подтверждён");
+});
+
+test("push blocks when post-failure reconciliation finds a different remote SHA", async () => {
+  const contentCommit = "a".repeat(40);
+  await assert.rejects(() => pushPublishCommit({ command: async (operation) => {
+    if (operation === "push.lookup") return { stdout: "" };
+    if (operation === "push.verify") return { stdout: `${"b".repeat(40)}\trefs/heads/codex/content-publish-test\n` };
+    throw new PublishCommandError({ failedOperation: "push", failureCode: "NETWORK_UNAVAILABLE", exitCode: 1, retryable: true, attempt: 1, diagnosticId: "disconnect" });
+  }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit }), (error) => error.title === "Удалённая ветка изменилась");
 });
 
 test("resume starts after the last completed stage without repeating checks, commit or push", () => {
@@ -137,10 +175,40 @@ test("resume starts after the last completed stage without repeating checks, com
   assert.deepEqual(pendingPublishStages(stages).map(([id]) => id), ["pr", "merge", "deploy", "verify"]);
 });
 
+test("publish input fingerprint covers draft bytes and every copied draft asset", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-input-"));
+  const draftFile = path.join(root, "drafts", "draft.json");
+  const draftAssetRoot = path.join(root, "draft-assets");
+  await mkdir(path.dirname(draftFile), { recursive: true });
+  await mkdir(path.join(draftAssetRoot, "draft", "nested"), { recursive: true });
+  await writeFile(draftFile, "draft-v1");
+  await writeFile(path.join(draftAssetRoot, "draft", "nested", "asset.png"), "asset-v1");
+  const first = await publishInputFingerprint({ files: [draftFile], draftAssetRoot });
+  const repeated = await publishInputFingerprint({ files: [draftFile], draftAssetRoot });
+  assert.equal(repeated, first);
+  await writeFile(path.join(draftAssetRoot, "draft", "nested", "asset.png"), "asset-v2");
+  assert.notEqual(await publishInputFingerprint({ files: [draftFile], draftAssetRoot }), first);
+});
+
+test("an unfinished job is reusable only for the same exact publish input and identity", () => {
+  const job = {
+    id: "job", status: "failed", mode: "live", scope: "project", slug: "draft",
+    branch: "codex/content-publish-20260903-145322", contentCommit: "a".repeat(40), inputFingerprint: "b".repeat(64),
+  };
+  const identity = { mode: "live", scope: "project", slug: "draft", inputFingerprint: "b".repeat(64) };
+  assert.equal(isReusablePublishJob(job, identity), true);
+  assert.equal(isReusablePublishJob({ ...job, status: "running" }, identity), true);
+  assert.equal(isReusablePublishJob({ ...job, status: "queued", branch: undefined, contentCommit: undefined }, identity), true);
+  assert.equal(isReusablePublishJob(job, { ...identity, inputFingerprint: "c".repeat(64) }), false);
+  assert.equal(isReusablePublishJob({ ...job, status: "complete" }, identity), false);
+  assert.equal(isReusablePublishJob({ ...job, contentCommit: undefined }, identity), false);
+  assert.equal(isReusablePublishJob({ ...job, scope: "all", slug: "first" }, { ...identity, scope: "all", slug: "second" }), true);
+});
+
 test("push does not retry authentication failures", async () => {
   let attempts = 0;
   await assert.rejects(() => pushPublishCommit({ command: async (operation) => {
-    if (operation === "push.lookup") return { stdout: "" };
+    if (operation === "push.lookup" || operation === "push.verify") return { stdout: "" };
     attempts += 1;
     throw new PublishCommandError({ failedOperation: "push", failureCode: "AUTHENTICATION_FAILED", exitCode: 128, retryable: false, attempt: 1, diagnosticId: "auth" });
   }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: "a".repeat(40) }));

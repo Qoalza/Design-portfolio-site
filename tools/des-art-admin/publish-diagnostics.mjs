@@ -31,7 +31,7 @@ export function classifyCommandFailure(error) {
   if (/http\/2|rpc failed|curl 92|stream .* was not closed cleanly/i.test(source)) {
     return { failureCode: "HTTP2_RPC_RESET", retryable: true };
   }
-  if (/timed? out|connection reset|connection refused|network is unreachable|temporary failure/i.test(source)) {
+  if (/timed? out|connection reset|connection refused|network is unreachable|temporary failure|unexpected disconnect|remote end hung up unexpectedly/i.test(source)) {
     return { failureCode: "NETWORK_UNAVAILABLE", retryable: true };
   }
   return { failureCode: "COMMAND_FAILED", retryable: false };

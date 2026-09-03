@@ -1,6 +1,7 @@
 import { execFile, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { access, cp, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,27 +36,119 @@ export function createPublishBranch(isoDate = new Date().toISOString()) {
   return `codex/content-publish-${compact.slice(0, 8)}-${compact.slice(8)}`;
 }
 
+async function inputFiles(root, relative = "") {
+  let entries;
+  try {
+    entries = await readdir(path.join(root, relative), { withFileTypes: true });
+  } catch (error) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+  const files = [];
+  for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
+    const child = path.join(relative, entry.name);
+    if (entry.isDirectory()) files.push(...await inputFiles(root, child));
+    else if (entry.isFile()) files.push(child);
+  }
+  return files;
+}
+
+function addFingerprintEntry(hash, label, bytes) {
+  hash.update(`${Buffer.byteLength(label)}:${label}:${bytes.byteLength}:`);
+  hash.update(bytes);
+}
+
+export async function publishInputFingerprint({ files, draftAssetRoot }) {
+  const hash = createHash("sha256");
+  for (const file of [...files].sort()) {
+    const slug = path.basename(file, ".json");
+    addFingerprintEntry(hash, `draft/${path.basename(file)}`, await readFile(file));
+    const assetRoot = path.join(draftAssetRoot, slug);
+    for (const relative of await inputFiles(assetRoot)) {
+      addFingerprintEntry(hash, `draft-assets/${slug}/${relative.split(path.sep).join("/")}`, await readFile(path.join(assetRoot, relative)));
+    }
+  }
+  return hash.digest("hex");
+}
+
+export function isReusablePublishJob(job, identity) {
+  const sameInput = ["queued", "running", "failed"].includes(job?.status)
+    && job.mode === identity.mode
+    && job.scope === identity.scope
+    && (identity.scope === "all" || job.slug === identity.slug)
+    && job.inputFingerprint === identity.inputFingerprint;
+  if (!sameInput) return false;
+  if (job.status === "queued" || job.status === "running") return true;
+  return /^codex\/content-publish-\d{8}-\d{6}$/.test(job.branch)
+    && /^[a-f0-9]{40}$/.test(job.contentCommit);
+}
+
 function remoteHead(output) {
   const match = /^([a-f0-9]{40})\s+refs\/heads\//m.exec(output);
   return match?.[1];
 }
 
+// Used only after a confirmed HTTP/RPC transport reset. This keeps the bounded retry
+// on HTTP/1.1 and avoids chunked transfer for normal Admin publication payloads.
+const HTTP_PUSH_FALLBACK_BUFFER_BYTES = 512 * 1024 * 1024;
+
+function assertCompatibleRemoteHead(remoteSha, contentCommit) {
+  if (remoteSha && remoteSha !== contentCommit) {
+    throw new UserFacingError("Удалённая ветка изменилась", "В GitHub находится другая версия этой ветки. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  }
+}
+
+async function lookupRemoteHead({ command, cwd, ref, operation = "push.lookup", tolerateFailure = false }) {
+  try {
+    const { stdout = "" } = await command(operation, "git", ["ls-remote", "--heads", "origin", ref], { cwd });
+    return remoteHead(stdout);
+  } catch (error) {
+    if (tolerateFailure) return undefined;
+    throw error;
+  }
+}
+
+async function verifyPushOutcome({ command, cwd, ref, contentCommit, attempt, failedPush }) {
+  const remoteSha = await lookupRemoteHead({ command, cwd, ref, operation: "push.verify", tolerateFailure: Boolean(failedPush) });
+  assertCompatibleRemoteHead(remoteSha, contentCommit);
+  if (remoteSha === contentCommit) {
+    return { state: failedPush ? "pushed-after-transport-error" : "pushed", attempt };
+  }
+  if (failedPush) throw failedPush;
+  throw new UserFacingError("Push не подтверждён", "Git завершил отправку без ошибки, но exact commit не появился в удалённой ветке. Продолжение остановлено; требуется ручная проверка.", { status: 409 });
+}
+
 export async function pushPublishCommit({ command, cwd, branch, contentCommit }) {
   const ref = `refs/heads/${branch}`;
-  const { stdout = "" } = await command("push.lookup", "git", ["ls-remote", "--heads", "origin", ref], { cwd });
-  const remoteSha = remoteHead(stdout);
+  const remoteSha = await lookupRemoteHead({ command, cwd, ref });
   if (remoteSha === contentCommit) return { state: "already-pushed", attempt: 0 };
-  if (remoteSha) throw new UserFacingError("Удалённая ветка изменилась", "В GitHub находится другая версия этой ветки. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  assertCompatibleRemoteHead(remoteSha, contentCommit);
   const normalArgs = ["push", "-u", "origin", `${contentCommit}:${ref}`];
+  let firstFailure;
   try {
     await command("push", "git", normalArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 1);
-    return { state: "pushed", attempt: 1 };
   } catch (error) {
-    if (!error?.retryable || error.attempt !== 1) throw error;
-    const retryArgs = error.failureCode === "HTTP2_RPC_RESET" ? ["-c", "http.version=HTTP/1.1", ...normalArgs] : normalArgs;
-    await command("push", "git", retryArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 2);
-    return { state: "pushed", attempt: 2 };
+    firstFailure = error;
   }
+  if (!firstFailure) return verifyPushOutcome({ command, cwd, ref, contentCommit, attempt: 1 });
+
+  const verified = await verifyPushOutcome({ command, cwd, ref, contentCommit, attempt: 1, failedPush: firstFailure }).catch((verificationError) => {
+    if (verificationError !== firstFailure) throw verificationError;
+    return null;
+  });
+  if (verified) return verified;
+  if (!firstFailure?.retryable || firstFailure.attempt !== 1) throw firstFailure;
+
+  const retryArgs = firstFailure.failureCode === "HTTP2_RPC_RESET"
+    ? ["-c", "http.version=HTTP/1.1", "-c", `http.postBuffer=${HTTP_PUSH_FALLBACK_BUFFER_BYTES}`, ...normalArgs]
+    : normalArgs;
+  let retryFailure;
+  try {
+    await command("push", "git", retryArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 2);
+  } catch (error) {
+    retryFailure = error;
+  }
+  return verifyPushOutcome({ command, cwd, ref, contentCommit, attempt: 2, failedPush: retryFailure });
 }
 
 export async function ensurePullRequest({ command, cwd, branch, title }) {
