@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 const server = await readFile(new URL("../tools/des-art-admin/server.mjs", import.meta.url), "utf8");
 const launcher = await readFile(new URL("../tools/des-art-admin/launcher.mjs", import.meta.url), "utf8");
@@ -32,7 +34,8 @@ test("publish mode is launcher-owned and exposes the established live workflow",
   assert.match(server, /DES_ART_ADMIN_PUBLISH_MODE/);
   assert.match(server, /publishMode\s*=.*\?\s*"live"\s*:\s*"sandbox"/s);
   assert.match(adminUi, /publishMode/);
-  assert.match(adminUi, /Связано с art-des\.ru/);
+  assert.match(adminUi, /Окружение настроено/);
+  assert.match(adminUi, /Git-пакета подтвердится только на этапе Push/);
   assert.match(adminUi, /Опубликовать на art-des\.ru/);
   assert.match(adminDialogs, /mode === "live"/);
   assert.doesNotMatch(server, /value\.dryRun\s*!==\s*true/);
@@ -293,6 +296,14 @@ test("prepared macOS launcher bundle is complete", async () => {
   assert.equal(bundledLauncher, launcher);
   const source = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/source-repository.txt", import.meta.url), "utf8");
   assert.equal(source.trim(), "https://github.com/Qoalza/Design-portfolio-site.git");
+  const executable = await readFile(new URL("../dist/Des-art Admin.app/Contents/MacOS/Des-art Admin", import.meta.url), "utf8");
+  assert.match(executable, /Resources\/runtime\/bin\/node/);
+  assert.doesNotMatch(executable, /\/usr\/bin\/env node/);
+  const runtime = fileURLToPath(new URL("../dist/Des-art Admin.app/Contents/Resources/runtime/bin/node", import.meta.url));
+  assert.match(execFileSync(runtime, ["--version"], { encoding: "utf8" }), /^v\d+/);
+  const buildSha = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/build-sha.txt", import.meta.url), "utf8");
+  assert.equal(buildSha.trim(), execFileSync("/usr/bin/git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim());
+  if (process.platform === "darwin") execFileSync("/usr/bin/codesign", ["--verify", "--deep", "--strict", fileURLToPath(new URL("../dist/Des-art Admin.app", import.meta.url))]);
 });
 
 test("canonical TypeScript config includes the fixed live preview output", async () => {

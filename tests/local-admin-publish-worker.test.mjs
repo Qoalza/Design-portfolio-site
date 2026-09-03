@@ -189,6 +189,27 @@ test("live readiness requires a live production baseline", async () => {
   assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
 });
 
+test("live readiness verifies identity, exact repository, push permission, remote access, credential helper and SSH without claiming upload", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-live-ready-"));
+  const keyPath = path.join(root, "deploy-key");
+  await writeFile(keyPath, "test-only-key");
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  await writeFile(path.join(root, "live-publish.json"), JSON.stringify({ mode: "live", host: "example.test", user: "deploy", keyPath }));
+  const calls = [];
+  const result = await publishReadiness({ supportRoot: root, repoRoot: "/sandbox/repository", mode: "live", execImpl: async (command, args) => {
+    calls.push([command, ...args].join(" "));
+    if (command === "git" && args[0] === "remote") return { stdout: "https://github.com/Qoalza/Design-portfolio-site.git\n" };
+    if (command === "gh" && args[0] === "repo") return { stdout: JSON.stringify({ nameWithOwner: "Qoalza/Design-portfolio-site", viewerPermission: "WRITE" }) };
+    if (command === "git" && args[0] === "config") return { stdout: "!/opt/homebrew/bin/gh auth git-credential\n" };
+    return { stdout: "ok\n" };
+  }});
+  assert.equal(result.ready, true);
+  assert.equal(result.configured, true);
+  assert.equal(result.uploadVerified, false);
+  assert.match(result.warnings.join(" "), /Git-пакета.*Push/);
+  for (const expected of ["gh auth status", "gh api user", "gh repo view", "git ls-remote", "git config", "ssh -o BatchMode=yes"]) assert.ok(calls.some((call) => call.startsWith(expected)), expected);
+});
+
 test("live publish rejects a sandbox support root without making a release", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
   const jobFile = path.join(root, "job.json");

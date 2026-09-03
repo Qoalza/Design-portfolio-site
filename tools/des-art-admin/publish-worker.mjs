@@ -113,8 +113,14 @@ async function liveConfig(supportRoot) {
   return { mode: "live", host: value.host, user: value.user, keyPath: value.keyPath };
 }
 
-export async function publishReadiness({ supportRoot, mode = "sandbox" }) {
+function githubRepository(remote) {
+  const match = /github\.com[/:]([^/]+\/[^/]+?)(?:\.git)?$/.exec(remote.trim());
+  return match?.[1];
+}
+
+export async function publishReadiness({ supportRoot, repoRoot, mode = "sandbox", execImpl = exec }) {
   const failures = [];
+  const warnings = [];
   if (mode === "live") {
     try {
       const baseline = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
@@ -122,15 +128,29 @@ export async function publishReadiness({ supportRoot, mode = "sandbox" }) {
     } catch {
       failures.push("Рабочие данные ещё не синхронизированы с актуальным production-контентом");
     }
-    if (failures.length) return { ready: false, failures, mode };
-    try { await exec("gh", ["auth", "status"]); } catch { failures.push("GitHub CLI не авторизован"); }
+    if (failures.length) return { ready: false, configured: false, uploadVerified: false, failures, warnings, mode };
+    try { await execImpl("gh", ["auth", "status", "--hostname", "github.com"], { cwd: repoRoot }); } catch { failures.push("GitHub CLI не авторизован"); }
+    try { await execImpl("gh", ["api", "user", "--jq", ".login"], { cwd: repoRoot }); } catch { failures.push("Не удалось подтвердить GitHub identity"); }
+    try {
+      const remote = (await execImpl("git", ["remote", "get-url", "origin"], { cwd: repoRoot })).stdout.trim();
+      const expected = githubRepository(remote);
+      const repository = JSON.parse((await execImpl("gh", ["repo", "view", "--json", "nameWithOwner,viewerPermission"], { cwd: repoRoot })).stdout);
+      if (!expected || repository.nameWithOwner !== expected) failures.push("GitHub CLI подключён не к тому репозиторию");
+      if (!["ADMIN", "MAINTAIN", "WRITE"].includes(repository.viewerPermission)) failures.push("Нет права push в репозиторий Portfolio");
+      await execImpl("git", ["ls-remote", "--exit-code", "origin", "refs/heads/main"], { cwd: repoRoot });
+    } catch { failures.push("Репозиторий Portfolio недоступен через origin"); }
+    try {
+      const hostHelper = (await execImpl("git", ["config", "--get-all", "credential.https://github.com.helper"], { cwd: repoRoot })).stdout;
+      if (!/gh\s+auth\s+git-credential/.test(hostHelper)) failures.push("Git credential helper не согласован с GitHub CLI");
+    } catch { failures.push("Git credential helper для GitHub не настроен"); }
     try {
       const config = await liveConfig(supportRoot);
       await access(config.keyPath);
-      await exec("ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-i", config.keyPath, `${config.user}@${config.host}`, "status"]);
+      await execImpl("ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-i", config.keyPath, `${config.user}@${config.host}`, "status"]);
     } catch { failures.push("Безопасный SSH-доступ к deploy не настроен"); }
+    warnings.push("Окружение настроено; реальная загрузка Git-пакета будет проверена только при Push.");
   }
-  return { ready: failures.length === 0, failures, mode };
+  return { ready: failures.length === 0, configured: failures.length === 0, uploadVerified: false, failures, warnings, mode };
 }
 
 async function update(jobFile, job, patch) {

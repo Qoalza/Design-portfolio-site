@@ -12,7 +12,7 @@
 ## Current checkpoint
 
 - Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
-- Milestones 1–3 завершены: защитные manifests/удаление ложных refs, типизированная диагностика и resumable publish workflow.
+- Milestones 1–4 завершены: защитные manifests/refs, диагностика, resume workflow, truthful readiness и self-contained signed app bundle.
 - Before/after manifest идентичен: `237` файлов, SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`.
 - Sarafan draft неизменен: `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`; draft-assets: `37`.
 - Удалённые branch names, commit SHA и общий tree SHA сохранены в ExecPlan. `git gc`, reflog cleanup и удаление job-файлов не выполнялись.
@@ -22,6 +22,8 @@
 - UI показывает отдельные этапы Commit, Push и Pull Request.
 - `POST /api/publish/resume` продолжает exact failed job после commit; завершённые checks/commit/push пропускаются.
 - Remote branch сверяется с exact content SHA; один HTTP/2/RPC reset повторяется через HTTP/1.1. Совпадающий PR переиспользуется, конфликтующие branch/PR останавливают workflow.
+- Readiness проверяет identity/repository/push/ls-remote/credential helper/SSH и не заявляет успешную загрузку до реального Push.
+- Generated `.app` содержит собственный thin Node runtime, build SHA и ad-hoc signature; launcher не зависит от LaunchServices `PATH`.
 
 ## Verification
 
@@ -30,6 +32,7 @@
 - Live manifest comparison: `237/237`, changed files `0`.
 - Milestone 2 focused Admin core/publish/boundary tests: `53/53`; Admin bundle rebuilt; lint and diff check green.
 - Milestone 3 fault-injection plus Admin core/publish/boundary tests: `59/59`; Admin bundle rebuilt; lint and diff check green.
+- Milestone 4 focused readiness/package suite: `41/41`; embedded runtime executed, strict codesign verification green.
 
 ## Stop-lines
 
@@ -41,7 +44,7 @@
 
 ## Next action
 
-Milestone 4: усилить readiness и packaging — identity/repository/push/credential/SSH checks, честный статус upload-not-yet-proven, собственный Node runtime, build SHA и ad-hoc signing. Проверки только в isolated candidate.
+Milestone 5: полный Admin/Shared regression, production build, candidate sandbox/LaunchServices acceptance, live before/after manifest audit и staged provenance review. Никакой установки в `/Applications` до exact-SHA gate.
 
 ## Pointers
 

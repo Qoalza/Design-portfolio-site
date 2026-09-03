@@ -16,6 +16,7 @@ import { PreviewWindowController } from "./preview-window.mjs";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
 type TextHistoryEntry = { slug: string; key: keyof AdminProject; before: unknown; after: unknown; at: number };
+type PublishReadiness = { ready: boolean; configured: boolean; uploadVerified: boolean; failures: string[]; warnings: string[] };
 const csrf = document.body.dataset.csrf ?? "";
 const publishMode = document.body.dataset.publishMode === "live" ? "live" : "sandbox";
 const draftKey = (slug: string) => `des-art-admin:draft:${slug}`;
@@ -55,6 +56,7 @@ function App() {
   const [issues, setIssues] = useState<FieldIssue[]>([]);
   const [selectedSection, setSelectedSection] = useState<string>();
   const [job, setJob] = useState<PublishJob | null>(null);
+  const [readiness, setReadiness] = useState<PublishReadiness | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<"project" | "all" | "publish-draft" | "unpublish" | "delete" | "reset" | "shutdown">();
   const [reviewIssues, setReviewIssues] = useState<FieldIssue[]>([]);
@@ -79,12 +81,13 @@ function App() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([api<AdminProject[]>("/api/projects"), api<ChangeInventory>("/api/changes"), api<{ connected: boolean }>("/api/figma/status")])
-      .then(([nextProjects, nextInventory, figma]) => {
+    Promise.all([api<AdminProject[]>("/api/projects"), api<ChangeInventory>("/api/changes"), api<{ connected: boolean }>("/api/figma/status"), api<PublishReadiness>("/api/publish/readiness")])
+      .then(([nextProjects, nextInventory, figma, publishReadiness]) => {
         if (!active) return;
         setProjects(nextProjects);
         setInventory(nextInventory);
         setFigmaConnected(figma.connected);
+        setReadiness(publishReadiness);
       })
       .catch((error) => { if (active) setMessage(safeMessage(error)); });
     return () => { active = false; };
@@ -351,7 +354,7 @@ function App() {
     <Theme accentColor="blue" grayColor="sand" radius="medium">
       <div className="admin-shell">
         <header className="admin-topbar">
-          <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color={publishMode === "live" ? "green" : "gray"}>{publishMode === "live" ? "Связано с art-des.ru" : "Тестовый контур"}</Badge></div>
+          <div className="brand-lockup"><Heading size="4">Des-art Admin</Heading><Badge variant="soft" color={publishMode === "live" && readiness?.ready ? "green" : "gray"}>{publishMode === "live" ? readiness?.ready ? "Окружение настроено" : readiness ? "Публикация не настроена" : "Проверка публикации…" : "Тестовый контур"}</Badge></div>
           <Text color="gray">{current?.title ?? "Проекты портфолио"}</Text>
           <Flex gap="3" align="center">
             <Text className="save-state" size="2" color={saveState === "dirty" || saveState === "restored" ? "orange" : "green"}>
@@ -437,7 +440,7 @@ function App() {
           if (issue.sectionId) setSelectedSection(issue.sectionId);
           requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-field="${CSS.escape(issue.field)}"]`)?.focus());
         })(); }} />
-        <ConfirmDialog open={confirmation === "project" || confirmation === "all" || confirmation === "publish-draft"} title={publishMode === "live" ? "Опубликовать на art-des.ru?" : "Запустить тестовую публикацию?"} description={publishMode === "live" ? "Админка проверит изменения, создаст Pull Request, выполнит merge и безопасно развернёт точный commit на production." : "Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся."} confirmLabel={publishMode === "live" ? "Опубликовать" : "Запустить"} close={() => setConfirmation(undefined)} confirm={() => { if (confirmation === "publish-draft") { setConfirmation(undefined); void setVisibility("published").then(() => startPublish("project", true)).catch((error) => setMessage(safeMessage(error))); return; } void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error))); }} />
+        <ConfirmDialog open={confirmation === "project" || confirmation === "all" || confirmation === "publish-draft"} title={publishMode === "live" ? "Опубликовать на art-des.ru?" : "Запустить тестовую публикацию?"} description={publishMode === "live" ? "Окружение проверено, но реальная отправка Git-пакета подтвердится только на этапе Push. Затем Admin создаст Pull Request и развернёт точный commit на production." : "Админка проверит файлы и покажет весь процесс. Production и публичный сайт не изменятся."} confirmLabel={publishMode === "live" ? "Опубликовать" : "Запустить"} close={() => setConfirmation(undefined)} confirm={() => { if (confirmation === "publish-draft") { setConfirmation(undefined); void setVisibility("published").then(() => startPublish("project", true)).catch((error) => setMessage(safeMessage(error))); return; } void startPublish(confirmation as "project" | "all", true).catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "unpublish"} title="Снять с публикации?" description="Проект исчезнет с главной, из «Все работы» и со своей страницы. Черновик останется в админке — его можно будет опубликовать снова." confirmLabel="Снять с публикации" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void setVisibility("draft").catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "delete"} title={`Удалить «${current?.title ?? "проект"}» навсегда?`} description="Будут удалены локальный черновик и его локальные ассеты. Действие нельзя отменить." confirmLabel="Удалить навсегда" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void permanentDelete().catch((error) => setMessage(safeMessage(error))); }} />
         <ConfirmDialog open={confirmation === "reset"} title="Сбросить изменения проекта?" description="Все неопубликованные изменения этого проекта будут удалены. Данные восстановятся из текущей опубликованной версии на art-des.ru. Это действие нельзя отменить" confirmLabel="Сбросить изменения" danger close={() => setConfirmation(undefined)} confirm={() => { setConfirmation(undefined); void resetToProduction().catch((error) => setMessage(safeMessage(error))); }} />

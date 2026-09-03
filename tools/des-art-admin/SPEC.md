@@ -66,6 +66,10 @@ Project-only publish сохраняет canonical `catalogOrder` и `homePlaceme
 
 После сбоя на или после Commit кнопка «Продолжить» вызывает `POST /api/publish/resume` с exact `jobId`. Worker проверяет сохранённые branch и `contentCommit`, пропускает завершённые stages и не повторяет install/lint/build. Отсутствующая remote branch получает тот же SHA, совпадающая переиспользуется, а другой SHA блокирует процесс. Один открытый PR переиспользуется; закрытый неслитый или неоднозначный набор блокирует продолжение. Для распознанного сетевого сбоя разрешён ровно один автоматический retry; HTTP/2/RPC reset повторяется через HTTP/1.1 с тем же SHA.
 
+Readiness подтверждает GitHub identity, exact repository, write permission, `git ls-remote`, согласованный GitHub credential helper и SSH status. Она означает только «окружение настроено» и никогда не выдаёт dry-run или read-only probe за доказательство реальной загрузки Git-пакета: это подтверждается только этапом Push.
+
+Generated macOS app bundle содержит собственный Node runtime текущей архитектуры, full build Git SHA и ad-hoc signature. Launcher вызывает runtime по абсолютному пути внутри bundle и не зависит от `PATH` Spotlight/LaunchServices.
+
 ## Legacy migration
 
 - Публичный runtime и serializer принимают только schema v3.

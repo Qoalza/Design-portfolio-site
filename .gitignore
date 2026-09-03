@@ -42,3 +42,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Generated self-contained Admin runtime and ad-hoc signature.
+dist/Des-art Admin.app/Contents/Resources/runtime/
+dist/Des-art Admin.app/Contents/Resources/build-sha.txt
+dist/Des-art Admin.app/Contents/_CodeSignature/
