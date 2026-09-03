@@ -11,7 +11,7 @@ import { AdminStore, validateLocalRequest } from "./core.mjs";
 import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
 import { readFigmaToken, saveFigmaToken } from "./figma-template-import.mjs";
 import { humanError } from "./human-errors.mjs";
-import { PUBLISH_STAGES, isReusablePublishJob, publishInputFingerprint, publishReadiness } from "./publish-worker.mjs";
+import { PUBLISH_STAGES, isReusablePublishJob, publishInputFingerprint, publishReadiness, resumeInputMatches } from "./publish-worker.mjs";
 import { createPreviewRuntimeIdentity, previewHealthMatches } from "./preview-runtime.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -328,7 +328,7 @@ async function handler(request, response) {
         && /^[a-f0-9]{64}$/.test(job.inputFingerprint);
       if (!resumableIdentity) return userError(response, 409, "Публикацию нельзя продолжить", "Этот job не достиг сохранённого commit, уже выполняется или не совпадает с текущим окружением.");
       const currentInputFingerprint = await publishInputFingerprint({ files: job.files, draftAssetRoot: job.draftAssetRoot });
-      if (currentInputFingerprint !== job.inputFingerprint) return userError(response, 409, "Черновик изменился после остановки", "Сохранённый commit относится к предыдущей версии черновика. Запустите новую публикацию, чтобы подготовить актуальные данные.");
+      if (!resumeInputMatches(job, currentInputFingerprint)) return userError(response, 409, "Черновик изменился после остановки", "Сохранённый commit относится к предыдущей версии черновика. Запустите новую публикацию, чтобы подготовить актуальные данные.");
       const readiness = await publishReadiness({ supportRoot, repoRoot, mode: publishMode });
       if (!readiness.ready) return userError(response, 409, "Публикацию нельзя продолжить", "Окружение публикации не настроено полностью. Исправьте указанную проблему и повторите действие.");
       job.status = "queued";

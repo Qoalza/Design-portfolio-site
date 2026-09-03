@@ -31,6 +31,54 @@ export function pendingPublishStages(stages) {
   return PUBLISH_STAGES.filter(([stageId]) => stages.find((stage) => stage.id === stageId)?.status !== "complete");
 }
 
+export function pendingMergeChecks(job, publishedSha) {
+  return [
+    ["checkout", "mergeCheckoutSha"],
+    ["install", "mergeInstallSha"],
+    ["lint", "mergeLintSha"],
+    ["build", "mergeBuildSha"],
+  ].filter(([, field]) => job[field] !== publishedSha);
+}
+
+export function expectedResumeHead(job) {
+  const hasReconciledMerge = job.contentInPublishedSha === true && /^[a-f0-9]{40}$/.test(job.publishedSha ?? "");
+  const mergeComplete = job.stages?.find((stage) => stage.id === "merge")?.status === "complete";
+  return hasReconciledMerge || mergeComplete ? job.publishedSha : job.contentCommit;
+}
+
+export async function reconcileResumeWorktree({ command, worktree, job }) {
+  const expected = expectedResumeHead(job);
+  if (!/^[a-f0-9]{40}$/.test(expected ?? "")) {
+    throw new UserFacingError("SHA продолжения не найден", "Не удалось определить точный commit для продолжения публикации. Требуется ручная проверка.", { status: 409 });
+  }
+  const resolveHead = async () => (await command("resume.resolve", "git", ["rev-parse", "HEAD"], { cwd: worktree })).stdout.trim();
+  let current = await resolveHead();
+  const assertClean = async () => {
+    const { stdout: status = "" } = await command("resume.status", "git", ["status", "--porcelain"], { cwd: worktree });
+    if (status.trim()) {
+      throw new UserFacingError("Publish-worktree содержит изменения", "В служебной копии найдены несохранённые изменения. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+    }
+  };
+  if (current === expected) {
+    await assertClean();
+    return expected;
+  }
+
+  const canRealignMergedWorktree = job.contentInPublishedSha === true
+    && expected === job.publishedSha
+    && current === job.contentCommit;
+  if (!canRealignMergedWorktree) {
+    throw new UserFacingError("Локальная ветка изменилась", "Сохранённый commit больше не совпадает с publish-worktree. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  }
+  await assertClean();
+  await command("resume.checkout", "git", ["switch", "--detach", expected], { cwd: worktree });
+  current = await resolveHead();
+  if (current !== expected) {
+    throw new UserFacingError("Локальная ветка изменилась", "Не удалось восстановить publish-worktree на exact SHA. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  }
+  return expected;
+}
+
 export function createPublishBranch(isoDate = new Date().toISOString()) {
   const compact = isoDate.replace(/\D/g, "").slice(0, 14);
   return `codex/content-publish-${compact.slice(0, 8)}-${compact.slice(8)}`;
@@ -81,6 +129,11 @@ export function isReusablePublishJob(job, identity) {
   if (job.status === "queued" || job.status === "running") return true;
   return /^codex\/content-publish-\d{8}-\d{6}$/.test(job.branch)
     && /^[a-f0-9]{40}$/.test(job.contentCommit);
+}
+
+export function resumeInputMatches(job, currentInputFingerprint) {
+  if (currentInputFingerprint === job.inputFingerprint) return true;
+  return job.contentInPublishedSha === true && /^[a-f0-9]{40}$/.test(job.publishedSha ?? "");
 }
 
 function remoteHead(output) {
@@ -164,6 +217,67 @@ export async function ensurePullRequest({ command, cwd, branch, title }) {
   return created.trim();
 }
 
+const PULL_REQUEST_STATE_FIELDS = "state,mergedAt,mergeCommit,headRefName,headRefOid,baseRefName";
+
+async function readPullRequest({ command, cwd, pullRequestUrl, operation }) {
+  const { stdout = "{}" } = await command(operation, "gh", ["pr", "view", pullRequestUrl, "--json", PULL_REQUEST_STATE_FIELDS], { cwd });
+  const pullRequest = JSON.parse(stdout);
+  if (!pullRequest || typeof pullRequest !== "object") throw new Error("Pull Request state is invalid.");
+  return pullRequest;
+}
+
+function assertPublishPullRequest(pullRequest, { branch, contentCommit }) {
+  if (pullRequest.baseRefName !== "main" || pullRequest.headRefName !== branch || pullRequest.headRefOid !== contentCommit) {
+    throw new UserFacingError("Pull Request изменился", "Pull Request больше не совпадает с сохранённой веткой и commit. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  }
+}
+
+function mergedPullRequest(pullRequest) {
+  return pullRequest.state === "MERGED" || Boolean(pullRequest.mergedAt);
+}
+
+export async function mergePublishPullRequest({ command, cwd, pullRequestUrl, branch, contentCommit }) {
+  let pullRequest = await readPullRequest({ command, cwd, pullRequestUrl, operation: "merge.lookup" });
+  assertPublishPullRequest(pullRequest, { branch, contentCommit });
+  if (pullRequest.state === "CLOSED" && !mergedPullRequest(pullRequest)) {
+    throw new UserFacingError("Pull Request закрыт без merge", "Закрытый Pull Request нельзя продолжить автоматически. Требуется ручная проверка.", { status: 409 });
+  }
+
+  let mergeFailure;
+  if (!mergedPullRequest(pullRequest)) {
+    try {
+      await command("merge.execute", "gh", ["pr", "merge", pullRequestUrl, "--merge", "--match-head-commit", contentCommit], { cwd, maxBuffer: 10 * 1024 * 1024 });
+    } catch (error) {
+      mergeFailure = error;
+    }
+    try {
+      pullRequest = await readPullRequest({ command, cwd, pullRequestUrl, operation: "merge.verify" });
+    } catch (error) {
+      if (mergeFailure) throw mergeFailure;
+      throw error;
+    }
+    assertPublishPullRequest(pullRequest, { branch, contentCommit });
+  }
+
+  if (!mergedPullRequest(pullRequest)) {
+    if (mergeFailure) throw mergeFailure;
+    throw new UserFacingError("Merge не подтверждён", "GitHub не подтвердил завершённый Merge. Продолжение остановлено; повторите проверку позже.", { status: 409 });
+  }
+  const mergeCommitSha = pullRequest.mergeCommit?.oid;
+  if (!/^[a-f0-9]{40}$/.test(mergeCommitSha ?? "")) {
+    throw new UserFacingError("Merge SHA не подтверждён", "GitHub не вернул точный SHA merge commit. Продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  }
+
+  await command("merge.fetch", "git", ["fetch", "origin", "main"], { cwd });
+  const { stdout } = await command("merge.resolve", "git", ["rev-parse", "origin/main"], { cwd });
+  const publishedSha = stdout.trim();
+  if (!/^[a-f0-9]{40}$/.test(publishedSha)) throw new Error("Published SHA is invalid.");
+  await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", contentCommit, mergeCommitSha], { cwd });
+  await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", contentCommit, publishedSha], { cwd });
+  await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", mergeCommitSha, publishedSha], { cwd });
+  return { mergeCommitSha, publishedSha: mergeCommitSha };
+}
+
 export async function createReleaseArchive({ archive, sourceRoot }) {
   await exec("tar", ["--no-mac-metadata", "--no-xattrs", "--no-acls", "--no-fflags", "--exclude=.git", "--exclude=node_modules", "--exclude=.next", "--exclude=.next-admin-preview-*", "-czf", archive, "-C", sourceRoot, "."], {
     env: { ...process.env, COPYFILE_DISABLE: "1" },
@@ -180,6 +294,41 @@ async function atomicJson(file, value) {
 
 function publishedDraft(project) {
   return project.visibility === "draft" ? { ...project, visibility: "published" } : project;
+}
+
+export async function finalizePublishedJob({ job, worktree }) {
+  if (!job.snapshotRoot) return { draftUpdated: false };
+  await mkdir(job.snapshotRoot, { recursive: true });
+
+  if (job.mode === "live") {
+    const currentFingerprint = await publishInputFingerprint({ files: job.files, draftAssetRoot: job.draftAssetRoot });
+    const draftUpdated = currentFingerprint === job.inputFingerprint;
+    for (const file of job.files) {
+      const fileName = path.basename(file);
+      const published = JSON.parse(await readFile(path.join(worktree, "content", "projects", fileName), "utf8"));
+      await atomicJson(path.join(job.snapshotRoot, fileName), published);
+      if (draftUpdated) {
+        const draft = publishedDraft(parseAdminDraft(await readFile(file, "utf8"), fileName));
+        await atomicJson(file, draft);
+      }
+    }
+    return { draftUpdated };
+  }
+
+  for (const file of job.files) {
+    const draft = publishedDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
+    await atomicJson(file, draft);
+    const snapshotFile = path.join(job.snapshotRoot, path.basename(file));
+    let compiled = compileAdminDraft(draft);
+    if (job.scope === "project") {
+      try {
+        const baseline = JSON.parse(await readFile(snapshotFile, "utf8"));
+        compiled = { ...compiled, catalogOrder: baseline.catalogOrder, homePlacement: baseline.homePlacement };
+      } catch {}
+    }
+    await atomicJson(snapshotFile, compiled);
+  }
+  return { draftUpdated: true };
 }
 
 function candidateCollection(baselineRoot, compiledProjects, scope) {
@@ -265,9 +414,57 @@ async function uploadRelease({ archive, config, sha }) {
   });
 }
 
+function deployedSha(output) {
+  return /^ready\s+([a-f0-9]{40})\s*$/m.exec(output)?.[1];
+}
+
+async function readDeployedSha({ command, config, operation, tolerateFailure = false }) {
+  try {
+    const { stdout = "" } = await command(operation, "ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=15", "-i", config.keyPath, `${config.user}@${config.host}`, "status"], { maxBuffer: 10 * 1024 * 1024 });
+    const sha = deployedSha(stdout);
+    if (!sha) throw new UserFacingError("Production SHA не подтверждён", "Deploy status не вернул точный активный SHA. Продолжение остановлено; требуется ручная проверка.", { status: 409 });
+    return sha;
+  } catch (error) {
+    if (tolerateFailure) return undefined;
+    throw error;
+  }
+}
+
+export async function deployPublishedRelease({ command, createArchive, upload, archive, sourceRoot, config, sha }) {
+  const before = await readDeployedSha({ command, config, operation: "deploy.status.before" });
+  if (before === sha) return { state: "already-deployed" };
+
+  await createArchive({ archive, sourceRoot });
+  await upload({ archive, config, sha });
+  let publishFailure;
+  try {
+    await command("deploy.publish", "ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=15", "-i", config.keyPath, `${config.user}@${config.host}`, "publish", sha], { maxBuffer: 20 * 1024 * 1024 });
+  } catch (error) {
+    publishFailure = error;
+  }
+  const after = await readDeployedSha({ command, config, operation: "deploy.status.after", tolerateFailure: Boolean(publishFailure) });
+  if (after === sha) return { state: publishFailure ? "deployed-after-transport-error" : "deployed" };
+  if (publishFailure) throw publishFailure;
+  throw new UserFacingError("Deploy не подтверждён", "Команда Deploy завершилась без ошибки, но production не сообщил exact SHA. Продолжение остановлено; требуется ручная проверка.", { status: 409 });
+}
+
+export async function cleanupPublishedRefs({ execImpl = exec, repoRoot, worktree, branch, contentCommit, contentInPublishedSha }) {
+  if (worktree) await execImpl("git", ["worktree", "remove", "--force", worktree], { cwd: repoRoot }).catch(() => {});
+  if (!contentInPublishedSha || !branch || !/^[a-f0-9]{40}$/.test(contentCommit ?? "")) return;
+  const ref = `refs/heads/${branch}`;
+  const remote = await execImpl("git", ["ls-remote", "--heads", "origin", ref], { cwd: repoRoot }).catch(() => ({ stdout: "" }));
+  if (remoteHead(remote.stdout ?? "") === contentCommit) {
+    await execImpl("git", ["push", "origin", "--delete", branch], { cwd: repoRoot }).catch(() => {});
+  }
+  const local = await execImpl("git", ["rev-parse", "--verify", branch], { cwd: repoRoot }).catch(() => ({ stdout: "" }));
+  if ((local.stdout ?? "").trim() === contentCommit) {
+    await execImpl("git", ["branch", "-D", branch], { cwd: repoRoot }).catch(() => {});
+  }
+}
+
 export async function runPublishJob(jobFile) {
   const job = JSON.parse(await readFile(jobFile, "utf8"));
-  const stageRoot = path.join(path.dirname(jobFile), "staging");
+  const stageRoot = path.join(path.dirname(jobFile), "staging", job.id);
   const diagnosticRoot = path.join(path.dirname(jobFile), "diagnostics", job.id);
   const command = createPublishCommandRunner({
     diagnosticRoot,
@@ -297,17 +494,23 @@ export async function runPublishJob(jobFile) {
       resumeRequested: undefined,
     });
     if (resuming) {
+      const resumeHead = expectedResumeHead(job);
+      if (!/^[a-f0-9]{40}$/.test(resumeHead ?? "")) {
+        throw new UserFacingError("SHA продолжения не найден", "Не удалось определить точный commit для продолжения публикации. Требуется ручная проверка.", { status: 409 });
+      }
       try {
         await access(worktree);
       } catch {
         worktree = path.join(job.supportRoot, "worktrees", job.id);
         await mkdir(path.dirname(worktree), { recursive: true });
-        await command("resume.worktree", "git", ["worktree", "add", worktree, job.branch], { cwd: job.repoRoot });
+        const worktreeArgs = job.contentInPublishedSha === true && resumeHead === job.publishedSha
+          ? ["worktree", "add", "--detach", worktree, resumeHead]
+          : ["worktree", "add", worktree, job.branch];
+        await command("resume.worktree", "git", worktreeArgs, { cwd: job.repoRoot });
         job.worktree = worktree;
         await atomicJson(jobFile, job);
       }
-      const { stdout: resumedHead } = await command("resume.resolve", "git", ["rev-parse", "HEAD"], { cwd: worktree });
-      if (resumedHead.trim() !== job.contentCommit) throw new UserFacingError("Локальная ветка изменилась", "Сохранённый commit больше не совпадает с publish-веткой. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+      await reconcileResumeWorktree({ command, worktree, job });
     }
     for (const [stageId, label] of pendingPublishStages(job.stages)) {
       await update(jobFile, job, { currentStage: stageId, message: label });
@@ -373,62 +576,63 @@ export async function runPublishJob(jobFile) {
       } else if (stageId === "pr" && job.mode === "live") {
         job.pullRequestUrl = await ensurePullRequest({ command, cwd: worktree, branch: job.branch, title: job.scope === "project" ? `Publish project: ${job.slug}` : "Publish project content updates" });
       } else if (stageId === "merge" && job.mode === "live") {
-        await command("merge", "gh", ["pr", "merge", job.pullRequestUrl, "--merge", "--delete-branch"], { cwd: worktree, maxBuffer: 10 * 1024 * 1024 });
-        await command("merge.fetch", "git", ["fetch", "origin", "main"], { cwd: worktree });
-        const { stdout } = await command("merge.resolve", "git", ["rev-parse", "origin/main"], { cwd: worktree });
-        job.publishedSha = stdout.trim();
-        await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", job.contentCommit, job.publishedSha], { cwd: worktree });
+        const merged = await mergePublishPullRequest({ command, cwd: worktree, pullRequestUrl: job.pullRequestUrl, branch: job.branch, contentCommit: job.contentCommit });
+        job.mergeCommitSha = merged.mergeCommitSha;
+        job.publishedSha = merged.publishedSha;
         job.contentInPublishedSha = true;
-        await command("merge.checkout", "git", ["switch", "--detach", "origin/main"], { cwd: worktree });
-        await command("merge.install", "npm", ["ci", "--no-audit", "--no-fund"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
-        await command("merge.lint", "npm", ["run", "lint"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
-        await command("merge.build", "npm", ["run", "build"], { cwd: worktree, maxBuffer: 40 * 1024 * 1024 });
+        await atomicJson(jobFile, job);
+        for (const [check, field] of pendingMergeChecks(job, job.publishedSha)) {
+          if (check === "checkout") await command("merge.checkout", "git", ["switch", "--detach", job.publishedSha], { cwd: worktree });
+          if (check === "install") await command("merge.install", "npm", ["ci", "--no-audit", "--no-fund"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
+          if (check === "lint") await command("merge.lint", "npm", ["run", "lint"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
+          if (check === "build") await command("merge.build", "npm", ["run", "build"], { cwd: worktree, maxBuffer: 40 * 1024 * 1024 });
+          job[field] = job.publishedSha;
+          await atomicJson(jobFile, job);
+        }
         job.productionState = "main-updated";
       } else if (stageId === "deploy" && job.mode === "live") {
         const archive = path.join(job.supportRoot, "jobs", `${job.publishedSha}.tar.gz`);
         try {
-          await createReleaseArchive({ archive, sourceRoot: worktree });
-        } catch (error) {
-          await recordPublishCommandFailure({ diagnosticRoot, jobId: job.id, failedOperation: "deploy.archive", command: "tar", error });
+          await deployPublishedRelease({
+            command,
+            createArchive: async (input) => {
+              try { await createReleaseArchive(input); } catch (error) {
+                await recordPublishCommandFailure({ diagnosticRoot, jobId: job.id, failedOperation: "deploy.archive", command: "tar", error });
+              }
+            },
+            upload: async (input) => {
+              try { await uploadRelease(input); } catch (error) {
+                await recordPublishCommandFailure({ diagnosticRoot, jobId: job.id, failedOperation: "deploy.upload", command: "ssh", args: ["upload", job.publishedSha], error });
+              }
+            },
+            archive,
+            sourceRoot: worktree,
+            config: publishConfig,
+            sha: job.publishedSha,
+          });
+          job.productionState = "deployed";
+        } finally {
+          await rm(archive, { force: true });
         }
-        try {
-          await uploadRelease({ archive, config: publishConfig, sha: job.publishedSha });
-        } catch (error) {
-          await recordPublishCommandFailure({ diagnosticRoot, jobId: job.id, failedOperation: "deploy.upload", command: "ssh", args: ["upload", job.publishedSha], error });
-        }
-        await rm(archive, { force: true });
-        await command("deploy.publish", "ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=15", "-i", publishConfig.keyPath, `${publishConfig.user}@${publishConfig.host}`, "publish", job.publishedSha], { maxBuffer: 20 * 1024 * 1024 });
       } else if (stageId === "verify" && job.mode === "live") {
         for (const route of ["/", "/projects", ...(job.slug ? [`/projects/${job.slug}`] : [])]) {
           const response = await fetch(`https://art-des.ru${route}`, { redirect: "error" });
           if (!response.ok) throw new Error(`Production route ${route} returned ${response.status}.`);
           if (route === "/" && !(await response.text()).includes(job.publishedSha)) throw new Error("Production build SHA does not match merged main SHA.");
         }
+        job.productionState = "verified";
       }
       job.stages = job.stages.map((stage) => stage.id === stageId ? { ...stage, status: "complete" } : stage);
       await atomicJson(jobFile, job);
     }
-    if (job.snapshotRoot) {
-      await mkdir(job.snapshotRoot, { recursive: true });
-      for (const file of job.files) {
-        const draft = publishedDraft(parseAdminDraft(await readFile(file, "utf8"), path.basename(file)));
-        await atomicJson(file, draft);
-        const snapshotFile = path.join(job.snapshotRoot, path.basename(file));
-        let compiled = compileAdminDraft(draft);
-        if (job.scope === "project") {
-          try {
-            const baseline = JSON.parse(await readFile(snapshotFile, "utf8"));
-            compiled = {
-              ...compiled,
-              catalogOrder: baseline.catalogOrder,
-              homePlacement: baseline.homePlacement,
-            };
-          } catch {}
-        }
-        await atomicJson(snapshotFile, compiled);
-      }
-    }
-    await update(jobFile, job, { status: "complete", currentStage: undefined, message: job.mode === "live" ? "Изменения опубликованы на art-des.ru" : "Локальная репетиция завершена" });
+    await update(jobFile, job, { currentStage: "finalize", message: "Сохранение опубликованного состояния" });
+    await finalizePublishedJob({ job, worktree });
+    await update(jobFile, job, {
+      status: "complete",
+      currentStage: undefined,
+      productionState: job.mode === "live" ? "verified" : job.productionState,
+      message: job.mode === "live" ? "Изменения опубликованы на art-des.ru" : "Локальная репетиция завершена",
+    });
   } catch (error) {
     const explanation = humanError(error);
     const stageLabel = PUBLISH_STAGES.find(([stageId]) => stageId === job.currentStage)?.[1];
@@ -437,7 +641,11 @@ export async function runPublishJob(jobFile) {
       status: "failed",
       errorTitle: stageLabel ? `Не удалось завершить этап «${stageLabel}»` : explanation.title,
       error: explanation.message,
-      productionState: job.productionState === "main-updated" ? "main-updated-deploy-failed" : "unchanged",
+      productionState: job.productionState === "main-updated"
+        ? "main-updated-deploy-failed"
+        : job.productionState === "deployed"
+          ? "deployed-verification-failed"
+          : ["verified", "verified-finalization-failed"].includes(job.productionState) ? "verified-finalization-failed" : "unchanged",
       ...(commandFailure ? {
         failedOperation: commandFailure.failedOperation,
         failureCode: commandFailure.failureCode,
@@ -449,8 +657,7 @@ export async function runPublishJob(jobFile) {
     });
   } finally {
     if (worktree && job.status === "complete") {
-      await exec("git", ["worktree", "remove", "--force", worktree], { cwd: job.repoRoot }).catch(() => {});
-      if (job.contentInPublishedSha && job.branch) await exec("git", ["branch", "-D", job.branch], { cwd: job.repoRoot }).catch(() => {});
+      await cleanupPublishedRefs({ repoRoot: job.repoRoot, worktree, branch: job.branch, contentCommit: job.contentCommit, contentInPublishedSha: job.contentInPublishedSha });
     }
   }
 }

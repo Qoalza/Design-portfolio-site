@@ -1,10 +1,11 @@
 # Надёжная публикация Des-art Admin
 
-Status: `READY_FOR_REVIEW`
+Status: `IN_PROGRESS`
 Started: 2026-09-03
 Branch: `codex/admin-publish-reliability`
 Base: `baf7729d2568821abe304b749e029e6fb9f1a599`
 Hotfix branch: `codex/admin-push-chunked-fallback`
+Merge recovery branch: `codex/admin-merge-partial-success`
 
 ## Outcome
 
@@ -58,6 +59,34 @@ Refs удаляются без bundle по прямому решению пол�
 5. **Full verification and review** — focused and full Admin/Shared tests, lint, build, candidate sandbox, LaunchServices/Spotlight check, data-manifest comparison and staged provenance audit.
 6. **Delivery** — separate reviewed commits, push and repair PR. Merge/deploy/install remain gated by exact-SHA confirmation.
 
+## Reopened incident: Merge partial success
+
+### Confirmed state
+
+- Job `1788455178086-sarafan-radio` completed `validate`, `prepare`, `checks`, `commit`, `push` and `pr`; these stages must not run again.
+- Content commit `8a72ebdba1edf384f3cc444725788b9a47320a4c` is the exact head of PR #35 and remote branch `codex/content-publish-20260903-170618`.
+- PR #35 is already merged into `main`; merge commit and current `origin/main` are `a54611121e2fbb010017d32ec5bfabf752541e65`.
+- `gh pr merge --merge --delete-branch` returned exit 1 only after GitHub had merged the PR: `--delete-branch` also tries to delete the local branch, but local `main` is checked out in the managed repository.
+- Job therefore incorrectly remains failed at `merge`, without `publishedSha`, while production remains `0cd02a9ab05bb46b862cc505e81af67382059bd4` and public `/projects/sarafan-radio` returns `404`.
+- Protected manifest `/private/tmp/des-art-admin-pre-merge-audit.json` contains `245` files, aggregate SHA-256 `7e282ffaac7a703028e4eeb33d913284221228058f76ea69e9d42472fb14cf2a`; live draft remains `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42` with `37` draft-assets.
+
+### Recovery milestones
+
+7. **Merge reconciliation** — failing-first tests for an already-merged PR and a merge command that returns non-zero after GitHub success; validate exact PR base/head identity, use `--match-head-commit`, remove local/remote deletion from the merge command, fetch `origin/main`, prove content ancestry and persist both merge commit and deploy candidate SHA.
+8. **Resume and deploy reconciliation** — resume against `contentCommit` before Merge and against `publishedSha` after Merge; skip Deploy when restricted `status` already reports the exact SHA; after publish success or transport failure reconcile `status` before deciding the job failed; cleanup remote/local publish refs is post-verification best effort and cannot turn a published job into a false failure.
+9. **End-to-end verification** — fault-injection for Merge/Deploy/Verify partial failures, focused and full tests, lint, production build, packaged Admin parity/signing, isolated candidate sandbox, staged provenance audit and two reviews (data boundary plus full diff). Live job/resume, content deploy and public Sarafan publication remain forbidden during repair.
+10. **Delivery gates** — separate commits and repair PR may proceed after verification. Merge repair code requires exact head approval. Deploy is blocked independently because current `main` already contains merged Sarafan content; no release containing that content may be deployed without a separate direct user command.
+
+### Acceptance additions
+
+- A non-zero `gh pr merge` cannot be treated as failure until PR state is re-read; a merged PR with exact `headRefOid` is accepted exactly once.
+- Resume of the current job starts at `merge`; after reconciliation it starts at `deploy` and never repeats checks, commit, push, PR or Merge.
+- `gh pr merge` never receives `--delete-branch`; it receives `--match-head-commit <contentCommit>`.
+- A mismatched PR base, head branch or head SHA blocks before merge/deploy.
+- Resume after a Deploy or Verify failure accepts the exact `publishedSha` checkout instead of requiring the pre-merge content commit.
+- Deploy checks restricted `status` before work and after every publish outcome; an already-active exact SHA is success, while any different SHA keeps the job failed and preserves evidence.
+- Draft/snapshot mutation occurs only after public verification succeeds; no repair test or candidate run uses the live support root.
+
 Каждый milestone начинается с failing-first проверки, завершается ближайшей достаточной проверкой и отдельным commit. Изменения не переносятся в текущий пользовательский checkout.
 
 ## Acceptance criteria
@@ -65,7 +94,7 @@ Refs удаляются без bundle по прямому решению пол�
 - Любая ошибка команды `git push ... origin ...` не может классифицироваться как устаревший сеанс только из-за слова `origin`.
 - Job хранит безопасные `failedOperation`, `failureCode`, `exitCode`, `retryable`, `attempt`, `diagnosticId`; приватный журнал имеет mode `0600` и не содержит credentials.
 - Resume использует тот же `jobId`, branch и `contentCommit`; завершённые install/lint/build не повторяются при неизменных входах.
-- Повторный Start с тем же SHA-256 fingerprint черновиков и копируемых assets возвращает незавершённый job вместо создания второго commit; Resume отклоняется, если fingerprint изменился.
+- Повторный Start с тем же SHA-256 fingerprint черновиков и копируемых assets возвращает незавершённый job вместо создания второго commit. До доказанного Merge Resume отклоняется, если fingerprint изменился; после доказанного включения exact content commit в merge SHA он продолжает сохранённый release, но не перезаписывает более новый live draft.
 - Remote branch и PR переиспользуются только при однозначном совпадении; конфликт останавливает workflow.
 - Автоповтор ограничен одной распознанной сетевой ошибкой; подтверждённый HTTP/2/RPC reset повторяется через HTTP/1.1 с тем же SHA.
 - После каждой попытки Push Admin сверяет exact remote SHA; транспортный non-zero после фактически принятого commit не становится ложным отказом.
@@ -109,3 +138,12 @@ Refs удаляются без bundle по прямому решению пол�
 - 2026-09-03: post-hotfix read-only live audit matched the protected baseline for all `233/233` non-job files. Sarafan draft is still `01bf5357…aa42`, draft-assets are still `37`; jobs and their diagnostics were preserved.
 - 2026-09-03: удалены только локальные worktree и refs двух повторных failed jobs: `1f76733f65f827be328f55d40976c0007e52c0b1` и `0977c7677967833c4ed30ecba231d3ee6a248f1c`. На GitHub нет ни одной `codex/content-publish-*` ветки или PR; все пять job/diagnostic evidence сохранены. Повторная проверка `233/233` non-job файлов, live draft и `37` assets совпала.
 - 2026-09-03: системная защита от дубликатов добавляет SHA-256 fingerprint exact draft/assets input. Повторный Start возвращает тот же queued/running/failed job, а Resume блокируется после изменения входных данных; новый commit создаётся только для действительно нового состояния черновика.
+- 2026-09-03: incident diagnostic `5a506200-5212-4059-be70-6a1587b3c6e8` proved that `gh pr merge --merge --delete-branch` merged PR #35 and then failed while deleting the local branch because `main` is checked out in the managed repository. GitHub state is `MERGED`; exact merge/main SHA is `a54611121e2fbb010017d32ec5bfabf752541e65`.
+- 2026-09-03: repair worktree `codex/admin-merge-partial-success` created from actual `origin/main` `a54611121e2fbb010017d32ec5bfabf752541e65`. Production remains `0cd02a9ab05bb46b862cc505e81af67382059bd4`, public Sarafan route remains `404`, and no live resume/deploy was run.
+- 2026-09-03: milestone 7 implemented. Merge rereads and validates exact PR state after command success or failure, removes `--delete-branch`, uses `--match-head-commit`, proves content→merge→current-main ancestry and pins the release to the PR merge SHA. A clean service worktree can be realigned after partial success; a dirty one blocks. Checkout/install/lint/build checkpoints are stored per exact merge SHA, so Resume does not repeat successful work.
+- 2026-09-03: milestone 8 implemented. Deploy requires exact restricted status before and after publish, reconciles transport errors, and skips an already-active SHA. Staging is isolated per job. Finalization snapshots the exact verified checkout and preserves any newer local draft instead of overwriting it; cleanup is exact-ref, post-success and best effort.
+- 2026-09-03: focused Merge/Resume/Deploy/finalization suite `35/35`, Admin boundary suite `28/28`, `npm run lint`, production `npm run build`, strict app bundle verification and `git diff --check` are green. Candidate Admin started on isolated ports `42731/42732` with a new temporary support root; page, project API and sandbox readiness succeeded, then the candidate was stopped.
+- 2026-09-03: full repository suite is `329/331`; the only two failures are pre-existing availability assertions that require Sarafan to be unavailable, while already-merged PR #35 makes it available in current `main`. The repair diff does not change those tests or project content. Production is still `0cd02a9…`, and no content deploy was performed.
+- 2026-09-03: live safety comparison after implementation found `0/245` changed protected files; Sarafan draft remains `01bf5357…aa42` with `37` draft-assets. No live job, snapshot, archive or recovery data was modified.
+- 2026-09-03: repair implementation commit `4e95088b4ea7c823156aaede481e4d15103f18d8` was pushed with exact remote-ref parity. PR #36 opened against exact base `a54611121e2fbb010017d32ec5bfabf752541e65`: https://github.com/Qoalza/Design-portfolio-site/pull/36. GitHub reports it open, non-draft and mergeable; no repository checks are configured.
+- 2026-09-03: merge of PR #36 remains gated by its final exact head SHA. Deploy remains a separate blocked gate because base `main` already contains Sarafan from PR #35; no production or live Admin state was changed by delivery.
