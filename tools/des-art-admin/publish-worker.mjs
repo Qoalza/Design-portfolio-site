@@ -40,22 +40,67 @@ function remoteHead(output) {
   return match?.[1];
 }
 
+// Used only after a confirmed HTTP/RPC transport reset. This keeps the bounded retry
+// on HTTP/1.1 and avoids chunked transfer for normal Admin publication payloads.
+const HTTP_PUSH_FALLBACK_BUFFER_BYTES = 512 * 1024 * 1024;
+
+function assertCompatibleRemoteHead(remoteSha, contentCommit) {
+  if (remoteSha && remoteSha !== contentCommit) {
+    throw new UserFacingError("Удалённая ветка изменилась", "В GitHub находится другая версия этой ветки. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  }
+}
+
+async function lookupRemoteHead({ command, cwd, ref, operation = "push.lookup", tolerateFailure = false }) {
+  try {
+    const { stdout = "" } = await command(operation, "git", ["ls-remote", "--heads", "origin", ref], { cwd });
+    return remoteHead(stdout);
+  } catch (error) {
+    if (tolerateFailure) return undefined;
+    throw error;
+  }
+}
+
+async function verifyPushOutcome({ command, cwd, ref, contentCommit, attempt, failedPush }) {
+  const remoteSha = await lookupRemoteHead({ command, cwd, ref, operation: "push.verify", tolerateFailure: Boolean(failedPush) });
+  assertCompatibleRemoteHead(remoteSha, contentCommit);
+  if (remoteSha === contentCommit) {
+    return { state: failedPush ? "pushed-after-transport-error" : "pushed", attempt };
+  }
+  if (failedPush) throw failedPush;
+  throw new UserFacingError("Push не подтверждён", "Git завершил отправку без ошибки, но exact commit не появился в удалённой ветке. Продолжение остановлено; требуется ручная проверка.", { status: 409 });
+}
+
 export async function pushPublishCommit({ command, cwd, branch, contentCommit }) {
   const ref = `refs/heads/${branch}`;
-  const { stdout = "" } = await command("push.lookup", "git", ["ls-remote", "--heads", "origin", ref], { cwd });
-  const remoteSha = remoteHead(stdout);
+  const remoteSha = await lookupRemoteHead({ command, cwd, ref });
   if (remoteSha === contentCommit) return { state: "already-pushed", attempt: 0 };
-  if (remoteSha) throw new UserFacingError("Удалённая ветка изменилась", "В GitHub находится другая версия этой ветки. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  assertCompatibleRemoteHead(remoteSha, contentCommit);
   const normalArgs = ["push", "-u", "origin", `${contentCommit}:${ref}`];
+  let firstFailure;
   try {
     await command("push", "git", normalArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 1);
-    return { state: "pushed", attempt: 1 };
   } catch (error) {
-    if (!error?.retryable || error.attempt !== 1) throw error;
-    const retryArgs = error.failureCode === "HTTP2_RPC_RESET" ? ["-c", "http.version=HTTP/1.1", ...normalArgs] : normalArgs;
-    await command("push", "git", retryArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 2);
-    return { state: "pushed", attempt: 2 };
+    firstFailure = error;
   }
+  if (!firstFailure) return verifyPushOutcome({ command, cwd, ref, contentCommit, attempt: 1 });
+
+  const verified = await verifyPushOutcome({ command, cwd, ref, contentCommit, attempt: 1, failedPush: firstFailure }).catch((verificationError) => {
+    if (verificationError !== firstFailure) throw verificationError;
+    return null;
+  });
+  if (verified) return verified;
+  if (!firstFailure?.retryable || firstFailure.attempt !== 1) throw firstFailure;
+
+  const retryArgs = firstFailure.failureCode === "HTTP2_RPC_RESET"
+    ? ["-c", "http.version=HTTP/1.1", "-c", `http.postBuffer=${HTTP_PUSH_FALLBACK_BUFFER_BYTES}`, ...normalArgs]
+    : normalArgs;
+  let retryFailure;
+  try {
+    await command("push", "git", retryArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 2);
+  } catch (error) {
+    retryFailure = error;
+  }
+  return verifyPushOutcome({ command, cwd, ref, contentCommit, attempt: 2, failedPush: retryFailure });
 }
 
 export async function ensurePullRequest({ command, cwd, branch, title }) {

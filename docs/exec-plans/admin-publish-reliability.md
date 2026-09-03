@@ -4,6 +4,7 @@ Status: `READY_FOR_REVIEW`
 Started: 2026-09-03
 Branch: `codex/admin-publish-reliability`
 Base: `baf7729d2568821abe304b749e029e6fb9f1a599`
+Hotfix branch: `codex/admin-push-chunked-fallback`
 
 ## Outcome
 
@@ -66,6 +67,8 @@ Refs удаляются без bundle по прямому решению пол�
 - Resume использует тот же `jobId`, branch и `contentCommit`; завершённые install/lint/build не повторяются при неизменных входах.
 - Remote branch и PR переиспользуются только при однозначном совпадении; конфликт останавливает workflow.
 - Автоповтор ограничен одной распознанной сетевой ошибкой; подтверждённый HTTP/2/RPC reset повторяется через HTTP/1.1 с тем же SHA.
+- После каждой попытки Push Admin сверяет exact remote SHA; транспортный non-zero после фактически принятого commit не становится ложным отказом.
+- Повтор после подтверждённого HTTP/RPC reset отключает chunked transfer только для bounded fallback-attempt; обычные Push не получают повышенный буфер.
 - В готовности различаются configured access и фактически не проверенная загрузка Git-пакета.
 - Generated app не зависит от LaunchServices `PATH`, содержит build/version SHA и проходит ad-hoc signing.
 - До/после SHA live draft, всех 37 assets, snapshots, jobs и архивов совпадают.
@@ -74,6 +77,7 @@ Refs удаляются без bundle по прямому решению пол�
 ## Verified command contracts
 
 - Exact commit push uses the documented Git refspec form `<src>:<dst>`; Git permits an arbitrary object expression as `<src>` and a full destination ref: https://git-scm.com/docs/git-push.
+- `http.postBuffer` выше размера POST отключает chunked transfer; Git отдельно предупреждает применять это только для подтверждённо несовместимого transport path: https://git-scm.com/docs/git-config#Documentation/git-config.txt-httppostBuffer.
 - PR reconciliation uses documented `gh pr list --state all --head ... --json state,url,mergedAt` fields: https://cli.github.com/manual/gh_pr_list.
 
 ## Progress log
@@ -97,3 +101,8 @@ Refs удаляются без bundle по прямому решению пол�
 - 2026-09-03: exact tested commit `d0658e8edb5f5523794ccd5c67f58cb9701a3f8b` pushed to `codex/admin-publish-reliability`; the remote ref was read back and matched exactly.
 - 2026-09-03: repair PR #32 opened against `main`: https://github.com/Qoalza/Design-portfolio-site/pull/32. GitHub reports it open, non-draft, mergeable and `CLEAN`; no repository CI checks are configured for the PR.
 - 2026-09-03: implementation and delivery milestones are complete. Merge, deploy and installation remain separate exact-SHA gates; `Сараффан.Радио` remains unpublished.
+- 2026-09-03: post-deploy incident reopened the plan. Jobs `1788447070960-sarafan-radio` and `1788447202341-sarafan-radio` both failed the 16,758,448-byte pack at Push: attempt 1 returned `HTTP 400` / HTTP-RPC disconnect, and the HTTP/1.1 attempt 2 again ended with sideband disconnect. Neither remote branch exists; production remained unchanged.
+- 2026-09-03: both failed commits have the same tree `55dcc8111034d39f7f8d6b0a90286f61cd562377` and parent `ac0a50d74c325247bdecdf5e45a16c6b1c535850`; the repeated Start created a second equivalent job rather than resuming the first. Live draft remains `01bf5357…aa42` and draft-assets remain `37`.
+- 2026-09-03: hotfix RED reproduced three gaps: HTTP/1.1 sideband disconnect was classified as non-retryable `COMMAND_FAILED`, the RPC fallback retained chunked transfer, and a failed transport was not followed by exact remote-SHA reconciliation.
+- 2026-09-03: hotfix implements one bounded HTTP/1.1/non-chunked retry plus exact remote-SHA reconciliation after successful and failed transport outcomes. Focused publish suite `18/18`, full suite `313/313`, lint, production build and diff check are green.
+- 2026-09-03: post-hotfix read-only live audit matched the protected baseline for all `233/233` non-job files. Sarafan draft is still `01bf5357…aa42`, draft-assets are still `37`; jobs and their diagnostics were preserved.
