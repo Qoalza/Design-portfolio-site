@@ -1,6 +1,6 @@
 # Надёжная публикация Des-art Admin
 
-Status: `IN_PROGRESS`
+Status: `COMPLETE`
 Started: 2026-09-03
 Branch: `codex/admin-publish-reliability`
 Base: `baf7729d2568821abe304b749e029e6fb9f1a599`
@@ -157,3 +157,8 @@ Refs удаляются без bundle по прямому решению пол�
 - 2026-09-03: decoupling verification is green: real local Git mismatch tests, exact bundle allowlist/byte-parity, native dependency loading, strict codesign and isolated bundled-server smoke. Admin/Shared suite `163/163`, focused package/policy suite `36/36`, lint and production build pass. Full suite is `337/339`; only the two already-known stale Sarafan availability assertions fail after content PR #35, outside this repair diff.
 - 2026-09-03: production remains exact `0cd02a9ab05bb46b862cc505e81af67382059bd4`. Protected live comparison remains `245/245` with `0` changes; Sarafan draft is `01bf5357…aa42` and all `37` draft-assets are unchanged. No live publish/resume, content deploy, bootstrap, reset, import or export ran.
 - 2026-09-03: implementation commit `88a6793` and operational documentation commit `4d1adf4` were pushed after exact remote-branch/PR absence checks. PR #37 opened against base `0bdba1638b67d36454446104b4b7ee838ce450fd`: https://github.com/Qoalza/Design-portfolio-site/pull/37. GitHub reports `OPEN`, `MERGEABLE`, `CLEAN`; merge and installation remain exact-head gates, and Portfolio deploy remains forbidden.
+- 2026-09-03: after exact-head approval, PR #37 merged successfully. GitHub, fetched `origin/main` and ancestry checks agree on merge SHA `6393268ee561c8301d36acf14741600cb05d2e2a` containing exact approved head `45484ff9bdbc00a48275d624c65d7e2d8efdbaa3`.
+- 2026-09-03: exact merge checkout passed production build, focused package/policy suite `36/36`, lint, bundle byte-parity and strict ad-hoc signature verification. `/Applications/Des-art Admin.app` was installed from that exact checkout; previous build `0bdba163…` remains byte-preserved as hidden backup.
+- 2026-09-03: installed live Admin serves from bundled path `/Applications/Des-art Admin.app/Contents/Resources/source/tools/des-art-admin/server.mjs`. Managed repository is clean and detached at deployed production `0cd02a9ab05bb46b862cc505e81af67382059bd4`, while its `origin/main` is `6393268ee561c8301d36acf14741600cb05d2e2a`.
+- 2026-09-03: isolated installed-bundle preview smoke used ports `42751/42752` and a temporary support root against the same production checkout. Preview health reported exact SHA `0cd02a9…`, and `/projects/corvo?admin-preview=1&draft=corvo` returned `200`. Temporary processes stopped; the two Next-generated test-port entries in managed `tsconfig.json` were identified exactly and restored to `HEAD`, leaving the checkout clean.
+- 2026-09-03: final installed-state audit confirms production remains `0cd02a9…`; live Admin exposes the preserved Sarafan draft with 8 content sections. Protected manifest remains `245/245`, changed `0`; draft SHA `01bf5357…aa42`, draft-assets `37`. No Sarafan publish/resume or Portfolio deploy ran.
