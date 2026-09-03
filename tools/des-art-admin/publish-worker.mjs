@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { compileAdminDraft, parseAdminDraft } from "./draft-contract.mjs";
-import { humanError } from "./human-errors.mjs";
+import { humanError, UserFacingError } from "./human-errors.mjs";
 import { createPublishCommandRunner, recordPublishCommandFailure } from "./publish-diagnostics.mjs";
 import { PRODUCTION_DATA_BASELINE_VERSION } from "./production-data-bootstrap.mjs";
 import { readAllProjectDocuments } from "../../src/lib/projects.ts";
@@ -26,9 +26,49 @@ export const PUBLISH_STAGES = [
   ["verify", "Публичная проверка"],
 ];
 
+export function pendingPublishStages(stages) {
+  return PUBLISH_STAGES.filter(([stageId]) => stages.find((stage) => stage.id === stageId)?.status !== "complete");
+}
+
 export function createPublishBranch(isoDate = new Date().toISOString()) {
   const compact = isoDate.replace(/\D/g, "").slice(0, 14);
   return `codex/content-publish-${compact.slice(0, 8)}-${compact.slice(8)}`;
+}
+
+function remoteHead(output) {
+  const match = /^([a-f0-9]{40})\s+refs\/heads\//m.exec(output);
+  return match?.[1];
+}
+
+export async function pushPublishCommit({ command, cwd, branch, contentCommit }) {
+  const ref = `refs/heads/${branch}`;
+  const { stdout = "" } = await command("push.lookup", "git", ["ls-remote", "--heads", "origin", ref], { cwd });
+  const remoteSha = remoteHead(stdout);
+  if (remoteSha === contentCommit) return { state: "already-pushed", attempt: 0 };
+  if (remoteSha) throw new UserFacingError("Удалённая ветка изменилась", "В GitHub находится другая версия этой ветки. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+  const normalArgs = ["push", "-u", "origin", `${contentCommit}:${ref}`];
+  try {
+    await command("push", "git", normalArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 1);
+    return { state: "pushed", attempt: 1 };
+  } catch (error) {
+    if (!error?.retryable || error.attempt !== 1) throw error;
+    const retryArgs = error.failureCode === "HTTP2_RPC_RESET" ? ["-c", "http.version=HTTP/1.1", ...normalArgs] : normalArgs;
+    await command("push", "git", retryArgs, { cwd, maxBuffer: 10 * 1024 * 1024 }, 2);
+    return { state: "pushed", attempt: 2 };
+  }
+}
+
+export async function ensurePullRequest({ command, cwd, branch, title }) {
+  const { stdout = "[]" } = await command("pull-request.lookup", "gh", ["pr", "list", "--state", "all", "--head", branch, "--json", "state,url,mergedAt"], { cwd });
+  const matches = JSON.parse(stdout);
+  if (matches.length > 1) throw new UserFacingError("Найдено несколько Pull Request", "Нельзя однозначно выбрать Pull Request для продолжения. Требуется ручная проверка.", { status: 409 });
+  if (matches.length === 1) {
+    const pullRequest = matches[0];
+    if (pullRequest.state === "OPEN" || pullRequest.state === "MERGED" || pullRequest.mergedAt) return pullRequest.url;
+    throw new UserFacingError("Pull Request закрыт без merge", "Закрытый Pull Request нельзя использовать повторно. Требуется ручная проверка перед продолжением.", { status: 409 });
+  }
+  const { stdout: created } = await command("pull-request.create", "gh", ["pr", "create", "--base", "main", "--head", branch, "--title", title, "--body", "Публикация подготовлена локальной Des-art Admin после успешных проверок."], { cwd });
+  return created.trim();
 }
 
 export async function createReleaseArchive({ archive, sourceRoot }) {
@@ -115,13 +155,13 @@ async function uploadRelease({ archive, config, sha }) {
 export async function runPublishJob(jobFile) {
   const job = JSON.parse(await readFile(jobFile, "utf8"));
   const stageRoot = path.join(path.dirname(jobFile), "staging");
-  const diagnosticRoot = path.join(job.supportRoot, "jobs", "diagnostics", job.id);
+  const diagnosticRoot = path.join(path.dirname(jobFile), "diagnostics", job.id);
   const command = createPublishCommandRunner({
     diagnosticRoot,
     jobId: job.id,
     execImpl: exec,
   });
-  let worktree;
+  let worktree = job.worktree;
   let publishConfig;
   try {
     if (job.mode === "live") {
@@ -131,8 +171,32 @@ export async function runPublishJob(jobFile) {
       }
       publishConfig = await liveConfig(job.supportRoot);
     }
-    await update(jobFile, job, { status: "running" });
-    for (const [stageId, label] of PUBLISH_STAGES) {
+    const resuming = job.mode === "live" && job.resumeRequested === true && Boolean(job.contentCommit && job.branch);
+    await update(jobFile, job, {
+      status: "running",
+      errorTitle: undefined,
+      error: undefined,
+      failedOperation: undefined,
+      failureCode: undefined,
+      exitCode: undefined,
+      retryable: undefined,
+      diagnosticId: undefined,
+      resumeRequested: undefined,
+    });
+    if (resuming) {
+      try {
+        await access(worktree);
+      } catch {
+        worktree = path.join(job.supportRoot, "worktrees", job.id);
+        await mkdir(path.dirname(worktree), { recursive: true });
+        await command("resume.worktree", "git", ["worktree", "add", worktree, job.branch], { cwd: job.repoRoot });
+        job.worktree = worktree;
+        await atomicJson(jobFile, job);
+      }
+      const { stdout: resumedHead } = await command("resume.resolve", "git", ["rev-parse", "HEAD"], { cwd: worktree });
+      if (resumedHead.trim() !== job.contentCommit) throw new UserFacingError("Локальная ветка изменилась", "Сохранённый commit больше не совпадает с publish-веткой. Автоматическое продолжение остановлено; требуется ручная проверка.", { status: 409 });
+    }
+    for (const [stageId, label] of pendingPublishStages(job.stages)) {
       await update(jobFile, job, { currentStage: stageId, message: label });
       if (stageId === "validate") {
         const compiled = [];
@@ -191,16 +255,17 @@ export async function runPublishJob(jobFile) {
         const { stdout: contentCommit } = await command("commit.resolve", "git", ["rev-parse", "HEAD"], { cwd: worktree });
         job.contentCommit = contentCommit.trim();
       } else if (stageId === "push" && job.mode === "live") {
-        await command("push", "git", ["push", "-u", "origin", job.branch], { cwd: worktree, maxBuffer: 10 * 1024 * 1024 });
+        const pushed = await pushPublishCommit({ command, cwd: worktree, branch: job.branch, contentCommit: job.contentCommit });
+        job.attempt = pushed.attempt;
       } else if (stageId === "pr" && job.mode === "live") {
-        const { stdout } = await command("pull-request.create", "gh", ["pr", "create", "--base", "main", "--head", job.branch, "--title", job.scope === "project" ? `Publish project: ${job.slug}` : "Publish project content updates", "--body", "Публикация подготовлена локальной Des-art Admin после успешных проверок."], { cwd: worktree });
-        job.pullRequestUrl = stdout.trim();
+        job.pullRequestUrl = await ensurePullRequest({ command, cwd: worktree, branch: job.branch, title: job.scope === "project" ? `Publish project: ${job.slug}` : "Publish project content updates" });
       } else if (stageId === "merge" && job.mode === "live") {
         await command("merge", "gh", ["pr", "merge", job.pullRequestUrl, "--merge", "--delete-branch"], { cwd: worktree, maxBuffer: 10 * 1024 * 1024 });
         await command("merge.fetch", "git", ["fetch", "origin", "main"], { cwd: worktree });
         const { stdout } = await command("merge.resolve", "git", ["rev-parse", "origin/main"], { cwd: worktree });
         job.publishedSha = stdout.trim();
         await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", job.contentCommit, job.publishedSha], { cwd: worktree });
+        job.contentInPublishedSha = true;
         await command("merge.checkout", "git", ["switch", "--detach", "origin/main"], { cwd: worktree });
         await command("merge.install", "npm", ["ci", "--no-audit", "--no-fund"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
         await command("merge.lint", "npm", ["run", "lint"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
@@ -270,7 +335,10 @@ export async function runPublishJob(jobFile) {
       } : {}),
     });
   } finally {
-    if (worktree) await exec("git", ["worktree", "remove", "--force", worktree], { cwd: job.repoRoot }).catch(() => {});
+    if (worktree && job.status === "complete") {
+      await exec("git", ["worktree", "remove", "--force", worktree], { cwd: job.repoRoot }).catch(() => {});
+      if (job.contentInPublishedSha && job.branch) await exec("git", ["branch", "-D", job.branch], { cwd: job.repoRoot }).catch(() => {});
+    }
   }
 }
 

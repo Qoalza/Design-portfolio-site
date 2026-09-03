@@ -64,6 +64,8 @@ Project-only publish сохраняет canonical `catalogOrder` и `homePlaceme
 
 Без valid `live-publish.json` публикация sandbox-only и не имеет Git/PR/SSH/deploy-пути. С valid local config live workflow доступен через одну кнопку «Опубликовать», confirmation dialog и polling каждые 600 ms. Commit, Push и Pull Request показываются отдельными этапами; сбой команды сохраняет в job только безопасную классификацию и diagnostic ID, а очищенный технический журнал записывается с правами `0600`. Live job создаёт disposable worktree от `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project publish, создаёт PR, выполняет merge, upload, deploy и проверяет exact public SHA/routes. Codex не запускает этот workflow, merge, push, deploy или доступ к ключу без отдельной команды пользователя.
 
+После сбоя на или после Commit кнопка «Продолжить» вызывает `POST /api/publish/resume` с exact `jobId`. Worker проверяет сохранённые branch и `contentCommit`, пропускает завершённые stages и не повторяет install/lint/build. Отсутствующая remote branch получает тот же SHA, совпадающая переиспользуется, а другой SHA блокирует процесс. Один открытый PR переиспользуется; закрытый неслитый или неоднозначный набор блокирует продолжение. Для распознанного сетевого сбоя разрешён ровно один автоматический retry; HTTP/2/RPC reset повторяется через HTTP/1.1 с тем же SHA.
+
 ## Legacy migration
 
 - Публичный runtime и serializer принимают только schema v3.

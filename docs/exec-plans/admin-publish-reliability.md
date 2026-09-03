@@ -71,6 +71,11 @@ Refs удаляются без bundle по прямому решению пол�
 - До/после SHA live draft, всех 37 assets, snapshots, jobs и архивов совпадают.
 - PR diff не содержит drafts, jobs, preview, snapshots, archives или пользовательский контент.
 
+## Verified command contracts
+
+- Exact commit push uses the documented Git refspec form `<src>:<dst>`; Git permits an arbitrary object expression as `<src>` and a full destination ref: https://git-scm.com/docs/git-push.
+- PR reconciliation uses documented `gh pr list --state all --head ... --json state,url,mergedAt` fields: https://cli.github.com/manual/gh_pr_list.
+
 ## Progress log
 
 - 2026-09-03: fresh `origin/main` confirmed at `baf7729d2568821abe304b749e029e6fb9f1a599`; isolated worktree created.
@@ -80,3 +85,5 @@ Refs удаляются без bundle по прямому решению пол�
 - 2026-09-03: post-operation manifest совпал: `237/237` файлов, manifest SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`, изменений `0`.
 - 2026-09-03: milestone 2 implemented. Broad `Host|Origin|CSRF` text matching removed; local request failures are typed, publish commands persist safe failure metadata and private sanitized diagnostics, and UI exposes separate Commit / Push / Pull Request stages.
 - 2026-09-03: milestone 2 verification: focused Admin core/publish/boundary suite `53/53`, Admin bundle rebuilt, `npm run lint` and `git diff --check` green.
+- 2026-09-03: milestone 3 implemented. `POST /api/publish/resume` accepts only an exact failed job identity, reuses its branch/worktree/contentCommit and skips completed stages. Push reconciles the exact remote SHA, retries one recognized network failure (HTTP/2/RPC through HTTP/1.1), and PR reconciliation reuses one open/merged PR while blocking closed-unmerged or ambiguous matches.
+- 2026-09-03: milestone 3 verification: fault-injection and Admin boundary/core suite `59/59`, Admin bundle rebuilt, `npm run lint` and `git diff --check` green. No live command or live store write was executed.

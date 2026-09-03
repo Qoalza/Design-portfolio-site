@@ -50,6 +50,8 @@ export type PublishJob = {
   productionState?: "unchanged" | "main-updated" | "main-updated-deploy-failed";
   publishedSha?: string;
   pullRequestUrl?: string;
+  branch?: string;
+  contentCommit?: string;
   failedOperation?: string;
   failureCode?: string;
   exitCode?: number | null;

@@ -38,6 +38,15 @@ test("publish mode is launcher-owned and exposes the established live workflow",
   assert.doesNotMatch(server, /value\.dryRun\s*!==\s*true/);
 });
 
+test("failed publish jobs resume only through an exact persisted job id", () => {
+  assert.match(server, /url\.pathname === "\/api\/publish\/resume"/);
+  assert.match(server, /\^\[a-zA-Z0-9\._-\]\+\$/);
+  assert.match(server, /job\.status === "failed"/);
+  assert.match(server, /content-publish-\\d\{8\}-\\d\{6\}/);
+  assert.match(server, /\^\[a-f0-9\]\{40\}\$/);
+  assert.match(adminUi, /\/api\/publish\/resume/);
+});
+
 test("launcher uses argument arrays instead of shell command construction", () => {
   assert.match(launcher, /exec\("\/usr\/bin\/git", \["clone"/);
   assert.match(launcher, /spawn\(command, args/);

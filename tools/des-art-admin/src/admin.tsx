@@ -296,6 +296,11 @@ function App() {
     setJob(started);
   };
 
+  const resumePublish = async (jobId: string) => {
+    const resumed = await api<PublishJob>("/api/publish/resume", { method: "POST", body: JSON.stringify({ jobId }) });
+    setJob({ ...resumed, status: "queued", message: "Возобновление публикации" });
+  };
+
   useEffect(() => {
     if (!job || job.status === "complete" || job.status === "failed") return;
     const timer = window.setInterval(() => {
@@ -445,7 +450,7 @@ function App() {
             <Flex justify="end" gap="3" mt="5"><Dialog.Close><Button variant="soft" color="gray">Отмена</Button></Dialog.Close><Button disabled={!figmaToken.trim()} onClick={() => void api<{ connected: boolean }>("/api/figma/token", { method: "POST", body: JSON.stringify({ token: figmaToken }) }).then((value) => { setFigmaConnected(value.connected); setFigmaToken(""); setFigmaOpen(false); }).catch((error) => setMessage(safeMessage(error)))}>Сохранить подключение</Button></Flex>
           </Dialog.Content>
         </Dialog.Root>
-        <PublishOverlay job={job} mode={publishMode} close={() => setJob(null)} />
+      <PublishOverlay job={job} mode={publishMode} close={() => setJob(null)} resume={(jobId) => { void resumePublish(jobId).catch((error) => setMessage(safeMessage(error))); }} />
       </div>
     </Theme>
   );

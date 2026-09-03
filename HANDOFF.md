@@ -12,7 +12,7 @@
 ## Current checkpoint
 
 - Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
-- Milestones 1–2 завершены: защитные manifests/удаление ложных refs и типизированная диагностика публикации.
+- Milestones 1–3 завершены: защитные manifests/удаление ложных refs, типизированная диагностика и resumable publish workflow.
 - Before/after manifest идентичен: `237` файлов, SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`.
 - Sarafan draft неизменен: `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`; draft-assets: `37`.
 - Удалённые branch names, commit SHA и общий tree SHA сохранены в ExecPlan. `git gc`, reflog cleanup и удаление job-файлов не выполнялись.
@@ -20,6 +20,8 @@
 - Broad text-regex больше не принимает слово `origin` в `git push` за ошибку сессии; Host/Origin/CSRF представлены отдельным типом.
 - Publish command failures сохраняют только безопасные поля и diagnostic ID; очищенный журнал создаётся с mode `0600`.
 - UI показывает отдельные этапы Commit, Push и Pull Request.
+- `POST /api/publish/resume` продолжает exact failed job после commit; завершённые checks/commit/push пропускаются.
+- Remote branch сверяется с exact content SHA; один HTTP/2/RPC reset повторяется через HTTP/1.1. Совпадающий PR переиспользуется, конфликтующие branch/PR останавливают workflow.
 
 ## Verification
 
@@ -27,6 +29,7 @@
 - После удаления: три local refs отсутствуют; commits остаются восстановимыми unreachable objects.
 - Live manifest comparison: `237/237`, changed files `0`.
 - Milestone 2 focused Admin core/publish/boundary tests: `53/53`; Admin bundle rebuilt; lint and diff check green.
+- Milestone 3 fault-injection plus Admin core/publish/boundary tests: `59/59`; Admin bundle rebuilt; lint and diff check green.
 
 ## Stop-lines
 
@@ -38,7 +41,7 @@
 
 ## Next action
 
-Milestone 3: failing-first fault injection и идемпотентный `POST /api/publish/resume` для того же job/branch/contentCommit, с remote branch/PR guards и одним ограниченным сетевым retry. Все проверки — только с временным sandbox support-root.
+Milestone 4: усилить readiness и packaging — identity/repository/push/credential/SSH checks, честный статус upload-not-yet-proven, собственный Node runtime, build SHA и ad-hoc signing. Проверки только в isolated candidate.
 
 ## Pointers
 

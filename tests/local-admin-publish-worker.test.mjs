@@ -4,7 +4,8 @@ import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, publishReadiness, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, ensurePullRequest, pendingPublishStages, publishReadiness, pushPublishCommit, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PublishCommandError } from "../tools/des-art-admin/admin-errors.mjs";
 import { createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
 
 const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
@@ -105,7 +106,59 @@ test("publish worker persists command failure metadata without exposing technica
   assert.equal(result.attempt, 1);
   assert.match(result.diagnosticId, /^[a-f0-9-]+$/);
   assert.doesNotMatch(`${result.errorTitle} ${result.error}`, /ENOENT|missing-repository|spawn/i);
-  assert.equal((await stat(path.join(root, "jobs", "diagnostics", result.id, `${result.diagnosticId}.log`))).mode & 0o777, 0o600);
+  assert.equal((await stat(path.join(root, "diagnostics", result.id, `${result.diagnosticId}.log`))).mode & 0o777, 0o600);
+});
+
+test("push resume reuses the exact remote SHA and retries an HTTP/2 reset once through HTTP/1.1", async () => {
+  const sha = "a".repeat(40);
+  const existingCalls = [];
+  const existing = await pushPublishCommit({ command: async (operation, command, args) => {
+    existingCalls.push({ operation, command, args });
+    return { stdout: `${sha}\trefs/heads/codex/content-publish-test\n` };
+  }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: sha });
+  assert.deepEqual(existing, { state: "already-pushed", attempt: 0 });
+  assert.equal(existingCalls.length, 1);
+
+  const retryCalls = [];
+  const retried = await pushPublishCommit({ command: async (operation, command, args, options, attempt) => {
+    retryCalls.push({ operation, command, args, attempt });
+    if (operation === "push.lookup") return { stdout: "" };
+    if (attempt === 1) throw new PublishCommandError({ failedOperation: "push", failureCode: "HTTP2_RPC_RESET", exitCode: 128, retryable: true, attempt: 1, diagnosticId: "first" });
+    return { stdout: "" };
+  }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: sha });
+  assert.deepEqual(retried, { state: "pushed", attempt: 2 });
+  assert.deepEqual(retryCalls[2].args.slice(0, 3), ["-c", "http.version=HTTP/1.1", "push"]);
+  assert.equal(retryCalls[2].args.at(-1), `${sha}:refs/heads/codex/content-publish-test`);
+  assert.equal(retryCalls.filter((call) => call.operation === "push").length, 2);
+});
+
+test("resume starts after the last completed stage without repeating checks, commit or push", () => {
+  const stages = PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: ["validate", "prepare", "checks", "commit", "push"].includes(id) ? "complete" : "pending" }));
+  assert.deepEqual(pendingPublishStages(stages).map(([id]) => id), ["pr", "merge", "deploy", "verify"]);
+});
+
+test("push does not retry authentication failures", async () => {
+  let attempts = 0;
+  await assert.rejects(() => pushPublishCommit({ command: async (operation) => {
+    if (operation === "push.lookup") return { stdout: "" };
+    attempts += 1;
+    throw new PublishCommandError({ failedOperation: "push", failureCode: "AUTHENTICATION_FAILED", exitCode: 128, retryable: false, attempt: 1, diagnosticId: "auth" });
+  }, cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: "a".repeat(40) }));
+  assert.equal(attempts, 1);
+});
+
+test("push resume blocks a conflicting remote SHA", async () => {
+  await assert.rejects(() => pushPublishCommit({
+    command: async () => ({ stdout: `${"b".repeat(40)}\trefs/heads/codex/content-publish-test\n` }),
+    cwd: "/sandbox", branch: "codex/content-publish-test", contentCommit: "a".repeat(40),
+  }), (error) => error.title === "Удалённая ветка изменилась");
+});
+
+test("pull request resume reuses one open PR and blocks closed or ambiguous matches", async () => {
+  const open = await ensurePullRequest({ command: async () => ({ stdout: JSON.stringify([{ state: "OPEN", url: "https://github.test/pr/1", mergedAt: null }]) }), cwd: "/sandbox", branch: "codex/test", title: "Test" });
+  assert.equal(open, "https://github.test/pr/1");
+  await assert.rejects(() => ensurePullRequest({ command: async () => ({ stdout: JSON.stringify([{ state: "CLOSED", url: "https://github.test/pr/2", mergedAt: null }]) }), cwd: "/sandbox", branch: "codex/test", title: "Test" }), (error) => error.title === "Pull Request закрыт без merge");
+  await assert.rejects(() => ensurePullRequest({ command: async () => ({ stdout: JSON.stringify([{ state: "OPEN" }, { state: "OPEN" }]) }), cwd: "/sandbox", branch: "codex/test", title: "Test" }), (error) => error.title === "Найдено несколько Pull Request");
 });
 
 test("live publish configuration is process-only and never serialized into a job", async () => {
