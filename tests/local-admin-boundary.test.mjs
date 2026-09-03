@@ -305,6 +305,7 @@ test("prepared macOS launcher bundle is complete", async () => {
   const buildSha = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/build-sha.txt", import.meta.url), "utf8");
   assert.match(buildSha.trim(), /^[a-f0-9]{40}$/);
   assert.match(adminBuild, /rev-parse", "HEAD"/);
+  assert.match(adminBuild, /process\.env\.NEXT_PUBLIC_BUILD_SHA/);
   if (process.platform === "darwin") execFileSync("/usr/bin/codesign", ["--verify", "--deep", "--strict", fileURLToPath(new URL("../dist/Des-art Admin.app", import.meta.url))]);
 });
 

@@ -37,9 +37,9 @@ await Promise.all([
   ),
 ]);
 
-const configuredSha = process.env.DES_ART_ADMIN_BUILD_SHA;
+const configuredSha = process.env.DES_ART_ADMIN_BUILD_SHA ?? process.env.NEXT_PUBLIC_BUILD_SHA;
 const gitSha = configuredSha ?? (await exec("/usr/bin/git", ["rev-parse", "HEAD"])).stdout.trim();
-if (!/^[a-f0-9]{40}$/.test(gitSha)) throw new Error("DES_ART_ADMIN_BUILD_SHA must be a full Git SHA.");
+if (!/^[a-f0-9]{40}$/.test(gitSha)) throw new Error("Admin build SHA must be a full Git SHA.");
 await mkdir(path.dirname(runtime), { recursive: true });
 if (process.platform === "darwin") {
   const architecture = process.arch === "arm64" ? "arm64" : "x86_64";
