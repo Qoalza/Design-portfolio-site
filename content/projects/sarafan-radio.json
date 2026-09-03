@@ -12,51 +12,25 @@
   ],
   "detailTags": [
     "B2B2C",
-    "Тестовое"
+    "Тестовое",
+    "Product Designer",
+    "Product Analyst"
   ],
   "visibility": "published",
   "catalogOrder": 2,
   "homePlacement": "secondary",
-  "detailAvailable": false,
+  "detailAvailable": true,
   "materials": {
-    "projectState": "in_progress",
-    "fileState": "unavailable"
+    "projectState": "completed",
+    "fileState": "available",
+    "figmaUrl": "https://www.figma.com/design/pc0Ie7QnKOBSVXTW1akNKM/%D0%98%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F?node-id=15-9&t=KEvtHhg8ZABiPBxy-4"
   },
   "platforms": [
     "Desktop"
   ],
   "logo": {
-    "type": "layered",
-    "layers": [
-      {
-        "src": "/assets/homepage/radio-logo-vector-a.svg",
-        "slot": "a"
-      },
-      {
-        "src": "/assets/homepage/radio-logo-mask-a.svg",
-        "slot": "a"
-      },
-      {
-        "src": "/assets/homepage/radio-logo-vector-b.svg",
-        "slot": "b"
-      },
-      {
-        "src": "/assets/homepage/radio-logo-mask-b.svg",
-        "slot": "b"
-      },
-      {
-        "src": "/assets/homepage/radio-logo-vector-c.svg",
-        "slot": "c"
-      },
-      {
-        "src": "/assets/homepage/radio-logo-mask-c.svg",
-        "slot": "c"
-      },
-      {
-        "src": "/assets/homepage/radio-logo-vector-d.svg",
-        "slot": "d"
-      }
-    ]
+    "type": "image",
+    "src": "/assets/projects/sarafan-radio/logo.svg"
   },
   "visuals": {
     "catalog": {
@@ -116,8 +90,323 @@
           }
         ]
       }
+    },
+    "hero": {
+      "templateId": "hero.sarafan-collage",
+      "assets": {
+        "illustration": [
+          {
+            "src": "/assets/projects/sarafan-radio/figma/42d761cd7fa3a1e4/illustration.png",
+            "alt": "Иллюстрация пустого эфира",
+            "width": 2714,
+            "height": 2144
+          }
+        ],
+        "decoration": [
+          {
+            "src": "/assets/projects/sarafan-radio/figma/42d761cd7fa3a1e4/decoration.png",
+            "alt": "",
+            "width": 2472,
+            "height": 2472
+          }
+        ],
+        "dashboard": [
+          {
+            "src": "/assets/projects/sarafan-radio/figma/42d761cd7fa3a1e4/dashboard.png",
+            "alt": "Интерфейс Sarafan.Radio",
+            "width": 2896,
+            "height": 2464
+          }
+        ],
+        "player": [
+          {
+            "src": "/assets/projects/sarafan-radio/figma/42d761cd7fa3a1e4/player.png",
+            "alt": "Плеер Sarafan.Radio",
+            "width": 1688,
+            "height": 920
+          }
+        ],
+        "payment": [
+          {
+            "src": "/assets/projects/sarafan-radio/figma/42d761cd7fa3a1e4/payment.png",
+            "alt": "Оплата Sarafan.Radio",
+            "width": 1099,
+            "height": 536
+          }
+        ]
+      }
     }
   },
   "workSummary": "Подробно продумал сценарии используя продуктовые инструменты: составлял User-Flow, Job Story, изучал косвенных конкурентов. Проектировал изолированный сценарий исходя из полученных данных и составленного флоу.",
-  "content": []
+  "content": [
+    {
+      "type": "section",
+      "heading": "О проекте",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Сарафан.Радио — B2B2C-платформа для организации мероприятий. Она соединяет пользователей, которые готовят событие, со специалистами и поставщиками товаров и услуг."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "В тестовом задании я работал со сценарием оформления подарков — одним из этапов подготовки мероприятия. Пользователь выбирает товары, настраивает их получение и подтверждает заказ."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Задача",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "На входе были wireframe финальной страницы оформления и краткое описание сервиса. Готовой логики сценария, правил работы с доставкой и состояний заказа не было."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Необходимо было определить, какие действия и данные нужны пользователю до оплаты, а затем собрать их в последовательный интерфейс."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Модель",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Я начал с Job Stories и определил роли участников сценария. Клиент мог подготовить заказ самостоятельно или передать работу менеджеру; менеджер — собрать решение, а клиент — проверить его и подтвердить оплату. Согласовал с работодателем."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Это зафиксировало границы ответственности: заказ может дорабатываться несколькими участниками, но окончательное решение остаётся за клиентом."
+            }
+          ]
+        },
+        {
+          "type": "visual",
+          "templateId": "canvas.sarafan-model",
+          "assets": {
+            "content": [
+              {
+                "src": "/assets/projects/sarafan-radio/figma/dd83e595faa9e2b68c3319035f1b690a2ba1d0384dcf4889ba118e2b4f300564/content.png",
+                "alt": "Модель продукта Sarafan.Radio",
+                "width": 1520,
+                "height": 768
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Сценарии",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "На основе этой модели я собрал сценарии двух ролей и User Flow: от настройки отдельного подарка до проверки готовности всего заказа. В проработке учтены варианты товаров, разделение количества, общие и индивидуальные параметры получения, незавершённые заказы и ограничения перед оплатой."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Полная логика проекта — включая Job Stories, сценарии и User Flow — доступна в FigJam."
+            }
+          ]
+        },
+        {
+          "type": "visual",
+          "templateId": "canvas.sarafan-scenarios",
+          "assets": {
+            "content": [
+              {
+                "src": "/assets/projects/sarafan-radio/figma/5d4d3ae87bd6e9fd/content.png",
+                "alt": "Сценарии работы Sarafan.Radio",
+                "width": 1722,
+                "height": 699
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Настройка",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Настройка получения подарков строится не вокруг одной формы доставки, а вокруг состава заказа. Одинаковые товары можно оформить с общими параметрами или разделить на отдельные позиции: с разными адресами, датами, способами получения и комментариями."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Если часть заказа нельзя оформить, интерфейс показывает причину и возвращает пользователя к конкретной позиции — до перехода к оплате."
+            }
+          ]
+        },
+        {
+          "type": "visual",
+          "templateId": "canvas.sarafan-setup",
+          "assets": {
+            "desktop": [
+              {
+                "src": "/assets/projects/sarafan-radio/figma/8efc48d8d964bd64/desktop.png",
+                "alt": "Настройка Sarafan.Radio на desktop",
+                "width": 1206,
+                "height": 828
+              }
+            ],
+            "panel": [
+              {
+                "src": "/assets/projects/sarafan-radio/figma/8efc48d8d964bd64/panel.png",
+                "alt": "Панель настройки Sarafan.Radio",
+                "width": 928,
+                "height": 1176
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Оформление",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Финальную страницу я перестроил так, чтобы пользователь одновременно видел состав заказа, его готовность и итоговую стоимость. Товары расположены слева, а сводка, способ оплаты и ключевые действия — справа."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Детальные настройки вынесены в отдельный интерфейс. За счёт этого основная страница не превращается в длинную форму, но сохраняет связь со всеми параметрами заказа."
+            }
+          ]
+        },
+        {
+          "type": "notice",
+          "templateId": "notice.info-v1",
+          "content": [
+            {
+              "type": "text",
+              "text": "В тестовом задании упор был на сценарий и визуальное решение. Компоненты, фреймы и variable собраны только в объёме, необходимом для макетов, и не подготовлены как самостоятельная система для разработки."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "heading": "Результат",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "В результате получился связанный сценарий оформления подарков: от подготовки и настройки заказа до его проверки, передачи клиенту и оплаты. Для него были определены роли участников, ключевые ветки получения и состояния, которые не позволяют перейти к оплате с незавершённым заказом."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Тестовое задание прошло проверку. В обратной связи отметили чистое визуальное решение, удачную структуру страницы оформления и последовательно продуманную логику шагов пользователя."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "templateId": "gallery.devices-v1",
+      "groups": [
+        {
+          "deviceId": "desktop",
+          "images": [
+            {
+              "src": "/assets/projects/sarafan-radio/design-a0bd7bc8f5910accc39b11980b1b3c9593659cb41a65084a9f43bef62692db16.png",
+              "alt": "Галерея Desktop",
+              "width": 5920,
+              "height": 5120
+            },
+            {
+              "src": "/assets/projects/sarafan-radio/design-1-9cef49b334582080b00e3a4aeabd2784262a537741742c17b9ac7127b2a49660.png",
+              "alt": "Галерея Desktop",
+              "width": 5920,
+              "height": 5120
+            },
+            {
+              "src": "/assets/projects/sarafan-radio/design-2-a70f863e56719b2faf4ce1b0e8b8f39f53163187b28c0195b7d53771dcb27b36.png",
+              "alt": "Галерея Desktop",
+              "width": 5920,
+              "height": 5120
+            },
+            {
+              "src": "/assets/projects/sarafan-radio/design-4-83b743c74b2f6589f4beb3c2295d7bbad1b7587bf5f86fa6fd7f50a7050a2c63.png",
+              "alt": "Галерея Desktop",
+              "width": 5920,
+              "height": 5120
+            },
+            {
+              "src": "/assets/projects/sarafan-radio/design-3-f4957ff6fb34beacc79bd218a07fb6dca590a17e4fd1917ddd6843b42ba38477.png",
+              "alt": "Галерея Desktop",
+              "width": 5920,
+              "height": 5120
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
