@@ -12,7 +12,7 @@
 ## Current checkpoint
 
 - Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
-- Milestones 1–5 завершены: защитные manifests/refs, диагностика, resume workflow, truthful readiness, self-contained signed app bundle и полная изолированная приёмка.
+- Milestones 1–6 завершены: защитные manifests/refs, диагностика, resume workflow, truthful readiness, self-contained signed app bundle, полная изолированная приёмка и repair PR.
 - Before/after manifest идентичен: `237` файлов, SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`.
 - Sarafan draft неизменен: `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`; draft-assets: `37`.
 - Удалённые branch names, commit SHA и общий tree SHA сохранены в ExecPlan. `git gc`, reflog cleanup и удаление job-файлов не выполнялись.
@@ -38,6 +38,8 @@
 - Post-candidate live manifest: exact path/size/SHA comparison `237/237`, changed files `0`; Sarafan draft and all `37` draft-assets unchanged.
 - Read-only app inventory: exactly one installed `/Applications/Des-art Admin.app`; no indexed Spotlight duplicate was returned. Installation/replacement was not performed.
 - Provenance review: repair diff contains no canonical project content/assets, local drafts, jobs, snapshots, archives or `USERSPACE/**`.
+- Exact tested commit `d0658e8edb5f5523794ccd5c67f58cb9701a3f8b` был отправлен и подтверждён на remote.
+- Repair PR #32 открыт против `main`: https://github.com/Qoalza/Design-portfolio-site/pull/32. Состояние `OPEN`, `MERGEABLE`, `CLEAN`; CI checks для PR отсутствуют.
 
 ## Stop-lines
 
@@ -49,7 +51,7 @@
 
 ## Next action
 
-Milestone 6: review completed milestone-5 commit, then push branch and create the repair PR. Merge, deploy and installation in `/Applications` remain behind separate exact-SHA confirmation.
+Пользовательская проверка PR #32. Merge, deploy и установка в `/Applications` требуют отдельного подтверждения exact SHA актуального head PR.
 
 ## Pointers
 

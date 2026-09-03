@@ -1,6 +1,6 @@
 # Надёжная публикация Des-art Admin
 
-Status: `ACTIVE`
+Status: `READY_FOR_REVIEW`
 Started: 2026-09-03
 Branch: `codex/admin-publish-reliability`
 Base: `baf7729d2568821abe304b749e029e6fb9f1a599`
@@ -94,3 +94,6 @@ Refs удаляются без bundle по прямому решению пол�
 - 2026-09-03: post-candidate live audit matched the protected baseline by exact path, size and SHA-256 for all `237/237` files; changed, added and missing files: `0`. Sarafan draft remains `01bf5357…aa42`; draft-assets remain `37`.
 - 2026-09-03: read-only application inventory found exactly one installed `/Applications/Des-art Admin.app`. Spotlight currently returns no indexed duplicate for the bundle identifier or app name; replacing/installing the candidate remains behind the exact-SHA gate.
 - 2026-09-03: branch provenance audit found no canonical `content/projects`, public assets, drafts, jobs, snapshots, archives or `USERSPACE/**` in the repair diff.
+- 2026-09-03: exact tested commit `d0658e8edb5f5523794ccd5c67f58cb9701a3f8b` pushed to `codex/admin-publish-reliability`; the remote ref was read back and matched exactly.
+- 2026-09-03: repair PR #32 opened against `main`: https://github.com/Qoalza/Design-portfolio-site/pull/32. GitHub reports it open, non-draft, mergeable and `CLEAN`; no repository CI checks are configured for the PR.
+- 2026-09-03: implementation and delivery milestones are complete. Merge, deploy and installation remain separate exact-SHA gates; `Сараффан.Радио` remains unpublished.
