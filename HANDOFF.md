@@ -1,48 +1,45 @@
 # HANDOFF
 
-Обновлено: 2026-09-02.
+Обновлено: 2026-09-03.
 
 ## Checkout
 
 - Репозиторий: `/Users/designer/Documents/GitHub/Design-portfolio-site`.
-- Ветка: `codex/auto-hero-activation`; base `origin/main` — `2d83e87f90624d08e6923bdfc26ba97a54c62474`.
-- Текущая Git-группа: release hardening существующей live Admin и синхронизация lifecycle-документов.
-- Protected untracked и `USERSPACE/**` не затронуты.
+- Изолированный worktree: `/private/tmp/design-portfolio-admin-publish-reliability`.
+- Ветка: `codex/admin-publish-reliability`; base `origin/main` — `baf7729d2568821abe304b749e029e6fb9f1a599`.
+- Текущий пользовательский checkout, protected untracked и `USERSPACE/**` не затронуты.
 
 ## Current checkpoint
 
-- Request первого перехода не доступен в Admin UI или HTTP API. Codex сначала получает явный выбор пользователя, затем отдельная локальная operator-команда сохраняет одноразовый request `clean|overlay`, привязанный к full production SHA; сама команда не запускает Admin, archive или publish.
-- При `overlay` production остаётся baseline, а все присутствующие sandbox project-authoring values побеждают в local live draft, включая пустые значения, удаление, visibility, порядок и placement. Jobs, previews, snapshots и runtime state остаются только в archive. Это не publish.
-- Новый live store изолирован в generation. Lock защищает от одновременного запуска; после archive journal позволяет повторно активировать только ту же проверенную generation без второго archive.
-- Reset виден только у изменённого production-проекта в verified live, имеет отдельное confirmation и затрагивает только его local state. В sandbox и у draft-only проекта кнопки нет.
-- Cmd+Z/Shift+Cmd+Z хранят до пяти текстовых операций текущего проекта; media, Figma, структуры и action buttons не входят в историю.
-- Для проверки ещё не влитого candidate добавлен отдельный sandbox runner: только новый пустой support-root внутри системной temporary directory и принудительный sandbox mode. Обычный App Support, live config и production не используются.
-- Launcher проверяет выбранный путь и SHA до archive, не запускает fallback sandbox после начала transition, а пакет Admin пересобран из актуальных исходников.
-- Existing valid marker v4 `production-live` не запускает первый bootstrap: после подтверждённого public/managed SHA он повышается только до v5 `legacy-live`, сохраняет active store и archive, записывает current `sourceSha` и не создаёт request, archive, transfer или generation. Ошибка live preflight останавливает запуск без sandbox fallback.
-- Read-only provenance для кандидата без canonical-изменений фиксирует `noCanonicalChanges: true`; assets и неизвестные project JSON по-прежнему отклоняются.
-- Правило данных неизменно: `production → local Admin`; local drafts не попадают в Git, canonical content/assets, publish или production.
-- UI transition и ручной field-review отсутствуют.
-- Два self-review пройдены: data/state safety выявил и устранил recovery marker/generation и stale-lock gaps; UX/candidate/docs выявил и обновил устаревший boundary-test, ожидавший удалённый manual-review flow.
+- Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
+- Milestone 1 завершён: созданы before/after SHA-256 manifests live Admin и удалены ровно три ложные локальные publish-ветки.
+- Before/after manifest идентичен: `237` файлов, SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`.
+- Sarafan draft неизменен: `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`; draft-assets: `37`.
+- Удалённые branch names, commit SHA и общий tree SHA сохранены в ExecPlan. `git gc`, reflog cleanup и удаление job-файлов не выполнялись.
+- Live Admin и live store во время этапа не запускались и не изменялись.
 
 ## Verification
 
-- Focused transfer/operator/core/boundary tests: green.
-- Full repository tests: `292/292`; focused production-bootstrap/boundary tests (`31/31`) и core/bootstrap/boundary tests (`49/49`) — green; `npm run lint`: green; production build: green.
-- Admin bundle source/package parity: green.
-- Exact candidate SHA intentionally не записывается в self-referential handoff commit; он сообщается в финальном отчёте.
+- Перед удалением: отсутствуют связанные remote branches, PR и worktree.
+- После удаления: три local refs отсутствуют; commits остаются восстановимыми unreachable objects.
+- Live manifest comparison: `237/237`, changed files `0`.
 
 ## Stop-lines
 
-- Push, PR, merge, deploy, production mutation и публикация Sarafan не выполнялись.
-- Первый запуск packaged Admin с valid `live-publish.json` всё ещё требует отдельной команды пользователя после deploy exact SHA: он работает с реальным локальным store.
+- Live store не записывать: без bootstrap, reset, import/export и live acceptance во время разработки.
+- Публикацию «Сараффан.Радио», merge, deploy и установку Admin не выполнять.
+- Merge/deploy/install требуют отдельного подтверждения exact SHA.
+- Остановиться при изменении live manifest, production SHA, content/schema contract или неожиданной remote branch/PR.
 - Protected untracked и `USERSPACE/**` не читать и не трогать.
 
 ## Next action
 
-Выполнить второй self-review и final evidence на exact documentation candidate. Только затем ждать отдельных прямых команд на merge exact branch → main, push, deploy и запуск real live Admin.
+Milestone 2: добавить failing-first тесты классификации, затем типизированные ошибки локальной сессии, безопасную command-диагностику и раздельные Commit / Push / Pull Request stages. Все проверки — только с временным sandbox support-root.
 
 ## Pointers
 
+- ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
 - Admin contract: `tools/des-art-admin/SPEC.md`.
-- Deploy/lifecycle: `docs/ops/DEPLOY.md`.
-- Shared rule: `AGENTS.md`.
+- Publish worker: `tools/des-art-admin/publish-worker.mjs`.
+- Human errors: `tools/des-art-admin/human-errors.mjs`.
+- Server/API: `tools/des-art-admin/server.mjs`.
