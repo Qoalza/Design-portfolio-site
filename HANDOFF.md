@@ -4,17 +4,16 @@
 
 ## Checkout
 
-- Изолированный worktree: `/private/tmp/design-portfolio-admin-runtime-decoupling`.
-- Ветка: `codex/admin-runtime-decoupling`; base/merged repair SHA `0bdba1638b67d36454446104b4b7ee838ce450fd`.
+- Admin runtime decoupling merged into `main` at `6393268ee561c8301d36acf14741600cb05d2e2a` via PR #37.
 - Protected пользовательский checkout и `USERSPACE/**` не затронуты.
 
 ## Current checkpoint
 
-- Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`, milestones 11–12.
+- FULL ExecPlan `docs/exec-plans/admin-publish-reliability.md` завершён.
 - Root cause после установки repair Admin: launcher исполнял server из managed Portfolio checkout и требовал production SHA == `origin/main`; после merge repair это невозможно без запрещённого deploy Сарафана.
 - Исправление разделяет runtime и data baseline: signed `.app` содержит allowlisted Admin server/worker/UI/shared validators, а existing live managed repository остаётся detached на exact deployed production SHA.
 - Первый live transition по-прежнему требует production SHA == `origin/main`; schema/content contract не менялся.
-- Production подтверждён на `0cd02a9ab05bb46b862cc505e81af67382059bd4`; Сарафан не деплоился.
+- `/Applications/Des-art Admin.app` установлен из exact merge SHA `6393268ee561c8301d36acf14741600cb05d2e2a` и запускает bundled server. Managed repository чистый и detached на production `0cd02a9ab05bb46b862cc505e81af67382059bd4`; Сарафан не деплоился.
 - Protected live manifest: `245/245`, changed `0`; Sarafan draft `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`, draft-assets `37`.
 
 ## Verification
@@ -35,7 +34,7 @@
 
 ## Next action
 
-Repair PR #37 открыт: `https://github.com/Qoalza/Design-portfolio-site/pull/37`, base `0bdba1638b67d36454446104b4b7ee838ce450fd`. После финального delivery-doc commit повторить exact-head audit и остановиться перед merge/install gates.
+Ремонт завершён. Публикацию/возобновление job «Сараффан.Радио» запускает только пользователь отдельным действием; Codex её не выполнял.
 
 ## Pointers
 
