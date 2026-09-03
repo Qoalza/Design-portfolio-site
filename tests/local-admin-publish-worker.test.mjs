@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, ensurePullRequest, pendingPublishStages, publishReadiness, pushPublishCommit, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, createReleaseArchive, createPublishBranch, ensurePullRequest, isReusablePublishJob, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
 import { PublishCommandError } from "../tools/des-art-admin/admin-errors.mjs";
 import { classifyCommandFailure, createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
 
@@ -173,6 +173,36 @@ test("push blocks when post-failure reconciliation finds a different remote SHA"
 test("resume starts after the last completed stage without repeating checks, commit or push", () => {
   const stages = PUBLISH_STAGES.map(([id, label]) => ({ id, label, status: ["validate", "prepare", "checks", "commit", "push"].includes(id) ? "complete" : "pending" }));
   assert.deepEqual(pendingPublishStages(stages).map(([id]) => id), ["pr", "merge", "deploy", "verify"]);
+});
+
+test("publish input fingerprint covers draft bytes and every copied draft asset", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-publish-input-"));
+  const draftFile = path.join(root, "drafts", "draft.json");
+  const draftAssetRoot = path.join(root, "draft-assets");
+  await mkdir(path.dirname(draftFile), { recursive: true });
+  await mkdir(path.join(draftAssetRoot, "draft", "nested"), { recursive: true });
+  await writeFile(draftFile, "draft-v1");
+  await writeFile(path.join(draftAssetRoot, "draft", "nested", "asset.png"), "asset-v1");
+  const first = await publishInputFingerprint({ files: [draftFile], draftAssetRoot });
+  const repeated = await publishInputFingerprint({ files: [draftFile], draftAssetRoot });
+  assert.equal(repeated, first);
+  await writeFile(path.join(draftAssetRoot, "draft", "nested", "asset.png"), "asset-v2");
+  assert.notEqual(await publishInputFingerprint({ files: [draftFile], draftAssetRoot }), first);
+});
+
+test("an unfinished job is reusable only for the same exact publish input and identity", () => {
+  const job = {
+    id: "job", status: "failed", mode: "live", scope: "project", slug: "draft",
+    branch: "codex/content-publish-20260903-145322", contentCommit: "a".repeat(40), inputFingerprint: "b".repeat(64),
+  };
+  const identity = { mode: "live", scope: "project", slug: "draft", inputFingerprint: "b".repeat(64) };
+  assert.equal(isReusablePublishJob(job, identity), true);
+  assert.equal(isReusablePublishJob({ ...job, status: "running" }, identity), true);
+  assert.equal(isReusablePublishJob({ ...job, status: "queued", branch: undefined, contentCommit: undefined }, identity), true);
+  assert.equal(isReusablePublishJob(job, { ...identity, inputFingerprint: "c".repeat(64) }), false);
+  assert.equal(isReusablePublishJob({ ...job, status: "complete" }, identity), false);
+  assert.equal(isReusablePublishJob({ ...job, contentCommit: undefined }, identity), false);
+  assert.equal(isReusablePublishJob({ ...job, scope: "all", slug: "first" }, { ...identity, scope: "all", slug: "second" }), true);
 });
 
 test("push does not retry authentication failures", async () => {

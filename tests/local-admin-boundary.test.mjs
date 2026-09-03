@@ -48,6 +48,9 @@ test("failed publish jobs resume only through an exact persisted job id", () => 
   assert.match(server, /job\.status === "failed"/);
   assert.match(server, /content-publish-\\d\{8\}-\\d\{6\}/);
   assert.match(server, /\^\[a-f0-9\]\{40\}\$/);
+  assert.match(server, /publishInputFingerprint/);
+  assert.match(server, /isReusablePublishJob/);
+  assert.match(server, /currentInputFingerprint !== job\.inputFingerprint/);
   assert.match(adminUi, /\/api\/publish\/resume/);
 });
 

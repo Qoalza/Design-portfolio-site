@@ -11,7 +11,7 @@ import { AdminStore, validateLocalRequest } from "./core.mjs";
 import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
 import { readFigmaToken, saveFigmaToken } from "./figma-template-import.mjs";
 import { humanError } from "./human-errors.mjs";
-import { PUBLISH_STAGES, publishReadiness } from "./publish-worker.mjs";
+import { PUBLISH_STAGES, isReusablePublishJob, publishInputFingerprint, publishReadiness } from "./publish-worker.mjs";
 import { createPreviewRuntimeIdentity, previewHealthMatches } from "./preview-runtime.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -62,6 +62,16 @@ function currentGitSha() {
     if (execFileSync("/usr/bin/git", ["status", "--porcelain"], { cwd: repoRoot, encoding: "utf8" }).trim()) return null;
     return execFileSync("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
   } catch { return null; }
+}
+
+function localPublishStateAvailable(job) {
+  if (job.status === "queued" || job.status === "running") return true;
+  try {
+    const sha = execFileSync("/usr/bin/git", ["rev-parse", "--verify", `refs/heads/${job.branch}`], { cwd: repoRoot, encoding: "utf8" }).trim();
+    return sha === job.contentCommit;
+  } catch {
+    return false;
+  }
 }
 
 async function hasVerifiedLiveBaseline() {
@@ -280,11 +290,23 @@ async function handler(request, response) {
       }
       const files = selected.map((project) => path.join(store.draftRoot, `${project.slug}.json`));
       await mkdir(jobsRoot, { recursive: true });
-      const id = `${Date.now()}-${value.scope === "project" ? selected[0].slug : "all"}`;
-      const jobFile = path.join(jobsRoot, `${id}.json`);
       const existingFiles = [];
       for (const file of files) { try { await readFile(file); existingFiles.push(file); } catch {} }
-      const job = { id, mode: publishMode, scope: value.scope, slug: value.slug, repoRoot, supportRoot, draftAssetRoot: store.draftAssetRoot, files: existingFiles, snapshotRoot: store.snapshotRoot, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
+      const inputFingerprint = await publishInputFingerprint({ files: existingFiles, draftAssetRoot: store.draftAssetRoot });
+      const priorNames = (await readdir(jobsRoot).catch(() => [])).filter((name) => name.endsWith(".json")).sort().reverse();
+      for (const name of priorNames) {
+        const candidate = JSON.parse(await readFile(path.join(jobsRoot, name), "utf8"));
+        const identity = { mode: publishMode, scope: value.scope, slug: value.slug, inputFingerprint };
+        if (typeof candidate.repoRoot === "string" && path.resolve(candidate.repoRoot) === repoRoot
+          && typeof candidate.supportRoot === "string" && path.resolve(candidate.supportRoot) === supportRoot
+          && isReusablePublishJob(candidate, identity)
+          && localPublishStateAvailable(candidate)) {
+          return json(response, 200, candidate);
+        }
+      }
+      const id = `${Date.now()}-${value.scope === "project" ? selected[0].slug : "all"}`;
+      const jobFile = path.join(jobsRoot, `${id}.json`);
+      const job = { id, mode: publishMode, scope: value.scope, slug: value.slug, repoRoot, supportRoot, draftAssetRoot: store.draftAssetRoot, files: existingFiles, inputFingerprint, snapshotRoot: store.snapshotRoot, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
       await writeFile(jobFile, `${JSON.stringify(job, null, 2)}\n`, { mode: 0o600 });
       launchPublishWorker(jobFile);
       return json(response, 202, job);
@@ -302,8 +324,11 @@ async function handler(request, response) {
         && path.resolve(job.repoRoot) === repoRoot
         && path.resolve(job.supportRoot) === supportRoot
         && /^codex\/content-publish-\d{8}-\d{6}$/.test(job.branch)
-        && /^[a-f0-9]{40}$/.test(job.contentCommit);
+        && /^[a-f0-9]{40}$/.test(job.contentCommit)
+        && /^[a-f0-9]{64}$/.test(job.inputFingerprint);
       if (!resumableIdentity) return userError(response, 409, "Публикацию нельзя продолжить", "Этот job не достиг сохранённого commit, уже выполняется или не совпадает с текущим окружением.");
+      const currentInputFingerprint = await publishInputFingerprint({ files: job.files, draftAssetRoot: job.draftAssetRoot });
+      if (currentInputFingerprint !== job.inputFingerprint) return userError(response, 409, "Черновик изменился после остановки", "Сохранённый commit относится к предыдущей версии черновика. Запустите новую публикацию, чтобы подготовить актуальные данные.");
       const readiness = await publishReadiness({ supportRoot, repoRoot, mode: publishMode });
       if (!readiness.ready) return userError(response, 409, "Публикацию нельзя продолжить", "Окружение публикации не настроено полностью. Исправьте указанную проблему и повторите действие.");
       job.status = "queued";

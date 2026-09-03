@@ -1,6 +1,7 @@
 import { execFile, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { access, cp, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -33,6 +34,53 @@ export function pendingPublishStages(stages) {
 export function createPublishBranch(isoDate = new Date().toISOString()) {
   const compact = isoDate.replace(/\D/g, "").slice(0, 14);
   return `codex/content-publish-${compact.slice(0, 8)}-${compact.slice(8)}`;
+}
+
+async function inputFiles(root, relative = "") {
+  let entries;
+  try {
+    entries = await readdir(path.join(root, relative), { withFileTypes: true });
+  } catch (error) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+  const files = [];
+  for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
+    const child = path.join(relative, entry.name);
+    if (entry.isDirectory()) files.push(...await inputFiles(root, child));
+    else if (entry.isFile()) files.push(child);
+  }
+  return files;
+}
+
+function addFingerprintEntry(hash, label, bytes) {
+  hash.update(`${Buffer.byteLength(label)}:${label}:${bytes.byteLength}:`);
+  hash.update(bytes);
+}
+
+export async function publishInputFingerprint({ files, draftAssetRoot }) {
+  const hash = createHash("sha256");
+  for (const file of [...files].sort()) {
+    const slug = path.basename(file, ".json");
+    addFingerprintEntry(hash, `draft/${path.basename(file)}`, await readFile(file));
+    const assetRoot = path.join(draftAssetRoot, slug);
+    for (const relative of await inputFiles(assetRoot)) {
+      addFingerprintEntry(hash, `draft-assets/${slug}/${relative.split(path.sep).join("/")}`, await readFile(path.join(assetRoot, relative)));
+    }
+  }
+  return hash.digest("hex");
+}
+
+export function isReusablePublishJob(job, identity) {
+  const sameInput = ["queued", "running", "failed"].includes(job?.status)
+    && job.mode === identity.mode
+    && job.scope === identity.scope
+    && (identity.scope === "all" || job.slug === identity.slug)
+    && job.inputFingerprint === identity.inputFingerprint;
+  if (!sameInput) return false;
+  if (job.status === "queued" || job.status === "running") return true;
+  return /^codex\/content-publish-\d{8}-\d{6}$/.test(job.branch)
+    && /^[a-f0-9]{40}$/.test(job.contentCommit);
 }
 
 function remoteHead(output) {
