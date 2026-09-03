@@ -11,6 +11,7 @@
 
 Дополнительный контекст читать выборочно:
 
+- structured implementation planning → `docs/agent/PLAN_RULES.md`, когда включён Plan Mode, пользователь явно просит implementation plan, создаётся/обновляется durable ExecPlan, план используется для Goal либо передаётся другому исполнителю или контексту; не читать для приватной последовательности шагов, короткого checklist или локальной диагностики;
 - visual/component change → точный Figma source и релевантный раздел `DESIGN_SYSTEM.md`;
 - visual defect → только соответствующую запись `DESIGN_QA.md`;
 - Admin → `tools/des-art-admin/SPEC.md` и ближайшие code/tests;
@@ -158,6 +159,10 @@ Production, VPS, DNS, SSL, firewall, secrets/access, real data, migrations и п
 # Проверки
 
 - После любого изменения выполнить ближайшую достаточную проверку.
+- `SMALL + LOW`, изолированная и детерминированная работа: отдельное формальное саморевью реализации не требуется, если ближайшая проверка достаточна и не обнаружен более широкий риск.
+- `MEDIUM` или `ELEVATED`: один ограниченный review-блок с двумя разными линзами — fidelity/completeness и regression/scope; исправить подтверждённые проблемы.
+- `LARGE`, `HIGH`, `FULL`, shared/public contract, migration, production или material-risk work: два последовательных review с исправлениями между ними — сначала fidelity/completeness, затем regression/scope/risk.
+- После последнего изменения повторить затронутые проверки; финальное evidence относится только к этому итоговому состоянию.
 - Visual change: открыть exact place/state и подтвердить результат.
 - Text/doc/asset/очевидный local CSS: не запускать lint/build без отдельного риска.
 - TypeScript/React logic: focused tests и `npm run lint` перед закрытием Git-группы.
