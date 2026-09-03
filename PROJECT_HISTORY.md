@@ -78,6 +78,12 @@ Evidence: `design-reference/site-refresh-v2*/`, `design-reference/goal3-regressi
 Admin current contract: `tools/des-art-admin/SPEC.md`.
 Shared map: `docs/shared/PROJECT_CONTENT.md`.
 
+## 2026-08-29 — независимые состояния project page и файла
+
+- PR #22 был объединён и опубликован из `349ec7d071d1d6e9c74bc442b2fff3032d8c68ae`.
+- Доступность публичной страницы проекта и отдельного файла были разделены: для «Сараффан.Радио» восстановлено состояние `detail unavailable + file temporarily unavailable`.
+- При полном отсутствии файла карточка не показывает ссылку; пояснение остаётся внутри открытого проекта. Admin не создаёт пустую обязательную Figma-ссылку при смене состояния и удаляет пустую Gallery вместо сохранения невалидного блока.
+
 ## 2026-08-31 — project/Admin fixes и release archive hardening
 
 - Исправлены Admin project-page editor, pending gallery devices, media/frame import, upload collisions и human-facing validation errors.
