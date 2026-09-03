@@ -50,8 +50,14 @@ test("failed publish jobs resume only through an exact persisted job id", () => 
   assert.match(server, /\^\[a-f0-9\]\{40\}\$/);
   assert.match(server, /publishInputFingerprint/);
   assert.match(server, /isReusablePublishJob/);
-  assert.match(server, /currentInputFingerprint !== job\.inputFingerprint/);
+  assert.match(server, /resumeInputMatches\(job, currentInputFingerprint\)/);
   assert.match(adminUi, /\/api\/publish\/resume/);
+});
+
+test("merge never asks GitHub CLI to delete a branch from the publish worktree", async () => {
+  const worker = await readFile(new URL("../tools/des-art-admin/publish-worker.mjs", import.meta.url), "utf8");
+  assert.match(worker, /--match-head-commit/);
+  assert.doesNotMatch(worker, /pr", "merge"[^\n]+--delete-branch/);
 });
 
 test("launcher uses argument arrays instead of shell command construction", () => {
