@@ -1,3 +1,5 @@
+import { LocalRequestError, PublishCommandError } from "./admin-errors.mjs";
+
 export class UserFacingError extends Error {
   constructor(title, message, options = {}) {
     super(message, options.cause ? { cause: options.cause } : undefined);
@@ -16,6 +18,24 @@ const manualDiagnosis = (title = "Действие не выполнено") => 
 export function humanError(error) {
   if (error instanceof UserFacingError) {
     return { title: error.title, message: error.userMessage, status: error.status ?? 400 };
+  }
+  if (error instanceof LocalRequestError) {
+    return {
+      title: "Сеанс админки устарел",
+      message: "Перезагрузите админку и повторите действие. Несохранённые поля останутся в локальном черновике.",
+      status: 403,
+    };
+  }
+  if (error instanceof PublishCommandError) {
+    const messages = {
+      AUTHENTICATION_FAILED: "GitHub отклонил учётные данные. Проверьте вход в GitHub и повторите публикацию.",
+      PERMISSION_DENIED: "GitHub не разрешил запись в репозиторий. Проверьте права доступа перед повтором.",
+      DNS_UNAVAILABLE: "Не удалось найти сервер GitHub по сети. Проверьте подключение и повторите действие.",
+      HTTP2_RPC_RESET: "Соединение с GitHub было сброшено во время отправки. Публикацию можно безопасно продолжить.",
+      NETWORK_UNAVAILABLE: "Соединение с GitHub недоступно. Проверьте сеть и продолжите публикацию.",
+      COMMAND_FAILED: "Команда публикации завершилась с ошибкой. Данные сохранены; используйте номер диагностики для проверки.",
+    };
+    return { title: "Публикация остановлена", message: messages[error.failureCode] ?? messages.COMMAND_FAILED, status: 500 };
   }
 
   const source = error instanceof Error ? error.message : String(error ?? "");
@@ -78,11 +98,6 @@ export function humanError(error) {
     title: "Данные не удалось прочитать",
     message: "Админка получила неполные или некорректные данные. Повторите действие; если ошибка останется, потребуется ручная диагностика разработчиком.",
     status: 400,
-  };
-  if (/Host|Origin|CSRF/i.test(source)) return {
-    title: "Сеанс админки устарел",
-    message: "Перезагрузите админку и повторите действие. Несохранённые поля останутся в локальном черновике.",
-    status: 403,
   };
   if (/SVG size is invalid/i.test(source)) return {
     title: "Логотип не удалось загрузить",

@@ -13,6 +13,7 @@ import { readAllProjectDocuments, writeProjectDocument } from "../../src/lib/pro
 import { PROJECT_VISUAL_TEMPLATES, validateAssetForSlot, validateProjectCollection } from "../../src/lib/project-visual-registry.ts";
 import { compileAdminDraft, createAdminDraft, draftValidation, parseAdminDraft } from "./draft-contract.mjs";
 import { importFigmaTemplate } from "./figma-template-import.mjs";
+import { LocalRequestError } from "./admin-errors.mjs";
 import { UserFacingError } from "./human-errors.mjs";
 
 const requireRead = (file) => readFileSync(file, "utf8");
@@ -70,12 +71,12 @@ export function validateLocalRequest(request, csrfToken, port) {
   const hostname = separator === -1 ? host : host.slice(0, separator);
   const requestPort = separator === -1 ? "" : host.slice(separator + 1);
   if (!LOOPBACK_HOSTS.has(hostname) || requestPort !== String(port)) {
-    throw new Error("Host is not the local admin endpoint.");
+    throw new LocalRequestError("LOCAL_HOST_INVALID", "Host is not the local admin endpoint.");
   }
   if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
     const expectedOrigin = `http://127.0.0.1:${port}`;
-    if (request.origin !== expectedOrigin) throw new Error("Origin is not trusted.");
-    if (request.csrf !== csrfToken) throw new Error("CSRF token is missing or invalid.");
+    if (request.origin !== expectedOrigin) throw new LocalRequestError("LOCAL_ORIGIN_INVALID", "Origin is not trusted.");
+    if (request.csrf !== csrfToken) throw new LocalRequestError("LOCAL_CSRF_INVALID", "CSRF token is missing or invalid.");
   }
 }
 

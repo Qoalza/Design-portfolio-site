@@ -48,6 +48,13 @@ const imageTypes = new Map([
   [".svg", "image/svg+xml"],
 ]);
 
+function launchPublishWorker(jobFile) {
+  const workerArgs = [process.execPath, "--experimental-strip-types", path.join(directory, "publish-worker.mjs"), jobFile];
+  const command = process.platform === "darwin" ? "/usr/bin/caffeinate" : workerArgs.shift();
+  const child = spawn(command, workerArgs, { cwd: repoRoot, detached: true, stdio: "ignore" });
+  child.unref();
+}
+
 const userError = (response, status, title, message) => json(response, status, { errorTitle: title, error: message });
 
 function currentGitSha() {
@@ -249,7 +256,7 @@ async function handler(request, response) {
       }
       return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}${pathname}?admin-preview=1&draft=${encodeURIComponent(slug)}` });
     }
-    if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot, mode: publishMode }));
+    if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot, repoRoot, mode: publishMode }));
     if (request.method === "GET" && url.pathname === "/api/publish/status") {
       const names = (await readdir(jobsRoot).catch(() => [])).filter((name) => name.endsWith(".json")).sort().reverse();
       return json(response, 200, names[0] ? JSON.parse(await readFile(path.join(jobsRoot, names[0]), "utf8")) : null);
@@ -257,7 +264,7 @@ async function handler(request, response) {
     if (request.method === "POST" && url.pathname === "/api/publish/start") {
       if (maintenanceMode) return userError(response, 403, "Публикация отключена", "Этот запуск Admin выполняет только безопасный локальный ремонт черновика.");
       const value = await body(request);
-      const readiness = await publishReadiness({ supportRoot, mode: publishMode });
+      const readiness = await publishReadiness({ supportRoot, repoRoot, mode: publishMode });
       if (!readiness.ready) return userError(response, 409, "Публикацию нельзя запустить", "Окружение публикации не настроено полностью. Требуется ручная диагностика разработчиком перед повторным запуском.");
       if (value.scope !== "project" && value.scope !== "all") return userError(response, 400, "Не удалось определить состав публикации", "Админка не поняла, нужно опубликовать один проект или все изменения. Закройте окно публикации и запустите нужное действие заново.");
       await store.ensureSnapshotBaseline();
@@ -279,10 +286,32 @@ async function handler(request, response) {
       for (const file of files) { try { await readFile(file); existingFiles.push(file); } catch {} }
       const job = { id, mode: publishMode, scope: value.scope, slug: value.slug, repoRoot, supportRoot, draftAssetRoot: store.draftAssetRoot, files: existingFiles, snapshotRoot: store.snapshotRoot, status: "queued", message: "Подготовка", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), stages: PUBLISH_STAGES.map(([stageId, label]) => ({ id: stageId, label, status: "pending" })) };
       await writeFile(jobFile, `${JSON.stringify(job, null, 2)}\n`, { mode: 0o600 });
-      const workerArgs = [process.execPath, "--experimental-strip-types", path.join(directory, "publish-worker.mjs"), jobFile];
-      const command = process.platform === "darwin" ? "/usr/bin/caffeinate" : workerArgs.shift();
-      const child = spawn(command, workerArgs, { cwd: repoRoot, detached: true, stdio: "ignore" });
-      child.unref();
+      launchPublishWorker(jobFile);
+      return json(response, 202, job);
+    }
+    if (request.method === "POST" && url.pathname === "/api/publish/resume") {
+      if (maintenanceMode) return userError(response, 403, "Публикация отключена", "Этот запуск Admin выполняет только безопасный локальный ремонт черновика.");
+      const value = await body(request);
+      if (typeof value.jobId !== "string" || !/^[a-zA-Z0-9._-]+$/.test(value.jobId)) return userError(response, 400, "Job не найден", "Не удалось определить публикацию для продолжения.");
+      const jobFile = path.join(jobsRoot, `${value.jobId}.json`);
+      let job;
+      try { job = JSON.parse(await readFile(jobFile, "utf8")); } catch { return userError(response, 404, "Job не найден", "Не удалось найти сохранённую публикацию для продолжения."); }
+      const resumableIdentity = job.id === value.jobId
+        && job.status === "failed"
+        && job.mode === publishMode
+        && path.resolve(job.repoRoot) === repoRoot
+        && path.resolve(job.supportRoot) === supportRoot
+        && /^codex\/content-publish-\d{8}-\d{6}$/.test(job.branch)
+        && /^[a-f0-9]{40}$/.test(job.contentCommit);
+      if (!resumableIdentity) return userError(response, 409, "Публикацию нельзя продолжить", "Этот job не достиг сохранённого commit, уже выполняется или не совпадает с текущим окружением.");
+      const readiness = await publishReadiness({ supportRoot, repoRoot, mode: publishMode });
+      if (!readiness.ready) return userError(response, 409, "Публикацию нельзя продолжить", "Окружение публикации не настроено полностью. Исправьте указанную проблему и повторите действие.");
+      job.status = "queued";
+      job.message = "Возобновление публикации";
+      job.resumeRequested = true;
+      job.updatedAt = new Date().toISOString();
+      await writeFile(jobFile, `${JSON.stringify(job, null, 2)}\n`, { mode: 0o600 });
+      launchPublishWorker(jobFile);
       return json(response, 202, job);
     }
     if (segments[0] === "api" && segments[1] === "projects" && segments[2]) {

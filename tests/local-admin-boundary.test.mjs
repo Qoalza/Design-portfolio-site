@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 const server = await readFile(new URL("../tools/des-art-admin/server.mjs", import.meta.url), "utf8");
 const launcher = await readFile(new URL("../tools/des-art-admin/launcher.mjs", import.meta.url), "utf8");
@@ -21,6 +23,7 @@ const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", 
 const figmaImporter = await readFile(new URL("../tools/des-art-admin/figma-template-import.mjs", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const deployCommand = await readFile(new URL("../tools/des-art-admin/server/art-des-publish", import.meta.url), "utf8");
+const adminBuild = await readFile(new URL("../tools/des-art-admin/build.mjs", import.meta.url), "utf8");
 
 test("admin server binds only to IPv4 loopback and validates local requests", () => {
   assert.match(server, /server\.listen\(port, "127\.0\.0\.1"/);
@@ -32,10 +35,20 @@ test("publish mode is launcher-owned and exposes the established live workflow",
   assert.match(server, /DES_ART_ADMIN_PUBLISH_MODE/);
   assert.match(server, /publishMode\s*=.*\?\s*"live"\s*:\s*"sandbox"/s);
   assert.match(adminUi, /publishMode/);
-  assert.match(adminUi, /Связано с art-des\.ru/);
+  assert.match(adminUi, /Окружение настроено/);
+  assert.match(adminUi, /Git-пакета подтвердится только на этапе Push/);
   assert.match(adminUi, /Опубликовать на art-des\.ru/);
   assert.match(adminDialogs, /mode === "live"/);
   assert.doesNotMatch(server, /value\.dryRun\s*!==\s*true/);
+});
+
+test("failed publish jobs resume only through an exact persisted job id", () => {
+  assert.match(server, /url\.pathname === "\/api\/publish\/resume"/);
+  assert.match(server, /\^\[a-zA-Z0-9\._-\]\+\$/);
+  assert.match(server, /job\.status === "failed"/);
+  assert.match(server, /content-publish-\\d\{8\}-\\d\{6\}/);
+  assert.match(server, /\^\[a-f0-9\]\{40\}\$/);
+  assert.match(adminUi, /\/api\/publish\/resume/);
 });
 
 test("launcher uses argument arrays instead of shell command construction", () => {
@@ -284,6 +297,15 @@ test("prepared macOS launcher bundle is complete", async () => {
   assert.equal(bundledLauncher, launcher);
   const source = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/source-repository.txt", import.meta.url), "utf8");
   assert.equal(source.trim(), "https://github.com/Qoalza/Design-portfolio-site.git");
+  const executable = await readFile(new URL("../dist/Des-art Admin.app/Contents/MacOS/Des-art Admin", import.meta.url), "utf8");
+  assert.match(executable, /Resources\/runtime\/bin\/node/);
+  assert.doesNotMatch(executable, /\/usr\/bin\/env node/);
+  const runtime = fileURLToPath(new URL("../dist/Des-art Admin.app/Contents/Resources/runtime/bin/node", import.meta.url));
+  assert.match(execFileSync(runtime, ["--version"], { encoding: "utf8" }), /^v\d+/);
+  const buildSha = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/build-sha.txt", import.meta.url), "utf8");
+  assert.match(buildSha.trim(), /^[a-f0-9]{40}$/);
+  assert.match(adminBuild, /rev-parse", "HEAD"/);
+  if (process.platform === "darwin") execFileSync("/usr/bin/codesign", ["--verify", "--deep", "--strict", fileURLToPath(new URL("../dist/Des-art Admin.app", import.meta.url))]);
 });
 
 test("canonical TypeScript config includes the fixed live preview output", async () => {

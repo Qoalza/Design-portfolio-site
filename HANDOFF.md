@@ -1,48 +1,63 @@
 # HANDOFF
 
-Обновлено: 2026-09-02.
+Обновлено: 2026-09-03.
 
 ## Checkout
 
 - Репозиторий: `/Users/designer/Documents/GitHub/Design-portfolio-site`.
-- Ветка: `codex/auto-hero-activation`; base `origin/main` — `2d83e87f90624d08e6923bdfc26ba97a54c62474`.
-- Текущая Git-группа: release hardening существующей live Admin и синхронизация lifecycle-документов.
-- Protected untracked и `USERSPACE/**` не затронуты.
+- Изолированный worktree: `/private/tmp/design-portfolio-admin-publish-reliability`.
+- Ветка: `codex/admin-publish-reliability`; base `origin/main` — `baf7729d2568821abe304b749e029e6fb9f1a599`.
+- Текущий пользовательский checkout, protected untracked и `USERSPACE/**` не затронуты.
 
 ## Current checkpoint
 
-- Request первого перехода не доступен в Admin UI или HTTP API. Codex сначала получает явный выбор пользователя, затем отдельная локальная operator-команда сохраняет одноразовый request `clean|overlay`, привязанный к full production SHA; сама команда не запускает Admin, archive или publish.
-- При `overlay` production остаётся baseline, а все присутствующие sandbox project-authoring values побеждают в local live draft, включая пустые значения, удаление, visibility, порядок и placement. Jobs, previews, snapshots и runtime state остаются только в archive. Это не publish.
-- Новый live store изолирован в generation. Lock защищает от одновременного запуска; после archive journal позволяет повторно активировать только ту же проверенную generation без второго archive.
-- Reset виден только у изменённого production-проекта в verified live, имеет отдельное confirmation и затрагивает только его local state. В sandbox и у draft-only проекта кнопки нет.
-- Cmd+Z/Shift+Cmd+Z хранят до пяти текстовых операций текущего проекта; media, Figma, структуры и action buttons не входят в историю.
-- Для проверки ещё не влитого candidate добавлен отдельный sandbox runner: только новый пустой support-root внутри системной temporary directory и принудительный sandbox mode. Обычный App Support, live config и production не используются.
-- Launcher проверяет выбранный путь и SHA до archive, не запускает fallback sandbox после начала transition, а пакет Admin пересобран из актуальных исходников.
-- Existing valid marker v4 `production-live` не запускает первый bootstrap: после подтверждённого public/managed SHA он повышается только до v5 `legacy-live`, сохраняет active store и archive, записывает current `sourceSha` и не создаёт request, archive, transfer или generation. Ошибка live preflight останавливает запуск без sandbox fallback.
-- Read-only provenance для кандидата без canonical-изменений фиксирует `noCanonicalChanges: true`; assets и неизвестные project JSON по-прежнему отклоняются.
-- Правило данных неизменно: `production → local Admin`; local drafts не попадают в Git, canonical content/assets, publish или production.
-- UI transition и ручной field-review отсутствуют.
-- Два self-review пройдены: data/state safety выявил и устранил recovery marker/generation и stale-lock gaps; UX/candidate/docs выявил и обновил устаревший boundary-test, ожидавший удалённый manual-review flow.
+- Активный FULL ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
+- Milestones 1–6 завершены: защитные manifests/refs, диагностика, resume workflow, truthful readiness, self-contained signed app bundle, полная изолированная приёмка и repair PR.
+- Before/after manifest идентичен: `237` файлов, SHA `87ffd4b71a20ebcb74d5ef6dd28cca56afc7c777018a9fb985204dbe15e0066f`.
+- Sarafan draft неизменен: `01bf5357649b306e03cd03e21d9ee458f4c21e353276489ce24cacb89c00aa42`; draft-assets: `37`.
+- Удалённые branch names, commit SHA и общий tree SHA сохранены в ExecPlan. `git gc`, reflog cleanup и удаление job-файлов не выполнялись.
+- Live Admin и live store во время этапа не запускались и не изменялись.
+- Broad text-regex больше не принимает слово `origin` в `git push` за ошибку сессии; Host/Origin/CSRF представлены отдельным типом.
+- Publish command failures сохраняют только безопасные поля и diagnostic ID; очищенный журнал создаётся с mode `0600`.
+- UI показывает отдельные этапы Commit, Push и Pull Request.
+- `POST /api/publish/resume` продолжает exact failed job после commit; завершённые checks/commit/push пропускаются.
+- Remote branch сверяется с exact content SHA; один HTTP/2/RPC reset повторяется через HTTP/1.1. Совпадающий PR переиспользуется, конфликтующие branch/PR останавливают workflow.
+- Readiness проверяет identity/repository/push/ls-remote/credential helper/SSH и не заявляет успешную загрузку до реального Push.
+- Generated `.app` содержит собственный thin Node runtime, build SHA и ad-hoc signature; launcher не зависит от LaunchServices `PATH`.
 
 ## Verification
 
-- Focused transfer/operator/core/boundary tests: green.
-- Full repository tests: `292/292`; focused production-bootstrap/boundary tests (`31/31`) и core/bootstrap/boundary tests (`49/49`) — green; `npm run lint`: green; production build: green.
-- Admin bundle source/package parity: green.
-- Exact candidate SHA intentionally не записывается в self-referential handoff commit; он сообщается в финальном отчёте.
+- Перед удалением: отсутствуют связанные remote branches, PR и worktree.
+- После удаления: три local refs отсутствуют; commits остаются восстановимыми unreachable objects.
+- Live manifest comparison: `237/237`, changed files `0`.
+- Milestone 2 focused Admin core/publish/boundary tests: `53/53`; Admin bundle rebuilt; lint and diff check green.
+- Milestone 3 fault-injection plus Admin core/publish/boundary tests: `59/59`; Admin bundle rebuilt; lint and diff check green.
+- Milestone 4 focused readiness/package suite: `41/41`; embedded runtime executed, strict codesign verification green.
+- Milestone 5 full suite: `309/309`; lint, production build and diff check green.
+- Candidate sandbox on `127.0.0.1:42731/42732`: Admin page, projects API and readiness API green; readiness reported configured access with upload still unverified. Candidate stopped cleanly.
+- Post-candidate live manifest: exact path/size/SHA comparison `237/237`, changed files `0`; Sarafan draft and all `37` draft-assets unchanged.
+- Read-only app inventory: exactly one installed `/Applications/Des-art Admin.app`; no indexed Spotlight duplicate was returned. Installation/replacement was not performed.
+- Provenance review: repair diff contains no canonical project content/assets, local drafts, jobs, snapshots, archives or `USERSPACE/**`.
+- Exact tested commit `d0658e8edb5f5523794ccd5c67f58cb9701a3f8b` был отправлен и подтверждён на remote.
+- Repair PR #32 открыт против `main`: https://github.com/Qoalza/Design-portfolio-site/pull/32. Состояние `OPEN`, `MERGEABLE`, `CLEAN`; CI checks для PR отсутствуют.
 
 ## Stop-lines
 
-- Push, PR, merge, deploy, production mutation и публикация Sarafan не выполнялись.
-- Первый запуск packaged Admin с valid `live-publish.json` всё ещё требует отдельной команды пользователя после deploy exact SHA: он работает с реальным локальным store.
+- Live store не записывать: без bootstrap, reset, import/export и live acceptance во время разработки.
+- Публикацию «Сараффан.Радио», merge, deploy и установку Admin не выполнять.
+- Merge/deploy/install требуют отдельного подтверждения exact SHA.
+- Остановиться при изменении live manifest, production SHA, content/schema contract или неожиданной remote branch/PR.
 - Protected untracked и `USERSPACE/**` не читать и не трогать.
 
 ## Next action
 
-Выполнить второй self-review и final evidence на exact documentation candidate. Только затем ждать отдельных прямых команд на merge exact branch → main, push, deploy и запуск real live Admin.
+Пользовательская проверка PR #32. Merge, deploy и установка в `/Applications` требуют отдельного подтверждения exact SHA актуального head PR.
 
 ## Pointers
 
+- ExecPlan: `docs/exec-plans/admin-publish-reliability.md`.
 - Admin contract: `tools/des-art-admin/SPEC.md`.
-- Deploy/lifecycle: `docs/ops/DEPLOY.md`.
-- Shared rule: `AGENTS.md`.
+- Publish worker: `tools/des-art-admin/publish-worker.mjs`.
+- Human errors: `tools/des-art-admin/human-errors.mjs`.
+- Publish diagnostics: `tools/des-art-admin/publish-diagnostics.mjs`.
+- Server/API: `tools/des-art-admin/server.mjs`.

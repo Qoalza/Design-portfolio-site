@@ -255,7 +255,7 @@ button, input, textarea, select { font: inherit; }
 .logo-preview img { width: 64px; height: 64px; object-fit: contain; }
 .publish-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 32px; background: rgba(255, 255, 255, .78); backdrop-filter: blur(16px); }
 .publish-card { display: grid; width: min(1120px, 100%); place-items: center; gap: 32px; padding: 40px 44px 36px; border: 0; border-radius: 16px; background: rgba(255, 255, 255, .97); box-shadow: 0 24px 80px rgba(38, 35, 30, .12); }
-.publish-stages { display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); width: 100%; overflow-x: auto; scrollbar-width: none; }
+.publish-stages { display: grid; grid-template-columns: repeat(9, minmax(128px, 1fr)); width: 100%; overflow-x: auto; scrollbar-width: none; }
 .publish-stages::-webkit-scrollbar { display: none; }
 .publish-stage { position: relative; display: grid; min-width: 128px; justify-items: center; gap: 10px; color: var(--sand-9); text-align: center; }
 .publish-stage:not(:last-child)::after { content: ""; position: absolute; z-index: 0; top: 13px; left: calc(50% + 20px); width: calc(100% - 40px); height: 1px; background: var(--sand-6); }

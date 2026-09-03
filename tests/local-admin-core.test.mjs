@@ -7,6 +7,7 @@ import test from "node:test";
 import { PROJECT_DOCUMENT_VERSION } from "../src/lib/project-contract.ts";
 import { AdminStore, createProjectSlug, inspectImage, inspectSvg, safeUploadName, validateLocalRequest } from "../tools/des-art-admin/core.mjs";
 import { compileAdminDraft } from "../tools/des-art-admin/draft-contract.mjs";
+import { LocalRequestError } from "../tools/des-art-admin/admin-errors.mjs";
 import { humanError, UserFacingError } from "../tools/des-art-admin/human-errors.mjs";
 
 const image = (src, alt = "") => ({ src, alt, width: 2960, height: 2400 });
@@ -65,6 +66,9 @@ test("user-facing errors keep known causes actionable and hide unknown diagnosti
   });
   assert.equal(humanError(new Error("Gallery pool images must use the first image proportion.")).title, "Пропорции не совпадают с первым изображением");
   assert.equal(humanError(new Error("asset is below the minimum 2× source size.")).title, "Изображение слишком маленькое");
+  const pushFailure = humanError(new Error("Command failed: git push -u origin branch\nfatal: Authentication failed"));
+  assert.notEqual(pushFailure.title, "Сеанс админки устарел");
+  assert.match(pushFailure.message, /ручная диагностика разработчиком/i);
 });
 
 test("project slugs are readable, Unicode-safe and collision resistant", () => {
@@ -123,6 +127,10 @@ test("local request boundary accepts only loopback Host, trusted Origin and CSRF
   assert.doesNotThrow(() => validateLocalRequest({ method: "POST", host: "127.0.0.1:41731", origin: "http://127.0.0.1:41731", csrf: token }, token, 41731));
   assert.throws(() => validateLocalRequest({ method: "POST", host: "evil.example", origin: "http://127.0.0.1:41731", csrf: token }, token, 41731), /host/i);
   assert.throws(() => validateLocalRequest({ method: "POST", host: "127.0.0.1:41731", origin: "https://evil.example", csrf: token }, token, 41731), /origin/i);
+  assert.throws(
+    () => validateLocalRequest({ method: "POST", host: "127.0.0.1:41731", origin: "http://127.0.0.1:41731", csrf: "wrong" }, token, 41731),
+    (error) => error instanceof LocalRequestError && error.code === "LOCAL_CSRF_INVALID",
+  );
 });
 
 test("CRUD preserves drafts, strips homepage placement on delete and keeps stable Admin ids", async () => {

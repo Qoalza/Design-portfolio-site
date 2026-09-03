@@ -34,7 +34,7 @@ export function IssueDialog({ open, title, issues, close, navigate }: { open: bo
   </Dialog.Content></Dialog.Root>;
 }
 
-export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; mode: "live" | "sandbox"; close: () => void }) {
+export function PublishOverlay({ job, mode, close, resume }: { job: PublishJob | null; mode: "live" | "sandbox"; close: () => void; resume: (jobId: string) => void }) {
   if (!job) return null;
   return (
     <div className="publish-overlay" role="dialog" aria-modal="true" aria-label="Публикация изменений">
@@ -63,7 +63,10 @@ export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; m
           )}
           <Heading size="5">{job.status === "failed" ? job.errorTitle ?? "Публикация остановлена" : job.message}</Heading>
           {job.error ? (
-            <Text color="red">{job.error}</Text>
+            <>
+              <Text color="red">{job.error}</Text>
+              {job.diagnosticId ? <Text size="1" color="gray">Диагностика: {job.diagnosticId}</Text> : null}
+            </>
           ) : (
             <Text color="gray">{mode === "live" ? "Изменения проходят проверки перед публикацией на art-des.ru." : "Это безопасная локальная репетиция. Production не изменяется."}</Text>
           )}
@@ -77,7 +80,10 @@ export function PublishOverlay({ job, mode, close }: { job: PublishJob | null; m
               ? mode === "live" ? "Изменения опубликованы на art-des.ru." : "Изменения опубликованы только в тестовом контуре."
               : "Можно закрыть эту страницу. Не выключайте Mac до завершения публикации."}
         </Text>
-        {job.status === "complete" || job.status === "failed" ? <Button size="3" onClick={close}>Закрыть</Button> : null}
+        {job.status === "complete" || job.status === "failed" ? <Flex gap="3">
+          {job.status === "failed" && job.branch && job.contentCommit ? <Button size="3" onClick={() => resume(job.id)}>Продолжить</Button> : null}
+          <Button size="3" variant="soft" color="gray" onClick={close}>Закрыть</Button>
+        </Flex> : null}
       </div>
     </div>
   );
