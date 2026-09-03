@@ -66,7 +66,7 @@ test("launcher uses argument arrays instead of shell command construction", () =
   assert.doesNotMatch(launcher, /shell:\s*true/);
   assert.match(launcher, /Library", "Application Support", "Des-art Admin/);
   assert.match(launcher, /process\.env\.DES_ART_ADMIN_SUPPORT/);
-  assert.match(launcher, /merge", "--ff-only", "origin\/main/);
+  assert.match(launcher, /synchronizeManagedRepositoryCheckout/);
   assert.match(launcher, /live-publish\.json/);
   assert.match(launcher, /DES_ART_ADMIN_PUBLISH_MODE/);
   assert.match(launcher, /confirmedPublishedSha/);
@@ -144,7 +144,9 @@ test("admin UI keeps Radix Themes inside the local admin boundary", () => {
 
 test("Admin startup loads image processing only when a Figma import is requested", () => {
   assert.doesNotMatch(figmaImporter, /^import sharp from "sharp";$/m);
-  assert.match(figmaImporter, /import\("sharp"\)/);
+  assert.match(figmaImporter, /createRequire/);
+  assert.match(figmaImporter, /loadImageProcessor\(repositoryRoot = process\.env\.DES_ART_ADMIN_REPO \?\? process\.cwd\(\)\)/);
+  assert.match(figmaImporter, /\("sharp"\)/);
 });
 
 test("admin workflows use internal dialogs and manual SVG logos", () => {
@@ -304,6 +306,18 @@ test("prepared macOS launcher bundle is complete", async () => {
   await access(new URL("../dist/Des-art Admin.app/Contents/MacOS/Des-art Admin", import.meta.url));
   const bundledLauncher = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/launcher.mjs", import.meta.url), "utf8");
   assert.equal(bundledLauncher, launcher);
+  await access(new URL("../dist/Des-art Admin.app/Contents/Resources/launcher-policy.mjs", import.meta.url));
+  await access(new URL("../dist/Des-art Admin.app/Contents/Resources/managed-repository.mjs", import.meta.url));
+  await access(new URL("../dist/Des-art Admin.app/Contents/Resources/source/tools/des-art-admin/server.mjs", import.meta.url));
+  await access(new URL("../dist/Des-art Admin.app/Contents/Resources/source/tools/des-art-admin/publish-worker.mjs", import.meta.url));
+  await access(new URL("../dist/Des-art Admin.app/Contents/Resources/source/tools/des-art-admin/public/admin.js", import.meta.url));
+  await access(new URL("../dist/Des-art Admin.app/Contents/Resources/source/src/lib/project-contract.ts", import.meta.url));
+  assert.deepEqual(JSON.parse(await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/source/package.json", import.meta.url), "utf8")), { private: true, type: "module" });
+  await assert.rejects(() => access(new URL("../dist/Des-art Admin.app/Contents/Resources/source/content", import.meta.url)));
+  await assert.rejects(() => access(new URL("../dist/Des-art Admin.app/Contents/Resources/source/node_modules", import.meta.url)));
+  assert.match(bundledLauncher, /bundledAdminRoot/);
+  assert.match(bundledLauncher, /adminServerFile/);
+  assert.match(bundledLauncher, /--experimental-strip-types", adminServerFile/);
   const source = await readFile(new URL("../dist/Des-art Admin.app/Contents/Resources/source-repository.txt", import.meta.url), "utf8");
   assert.equal(source.trim(), "https://github.com/Qoalza/Design-portfolio-site.git");
   const executable = await readFile(new URL("../dist/Des-art Admin.app/Contents/MacOS/Des-art Admin", import.meta.url), "utf8");
@@ -315,6 +329,8 @@ test("prepared macOS launcher bundle is complete", async () => {
   assert.match(buildSha.trim(), /^[a-f0-9]{40}$/);
   assert.match(adminBuild, /rev-parse", "HEAD"/);
   assert.match(adminBuild, /process\.env\.NEXT_PUBLIC_BUILD_SHA/);
+  assert.match(adminBuild, /bundledRuntimeFiles/);
+  assert.match(adminBuild, /bundledSharedFiles/);
   if (process.platform === "darwin") execFileSync("/usr/bin/codesign", ["--verify", "--deep", "--strict", fileURLToPath(new URL("../dist/Des-art Admin.app", import.meta.url))]);
 });
 

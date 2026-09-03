@@ -6,6 +6,7 @@ Branch: `codex/admin-publish-reliability`
 Base: `baf7729d2568821abe304b749e029e6fb9f1a599`
 Hotfix branch: `codex/admin-push-chunked-fallback`
 Merge recovery branch: `codex/admin-merge-partial-success`
+Runtime decoupling branch: `codex/admin-runtime-decoupling`
 
 ## Outcome
 
@@ -76,6 +77,8 @@ Refs удаляются без bundle по прямому решению пол�
 8. **Resume and deploy reconciliation** — resume against `contentCommit` before Merge and against `publishedSha` after Merge; skip Deploy when restricted `status` already reports the exact SHA; after publish success or transport failure reconcile `status` before deciding the job failed; cleanup remote/local publish refs is post-verification best effort and cannot turn a published job into a false failure.
 9. **End-to-end verification** — fault-injection for Merge/Deploy/Verify partial failures, focused and full tests, lint, production build, packaged Admin parity/signing, isolated candidate sandbox, staged provenance audit and two reviews (data boundary plus full diff). Live job/resume, content deploy and public Sarafan publication remain forbidden during repair.
 10. **Delivery gates** — separate commits and repair PR may proceed after verification. Merge repair code requires exact head approval. Deploy is blocked independently because current `main` already contains merged Sarafan content; no release containing that content may be deployed without a separate direct user command.
+11. **Admin runtime decoupling** — package the Admin server/worker/UI and its exact shared validation modules inside the signed `.app`; for an existing live baseline keep the managed repository detached at the exact confirmed production SHA while the app executes its bundled Admin code. The first live transition keeps the stricter production-equals-`origin/main` gate. No schema/content semantics, live store, canonical content, production release or Sarafan job changes are allowed.
+12. **Decoupling acceptance** — failing-first policy/package tests, a clean packaged launch against an existing live baseline whose production SHA trails `origin/main`, preview smoke verification against that production checkout, package/signature audit, full relevant tests/lint/build, live manifest parity and staged provenance review. Installation and launch of the exact merged candidate remain separately gated.
 
 ### Acceptance additions
 
@@ -103,6 +106,8 @@ Refs удаляются без bundle по прямому решению пол�
 - Generated app не зависит от LaunchServices `PATH`, содержит build/version SHA и проходит ad-hoc signing.
 - До/после SHA live draft, всех 37 assets, snapshots, jobs и архивов совпадают.
 - PR diff не содержит drafts, jobs, preview, snapshots, archives или пользовательский контент.
+- Existing live Admin remains usable when `origin/main` is ahead of production: its managed repository stays at the confirmed deployed SHA while the Admin server and publish worker run from the signed application bundle.
+- The application bundle contains only an explicit Admin runtime allowlist and required shared validators; it contains no canonical content, assets, drafts, jobs, snapshots, archives, credentials or `node_modules`.
 
 ## Verified command contracts
 
@@ -147,3 +152,8 @@ Refs удаляются без bundle по прямому решению пол�
 - 2026-09-03: live safety comparison after implementation found `0/245` changed protected files; Sarafan draft remains `01bf5357…aa42` with `37` draft-assets. No live job, snapshot, archive or recovery data was modified.
 - 2026-09-03: repair implementation commit `4e95088b4ea7c823156aaede481e4d15103f18d8` was pushed with exact remote-ref parity. PR #36 opened against exact base `a54611121e2fbb010017d32ec5bfabf752541e65`: https://github.com/Qoalza/Design-portfolio-site/pull/36. GitHub reports it open, non-draft and mergeable; no repository checks are configured.
 - 2026-09-03: merge of PR #36 remains gated by its final exact head SHA. Deploy remains a separate blocked gate because base `main` already contains Sarafan from PR #35; no production or live Admin state was changed by delivery.
+- 2026-09-03: after PR #36 was merged and exact build `0bdba1638b67d36454446104b4b7ee838ce450fd` installed, the launcher correctly refused to advance the managed repository because production remains `0cd02a9ab05bb46b862cc505e81af67382059bd4` while `origin/main` contains unpublished Sarafan. This exposed an architectural coupling: the packaged launcher still executed Admin code from the production checkout. The user explicitly approved runtime decoupling without deploying Portfolio or publishing/resuming Sarafan.
+- 2026-09-03: milestone 11 implemented. Existing live policy pins the managed checkout to confirmed production in detached state while keeping fresh `origin/main` for future publish worktrees; first live transition retains the equality gate. The signed app executes an explicit bundled server/worker/UI/shared-validator allowlist and resolves native image processing from the managed dependency installation.
+- 2026-09-03: decoupling verification is green: real local Git mismatch tests, exact bundle allowlist/byte-parity, native dependency loading, strict codesign and isolated bundled-server smoke. Admin/Shared suite `163/163`, focused package/policy suite `36/36`, lint and production build pass. Full suite is `337/339`; only the two already-known stale Sarafan availability assertions fail after content PR #35, outside this repair diff.
+- 2026-09-03: production remains exact `0cd02a9ab05bb46b862cc505e81af67382059bd4`. Protected live comparison remains `245/245` with `0` changes; Sarafan draft is `01bf5357…aa42` and all `37` draft-assets are unchanged. No live publish/resume, content deploy, bootstrap, reset, import or export ran.
+- 2026-09-03: implementation commit `88a6793` and operational documentation commit `4d1adf4` were pushed after exact remote-branch/PR absence checks. PR #37 opened against base `0bdba1638b67d36454446104b4b7ee838ce450fd`: https://github.com/Qoalza/Design-portfolio-site/pull/37. GitHub reports `OPEN`, `MERGEABLE`, `CLEAN`; merge and installation remain exact-head gates, and Portfolio deploy remains forbidden.

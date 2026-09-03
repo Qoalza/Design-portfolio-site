@@ -5,6 +5,7 @@ const eslintConfig = [
   {
     ignores: [
       "tools/des-art-admin/public/admin.js",
+      "dist/Des-art Admin.app/Contents/Resources/source/**",
       ".next-admin-preview/**",
       ".next-admin-preview-*/**",
     ],
