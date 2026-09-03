@@ -35,7 +35,7 @@
 
 ## Next action
 
-Создать отдельные implementation/docs commits, повторить provenance/data audit, push и открыть repair PR. Затем остановиться перед exact-SHA merge/install gates.
+Repair PR #37 открыт: `https://github.com/Qoalza/Design-portfolio-site/pull/37`, base `0bdba1638b67d36454446104b4b7ee838ce450fd`. После финального delivery-doc commit повторить exact-head audit и остановиться перед merge/install gates.
 
 ## Pointers
 
