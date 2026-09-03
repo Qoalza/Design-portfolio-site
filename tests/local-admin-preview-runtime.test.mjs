@@ -17,6 +17,12 @@ test("preview request allows a cold Portfolio route to finish compiling", () => 
   assert.match(server, /timeout: PREVIEW_REQUEST_TIMEOUT_MS/);
 });
 
+test("packaged preview starts without relying on npm from the ambient PATH", () => {
+  assert.doesNotMatch(server, /spawn\("npm"/);
+  assert.match(server, /path\.join\(repoRoot, "node_modules", "next", "dist", "bin", "next"\)/);
+  assert.match(server, /spawn\(process\.execPath, \[nextCli, "dev", "-H", "127\.0\.0\.1", "-p", String\(previewPort\)\]/);
+});
+
 test("preview runtime identity binds the actual root and executable source bytes", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-preview-runtime-"));
   await mkdir(path.join(root, "src"));
