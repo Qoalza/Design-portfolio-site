@@ -57,10 +57,15 @@ test("first hero import detects the approved variant from its Frame structure", 
   const fetchImpl = async (url) => {
     const value = String(url);
     if (value.includes("/nodes?")) return new Response(JSON.stringify({ version: "43", nodes: { "1:2": { document: {
-      id: "1:2", name: "Hero", type: "FRAME", children: dimensions.map((_, index) => ({ id: `2:${index + 1}`, name: `Asset ${index + 1}`, type: "FRAME" })),
+      id: "1:2", name: "Hero", type: "FRAME", absoluteBoundingBox: { x: 0, y: 0, width: 1480, height: 1200 }, children: dimensions.map((_, index) => ({
+        id: `2:${index + 1}`,
+        name: `Asset ${index + 1}`,
+        type: "FRAME",
+        absoluteBoundingBox: { x: 0, y: 0, width: 1480, height: 1200 },
+      })),
     } } } }), { status: 200 });
     if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: { "1:2": "https://download/root", "2:1": "https://download/1", "2:2": "https://download/2" } }), { status: 200 });
-    if (value === "https://download/root") return new Response(await png(1480, 1200), { status: 200 });
+    if (value === "https://download/root") return new Response(await png(2960, 2400), { status: 200 });
     const index = Number(value.at(-1)) - 1;
     if (value.startsWith("https://download/") && dimensions[index]) return new Response(await png(...dimensions[index]), { status: 200 });
     throw new Error("Unexpected " + value);
@@ -77,16 +82,17 @@ test("first hero import detects the approved variant from its Frame structure", 
   assert.deepEqual(Object.keys(result.visual.assets), ["backdrop", "foreground"]);
 });
 
-test("image-filled hero children use their rendered Figma bounds instead of uncropped source fills", async () => {
+test("hero children are placed on the full Frame canvas instead of being saved with tight child bounds", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-cropped-fill-"));
-  const rendered = await png(2960, 2400);
+  const backdrop = await png(2800, 2200, "#334455");
+  const foreground = await png(1200, 800, "#ffffff80");
   const uncropped = await png(3200, 1800);
   const fetchImpl = async (url) => {
     const value = String(url);
     if (value.includes("/nodes?")) return new Response(JSON.stringify({ nodes: { "1:2": { document: {
-      id: "1:2", name: "Hero", type: "FRAME", children: [
-        { id: "2:1", name: "Backdrop", type: "RECTANGLE", fills: [{ type: "IMAGE", imageRef: "raw-1" }] },
-        { id: "2:2", name: "Foreground", type: "RECTANGLE", fills: [{ type: "IMAGE", imageRef: "raw-2" }] },
+      id: "1:2", name: "Hero", type: "FRAME", absoluteBoundingBox: { x: 100, y: 200, width: 1480, height: 1200 }, children: [
+        { id: "2:1", name: "Backdrop", type: "RECTANGLE", absoluteBoundingBox: { x: 140, y: 250, width: 1400, height: 1100 }, fills: [{ type: "IMAGE", imageRef: "raw-1" }] },
+        { id: "2:2", name: "Foreground", type: "RECTANGLE", absoluteBoundingBox: { x: 500, y: 600, width: 600, height: 400 }, fills: [{ type: "IMAGE", imageRef: "raw-2" }] },
       ],
     } } } }), { status: 200 });
     if (value.includes("/files/") && value.endsWith("/images")) {
@@ -95,8 +101,9 @@ test("image-filled hero children use their rendered Figma bounds instead of uncr
     if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: {
       "1:2": "https://download/root", "2:1": "https://download/rendered-1", "2:2": "https://download/rendered-2",
     } }), { status: 200 });
-    if (value === "https://download/root") return new Response(await png(1480, 1200), { status: 200 });
-    if (value.startsWith("https://download/rendered-")) return new Response(rendered, { status: 200 });
+    if (value === "https://download/root") return new Response(await png(2960, 2400), { status: 200 });
+    if (value === "https://download/rendered-1") return new Response(backdrop, { status: 200 });
+    if (value === "https://download/rendered-2") return new Response(foreground, { status: 200 });
     if (value.startsWith("https://download/raw-")) return new Response(uncropped, { status: 200 });
     throw new Error("Unexpected " + value);
   };
@@ -111,10 +118,18 @@ test("image-filled hero children use their rendered Figma bounds instead of uncr
   });
 
   assert.equal(result.visual.templateId, "hero.corvo-browser");
-  assert.deepEqual(
-    { width: result.visual.assets.foreground[0].width, height: result.visual.assets.foreground[0].height },
-    { width: 2960, height: 2400 },
-  );
+  for (const slot of ["backdrop", "foreground"]) {
+    assert.deepEqual(
+      { width: result.visual.assets[slot][0].width, height: result.visual.assets[slot][0].height },
+      { width: 2960, height: 2400 },
+    );
+  }
+  const folder = path.basename(path.dirname(result.visual.assets.foreground[0].src));
+  const foregroundFile = path.join(root, "boff", "figma", folder, "foreground.png");
+  const topLeft = await sharp(foregroundFile).extract({ left: 0, top: 0, width: 1, height: 1 }).raw().toBuffer();
+  const placed = await sharp(foregroundFile).extract({ left: 800, top: 800, width: 1, height: 1 }).raw().toBuffer();
+  assert.equal(topLeft[3], 0, "space outside the child must stay transparent");
+  assert.ok(placed[3] > 0, "the child must keep its Frame-relative position");
 });
 
 test("approved Sarafan model import crops the current whole Figma Frame and keeps shell geometry in code", async () => {

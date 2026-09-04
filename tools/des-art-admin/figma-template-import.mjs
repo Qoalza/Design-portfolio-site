@@ -102,7 +102,47 @@ async function normalizedPng(buffer, destination, options) {
   return inspectImportedPng(destination, options);
 }
 
-async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary }) {
+function isChildTemplate(spec) {
+  return spec.kind === "children" || spec.kind === "root-canvas-children";
+}
+
+async function placeOnRootCanvas(buffer, destination, { child, root, canvasWidth, canvasHeight }) {
+  const rootBounds = box(root);
+  const childBounds = box(child);
+  if (!rootBounds || !childBounds || rootBounds.width <= 0 || rootBounds.height <= 0 || childBounds.width <= 0 || childBounds.height <= 0) {
+    throw new Error(`Figma не вернула геометрию элемента «${child.name ?? child.id}».`);
+  }
+  const scaleX = canvasWidth / rootBounds.width;
+  const scaleY = canvasHeight / rootBounds.height;
+  if (!withinTolerance(scaleX, scaleY) || !withinTolerance(scaleX, 2)) {
+    throw new Error("Figma экспортировала корневой Frame не в утверждённом размере 2×.");
+  }
+  const processImage = await sharp();
+  const metadata = await processImage(buffer).metadata();
+  if (!metadata.width || !metadata.height) throw new Error(`Figma вернула некорректный элемент «${child.name ?? child.id}».`);
+  const expectedWidth = Math.round(childBounds.width * scaleX);
+  const expectedHeight = Math.round(childBounds.height * scaleY);
+  if (Math.abs(metadata.width - expectedWidth) > 2 || Math.abs(metadata.height - expectedHeight) > 2) {
+    throw new Error(`Figma экспортировала элемент «${child.name ?? child.id}» с неожиданной геометрией.`);
+  }
+  const left = Math.round((childBounds.x - rootBounds.x) * scaleX);
+  const top = Math.round((childBounds.y - rootBounds.y) * scaleY);
+  const sourceLeft = Math.max(0, -left);
+  const sourceTop = Math.max(0, -top);
+  const width = Math.min(metadata.width - sourceLeft, canvasWidth - Math.max(0, left));
+  const height = Math.min(metadata.height - sourceTop, canvasHeight - Math.max(0, top));
+  if (width <= 0 || height <= 0) throw new Error(`Элемент «${child.name ?? child.id}» находится за пределами корневого Frame.`);
+  const overlay = sourceLeft || sourceTop || width !== metadata.width || height !== metadata.height
+    ? await processImage(buffer).extract({ left: sourceLeft, top: sourceTop, width, height }).png().toBuffer()
+    : buffer;
+  await processImage({ create: { width: canvasWidth, height: canvasHeight, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([{ input: overlay, left: Math.max(0, left), top: Math.max(0, top) }])
+    .png()
+    .toFile(destination);
+  return inspectImportedPng(destination);
+}
+
+async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary, rootDimensions }) {
   const children = (root.children ?? []).filter((child) => child.visible !== false);
   if (children.length !== spec.slots.length) {
     throw new Error(`Frame содержит ${children.length} верхнеуровневых элементов вместо утверждённых ${spec.slots.length}.`);
@@ -118,7 +158,15 @@ async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary
     const url = exportData.images?.[child.id];
     if (!url) throw new Error(`Figma не вернула элемент «${child.name ?? child.id}».`);
     const destination = path.join(temporary, `${slot.name}.png`);
-    const dimensions = await normalizedPng(await download(fetchImpl, url, child.name ?? child.id), destination);
+    const source = await download(fetchImpl, url, child.name ?? child.id);
+    const dimensions = spec.kind === "root-canvas-children"
+      ? await placeOnRootCanvas(source, destination, {
+        child,
+        root,
+        canvasWidth: rootDimensions.width,
+        canvasHeight: rootDimensions.height,
+      })
+      : await normalizedPng(source, destination);
     assets[slot.name] = [{ alt: slot.alt, ...dimensions }];
   }
   return assets;
@@ -187,7 +235,7 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
   const matches = candidates.filter((candidate) => {
     if (!templateMatchesFigmaSource(candidate, parsed)) return false;
     const candidateSpec = FIGMA_TEMPLATE_IMPORTS[candidate];
-    if (candidateSpec.kind === "children") {
+    if (isChildTemplate(candidateSpec)) {
       const visibleChildren = (root.children ?? []).filter((child) => child.visible !== false);
       return candidates.length === 1 || visibleChildren.length === candidateSpec.slots.length;
     }
@@ -201,7 +249,7 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
   }
   const resolvedTemplateId = matches[0];
   const spec = FIGMA_TEMPLATE_IMPORTS[resolvedTemplateId];
-  if (spec.kind === "children") {
+  if (isChildTemplate(spec)) {
     const visibleChildren = (root.children ?? []).filter((child) => child.visible !== false);
     if (visibleChildren.length !== spec.slots.length) {
       throw new Error(`Frame содержит ${visibleChildren.length} верхнеуровневых элементов вместо утверждённых ${spec.slots.length}.`);
@@ -216,8 +264,8 @@ export async function importFigmaTemplate({ url, token, slug, templateId, templa
     if (!previewUrl) throw new Error("Figma не вернула превью корневого Frame.");
     const rootSource = await download(fetchImpl, previewUrl, root.name ?? root.id);
     const previewDimensions = await normalizedPng(rootSource, path.join(temporary, "preview.png"));
-    const rawAssets = spec.kind === "children"
-      ? await importChildren({ fetchImpl, fileKey: parsed.fileKey, root, token: auth, spec, temporary })
+    const rawAssets = isChildTemplate(spec)
+      ? await importChildren({ fetchImpl, fileKey: parsed.fileKey, root, token: auth, spec, temporary, rootDimensions: previewDimensions })
       : await importRootCrops({ root, spec, temporary, source: rootSource });
     const manifest = await pngManifest(temporary);
     const folder = manifestFolder(manifest);
