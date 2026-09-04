@@ -301,7 +301,7 @@ function App() {
 
   const resumePublish = async (jobId: string) => {
     const resumed = await api<PublishJob>("/api/publish/resume", { method: "POST", body: JSON.stringify({ jobId }) });
-    setJob({ ...resumed, status: "queued", message: "Возобновление публикации" });
+    setJob(resumed);
   };
 
   useEffect(() => {
