@@ -19,7 +19,7 @@ export const FIGMA_TEMPLATE_IMPORTS = {
     ],
   },
   "hero.corvo-browser": {
-    kind: "children",
+    kind: "root-canvas-children",
     slots: [
       { name: "backdrop", alt: "Фоновый экран Corvo" },
       { name: "foreground", alt: "Передний экран Corvo" },
