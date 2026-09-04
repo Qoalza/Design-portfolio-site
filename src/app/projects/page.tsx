@@ -8,6 +8,7 @@ import { ProjectDetailControl } from "../../components/project-detail-control";
 import { ProjectFileControl } from "../../components/project-file-control";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
+import { ProjectFrameCompositionView } from "../../components/project-frame-composition";
 import { HOME_TRAIL_ITEM } from "../../lib/navigation-trail";
 import type { ProjectLogo } from "../../lib/project-contract";
 import { getAllProjects, getAllProjectsForPreview, type Project } from "../../lib/projects";
@@ -40,6 +41,7 @@ function ProjectLogoMark({ logo }: { logo: ProjectLogo }) {
 }
 
 function ProjectVisual({ project }: { project: Project }) {
+  if (project.catalogFrame) return <div className={`${styles.compactVisual} ${styles.structuredVisualSlot}`} aria-hidden="true"><ProjectFrameCompositionView composition={project.catalogFrame} fillSlot slotRadius={12} /></div>;
   const visual = project.visuals.catalog;
   if (visual.templateId === "catalog.browser") {
     const image = visual.assets.screen[0];

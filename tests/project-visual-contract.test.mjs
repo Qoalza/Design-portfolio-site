@@ -62,8 +62,8 @@ test("schema v3 exposes only approved templates and named content assets", () =>
   assert.deepEqual(validateProjectDocument(project()), project());
 });
 
-test("schema v3 rejects every legacy visual-authority field", () => {
-  for (const field of ["catalogFrame", "heroFrame", "featuredOnHome", "homeOrder", "catalogImage", "hero", "homeImages"]) {
+test("schema v3 rejects removed legacy visual-authority fields", () => {
+  for (const field of ["featuredOnHome", "homeOrder", "catalogImage", "hero", "homeImages"]) {
     assert.throws(() => validateProjectDocument({ ...project(), [field]: {} }), /unknown field/i, field);
   }
   assert.throws(() => validateProjectDocument({ ...project(), content: [{ type: "section", heading: "A", blocks: [{ type: "frame", composition: {} }] }] }), /not a supported/i);

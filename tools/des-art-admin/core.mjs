@@ -13,6 +13,7 @@ import { readAllProjectDocuments, writeProjectDocument } from "../../src/lib/pro
 import { PROJECT_VISUAL_TEMPLATES, validateAssetForSlot, validateProjectCollection } from "../../src/lib/project-visual-registry.ts";
 import { compileAdminDraft, createAdminDraft, draftValidation, parseAdminDraft } from "./draft-contract.mjs";
 import { importFigmaTemplate } from "./figma-template-import.mjs";
+import { importFigmaFrame } from "./figma-frame.mjs";
 import { LocalRequestError } from "./admin-errors.mjs";
 import { UserFacingError } from "./human-errors.mjs";
 
@@ -157,13 +158,14 @@ async function canonicalDraftPath(root, slug) {
 }
 
 export class AdminStore {
-  constructor({ contentRoot, assetRoot, draftRoot, draftAssetRoot = assetRoot, snapshotRoot = path.join(path.dirname(draftRoot), "published-snapshots"), figmaImporter = importFigmaTemplate }) {
+  constructor({ contentRoot, assetRoot, draftRoot, draftAssetRoot = assetRoot, snapshotRoot = path.join(path.dirname(draftRoot), "published-snapshots"), figmaImporter = importFigmaTemplate, frameImporter = importFigmaFrame }) {
     this.contentRoot = contentRoot;
     this.assetRoot = assetRoot;
     this.draftRoot = draftRoot;
     this.draftAssetRoot = draftAssetRoot;
     this.snapshotRoot = snapshotRoot;
     this.figmaImporter = figmaImporter;
+    this.frameImporter = frameImporter;
   }
 
   async listProjects() {
@@ -311,24 +313,36 @@ export class AdminStore {
       throw new UserFacingError("Frame не импортирован", "Не удалось определить, куда должен попасть этот Figma Frame.");
     }
     const current = await this.getProject(slug);
+    if (surface === "catalog" || surface === "hero") {
+      let imported;
+      try {
+        imported = await this.frameImporter({ url, slug, slot: surface, assetRoot: this.draftAssetRoot });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Figma Frame не удалось прочитать.";
+        throw new UserFacingError("Frame не импортирован", `${message} Сохранённый черновик не изменён.`, { cause: error });
+      }
+      const composition = imported.composition;
+      const next = createAdminDraft({
+        ...current,
+        ...(surface === "catalog" ? { catalogFrame: composition } : { heroFrame: composition, detailAvailable: true }),
+        admin: {
+          ...current.admin,
+          visualSources: {
+            ...current.admin?.visualSources,
+            [surface]: {
+              url: composition.source.url,
+              templateId: "adaptive-frame",
+              ...(composition.preview ? { preview: composition.preview } : {}),
+            },
+          },
+        },
+      });
+      await this.saveDraft(slug, next);
+      return { project: next, changed: imported.changed !== false };
+    }
     let section;
     let resolvedTemplateId = templateId;
     let candidateTemplateIds;
-    if (surface === "catalog" && current.visuals.catalog.templateId !== templateId) {
-      throw new UserFacingError("Frame не импортирован", "Шаблон карточки назначается в коде и не может быть переключён из Admin.");
-    }
-    if (surface === "hero") {
-      if (current.visuals.hero && current.visuals.hero.templateId !== templateId) {
-        throw new UserFacingError("Frame не импортирован", "Hero-шаблон назначается в коде и не может быть переключён из Admin.");
-      }
-      resolvedTemplateId = current.visuals.hero?.templateId;
-      if (!current.visuals.hero) {
-        if (templateId !== undefined) throw new UserFacingError("Frame не импортирован", "Первый hero-шаблон определяется автоматически по утверждённому Figma Frame.");
-        candidateTemplateIds = Object.entries(PROJECT_VISUAL_TEMPLATES)
-          .filter(([, definition]) => definition.surface === "hero" && definition.profiles.includes(current.designProfile))
-          .map(([candidate]) => candidate);
-      }
-    }
     if (surface === "section") {
       section = current.content.find((block) => block.type === "section" && block.adminId === sectionId);
       if (!section) throw new UserFacingError("Frame не импортирован", "Секция больше не найдена. Обновите проект и повторите импорт.");
@@ -417,8 +431,8 @@ export class AdminStore {
   async preparePreview(slug, previewRoot, route = "project") {
     const draft = await this.getProject(slug);
     const compiled = compileAdminDraft(draft);
-    if (route === "project" && !compiled.visuals.hero) {
-      throw new Error("Для предпросмотра страницы проекта сначала заполните утверждённый hero-шаблон.");
+    if (route === "project" && !compiled.visuals.hero && !compiled.heroFrame) {
+      throw new Error("Для предпросмотра страницы проекта сначала импортируйте hero Frame.");
     }
     const project = {
       ...compiled,

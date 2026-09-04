@@ -89,7 +89,7 @@ function requiredIssues(draft) {
   ]) if (typeof draft[field] !== "string" || !draft[field].trim()) issues.push(fieldIssue({ field, label, title, tab, message }));
   if (!Number.isInteger(draft.year) || draft.year < 1900) issues.push(fieldIssue({ field: "year", label: "Год", title: "Год проекта указан неверно", tab: "card", message: "Укажите год четырьмя цифрами, не раньше 1900." }));
   if (draft.materials?.fileState === "available" && !(draft.materials.figmaUrl ?? "").trim()) issues.push(issueFrom(new Error("materials.figmaUrl"), draft));
-  if (draft.detailAvailable && !draft.visuals?.hero) issues.push(fieldIssue({ field: "visuals.hero", label: "Главное изображение страницы", title: "Для страницы не назначен hero-шаблон", tab: "page", message: "Назначьте утверждённый hero-шаблон изменением кода; Admin не создаёт визуальные шаблоны." }));
+  if (draft.detailAvailable && !draft.visuals?.hero && !draft.heroFrame) issues.push(fieldIssue({ field: "heroFrame", label: "Главное изображение страницы", title: "Главное изображение страницы не добавлено", tab: "page", message: "Импортируйте целый hero Frame из Figma." }));
   for (const block of draft.content ?? []) if (block?.type === "section" && !(block.heading ?? "").trim()) issues.push(fieldIssue({ field: `content.${block.adminId}.heading`, label: "Заголовок секции", title: "Заголовок секции не заполнен", tab: "page", sectionId: block.adminId, message: "Введите заголовок секции." }));
   return issues;
 }

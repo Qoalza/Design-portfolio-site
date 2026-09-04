@@ -14,6 +14,7 @@ const bundledRuntimeFiles = [
   "core.mjs",
   "draft-contract.mjs",
   "figma-template-import.mjs",
+  "figma-frame.mjs",
   "figma-template-map.mjs",
   "human-errors.mjs",
   "material-state.mjs",
