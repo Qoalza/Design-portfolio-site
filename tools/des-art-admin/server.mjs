@@ -106,7 +106,6 @@ const previewRuntime = await createPreviewRuntimeIdentity({
     "tools/des-art-admin/server.mjs",
     "tools/des-art-admin/core.mjs",
     "tools/des-art-admin/figma-template-import.mjs",
-    "tools/des-art-admin/figma-frame.mjs",
     "tools/des-art-admin/preview-runtime.mjs",
     "src/lib/project-contract.ts",
     "src/lib/project-visual-registry.ts",

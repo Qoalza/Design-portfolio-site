@@ -13,6 +13,7 @@
 - Deploy v2 rollout завершён; production/public/Admin smoke зелёные, `/api/changes` возвращает `0`.
 - Реальный B.Off Frame выявил корневую регрессию: фиксированный template importer, введённый `437c9ca`, заменил прежний whole-Frame contract и стал отвергать Frame по числу верхнеуровневых элементов.
 - В ветке `codex/admin-restore-figma-frame-contract` восстанавливается исходная модель для catalog/hero: целый Frame, произвольное число raster-элементов, root fill, constraints и CSS shadows. Section templates остаются без изменений.
+- PR #43 merged as `7e6a027…`. Первая установка этого пакета не запустилась: preview fingerprint потребовал Admin-only `figma-frame.mjs` в managed repository, который корректно закреплён на более старом production SHA. Выполнен немедленный rollback на Admin `2060590081…`; protected hashes совпали до/после.
 
 ## Verification
 
@@ -28,7 +29,7 @@
 
 ## Next action
 
-Завершить полную проверку и commit, затем запросить exact-SHA approval перед push/PR/merge и установкой новой Admin. После установки повторить импорт реального B.Off Frame. Portfolio deploy автоматически не запускать.
+Проверить и зафиксировать узкий install-compat follow-up, затем пройти exact-SHA push/PR/merge/install gates. После успешной установки повторить импорт реального B.Off Frame. Portfolio deploy автоматически не запускать.
 
 ## Pointers
 

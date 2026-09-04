@@ -23,6 +23,12 @@ test("packaged preview starts without relying on npm from the ambient PATH", () 
   assert.match(server, /spawn\(process\.execPath, \[nextCli, "dev", "-H", "127\.0\.0\.1", "-p", String\(previewPort\)\]/);
 });
 
+test("preview fingerprint does not require Admin-only modules from the production-pinned repository", () => {
+  const sourceFiles = server.match(/sourceFiles:\s*\[([\s\S]*?)\]/)?.[1] ?? "";
+  assert.doesNotMatch(sourceFiles, /figma-frame\.mjs/);
+  assert.match(sourceFiles, /src\/lib\/project-contract\.ts/);
+});
+
 test("preview runtime identity binds the actual root and executable source bytes", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-preview-runtime-"));
   await mkdir(path.join(root, "src"));
