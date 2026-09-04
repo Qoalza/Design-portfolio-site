@@ -157,7 +157,7 @@ async function ensurePreview() {
   const output = openSync(path.join(logsRoot, "preview.log"), "a", 0o600);
   try {
     const nextCli = path.join(repoRoot, "node_modules", "next", "dist", "bin", "next");
-    const child = spawn(process.execPath, [nextCli, "dev", "-H", "127.0.0.1", "-p", String(previewPort)], {
+    const child = spawn(process.execPath, [nextCli, "dev", "--webpack", "-H", "127.0.0.1", "-p", String(previewPort)], {
       cwd: previewRepoRoot,
       detached: true,
       stdio: ["ignore", output, output],
@@ -174,7 +174,7 @@ async function ensurePreview() {
       },
     });
     await writeFile(path.join(supportRoot, "preview.pid"), `${child.pid}\n`, { mode: 0o600 });
-    await writeFile(previewMarker, `${JSON.stringify({ ...previewRuntime, pid: child.pid, command: "next dev" })}\n`, { mode: 0o600 });
+    await writeFile(previewMarker, `${JSON.stringify({ ...previewRuntime, pid: child.pid, command: "next dev --webpack" })}\n`, { mode: 0o600 });
     child.unref();
   } finally {
     closeSync(output);
