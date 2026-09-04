@@ -296,7 +296,7 @@ test("merge resume accepts an already merged exact PR without executing merge ag
     },
     cwd: "/sandbox", pullRequestUrl: "https://github.test/pr/35", branch: "codex/content-publish-test", contentCommit,
   });
-  assert.deepEqual(result, { mergeCommitSha: mergeCommit, publishedSha: mergeCommit });
+  assert.deepEqual(result, { mergeCommitSha: mergeCommit, publishedSha: newerMain });
   assert.equal(calls.includes("merge.execute"), false);
   assert.equal(calls.includes("merge.verify"), false);
   assert.equal(calls.filter((operation) => operation === "merge.ancestry").length, 3);

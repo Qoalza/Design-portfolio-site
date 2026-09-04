@@ -3,84 +3,173 @@ set -euo pipefail
 
 ROOT="/var/www/art-des"
 LOCK="/var/lock/art-des-publish.lock"
+SELF="/usr/local/sbin/art-des-publish"
+LEGACY="/usr/local/sbin/art-des-publish-v1"
+VALIDATOR="/usr/local/libexec/art-des-validate-release.mjs"
+SYSTEMD_RUN="/usr/bin/systemd-run"
+SYSTEMCTL="/usr/bin/systemctl"
+RUN_USER="portfolio"
+MAX_ARCHIVE_BYTES=$((75 * 1024 * 1024))
+
+if [[ "${ART_DES_DEPLOY_TEST_MODE:-0}" == "1" ]]; then
+  ROOT="${ART_DES_TEST_ROOT:?}"
+  LOCK="$ROOT/art-des-publish.lock"
+  SELF="${ART_DES_TEST_SELF:-$0}"
+  LEGACY="${ART_DES_TEST_LEGACY:-$(dirname "$0")/art-des-publish-v1}"
+  VALIDATOR="${ART_DES_TEST_VALIDATOR:-$(dirname "$0")/validate-release-manifest.mjs}"
+  SYSTEMD_RUN="${ART_DES_TEST_SYSTEMD_RUN:-/usr/bin/systemd-run}"
+  SYSTEMCTL="${ART_DES_TEST_SYSTEMCTL:-/usr/bin/systemctl}"
+  RUN_USER="${ART_DES_TEST_RUN_USER:-$(id -un)}"
+fi
+
+mkdir -p "$ROOT/incoming" "$ROOT/releases" "$ROOT/deploy-jobs"
+
+timestamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+write_status() {
+  local operation="$1" state="$2" phase="$3" sha="$4" error_code="${5:-}" warning_code="${6:-}"
+  local file temporary
+  file="$ROOT/deploy-jobs/$operation.json"
+  temporary="$file.$$.tmp"
+  printf '{"protocol":"art-des-deploy-v2","operationId":"%s","state":"%s","phase":"%s","targetSha":"%s","updatedAt":"%s"' \
+    "$operation" "$state" "$phase" "$sha" "$(timestamp)" > "$temporary"
+  [[ -n "$error_code" ]] && printf ',"errorCode":"%s"' "$error_code" >> "$temporary"
+  [[ -n "$warning_code" ]] && printf ',"warningCode":"%s"' "$warning_code" >> "$temporary"
+  printf '}\n' >> "$temporary"
+  chmod 0640 "$temporary"
+  mv -f "$temporary" "$file"
+}
+
+fail_operation() {
+  local operation="$1" phase="$2" sha="$3" error_code="$4"
+  write_status "$operation" failed "$phase" "$sha" "$error_code"
+  exit 1
+}
+
+rotate_releases() {
+  local current="$1" preserve_count=0 cleanup_warning="" preserved
+  preserved="$current"
+  while IFS= read -r directory; do
+    local name="${directory##*/}"
+    [[ "$name" =~ ^[0-9a-f]{40}$ ]] || continue
+    [[ -f "$directory/DEPLOY_SHA" ]] || continue
+    [[ "$(tr -d '\r\n' < "$directory/DEPLOY_SHA")" == "$name" ]] || continue
+    printf '%s\n' "$preserved" | grep -Fxq "$directory" && continue
+    if (( preserve_count < 2 )); then
+      preserved="$preserved
+$directory"
+      preserve_count=$((preserve_count + 1))
+    fi
+  done < <(find "$ROOT/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | cut -d' ' -f2-)
+
+  while IFS= read -r directory; do
+    local name="${directory##*/}"
+    [[ "$name" =~ ^[0-9a-f]{40}$ ]] || continue
+    [[ -f "$directory/DEPLOY_SHA" ]] || continue
+    [[ "$(tr -d '\r\n' < "$directory/DEPLOY_SHA")" == "$name" ]] || continue
+    printf '%s\n' "$preserved" | grep -Fxq "$directory" && continue
+    local quarantine="$ROOT/releases/.quarantine-$name-$(date -u +%s)"
+    if mv "$directory" "$quarantine" && rm -rf -- "$quarantine"; then :; else cleanup_warning="RETENTION_CLEANUP_FAILED"; fi
+  done < <(find "$ROOT/releases" -mindepth 1 -maxdepth 1 -type d -printf '%p\n')
+  printf '%s' "$cleanup_warning"
+}
+
+internal_deploy_v2() {
+  local sha="$1" artifact_hash="$2" operation="$3"
+  [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || exit 64
+  [[ "$artifact_hash" =~ ^[0-9a-f]{64}$ ]] || exit 64
+  [[ "$operation" == "$sha-${artifact_hash:0:16}" ]] || exit 64
+
+  local archive="$ROOT/incoming/$sha.$artifact_hash.tar.gz"
+  local release="$ROOT/releases/$sha"
+  local temporary="$ROOT/releases/.$sha.$artifact_hash.building"
+  local previous switched=0
+  previous="$(readlink -f "$ROOT/current" 2>/dev/null || true)"
+
+  exec 9>"$LOCK"
+  flock -n 9 || fail_operation "$operation" validate "$sha" DEPLOY_BUSY
+  write_status "$operation" running validate "$sha"
+  if [[ -d "$release" ]]; then
+    [[ -f "$release/DEPLOY_SHA" ]] || fail_operation "$operation" validate "$sha" RELEASE_CONFLICT
+    [[ "$(tr -d '\r\n' < "$release/DEPLOY_SHA")" == "$sha" ]] || fail_operation "$operation" validate "$sha" RELEASE_CONFLICT
+    [[ -f "$release/RELEASE_ARCHIVE_SHA256" ]] || fail_operation "$operation" validate "$sha" RELEASE_CONFLICT
+    [[ "$(tr -d '\r\n' < "$release/RELEASE_ARCHIVE_SHA256")" == "$artifact_hash" ]] || fail_operation "$operation" validate "$sha" RELEASE_CONFLICT
+  else
+    [[ -f "$archive" ]] || fail_operation "$operation" validate "$sha" ARTIFACT_MISSING
+    rm -rf -- "$temporary"
+    mkdir -p "$temporary"
+    if ! tar -xzf "$archive" -C "$temporary"; then rm -rf -- "$temporary"; fail_operation "$operation" validate "$sha" ARCHIVE_INVALID; fi
+    if find "$temporary" -type l -print -quit | grep -q .; then rm -rf -- "$temporary"; fail_operation "$operation" validate "$sha" ARCHIVE_SYMLINK; fi
+    if ! /usr/bin/env node "$VALIDATOR" "$temporary" "$sha"; then rm -rf -- "$temporary"; fail_operation "$operation" validate "$sha" MANIFEST_INVALID; fi
+    printf '%s\n' "$artifact_hash" > "$temporary/RELEASE_ARCHIVE_SHA256"
+    chown -R "$RUN_USER:$RUN_USER" "$temporary"
+    mv "$temporary" "$release"
+  fi
+
+  write_status "$operation" running activate "$sha"
+  ln -sfn "$release" "$ROOT/current.next"
+  mv -Tf "$ROOT/current.next" "$ROOT/current"
+  switched=1
+  if ! "$SYSTEMCTL" restart art-des.service; then
+    if [[ -n "$previous" && -d "$previous" ]]; then ln -sfn "$previous" "$ROOT/current.rollback"; mv -Tf "$ROOT/current.rollback" "$ROOT/current"; "$SYSTEMCTL" restart art-des.service || true; fi
+    fail_operation "$operation" activate "$sha" SERVICE_RESTART_FAILED
+  fi
+
+  write_status "$operation" running readiness "$sha"
+  local ready=0
+  for _ in $(seq 1 40); do
+    if "$SYSTEMCTL" is-active --quiet art-des.service && curl --fail --silent --max-time 2 http://127.0.0.1:3000/ | grep -Fq "$sha"; then ready=1; break; fi
+    sleep 0.5
+  done
+  if [[ "$ready" != "1" ]]; then
+    if (( switched == 1 )) && [[ -n "$previous" && -d "$previous" ]]; then ln -sfn "$previous" "$ROOT/current.rollback"; mv -Tf "$ROOT/current.rollback" "$ROOT/current"; "$SYSTEMCTL" restart art-des.service || true; fi
+    fail_operation "$operation" readiness "$sha" READINESS_FAILED
+  fi
+
+  write_status "$operation" running retention "$sha"
+  local warning
+  warning="$(rotate_releases "$release")"
+  rm -f -- "$archive"
+  write_status "$operation" complete complete "$sha" "" "$warning"
+}
+
+if [[ "${1:-}" == "__internal-v2" ]]; then internal_deploy_v2 "${2:-}" "${3:-}" "${4:-}"; exit 0; fi
+
 COMMAND="${SSH_ORIGINAL_COMMAND:-${*:-}}"
+if [[ "$COMMAND" == "status" ]]; then current="$(readlink -f "$ROOT/current" 2>/dev/null || true)"; printf 'ready %s\n' "${current##*/}"; exit 0; fi
+if [[ "$COMMAND" =~ ^(upload|publish)[[:space:]]+([0-9a-f]{40})$ ]]; then exec "$LEGACY"; fi
 
-if [[ "$COMMAND" == "status" ]]; then
-  current="$(readlink -f "$ROOT/current" 2>/dev/null || true)"
-  printf 'ready %s\n' "${current##*/}"
-  exit 0
-fi
-
-if [[ "$COMMAND" =~ ^upload[[:space:]]+([0-9a-f]{40})$ ]]; then
-  SHA="${BASH_REMATCH[1]}"
-  INCOMING="$ROOT/incoming/$SHA"
-  ARCHIVE="$ROOT/incoming/.${SHA}.tar.gz"
-  mkdir -p "$ROOT/incoming"
-  cat > "$ARCHIVE"
-  if tar -tzf "$ARCHIVE" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
-    rm -f "$ARCHIVE"
-    echo "Archive contains an unsafe path." >&2
-    exit 65
+if [[ "$COMMAND" =~ ^upload-v2[[:space:]]+([0-9a-f]{40})[[:space:]]+([0-9a-f]{64})[[:space:]]+([0-9]+)$ ]]; then
+  SHA="${BASH_REMATCH[1]}"; ARTIFACT_HASH="${BASH_REMATCH[2]}"; BYTES="${BASH_REMATCH[3]}"
+  (( BYTES > 0 && BYTES <= MAX_ARCHIVE_BYTES )) || { echo "Artifact size is outside the allowed boundary." >&2; exit 65; }
+  ARCHIVE="$ROOT/incoming/$SHA.$ARTIFACT_HASH.tar.gz"; PART="$ROOT/incoming/.$SHA.$ARTIFACT_HASH.part"
+  exec 8>"$ROOT/incoming/.$SHA.$ARTIFACT_HASH.lock"; flock -n 8 || { echo "The exact artifact is already uploading." >&2; exit 75; }
+  if [[ -f "$ARCHIVE" ]] && [[ "$(stat -c%s "$ARCHIVE")" == "$BYTES" ]] && [[ "$(sha256sum "$ARCHIVE" | cut -d' ' -f1)" == "$ARTIFACT_HASH" ]]; then
+    printf '{"protocol":"art-des-deploy-v2","state":"uploaded","targetSha":"%s","artifactSha256":"%s","bytes":%s}\n' "$SHA" "$ARTIFACT_HASH" "$BYTES"; exit 0
   fi
-  rm -rf "$INCOMING"
-  mkdir -p "$INCOMING"
-  tar -xzf "$ARCHIVE" -C "$INCOMING"
-  rm -f "$ARCHIVE"
-  if find "$INCOMING" -type l -print -quit | grep -q .; then
-    rm -rf "$INCOMING"
-    echo "Archive contains a symbolic link." >&2
-    exit 65
-  fi
-  printf 'uploaded %s\n' "$SHA"
-  exit 0
+  rm -f -- "$PART"; cat > "$PART"
+  if [[ "$(stat -c%s "$PART")" != "$BYTES" ]] || [[ "$(sha256sum "$PART" | cut -d' ' -f1)" != "$ARTIFACT_HASH" ]]; then rm -f -- "$PART"; echo "Artifact byte count or SHA-256 does not match." >&2; exit 65; fi
+  if tar -tzf "$PART" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then rm -f -- "$PART"; echo "Archive contains an unsafe path." >&2; exit 65; fi
+  mv "$PART" "$ARCHIVE"
+  printf '{"protocol":"art-des-deploy-v2","state":"uploaded","targetSha":"%s","artifactSha256":"%s","bytes":%s}\n' "$SHA" "$ARTIFACT_HASH" "$BYTES"; exit 0
 fi
 
-if [[ ! "$COMMAND" =~ ^publish[[:space:]]+([0-9a-f]{40})$ ]]; then
-  echo "Only 'status', 'upload <full-sha>' and 'publish <full-sha>' are allowed." >&2
-  exit 64
+if [[ "$COMMAND" =~ ^start-v2[[:space:]]+([0-9a-f]{40})[[:space:]]+([0-9a-f]{64})$ ]]; then
+  SHA="${BASH_REMATCH[1]}"; ARTIFACT_HASH="${BASH_REMATCH[2]}"; OPERATION="$SHA-${ARTIFACT_HASH:0:16}"
+  STATUS_FILE="$ROOT/deploy-jobs/$OPERATION.json"; ARCHIVE="$ROOT/incoming/$SHA.$ARTIFACT_HASH.tar.gz"
+  exec 7>"$ROOT/deploy-jobs/.$OPERATION.start.lock"; flock -x 7
+  if [[ -f "$STATUS_FILE" ]]; then cat "$STATUS_FILE"; exit 0; fi
+  [[ -f "$ARCHIVE" ]] || { echo "Uploaded artifact is missing." >&2; exit 66; }
+  write_status "$OPERATION" queued validate "$SHA"
+  if ! "$SYSTEMD_RUN" --unit="art-des-deploy-$OPERATION" --collect --no-block --property=Type=oneshot --property=TimeoutStartSec=10min "$SELF" __internal-v2 "$SHA" "$ARTIFACT_HASH" "$OPERATION" >/dev/null; then write_status "$OPERATION" failed validate "$SHA" START_FAILED; fi
+  cat "$STATUS_FILE"; exit 0
 fi
 
-SHA="${BASH_REMATCH[1]}"
-RELEASE="$ROOT/releases/$SHA"
-TEMP="$ROOT/releases/.${SHA}.building"
-INCOMING="$ROOT/incoming/$SHA"
-PREVIOUS="$(readlink -f "$ROOT/current" 2>/dev/null || true)"
-
-exec 9>"$LOCK"
-flock -n 9 || { echo "Another deploy is running." >&2; exit 75; }
-
-if [[ ! -d "$RELEASE" ]]; then
-  [[ -d "$INCOMING" ]] || { echo "Uploaded release source is missing." >&2; exit 66; }
-  rm -rf "$TEMP"
-  mv "$INCOMING" "$TEMP"
-  chown -R portfolio:portfolio "$TEMP"
-  runuser -u portfolio -- npm ci --no-audit --no-fund --prefix "$TEMP"
-  runuser -u portfolio -- env NEXT_PUBLIC_BUILD_SHA="$SHA" npm run build --prefix "$TEMP"
-  printf '%s\n' "$SHA" > "$TEMP/DEPLOY_SHA"
-  mv "$TEMP" "$RELEASE"
+if [[ "$COMMAND" =~ ^status-v2[[:space:]]+([0-9a-f]{40}-[0-9a-f]{16})$ ]]; then
+  OPERATION="${BASH_REMATCH[1]}"; STATUS_FILE="$ROOT/deploy-jobs/$OPERATION.json"
+  [[ -f "$STATUS_FILE" ]] || { echo "Deploy operation was not found." >&2; exit 66; }
+  cat "$STATUS_FILE"; exit 0
 fi
 
-ln -sfn "$RELEASE" "$ROOT/current.next"
-mv -Tf "$ROOT/current.next" "$ROOT/current"
-systemctl restart art-des.service
-
-ready=0
-for _ in $(seq 1 40); do
-  if systemctl is-active --quiet art-des.service && curl --fail --silent --max-time 2 http://127.0.0.1:3000/ | grep -Fq "$SHA"; then
-    ready=1
-    break
-  fi
-  sleep 0.5
-done
-
-if [[ "$ready" != "1" ]]; then
-  if [[ -n "$PREVIOUS" && -d "$PREVIOUS" ]]; then
-    ln -sfn "$PREVIOUS" "$ROOT/current.rollback"
-    mv -Tf "$ROOT/current.rollback" "$ROOT/current"
-    systemctl restart art-des.service
-  fi
-  echo "New release failed readiness; previous release restored." >&2
-  exit 70
-fi
-
-printf 'deployed %s\n' "$SHA"
+echo "Only status, legacy upload/publish, upload-v2, start-v2 and status-v2 are allowed." >&2
+exit 64

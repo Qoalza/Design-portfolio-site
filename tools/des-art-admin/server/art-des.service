@@ -1,0 +1,16 @@
+[Unit]
+Description=Art-des Portfolio
+After=network.target
+
+[Service]
+Type=simple
+User=portfolio
+Group=portfolio
+WorkingDirectory=/var/www/art-des/current
+Environment=NODE_ENV=production
+ExecStart=/usr/local/sbin/art-des-run-current
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

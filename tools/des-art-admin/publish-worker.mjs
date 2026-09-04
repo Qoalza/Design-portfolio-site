@@ -1,6 +1,5 @@
-import { execFile, spawn } from "node:child_process";
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { createReadStream } from "node:fs";
 import { access, cp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -10,6 +9,22 @@ import { promisify } from "node:util";
 import { compileAdminDraft, parseAdminDraft } from "./draft-contract.mjs";
 import { humanError, UserFacingError } from "./human-errors.mjs";
 import { createPublishCommandRunner, recordPublishCommandFailure } from "./publish-diagnostics.mjs";
+import {
+  createRuntimeReleaseArchive,
+  readDeployOperation,
+  resolveFreshDeployTarget,
+  startDeployOperation,
+  uploadRuntimeRelease,
+  verifyPublicRelease,
+  waitForDeployOperation,
+} from "./deploy-v2.mjs";
+import {
+  claimPublishWorker,
+  heartbeatPublishWorker,
+  mutatePublishJob,
+  PUBLISH_WORKER_HEARTBEAT_MS,
+  releasePublishWorker,
+} from "./publish-job-state.mjs";
 import { PRODUCTION_DATA_BASELINE_VERSION } from "./production-data-bootstrap.mjs";
 import { readAllProjectDocuments } from "../../src/lib/projects.ts";
 import { validateProjectCollection } from "../../src/lib/project-visual-registry.ts";
@@ -275,7 +290,7 @@ export async function mergePublishPullRequest({ command, cwd, pullRequestUrl, br
   await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", contentCommit, mergeCommitSha], { cwd });
   await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", contentCommit, publishedSha], { cwd });
   await command("merge.ancestry", "git", ["merge-base", "--is-ancestor", mergeCommitSha, publishedSha], { cwd });
-  return { mergeCommitSha, publishedSha: mergeCommitSha };
+  return { mergeCommitSha, publishedSha };
 }
 
 export async function createReleaseArchive({ archive, sourceRoot }) {
@@ -397,21 +412,26 @@ export async function publishReadiness({ supportRoot, repoRoot, mode = "sandbox"
 
 async function update(jobFile, job, patch) {
   Object.assign(job, patch, { updatedAt: new Date().toISOString() });
-  await atomicJson(jobFile, job);
+  await persistJob(jobFile, job);
 }
 
-async function uploadRelease({ archive, config, sha }) {
-  await new Promise((resolve, reject) => {
-    const child = spawn("ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=15", "-i", config.keyPath, `${config.user}@${config.host}`, "upload", sha], {
-      stdio: ["pipe", "ignore", "pipe"],
-    });
-    let error = "";
-    child.stderr.setEncoding("utf8");
-    child.stderr.on("data", (chunk) => { error += chunk; });
-    createReadStream(archive).on("error", reject).pipe(child.stdin);
-    child.on("error", reject);
-    child.on("close", (code) => code === 0 ? resolve() : reject(new Error(error.trim() || `Release upload failed with exit code ${code}.`)));
+async function persistJob(jobFile, job) {
+  const saved = await mutatePublishJob(jobFile, (current) => {
+    if (!current.worker || current.worker.ownerId !== job.worker?.ownerId) {
+      throw new Error("Publish worker no longer owns the job lease.");
+    }
+    return { ...job, worker: current.worker };
   });
+  Object.assign(job, saved);
+}
+
+async function persistDeployProgress(jobFile, job, patch) {
+  Object.assign(job, patch);
+  await mutatePublishJob(jobFile, (current) => ({
+    ...current,
+    ...patch,
+    updatedAt: new Date().toISOString(),
+  }));
 }
 
 function deployedSha(output) {
@@ -464,6 +484,14 @@ export async function cleanupPublishedRefs({ execImpl = exec, repoRoot, worktree
 
 export async function runPublishJob(jobFile) {
   const job = JSON.parse(await readFile(jobFile, "utf8"));
+  const workerOwner = process.env.DES_ART_PUBLISH_WORKER_OWNER || job.worker?.ownerId || `direct-${process.pid}-${Date.now()}`;
+  const claimed = await claimPublishWorker(jobFile, { ownerId: workerOwner, pid: process.pid });
+  if (!claimed.claimed) return;
+  Object.assign(job, claimed.job);
+  const heartbeat = setInterval(() => {
+    heartbeatPublishWorker(jobFile, { ownerId: workerOwner, pid: process.pid }).catch(() => {});
+  }, PUBLISH_WORKER_HEARTBEAT_MS);
+  heartbeat.unref();
   const stageRoot = path.join(path.dirname(jobFile), "staging", job.id);
   const diagnosticRoot = path.join(path.dirname(jobFile), "diagnostics", job.id);
   const command = createPublishCommandRunner({
@@ -508,7 +536,7 @@ export async function runPublishJob(jobFile) {
           : ["worktree", "add", worktree, job.branch];
         await command("resume.worktree", "git", worktreeArgs, { cwd: job.repoRoot });
         job.worktree = worktree;
-        await atomicJson(jobFile, job);
+        await persistJob(jobFile, job);
       }
       await reconcileResumeWorktree({ command, worktree, job });
     }
@@ -548,7 +576,7 @@ export async function runPublishJob(jobFile) {
           }
           job.branch = branch;
           job.worktree = worktree;
-          await atomicJson(jobFile, job);
+          await persistJob(jobFile, job);
         }
       } else if (stageId === "checks") {
         const cwd = job.mode === "live" ? worktree : job.repoRoot;
@@ -580,50 +608,120 @@ export async function runPublishJob(jobFile) {
         job.mergeCommitSha = merged.mergeCommitSha;
         job.publishedSha = merged.publishedSha;
         job.contentInPublishedSha = true;
-        await atomicJson(jobFile, job);
+        await persistJob(jobFile, job);
         for (const [check, field] of pendingMergeChecks(job, job.publishedSha)) {
           if (check === "checkout") await command("merge.checkout", "git", ["switch", "--detach", job.publishedSha], { cwd: worktree });
           if (check === "install") await command("merge.install", "npm", ["ci", "--no-audit", "--no-fund"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
           if (check === "lint") await command("merge.lint", "npm", ["run", "lint"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
-          if (check === "build") await command("merge.build", "npm", ["run", "build"], { cwd: worktree, maxBuffer: 40 * 1024 * 1024 });
+          if (check === "build") await command("merge.build", "npm", ["run", "build"], {
+            cwd: worktree,
+            env: { ...process.env, NEXT_PUBLIC_BUILD_SHA: job.publishedSha },
+            maxBuffer: 40 * 1024 * 1024,
+          });
           job[field] = job.publishedSha;
-          await atomicJson(jobFile, job);
+          await persistJob(jobFile, job);
         }
         job.productionState = "main-updated";
       } else if (stageId === "deploy" && job.mode === "live") {
-        const archive = path.join(job.supportRoot, "jobs", `${job.publishedSha}.tar.gz`);
-        try {
-          await deployPublishedRelease({
-            command,
-            createArchive: async (input) => {
-              try { await createReleaseArchive(input); } catch (error) {
-                await recordPublishCommandFailure({ diagnosticRoot, jobId: job.id, failedOperation: "deploy.archive", command: "tar", error });
-              }
-            },
-            upload: async (input) => {
-              try { await uploadRelease(input); } catch (error) {
-                await recordPublishCommandFailure({ diagnosticRoot, jobId: job.id, failedOperation: "deploy.upload", command: "ssh", args: ["upload", job.publishedSha], error });
-              }
-            },
-            archive,
-            sourceRoot: worktree,
-            config: publishConfig,
-            sha: job.publishedSha,
+        const currentProductionSha = await readDeployedSha({ command, config: publishConfig, operation: "deploy.status.before" });
+        const targetSha = await resolveFreshDeployTarget({
+          command,
+          cwd: worktree,
+          contentCommit: job.contentCommit,
+          savedMergeSha: job.mergeCommitSha,
+          productionSha: currentProductionSha,
+        });
+        if (targetSha !== job.publishedSha || job.mergeBuildSha !== targetSha) {
+          await command("deploy.checkout", "git", ["switch", "--detach", targetSha], { cwd: worktree });
+          await command("deploy.install", "npm", ["ci", "--no-audit", "--no-fund"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
+          await command("deploy.lint", "npm", ["run", "lint"], { cwd: worktree, maxBuffer: 20 * 1024 * 1024 });
+          await command("deploy.build", "npm", ["run", "build"], {
+            cwd: worktree,
+            env: { ...process.env, NEXT_PUBLIC_BUILD_SHA: targetSha },
+            maxBuffer: 40 * 1024 * 1024,
           });
-          job.productionState = "deployed";
+        }
+        job.deployTargetSha = targetSha;
+        job.publishedSha = targetSha;
+        job.deployPhase = "packaging";
+        job.deployStartedAt = job.deployStartedAt ?? new Date().toISOString();
+        await persistJob(jobFile, job);
+        const archive = path.join(job.supportRoot, "jobs", `${targetSha}.runtime.tar.gz`);
+        let progressWrite = Promise.resolve();
+        const queueProgress = (patch) => {
+          progressWrite = progressWrite.then(() => persistDeployProgress(jobFile, job, patch)).catch(() => {});
+        };
+        try {
+          if (currentProductionSha === targetSha) {
+            job.deployPhase = "complete";
+            job.productionState = "deployed";
+          } else if (job.serverOperationId) {
+            const existing = await readDeployOperation({ command, config: publishConfig, operationId: job.serverOperationId });
+            if (existing.targetSha !== targetSha) throw new Error("Saved server operation targets a different SHA.");
+            const complete = await waitForDeployOperation({
+              command,
+              config: publishConfig,
+              operation: existing,
+              onStatus: (status) => {
+                job.deployPhase = status.phase;
+                job.serverOperationState = status.state;
+                queueProgress({ deployPhase: status.phase, serverOperationState: status.state });
+              },
+            });
+            job.deployPhase = complete.phase;
+            job.productionState = "deployed";
+          } else {
+            const artifact = await createRuntimeReleaseArchive({ archive, sourceRoot: worktree, sha: targetSha });
+          Object.assign(job, { deployPhase: "upload", bytesTransferred: 0, bytesTotal: artifact.bytes, artifactSha256: artifact.artifactSha256 });
+          await persistJob(jobFile, job);
+          let lastProgressPersist = 0;
+          await uploadRuntimeRelease({
+            archive,
+            config: publishConfig,
+            sha: targetSha,
+            artifactSha256: artifact.artifactSha256,
+            bytes: artifact.bytes,
+            onProgress: ({ bytesTransferred, bytesTotal }) => {
+              Object.assign(job, { bytesTransferred, bytesTotal });
+              if (Date.now() - lastProgressPersist >= 1_000) {
+                lastProgressPersist = Date.now();
+                queueProgress({ bytesTransferred, bytesTotal });
+              }
+            },
+          });
+          await progressWrite;
+          job.bytesTransferred = artifact.bytes;
+          job.deployPhase = "vps-check";
+          await persistJob(jobFile, job);
+          const operation = await startDeployOperation({ command, config: publishConfig, sha: targetSha, artifactSha256: artifact.artifactSha256 });
+          job.serverOperationId = operation.operationId;
+          await persistJob(jobFile, job);
+          const complete = await waitForDeployOperation({
+            command,
+            config: publishConfig,
+            operation,
+            onStatus: (status) => {
+              job.deployPhase = status.phase;
+              job.serverOperationState = status.state;
+              queueProgress({ deployPhase: status.phase, serverOperationState: status.state });
+            },
+          });
+            await progressWrite;
+            job.deployPhase = complete.phase;
+            job.productionState = "deployed";
+          }
         } finally {
           await rm(archive, { force: true });
         }
       } else if (stageId === "verify" && job.mode === "live") {
-        for (const route of ["/", "/projects", ...(job.slug ? [`/projects/${job.slug}`] : [])]) {
-          const response = await fetch(`https://art-des.ru${route}`, { redirect: "error" });
-          if (!response.ok) throw new Error(`Production route ${route} returned ${response.status}.`);
-          if (route === "/" && !(await response.text()).includes(job.publishedSha)) throw new Error("Production build SHA does not match merged main SHA.");
-        }
+        const project = job.slug
+          ? JSON.parse(await readFile(path.join(worktree, "content", "projects", `${job.slug}.json`), "utf8"))
+          : undefined;
+        await verifyPublicRelease({ baseUrl: "https://art-des.ru", sha: job.deployTargetSha ?? job.publishedSha, project });
         job.productionState = "verified";
       }
       job.stages = job.stages.map((stage) => stage.id === stageId ? { ...stage, status: "complete" } : stage);
-      await atomicJson(jobFile, job);
+      await persistJob(jobFile, job);
     }
     await update(jobFile, job, { currentStage: "finalize", message: "Сохранение опубликованного состояния" });
     await finalizePublishedJob({ job, worktree });
@@ -656,6 +754,8 @@ export async function runPublishJob(jobFile) {
       } : {}),
     });
   } finally {
+    clearInterval(heartbeat);
+    await releasePublishWorker(jobFile, { ownerId: workerOwner }).catch(() => {});
     if (worktree && job.status === "complete") {
       await cleanupPublishedRefs({ repoRoot: job.repoRoot, worktree, branch: job.branch, contentCommit: job.contentCommit, contentInPublishedSha: job.contentInPublishedSha });
     }

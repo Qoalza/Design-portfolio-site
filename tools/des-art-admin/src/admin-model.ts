@@ -49,6 +49,13 @@ export type PublishJob = {
   currentStage?: string;
   productionState?: "unchanged" | "main-updated" | "main-updated-deploy-failed";
   publishedSha?: string;
+  deployTargetSha?: string;
+  serverOperationId?: string;
+  serverOperationState?: "queued" | "running" | "complete" | "failed";
+  deployPhase?: string;
+  deployStartedAt?: string;
+  bytesTransferred?: number;
+  bytesTotal?: number;
   pullRequestUrl?: string;
   branch?: string;
   contentCommit?: string;

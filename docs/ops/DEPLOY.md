@@ -34,9 +34,9 @@ Read-only status/smoke можно выполнять в рамках diagnostic 
 
 - Перед release operator подтверждает fresh `origin/main`, exact target SHA, required checks и read-only provenance report; sandbox data не является release input.
 - Merge, push и deploy остаются отдельными explicit approvals и не запускаются Admin.
-- Release archive исключает `.git`, dependencies, build directories, macOS metadata и local Admin/runtime state.
-- Ограниченный SSH key принимает только `status`, `upload <full-sha>`, `publish <full-sha>`.
-- Server собирает новый release directory, записывает `DEPLOY_SHA`, атомарно переключает `/var/www/art-des/current`, перезапускает `art-des.service` и выполняет readiness loop.
+- Deploy v2 локально собирает Next standalone runtime и архивирует только standalone server, `.next/static`, `public`, `DEPLOY_SHA` и SHA-256 manifest. Исходники, docs, tests, Admin и local data в архив не входят; VPS больше не выполняет `npm ci` или `next build`.
+- Ограниченный SSH key принимает `status`, `upload-v2`, `start-v2`, `status-v2`; старые `upload`/`publish` временно остаются только для совместимости rollback.
+- После `start-v2` отдельный systemd job на VPS проверяет artifact, атомарно переключает `/var/www/art-des/current`, перезапускает `art-des.service`, выполняет readiness и сохраняет current + два rollback-релиза. Отключение Mac/VPN не останавливает принятую сервером операцию.
 - При readiness failure предыдущий release symlink восстанавливается.
 
 ## Admin: выпуск кода и перевод в live
@@ -132,7 +132,8 @@ Valid marker v4/v5 с `source: "production-live"` обозначает уже с
 
 - пользователь редактирует реальные локальные live drafts поверх production baseline;
 - обычная кнопка «Опубликовать» остаётся единственным UI-путём content release и показывает real-time этапы: `Проверка → Подготовка файлов → Lint, build и tests → Commit → Push → Pull Request → Merge → Deploy → Публичная проверка`;
-- live worker использует disposable worktree от fresh `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project-only publish, создаёт PR, merge, deploy и проверяет public SHA/routes;
+- live worker использует disposable worktree от fresh `origin/main`, сохраняет `catalogOrder` и `homePlacement` при project-only publish, создаёт PR, а перед Deploy повторно выбирает fresh `origin/main` и доказывает ancestry content/merge/production SHA; сохранённый старый merge SHA не может откатить production;
+- один job имеет атомарную worker lease с heartbeat; повторный Resume не создаёт второй upload. После перезапуска Admin восстанавливает `serverOperationId` и продолжает status polling той же VPS-операции;
 - sandbox mode не имеет Git/PR/SSH/deploy path;
 - для изменённого production-проекта доступен локальный reset только этого проекта до exact published baseline; он не публикует и не затрагивает другие drafts;
 - Cmd+Z и Shift+Cmd+Z возвращают или повторяют до пяти последних текстовых действий текущего проекта; изображения, Figma, структуры и action buttons в эту историю не входят;

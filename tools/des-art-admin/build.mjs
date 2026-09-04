@@ -19,6 +19,8 @@ const bundledRuntimeFiles = [
   "material-state.mjs",
   "preview-runtime.mjs",
   "production-data-bootstrap.mjs",
+  "deploy-v2.mjs",
+  "publish-job-state.mjs",
   "publish-diagnostics.mjs",
   "publish-worker.mjs",
   "server.mjs",

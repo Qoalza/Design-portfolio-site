@@ -11,7 +11,7 @@ const bundledSource = path.join(repositoryRoot, "dist", "Des-art Admin.app", "Co
 const runtimeFiles = [
   "admin-errors.mjs", "core.mjs", "draft-contract.mjs", "figma-template-import.mjs", "figma-template-map.mjs",
   "human-errors.mjs", "material-state.mjs", "preview-runtime.mjs", "production-data-bootstrap.mjs",
-  "publish-diagnostics.mjs", "publish-worker.mjs", "server.mjs", "public/admin.css", "public/admin.js", "public/index.html",
+  "deploy-v2.mjs", "publish-job-state.mjs", "publish-diagnostics.mjs", "publish-worker.mjs", "server.mjs", "public/admin.css", "public/admin.js", "public/index.html",
 ];
 const sharedFiles = ["project-contract.ts", "project-visual-registry.ts", "projects.ts"];
 

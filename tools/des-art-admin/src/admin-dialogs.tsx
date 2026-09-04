@@ -36,6 +36,19 @@ export function IssueDialog({ open, title, issues, close, navigate }: { open: bo
 
 export function PublishOverlay({ job, mode, close, resume }: { job: PublishJob | null; mode: "live" | "sandbox"; close: () => void; resume: (jobId: string) => void }) {
   if (!job) return null;
+  const deployPhaseLabels: Record<string, string> = {
+    packaging: "Упаковка компактного релиза",
+    upload: "Загрузка на VPS",
+    "vps-check": "Проверка пакета на VPS",
+    validate: "Проверка пакета на VPS",
+    activate: "Активация релиза",
+    readiness: "Проверка запуска",
+    retention: "Ротация предыдущих релизов",
+    complete: "Deploy завершён",
+  };
+  const transferred = job.bytesTransferred ?? 0;
+  const total = job.bytesTotal ?? 0;
+  const megabytes = (bytes: number) => (bytes / 1024 / 1024).toFixed(1);
   return (
     <div className="publish-overlay" role="dialog" aria-modal="true" aria-label="Публикация изменений">
       <div className="publish-card">
@@ -70,6 +83,10 @@ export function PublishOverlay({ job, mode, close, resume }: { job: PublishJob |
           ) : (
             <Text color="gray">{mode === "live" ? "Изменения проходят проверки перед публикацией на art-des.ru." : "Это безопасная локальная репетиция. Production не изменяется."}</Text>
           )}
+          {job.currentStage === "deploy" && job.deployPhase ? <Text size="2" color="gray">
+            {deployPhaseLabels[job.deployPhase] ?? job.deployPhase}
+            {total > 0 ? ` · ${megabytes(transferred)} из ${megabytes(total)} МиБ` : ""}
+          </Text> : null}
         </div>
         <Text className="publish-warning" size="2">
           {job.status === "failed"
