@@ -4,21 +4,21 @@
 
 ## Checkout
 
-- Production работает на hardening merge `b499b7683f6f124b18cc790e46fe9b6e616f78cc` из PR #40; установленная Admin — на follow-up merge `fc04475955839f1d83bca93e83b20dc0efcac834` из PR #41.
-- Current follow-up branch: `codex/admin-figma-hero-canvas-fix`, isolated worktree `/private/tmp/design-portfolio-admin-deploy-rollout`.
+- Production работает на hardening merge `b499b7683f6f124b18cc790e46fe9b6e616f78cc` из PR #40; установленная Admin — на whole-Frame install-compat merge `728bcdcf5afb7b65253a56eda1e173e7d829bf1e` из PR #44.
+- Current follow-up branch: `codex/admin-preview-current-runtime`, isolated worktree `/private/tmp/design-portfolio-admin-deploy-rollout`.
 - Пользовательский checkout и `USERSPACE/**` не затронуты.
 
 ## Current checkpoint
 
 - Deploy v2 rollout завершён; production/public/Admin smoke зелёные, `/api/changes` возвращает `0`.
-- Реальный B.Off Frame выявил корневую регрессию: фиксированный template importer, введённый `437c9ca`, заменил прежний whole-Frame contract и стал отвергать Frame по числу верхнеуровневых элементов.
-- В ветке `codex/admin-restore-figma-frame-contract` восстанавливается исходная модель для catalog/hero: целый Frame, произвольное число raster-элементов, root fill, constraints и CSS shadows. Section templates остаются без изменений.
-- PR #43 merged as `7e6a027…`. Первая установка этого пакета не запустилась: preview fingerprint потребовал Admin-only `figma-frame.mjs` в managed repository, который корректно закреплён на более старом production SHA. Выполнен немедленный rollback на Admin `2060590081…`; protected hashes совпали до/после.
+- Whole-Frame import восстановлен и принят на реальном B.Off Frame: произвольное число raster-элементов, root fill, constraints и CSS shadows сохраняются.
+- Project-page preview возвращает HTTP 500: production-прикреплённая локальная копия Portfolio не знает новых полей `catalogFrame`/`heroFrame`, хотя установленная Admin уже корректно их создаёт.
+- В `codex/admin-preview-current-runtime` preview получает отдельную generated Git worktree на exact build SHA установленной Admin. Production checkout остаётся закреплён на production SHA; draft store, assets и baseline не перемещаются.
 
 ## Verification
 
-- Failing-first test воспроизвёл ошибку `incompatible proportion` для двух tight child exports разных размеров.
-- Focused Figma regression: `10/10`; full repository suite: `354/354`; lint and production build pass.
+- Failing-first test доказал отсутствие отдельного preview checkout на installed Admin SHA.
+- Focused managed-repository/preview/boundary tests: `38/38`; full repository suite: `360/360`; lint and production build pass.
 - Generated Admin bundle remains byte-identical to its allowlist. Live drafts/assets/jobs/snapshots/backups were not read or changed by the implementation tests.
 
 ## Stop-lines
@@ -29,7 +29,7 @@
 
 ## Next action
 
-Проверить и зафиксировать узкий install-compat follow-up, затем пройти exact-SHA push/PR/merge/install gates. После успешной установки повторить импорт реального B.Off Frame. Portfolio deploy автоматически не запускать.
+Зафиксировать preview-runtime follow-up, затем пройти exact-SHA push/PR/merge/install gates. После успешной установки открыть project-page preview B.Off и убедиться, что маршрут возвращает 200. Portfolio deploy автоматически не запускать.
 
 ## Pointers
 

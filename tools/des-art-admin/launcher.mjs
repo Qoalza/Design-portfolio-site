@@ -1,7 +1,7 @@
 import { execFile, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { closeSync, openSync } from "node:fs";
-import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, lstat, mkdir, readFile, readlink, readdir, symlink, writeFile } from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 import { ensureProductionDataBaseline, extractPublishedBuildSha } from "./production-data-bootstrap.mjs";
-import { synchronizeManagedRepositoryCheckout } from "./managed-repository.mjs";
+import { synchronizeManagedRepositoryCheckout, synchronizePreviewRepositoryCheckout } from "./managed-repository.mjs";
 
 const exec = promisify(execFile);
 const resources = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +23,7 @@ const supportRoot = path.resolve(
     ?? path.join(os.homedir(), "Library", "Application Support", "Des-art Admin"),
 );
 const managedRepo = path.join(supportRoot, "repository");
+const previewRepo = path.join(supportRoot, "preview-repository");
 const logsRoot = path.join(supportRoot, "logs");
 const bundledAdminRoot = path.join(resources, "source", "tools", "des-art-admin");
 const managedAdminRoot = path.join(managedRepo, "tools", "des-art-admin");
@@ -51,8 +52,10 @@ async function stopService(name) {
   if (!Number.isInteger(pid) || pid < 1) return;
   const { stdout: command } = await exec("/bin/ps", ["-p", String(pid), "-o", "command="]).catch(() => ({ stdout: "" }));
   if (!command.trim()) return;
-  const expected = name === "admin" ? "tools/des-art-admin/server.mjs" : "npm run dev";
-  if (!command.includes(expected)) throw new Error(`Сохранённый PID ${name} не принадлежит Des-art Admin. Синхронизация данных остановлена.`);
+  const owned = name === "admin"
+    ? command.includes("tools/des-art-admin/server.mjs")
+    : command.includes("next") && command.includes(String(previewPort));
+  if (!owned) throw new Error(`Сохранённый PID ${name} не принадлежит Des-art Admin. Синхронизация данных остановлена.`);
   try { process.kill(-pid, "SIGTERM"); } catch { return; }
   for (let attempt = 0; attempt < 40; attempt += 1) {
     try { process.kill(-pid, 0); } catch { return; }
@@ -133,6 +136,30 @@ async function ensureManagedRepository({ publishedSha, hasLiveBaseline = false, 
   return { targetSha, publishedSha };
 }
 
+async function ensurePreviewRepository() {
+  const buildSha = (await readFile(path.join(resources, "build-sha.txt"), "utf8")).trim();
+  await synchronizePreviewRepositoryCheckout({ repoRoot: managedRepo, previewRoot: previewRepo, targetSha: buildSha, execImpl: exec });
+  const [managedLock, previewLock] = await Promise.all([
+    readFile(path.join(managedRepo, "package-lock.json")),
+    readFile(path.join(previewRepo, "package-lock.json")),
+  ]);
+  if (createHash("sha256").update(managedLock).digest("hex") !== createHash("sha256").update(previewLock).digest("hex")) {
+    throw new Error("Preview требует другой набор зависимостей, чем production-копия. Запуск остановлен до безопасной установки отдельного набора.");
+  }
+  const dependencyLink = path.join(previewRepo, "node_modules");
+  const expectedDependencies = path.join(managedRepo, "node_modules");
+  try {
+    const entry = await lstat(dependencyLink);
+    if (!entry.isSymbolicLink() || path.resolve(previewRepo, await readlink(dependencyLink)) !== expectedDependencies) {
+      throw new Error("Preview node_modules не связан с проверенными зависимостями Admin.");
+    }
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+    await symlink(expectedDependencies, dependencyLink, "dir");
+  }
+  return previewRepo;
+}
+
 async function detached(command, args, name, env = {}) {
   const output = openSync(path.join(logsRoot, `${name}.log`), "a", 0o600);
   try {
@@ -160,9 +187,11 @@ async function launchSandboxWithoutBootstrap() {
   }
   await access(path.join(managedRepo, ".git"));
   await access(path.join(managedRepo, "node_modules"));
+  await ensurePreviewRepository();
   await mkdir(logsRoot, { recursive: true });
   await detached(process.execPath, ["--experimental-strip-types", adminServerFile], "admin", {
     DES_ART_ADMIN_REPO: managedRepo,
+    DES_ART_ADMIN_PREVIEW_REPO: previewRepo,
     DES_ART_ADMIN_SUPPORT: supportRoot,
     DES_ART_ADMIN_PORT: String(adminPort),
     DES_ART_PREVIEW_PORT: String(previewPort),
@@ -254,6 +283,7 @@ async function main() {
   const activeMarker = await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8").then(JSON.parse).catch(() => undefined);
   const activeStoreRoot = activeMarker?.version === 5 && typeof activeMarker.activeStoreRoot === "string"
     ? path.resolve(supportRoot, activeMarker.activeStoreRoot) : supportRoot;
+  await ensurePreviewRepository();
   await mkdir(logsRoot, { recursive: true });
   // The managed repository may have advanced while the existing Node processes
   // still hold the previous server and Next.js modules in memory.
@@ -262,6 +292,7 @@ async function main() {
   if (!(await reachable(adminPort))) {
     await detached(process.execPath, ["--experimental-strip-types", adminServerFile], "admin", {
       DES_ART_ADMIN_REPO: managedRepo,
+      DES_ART_ADMIN_PREVIEW_REPO: previewRepo,
       DES_ART_ADMIN_SUPPORT: supportRoot,
       DES_ART_ADMIN_PORT: String(adminPort),
       DES_ART_PREVIEW_PORT: String(previewPort),
