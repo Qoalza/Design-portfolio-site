@@ -17,6 +17,7 @@ import { createPreviewRuntimeIdentity, previewHealthMatches } from "./preview-ru
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(process.env.DES_ART_ADMIN_REPO ?? path.join(directory, "../.."));
+const previewRepoRoot = path.resolve(process.env.DES_ART_ADMIN_PREVIEW_REPO ?? repoRoot);
 const supportRoot = path.resolve(process.env.DES_ART_ADMIN_SUPPORT ?? path.join(repoRoot, ".des-art-admin-runtime"));
 const storeRoot = path.resolve(process.env.DES_ART_ADMIN_STORE_ROOT ?? supportRoot);
 const port = Number(process.env.DES_ART_ADMIN_PORT ?? 41731);
@@ -73,10 +74,10 @@ async function launchPublishWorker(jobFile, patch = {}) {
 
 const userError = (response, status, title, message) => json(response, status, { errorTitle: title, error: message });
 
-function currentGitSha() {
+function currentGitSha(root = repoRoot) {
   try {
-    if (execFileSync("/usr/bin/git", ["status", "--porcelain"], { cwd: repoRoot, encoding: "utf8" }).trim()) return null;
-    return execFileSync("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+    if (execFileSync("/usr/bin/git", ["status", "--porcelain", "--untracked-files=no"], { cwd: root, encoding: "utf8" }).trim()) return null;
+    return execFileSync("/usr/bin/git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   } catch { return null; }
 }
 
@@ -100,8 +101,8 @@ async function hasVerifiedLiveBaseline() {
 }
 
 const previewRuntime = await createPreviewRuntimeIdentity({
-  repoRoot,
-  gitSha: currentGitSha(),
+  repoRoot: previewRepoRoot,
+  gitSha: currentGitSha(previewRepoRoot),
   sourceFiles: [
     "tools/des-art-admin/server.mjs",
     "tools/des-art-admin/core.mjs",
@@ -157,7 +158,7 @@ async function ensurePreview() {
   try {
     const nextCli = path.join(repoRoot, "node_modules", "next", "dist", "bin", "next");
     const child = spawn(process.execPath, [nextCli, "dev", "-H", "127.0.0.1", "-p", String(previewPort)], {
-      cwd: repoRoot,
+      cwd: previewRepoRoot,
       detached: true,
       stdio: ["ignore", output, output],
       env: {

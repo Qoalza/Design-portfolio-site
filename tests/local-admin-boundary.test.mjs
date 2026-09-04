@@ -83,7 +83,10 @@ test("launcher uses argument arrays instead of shell command construction", () =
 test("Admin server exclusively owns the preview process identity", () => {
   assert.match(launcher, /await stopService\("preview"\)/);
   assert.doesNotMatch(launcher, /detached\("npm", \["run", "dev"/);
-  assert.doesNotMatch(launcher, /DES_ART_ADMIN_PREVIEW/);
+  assert.doesNotMatch(launcher, /DES_ART_ADMIN_PREVIEW:\s*"1"/);
+  assert.match(launcher, /DES_ART_ADMIN_PREVIEW_REPO:\s*previewRepo/);
+  assert.match(launcher, /readFile\(path\.join\(previewRepo, "package-lock\.json"\)\)/);
+  assert.match(launcher, /Preview требует другой набор зависимостей/);
 });
 
 test("first live transition requires an explicit operator request and is not available in the Admin UI", () => {

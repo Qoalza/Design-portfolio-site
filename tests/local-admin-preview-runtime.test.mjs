@@ -21,6 +21,13 @@ test("packaged preview starts without relying on npm from the ambient PATH", () 
   assert.doesNotMatch(server, /spawn\("npm"/);
   assert.match(server, /path\.join\(repoRoot, "node_modules", "next", "dist", "bin", "next"\)/);
   assert.match(server, /spawn\(process\.execPath, \[nextCli, "dev", "-H", "127\.0\.0\.1", "-p", String\(previewPort\)\]/);
+  assert.match(server, /cwd:\s*previewRepoRoot/);
+});
+
+test("preview code is isolated from the production-pinned content checkout", () => {
+  assert.match(server, /const previewRepoRoot = path\.resolve\(process\.env\.DES_ART_ADMIN_PREVIEW_REPO \?\? repoRoot\)/);
+  assert.match(server, /contentRoot:\s*path\.join\(repoRoot, "content", "projects"\)/);
+  assert.match(server, /repoRoot:\s*previewRepoRoot/);
 });
 
 test("preview fingerprint does not require Admin-only modules from the production-pinned repository", () => {

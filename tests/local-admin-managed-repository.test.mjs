@@ -6,7 +6,10 @@ import path from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
 
-import { synchronizeManagedRepositoryCheckout } from "../tools/des-art-admin/managed-repository.mjs";
+import {
+  synchronizeManagedRepositoryCheckout,
+  synchronizePreviewRepositoryCheckout,
+} from "../tools/des-art-admin/managed-repository.mjs";
 
 const exec = promisify(execFile);
 
@@ -42,6 +45,25 @@ test("existing live checkout remains at production while origin/main advances", 
   assert.deepEqual(result, { targetSha: publishedSha, remoteMainSha, checkout: "detached" });
   assert.equal((await exec("/usr/bin/git", ["-C", managed, "rev-parse", "HEAD"])).stdout.trim(), publishedSha);
   assert.equal((await exec("/usr/bin/git", ["-C", managed, "rev-parse", "origin/main"])).stdout.trim(), remoteMainSha);
+  assert.equal((await exec("/usr/bin/git", ["-C", managed, "status", "--porcelain"])).stdout, "");
+});
+
+test("preview uses an isolated checkout at the installed Admin SHA", async () => {
+  const { managed, remoteMainSha } = await fixture();
+  await synchronizeManagedRepositoryCheckout({
+    repoRoot: managed, publishMode: "sandbox", execImpl: exec,
+  });
+  const preview = path.join(path.dirname(managed), "preview-repository");
+
+  const result = await synchronizePreviewRepositoryCheckout({
+    repoRoot: managed,
+    previewRoot: preview,
+    targetSha: remoteMainSha,
+    execImpl: exec,
+  });
+
+  assert.deepEqual(result, { targetSha: remoteMainSha, previewRoot: preview });
+  assert.equal((await exec("/usr/bin/git", ["-C", preview, "rev-parse", "HEAD"])).stdout.trim(), remoteMainSha);
   assert.equal((await exec("/usr/bin/git", ["-C", managed, "status", "--porcelain"])).stdout, "");
 });
 
