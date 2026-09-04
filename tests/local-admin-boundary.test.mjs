@@ -23,6 +23,7 @@ const adminCss = await readFile(new URL("../tools/des-art-admin/src/admin.css", 
 const figmaImporter = await readFile(new URL("../tools/des-art-admin/figma-template-import.mjs", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const deployCommand = await readFile(new URL("../tools/des-art-admin/server/art-des-publish", import.meta.url), "utf8");
+const legacyDeployCommand = await readFile(new URL("../tools/des-art-admin/server/art-des-publish-v1", import.meta.url), "utf8");
 const adminBuild = await readFile(new URL("../tools/des-art-admin/build.mjs", import.meta.url), "utf8");
 
 test("admin server binds only to IPv4 loopback and validates local requests", () => {
@@ -342,12 +343,14 @@ test("canonical TypeScript config includes the fixed live preview output", async
 
 test("remote deploy command accepts only full SHAs and rolls back failed readiness", () => {
   assert.match(deployCommand, /\[0-9a-f\]\{40\}/);
-  assert.match(deployCommand, /NEXT_PUBLIC_BUILD_SHA/);
-  assert.match(deployCommand, /upload\[\[:space:\]\]/);
+  assert.match(deployCommand, /upload-v2/);
+  assert.match(deployCommand, /start-v2/);
+  assert.match(deployCommand, /status-v2/);
   assert.match(deployCommand, /Archive contains an unsafe path/);
-  assert.match(deployCommand, /Archive contains a symbolic link/);
-  assert.match(deployCommand, /runuser -u portfolio/);
+  assert.match(deployCommand, /ARCHIVE_SYMLINK/);
+  assert.doesNotMatch(deployCommand, /npm ci|npm run build/);
+  assert.match(legacyDeployCommand, /NEXT_PUBLIC_BUILD_SHA/);
+  assert.match(legacyDeployCommand, /runuser -u portfolio/);
   assert.match(deployCommand, /current\.rollback/);
-  assert.match(deployCommand, /previous release restored/i);
   assert.doesNotMatch(deployCommand, /eval\s/);
 });
