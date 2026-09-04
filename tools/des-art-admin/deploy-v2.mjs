@@ -205,6 +205,21 @@ async function requirePage(fetchImpl, url) {
   return response.text();
 }
 
+export function collectPublicAssetPaths(value, output = new Set()) {
+  if (typeof value === "string") {
+    if (value.startsWith("/assets/")) output.add(value);
+    return [...output].sort();
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectPublicAssetPaths(item, output);
+    return [...output].sort();
+  }
+  if (value && typeof value === "object") {
+    for (const item of Object.values(value)) collectPublicAssetPaths(item, output);
+  }
+  return [...output].sort();
+}
+
 export async function verifyPublicRelease({ baseUrl, sha, project, fetchImpl = fetch }) {
   const root = await requirePage(fetchImpl, `${baseUrl}/`);
   if (!root.includes(sha)) throw new Error("Public build SHA marker does not match the deploy target.");
@@ -212,7 +227,7 @@ export async function verifyPublicRelease({ baseUrl, sha, project, fetchImpl = f
   if (project) {
     const detail = await requirePage(fetchImpl, `${baseUrl}/projects/${encodeURIComponent(project.slug)}`);
     if (!detail.includes(project.title)) throw new Error("Public project marker is missing; a custom 404 cannot pass verification.");
-    for (const asset of project.assets ?? []) {
+    for (const asset of collectPublicAssetPaths(project)) {
       const response = await fetchImpl(new URL(asset, baseUrl), { redirect: "error" });
       if (!response.ok) throw new Error(`Public project asset ${asset} returned ${response.status}.`);
     }

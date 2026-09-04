@@ -157,6 +157,7 @@ fi
 if [[ "$COMMAND" =~ ^start-v2[[:space:]]+([0-9a-f]{40})[[:space:]]+([0-9a-f]{64})$ ]]; then
   SHA="${BASH_REMATCH[1]}"; ARTIFACT_HASH="${BASH_REMATCH[2]}"; OPERATION="$SHA-${ARTIFACT_HASH:0:16}"
   STATUS_FILE="$ROOT/deploy-jobs/$OPERATION.json"; ARCHIVE="$ROOT/incoming/$SHA.$ARTIFACT_HASH.tar.gz"
+  exec 7>"$ROOT/deploy-jobs/.$OPERATION.start.lock"; flock -x 7
   if [[ -f "$STATUS_FILE" ]]; then cat "$STATUS_FILE"; exit 0; fi
   [[ -f "$ARCHIVE" ]] || { echo "Uploaded artifact is missing." >&2; exit 66; }
   write_status "$OPERATION" queued validate "$SHA"

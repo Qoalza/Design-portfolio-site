@@ -13,6 +13,7 @@ import {
   releasePublishWorker,
 } from "../tools/des-art-admin/publish-job-state.mjs";
 import {
+  collectPublicAssetPaths,
   createRuntimeReleaseArchive,
   parseDeployStatusV2,
   resolveFreshDeployTarget,
@@ -152,12 +153,38 @@ test("public verification rejects a custom 404 that returns HTTP 200", async () 
   }), /project marker/i);
 });
 
+test("public verification checks every asset referenced by the exact published project", async () => {
+  const project = {
+    slug: "sarafan-radio",
+    title: "Сараффан.Радио",
+    visuals: { hero: { src: "/assets/projects/sarafan-radio/hero.png" } },
+    content: [{ blocks: [{ type: "image", src: "/assets/projects/sarafan-radio/screen.png" }] }],
+  };
+  assert.deepEqual(collectPublicAssetPaths(project), [
+    "/assets/projects/sarafan-radio/hero.png",
+    "/assets/projects/sarafan-radio/screen.png",
+  ]);
+  const requested = [];
+  await verifyPublicRelease({
+    baseUrl: "https://example.test",
+    sha: sha("a"),
+    project,
+    fetchImpl: async (url) => {
+      requested.push(String(url));
+      return { ok: true, status: 200, text: async () => String(url).endsWith("/sarafan-radio") ? project.title : sha("a") };
+    },
+  });
+  assert.ok(requested.some((url) => url.endsWith("/hero.png")));
+  assert.ok(requested.some((url) => url.endsWith("/screen.png")));
+});
+
 test("restricted server command exposes durable v2 operations without server builds", async () => {
   const deploy = await readFile(new URL("../tools/des-art-admin/server/art-des-publish", import.meta.url), "utf8");
   assert.match(deploy, /upload-v2/);
   assert.match(deploy, /start-v2/);
   assert.match(deploy, /status-v2/);
   assert.match(deploy, /systemd-run/);
+  assert.match(deploy, /\.start\.lock/);
   assert.doesNotMatch(deploy, /npm ci|npm run build/);
 });
 

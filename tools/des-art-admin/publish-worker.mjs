@@ -714,7 +714,9 @@ export async function runPublishJob(jobFile) {
           await rm(archive, { force: true });
         }
       } else if (stageId === "verify" && job.mode === "live") {
-        const project = job.slug ? compileAdminDraft(parseAdminDraft(await readFile(job.files[0], "utf8"), path.basename(job.files[0]))) : undefined;
+        const project = job.slug
+          ? JSON.parse(await readFile(path.join(worktree, "content", "projects", `${job.slug}.json`), "utf8"))
+          : undefined;
         await verifyPublicRelease({ baseUrl: "https://art-des.ru", sha: job.deployTargetSha ?? job.publishedSha, project });
         job.productionState = "verified";
       }
