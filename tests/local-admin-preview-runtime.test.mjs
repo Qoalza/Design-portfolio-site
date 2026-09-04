@@ -20,7 +20,7 @@ test("preview request allows a cold Portfolio route to finish compiling", () => 
 test("packaged preview starts without relying on npm from the ambient PATH", () => {
   assert.doesNotMatch(server, /spawn\("npm"/);
   assert.match(server, /path\.join\(repoRoot, "node_modules", "next", "dist", "bin", "next"\)/);
-  assert.match(server, /spawn\(process\.execPath, \[nextCli, "dev", "-H", "127\.0\.0\.1", "-p", String\(previewPort\)\]/);
+  assert.match(server, /spawn\(process\.execPath, \[nextCli, "dev", "--webpack", "-H", "127\.0\.0\.1", "-p", String\(previewPort\)\]/);
   assert.match(server, /cwd:\s*previewRepoRoot/);
 });
 
