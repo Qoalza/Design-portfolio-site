@@ -28,6 +28,31 @@ export type ProjectImage = {
   height: number;
 };
 
+export type ProjectFrameConstraints = {
+  horizontal: "MIN" | "MAX" | "CENTER" | "STRETCH" | "SCALE";
+  vertical: "MIN" | "MAX" | "CENTER" | "STRETCH" | "SCALE";
+};
+
+export type ProjectFrameEffect =
+  | { type: "drop-shadow" | "inner-shadow"; color: string; offsetX: number; offsetY: number; blur: number; spread: number }
+  | { type: "layer-blur" | "background-blur"; radius: number };
+
+export type ProjectFrameNode = {
+  id: string; name: string; type: "asset";
+  x: number; y: number; width: number; height: number; opacity: number; rotation: number;
+  constraints: ProjectFrameConstraints;
+  clip?: boolean; radius?: number; effects?: ProjectFrameEffect[]; blendMode?: string;
+  asset: { src: string; format: "raster"; fit: "cover" | "contain" | "fill"; opacity?: number; bounds?: { x: number; y: number; width: number; height: number } };
+};
+
+export type ProjectFrameComposition = {
+  source: { url: string; fileKey: string; nodeId: string; version: string };
+  width: number; height: number; clip: boolean; radius: number; background: string;
+  hasVisualFill?: boolean; effects?: ProjectFrameEffect[]; blendMode?: string;
+  nodes: ProjectFrameNode[];
+  preview?: ProjectImage;
+};
+
 export type ProjectLogo =
   | { type: "image"; src: string }
   | { type: "layered"; layers: Array<{ src: string; slot: "a" | "b" | "c" | "d" }> };
@@ -79,6 +104,8 @@ export type ProjectDocument = {
     home?: ProjectVisualInstance;
     hero?: ProjectVisualInstance;
   };
+  catalogFrame?: ProjectFrameComposition;
+  heroFrame?: ProjectFrameComposition;
   workSummary?: string;
   content: ProjectContentBlock[];
 };
@@ -88,7 +115,7 @@ type UnknownRecord = Record<string, unknown>;
 const PROJECT_KEYS = [
   "schemaVersion", "designProfile", "title", "slug", "description", "subtitle", "role", "year",
   "tags", "detailTags", "visibility", "catalogOrder", "homePlacement", "detailAvailable", "materials",
-  "platforms", "logo", "visuals", "workSummary", "content",
+  "platforms", "logo", "visuals", "catalogFrame", "heroFrame", "workSummary", "content",
 ] as const;
 const VISIBILITIES: ProjectVisibility[] = ["draft", "published", "deleted"];
 const PLATFORMS: ProjectPlatform[] = ["Desktop", "Tablet", "Mobile"];
@@ -125,6 +152,16 @@ function integer(value: unknown, location: string, minimum = 0): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value < minimum) {
     throw new Error(`${location} must be an integer greater than or equal to ${minimum}.`);
   }
+  return value;
+}
+
+function finiteNumber(value: unknown, location: string, minimum = 0): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < minimum) throw new Error(`${location} must be a finite number greater than or equal to ${minimum}.`);
+  return value;
+}
+
+function finiteSignedNumber(value: unknown, location: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) throw new Error(`${location} must be a finite number.`);
   return value;
 }
 
@@ -176,6 +213,75 @@ function image(value: unknown, location: string): ProjectImage {
     alt: string(input.alt, `${location}.alt`, true),
     width: integer(input.width, `${location}.width`, 1),
     height: integer(input.height, `${location}.height`, 1),
+  };
+}
+
+const HORIZONTAL_CONSTRAINTS: ProjectFrameConstraints["horizontal"][] = ["MIN", "MAX", "CENTER", "STRETCH", "SCALE"];
+const VERTICAL_CONSTRAINTS: ProjectFrameConstraints["vertical"][] = ["MIN", "MAX", "CENTER", "STRETCH", "SCALE"];
+
+function frameEffects(value: unknown, location: string): ProjectFrameEffect[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) throw new Error(`${location} must be an array.`);
+  return value.map((item, index) => {
+    const effect = record(item, `${location}[${index}]`);
+    const type = string(effect.type, `${location}[${index}].type`);
+    if (type === "drop-shadow" || type === "inner-shadow") {
+      exactKeys(effect, ["type", "color", "offsetX", "offsetY", "blur", "spread"], `${location}[${index}]`);
+      return { type, color: string(effect.color, `${location}[${index}].color`), offsetX: finiteSignedNumber(effect.offsetX, `${location}[${index}].offsetX`), offsetY: finiteSignedNumber(effect.offsetY, `${location}[${index}].offsetY`), blur: finiteNumber(effect.blur, `${location}[${index}].blur`), spread: finiteSignedNumber(effect.spread, `${location}[${index}].spread`) };
+    }
+    if (type === "layer-blur" || type === "background-blur") {
+      exactKeys(effect, ["type", "radius"], `${location}[${index}]`);
+      return { type, radius: finiteNumber(effect.radius, `${location}[${index}].radius`) };
+    }
+    throw new Error(`${location}[${index}].type is not supported.`);
+  });
+}
+
+function frameNode(value: unknown, location: string): ProjectFrameNode {
+  const input = record(value, location);
+  exactKeys(input, ["id", "name", "type", "x", "y", "width", "height", "opacity", "rotation", "constraints", "clip", "radius", "effects", "blendMode", "asset"], location);
+  if (input.type !== "asset") throw new Error(`${location}.type must be asset.`);
+  const constraints = record(input.constraints, `${location}.constraints`);
+  exactKeys(constraints, ["horizontal", "vertical"], `${location}.constraints`);
+  const horizontal = string(constraints.horizontal, `${location}.constraints.horizontal`) as ProjectFrameConstraints["horizontal"];
+  const vertical = string(constraints.vertical, `${location}.constraints.vertical`) as ProjectFrameConstraints["vertical"];
+  if (!HORIZONTAL_CONSTRAINTS.includes(horizontal) || !VERTICAL_CONSTRAINTS.includes(vertical)) throw new Error(`${location}.constraints is not supported.`);
+  const asset = record(input.asset, `${location}.asset`);
+  exactKeys(asset, ["src", "format", "fit", "opacity", "bounds"], `${location}.asset`);
+  const fit = string(asset.fit, `${location}.asset.fit`) as ProjectFrameNode["asset"]["fit"];
+  if (asset.format !== "raster" || !["cover", "contain", "fill"].includes(fit)) throw new Error(`${location}.asset must be a rendered raster.`);
+  let bounds: ProjectFrameNode["asset"]["bounds"];
+  if (asset.bounds !== undefined) {
+    const rawBounds = record(asset.bounds, `${location}.asset.bounds`);
+    exactKeys(rawBounds, ["x", "y", "width", "height"], `${location}.asset.bounds`);
+    bounds = { x: finiteSignedNumber(rawBounds.x, `${location}.asset.bounds.x`), y: finiteSignedNumber(rawBounds.y, `${location}.asset.bounds.y`), width: finiteNumber(rawBounds.width, `${location}.asset.bounds.width`, 0), height: finiteNumber(rawBounds.height, `${location}.asset.bounds.height`, 0) };
+  }
+  return {
+    id: string(input.id, `${location}.id`), name: string(input.name, `${location}.name`), type: "asset",
+    x: finiteSignedNumber(input.x, `${location}.x`), y: finiteSignedNumber(input.y, `${location}.y`), width: finiteNumber(input.width, `${location}.width`, 0), height: finiteNumber(input.height, `${location}.height`, 0),
+    opacity: finiteNumber(input.opacity, `${location}.opacity`), rotation: finiteSignedNumber(input.rotation, `${location}.rotation`), constraints: { horizontal, vertical },
+    ...optionalProperty("clip", input.clip === undefined ? undefined : boolean(input.clip, `${location}.clip`)),
+    ...optionalProperty("radius", input.radius === undefined ? undefined : finiteNumber(input.radius, `${location}.radius`)),
+    ...optionalProperty("effects", frameEffects(input.effects, `${location}.effects`)),
+    ...optionalProperty("blendMode", input.blendMode === undefined ? undefined : string(input.blendMode, `${location}.blendMode`)),
+    asset: { src: publicAssetPath(asset.src, `${location}.asset.src`), format: "raster", fit, ...optionalProperty("opacity", asset.opacity === undefined ? undefined : finiteNumber(asset.opacity, `${location}.asset.opacity`)), ...optionalProperty("bounds", bounds) },
+  };
+}
+
+function frameComposition(value: unknown, location: string): ProjectFrameComposition {
+  const input = record(value, location);
+  exactKeys(input, ["source", "width", "height", "clip", "radius", "background", "hasVisualFill", "effects", "blendMode", "nodes", "preview"], location);
+  const source = record(input.source, `${location}.source`);
+  exactKeys(source, ["url", "fileKey", "nodeId", "version"], `${location}.source`);
+  if (!Array.isArray(input.nodes) || input.nodes.length === 0) throw new Error(`${location}.nodes must be a non-empty array.`);
+  return {
+    source: { url: externalUrl(source.url, `${location}.source.url`), fileKey: string(source.fileKey, `${location}.source.fileKey`), nodeId: string(source.nodeId, `${location}.source.nodeId`), version: string(source.version, `${location}.source.version`) },
+    width: finiteNumber(input.width, `${location}.width`, 1), height: finiteNumber(input.height, `${location}.height`, 1), clip: boolean(input.clip, `${location}.clip`), radius: finiteNumber(input.radius, `${location}.radius`), background: string(input.background, `${location}.background`, true),
+    ...optionalProperty("hasVisualFill", input.hasVisualFill === undefined ? undefined : boolean(input.hasVisualFill, `${location}.hasVisualFill`)),
+    ...optionalProperty("effects", frameEffects(input.effects, `${location}.effects`)),
+    ...optionalProperty("blendMode", input.blendMode === undefined ? undefined : string(input.blendMode, `${location}.blendMode`)),
+    nodes: input.nodes.map((item, index) => frameNode(item, `${location}.nodes[${index}]`)),
+    ...optionalProperty("preview", input.preview === undefined ? undefined : image(input.preview, `${location}.preview`)),
   };
 }
 
@@ -378,9 +484,11 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
   const catalog = visualInstance(visualsInput.catalog, "Project document.visuals.catalog", profile, "catalog");
   const home = visualsInput.home === undefined ? undefined : visualInstance(visualsInput.home, "Project document.visuals.home", profile, "home");
   const hero = visualsInput.hero === undefined ? undefined : visualInstance(visualsInput.hero, "Project document.visuals.hero", profile, "hero");
+  const catalogFrame = input.catalogFrame === undefined ? undefined : frameComposition(input.catalogFrame, "Project document.catalogFrame");
+  const heroFrame = input.heroFrame === undefined ? undefined : frameComposition(input.heroFrame, "Project document.heroFrame");
   if (homePlacement && !home) throw new Error("Project document.visuals.home is required for homePlacement.");
   const detailAvailable = boolean(input.detailAvailable, "Project document.detailAvailable");
-  if (detailAvailable && !hero) throw new Error("Project document.visuals.hero is required when detailAvailable is true.");
+  if (detailAvailable && !hero && !heroFrame) throw new Error("Project document.visuals.hero or heroFrame is required when detailAvailable is true.");
 
   return {
     schemaVersion: PROJECT_DOCUMENT_VERSION,
@@ -401,6 +509,8 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
     platforms,
     ...optionalProperty("logo", logo),
     visuals: { catalog, ...optionalProperty("home", home), ...optionalProperty("hero", hero) },
+    ...optionalProperty("catalogFrame", catalogFrame),
+    ...optionalProperty("heroFrame", heroFrame),
     ...optionalProperty("workSummary", optionalString(input.workSummary, "Project document.workSummary")),
     content: input.content.map((item, index) => contentBlock(item, `Project document.content[${index}]`, profile)),
   };

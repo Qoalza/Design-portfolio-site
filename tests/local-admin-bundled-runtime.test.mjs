@@ -9,7 +9,7 @@ import { loadImageProcessor } from "../dist/Des-art Admin.app/Contents/Resources
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 const bundledSource = path.join(repositoryRoot, "dist", "Des-art Admin.app", "Contents", "Resources", "source");
 const runtimeFiles = [
-  "admin-errors.mjs", "core.mjs", "draft-contract.mjs", "figma-template-import.mjs", "figma-template-map.mjs",
+  "admin-errors.mjs", "core.mjs", "draft-contract.mjs", "figma-frame.mjs", "figma-template-import.mjs", "figma-template-map.mjs",
   "human-errors.mjs", "material-state.mjs", "preview-runtime.mjs", "production-data-bootstrap.mjs",
   "deploy-v2.mjs", "publish-job-state.mjs", "publish-diagnostics.mjs", "publish-worker.mjs", "server.mjs", "public/admin.css", "public/admin.js", "public/index.html",
 ];

@@ -61,6 +61,23 @@ test("the project contract validates every supported v3 field and block", () => 
   assert.deepEqual(validateProjectDocument(validProject), validProject);
 });
 
+test("schema v3 accepts whole card and hero Frames with arbitrary raster nodes and constraints", () => {
+  const frame = {
+    source: { url: "https://www.figma.com/design/file/Test?node-id=1-2", fileKey: "Test", nodeId: "1:2", version: "42" },
+    width: 1480, height: 1200, clip: true, radius: 24, background: "#ffffff", hasVisualFill: true,
+    nodes: Array.from({ length: 6 }, (_, index) => ({
+      id: `2:${index + 1}`, name: `Raster ${index + 1}`, type: "asset",
+      x: index * 20, y: index * 10, width: 400, height: 300, opacity: 1, rotation: 0,
+      constraints: { horizontal: index % 2 ? "CENTER" : "SCALE", vertical: index % 2 ? "MAX" : "SCALE" },
+      ...(index === 0 ? { effects: [{ type: "drop-shadow", color: "#00000040", offsetX: 0, offsetY: 8, blur: 16, spread: 0 }] } : {}),
+      asset: { src: `/assets/projects/test-project/frames/hero-fixture/${index + 1}.png`, format: "raster", fit: index === 0 ? "cover" : "contain" },
+    })),
+  };
+  const parsed = validateProjectDocument({ ...validProject, catalogFrame: frame, heroFrame: frame });
+  assert.equal(parsed.catalogFrame?.nodes.length, 6);
+  assert.deepEqual(parsed.heroFrame?.nodes[1].constraints, { horizontal: "CENTER", vertical: "MAX" });
+});
+
 test("visual editor marks preserve combined formatting without markup text", () => {
   const project = structuredClone(validProject);
   project.content[0].blocks[0].content = [{ type: "text", text: "Жирный курсив", marks: ["strong", "emphasis", "underline"] }];

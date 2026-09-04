@@ -13,8 +13,8 @@ Executable code and current contract tests take precedence over this map.
 
 ## Ownership
 
-- Portfolio owns every visual rule: geometry, background, dot pattern, border, radius, shadow, clipping, device chrome and responsive behavior.
-- Admin owns only editable content values declared by the registry. Для сложных поверхностей пользователь передаёт один утверждённый Figma Frame; importer заполняет named slots внутри локальной границы, не передавая layout authority в документ.
+- Для карточки и hero пользователь передаёт целый Figma Frame: пользовательский фон, произвольное число растровых элементов, constraints и тени. Importer сохраняет проверенный raster snapshot каждого элемента и переносит responsive constraints и поддержанные тени в публичную композицию.
+- Для визуальных блоков секций Portfolio по-прежнему владеет геометрией через registry и named slots.
 - `ProjectVisualInstance` contains only `templateId` and named image assets.
 - `content/projects/*.json` and `public/assets/projects/<slug>/` are canonical published sources tracked in Git.
 - Admin drafts/assets/preview/jobs/snapshots/backups are local state outside the canonical worktree.
@@ -27,11 +27,12 @@ Executable code and current contract tests take precedence over this map.
 - `designProfile`: `catalog-only-v1 | corvo-v1 | sarafan-v1`.
 - `homePlacement?: primary | secondary`; there are exactly two named homepage positions.
 - `visuals.catalog`, optional `visuals.home` and `visuals.hero` are approved templates with named assets.
+- Optional `catalogFrame` and `heroFrame` are whole adaptive Frame compositions and take precedence over the corresponding template surface.
 - Section visual block is `{ type: "visual", templateId, assets }`.
 - Gallery stores only `templateId: "gallery.devices-v1"`, `deviceId` and images.
 - Notice stores fixed template and editable text only.
 - `hardBreak` is semantic; styled rich-text subheading is `h3` only.
-- v3 contains no Frame composition, coordinates, dimensions, colors, effects or other user-authored layout authority.
+- v3 may contain Frame composition geometry, root fill, raster assets, constraints and supported CSS shadows for `catalogFrame` and `heroFrame`.
 
 New projects start with `catalog-only-v1`. Profile/template changes are code changes, not Admin choices.
 
@@ -46,9 +47,9 @@ canonical v3 JSON/assets
   → local sandbox snapshot
 ```
 
-- Serializer always writes v3; public runtime rejects schema v2 and legacy Frame.
+- Serializer always writes v3; public runtime rejects schema v2 and validates optional Frame compositions fail-closed.
 - Asset policy validates allowed operations, MIME, count and at least `2×` logical size. Code-owned composition slots keep an exact ratio within `0.1%`. Gallery captions retain the reference dimensions (Desktop `1480–2960 × 1024–2048 px`, Tablet `800–1600 × 1132–2266 px`, Mobile `360–1080 × 640–1920 px`), but gallery sources have no upper width/height limit: they remain limited to 20 MB and 40 MP. The first gallery image fixes the device-pool proportion within `0.1%`, not its exact dimensions. Portfolio owns fixed device widths and derives each frame height from that first proportion, so every accepted source fills its frame without internal fields or crop.
-- Card, hero and section visual surfaces cannot be changed through the generic upload endpoint; only the approved read-only Figma importer can replace them as a whole.
+- Card and hero Frame surfaces can be replaced only through the read-only Figma importer; the generic upload endpoint remains unavailable for them. Section visual surfaces keep the approved template importer.
 - Collection policy validates unique/order-compatible catalog positions and named homepage placements.
 - Project-only publish keeps global `catalogOrder` and `homePlacement` canonical.
 - Preview validates partial drafts only after merging them with the canonical collection.
@@ -57,9 +58,9 @@ canonical v3 JSON/assets
 ## Compatibility and migration
 
 - v2 is readable only through dedicated migration code.
-- Legacy Frame never receives implicit generic rendering; it needs an explicit approved-template mapping.
+- Existing template visuals remain backward-compatible fallback; newly imported card/hero Frames render through the validated adaptive Frame renderer.
 - Real-store migration is dry-run first, then backup with SHA-256 manifest, atomic apply, and supported rollback.
 - Secrets, Keychain data and live config never enter migration backups.
-- Figma source URL, `templateId` and scaled source preview may exist in `admin.visualSources`; `compileAdminDraft` removes all `admin` metadata before public validation and serialization. Preview confirms the imported whole Frame in Admin but never becomes public layout authority.
+- Figma source URL, adapter id and scaled source preview may exist in `admin.visualSources`; `compileAdminDraft` removes all `admin` metadata. Public `catalogFrame`/`heroFrame` retains only the validated local composition needed by Portfolio.
 
 Any new schema/version/ownership/serialization/placement or migration behavior remains a `SHARED` contract change with tests for both Admin and Portfolio.

@@ -11,8 +11,8 @@
 ## Current checkpoint
 
 - Deploy v2 rollout завершён; production/public/Admin smoke зелёные, `/api/changes` возвращает `0`.
-- Первый post-rollout follow-up исправил stale preview и заменил raw image fills на rendered child exports, но реальный B.Off Frame показал оставшийся дефект: tight child bounds не совпадают с полным canvas hero.
-- Текущий follow-up размещает только два слоя `hero.corvo-browser` на полном прозрачном root canvas с их Frame-relative координатами. Остальные child-шаблоны, включая пятислойный Sarafan hero, не меняются.
+- Реальный B.Off Frame выявил корневую регрессию: фиксированный template importer, введённый `437c9ca`, заменил прежний whole-Frame contract и стал отвергать Frame по числу верхнеуровневых элементов.
+- В ветке `codex/admin-restore-figma-frame-contract` восстанавливается исходная модель для catalog/hero: целый Frame, произвольное число raster-элементов, root fill, constraints и CSS shadows. Section templates остаются без изменений.
 
 ## Verification
 
@@ -28,7 +28,7 @@
 
 ## Next action
 
-Создать проверенный follow-up commit/PR, затем запросить exact-SHA approval перед merge и установкой новой Admin. После установки повторить импорт реального B.Off Frame. Portfolio deploy не требуется.
+Завершить полную проверку и commit, затем запросить exact-SHA approval перед push/PR/merge и установкой новой Admin. После установки повторить импорт реального B.Off Frame. Portfolio deploy автоматически не запускать.
 
 ## Pointers
 

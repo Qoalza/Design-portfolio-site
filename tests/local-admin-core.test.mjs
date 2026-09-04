@@ -21,6 +21,31 @@ const corvoVisuals = () => {
   };
 };
 
+const adaptiveFrame = (slug, slot, count = 3) => ({
+  source: { url: "https://www.figma.com/design/file/Test?node-id=1-2", fileKey: "file", nodeId: "1:2", version: "42" },
+  width: 1480,
+  height: 1200,
+  clip: true,
+  radius: 24,
+  background: "#ffffff",
+  hasVisualFill: true,
+  nodes: Array.from({ length: count }, (_, index) => ({
+    id: `2:${index + 1}`,
+    name: `Raster ${index + 1}`,
+    type: "asset",
+    x: index * 40,
+    y: index * 30,
+    width: 480,
+    height: 320,
+    opacity: 1,
+    rotation: 0,
+    constraints: { horizontal: index % 2 ? "CENTER" : "SCALE", vertical: "SCALE" },
+    ...(index === 0 ? { effects: [{ type: "drop-shadow", color: "#00000040", offsetX: 0, offsetY: 8, blur: 16, spread: 0 }] } : {}),
+    asset: { src: `/assets/projects/${slug}/frames/${slot}-fixture/${index + 1}.png`, format: "raster", fit: "fill" },
+  })),
+  preview: { src: `/assets/projects/${slug}/frames/${slot}-fixture/preview.png`, alt: "", width: 2960, height: 2400 },
+});
+
 const project = (slug = "admin-test", overrides = {}) => ({
   schemaVersion: PROJECT_DOCUMENT_VERSION,
   designProfile: "corvo-v1",
@@ -159,7 +184,7 @@ test("preview compiles exact home, catalog and project overlays and rejects a mi
     assert.equal("admin" in compiled, false);
   }
   await store.saveDraft("preview", project("preview", { visuals: { catalog: corvoVisuals().catalog } }));
-  await assert.rejects(() => store.preparePreview("preview", previewRoot, "project"), /hero-шаблон/i);
+  await assert.rejects(() => store.preparePreview("preview", previewRoot, "project"), /hero Frame/i);
 });
 
 test("reorder validates template compatibility before preserving draft metadata", async () => {
@@ -219,38 +244,31 @@ test("legacy gallery activation metadata does not create a validation or change-
   assert.deepEqual(summary.projects, []);
 });
 
-test("approved Figma import replaces a whole code-owned surface and keeps source only in Admin metadata", async () => {
+test("catalog import accepts a whole adaptive Frame with an arbitrary raster count", async () => {
   const configured = await roots();
-  const imported = corvoVisuals().catalog;
+  const composition = adaptiveFrame("figma-card", "catalog", 7);
   const store = new AdminStore({
     ...configured,
-    figmaImporter: async ({ url, templateId }) => ({
-      visual: { ...imported, templateId },
-      source: { url, templateId },
-    }),
+    frameImporter: async () => ({ composition, changed: true }),
   });
   await store.saveDraft("figma-card", project("figma-card"));
   const result = await store.importFigmaVisual("figma-card", {
     surface: "catalog",
-    templateId: "catalog.corvo-stack",
     url: "https://www.figma.com/design/file/Test?node-id=1-2",
   });
   assert.equal(result.changed, true);
-  assert.deepEqual(result.project.visuals.catalog, imported);
-  assert.deepEqual(result.project.visuals.home.assets, imported.assets);
-  assert.equal(result.project.admin.visualSources.catalog.templateId, "catalog.corvo-stack");
+  assert.deepEqual(result.project.catalogFrame, composition);
+  assert.equal(result.project.catalogFrame.nodes.length, 7);
+  assert.equal(result.project.admin.visualSources.catalog.templateId, "adaptive-frame");
   assert.equal("admin" in compileAdminDraft(result.project), false);
 });
 
-test("the first hero Frame activates a closed project only after automatic approved-template import", async () => {
+test("the first whole hero Frame activates a closed project without a fixed template", async () => {
   const configured = await roots();
-  const hero = corvoVisuals().hero;
+  const composition = adaptiveFrame("boff", "hero", 5);
   const store = new AdminStore({
     ...configured,
-    figmaImporter: async ({ url, templateIds }) => {
-      assert.deepEqual(templateIds, ["hero.corvo-browser", "hero.sarafan-collage"]);
-      return { visual: hero, source: { url, templateId: hero.templateId } };
-    },
+    frameImporter: async () => ({ composition, changed: true }),
   });
   const boff = {
     ...project("boff", { designProfile: "catalog-only-v1", detailAvailable: false }),
@@ -265,22 +283,18 @@ test("the first hero Frame activates a closed project only after automatic appro
 
   assert.equal(result.changed, true);
   assert.equal(result.project.detailAvailable, true);
-  assert.deepEqual(result.project.visuals.hero, hero);
-  assert.equal(result.project.admin.visualSources.hero.templateId, "hero.corvo-browser");
+  assert.deepEqual(result.project.heroFrame, composition);
+  assert.equal(result.project.heroFrame.nodes.length, 5);
+  assert.equal(result.project.admin.visualSources.hero.templateId, "adaptive-frame");
   assert.equal(compileAdminDraft(result.project).detailAvailable, true);
 });
 
-test("Figma transparency inspection metadata never enters the public hero contract", async () => {
+test("a whole Frame keeps raster geometry and CSS shadow data in the public contract", async () => {
   const configured = await roots();
-  const hero = corvoVisuals().hero;
-  hero.assets.backdrop[0] = { ...hero.assets.backdrop[0], hasAlpha: true, isOpaque: false };
-  hero.assets.foreground[0] = { ...hero.assets.foreground[0], hasAlpha: true, isOpaque: false };
+  const composition = adaptiveFrame("transparent-hero", "hero", 4);
   const store = new AdminStore({
     ...configured,
-    figmaImporter: async ({ url, templateIds }) => ({
-      visual: hero,
-      source: { url, templateId: templateIds[0] },
-    }),
+    frameImporter: async () => ({ composition, changed: true }),
   });
   const closed = {
     ...project("transparent-hero", { designProfile: "catalog-only-v1", detailAvailable: false }),
@@ -293,8 +307,8 @@ test("Figma transparency inspection metadata never enters the public hero contra
     url: "https://www.figma.com/design/file/Test?node-id=1-2",
   });
 
-  assert.equal(result.project.visuals.hero.assets.backdrop[0].hasAlpha, undefined);
-  assert.equal(result.project.visuals.hero.assets.foreground[0].isOpaque, undefined);
+  assert.deepEqual(result.project.heroFrame.nodes[0].effects, composition.nodes[0].effects);
+  assert.deepEqual(result.project.heroFrame.nodes[1].constraints, { horizontal: "CENTER", vertical: "SCALE" });
   assert.equal(compileAdminDraft(result.project).detailAvailable, true);
 });
 
@@ -330,7 +344,7 @@ test("failed Figma import leaves the saved draft unchanged", async () => {
 
 test("a failed first hero import keeps the project page closed", async () => {
   const configured = await roots();
-  const store = new AdminStore({ ...configured, figmaImporter: async () => { throw new Error("Frame содержит неверную структуру."); } });
+  const store = new AdminStore({ ...configured, frameImporter: async () => { throw new Error("Frame содержит неверную структуру."); } });
   const before = {
     ...project("closed-project", { designProfile: "catalog-only-v1", detailAvailable: false }),
     visuals: { catalog: { templateId: "catalog.browser", assets: { screen: [{ src: "/assets/projects/catalog/boff-transactions.png", alt: "Экран", width: 2880, height: 1920 }] } } },
