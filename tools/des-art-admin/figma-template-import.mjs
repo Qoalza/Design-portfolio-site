@@ -76,10 +76,6 @@ async function download(fetchImpl, url, label) {
   return buffer;
 }
 
-function imageFill(node) {
-  return node.fills?.find((fill) => fill.visible !== false && fill.type === "IMAGE" && fill.imageRef);
-}
-
 function box(node) {
   return node.absoluteBoundingBox ?? node.absoluteRenderBounds;
 }
@@ -111,19 +107,15 @@ async function importChildren({ fetchImpl, fileKey, root, token, spec, temporary
   if (children.length !== spec.slots.length) {
     throw new Error(`Frame содержит ${children.length} верхнеуровневых элементов вместо утверждённых ${spec.slots.length}.`);
   }
-  const fills = children.filter((child) => imageFill(child));
-  const exports = children.filter((child) => !imageFill(child));
-  const fillData = fills.length
-    ? await figmaJson(fetchImpl, `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/images`, token)
-    : { meta: { images: {} } };
-  const exportData = exports.length
-    ? await figmaJson(fetchImpl, `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${exports.map((child) => encodeURIComponent(child.id)).join(",")}&format=png&scale=2&use_absolute_bounds=true`, token)
-    : { images: {} };
+  const exportData = await figmaJson(
+    fetchImpl,
+    `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${children.map((child) => encodeURIComponent(child.id)).join(",")}&format=png&scale=2&use_absolute_bounds=true`,
+    token,
+  );
   const assets = {};
   for (const [index, child] of children.entries()) {
     const slot = spec.slots[index];
-    const fill = imageFill(child);
-    const url = fill ? fillData.meta?.images?.[fill.imageRef] : exportData.images?.[child.id];
+    const url = exportData.images?.[child.id];
     if (!url) throw new Error(`Figma не вернула элемент «${child.name ?? child.id}».`);
     const destination = path.join(temporary, `${slot.name}.png`);
     const dimensions = await normalizedPng(await download(fetchImpl, url, child.name ?? child.id), destination);

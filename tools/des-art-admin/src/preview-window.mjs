@@ -9,10 +9,28 @@ export class PreviewWindowController {
     this.#open = open;
   }
 
+  #discardTarget() {
+    if (this.#target && !this.#target.closed) {
+      try { this.#target.close(); } catch { /* A browser may refuse closing a user-managed window. */ }
+    }
+    this.#target = null;
+  }
+
   begin() {
     const id = ++this.#latestAttempt;
     if (this.#target && !this.#target.closed) {
-      try { this.#target.focus(); } catch { /* The browser may deny focus without changing preview state. */ }
+      try {
+        const target = this.#open("about:blank", PREVIEW_TARGET);
+        if (!target) {
+          this.#discardTarget();
+          return { id, created: false, blocked: true };
+        }
+        this.#target = target;
+        try { target.focus(); } catch { /* Navigating the named target remains sufficient. */ }
+      } catch {
+        this.#discardTarget();
+        return { id, created: false, blocked: true };
+      }
       return { id, created: false, blocked: false };
     }
     let target = null;
@@ -41,9 +59,6 @@ export class PreviewWindowController {
 
   fail(attempt) {
     if (attempt.id !== this.#latestAttempt || !attempt.created) return;
-    if (this.#target && !this.#target.closed) {
-      try { this.#target.close(); } catch { /* A browser may refuse closing a user-managed window. */ }
-    }
-    this.#target = null;
+    this.#discardTarget();
   }
 }
