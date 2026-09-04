@@ -77,6 +77,46 @@ test("first hero import detects the approved variant from its Frame structure", 
   assert.deepEqual(Object.keys(result.visual.assets), ["backdrop", "foreground"]);
 });
 
+test("image-filled hero children use their rendered Figma bounds instead of uncropped source fills", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "figma-template-cropped-fill-"));
+  const rendered = await png(2960, 2400);
+  const uncropped = await png(3200, 1800);
+  const fetchImpl = async (url) => {
+    const value = String(url);
+    if (value.includes("/nodes?")) return new Response(JSON.stringify({ nodes: { "1:2": { document: {
+      id: "1:2", name: "Hero", type: "FRAME", children: [
+        { id: "2:1", name: "Backdrop", type: "RECTANGLE", fills: [{ type: "IMAGE", imageRef: "raw-1" }] },
+        { id: "2:2", name: "Foreground", type: "RECTANGLE", fills: [{ type: "IMAGE", imageRef: "raw-2" }] },
+      ],
+    } } } }), { status: 200 });
+    if (value.includes("/files/") && value.endsWith("/images")) {
+      return new Response(JSON.stringify({ meta: { images: { "raw-1": "https://download/raw-1", "raw-2": "https://download/raw-2" } } }), { status: 200 });
+    }
+    if (value.includes("/v1/images/")) return new Response(JSON.stringify({ images: {
+      "1:2": "https://download/root", "2:1": "https://download/rendered-1", "2:2": "https://download/rendered-2",
+    } }), { status: 200 });
+    if (value === "https://download/root") return new Response(await png(1480, 1200), { status: 200 });
+    if (value.startsWith("https://download/rendered-")) return new Response(rendered, { status: 200 });
+    if (value.startsWith("https://download/raw-")) return new Response(uncropped, { status: 200 });
+    throw new Error("Unexpected " + value);
+  };
+
+  const result = await importFigmaTemplate({
+    url: "https://www.figma.com/design/file/Project?node-id=1-2",
+    token: "test-token",
+    slug: "boff",
+    templateIds: ["hero.corvo-browser", "hero.sarafan-collage"],
+    assetRoot: root,
+    fetchImpl,
+  });
+
+  assert.equal(result.visual.templateId, "hero.corvo-browser");
+  assert.deepEqual(
+    { width: result.visual.assets.foreground[0].width, height: result.visual.assets.foreground[0].height },
+    { width: 2960, height: 2400 },
+  );
+});
+
 test("approved Sarafan model import crops the current whole Figma Frame and keeps shell geometry in code", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "figma-template-crop-"));
   const source = await png(2000, 960);

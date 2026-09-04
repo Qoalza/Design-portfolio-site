@@ -1,9 +1,10 @@
 # Восстановление production и hardening Deploy в Des-art Admin
 
-Status: `READY_FOR_REVIEW`
+Status: `IN_PROGRESS`
 Started: 2026-09-04
 Branch: `codex/admin-deploy-pipeline-hardening`
-Base and recovery deploy target: `33024ec666663e97b8324d154027ea298805d04f`
+Base recovery target: `33024ec666663e97b8324d154027ea298805d04f`
+Current deployed hardening release: `b499b7683f6f124b18cc790e46fe9b6e616f78cc`
 
 ## Outcome
 
@@ -15,7 +16,7 @@ Live drafts, draft-assets, snapshots, jobs, recovery backups и пользова
 
 - `ADMIN + OPS`; размер `LARGE`, риск `HIGH`, режим `FULL`.
 - In scope: recovery deploy exact `33024ec…`, runtime-only release artifact, Deploy v2, worker lease/heartbeat, anti-rollback, progress UI, public verification и current + 2 release retention.
-- Non-scope: изменение «Сарафана», Figma, визуала, `ProjectDocument` schema, content ownership, bootstrap/import/export/reset live store и автоматический content publish после установки ремонта.
+- Non-scope: изменение «Сарафана», Figma source/visual design, `ProjectDocument` schema, content ownership, bootstrap/import/export/reset live store и автоматический content publish после установки ремонта. После rollout пользователь отдельно расширил Admin-scope на исправление rendered-export существующего hero Frame и устранение ложного stale preview; source Frame и визуальный контракт не меняются.
 - Stop-lines: изменение protected manifest, неожиданный `origin/main`/production SHA, active deploy, недоказанный provenance, contract/schema expansion или sandbox/live data в Git/release input.
 
 ## User approval record
@@ -96,3 +97,5 @@ Aggregates вычислены из отсортированных absolute path 
 - 2026-09-04: real standalone archive is `46,453,751` bytes (`44.3 MiB`), about 60% below the `110 MiB` baseline and below the `75 MiB` ceiling. Its SHA-256 in temporary local evidence was `bdd65b1cfb8579b75d0fa9ffec190afc36f7c431ae0b5b13340cc7cc4c3820c8`.
 - 2026-09-04: no recovery deploy was executed after the exact `33024ec…` stop-line. The repair candidate is committed locally; push/PR is the next allowed action. Merge, server protocol/service installation, packaged Admin installation and production deploy remain separately gated by the future exact candidate SHA.
 - 2026-09-04: second adversarial review closed two verification gaps before push: public checks now read the exact project document from the publish worktree and verify every referenced public asset; `start-v2` also serializes server-side starts with an exact operation lock. Focused checks pass `49/49`, full repository tests pass `352/352`, lint and server shell validation pass. No push or production action was performed before these fixes.
+- 2026-09-04: PR #40 merged as `b499b7683f6f124b18cc790e46fe9b6e616f78cc`; Deploy v2 operation completed, public SHA/routes/assets were verified and packaged Admin exact merge SHA was installed without bootstrap or live-store mutation. Protected live manifests remained byte-identical and `/api/changes` returned zero.
+- 2026-09-04: post-rollout acceptance found two Admin defects: image-filled Figma children were imported from uncropped source fills, and a failed preview request left the previous project visible in a reused window. User explicitly requested both fixes. Failing-first tests now cover rendered child export and stale-window clearing; implementation and full verification are complete locally, while commit/PR/merge/install remain pending.

@@ -35,12 +35,13 @@ test("preview opens a named placeholder once and reuses the cross-origin window"
   assert.deepEqual(calls, [
     { url: "about:blank", name: "des-art-preview" },
     { url: "http://127.0.0.1:41732/projects/one", name: "des-art-preview" },
+    { url: "about:blank", name: "des-art-preview" },
     { url: "http://127.0.0.1:41732/projects/two", name: "des-art-preview" },
   ]);
   assert.equal(target.state().focused, 3);
 });
 
-test("preview preserves a reused window after failure and closes only its new placeholder", () => {
+test("preview clears a reused window before a request and closes only its new placeholder on failure", () => {
   const target = popup();
   const controller = new PreviewWindowController({ open: () => target });
   const first = controller.begin();
@@ -48,11 +49,16 @@ test("preview preserves a reused window after failure and closes only its new pl
   assert.equal(target.state().closeCalls, 1);
 
   const reused = popup();
-  const existing = new PreviewWindowController({ open: () => reused });
+  const calls = [];
+  const existing = new PreviewWindowController({ open: (url, name) => { calls.push({ url, name }); return reused; } });
   existing.begin();
   const retry = existing.begin();
   existing.fail(retry);
   assert.equal(reused.state().closeCalls, 0);
+  assert.deepEqual(calls, [
+    { url: "about:blank", name: "des-art-preview" },
+    { url: "about:blank", name: "des-art-preview" },
+  ]);
 });
 
 test("preview ignores a stale completion and reports closed or blocked targets", () => {
@@ -72,4 +78,18 @@ test("preview ignores a stale completion and reports closed or blocked targets",
 
   const blocked = new PreviewWindowController({ open: () => null }).begin();
   assert.equal(blocked.blocked, true);
+});
+
+test("preview closes a stale reused target when the browser blocks clearing it", () => {
+  const target = popup();
+  let calls = 0;
+  const controller = new PreviewWindowController({
+    open: () => (++calls === 1 ? target : null),
+  });
+
+  controller.begin();
+  const retry = controller.begin();
+
+  assert.equal(retry.blocked, true);
+  assert.equal(target.state().closeCalls, 1);
 });
