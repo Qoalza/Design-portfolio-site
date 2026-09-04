@@ -1,6 +1,6 @@
 # Восстановление production и hardening Deploy в Des-art Admin
 
-Status: `IN_PROGRESS`
+Status: `READY_FOR_REVIEW`
 Started: 2026-09-04
 Branch: `codex/admin-deploy-pipeline-hardening`
 Base and recovery deploy target: `33024ec666663e97b8324d154027ea298805d04f`
@@ -91,3 +91,7 @@ Aggregates вычислены из отсортированных absolute path 
 - 2026-09-04: exact-target lint and production build passed; full suite stopped recovery deploy at `339/341` because two stale MLIR-4 expectations still described Sarafan as unpublished. Production remained on `a546111…`; no upload or switch was attempted.
 - 2026-09-04: stale expectations were corrected to the already-published canonical state. Focused regression suite now passes `14/14`.
 - 2026-09-04: compact standalone archive, signed release manifest, atomic publish-worker lease, 30-second orphan reconciliation and the restricted `upload-v2`/`start-v2`/`status-v2` server protocol have initial implementations. Integration, sandbox activation, UI progress and full verification remain open.
+- 2026-09-04: worker and Deploy v2 are integrated. Resume reuses an accepted `serverOperationId`; merge/build and pre-start checks select fresh `origin/main`; UI shows phase and transferred bytes; successful completion refreshes projects and `/api/changes`.
+- 2026-09-04: sandbox server simulation proves exact upload rejection, idempotent start, atomic activation, readiness and current + two rollback retention. Full suite passes `351/351`; lint, shell validation and production build pass.
+- 2026-09-04: real standalone archive is `46,453,751` bytes (`44.3 MiB`), about 60% below the `110 MiB` baseline and below the `75 MiB` ceiling. Its SHA-256 in temporary local evidence was `bdd65b1cfb8579b75d0fa9ffec190afc36f7c431ae0b5b13340cc7cc4c3820c8`.
+- 2026-09-04: no recovery deploy was executed after the exact `33024ec…` stop-line. The repair candidate is committed locally; push/PR is the next allowed action. Merge, server protocol/service installation, packaged Admin installation and production deploy remain separately gated by the future exact candidate SHA.
