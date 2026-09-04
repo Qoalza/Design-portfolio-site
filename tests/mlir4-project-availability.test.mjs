@@ -1,20 +1,23 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-test("only Corvo exposes an available project detail route", () => {
+test("published Corvo and Sarafan expose available project detail routes", () => {
   const readProject = (name) => JSON.parse(readFileSync(new URL(`../content/projects/${name}.json`, import.meta.url), "utf8"));
   assert.equal(readProject("corvo").detailAvailable, true);
-  assert.equal(readProject("sarafan-radio").detailAvailable, false);
+  assert.equal(readProject("sarafan-radio").detailAvailable, true);
   assert.equal(readProject("boff").detailAvailable, false);
   const projects = readFileSync(new URL("../src/lib/projects.ts", import.meta.url), "utf8");
   assert.match(projects, /export type ProjectAvailability/);
   assert.match(projects, /detail:\s*project\.detailAvailable \? "available" : "unavailable"/);
 });
 
-test("Sarafan.Radio preserves the pre-admin unavailable states", () => {
+test("published Sarafan.Radio exposes its completed project and available file", () => {
   const sarafan = JSON.parse(readFileSync(new URL("../content/projects/sarafan-radio.json", import.meta.url), "utf8"));
-  assert.equal(sarafan.detailAvailable, false);
-  assert.deepEqual(sarafan.materials, { projectState: "in_progress", fileState: "unavailable" });
+  assert.equal(sarafan.detailAvailable, true);
+  assert.equal(sarafan.visibility, "published");
+  assert.equal(sarafan.materials.projectState, "completed");
+  assert.equal(sarafan.materials.fileState, "available");
+  assert.match(sarafan.materials.figmaUrl, /^https:\/\/www\.figma\.com\//);
 });
 
 test("project cards share the unavailable-versus-absent file contract", () => {
