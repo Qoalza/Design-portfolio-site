@@ -379,6 +379,7 @@ function githubRepository(remote) {
 const READINESS_LOCAL_COMMAND_TIMEOUT_MS = 10_000;
 const READINESS_NETWORK_COMMAND_TIMEOUT_MS = 15_000;
 const READINESS_TOTAL_TIMEOUT_MS = 45_000;
+const READINESS_TERMINATION_GRACE_MS = 5_000;
 
 function readinessCommandTimeout(command, args) {
   return command === "git" && ["remote", "config"].includes(args[0])
@@ -402,25 +403,61 @@ function skippedCheck(id, message) {
   return { id, status: "skipped", code: "PREREQUISITE_FAILED", message, retryable: false };
 }
 
-async function commandWithDeadline(execImpl, command, args, { cwd, signal, timeoutMs = READINESS_NETWORK_COMMAND_TIMEOUT_MS }) {
+function readinessAbortError(message) {
+  const error = new Error(message);
+  error.code = "ABORT_ERR";
+  return error;
+}
+
+function defaultCommandWithDeadline(command, args, { cwd, signal, timeoutMs, terminateGraceMs }) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    let deadlineTimer;
+    let forceTimer;
+    let abort;
+    let terminationError;
+    const finish = (error, result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadlineTimer);
+      clearTimeout(forceTimer);
+      signal?.removeEventListener("abort", abort);
+      if (error) reject(error); else resolve(result);
+    };
+    const child = execFile(command, args, { cwd }, (error, stdout, stderr) => {
+      if (error) {
+        error.stdout = stdout;
+        error.stderr = stderr;
+        finish(terminationError ?? error);
+      } else {
+        finish(undefined, { stdout, stderr });
+      }
+    });
+    const terminate = (error) => {
+      if (settled) return;
+      terminationError = error;
+      child.kill("SIGTERM");
+      forceTimer = setTimeout(() => {
+        child.kill("SIGKILL");
+        finish(error);
+      }, terminateGraceMs);
+    };
+    deadlineTimer = setTimeout(() => terminate(readinessAbortError("Readiness command timed out.")), timeoutMs);
+    abort = () => terminate(readinessAbortError("Readiness request was cancelled."));
+    signal?.addEventListener("abort", abort, { once: true });
+  });
+}
+
+export async function commandWithDeadline(execImpl = exec, command, args, { cwd, signal, timeoutMs = READINESS_NETWORK_COMMAND_TIMEOUT_MS, terminateGraceMs = READINESS_TERMINATION_GRACE_MS }) {
   if (signal?.aborted) {
-    const error = new Error("Readiness request was cancelled.");
-    error.code = "ABORT_ERR";
-    throw error;
+    throw readinessAbortError("Readiness request was cancelled.");
   }
+  if (execImpl === exec) return defaultCommandWithDeadline(command, args, { cwd, signal, timeoutMs, terminateGraceMs });
   let timer;
   let abort;
   const deadline = new Promise((_, reject) => {
-    timer = setTimeout(() => {
-      const error = new Error("Readiness command timed out.");
-      error.code = "ABORT_ERR";
-      reject(error);
-    }, timeoutMs);
-    abort = () => {
-      const error = new Error("Readiness request was cancelled.");
-      error.code = "ABORT_ERR";
-      reject(error);
-    };
+    timer = setTimeout(() => reject(readinessAbortError("Readiness command timed out.")), timeoutMs);
+    abort = () => reject(readinessAbortError("Readiness request was cancelled."));
     signal?.addEventListener("abort", abort, { once: true });
   });
   try {
@@ -456,7 +493,7 @@ export async function publishReadiness({
 
   const controller = new AbortController();
   const deadlineAt = Date.now() + timeoutMs;
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), Math.max(0, timeoutMs - READINESS_TERMINATION_GRACE_MS));
   const addFailure = (id, outcome) => {
     checks.push({ id, status: "failed", ...outcome });
     failures.push(outcome.message);

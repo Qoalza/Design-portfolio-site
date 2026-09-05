@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, cleanupPublishedRefs, createPublishReadinessCoordinator, createReleaseArchive, createPublishBranch, deployPublishedRelease, ensurePullRequest, expectedResumeHead, finalizePublishedJob, isReusablePublishJob, mergePublishPullRequest, pendingMergeChecks, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, reconcileResumeWorktree, resumeInputMatches, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, cleanupPublishedRefs, commandWithDeadline, createPublishReadinessCoordinator, createReleaseArchive, createPublishBranch, deployPublishedRelease, ensurePullRequest, expectedResumeHead, finalizePublishedJob, isReusablePublishJob, mergePublishPullRequest, pendingMergeChecks, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, reconcileResumeWorktree, resumeInputMatches, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
 import { PublishCommandError } from "../tools/des-art-admin/admin-errors.mjs";
 import { classifyCommandFailure, createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
 
@@ -558,6 +558,23 @@ test("readiness classifies a locally terminated command as a retryable timeout",
   assert.deepEqual(result.checks.find((check) => check.id === "github-cli"), {
     id: "github-cli", status: "failed", code: "TIMEOUT", message: "Проверка GitHub CLI не ответила вовремя", retryable: true,
   });
+});
+
+test("readiness force-stops an owned local command after the termination grace period", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-force-stop-"));
+  const marker = path.join(root, "sigterm-received");
+  const started = Date.now();
+  await assert.rejects(
+    () => commandWithDeadline(undefined, process.execPath, ["-e", `process.on('SIGTERM', () => require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'received')); setInterval(() => {}, 1000);`], {
+      cwd: process.cwd(),
+      timeoutMs: 100,
+      terminateGraceMs: 20,
+    }),
+    (error) => error?.code === "ABORT_ERR",
+  );
+  await access(marker);
+  assert.ok(Date.now() - started >= 100);
+  assert.ok(Date.now() - started < 2_000);
 });
 
 test("readiness deadline returns a retryable result and releases the coordinator for a later retry", async () => {
