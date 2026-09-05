@@ -10,6 +10,7 @@ import { promisify } from "node:util";
 
 import { ensureProductionDataBaseline, extractPublishedBuildSha } from "./production-data-bootstrap.mjs";
 import { synchronizeManagedRepositoryCheckout, synchronizePreviewRepositoryCheckout } from "./managed-repository.mjs";
+import { adminToolEnvironment } from "./launcher-policy.mjs";
 
 const exec = promisify(execFile);
 const resources = path.dirname(fileURLToPath(import.meta.url));
@@ -163,7 +164,7 @@ async function ensurePreviewRepository() {
 async function detached(command, args, name, env = {}) {
   const output = openSync(path.join(logsRoot, `${name}.log`), "a", 0o600);
   try {
-    const child = spawn(command, args, { cwd: managedRepo, detached: true, stdio: ["ignore", output, output], env: { ...process.env, ...env } });
+    const child = spawn(command, args, { cwd: managedRepo, detached: true, stdio: ["ignore", output, output], env: { ...adminToolEnvironment(process.env), ...env } });
     await writeFile(path.join(supportRoot, `${name}.pid`), `${child.pid}\n`, { mode: 0o600 });
     child.unref();
   } finally {

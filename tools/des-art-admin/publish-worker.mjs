@@ -8,9 +8,10 @@ import { promisify } from "node:util";
 
 import { compileAdminDraft, parseAdminDraft } from "./draft-contract.mjs";
 import { humanError, UserFacingError } from "./human-errors.mjs";
-import { createPublishCommandRunner, recordPublishCommandFailure } from "./publish-diagnostics.mjs";
+import { classifyCommandFailure, createPublishCommandRunner, recordPublishCommandFailure } from "./publish-diagnostics.mjs";
 import {
   createRuntimeReleaseArchive,
+  deployOperationId,
   readDeployOperation,
   resolveFreshDeployTarget,
   startDeployOperation,
@@ -375,39 +376,163 @@ function githubRepository(remote) {
   return match?.[1];
 }
 
-export async function publishReadiness({ supportRoot, repoRoot, mode = "sandbox", execImpl = exec }) {
-  const failures = [];
-  const warnings = [];
-  if (mode === "live") {
-    try {
-      const baseline = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
-      if (baseline.version !== PRODUCTION_DATA_BASELINE_VERSION || baseline.source !== "production-live") throw new Error("invalid baseline");
-    } catch {
-      failures.push("Рабочие данные ещё не синхронизированы с актуальным production-контентом");
-    }
-    if (failures.length) return { ready: false, configured: false, uploadVerified: false, failures, warnings, mode };
-    try { await execImpl("gh", ["auth", "status", "--hostname", "github.com"], { cwd: repoRoot }); } catch { failures.push("GitHub CLI не авторизован"); }
-    try { await execImpl("gh", ["api", "user", "--jq", ".login"], { cwd: repoRoot }); } catch { failures.push("Не удалось подтвердить GitHub identity"); }
-    try {
-      const remote = (await execImpl("git", ["remote", "get-url", "origin"], { cwd: repoRoot })).stdout.trim();
-      const expected = githubRepository(remote);
-      const repository = JSON.parse((await execImpl("gh", ["repo", "view", "--json", "nameWithOwner,viewerPermission"], { cwd: repoRoot })).stdout);
-      if (!expected || repository.nameWithOwner !== expected) failures.push("GitHub CLI подключён не к тому репозиторию");
-      if (!["ADMIN", "MAINTAIN", "WRITE"].includes(repository.viewerPermission)) failures.push("Нет права push в репозиторий Portfolio");
-      await execImpl("git", ["ls-remote", "--exit-code", "origin", "refs/heads/main"], { cwd: repoRoot });
-    } catch { failures.push("Репозиторий Portfolio недоступен через origin"); }
-    try {
-      const hostHelper = (await execImpl("git", ["config", "--get-all", "credential.https://github.com.helper"], { cwd: repoRoot })).stdout;
-      if (!/gh\s+auth\s+git-credential/.test(hostHelper)) failures.push("Git credential helper не согласован с GitHub CLI");
-    } catch { failures.push("Git credential helper для GitHub не настроен"); }
-    try {
-      const config = await liveConfig(supportRoot);
-      await access(config.keyPath);
-      await execImpl("ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-i", config.keyPath, `${config.user}@${config.host}`, "status"]);
-    } catch { failures.push("Безопасный SSH-доступ к deploy не настроен"); }
-    warnings.push("Окружение настроено; реальная загрузка Git-пакета будет проверена только при Push.");
+const READINESS_COMMAND_TIMEOUT_MS = 15_000;
+const READINESS_TOTAL_TIMEOUT_MS = 45_000;
+
+function readinessFailure(error, fallback) {
+  if (error?.code === "ENOENT") return { code: "TOOL_MISSING", message: fallback.missing, retryable: false };
+  if (error?.name === "AbortError" || error?.code === "ABORT_ERR" || error?.killed === true || error?.signal === "SIGTERM" || /timed? out/i.test(`${error?.message ?? ""}\n${error?.stderr ?? ""}`)) {
+    return { code: "TIMEOUT", message: fallback.timeout, retryable: true };
   }
-  return { ready: failures.length === 0, configured: failures.length === 0, uploadVerified: false, failures, warnings, mode };
+  const classified = classifyCommandFailure(error);
+  if (classified.failureCode === "AUTHENTICATION_FAILED") return { code: "AUTHENTICATION_FAILED", message: fallback.authentication, retryable: false };
+  if (classified.failureCode === "PERMISSION_DENIED") return { code: "PERMISSION_DENIED", message: fallback.permission, retryable: false };
+  if (["DNS_UNAVAILABLE", "NETWORK_UNAVAILABLE"].includes(classified.failureCode)) return { code: classified.failureCode, message: fallback.network, retryable: true };
+  return { code: "UNKNOWN", message: fallback.unknown, retryable: false };
+}
+
+function skippedCheck(id, message) {
+  return { id, status: "skipped", code: "PREREQUISITE_FAILED", message, retryable: false };
+}
+
+async function commandWithDeadline(execImpl, command, args, { cwd, signal, timeoutMs = READINESS_COMMAND_TIMEOUT_MS }) {
+  if (signal?.aborted) {
+    const error = new Error("Readiness request was cancelled.");
+    error.code = "ABORT_ERR";
+    throw error;
+  }
+  let timer;
+  let abort;
+  const deadline = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const error = new Error("Readiness command timed out.");
+      error.code = "ABORT_ERR";
+      reject(error);
+    }, timeoutMs);
+    abort = () => {
+      const error = new Error("Readiness request was cancelled.");
+      error.code = "ABORT_ERR";
+      reject(error);
+    };
+    signal?.addEventListener("abort", abort, { once: true });
+  });
+  try {
+    return await Promise.race([
+      execImpl(command, args, { cwd, signal, timeout: timeoutMs, killSignal: "SIGTERM" }),
+      deadline,
+    ]);
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
+  }
+}
+
+export function createPublishReadinessCoordinator(getReadiness) {
+  let inFlight;
+  return async function coordinatedReadiness() {
+    if (!inFlight) inFlight = Promise.resolve().then(getReadiness).finally(() => { inFlight = undefined; });
+    return inFlight;
+  };
+}
+
+export async function publishReadiness({
+  supportRoot,
+  repoRoot,
+  mode = "sandbox",
+  execImpl = exec,
+  timeoutMs = READINESS_TOTAL_TIMEOUT_MS,
+} = {}) {
+  const failures = [];
+  const checks = [];
+  const warnings = [];
+  if (mode !== "live") return { ready: true, configured: true, uploadVerified: false, failures, warnings, checks, mode };
+
+  const controller = new AbortController();
+  const deadlineAt = Date.now() + timeoutMs;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const addFailure = (id, outcome) => {
+    checks.push({ id, status: "failed", ...outcome });
+    failures.push(outcome.message);
+    return false;
+  };
+  const run = async (id, command, args, fallback) => {
+    try {
+      const remaining = Math.max(1, deadlineAt - Date.now());
+      const result = await commandWithDeadline(execImpl, command, args, { cwd: repoRoot, signal: controller.signal, timeoutMs: Math.min(READINESS_COMMAND_TIMEOUT_MS, remaining) });
+      checks.push({ id, status: "passed", code: "OK", message: fallback.passed, retryable: false });
+      return result;
+    } catch (error) {
+      addFailure(id, readinessFailure(error, fallback));
+      return undefined;
+    }
+  };
+
+  try {
+    const baseline = JSON.parse(await readFile(path.join(supportRoot, "production-data-baseline.json"), "utf8"));
+    if (baseline.version !== PRODUCTION_DATA_BASELINE_VERSION || baseline.source !== "production-live") throw new Error("invalid baseline");
+    checks.push({ id: "production-baseline", status: "passed", code: "OK", message: "Production baseline подтверждён", retryable: false });
+  } catch {
+    addFailure("production-baseline", { code: "BASELINE_INVALID", message: "Рабочие данные ещё не синхронизированы с актуальным production-контентом", retryable: false });
+    clearTimeout(timer);
+    return { ready: false, configured: false, uploadVerified: false, failures, warnings, checks, mode };
+  }
+
+  const gh = await run("github-cli", "gh", ["auth", "status", "--hostname", "github.com"], {
+    passed: "GitHub CLI авторизован", missing: "GitHub CLI не найден в окружении Admin", timeout: "Проверка GitHub CLI не ответила вовремя", authentication: "GitHub CLI не авторизован", permission: "Нет доступа GitHub CLI", network: "GitHub недоступен по сети", unknown: "Не удалось проверить GitHub CLI",
+  });
+  if (!gh) {
+    checks.push(skippedCheck("github-identity", "Проверка пропущена: GitHub CLI недоступен"));
+    checks.push(skippedCheck("repository", "Проверка пропущена: GitHub CLI недоступен"));
+  } else {
+    await run("github-identity", "gh", ["api", "user", "--jq", ".login"], {
+      passed: "GitHub identity подтверждён", missing: "GitHub CLI не найден в окружении Admin", timeout: "Проверка GitHub identity не ответила вовремя", authentication: "GitHub CLI не авторизован", permission: "Нет доступа к GitHub identity", network: "GitHub недоступен по сети", unknown: "Не удалось подтвердить GitHub identity",
+    });
+    let remote;
+    try {
+      const remaining = Math.max(1, deadlineAt - Date.now());
+      remote = (await commandWithDeadline(execImpl, "git", ["remote", "get-url", "origin"], { cwd: repoRoot, signal: controller.signal, timeoutMs: Math.min(READINESS_COMMAND_TIMEOUT_MS, remaining) })).stdout.trim();
+    } catch (error) {
+      addFailure("repository", readinessFailure(error, { missing: "Git не найден в окружении Admin", timeout: "Проверка репозитория не ответила вовремя", authentication: "Не удалось авторизоваться в репозитории Portfolio", permission: "Нет доступа к репозиторию Portfolio", network: "Репозиторий Portfolio недоступен по сети", unknown: "Не удалось прочитать репозиторий Portfolio" }));
+    }
+    if (remote) {
+      const repository = await run("repository", "gh", ["repo", "view", "--json", "nameWithOwner,viewerPermission"], {
+        passed: "Репозиторий Portfolio подтверждён", missing: "GitHub CLI не найден в окружении Admin", timeout: "Проверка репозитория не ответила вовремя", authentication: "GitHub CLI не авторизован", permission: "Нет права push в репозиторий Portfolio", network: "Репозиторий Portfolio недоступен по сети", unknown: "Не удалось проверить репозиторий Portfolio",
+      });
+      if (repository) {
+        try {
+          const value = JSON.parse(repository.stdout);
+          if (githubRepository(remote) !== value.nameWithOwner) addFailure("repository-match", { code: "REPOSITORY_MISMATCH", message: "GitHub CLI подключён не к тому репозиторию", retryable: false });
+          else if (!["ADMIN", "MAINTAIN", "WRITE"].includes(value.viewerPermission)) addFailure("repository-permission", { code: "PERMISSION_DENIED", message: "Нет права push в репозиторий Portfolio", retryable: false });
+          else await run("repository-remote", "git", ["ls-remote", "--exit-code", "origin", "refs/heads/main"], {
+            passed: "Удалённый main доступен", missing: "Git не найден в окружении Admin", timeout: "Проверка удалённого репозитория не ответила вовремя", authentication: "Не удалось авторизоваться в репозитории Portfolio", permission: "Нет доступа к репозиторию Portfolio", network: "Репозиторий Portfolio недоступен по сети", unknown: "Не удалось проверить удалённый репозиторий Portfolio",
+          });
+        } catch { addFailure("repository", { code: "INVALID_RESPONSE", message: "GitHub вернул неполный ответ о репозитории", retryable: true }); }
+      }
+    }
+  }
+
+  const helper = await run("git-credential-helper", "git", ["config", "--get-all", "credential.https://github.com.helper"], {
+    passed: "Git credential helper подтверждён", missing: "Git не найден в окружении Admin", timeout: "Проверка Git credential helper не ответила вовремя", authentication: "Не удалось проверить Git credential helper", permission: "Нет доступа к настройкам Git", network: "Git credential helper недоступен", unknown: "Git credential helper для GitHub не настроен",
+  });
+  if (helper && !/gh\s+auth\s+git-credential/.test(helper.stdout)) addFailure("git-credential-helper", { code: "CREDENTIAL_HELPER_MISMATCH", message: "Git credential helper не согласован с GitHub CLI", retryable: false });
+
+  try {
+    const config = await liveConfig(supportRoot);
+    await access(config.keyPath);
+    await run("deploy-ssh", "ssh", ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-i", config.keyPath, `${config.user}@${config.host}`, "status"], {
+      passed: "Безопасный SSH-доступ к deploy подтверждён", missing: "SSH не найден в окружении Admin", timeout: "Проверка SSH-доступа к deploy не ответила вовремя", authentication: "SSH-ключ не авторизован для deploy", permission: "Нет доступа SSH к deploy", network: "Deploy недоступен по сети", unknown: "Не удалось подтвердить SSH-доступ к deploy",
+    });
+  } catch (error) {
+    addFailure("deploy-ssh", readinessFailure(error, { missing: "Конфигурация или ключ SSH для deploy не найдены", timeout: "Проверка SSH-доступа к deploy не ответила вовремя", authentication: "SSH-ключ не авторизован для deploy", permission: "Нет доступа SSH к deploy", network: "Deploy недоступен по сети", unknown: "Безопасный SSH-доступ к deploy не настроен" }));
+  }
+
+  clearTimeout(timer);
+  const ready = failures.length === 0 && !controller.signal.aborted;
+  if (controller.signal.aborted) {
+    addFailure("readiness", { code: "TIMEOUT", message: "Проверка публикации не завершилась за 45 секунд", retryable: true });
+  }
+  if (ready) warnings.push("Окружение настроено; реальная загрузка Git-пакета будет проверена только при Push.");
+  return { ready: ready && failures.length === 0, configured: ready && failures.length === 0, uploadVerified: false, failures, warnings, checks, mode };
 }
 
 async function update(jobFile, job, patch) {
@@ -436,6 +561,10 @@ async function persistDeployProgress(jobFile, job, patch) {
 
 function deployedSha(output) {
   return /^ready\s+([a-f0-9]{40})\s*$/m.exec(output)?.[1];
+}
+
+function missingDeployOperation(error) {
+  return error?.failedOperation === "deploy.status-v2" && error?.exitCode === 66;
 }
 
 async function readDeployedSha({ command, config, operation, tolerateFailure = false }) {
@@ -656,7 +785,15 @@ export async function runPublishJob(jobFile) {
             job.deployPhase = "complete";
             job.productionState = "deployed";
           } else if (job.serverOperationId) {
-            const existing = await readDeployOperation({ command, config: publishConfig, operationId: job.serverOperationId });
+            let existing;
+            try {
+              existing = await readDeployOperation({ command, config: publishConfig, operationId: job.serverOperationId });
+            } catch (error) {
+              if (!resuming || !missingDeployOperation(error) || !job.artifactSha256) throw error;
+              const restarted = await startDeployOperation({ command, config: publishConfig, sha: targetSha, artifactSha256: job.artifactSha256 });
+              if (restarted.operationId !== job.serverOperationId) throw new Error("Deploy v2 resumed a different operation identity.");
+              existing = restarted;
+            }
             if (existing.targetSha !== targetSha) throw new Error("Saved server operation targets a different SHA.");
             const complete = await waitForDeployOperation({
               command,
@@ -671,8 +808,8 @@ export async function runPublishJob(jobFile) {
             job.deployPhase = complete.phase;
             job.productionState = "deployed";
           } else {
-            const artifact = await createRuntimeReleaseArchive({ archive, sourceRoot: worktree, sha: targetSha });
-          Object.assign(job, { deployPhase: "upload", bytesTransferred: 0, bytesTotal: artifact.bytes, artifactSha256: artifact.artifactSha256 });
+          const artifact = await createRuntimeReleaseArchive({ archive, sourceRoot: worktree, sha: targetSha });
+          Object.assign(job, { deployPhase: "upload", bytesTransferred: 0, bytesTotal: artifact.bytes, artifactSha256: artifact.artifactSha256, artifactPath: archive });
           await persistJob(jobFile, job);
           let lastProgressPersist = 0;
           await uploadRuntimeRelease({
@@ -692,9 +829,10 @@ export async function runPublishJob(jobFile) {
           await progressWrite;
           job.bytesTransferred = artifact.bytes;
           job.deployPhase = "vps-check";
+          job.serverOperationId = deployOperationId(targetSha, artifact.artifactSha256);
           await persistJob(jobFile, job);
           const operation = await startDeployOperation({ command, config: publishConfig, sha: targetSha, artifactSha256: artifact.artifactSha256 });
-          job.serverOperationId = operation.operationId;
+          if (operation.operationId !== job.serverOperationId) throw new Error("Deploy v2 returned an unexpected operation identity.");
           await persistJob(jobFile, job);
           const complete = await waitForDeployOperation({
             command,
@@ -711,7 +849,7 @@ export async function runPublishJob(jobFile) {
             job.productionState = "deployed";
           }
         } finally {
-          await rm(archive, { force: true });
+          if (job.productionState === "deployed") await rm(archive, { force: true });
         }
       } else if (stageId === "verify" && job.mode === "live") {
         const project = job.slug

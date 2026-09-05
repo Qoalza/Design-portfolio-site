@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, cleanupPublishedRefs, createReleaseArchive, createPublishBranch, deployPublishedRelease, ensurePullRequest, expectedResumeHead, finalizePublishedJob, isReusablePublishJob, mergePublishPullRequest, pendingMergeChecks, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, reconcileResumeWorktree, resumeInputMatches, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, cleanupPublishedRefs, createPublishReadinessCoordinator, createReleaseArchive, createPublishBranch, deployPublishedRelease, ensurePullRequest, expectedResumeHead, finalizePublishedJob, isReusablePublishJob, mergePublishPullRequest, pendingMergeChecks, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, reconcileResumeWorktree, resumeInputMatches, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
 import { PublishCommandError } from "../tools/des-art-admin/admin-errors.mjs";
 import { classifyCommandFailure, createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
 
@@ -510,6 +510,76 @@ test("live readiness requires a live production baseline", async () => {
   const result = await publishReadiness({ supportRoot: root, mode: "live" });
   assert.equal(result.ready, false);
   assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
+});
+
+test("live readiness reports one actionable missing-tool failure and skips dependent GitHub checks", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-tools-"));
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  const result = await publishReadiness({
+    supportRoot: root,
+    repoRoot: root,
+    mode: "live",
+    execImpl: async (command) => {
+      if (command === "gh") {
+        const error = new Error("spawn gh ENOENT");
+        error.code = "ENOENT";
+        throw error;
+      }
+      return { stdout: "" };
+    },
+  });
+  assert.equal(result.ready, false);
+  assert.ok(Array.isArray(result.checks));
+  assert.deepEqual(result.checks.find((check) => check.id === "github-cli"), {
+    id: "github-cli", status: "failed", code: "TOOL_MISSING", message: "GitHub CLI не найден в окружении Admin", retryable: false,
+  });
+  assert.equal(result.checks.find((check) => check.id === "github-identity")?.status, "skipped");
+  assert.equal(result.checks.find((check) => check.id === "repository")?.status, "skipped");
+  assert.equal(result.warnings.length, 0);
+});
+
+test("readiness classifies a locally terminated command as a retryable timeout", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-sigterm-"));
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  const result = await publishReadiness({
+    supportRoot: root,
+    repoRoot: root,
+    mode: "live",
+    execImpl: async (command) => {
+      if (command === "gh") {
+        const error = new Error("Command failed");
+        error.killed = true;
+        error.signal = "SIGTERM";
+        throw error;
+      }
+      return { stdout: "" };
+    },
+  });
+  assert.deepEqual(result.checks.find((check) => check.id === "github-cli"), {
+    id: "github-cli", status: "failed", code: "TIMEOUT", message: "Проверка GitHub CLI не ответила вовремя", retryable: true,
+  });
+});
+
+test("readiness deadline returns a retryable result and releases the coordinator for a later retry", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-timeout-"));
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  const timedOut = await publishReadiness({
+    supportRoot: root,
+    repoRoot: root,
+    mode: "live",
+    timeoutMs: 5,
+    execImpl: async () => new Promise(() => {}),
+  });
+  assert.equal(timedOut.ready, false);
+  assert.ok(timedOut.checks.some((check) => check.code === "TIMEOUT" && check.retryable));
+
+  let calls = 0;
+  const coordinated = createPublishReadinessCoordinator(async () => ({ ready: ++calls > 1 }));
+  const [first, sameFirst] = await Promise.all([coordinated(), coordinated()]);
+  assert.equal(calls, 1);
+  assert.deepEqual(first, sameFirst);
+  assert.equal((await coordinated()).ready, true);
+  assert.equal(calls, 2);
 });
 
 test("live readiness verifies identity, exact repository, push permission, remote access, credential helper and SSH without claiming upload", async () => {
