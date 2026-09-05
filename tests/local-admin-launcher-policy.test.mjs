@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { selectManagedRepositoryTarget } from "../tools/des-art-admin/launcher-policy.mjs";
+import { adminToolEnvironment, selectManagedRepositoryTarget } from "../tools/des-art-admin/launcher-policy.mjs";
 
 const publishedSha = "a".repeat(40);
 const remoteMainSha = "b".repeat(40);
@@ -46,4 +46,10 @@ test("launcher policy rejects malformed Git identities", () => {
     publishedSha: "HEAD",
     remoteMainSha,
   }), /full Git SHA/);
+});
+
+test("packaged Admin uses the approved tool path instead of Finder's inherited PATH", () => {
+  const environment = adminToolEnvironment({ PATH: "/finder-only", CUSTOM: "preserved" });
+  assert.equal(environment.PATH, "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin");
+  assert.equal(environment.CUSTOM, "preserved");
 });

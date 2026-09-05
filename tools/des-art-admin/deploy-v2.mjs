@@ -14,6 +14,16 @@ const VALID_PHASES = new Set(["validate", "activate", "readiness", "retention", 
 export const UPLOAD_NO_PROGRESS_TIMEOUT_MS = 90_000;
 export const UPLOAD_HARD_TIMEOUT_MS = 15 * 60_000;
 export const SERVER_OPERATION_TIMEOUT_MS = 10 * 60_000;
+export const DEPLOY_COMMAND_TIMEOUT_MS = 20_000;
+export const PUBLIC_REQUEST_TIMEOUT_MS = 15_000;
+export const PUBLIC_VERIFICATION_TIMEOUT_MS = 120_000;
+
+export function deployOperationId(sha, artifactSha256) {
+  if (!/^[a-f0-9]{40}$/.test(sha ?? "") || !/^[a-f0-9]{64}$/.test(artifactSha256 ?? "")) {
+    throw new Error("Deploy operation identity requires a full release SHA and artifact SHA-256.");
+  }
+  return `${sha}-${artifactSha256.slice(0, 16)}`;
+}
 
 const sshBaseArgs = (config) => [
   "-o", "BatchMode=yes",
@@ -152,16 +162,17 @@ export async function uploadRuntimeRelease({
 export async function startDeployOperation({ command, config, sha, artifactSha256 }) {
   const { stdout = "" } = await command("deploy.start-v2", "ssh", [
     ...sshBaseArgs(config), "start-v2", sha, artifactSha256,
-  ], { maxBuffer: 10 * 1024 * 1024 });
+  ], { maxBuffer: 10 * 1024 * 1024, timeout: DEPLOY_COMMAND_TIMEOUT_MS, killSignal: "SIGTERM" });
   const status = parseDeployStatusV2(stdout);
   if (status.targetSha !== sha) throw new Error("Deploy v2 started a different target SHA.");
+  if (status.operationId !== deployOperationId(sha, artifactSha256)) throw new Error("Deploy v2 returned an unexpected operation identity.");
   return status;
 }
 
 export async function readDeployOperation({ command, config, operationId }) {
   const { stdout = "" } = await command("deploy.status-v2", "ssh", [
     ...sshBaseArgs(config), "status-v2", operationId,
-  ], { maxBuffer: 10 * 1024 * 1024 });
+  ], { maxBuffer: 10 * 1024 * 1024, timeout: DEPLOY_COMMAND_TIMEOUT_MS, killSignal: "SIGTERM" });
   return parseDeployStatusV2(stdout);
 }
 
@@ -199,8 +210,24 @@ export async function resolveFreshDeployTarget({ command, cwd, contentCommit, sa
   return freshMain;
 }
 
-async function requirePage(fetchImpl, url) {
-  const response = await fetchImpl(url, { redirect: "error" });
+async function fetchWithDeadline(fetchImpl, url, options, timeoutMs) {
+  const controller = new AbortController();
+  let timer;
+  const deadline = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error("Public verification request timed out."));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([fetchImpl(url, { ...options, signal: controller.signal }), deadline]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function requirePage(fetchImpl, url, timeoutMs) {
+  const response = await fetchWithDeadline(fetchImpl, url, { redirect: "error" }, timeoutMs);
   if (!response.ok) throw new Error(`Public route ${url} returned ${response.status}.`);
   return response.text();
 }
@@ -220,15 +247,17 @@ export function collectPublicAssetPaths(value, output = new Set()) {
   return [...output].sort();
 }
 
-export async function verifyPublicRelease({ baseUrl, sha, project, fetchImpl = fetch }) {
-  const root = await requirePage(fetchImpl, `${baseUrl}/`);
+export async function verifyPublicRelease({ baseUrl, sha, project, fetchImpl = fetch, requestTimeoutMs = PUBLIC_REQUEST_TIMEOUT_MS, timeoutMs = PUBLIC_VERIFICATION_TIMEOUT_MS }) {
+  const deadlineAt = Date.now() + timeoutMs;
+  const remaining = () => Math.max(1, Math.min(requestTimeoutMs, deadlineAt - Date.now()));
+  const root = await requirePage(fetchImpl, `${baseUrl}/`, remaining());
   if (!root.includes(sha)) throw new Error("Public build SHA marker does not match the deploy target.");
-  await requirePage(fetchImpl, `${baseUrl}/projects`);
+  await requirePage(fetchImpl, `${baseUrl}/projects`, remaining());
   if (project) {
-    const detail = await requirePage(fetchImpl, `${baseUrl}/projects/${encodeURIComponent(project.slug)}`);
+    const detail = await requirePage(fetchImpl, `${baseUrl}/projects/${encodeURIComponent(project.slug)}`, remaining());
     if (!detail.includes(project.title)) throw new Error("Public project marker is missing; a custom 404 cannot pass verification.");
     for (const asset of collectPublicAssetPaths(project)) {
-      const response = await fetchImpl(new URL(asset, baseUrl), { redirect: "error" });
+      const response = await fetchWithDeadline(fetchImpl, new URL(asset, baseUrl), { redirect: "error" }, remaining());
       if (!response.ok) throw new Error(`Public project asset ${asset} returned ${response.status}.`);
     }
   }

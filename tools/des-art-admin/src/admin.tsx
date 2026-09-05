@@ -16,11 +16,28 @@ import { PreviewWindowController } from "./preview-window.mjs";
 
 type SaveState = "saved" | "dirty" | "saving" | "restored";
 type TextHistoryEntry = { slug: string; key: keyof AdminProject; before: unknown; after: unknown; at: number };
-type PublishReadiness = { ready: boolean; configured: boolean; uploadVerified: boolean; failures: string[]; warnings: string[] };
+type PublishReadinessCheck = { id: string; status: "passed" | "failed" | "skipped"; code: string; message: string; retryable: boolean };
+type PublishReadiness = { ready: boolean; configured: boolean; uploadVerified: boolean; failures: string[]; warnings: string[]; checks?: PublishReadinessCheck[] };
 const csrf = document.body.dataset.csrf ?? "";
 const publishMode = document.body.dataset.publishMode === "live" ? "live" : "sandbox";
 const draftKey = (slug: string) => `des-art-admin:draft:${slug}`;
 const emptyInventory: ChangeInventory = { count: 0, projects: [] };
+const unavailableReadiness = (): PublishReadiness => ({
+  ready: false,
+  configured: false,
+  uploadVerified: false,
+  failures: ["Не удалось обновить состояние публикации"],
+  warnings: [],
+  checks: [{ id: "readiness", status: "failed", code: "UNAVAILABLE", message: "Не удалось обновить состояние публикации", retryable: true }],
+});
+function validReadiness(value: PublishReadiness): value is PublishReadiness {
+  return typeof value?.ready === "boolean"
+    && typeof value.configured === "boolean"
+    && typeof value.uploadVerified === "boolean"
+    && Array.isArray(value.failures)
+    && Array.isArray(value.warnings)
+    && (value.checks === undefined || Array.isArray(value.checks));
+}
 const saveLabels: Record<SaveState, string> = {
   saved: "Все изменения сохранены",
   dirty: "Есть неопубликованные изменения",
@@ -79,17 +96,31 @@ function App() {
     setInventory(nextInventory);
   };
 
+  const refreshReadiness = async (clearCurrent = false) => {
+    if (clearCurrent) setReadiness(null);
+    try {
+      const value = await api<PublishReadiness>("/api/publish/readiness");
+      setReadiness(validReadiness(value) ? value : unavailableReadiness());
+    } catch {
+      setReadiness(unavailableReadiness());
+    }
+  };
+
   useEffect(() => {
     let active = true;
-    Promise.all([api<AdminProject[]>("/api/projects"), api<ChangeInventory>("/api/changes"), api<{ connected: boolean }>("/api/figma/status"), api<PublishReadiness>("/api/publish/readiness")])
-      .then(([nextProjects, nextInventory, figma, publishReadiness]) => {
+    Promise.all([api<AdminProject[]>("/api/projects"), api<ChangeInventory>("/api/changes")])
+      .then(([nextProjects, nextInventory]) => {
         if (!active) return;
         setProjects(nextProjects);
         setInventory(nextInventory);
-        setFigmaConnected(figma.connected);
-        setReadiness(publishReadiness);
       })
       .catch((error) => { if (active) setMessage(safeMessage(error)); });
+    api<{ connected: boolean }>("/api/figma/status")
+      .then((figma) => { if (active) setFigmaConnected(figma.connected); })
+      .catch(() => { if (active) setFigmaConnected(false); });
+    api<PublishReadiness>("/api/publish/readiness")
+      .then((value) => { if (active) setReadiness(validReadiness(value) ? value : unavailableReadiness()); })
+      .catch(() => { if (active) setReadiness(unavailableReadiness()); });
     return () => { active = false; };
   }, []);
 
@@ -363,6 +394,14 @@ function App() {
             <Button type="button" size="3" variant="soft" color={figmaConnected ? "green" : "gray"} onClick={() => setFigmaOpen(true)}>Figma · {figmaConnected ? "подключена" : "подключить"}</Button>
           </Flex>
         </header>
+        {publishMode === "live" && readiness && !readiness.ready ? (
+          <Callout.Root className="publish-readiness" color="amber" size="1">
+            <Flex align="center" gap="3" wrap="wrap">
+              <Callout.Text>{readiness.checks?.find((check) => check.status === "failed")?.message ?? readiness.failures[0] ?? "Публикация пока недоступна"}</Callout.Text>
+              <Button type="button" variant="soft" size="1" onClick={() => { void refreshReadiness(true); }}>Повторить проверку</Button>
+            </Flex>
+          </Callout.Root>
+        ) : null}
         <main className="admin-workspace">
           <ProjectNavigation
             projects={projects}

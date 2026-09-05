@@ -11,7 +11,7 @@ import { AdminStore, validateLocalRequest } from "./core.mjs";
 import { DraftValidationError, draftValidation } from "./draft-contract.mjs";
 import { readFigmaToken, saveFigmaToken } from "./figma-template-import.mjs";
 import { humanError } from "./human-errors.mjs";
-import { PUBLISH_STAGES, isReusablePublishJob, publishInputFingerprint, publishReadiness, resumeInputMatches } from "./publish-worker.mjs";
+import { PUBLISH_STAGES, createPublishReadinessCoordinator, isReusablePublishJob, publishInputFingerprint, publishReadiness, resumeInputMatches } from "./publish-worker.mjs";
 import { claimPublishWorker, mutatePublishJob, reconcileOrphanedPublishJob } from "./publish-job-state.mjs";
 import { createPreviewRuntimeIdentity, previewHealthMatches } from "./preview-runtime.mjs";
 
@@ -42,6 +42,7 @@ const jobsRoot = path.join(storeRoot, "jobs");
 const previewRoot = path.join(storeRoot, "preview-drafts");
 const logsRoot = path.join(supportRoot, "logs");
 const previewMarker = path.join(supportRoot, "preview-runtime.json");
+const coordinatedPublishReadiness = createPublishReadinessCoordinator(() => publishReadiness({ supportRoot, repoRoot, mode: publishMode }));
 const imageTypes = new Map([
   [".png", "image/png"],
   [".jpg", "image/jpeg"],
@@ -284,7 +285,7 @@ async function handler(request, response) {
       }
       return json(response, 200, { ready: true, url: `http://127.0.0.1:${previewPort}${pathname}?admin-preview=1&draft=${encodeURIComponent(slug)}` });
     }
-    if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await publishReadiness({ supportRoot, repoRoot, mode: publishMode }));
+    if (request.method === "GET" && url.pathname === "/api/publish/readiness") return json(response, 200, await coordinatedPublishReadiness());
     if (request.method === "GET" && url.pathname === "/api/publish/status") {
       const names = (await readdir(jobsRoot).catch(() => [])).filter((name) => name.endsWith(".json")).sort().reverse();
       const jobFile = names[0] ? path.join(jobsRoot, names[0]) : null;
@@ -293,7 +294,7 @@ async function handler(request, response) {
     if (request.method === "POST" && url.pathname === "/api/publish/start") {
       if (maintenanceMode) return userError(response, 403, "Публикация отключена", "Этот запуск Admin выполняет только безопасный локальный ремонт черновика.");
       const value = await body(request);
-      const readiness = await publishReadiness({ supportRoot, repoRoot, mode: publishMode });
+      const readiness = await coordinatedPublishReadiness();
       if (!readiness.ready) return userError(response, 409, "Публикацию нельзя запустить", "Окружение публикации не настроено полностью. Требуется ручная диагностика разработчиком перед повторным запуском.");
       if (value.scope !== "project" && value.scope !== "all") return userError(response, 400, "Не удалось определить состав публикации", "Админка не поняла, нужно опубликовать один проект или все изменения. Закройте окно публикации и запустите нужное действие заново.");
       await store.ensureSnapshotBaseline();
@@ -350,7 +351,7 @@ async function handler(request, response) {
       if (!resumableIdentity) return userError(response, 409, "Публикацию нельзя продолжить", "Этот job не достиг сохранённого commit, уже выполняется или не совпадает с текущим окружением.");
       const currentInputFingerprint = await publishInputFingerprint({ files: job.files, draftAssetRoot: job.draftAssetRoot });
       if (!resumeInputMatches(job, currentInputFingerprint)) return userError(response, 409, "Черновик изменился после остановки", "Сохранённый commit относится к предыдущей версии черновика. Запустите новую публикацию, чтобы подготовить актуальные данные.");
-      const readiness = await publishReadiness({ supportRoot, repoRoot, mode: publishMode });
+      const readiness = await coordinatedPublishReadiness();
       if (!readiness.ready) return userError(response, 409, "Публикацию нельзя продолжить", "Окружение публикации не настроено полностью. Исправьте указанную проблему и повторите действие.");
       const launched = await launchPublishWorker(jobFile, {
         status: "queued",

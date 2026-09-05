@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { PUBLISH_STAGES, cleanupPublishedRefs, createReleaseArchive, createPublishBranch, deployPublishedRelease, ensurePullRequest, expectedResumeHead, finalizePublishedJob, isReusablePublishJob, mergePublishPullRequest, pendingMergeChecks, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, reconcileResumeWorktree, resumeInputMatches, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
+import { PUBLISH_STAGES, cleanupPublishedRefs, commandWithDeadline, createPublishReadinessCoordinator, createReleaseArchive, createPublishBranch, deployPublishedRelease, ensurePullRequest, expectedResumeHead, finalizePublishedJob, isReusablePublishJob, mergePublishPullRequest, pendingMergeChecks, pendingPublishStages, publishInputFingerprint, publishReadiness, pushPublishCommit, reconcileResumeWorktree, resumeInputMatches, runPublishJob } from "../tools/des-art-admin/publish-worker.mjs";
 import { PublishCommandError } from "../tools/des-art-admin/admin-errors.mjs";
 import { classifyCommandFailure, createPublishCommandRunner } from "../tools/des-art-admin/publish-diagnostics.mjs";
 
@@ -512,6 +512,93 @@ test("live readiness requires a live production baseline", async () => {
   assert.deepEqual(result.failures, ["Рабочие данные ещё не синхронизированы с актуальным production-контентом"]);
 });
 
+test("live readiness reports one actionable missing-tool failure and skips dependent GitHub checks", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-tools-"));
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  const result = await publishReadiness({
+    supportRoot: root,
+    repoRoot: root,
+    mode: "live",
+    execImpl: async (command) => {
+      if (command === "gh") {
+        const error = new Error("spawn gh ENOENT");
+        error.code = "ENOENT";
+        throw error;
+      }
+      return { stdout: "" };
+    },
+  });
+  assert.equal(result.ready, false);
+  assert.ok(Array.isArray(result.checks));
+  assert.deepEqual(result.checks.find((check) => check.id === "github-cli"), {
+    id: "github-cli", status: "failed", code: "TOOL_MISSING", message: "GitHub CLI не найден в окружении Admin", retryable: false,
+  });
+  assert.equal(result.checks.find((check) => check.id === "github-identity")?.status, "skipped");
+  assert.equal(result.checks.find((check) => check.id === "repository")?.status, "skipped");
+  assert.equal(result.warnings.length, 0);
+});
+
+test("readiness classifies a locally terminated command as a retryable timeout", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-sigterm-"));
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  const result = await publishReadiness({
+    supportRoot: root,
+    repoRoot: root,
+    mode: "live",
+    execImpl: async (command) => {
+      if (command === "gh") {
+        const error = new Error("Command failed");
+        error.killed = true;
+        error.signal = "SIGTERM";
+        throw error;
+      }
+      return { stdout: "" };
+    },
+  });
+  assert.deepEqual(result.checks.find((check) => check.id === "github-cli"), {
+    id: "github-cli", status: "failed", code: "TIMEOUT", message: "Проверка GitHub CLI не ответила вовремя", retryable: true,
+  });
+});
+
+test("readiness force-stops an owned local command after the termination grace period", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-force-stop-"));
+  const marker = path.join(root, "sigterm-received");
+  const started = Date.now();
+  await assert.rejects(
+    () => commandWithDeadline(undefined, process.execPath, ["-e", `process.on('SIGTERM', () => require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'received')); setInterval(() => {}, 1000);`], {
+      cwd: process.cwd(),
+      timeoutMs: 100,
+      terminateGraceMs: 20,
+    }),
+    (error) => error?.code === "ABORT_ERR",
+  );
+  await access(marker);
+  assert.ok(Date.now() - started >= 100);
+  assert.ok(Date.now() - started < 2_000);
+});
+
+test("readiness deadline returns a retryable result and releases the coordinator for a later retry", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-timeout-"));
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  const timedOut = await publishReadiness({
+    supportRoot: root,
+    repoRoot: root,
+    mode: "live",
+    timeoutMs: 5,
+    execImpl: async () => new Promise(() => {}),
+  });
+  assert.equal(timedOut.ready, false);
+  assert.ok(timedOut.checks.some((check) => check.code === "TIMEOUT" && check.retryable));
+
+  let calls = 0;
+  const coordinated = createPublishReadinessCoordinator(async () => ({ ready: ++calls > 1 }));
+  const [first, sameFirst] = await Promise.all([coordinated(), coordinated()]);
+  assert.equal(calls, 1);
+  assert.deepEqual(first, sameFirst);
+  assert.equal((await coordinated()).ready, true);
+  assert.equal(calls, 2);
+});
+
 test("live readiness verifies identity, exact repository, push permission, remote access, credential helper and SSH without claiming upload", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-live-ready-"));
   const keyPath = path.join(root, "deploy-key");
@@ -531,6 +618,28 @@ test("live readiness verifies identity, exact repository, push permission, remot
   assert.equal(result.uploadVerified, false);
   assert.match(result.warnings.join(" "), /Git-пакета.*Push/);
   for (const expected of ["gh auth status", "gh api user", "gh repo view", "git ls-remote", "git config", "ssh -o BatchMode=yes"]) assert.ok(calls.some((call) => call.startsWith(expected)), expected);
+});
+
+test("live readiness gives local checks a 10-second deadline and network checks 15 seconds", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-deadlines-"));
+  const keyPath = path.join(root, "deploy-key");
+  await writeFile(keyPath, "test-only-key");
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  await writeFile(path.join(root, "live-publish.json"), JSON.stringify({ mode: "live", host: "example.test", user: "deploy", keyPath }));
+  const deadlines = new Map();
+  const result = await publishReadiness({ supportRoot: root, repoRoot: "/sandbox/repository", mode: "live", execImpl: async (command, args, options) => {
+    deadlines.set([command, ...args.slice(0, 2)].join(" "), options.timeout);
+    if (command === "git" && args[0] === "remote") return { stdout: "https://github.com/Qoalza/Design-portfolio-site.git\n" };
+    if (command === "gh" && args[0] === "repo") return { stdout: JSON.stringify({ nameWithOwner: "Qoalza/Design-portfolio-site", viewerPermission: "WRITE" }) };
+    if (command === "git" && args[0] === "config") return { stdout: "!/opt/homebrew/bin/gh auth git-credential\n" };
+    return { stdout: "ok\n" };
+  }});
+  assert.equal(result.ready, true);
+  assert.equal(deadlines.get("git remote get-url"), 10_000);
+  assert.equal(deadlines.get("git config --get-all"), 10_000);
+  assert.equal(deadlines.get("gh auth status"), 15_000);
+  assert.equal(deadlines.get("git ls-remote --exit-code"), 15_000);
+  assert.equal(deadlines.get("ssh -o BatchMode=yes"), 15_000);
 });
 
 test("live publish rejects a sandbox support root without making a release", async () => {

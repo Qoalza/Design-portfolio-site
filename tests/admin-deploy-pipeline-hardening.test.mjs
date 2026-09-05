@@ -15,6 +15,7 @@ import {
 import {
   collectPublicAssetPaths,
   createRuntimeReleaseArchive,
+  deployOperationId,
   parseDeployStatusV2,
   resolveFreshDeployTarget,
   verifyPublicRelease,
@@ -140,6 +141,11 @@ test("Deploy v2 status is strict and machine-readable", () => {
   assert.throws(() => parseDeployStatusV2(JSON.stringify({ protocol: "art-des-deploy-v2", state: "unknown" })));
 });
 
+test("Deploy v2 operation identity is stable before start-v2 acknowledges it", () => {
+  assert.equal(deployOperationId(sha("a"), "b".repeat(64)), `${sha("a")}-${"b".repeat(16)}`);
+  assert.throws(() => deployOperationId("HEAD", "b".repeat(64)), /identity/);
+});
+
 test("public verification rejects a custom 404 that returns HTTP 200", async () => {
   await assert.rejects(() => verifyPublicRelease({
     baseUrl: "https://example.test",
@@ -151,6 +157,15 @@ test("public verification rejects a custom 404 that returns HTTP 200", async () 
       text: async () => url.endsWith("/projects/sarafan-radio") ? "<html><title>Страница не найдена</title></html>" : `<html data-build-sha=\"${sha("a")}\"></html>`,
     }),
   }), /project marker/i);
+});
+
+test("public verification has a bounded request deadline", async () => {
+  await assert.rejects(() => verifyPublicRelease({
+    baseUrl: "https://example.test",
+    sha: sha("a"),
+    requestTimeoutMs: 5,
+    fetchImpl: async () => new Promise(() => {}),
+  }), /timed out/);
 });
 
 test("public verification checks every asset referenced by the exact published project", async () => {
