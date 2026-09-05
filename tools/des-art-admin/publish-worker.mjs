@@ -376,8 +376,15 @@ function githubRepository(remote) {
   return match?.[1];
 }
 
-const READINESS_COMMAND_TIMEOUT_MS = 15_000;
+const READINESS_LOCAL_COMMAND_TIMEOUT_MS = 10_000;
+const READINESS_NETWORK_COMMAND_TIMEOUT_MS = 15_000;
 const READINESS_TOTAL_TIMEOUT_MS = 45_000;
+
+function readinessCommandTimeout(command, args) {
+  return command === "git" && ["remote", "config"].includes(args[0])
+    ? READINESS_LOCAL_COMMAND_TIMEOUT_MS
+    : READINESS_NETWORK_COMMAND_TIMEOUT_MS;
+}
 
 function readinessFailure(error, fallback) {
   if (error?.code === "ENOENT") return { code: "TOOL_MISSING", message: fallback.missing, retryable: false };
@@ -395,7 +402,7 @@ function skippedCheck(id, message) {
   return { id, status: "skipped", code: "PREREQUISITE_FAILED", message, retryable: false };
 }
 
-async function commandWithDeadline(execImpl, command, args, { cwd, signal, timeoutMs = READINESS_COMMAND_TIMEOUT_MS }) {
+async function commandWithDeadline(execImpl, command, args, { cwd, signal, timeoutMs = READINESS_NETWORK_COMMAND_TIMEOUT_MS }) {
   if (signal?.aborted) {
     const error = new Error("Readiness request was cancelled.");
     error.code = "ABORT_ERR";
@@ -458,7 +465,7 @@ export async function publishReadiness({
   const run = async (id, command, args, fallback) => {
     try {
       const remaining = Math.max(1, deadlineAt - Date.now());
-      const result = await commandWithDeadline(execImpl, command, args, { cwd: repoRoot, signal: controller.signal, timeoutMs: Math.min(READINESS_COMMAND_TIMEOUT_MS, remaining) });
+      const result = await commandWithDeadline(execImpl, command, args, { cwd: repoRoot, signal: controller.signal, timeoutMs: Math.min(readinessCommandTimeout(command, args), remaining) });
       checks.push({ id, status: "passed", code: "OK", message: fallback.passed, retryable: false });
       return result;
     } catch (error) {
@@ -490,7 +497,7 @@ export async function publishReadiness({
     let remote;
     try {
       const remaining = Math.max(1, deadlineAt - Date.now());
-      remote = (await commandWithDeadline(execImpl, "git", ["remote", "get-url", "origin"], { cwd: repoRoot, signal: controller.signal, timeoutMs: Math.min(READINESS_COMMAND_TIMEOUT_MS, remaining) })).stdout.trim();
+      remote = (await commandWithDeadline(execImpl, "git", ["remote", "get-url", "origin"], { cwd: repoRoot, signal: controller.signal, timeoutMs: Math.min(readinessCommandTimeout("git", ["remote", "get-url", "origin"]), remaining) })).stdout.trim();
     } catch (error) {
       addFailure("repository", readinessFailure(error, { missing: "Git не найден в окружении Admin", timeout: "Проверка репозитория не ответила вовремя", authentication: "Не удалось авторизоваться в репозитории Portfolio", permission: "Нет доступа к репозиторию Portfolio", network: "Репозиторий Portfolio недоступен по сети", unknown: "Не удалось прочитать репозиторий Portfolio" }));
     }

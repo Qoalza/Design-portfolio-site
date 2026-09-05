@@ -603,6 +603,28 @@ test("live readiness verifies identity, exact repository, push permission, remot
   for (const expected of ["gh auth status", "gh api user", "gh repo view", "git ls-remote", "git config", "ssh -o BatchMode=yes"]) assert.ok(calls.some((call) => call.startsWith(expected)), expected);
 });
 
+test("live readiness gives local checks a 10-second deadline and network checks 15 seconds", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "des-art-readiness-deadlines-"));
+  const keyPath = path.join(root, "deploy-key");
+  await writeFile(keyPath, "test-only-key");
+  await writeFile(path.join(root, "production-data-baseline.json"), JSON.stringify({ version: 5, source: "production-live" }));
+  await writeFile(path.join(root, "live-publish.json"), JSON.stringify({ mode: "live", host: "example.test", user: "deploy", keyPath }));
+  const deadlines = new Map();
+  const result = await publishReadiness({ supportRoot: root, repoRoot: "/sandbox/repository", mode: "live", execImpl: async (command, args, options) => {
+    deadlines.set([command, ...args.slice(0, 2)].join(" "), options.timeout);
+    if (command === "git" && args[0] === "remote") return { stdout: "https://github.com/Qoalza/Design-portfolio-site.git\n" };
+    if (command === "gh" && args[0] === "repo") return { stdout: JSON.stringify({ nameWithOwner: "Qoalza/Design-portfolio-site", viewerPermission: "WRITE" }) };
+    if (command === "git" && args[0] === "config") return { stdout: "!/opt/homebrew/bin/gh auth git-credential\n" };
+    return { stdout: "ok\n" };
+  }});
+  assert.equal(result.ready, true);
+  assert.equal(deadlines.get("git remote get-url"), 10_000);
+  assert.equal(deadlines.get("git config --get-all"), 10_000);
+  assert.equal(deadlines.get("gh auth status"), 15_000);
+  assert.equal(deadlines.get("git ls-remote --exit-code"), 15_000);
+  assert.equal(deadlines.get("ssh -o BatchMode=yes"), 15_000);
+});
+
 test("live publish rejects a sandbox support root without making a release", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "des-art-live-guard-"));
   const jobFile = path.join(root, "job.json");
