@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const page = readFileSync(new URL("../src/app/behance-test/page.tsx", import.meta.url), "utf8");
+const iframePage = readFileSync(new URL("../src/app/behance-test/iframe/page.tsx", import.meta.url), "utf8");
+const iframeStyles = readFileSync(new URL("../src/app/behance-test/iframe/page.module.css", import.meta.url), "utf8");
 const widget = readFileSync(new URL("../src/components/behance-test-widget.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../src/components/behance-test-widget.module.css", import.meta.url), "utf8");
 
@@ -29,4 +31,15 @@ test("Behance test widget remains usable in a narrow or motion-reduced iframe", 
   assert.match(styles, /min-height:\s*520px/);
   assert.match(styles, /@media \(max-width:\s*720px\)/);
   assert.match(styles, /@media \(prefers-reduced-motion:\s*reduce\)/);
+});
+
+test("iframe preview mirrors the Behance test frame without adding a sandbox", () => {
+  assert.match(iframePage, /src="\/behance-test"/);
+  assert.match(iframePage, /width="1400"/);
+  assert.match(iframePage, /height="520"/);
+  assert.match(iframePage, /scrolling="no"/);
+  assert.doesNotMatch(iframePage, /sandbox=/);
+  assert.match(iframeStyles, /max-width:\s*1400px/);
+  assert.match(iframeStyles, /height:\s*520px/);
+  assert.match(iframeStyles, /height:\s*620px/);
 });

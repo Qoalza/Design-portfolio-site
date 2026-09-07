@@ -120,7 +120,7 @@
 .actions { flex-wrap: wrap; justify-content: flex-end; gap: 20px; }
 
 @media (max-width: 720px) {
-  .widget { min-height: 560px; padding: 20px; }
+  .widget { min-height: 620px; padding: 20px; }
   .stage { min-height: 240px; }
   .layer { width: min(86vw, 440px); min-width: 0; height: 188px; }
   .footer { align-items: flex-start; flex-direction: column; }
