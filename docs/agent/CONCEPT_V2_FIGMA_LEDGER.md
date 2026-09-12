@@ -40,3 +40,17 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | `30894:424` | Code icon | Light / Dev / Code; 24 px frame; true 1 px rounded stroke vector | Exact Figma-exported SVG stored as `public/assets/code.svg`; used at the development node | matches | `get_design_context`; `figma_download_assets`; runtime href |
 | Published SVG source | Geometry and interaction | 1000×666.667 viewBox, seven nodes, three routes, interactive lens | Original route/node data retained; magnification now uses an SVG group transform and accounts for `meet` free fields | matches | source diff, pure coordinate tests, keyboard/pointer runtime check |
 | User contract | Pulse cadence and arrival | Random idle pause 2–3 s; terminal outline/glow 60 ms in + 240 ms fade; reverse arrives at opposite terminal; cancellation suppresses late arrival | Scheduler and terminal-only SVG animation implement the same timings and cancellation | matches | deterministic scheduler test and runtime pulse observation |
+
+## Project card
+
+| Figma node | Property | Enable | Hover | Implementation / verification |
+|---|---|---|---|---|
+| `3110:65334`, `3110:65333` | Card geometry | 638.5×613 px; top 329 px; bottom 284 px | unchanged | Exact runtime rects at 1440×900 |
+| `3110:65164`, `3110:65198` | Main layout | padding 24 px top, 56 px sides, 48 px bottom; gap 32 px | unchanged | Exact CSS and runtime rects |
+| `3110:65161`, `3110:65195` | Back image wrapper | left center +78.8; bottom 44.27; 406.612×339.46; image 385.696×313.318; rotate 4° | left center +79.96; bottom 87.15; 405.879×338.847; image 385×312.753; rotate 4°; blue shadow | Single persistent layer; computed values checked in both states |
+| `3110:65163`, `3110:65197` | Front image wrapper | left center −19.75; bottom 20.9; 483.975×396.206; image 471×380; rotate −2°; neutral shadow | left center −47.25; bottom 46.98; 519.311×441.916; image 471×380.064; rotate −8°; blue + neutral shadows | Single persistent layer; computed transforms/shadows checked |
+| `3110:65162`, `3110:65196` | Shade | radial neutral shade visible | transparent | One layer transitions opacity 150 ms Ease In |
+| `3110:65193` | Preview glow | none | Figma radial blue glow with inspected stops | Dedicated same-tree layer transitions opacity 150 ms Ease In |
+| `3116:67014`, `3116:67021` | Accent divider | `#1d90eb`, x=80…557.5 in a 637.5 px line | `#1d90eb`, x=0…637.5 | Centered scale 0.749→1 in 150 ms Ease In; source SVGs compared directly |
+| `3110:65169`, `3110:65203` | Description | Onest 350 16/24, `#adb3b8` | same type, `#dadde0` | Color transitions 150 ms Ease In |
+| User contract | State mechanics | one layer tree; links/buttons active | hover and keyboard focus are equivalent | `:hover` and `:focus-within` verified independently; no hidden alternate preview |

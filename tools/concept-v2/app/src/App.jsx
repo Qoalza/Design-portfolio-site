@@ -34,12 +34,13 @@ function Hero(){
 function SectionTitle({eyebrow,title,children,className='',id}){
  return <div className={`section-title ${className}`}><p className="eyebrow">{eyebrow}</p><h2 id={id}>{title}</h2><div className="section-description">{children}</div></div>;
 }
-function ProjectCard({second=false}){
- return <article className={`project ${second?'second':''}`}>
+function ProjectCard(){
+ return <article className="project">
   <div className="project-preview" aria-label="Интерфейс Corvo">
-   <img className="project-back" src="/figma/imgDesktop3.png" alt="" loading="lazy"/>
+   <div className="project-divider"/><div className="project-glow"/>
+   <div className="project-back-layer"><img className="project-back" src="/figma/imgDesktop3.png" alt="" loading="lazy"/></div>
    <div className="project-shade"/>
-   <img className="project-front" src="/figma/imgDesktop4.png" alt="Corvo — управление партнёрской программой, таблица компаний" loading="lazy"/>
+   <div className="project-front-layer"><img className="project-front" src="/figma/imgDesktop4.png" alt="Corvo — управление партнёрской программой, таблица компаний" loading="lazy"/></div>
   </div>
   <div className="project-main"><div className="project-info"><h3>Corvo<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/></h3><p>{description}</p></div><div className="project-actions"><ControlButton href="https://art-des.ru/projects/corvo" external>Подробнее</ControlButton><ControlButton variant="ghost" href={corvoFigma} external iconRight="imgColor7">Figma</ControlButton></div></div>
  </article>;
@@ -59,5 +60,5 @@ function Process(){
  </section>;
 }
 export default function App(){
- return <><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><img className="texture texture-top" src="/figma/imgImage20.png" alt=""/><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard second/></div></section><Process/></div></div><section className="experience"><div className="experience-inner"><SectionTitle eyebrow="ОПЫТ" title="Где я работал"><p>Большую часть опыта проработал продуктовым дизайнером</p></SectionTitle></div></section></main><footer className="site-footer"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></footer></>;
+ return <><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><img className="texture texture-top" src="/figma/imgImage20.png" alt=""/><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><section className="experience"><div className="experience-inner"><SectionTitle eyebrow="ОПЫТ" title="Где я работал"><p>Большую часть опыта проработал продуктовым дизайнером</p></SectionTitle></div></section></main><footer className="site-footer"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></footer></>;
 }
