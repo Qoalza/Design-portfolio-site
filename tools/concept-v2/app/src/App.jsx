@@ -1,9 +1,10 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {ControlButton,NavigationTab,Icon} from './Controls';
 import {SvgLens} from './SvgLens';
 import {MobileNavigation} from './MobileNavigation';
 import {getHeroVariant} from './hero-layout.mjs';
 import {Experience} from './Experience';
+import {randomEdgePoint} from './process-fill.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -46,14 +47,34 @@ function ProjectCard(){
   <div className="project-main"><div className="project-info"><h3>Corvo<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/></h3><p>{description}</p></div><div className="project-actions"><ControlButton href="https://art-des.ru/projects/corvo" external>Подробнее</ControlButton><ControlButton variant="ghost" href={corvoFigma} external iconRight="imgColor7">Figma</ControlButton></div></div>
  </article>;
 }
+function ProcessStep({step,index}){
+ const [active,setActive]=useState(false);
+ const [origin,setOrigin]=useState({x:0,y:0});
+ const pointer=useRef(false),focus=useRef(false),settledOutside=useRef(true),exitTimer=useRef();
+ useEffect(()=>()=>clearTimeout(exitTimer.current),[]);
+ function begin(source){
+  if(source==='pointer')pointer.current=true;else focus.current=true;
+  clearTimeout(exitTimer.current);
+  if(settledOutside.current){setOrigin(randomEdgePoint());settledOutside.current=false;}
+  setActive(true);
+ }
+ function end(source){
+  if(source==='pointer')pointer.current=false;else focus.current=false;
+  if(pointer.current||focus.current)return;
+  setActive(false);
+  clearTimeout(exitTimer.current);
+  exitTimer.current=setTimeout(()=>{settledOutside.current=true},150);
+ }
+ return <article className={`step step-${index+1} ${active?'is-fill-active':''}`} tabIndex={0} aria-label={step.title} onPointerEnter={()=>begin('pointer')} onPointerLeave={()=>end('pointer')} onFocus={()=>begin('focus')} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))end('focus')}}>
+  <span className="step-icon" aria-hidden="true" style={{'--fill-x':`${origin.x}px`,'--fill-y':`${origin.y}px`,'--icon-mask':`url('/figma/process-mask-${index+1}.svg')`}}><img className="step-icon-base" src={`/figma/${step.image}.svg`} width="64" height="64" alt=""/><i className="step-icon-fill"/></span>
+  <div className="step-number"><span>0{index+1}</span><img src={`/figma/${step.dots}.svg`} width={step.width} height="5" alt=""/></div>
+  <div className="step-text"><h3>{step.title}</h3><p>{step.description}</p></div>
+ </article>;
+}
 function Process(){
  return <section className="process-section" aria-labelledby="process-title">
   <div className="process-heading"><SectionTitle id="process-title" eyebrow="ПРОЦЕСС" title="Как я работаю"><p>Сначала разбираюсь в продукте, бизнесе и самой задаче. Затем выбираю подходящие методы, собираю решение в систему и довожу его до продакшена.</p></SectionTitle><p className="tech-note">// от задачи, до работающего продукта</p></div>
-  <div className="steps">{steps.map((s,i)=><article className={`step step-${i+1}`} key={s.title} tabIndex={0} aria-label={s.title}>
-   <img className="step-icon" src={`/figma/${s.image}.svg`} width="64" height="64" alt=""/>
-   <div className="step-number"><span>0{i+1}</span><img src={`/figma/${s.dots}.svg`} width={s.width} height="5" alt=""/></div>
-   <div className="step-text"><h3>{s.title}</h3><p>{s.description}</p></div>
-  </article>)}</div>
+  <div className="steps">{steps.map((step,index)=><ProcessStep key={step.title} step={step} index={index}/>)}</div>
   <div className="ai-section"><SectionTitle eyebrow="ИНСТРУМЕНТЫ" title="AI в рабочем процессе"><p>Использую AI, как рабочий инструмент, для ускорения исследований, прототипирования, проверки решений/гипотез и разработки.</p></SectionTitle><div className="ai-tools"><div className="tools-list">
    <div className="tool"><div className="tool-icon"><img src="/figma/imgIcon.svg" width="32" height="32" alt=""/></div><div><h3>ChatGPT</h3><p>Анализ, проверка идей, составление планов</p></div></div>
    <div className="tool"><div className="tool-icon"><img src="/figma/imgIcon1.svg" width="32" height="32" alt=""/></div><div><h3>Codex</h3><p>Прототипы и рабочие инструменты</p></div></div>

@@ -76,3 +76,16 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | User contract | Scroll mechanics | document scroll; 1 horizontal px / 1.5 vertical px; no wheel interception | 1615 px horizontal / 1076.667 px vertical; passive scroll listener; existing Lenis remains the only continuous RAF | matches |
 | User contract | Motion blur | 0 through 100 px/s, linear to 0.6 px at 1800 px/s, clears in 80 ms | Derived only from measured horizontal delta/time; reduced motion forces zero | deterministic tests and runtime clear state |
 | User contract | Resize | preserve active normalized progress | Resize recomputes layout and restores the same normalized document position | 0.6789 preserved from 900→1080 px runtime |
+
+## Process icon fill
+
+| Figma node | Property | Current Figma value / binding | Implementation | Status / verification |
+|---|---|---|---|---|
+| `3075:60247` | Step row | 1278×365; three columns 415 / 446 / 415; clipped | Existing responsive row retained | matches at desktop runtime |
+| `3075:60248`, `3075:60265`, `3075:60283` | Card layout | height 364; padding 56; main vertical gap 48 | Existing source layout retained | matches |
+| `3075:60249`, `3075:60266`, `3075:60284` | Icon frame | 64×64, no visible fill, clips content | 64×64 wrapper remains the clipping frame at desktop | matches; runtime rect 64×64 |
+| icon vector children | Line geometry | Folder, system and send outlines plus internal lines; separate construction grid | Exact path data is isolated into three line-only SVG masks; base exports remain visible | matches source vector paths; fill cannot affect frame background |
+| User contract | Desktop motion | no movement or rotation | All icon transforms are forced to `none` | matches; computed runtime transform |
+| User contract | Fill origin | random point on one of four frame edges for each settled new hover/focus; fixed during state | Pure edge sampler uses the full 64 px coordinate space; quick re-entry retains the previous origin until the 150 ms exit settles | deterministic tests and runtime origin on top edge |
+| User contract | Fill timing | in/out 150 ms Ease In; hover and keyboard focus equivalent | Typed CSS radius expands through the line mask; pointer and focus share one state | matches; runtime focus fill radius 96 px |
+| User contract | Reduced motion | final state only; no decorative transitions or blur | Icon/card transitions disabled and experience blur forced off under `prefers-reduced-motion` | stylesheet inspection and build |
