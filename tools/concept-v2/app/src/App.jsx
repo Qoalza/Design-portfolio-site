@@ -1,6 +1,8 @@
+import {useEffect,useState} from 'react';
 import {ControlButton,NavigationTab,Icon} from './Controls';
 import {SvgLens} from './SvgLens';
 import {MobileNavigation} from './MobileNavigation';
+import {getHeroVariant} from './hero-layout.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -18,13 +20,15 @@ function Header(){
  </div></header>;
 }
 function Hero(){
- return <section className="hero" aria-labelledby="hero-title">
+ const [layout,setLayout]=useState(()=>getHeroVariant(typeof window==='undefined'?0:window.innerHeight));
+ useEffect(()=>{const update=()=>setLayout(getHeroVariant(window.innerHeight));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
+ return <section className="hero" data-layout={layout} aria-labelledby="hero-title">
   <img className="texture texture-bottom" src="/figma/imgImage21.png" alt=""/>
   <div className="hero-main"><div className="hero-layout">
    <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="imgColor3">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens/></div>
   </div></div>
-  <div className="hero-bottom"><div className="hero-bottom-inner"><div className="disciplines">{['Design systems','Data-heavy','Enterprise systems','B2B','SaaS'].map((s,i)=><span key={s}>{i>0&&<b aria-hidden="true">•</b>}{s}</span>)}</div><ControlButton variant="ghost" href="#projects" iconRight="imgColor5">К работам</ControlButton></div></div>
+  <div className="hero-bottom"><div className="hero-bottom-inner"><div className="disciplines">{['Design systems','Data-heavy','Enterprise systems','B2B','SaaS'].map((s,i)=><span key={s}>{i>0&&<b aria-hidden="true">•</b>}{s}</span>)}</div><ControlButton className="legacy-works-link" variant="ghost" href="#projects" iconRight="imgColor5">К работам</ControlButton><dl className="hero-facts">{[['ВОЗРАСТ','29 лет'],['ГОРОД','Екатеринбург'],['УРОВЕНЬ','Senior'],['СТАЖ','7 лет']].map(([term,value])=><div key={term}><dt>{term}</dt><dd>{value}</dd></div>)}</dl></div></div>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){
@@ -55,5 +59,5 @@ function Process(){
  </section>;
 }
 export default function App(){
- return <><a className="skip-link" href="#projects">Перейти к проектам</a><img className="texture texture-top" src="/figma/imgImage20.png" alt=""/><Header/><main><Hero/><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard second/></div></section><Process/></div></div><section className="experience"><div className="experience-inner"><SectionTitle eyebrow="ОПЫТ" title="Где я работал"><p>Большую часть опыта проработал продуктовым дизайнером</p></SectionTitle></div></section></main><footer className="site-footer"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></footer></>;
+ return <><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><img className="texture texture-top" src="/figma/imgImage20.png" alt=""/><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard second/></div></section><Process/></div></div><section className="experience"><div className="experience-inner"><SectionTitle eyebrow="ОПЫТ" title="Где я работал"><p>Большую часть опыта проработал продуктовым дизайнером</p></SectionTitle></div></section></main><footer className="site-footer"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></footer></>;
 }

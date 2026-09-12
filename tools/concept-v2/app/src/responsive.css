@@ -2,6 +2,8 @@
 .mobile-navigation,.touch-explore{display:none}
 
 @media(max-width:1279px){
+ .hero-shell{height:auto;min-height:0}
+ .hero{height:auto}
  .header-row{width:calc(100% - 48px)}
  .header-row>nav{padding-inline:24px}
  .availability{display:none}
@@ -18,10 +20,23 @@
  .project-shade{width:74.08%;height:94.77%;right:4.93%;top:7.5%}
  .project.second .project-shade{right:1.4%;top:6.35%}
  .hero-bottom-inner{gap:16px}
+ .hero-bottom{height:60px;display:block;padding-bottom:24px;border-top:0}
+ .hero-bottom-inner{height:36px;width:calc(100% - 64px);max-width:1200px;margin:auto;border:0;display:flex;flex-direction:row;align-items:center;justify-content:space-between}
+ .hero-facts{display:none}
+ .legacy-works-link{display:inline-flex}
+ .disciplines{height:auto;flex:initial;border:0;background:transparent;justify-content:flex-start;gap:12px;font-family:Onest,sans-serif;letter-spacing:-.1px;color:var(--muted)}
+ .disciplines span{gap:12px}
  .disciplines{flex-wrap:wrap;row-gap:8px}
  .process-heading{align-items:flex-start;flex-direction:column;gap:24px}
  .process-heading .section-title{max-width:680px}
  .process-heading .tech-note{margin-left:0;max-width:none}
+}
+
+@media(min-width:1280px) and (max-height:780px){
+ .hero-layout{gap:16px}
+ .hero-graph{width:650px;flex-basis:650px}
+ .hero-graph .process-map{height:408px}
+ .hero-graph .process-caption{margin-bottom:12px}
 }
 
 @media(max-width:1099px){

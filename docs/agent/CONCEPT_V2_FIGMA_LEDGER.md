@@ -25,3 +25,18 @@ This ledger records only values inspected from current Figma data. Screenshots a
 - Published prototype source reference: `8b39e5e9600e53269d69e373d33d770b6f2ba28a`.
 - `tools/concept-v2/source.tar.gz` SHA-256: `d3a2dc3d984c5c78289992853361616056dd5d9afa0f3dbf17572f0375476caf`.
 - The archive and `public/concept-v2/**` remain immutable reference artifacts; implementation lives in `tools/concept-v2/app/**`.
+
+## Hero and published process schema
+
+| Figma node | Property | Current Figma value / binding | Implementation | Status | Verification |
+|---|---|---|---|---|---|
+| `3125:81641` | Large composition | Vertical; content max-width 1200 px; horizontal padding 24 px; main gap 64 px | Height-driven `data-layout="large"`; same max-width, padding and gap | matches | `get_design_context`; runtime at 2560×1440 and 1920×1600 |
+| `3125:81641` | Large title block | Width 751 px; title 56/68 Google Sans; intro 20/36 Onest; text/action spacing 72 px | Same geometry, typography and spacing | matches | `get_design_context`; computed runtime styles |
+| `3125:81641` | Large schema placement | 947×594 px; caption below with 24 px gap | Published SVG rendered at 947×594; caption below | matches | `get_design_context`; runtime rects |
+| `3125:81642` | Small composition | Horizontal; max-width 1200 px; padding 24 px; gap 24 px; name hidden | Same; selected for viewport height below 1300 px | matches | `get_design_context`; runtime at 1920×1080 and 1440×900 |
+| `3125:81642` | Small schema placement | Caption above; 24 px gap; schema 720×452 px | Same placement and size | matches | `get_design_context`; runtime rects |
+| `3125:81641`, `3125:81642` | Header | 80 px high; max-width 1200 px; Library tabs/buttons | Existing accessible header retained and aligned to Library V2 tokens | structural equivalent | source instance tree and Library component contexts |
+| `3125:81641`, `3125:81642` | Lower strip | 171 px total; disciplines row above four equal facts; inner width 1280 px; fact padding 24×40 px | Same hierarchy, heights, widths, separators and text styles | matches | `get_design_context`; runtime rects |
+| `30894:424` | Code icon | Light / Dev / Code; 24 px frame; true 1 px rounded stroke vector | Exact Figma-exported SVG stored as `public/assets/code.svg`; used at the development node | matches | `get_design_context`; `figma_download_assets`; runtime href |
+| Published SVG source | Geometry and interaction | 1000×666.667 viewBox, seven nodes, three routes, interactive lens | Original route/node data retained; magnification now uses an SVG group transform and accounts for `meet` free fields | matches | source diff, pure coordinate tests, keyboard/pointer runtime check |
+| User contract | Pulse cadence and arrival | Random idle pause 2–3 s; terminal outline/glow 60 ms in + 240 ms fade; reverse arrives at opposite terminal; cancellation suppresses late arrival | Scheduler and terminal-only SVG animation implement the same timings and cancellation | matches | deterministic scheduler test and runtime pulse observation |

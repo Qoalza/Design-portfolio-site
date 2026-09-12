@@ -11,7 +11,7 @@ html,body{background:#18191A}
    paint-contained to the map rectangle, which creates a hard inner edge. */
 .lens-window{position:absolute;inset:0;pointer-events:none;background:transparent;clip-path:circle(var(--visible-radius) at var(--lx) var(--ly))}
 .lens-backing{position:absolute;left:var(--lx);top:var(--ly);width:calc(var(--radius)*2 + 2px);height:calc(var(--radius)*2 + 2px);transform:translate(-50%,-50%);background:#18191A;pointer-events:none}
-.magnified-map{position:absolute;inset:0;transform:scale(1.55);transform-origin:var(--lx) var(--ly);background:transparent}
+.magnified-map{position:absolute;inset:0;background:transparent}
 .magnified-map>.network{filter:url(#blue-network);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent);mask-composite:intersect}
 .revealed-node{position:absolute;width:38px;height:38px;transform:translate(-50%,-50%);display:grid;place-items:center;background:#202733;border:1px solid #4a94f4;border-radius:50%}
 .revealed-node img{width:22px;height:22px;object-fit:contain;filter:brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(1477%) hue-rotate(185deg) brightness(99%) contrast(94%)}

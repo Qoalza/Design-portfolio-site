@@ -9,5 +9,7 @@
 .vector-mode .lens-backing{background:#1a2029}
 .vector-network .route-pulse{stroke:#65adff;filter:drop-shadow(0 0 1.5px #4098ff60);pointer-events:none}
 .vector-network .pulse-segment{animation:route-current 1.5s linear both}
+.vector-network .terminal-arrival{fill:none;stroke:#65adff;stroke-width:1.2;filter:drop-shadow(0 0 7px #4098ff);animation:terminal-arrival 300ms linear both;pointer-events:none}
 @keyframes route-current{from{stroke-dashoffset:var(--pulse-from)}to{stroke-dashoffset:var(--pulse-to)}}
+@keyframes terminal-arrival{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.vector-network .route-pulse{display:none;animation:none}}
