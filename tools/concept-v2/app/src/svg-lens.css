@@ -1,0 +1,13 @@
+.vector-mode .vector-network{overflow:visible;opacity:1;filter:none;mask-image:none}
+.vector-network .construction{stroke:#6d7784;opacity:.32}
+.vector-network .routes,.vector-network .network-nodes{stroke:#717980}
+.vector-network .network-nodes{fill:#18191a}
+.vector-network.is-revealed .routes,.vector-network.is-revealed .network-nodes{stroke:#4a94f4}
+.vector-network.is-revealed .network-nodes{fill:#1c2430}
+.vector-network.is-revealed .construction{stroke:#638bc2;opacity:.38}
+.vector-network .node-icon{filter:brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(1477%) hue-rotate(185deg) brightness(99%) contrast(94%)}
+.vector-mode .lens-backing{background:#1a2029}
+.vector-network .route-pulse{stroke:#65adff;filter:drop-shadow(0 0 1.5px #4098ff60);pointer-events:none}
+.vector-network .pulse-segment{animation:route-current 1.5s linear both}
+@keyframes route-current{from{stroke-dashoffset:var(--pulse-from)}to{stroke-dashoffset:var(--pulse-to)}}
+@media(prefers-reduced-motion:reduce){.vector-network .route-pulse{display:none;animation:none}}
