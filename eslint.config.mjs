@@ -4,6 +4,7 @@ import nextTypescript from "eslint-config-next/typescript";
 const eslintConfig = [
   {
     ignores: [
+      "public/concept-v2/**",
       "tools/des-art-admin/public/admin.js",
       "dist/Des-art Admin.app/Contents/Resources/source/**",
       ".next-admin-preview/**",
