@@ -54,3 +54,25 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | `3116:67014`, `3116:67021` | Accent divider | `#1d90eb`, x=80…557.5 in a 637.5 px line | `#1d90eb`, x=0…637.5 | Centered scale 0.749→1 in 150 ms Ease In; source SVGs compared directly |
 | `3110:65169`, `3110:65203` | Description | Onest 350 16/24, `#adb3b8` | same type, `#dadde0` | Color transitions 150 ms Ease In |
 | User contract | State mechanics | one layer tree; links/buttons active | hover and keyboard focus are equivalent | `:hover` and `:focus-within` verified independently; no hidden alternate preview |
+
+## Experience
+
+| Figma node | Property | Current Figma value / binding | Implementation | Status / verification |
+|---|---|---|---|---|
+| `3088:64107` | Section frame | 1440×1644; rows 240 / 1164 / 240 | Sticky viewport uses the contracted adaptive row algorithm | exact at 1644; computed at all acceptance heights |
+| `3075:60331`, `3116:67190` | Outer fields | 1440×240 each; 1280 px patterned inner field | Exact node exports used as local decorative assets after hierarchy/size inspection | matches |
+| `3084:63865`, `3142:82981` | Center | source center 1164; 906 px inner composition centered with 129 px free space | Same source values; free space is consumed before internal gaps | matches at 1644; pure layout tests |
+| `3084:63866` | Heading | 1280×112; side padding 48; horizontal gap 4; title 36/48; tech note right | Same hierarchy, geometry and type | matches |
+| `3116:67342`, `3108:64566` | Tape composition | 1440×746; top 24; timeline 530; progress gap 108; bottom 80 | Same; variables adapt in the explicit order 24→0, 108→24, 80→24 after free space | matches; runtime variables at 1600, 1280 and 720 heights |
+| `3108:64584` | Current card | x 148, y 78, 288×216, vertical gap 24 | Same position/content/status rings | matches |
+| `3108:64599` | Eyeconweb | x 522, y 258, 280×244, gap 22 | Same position/content | matches |
+| `3108:64616` | Freelance | x 907, y 0, 280×244, gap 22 | Same position/content | matches |
+| `3108:64633` | Vexel | x 1310, y 179, 280×244, gap 22 | Same position/content | matches |
+| `3108:64650` | Agima | x 1729, y 36, 280×244, gap 22 | Same position/content | matches |
+| `3108:64667` | Career start | x 2195, y 183, 280×244, gap 22 | Same position/content; centered at final progress for every tested width | matches |
+| `3108:64579`…`3108:64583` | Connector geometry | Five exact rounded SVG segments at their source coordinates | Path data copied from exact Figma SVG exports; path-length reveal is sequential | matches; all offsets are zero at progress 1 |
+| `3108:64684` | Right fade | x 1160, width 280, full 530 height; `#131414` at 3.31% to transparent | Same fixed viewport overlay; final card is centered outside its affected edge | matches |
+| `3108:64685` | Progress | 296×4, radius 2, `#232526` | One normalized progress controls path, tape, fill and indicator | matches; midpoint/end runtime evidence |
+| User contract | Scroll mechanics | document scroll; 1 horizontal px / 1.5 vertical px; no wheel interception | 1615 px horizontal / 1076.667 px vertical; passive scroll listener; existing Lenis remains the only continuous RAF | matches |
+| User contract | Motion blur | 0 through 100 px/s, linear to 0.6 px at 1800 px/s, clears in 80 ms | Derived only from measured horizontal delta/time; reduced motion forces zero | deterministic tests and runtime clear state |
+| User contract | Resize | preserve active normalized progress | Resize recomputes layout and restores the same normalized document position | 0.6789 preserved from 900→1080 px runtime |

@@ -3,6 +3,7 @@ import {ControlButton,NavigationTab,Icon} from './Controls';
 import {SvgLens} from './SvgLens';
 import {MobileNavigation} from './MobileNavigation';
 import {getHeroVariant} from './hero-layout.mjs';
+import {Experience} from './Experience';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -60,5 +61,5 @@ function Process(){
  </section>;
 }
 export default function App(){
- return <><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><img className="texture texture-top" src="/figma/imgImage20.png" alt=""/><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><section className="experience"><div className="experience-inner"><SectionTitle eyebrow="ОПЫТ" title="Где я работал"><p>Большую часть опыта проработал продуктовым дизайнером</p></SectionTitle></div></section></main><footer className="site-footer"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></footer></>;
+ return <><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><img className="texture texture-top" src="/figma/imgImage20.png" alt=""/><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><Experience/></main><footer className="site-footer"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></footer></>;
 }
