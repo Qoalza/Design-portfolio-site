@@ -1,9 +1,9 @@
 # Concept V2 — stage-one corrective QA
 
-Status: `READY_FOR_REVIEW`
+Status: `IN_PROGRESS`
 
 Baseline: `19bf69b4c1c04d91b4a536cf8e63bae6d62fb423`
-Corrective implementation: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, review fix `5177616c66208c93b09c1a52cb6cf13c8943004e`, browser-comment follow-up `2530a86`, acceptance coverage `d97aa0d` and `f5ecabf`
+Corrective implementation: previous series through `f5ecabf`; current fixes `223e4b0`, `8687286`, `6a035f8`, `009ee7a`
 Runtime: `http://127.0.0.1:43189/`
 Figma access: read-only; no Figma writes were made.
 
@@ -12,22 +12,24 @@ Figma access: read-only; no Figma writes were made.
 | Area | Exact source | Confirmed source facts | Corrective result |
 |---|---|---|---|
 | Hero | `3125:81641`, `3125:81642`, lower strip `3116:66642` | Large/Small compositions, direct children, 1300 px height boundary, local Google Sans/Onest roles, corner image crop, 24 px caption gap and lower side strokes | Uses the exact corner asset/crop; selected schema node changes icon, label and accent color with 150 ms fade/up 4 px; published schema remains in place; lower strokes restored |
-| Projects | `3075:60182`, cards `3110:65336`, `3110:65368` | Section 1278×1125, padding 120/80, gap 80; heading 1278×136 with side padding 56; grid 1278×709 with top padding 96; card 638.5×613; card and preview `clipsContent=false`, main `clipsContent=true` | Desktop geometry matches those values. Card/preview overflow is visible and only main clips. Below 1280 px the card and main use intrinsic height so the description and both controls cannot be cut off |
-| Experience | section `3088:64107`, tape `3116:67342`, states `3116:67337`…`3116:67340`, progress `3108:64685` | Source rows 240/1164/240; composition 906; heading 1280×112; five exact connector paths; active state colors/radii; progress 296×4, track `#232526`, fill `#1d90eb` plus 4 px blur duplicate, no knob | Correct connector coordinates/directions; 1615 px horizontal travel consumes 2422.5 px vertical travel; one selected storyboard item per completed fifth; exact selected colors/rings; exact no-knob progress; below 1280 px a complete static layout replaces the horizontal sticky mechanic |
+| Projects | `3075:60182`, cards `3110:65336`, `3110:65368`; exported shade `public/figma/project-shade.svg` | Section and card geometry as recorded in the ledger; card and preview `clipsContent=false`; shade export is 473×417 | Exact exported shade replaces the guessed CSS gradient, sits at top 33/right 31.5, and can extend below the preview; artwork remains above the divider |
+| Experience | section `3088:64107`, tape `3116:67342`, states `3116:67337`…`3116:67340`, progress `3108:64685` | Source rows and connector/progress geometry as recorded in the ledger; every reached item remains selected until reverse travel retreats past it | 1615 px horizontal travel consumes 4845 px vertical travel; reached states are cumulative in both directions; patterned fields retain their separation rules during compression; exact current-date marker correction is pending a fresh source read |
 | Process icons | `3075:60247`, `3075:60249`, `3075:60266`, `3075:60284` and current Library V2 icon children | 64×64 clipped frames, line-only vectors, no movement | Fill stays inside the real line masks, starts from one stable random frame edge and now uses the explicit user override of 200 ms Ease In |
-| Global scroll | Existing application Lenis root | A second RAF loop or wheel interception is forbidden | Still one Lenis loop, no wheel listener; wheel multiplier is 0.5 |
+| Global scroll | Existing application Lenis root | A second RAF loop, wheel interception, or page-wide speed modification is forbidden | Still one Lenis loop and no wheel listener; original `wheelMultiplier: 1` restored; slower experience pacing is isolated to its scroll-travel geometry |
 
 ## Root causes closed
 
 - The project card and preview contradicted Figma with `overflow:hidden`; responsive preview growth was also constrained by a fixed 613 px card height.
 - The preview divider had an explicit `z-index:6`, placing its one-pixel rule above both artwork layers; the layer stack is now glow 0, divider 1, back artwork 2, shade 3 and front artwork 4.
-- Experience used the inverse ratio (`1615 / 1.5`) instead of 1.5 vertical pixels per horizontal pixel.
-- Experience lacked the storyboard selection state and replaced the Figma progress glow with a knob.
+- Global Lenis scaling changed the speed of the whole page; the default multiplier is restored and the experience alone now uses 3 vertical pixels per horizontal pixel.
+- Experience previously selected only the frontier item; every reached item now stays selected, and reverse travel clears states cumulatively.
 - The first connector used the wrong x coordinate and two connector paths had the wrong direction/geometry.
 - The 1100–1279 px range disabled JS travel without activating the static layout; specific per-job offsets then overrode the attempted reset.
-- The root overflow and the original wheel multiplier contributed to broken sticky behavior and excessive perceived speed.
+- Root overflow contributed to broken sticky behavior; the later page-wide `wheelMultiplier: 0.5` workaround altered unrelated scrolling and has been removed.
 - Hero used the wrong corner treatment, a fixed caption icon/label and omitted the lower side strokes.
-- The experience date row forced 40 px around two 16 px lines separated by 12 px (44 px total), so the text escaped its box and the rail stretched incorrectly. The row now measures 44 px and centers the fixed 40 px rail with a 2 px offset.
+- The guessed CSS project shade ignored the exact exported SVG and was clipped to the preview; the exact 473×417 export is restored.
+- Centering a 240 px decorative image inside a compressed field cropped its built-in boundary; edge anchoring now preserves the separation rule.
+- The current-date marker is not closed: the existing approximation conflicts with reported runtime evidence, and exact child geometry/state values will not be invented from screenshots.
 
 ## Runtime evidence
 
@@ -36,9 +38,9 @@ Figma access: read-only; no Figma writes were made.
 - Projects at 1440×900: section height 1125; heading local top 120 and height 136; grid local top 336 and height 709; card 638.5×613. Focus state reached −8° front rotation, full blue divider, blue glow and secondary description color.
 - Projects in the ordinary unmodified app viewport: both controls remain visible after the image; the next card stays in document flow while rotated artwork may protrude from its non-clipping frame.
 - Projects at 1135×998 after the browser comment: computed stack order is divider 1, back artwork 2, shade 3, front artwork 4; the divider remains visible on the preview background and is occluded by both images.
-- Experience at 1440×900: sticky top 0; section height 3322.5; one wheel step after the 0.5 multiplier moved about 800 px rather than about 1595 px. At progress 0.2549 Eyeconweb was the sole selected item, with the exact selected colors and three node radii; progress had two blue layers and zero knob elements.
+- Experience at 1440×900: sticky top 0; local travel is 4845 px while global Lenis remains at multiplier 1. Reached items remained selected together and cleared in reverse; progress retained two blue layers and zero knob elements.
 - Experience at short 490 px height fit the full 490 px composition using the contracted compression order. Below 1280 px the live page rendered a complete static grid with all six jobs and no retained absolute offsets.
-- Experience at 1135×998 after the browser comment: current date row computed to 44 px, the rail to 40 px, `align-items:center`, and a 2 px rail top offset.
+- Experience at 1135×998 after the browser comment exposed the current date marker as an approximation; its computed 44/40 px boxes are diagnostic evidence, not proof of Figma fidelity.
 - Reverse travel, resize-progress preservation, keyboard focus parity and reduced-motion final states were covered by focused checks.
 - Full viewport matrix used the actual browser viewport: 2560×1440 and 1920×1600 selected Large with a 947×594 map; 1920×1080, 1440×900, 1280×720 and 1440×1299 selected Small with a 720×452 map, except the contracted low-height 1280×720 fit at 650×408. The 1440×1300 boundary selected Large. Every desktop sample had `scrollWidth === clientWidth`; 1279×900 retained the complete non-sticky adaptive layout.
 - Experience live travel at 1440×900 moved continuously from active index 0 to 5 and reversed to index 3; progress `0.6533` survived resize to 1920×1080 exactly. At progress 1 the last 280 px card was centered at x=720, outside the fade beginning at x=1160. At 1280×720 the sticky, heading, 530 px tape window and progress occupied one 720 px viewport without clipping; the last card centered at x=640 and remained fully visible as the footer entered.
@@ -48,10 +50,10 @@ Figma access: read-only; no Figma writes were made.
 
 ## Automated verification
 
-Final corrective run:
+Latest corrective run:
 
 - `npm run lint` — passed; 23 source files checked.
-- `npm test` — passed; 23/23 tests, including both pulse directions, cancellation, 60/240 ms terminal timing, all contracted experience heights, one Lenis instance and unmount cleanup.
+- `npm test` — passed; 24/24 tests, including both pulse directions, cancellation, 60/240 ms terminal timing, cumulative forward/reverse experience boundaries, local pacing, one Lenis instance and unmount cleanup.
 - `npm run build` — passed; 49 modules transformed.
 - `npm run check:browser` — passed against the built bundle on a local loopback server.
 - `git diff --check` — passed.
@@ -60,4 +62,4 @@ Final corrective run:
 
 1. Fidelity/completeness review found and fixed the responsive project-height clipping and the 1100–1279 experience breakpoint mismatch.
 2. Regression/scope review found and fixed both the per-job specificity leak that retained desktop `top/left` offsets in the static experience grid and the 150/200 ms mismatch that could move the icon fill origin during its final 50 ms. It confirmed no changes to Admin, shared contracts, published snapshot/archive, dependencies, Figma, production or deployment.
-3. Completion audit exercised the full viewport matrix and interaction contract in the live runtime, then closed missing deterministic coverage for pulse direction/cancellation/timing and runtime cleanup. No additional implementation divergence was found. A fresh Figma connector retry failed at transport level; no property was inferred from that failure, and the implementation remains grounded in the same-day current-source ledger captured before the outage.
+3. The current corrective audit invalidated the earlier completion claim for the date marker. Fresh exact-node reads failed at the Figma transport boundary; no missing property was inferred from screenshots. This dependent visual slice remains open while the independent verified corrections are committed.
