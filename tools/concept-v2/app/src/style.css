@@ -4,6 +4,9 @@
 @font-face{font-family:"Source Code Pro";src:url('/fonts/source-code-pro-variable.woff2') format('woff2');font-style:normal;font-weight:200 900;font-display:swap}
 :root{color-scheme:dark;--page:#17191a;--primary:#f2f4f5;--secondary:#dadde0;--tertiary:#adb3b8;--muted:#676e73;--border:#2e3133;--surface:#1d1e1f;font-family:Onest,sans-serif;color:var(--primary);background:var(--page);font-synthesis:none}
 *{box-sizing:border-box}html{scroll-behavior:smooth}html,body{margin:0;background:var(--page)}body{min-width:320px}#root{position:relative;overflow:clip}p,h1,h2,h3{margin:0}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit}button{font:inherit}img{display:block}main,.site-header,.site-footer{position:relative}section{scroll-margin-top:24px}
+html{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar{display:none;width:0;height:0}
+body::-webkit-scrollbar{display:none;width:0;height:0}
 .icon{display:inline-block;flex-shrink:0;background:currentColor;mask-repeat:no-repeat;mask-position:center;mask-size:100% 100%}
 .control,.nav-tab{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;gap:4px;white-space:nowrap;text-decoration:none;border:0;cursor:pointer;font:400 14px/16px Onest,sans-serif;letter-spacing:-.1px}
 .control{height:36px;padding:0 12px;border-radius:8px;background:var(--control-bg);color:var(--control-fg);box-shadow:inset 0 0 0 1px var(--control-border,transparent)}

@@ -27,3 +27,9 @@ test('scroll, resize, visibility, and pulse work is removed on unmount',async()=
   assert.match(pulse,/motion\.removeEventListener\('change',sync\)/);
   assert.match(pulse,/document\.removeEventListener\('visibilitychange',sync\)/);
 });
+
+test('native scrollbar never changes the layout viewport while Lenis stops',async()=>{
+  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+  assert.match(css,/html\{[^}]*scrollbar-width:none;[^}]*-ms-overflow-style:none/);
+  assert.match(css,/html::-webkit-scrollbar\{[^}]*display:none;[^}]*width:0;[^}]*height:0/);
+});
