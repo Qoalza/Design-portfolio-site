@@ -99,6 +99,15 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
  .step-text{gap:12px}
  .step-text p{color:var(--muted)}
 }
+
+/* AI strip: full-width Concept V2 panel with the 1280px central frame. */
+.body-sections{border-bottom:0}
+.ai-section{position:relative;display:flex;min-height:272px;margin:0;background:var(--page)}
+.ai-side{flex:1 1 0;min-width:0;box-shadow:inset 0 1px var(--border),inset 0 -1px var(--border);background:repeating-linear-gradient(135deg,transparent 0 14px,var(--border) 14px 15px)}
+.ai-panel{width:min(1280px,100%);min-height:272px;display:grid;grid-template-columns:520px minmax(0,1fr);background:var(--surface);box-shadow:inset 1px 0 var(--border),inset -1px 0 var(--border),inset 0 1px var(--border),inset 0 -1px var(--border)}
+.ai-panel>.section-title{padding:56px}.ai-title{gap:12px}.ai-title h2{font:500 24px/32px "Google Sans",sans-serif;letter-spacing:-.1px}.ai-title .section-description{max-width:408px}
+.ai-panel .ai-tools{min-height:270px;padding:56px;box-shadow:inset 1px 0 var(--border);display:flex;flex-direction:column;gap:16px;min-width:0}.ai-panel .tools-list{display:flex;flex-direction:column;gap:12px}.ai-panel .tool{display:flex;align-items:center;gap:16px}.ai-panel .tool-icon{width:56px;height:56px;padding:12px;background:#232526;box-shadow:inset 0 0 0 1px var(--border);border-radius:8px;flex:0 0 56px}.ai-panel .tool h3{font:500 16px/20px Onest,sans-serif;letter-spacing:-.2px;margin-bottom:4px}.ai-panel .tool p{font:350 16px/24px Onest,sans-serif;color:var(--tertiary)}
+.ai-panel .tech-note{padding-left:8px}
 .experience-dates{height:44px;align-items:flex-start}
 .date-rail{position:relative;width:32px;height:auto;align-self:stretch;padding-block:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;flex:0 0 32px;background:none;color:inherit}
 .date-rail::before,.date-rail::after{content:none}
