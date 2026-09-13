@@ -50,6 +50,8 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-node\{/);
   assert.match(css,/\.experience-dates\{height:44px;align-items:center\}/);
   assert.match(css,/\.date-rail\{height:40px;flex:0 0 32px\}/);
+  assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*background-position:center bottom/);
+  assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*background-position:center top/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;height:auto;display:block;overflow:visible\}/);
   assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);
