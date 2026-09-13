@@ -3,7 +3,7 @@ const MIN_COMPOSITION=694;
 const HORIZONTAL_TRAVEL=1615;
 
 export function experienceTravel(){
-  return {horizontal:HORIZONTAL_TRAVEL,vertical:HORIZONTAL_TRAVEL*1.5};
+  return {horizontal:HORIZONTAL_TRAVEL,vertical:HORIZONTAL_TRAVEL*3};
 }
 
 export function experienceLayout(viewportHeight){

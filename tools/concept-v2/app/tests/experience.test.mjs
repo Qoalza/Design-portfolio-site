@@ -32,8 +32,9 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(short.scale,490/694);
 });
 
-test('experience uses 1.5 vertical pixels for every horizontal pixel',()=>{
-  assert.deepEqual(experienceTravel(),{horizontal:1615,vertical:2422.5});
+test('experience uses 3 vertical pixels for every horizontal pixel',()=>{
+  assert.deepEqual(experienceTravel(),{horizontal:1615,vertical:4845});
+  assert.ok(800/experienceTravel().vertical<.2);
 });
 
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
