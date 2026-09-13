@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import {readFile} from 'node:fs/promises';
+import path from 'node:path';
 
 import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layout.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
@@ -45,4 +47,51 @@ test('route pulses wait 2–3 seconds and arrive only at their direction termina
   assert.equal(scheduled[2].delay,2000);
   stop();
   assert.ok(cancelled.length>=1);
+});
+
+test('forward route arrival targets the opposite terminal',()=>{
+  const scheduled=[];
+  const arrivals=[];
+  const randomValues=[0,0,.75,0];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:()=>{},
+    arrive:event=>arrivals.push(event),
+    random:()=>randomValues.shift(),
+    schedule,
+    cancel:()=>{},
+  });
+
+  scheduled[0].callback();
+  scheduled[1].callback();
+  assert.equal(arrivals[0].node,'b');
+});
+
+test('cancelled pulse cannot emit a late arrival or schedule another route',()=>{
+  const scheduled=[];
+  const cancelled=[];
+  const arrivals=[];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  const stop=schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:()=>{},
+    arrive:event=>arrivals.push(event),
+    random:()=>0,
+    schedule,
+    cancel:id=>cancelled.push(id),
+  });
+
+  scheduled[0].callback();
+  stop();
+  assert.ok(cancelled.includes(scheduled[1].id));
+  scheduled[1].callback();
+  assert.deepEqual(arrivals,[]);
+  assert.equal(scheduled.length,2);
+});
+
+test('terminal highlight uses 60ms reveal and 240ms fade',async()=>{
+  const css=await readFile(path.resolve(import.meta.dirname,'../src/svg-lens.css'),'utf8');
+  assert.match(css,/\.terminal-arrival\{[^}]*animation:terminal-arrival 300ms linear both/);
+  assert.match(css,/@keyframes terminal-arrival\{0%\{opacity:0\}20%\{opacity:1\}100%\{opacity:0\}\}/);
 });
