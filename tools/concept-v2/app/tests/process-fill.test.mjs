@@ -22,5 +22,6 @@ test('process icon and background fill use the user-approved 400ms duration',asy
   const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
   assert.match(css,/\.step-icon::before\{[^}]*#0378d6[^}]*transition:--fill-radius 400ms/);
   assert.match(css,/\.step-icon-fill\{transition-duration:400ms\}/);
+  assert.match(css,/\.step\.is-fill-active \.step-icon::before,\.step\.is-fill-active \.step-icon-fill\{--fill-radius:96px\}/);
   assert.match(app,/exitTimer\.current=setTimeout\(\(\)=>\{settledOutside\.current=true\},200\)/);
 });
