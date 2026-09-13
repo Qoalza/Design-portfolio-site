@@ -19,5 +19,7 @@ test('edge origin stays inside the full 64px icon frame',()=>{
 
 test('process icon fill uses the user-approved 200ms duration',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
   assert.match(css,/\.step-icon-fill\{transition-duration:200ms\}/);
+  assert.match(app,/exitTimer\.current=setTimeout\(\(\)=>\{settledOutside\.current=true\},200\)/);
 });
