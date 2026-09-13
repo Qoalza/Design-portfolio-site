@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {activeExperienceIndex,experienceLayout,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -32,9 +33,30 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(short.scale,490/694);
 });
 
-test('experience uses 3 vertical pixels for every horizontal pixel',()=>{
-  assert.deepEqual(experienceTravel(),{horizontal:1615,vertical:4845});
+test('experience uses 6 vertical pixels for every horizontal pixel',()=>{
+  assert.deepEqual(experienceTravel(),{horizontal:1615,vertical:9690});
   assert.ok(800/experienceTravel().vertical<.2);
+});
+
+test('entry gate discards the entering gesture and releases the first delta after 120ms idle',()=>{
+  let armed;
+  const scheduled=[];
+  const gate=createExperienceEntryGate({
+    schedule(callback,delay){scheduled.push({callback,delay});return scheduled.length;},
+    cancel(){},
+    onStateChange(state){armed=state;},
+  });
+  assert.equal(ENTRY_GESTURE_IDLE_MS,120);
+  gate.capture();
+  assert.equal(armed,'holding');
+  assert.equal(scheduled.at(-1).delay,120);
+  assert.equal(gate.onVirtualScroll(),false);
+  scheduled.at(-1).callback();
+  assert.equal(gate.state,'armed');
+  assert.equal(gate.onVirtualScroll(),true);
+  assert.equal(gate.state,'released');
+  gate.reset();
+  assert.equal(gate.state,'idle');
 });
 
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{

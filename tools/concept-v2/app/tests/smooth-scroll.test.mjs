@@ -3,12 +3,14 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import path from 'node:path';
 
-test('the single root Lenis loop preserves the published wheel input without intercepting it',async()=>{
+test('the single root Lenis loop owns wheel input without a duplicate native listener',async()=>{
   const source=await readFile(path.resolve(import.meta.dirname,'../src/SmoothScroll.jsx'),'utf8');
   assert.equal(source.match(/new Lenis\(/g)?.length,1);
   assert.match(source,/autoRaf:false,smoothWheel:true,syncTouch:false,/);
   assert.match(source,/lerp:\.1,wheelMultiplier:1,stopInertiaOnNavigate:true/);
   assert.doesNotMatch(source,/addEventListener\(['"]wheel/);
+  assert.match(source,/publishSmoothScroll\(lenis\)/);
+  assert.match(source,/publishSmoothScroll\(undefined\)/);
   assert.match(source,/cancelAnimationFrame\(frame\)/);
   assert.match(source,/lenis\?\.destroy\(\)/);
 });
