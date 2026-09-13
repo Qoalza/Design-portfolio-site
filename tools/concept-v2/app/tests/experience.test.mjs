@@ -126,7 +126,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/#root\{overflow:visible\}/);
   assert.match(css,/\.experience\{overflow:visible\}/);
   assert.match(css,/\.experience-path\.line-128\{left:192px\}/);
-  assert.match(css,/\.experience-progress\{[^}]*width:296px;[^}]*height:4px/);
+  assert.match(css,/\.experience-progress\{[^}]*width:296px;[^}]*height:2px/);
   assert.match(css,/\.experience-progress-fill,\.experience-progress-glow\{[^}]*background:#1d90eb/);
   assert.doesNotMatch(source,/className="experience-progress"[^\n]*<i/);
   assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-node\{/);
