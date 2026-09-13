@@ -1,4 +1,5 @@
 export const ENTRY_GESTURE_IDLE_MS=120;
+export const ENTRY_GESTURE_MAX_HOLD_MS=600;
 
 export function createExperienceEntryGate({
   schedule=setTimeout,
@@ -6,30 +7,45 @@ export function createExperienceEntryGate({
   onStateChange=()=>{},
 }={}){
   let state='idle';
-  let timer;
+  let idleTimer;
+  let maximumTimer;
   let generation=0;
+  let idleGeneration=0;
   const setState=next=>{
     state=next;
     onStateChange(state);
   };
   const scheduleArm=()=>{
-    generation+=1;
-    const scheduledGeneration=generation;
-    cancel(timer);
-    timer=schedule(()=>{
-      if(state==='holding'&&generation===scheduledGeneration)setState('armed');
+    idleGeneration+=1;
+    const scheduledIdleGeneration=idleGeneration;
+    cancel(idleTimer);
+    idleTimer=schedule(()=>{
+      if(state==='holding'&&idleGeneration===scheduledIdleGeneration){
+        cancel(maximumTimer);
+        setState('armed');
+      }
     },ENTRY_GESTURE_IDLE_MS);
   };
   return{
     get state(){return state;},
     capture(){
       setState('holding');
+      generation+=1;
+      const scheduledGeneration=generation;
+      cancel(maximumTimer);
+      maximumTimer=schedule(()=>{
+        if(state==='holding'&&generation===scheduledGeneration){
+          cancel(idleTimer);
+          setState('armed');
+        }
+      },ENTRY_GESTURE_MAX_HOLD_MS);
       scheduleArm();
     },
     onVirtualScroll({deltaY=0}={}){
       if(state==='holding'){
         if(deltaY<0){
-          cancel(timer);
+          cancel(idleTimer);
+          cancel(maximumTimer);
           setState('idle');
           return true;
         }
@@ -37,7 +53,8 @@ export function createExperienceEntryGate({
         return false;
       }
       if(state==='armed'){
-        cancel(timer);
+        cancel(idleTimer);
+        cancel(maximumTimer);
         setState('released');
         return true;
       }
@@ -45,12 +62,16 @@ export function createExperienceEntryGate({
     },
     reset(){
       generation+=1;
-      cancel(timer);
+      idleGeneration+=1;
+      cancel(idleTimer);
+      cancel(maximumTimer);
       setState('idle');
     },
     dispose(){
       generation+=1;
-      cancel(timer);
+      idleGeneration+=1;
+      cancel(idleTimer);
+      cancel(maximumTimer);
     },
   };
 }

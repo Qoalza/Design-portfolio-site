@@ -15,7 +15,7 @@ Figma access: read-only; no Figma writes were made.
 | Projects | `3075:60182`, cards `3110:65334`, `3110:65333`, Preview `3110:65160`, shade `3110:65162` | Card/Preview do not clip artwork; Preview shade is exactly 638×328 and is a child between the back and front artwork | Exact isolated shade vector fills only Preview, never Main; artwork remains above the divider and the shade disappears in 150 ms Ease In on hover/focus |
 | Experience | section `3088:64107`, tape `3116:67342`, current marker `3108:64584`, states `3116:67337`…`3116:67340`, progress `3108:64685` | Reached states are cumulative; right fade is 280 px; mirrored left fade is 109 px in `67337`–`67339` and absent in final `67340` | 1615 px horizontal travel consumes 9690 px vertical travel; both fades are fixed outside the transformed tape; exact markers and connectors share one normalized progress |
 | Process icons | `3075:60247`, `3075:60249`, `3075:60266`, `3075:60284` and current Library V2 icon children | 64×64 clipped frames, line-only vectors, no movement | Fill stays inside the real line masks, starts from one stable random frame edge and now uses the explicit user override of 200 ms Ease In |
-| Global scroll | Existing application Lenis root | Downward entry inertia must stop at sticky start and progress 0; the next independent gesture must resume without losing its first event | One Lenis/RAF and no native wheel listener; an internal virtual-scroll gate arms after 120 ms idle; global `wheelMultiplier: 1` is unchanged |
+| Global scroll | Existing application Lenis root | Downward entry inertia must stop at sticky start and progress 0; the next independent gesture must resume without losing its first event, and a continuous gesture must never leave the section locked | One Lenis/RAF and no native wheel listener; the internal virtual-scroll gate arms after 120 ms idle or after a 600 ms maximum hold; global `wheelMultiplier: 1` is unchanged |
 
 ## Root causes closed
 
@@ -55,13 +55,14 @@ Figma access: read-only; no Figma writes were made.
 - Plan 1.1 fades: intermediate storyboard state computed left width 109/opacity 1 and right width 280; the left fade is removed only at normalized progress 1.
 - Follow-up field proof at 1920×1600: the top and bottom fields are 240 px; their boundary is `1px solid rgb(46, 49, 51)` across the full 1920 px viewport, and both 1 px side rails sit exactly 320 px from the viewport edges around the centered 1280 px pattern. Horizontal overflow remains zero.
 - Follow-up repeat-cycle proof: a complete forward pass reached progress `1.0000`, reverse returned above the section with gate `idle`, the second entry stopped at progress `0.0000`, and an immediate upward gesture released the gate and moved to y=811.5. A third entry armed normally and the next downward gesture resumed progress, proving the component no longer remains stopped after reuse.
+- Continuous-input proof at 1440×900: a stream extending beyond the quiet-tail interval released the gate instead of remaining in `holding`; after returning above the section the gate was `idle`, and the same stream on the second entry again reached `released` with non-zero progress without a reload.
 
 ## Automated verification
 
 Latest corrective run:
 
 - `npm run lint` — passed; 25 source files checked.
-- `npm test` — passed; 26/26 tests, including repeatable entry-gate cycles, upward escape, tail suppression/resume, cumulative forward/reverse experience boundaries, local pacing, one Lenis instance and unmount cleanup.
+- `npm test` — passed; 27/27 tests, including repeatable entry-gate cycles, upward escape, bounded continuous-input holding, tail suppression/resume, cumulative forward/reverse experience boundaries, local pacing, one Lenis instance and unmount cleanup.
 - `npm run build` — passed; 51 modules transformed.
 - `npm run check:browser` — passed against the built bundle on a local loopback server.
 - `git diff --check` — passed.

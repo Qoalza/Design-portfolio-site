@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {activeExperienceIndex,experienceLayout,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
-import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS} from '../src/experience-entry-gate.mjs';
+import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS,ENTRY_GESTURE_MAX_HOLD_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -77,6 +77,32 @@ test('entry gate can be reused and always releases an upward escape',()=>{
   gate.capture();
   scheduled.at(-1)();
   assert.equal(gate.onVirtualScroll({deltaY:120}),true);
+});
+
+test('entry gate cannot stay locked under a continuous inertial stream',()=>{
+  const scheduled=[];
+  const cancelled=new Set();
+  const gate=createExperienceEntryGate({
+    schedule(callback,delay){
+      const id=scheduled.length+1;
+      scheduled.push({id,callback,delay});
+      return id;
+    },
+    cancel(id){cancelled.add(id);},
+  });
+  gate.capture();
+  assert.equal(ENTRY_GESTURE_MAX_HOLD_MS,600);
+  const maximum=scheduled.find(item=>item.delay===ENTRY_GESTURE_MAX_HOLD_MS);
+  assert.ok(maximum);
+  for(let index=0;index<8;index+=1){
+    assert.equal(gate.onVirtualScroll({deltaY:120}),false);
+    assert.equal(gate.state,'holding');
+  }
+  assert.equal(cancelled.has(maximum.id),false);
+  maximum.callback();
+  assert.equal(gate.state,'armed');
+  assert.equal(gate.onVirtualScroll({deltaY:120}),true);
+  assert.equal(gate.state,'released');
 });
 
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
