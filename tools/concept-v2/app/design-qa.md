@@ -3,7 +3,7 @@
 Status: `READY_FOR_REVIEW`
 
 Baseline: `19bf69b4c1c04d91b4a536cf8e63bae6d62fb423`  
-Corrective implementation: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, review fix `5177616c66208c93b09c1a52cb6cf13c8943004e`, browser-comment follow-up `2530a86`
+Corrective implementation: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, review fix `5177616c66208c93b09c1a52cb6cf13c8943004e`, browser-comment follow-up `2530a86`, acceptance coverage `d97aa0d` and `f5ecabf`
 Runtime: `http://127.0.0.1:43189/`  
 Figma access: read-only; no Figma writes were made.
 
@@ -40,13 +40,18 @@ Figma access: read-only; no Figma writes were made.
 - Experience at short 490 px height fit the full 490 px composition using the contracted compression order. Below 1280 px the live page rendered a complete static grid with all six jobs and no retained absolute offsets.
 - Experience at 1135×998 after the browser comment: current date row computed to 44 px, the rail to 40 px, `align-items:center`, and a 2 px rail top offset.
 - Reverse travel, resize-progress preservation, keyboard focus parity and reduced-motion final states were covered by focused checks.
+- Full viewport matrix used the actual browser viewport: 2560×1440 and 1920×1600 selected Large with a 947×594 map; 1920×1080, 1440×900, 1280×720 and 1440×1299 selected Small with a 720×452 map, except the contracted low-height 1280×720 fit at 650×408. The 1440×1300 boundary selected Large. Every desktop sample had `scrollWidth === clientWidth`; 1279×900 retained the complete non-sticky adaptive layout.
+- Experience live travel at 1440×900 moved continuously from active index 0 to 5 and reversed to index 3; progress `0.6533` survived resize to 1920×1080 exactly. At progress 1 the last 280 px card was centered at x=720, outside the fade beginning at x=1160. At 1280×720 the sticky, heading, 530 px tape window and progress occupied one 720 px viewport without clipping; the last card centered at x=640 and remained fully visible as the footer entered.
+- Hero keyboard focus activated the lens; pointer selection at the design node produced the `design` icon, “Проектирование” and `rgb(67, 162, 238)`. A live forward pulse from `document` to `design` was observed with its measured 2.45242 s route duration and terminal-only arrival.
+- Project rapid pointer re-entry completed at the exact hover transform/shadows/glow/shade/text colors without a reset; keyboard focus on “Подробнее” produced the same active state. Process-card focus filled only the exact mask to 96 px while all three 64×64 icon frames retained `transform:none`.
+- Local fonts reported `loaded`: Google Sans 400/500, Onest 350 and Source Code Pro 400 all passed `document.fonts.check`, with the expected computed family on heading, body and technical roles.
 
 ## Automated verification
 
 Final corrective run:
 
 - `npm run lint` — passed; 23 source files checked.
-- `npm test` — passed; 19/19 tests.
+- `npm test` — passed; 23/23 tests, including both pulse directions, cancellation, 60/240 ms terminal timing, all contracted experience heights, one Lenis instance and unmount cleanup.
 - `npm run build` — passed; 49 modules transformed.
 - `npm run check:browser` — passed against the built bundle on a local loopback server.
 - `git diff --check` — passed.
@@ -55,3 +60,4 @@ Final corrective run:
 
 1. Fidelity/completeness review found and fixed the responsive project-height clipping and the 1100–1279 experience breakpoint mismatch.
 2. Regression/scope review found and fixed both the per-job specificity leak that retained desktop `top/left` offsets in the static experience grid and the 150/200 ms mismatch that could move the icon fill origin during its final 50 ms. It confirmed no changes to Admin, shared contracts, published snapshot/archive, dependencies, Figma, production or deployment.
+3. Completion audit exercised the full viewport matrix and interaction contract in the live runtime, then closed missing deterministic coverage for pulse direction/cancellation/timing and runtime cleanup. No additional implementation divergence was found. A fresh Figma connector retry failed at transport level; no property was inferred from that failure, and the implementation remains grounded in the same-day current-source ledger captured before the outage.

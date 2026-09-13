@@ -3,7 +3,7 @@
 ## Exact checkout
 
 - Baseline: `19bf69b4c1c04d91b4a536cf8e63bae6d62fb423`.
-- Corrective implementation commits: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, then review fix `5177616c66208c93b09c1a52cb6cf13c8943004e`.
+- Corrective implementation commits: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, review fix `5177616c66208c93b09c1a52cb6cf13c8943004e`, browser-comment fix `2530a86`, acceptance coverage `d97aa0d` and runtime-cleanup coverage `f5ecabf`.
 - Branch: `codex/concept-v2-heavy-polish`.
 - Isolated worktree used for implementation: `/private/tmp/design-portfolio-concept-v2-heavy-polish`.
 - Runtime root: `tools/concept-v2/app`.
@@ -25,7 +25,9 @@ npm run check
 npm run check:browser
 ```
 
-`npm run check` covers lint, 19 focused logic/contract tests, and a production Vite build. The browser smoke runs against that built output. Exact Figma-to-code values and runtime evidence are recorded in `docs/agent/CONCEPT_V2_FIGMA_LEDGER.md` and `tools/concept-v2/app/design-qa.md`.
+`npm run check` covers lint, 23 focused logic/contract tests, and a production Vite build. The browser smoke runs against that built output. Exact Figma-to-code values and runtime evidence are recorded in `docs/agent/CONCEPT_V2_FIGMA_LEDGER.md` and `tools/concept-v2/app/design-qa.md`.
+
+The final live acceptance matrix covers 2560×1440, 1920×1600, 1920×1080, 1440×900, 1280×720, both sides of the 1300 px Hero boundary, and 1279×900 adaptive behavior. It also covers forward/reverse experience travel, end centering, mid-travel resize preservation, pointer and keyboard states, rapid re-entry, loaded font roles and horizontal-overflow absence. The exact measurements are recorded in `tools/concept-v2/app/design-qa.md`.
 
 ## Completed components
 

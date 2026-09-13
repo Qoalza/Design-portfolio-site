@@ -39,7 +39,7 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | `3125:81641`, `3125:81642` | Lower strip | 171 px total; disciplines row above four equal facts; inner width 1280 px; fact padding 24×40 px | Same hierarchy, heights, widths, separators and text styles | matches | `get_design_context`; runtime rects |
 | `30894:424` | Code icon | Light / Dev / Code; 24 px frame; true 1 px rounded stroke vector | Exact Figma-exported SVG stored as `public/assets/code.svg`; used at the development node | matches | `get_design_context`; `figma_download_assets`; runtime href |
 | Published SVG source | Geometry and interaction | 1000×666.667 viewBox, seven nodes, three routes, interactive lens | Original route/node data retained; magnification now uses an SVG group transform and accounts for `meet` free fields | matches | source diff, pure coordinate tests, keyboard/pointer runtime check |
-| User contract | Pulse cadence and arrival | Random idle pause 2–3 s; terminal outline/glow 60 ms in + 240 ms fade; reverse arrives at opposite terminal; cancellation suppresses late arrival | Scheduler and terminal-only SVG animation implement the same timings and cancellation | matches | deterministic scheduler test and runtime pulse observation |
+| User contract | Pulse cadence and arrival | Random idle pause 2–3 s; terminal outline/glow 60 ms in + 240 ms fade; reverse arrives at opposite terminal; cancellation suppresses late arrival | Scheduler and terminal-only SVG animation implement the same timings and cancellation | matches | deterministic tests cover both directions, forced late callback after cancellation and 60/240 ms keyframes; live forward pulse observed |
 
 ## Project card
 
@@ -79,7 +79,7 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | `3116:67337`…`3116:67340` | Storyboard selection | The reached job is selected after each completed fifth; selected company `#f2f4f5`, description `#dadde0`, end date `#adb3b8`, bottom date dot `#43a2ee`; node radii 4/10/16 px with `#62b8fc`, `rgba(3,120,214,.32)`, `rgba(4,98,175,.12)` | `floor(progress × 5)` selects exactly one of six jobs and applies those inspected values | deterministic boundary test plus runtime at progress 0.2549 |
 | User contract | Scroll mechanics | document scroll; 1 horizontal px / 1.5 vertical px; no wheel interception | 1615 px horizontal / 2422.5 px vertical; passive scroll listener; existing Lenis remains the only continuous RAF; wheel input multiplier reduced to 0.5 | matches; one runtime wheel step reduced from about 1595 px to about 800 px |
 | User contract | Motion blur | 0 through 100 px/s, linear to 0.6 px at 1800 px/s, clears in 80 ms | Derived only from measured horizontal delta/time; reduced motion forces zero | deterministic tests and runtime clear state |
-| User contract | Resize | preserve active normalized progress | Resize recomputes layout and restores the same normalized document position | 0.6789 preserved from 900→1080 px runtime |
+| User contract | Resize | preserve active normalized progress | Resize recomputes layout and restores the same normalized document position | 0.6533 preserved exactly from 1440×900→1920×1080 runtime |
 
 ## Process icon fill
 
@@ -90,6 +90,6 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | `3075:60249`, `3075:60266`, `3075:60284` | Icon frame | 64×64, no visible fill, clips content | 64×64 wrapper remains the clipping frame at desktop | matches; runtime rect 64×64 |
 | icon vector children | Line geometry | Folder, system and send outlines plus internal lines; separate construction grid | Exact path data is isolated into three line-only SVG masks; base exports remain visible | matches source vector paths; fill cannot affect frame background |
 | User contract | Desktop motion | no movement or rotation | All icon transforms are forced to `none` | matches; computed runtime transform |
-| User contract | Fill origin | random point on one of four frame edges for each settled new hover/focus; fixed during state | Pure edge sampler uses the full 64 px coordinate space; quick re-entry retains the previous origin while the exit settles | deterministic tests and runtime origin on top edge |
+| User contract | Fill origin | random point on one of four frame edges for each settled new hover/focus; fixed during state | Pure edge sampler uses the full 64 px coordinate space; quick re-entry retains the previous origin while the exit settles | deterministic tests; rapid live re-entry retained the fill without geometry reset |
 | User override, 2026-09-13 | Fill timing | in/out 200 ms Ease In; hover and keyboard focus equivalent | Typed CSS radius expands through the line mask in 200 ms; pointer and focus share one state | matches; focused contract test |
 | User contract | Reduced motion | final state only; no decorative transitions or blur | Icon/card transitions disabled and experience blur forced off under `prefers-reduced-motion` | stylesheet inspection and build |
