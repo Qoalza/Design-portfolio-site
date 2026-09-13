@@ -17,9 +17,10 @@ test('edge origin stays inside the full 64px icon frame',()=>{
   assert.deepEqual(point,{x:32,y:64});
 });
 
-test('process icon fill uses the user-approved 200ms duration',async()=>{
+test('process icon and background fill use the user-approved 400ms duration',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
-  assert.match(css,/\.step-icon-fill\{transition-duration:200ms\}/);
+  assert.match(css,/\.step-icon::before\{[^}]*#0378d6[^}]*transition:--fill-radius 400ms/);
+  assert.match(css,/\.step-icon-fill\{transition-duration:400ms\}/);
   assert.match(app,/exitTimer\.current=setTimeout\(\(\)=>\{settledOutside\.current=true\},200\)/);
 });
