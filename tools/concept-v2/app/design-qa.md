@@ -29,6 +29,7 @@ Figma access: read-only; no Figma writes were made.
 - Hero used the wrong corner treatment, a fixed caption icon/label and omitted the lower side strokes.
 - The previously used 473×417 layer belonged to the wrong export context and leaked into Main; the exact 638×328 Preview shade is now isolated from node `3110:65162` and independently clipped to Preview.
 - Centering a 240 px decorative image inside a compressed field cropped its built-in boundary; edge anchoring now preserves the separation rule.
+- Field strokes existed only inside the fixed 1440 px bitmap, so wide side gutters and compressed fields could lose their boundaries. The full-width top/bottom rule and centered 1280 px side rails now exist as independent structural strokes matching the exact Figma frame properties.
 - The date marker used one CSS background with two identical outline circles and an oversized line. It now reproduces the exact Figma child tree with downloaded current/neutral/reached SVG assets and switches only the reached endpoint.
 
 ## Runtime evidence
@@ -52,13 +53,15 @@ Figma access: read-only; no Figma writes were made.
 - Plan 1.1 project geometry: at 1440×900 each Preview is 638.5×329 and its shade is 638×328 from y=1 exactly to Main; neither card reports Main overlap. At 1135×998 the shade scales to 533.5×274.328 and remains inside Preview.
 - Plan 1.1 experience entry: one strong downward gesture stopped at section top 2957 with offset 0, progress `0.0000` and the gate armed. The next gesture was preserved and advanced only to `0.1567`; reverse travel reduced it to `0.0294` without re-gating.
 - Plan 1.1 fades: intermediate storyboard state computed left width 109/opacity 1 and right width 280; the left fade is removed only at normalized progress 1.
+- Follow-up field proof at 1920×1600: the top and bottom fields are 240 px; their boundary is `1px solid rgb(46, 49, 51)` across the full 1920 px viewport, and both 1 px side rails sit exactly 320 px from the viewport edges around the centered 1280 px pattern. Horizontal overflow remains zero.
+- Follow-up repeat-cycle proof: a complete forward pass reached progress `1.0000`, reverse returned above the section with gate `idle`, the second entry stopped at progress `0.0000`, and an immediate upward gesture released the gate and moved to y=811.5. A third entry armed normally and the next downward gesture resumed progress, proving the component no longer remains stopped after reuse.
 
 ## Automated verification
 
 Latest corrective run:
 
 - `npm run lint` — passed; 25 source files checked.
-- `npm test` — passed; 25/25 tests, including entry-gate tail suppression/resume, cumulative forward/reverse experience boundaries, local pacing, one Lenis instance and unmount cleanup.
+- `npm test` — passed; 26/26 tests, including repeatable entry-gate cycles, upward escape, tail suppression/resume, cumulative forward/reverse experience boundaries, local pacing, one Lenis instance and unmount cleanup.
 - `npm run build` — passed; 51 modules transformed.
 - `npm run check:browser` — passed against the built bundle on a local loopback server.
 - `git diff --check` — passed.
@@ -70,3 +73,4 @@ Latest corrective run:
 3. After the Figma connection recovered, the current marker, inactive marker and reached storyboard state were reread from exact nodes. The implementation uses byte-identical downloaded SVG exports, and the complete viewport/interaction matrix was rerun against the current runtime.
 4. Plan 1.1 fidelity/completeness review re-read the exact Preview shade and all four experience storyboard states, then verified shade bounds, edge fades, focus state and single-progress behavior in the live runtime.
 5. Plan 1.1 regression/scope review confirmed one Lenis/RAF, timer/subscription cleanup, keyboard scrolling outside the pointer gate, preserved reverse travel and unchanged behavior below 1280 px. The diff is confined to `tools/concept-v2/app`; Admin, shared contracts, Hero, published schema, process fill, dependencies, Figma and production remain untouched.
+6. Follow-up fidelity/regression review verified the exact Figma stroke ownership instead of relying on the exported bitmap, and exercised full forward, reverse, second-entry escape and third-entry resume cycles with the real Lenis runtime.

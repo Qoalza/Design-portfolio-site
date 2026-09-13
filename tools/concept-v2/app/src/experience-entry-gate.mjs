@@ -26,8 +26,13 @@ export function createExperienceEntryGate({
       setState('holding');
       scheduleArm();
     },
-    onVirtualScroll(){
+    onVirtualScroll({deltaY=0}={}){
       if(state==='holding'){
+        if(deltaY<0){
+          cancel(timer);
+          setState('idle');
+          return true;
+        }
         scheduleArm();
         return false;
       }

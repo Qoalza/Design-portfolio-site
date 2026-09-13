@@ -59,6 +59,26 @@ test('entry gate discards the entering gesture and releases the first delta afte
   assert.equal(gate.state,'idle');
 });
 
+test('entry gate can be reused and always releases an upward escape',()=>{
+  const scheduled=[];
+  const gate=createExperienceEntryGate({
+    schedule(callback){scheduled.push(callback);return scheduled.length;},
+    cancel(){},
+  });
+  gate.capture();
+  assert.equal(gate.onVirtualScroll({deltaY:-120}),true);
+  assert.equal(gate.state,'idle');
+  gate.capture();
+  scheduled.at(-1)();
+  assert.equal(gate.state,'armed');
+  assert.equal(gate.onVirtualScroll({deltaY:120}),true);
+  assert.equal(gate.state,'released');
+  gate.reset();
+  gate.capture();
+  scheduled.at(-1)();
+  assert.equal(gate.onVirtualScroll({deltaY:120}),true);
+});
+
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
@@ -81,6 +101,12 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-dates b:first-child\{color:#676e73\}/);
   assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*background-position:center bottom/);
   assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*background-position:center top/);
+  assert.match(css,/\.experience-pattern\{[^}]*position:relative/);
+  assert.match(css,/\.experience-pattern::before,\.experience-pattern::after\{[^}]*position:absolute;[^}]*width:1px;[^}]*background:#2e3133/);
+  assert.match(css,/\.experience-pattern::before\{left:calc\(50% - 640px\)\}/);
+  assert.match(css,/\.experience-pattern::after\{right:calc\(50% - 640px\)\}/);
+  assert.match(css,/\.pattern-top\{[^}]*border-bottom:1px solid #2e3133/);
+  assert.match(css,/\.pattern-bottom\{[^}]*border-top:1px solid #2e3133/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
   assert.match(source,/className="experience-fade experience-fade-right"/);
   assert.match(css,/\.experience-fade-left\{left:0;right:auto;width:109px;background:linear-gradient\(to right,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);

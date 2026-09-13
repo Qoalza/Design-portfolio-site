@@ -67,8 +67,8 @@ export function Experience(){
       if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
       entryGate.reset();
       lenis=instance;
-      if(lenis)removeVirtualScroll=lenis.on('virtual-scroll',()=>{
-        if(entryGate.onVirtualScroll())lenis.start();
+      if(lenis)removeVirtualScroll=lenis.on('virtual-scroll',event=>{
+        if(entryGate.onVirtualScroll(event))lenis.start();
       });
     });
     function paint(){
