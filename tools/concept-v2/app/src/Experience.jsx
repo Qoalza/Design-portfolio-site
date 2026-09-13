@@ -150,12 +150,12 @@ export function Experience(){
 
   return <section ref={root} className="experience" aria-labelledby="experience-title">
     <div ref={sticky} className="experience-sticky">
-      <div className="experience-pattern pattern-top"/>
+      <div className="experience-pattern pattern-top"><div className="experience-pattern-grid"/></div>
       <div className="experience-center"><div className="experience-composition">
         <div className="experience-heading"><div><p className="eyebrow">ОПЫТ</p><h2 id="experience-title">Где я работал</h2><p>Большую часть опыта проработал продуктовым дизайнером</p></div><p className="tech-note">// все сложное – просто</p></div>
         <div className="experience-scroll"><div className="experience-window"><div className="experience-track">{paths.map((path,index)=><ExperiencePath key={path.className} path={path} index={index}/>)}{jobs.map(job=><ExperienceJob key={job.className} job={job}/>)}</div><div className="experience-fade experience-fade-left"/><div className="experience-fade experience-fade-right"/></div><div className="experience-progress"><span className="experience-progress-fill"/><span className="experience-progress-glow"/></div></div>
       </div></div>
-      <div className="experience-pattern pattern-bottom"/>
+      <div className="experience-pattern pattern-bottom"><div className="experience-pattern-grid"/></div>
     </div>
   </section>;
 }
