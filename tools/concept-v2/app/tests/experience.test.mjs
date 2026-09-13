@@ -59,6 +59,12 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-dates b:first-child\{color:#676e73\}/);
   assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*background-position:center bottom/);
   assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*background-position:center top/);
+  assert.match(source,/className="experience-fade experience-fade-left"/);
+  assert.match(source,/className="experience-fade experience-fade-right"/);
+  assert.match(css,/\.experience-fade-left\{left:0;right:auto;width:109px;background:linear-gradient\(to right,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
+  assert.match(css,/\.experience-fade-right\{right:0;width:280px;background:linear-gradient\(to left,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
+  assert.match(css,/\.experience\.is-complete \.experience-fade-left\{opacity:0\}/);
+  assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;height:auto;display:block;overflow:visible\}/);
   assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);

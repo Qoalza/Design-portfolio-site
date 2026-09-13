@@ -57,6 +57,7 @@ export function Experience(){
       const section=root.current;
       if(window.innerWidth<1280){
         section.style.height='auto';
+        section.classList.remove('is-complete');
         section.style.setProperty('--experience-progress','0');
         section.style.setProperty('--experience-shift','0px');
         section.style.setProperty('--experience-blur','0px');
@@ -76,6 +77,7 @@ export function Experience(){
       section.style.setProperty('--experience-shift',`${-x}px`);
       section.style.setProperty('--experience-blur',`${blur}px`);
       section.dataset.progress=progress.toFixed(4);
+      section.classList.toggle('is-complete',progress>=1);
       const activeIndex=activeExperienceIndex(progress);
       const reachedIndexes=new Set(experienceReachedIndexes(progress));
       section.dataset.activeIndex=String(activeIndex);
@@ -120,7 +122,7 @@ export function Experience(){
       <div className="experience-pattern pattern-top"/>
       <div className="experience-center"><div className="experience-composition">
         <div className="experience-heading"><div><p className="eyebrow">ОПЫТ</p><h2 id="experience-title">Где я работал</h2><p>Большую часть опыта проработал продуктовым дизайнером</p></div><p className="tech-note">// все сложное – просто</p></div>
-        <div className="experience-scroll"><div className="experience-window"><div className="experience-track">{paths.map((path,index)=><ExperiencePath key={path.className} path={path} index={index}/>)}{jobs.map(job=><ExperienceJob key={job.className} job={job}/>)}</div><div className="experience-fade"/></div><div className="experience-progress"><span className="experience-progress-fill"/><span className="experience-progress-glow"/></div></div>
+        <div className="experience-scroll"><div className="experience-window"><div className="experience-track">{paths.map((path,index)=><ExperiencePath key={path.className} path={path} index={index}/>)}{jobs.map(job=><ExperienceJob key={job.className} job={job}/>)}</div><div className="experience-fade experience-fade-left"/><div className="experience-fade experience-fade-right"/></div><div className="experience-progress"><span className="experience-progress-fill"/><span className="experience-progress-glow"/></div></div>
       </div></div>
       <div className="experience-pattern pattern-bottom"/>
     </div>

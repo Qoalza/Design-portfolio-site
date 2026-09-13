@@ -91,3 +91,6 @@
 .experience-job:not(.current).is-reached .experience-dates b:first-child{color:#676e73}
 .experience-job:not(.current).is-reached .date-marker-end .date-marker-neutral{opacity:0}
 .experience-job:not(.current).is-reached .date-marker-end .date-marker-reached{opacity:1}
+.experience-fade-left{left:0;right:auto;width:109px;background:linear-gradient(to right,#131414 3.31%,rgba(19,20,20,0))}
+.experience-fade-right{right:0;width:280px;background:linear-gradient(to left,#131414 3.31%,rgba(19,20,20,0))}
+.experience.is-complete .experience-fade-left{opacity:0}
