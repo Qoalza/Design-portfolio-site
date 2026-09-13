@@ -195,3 +195,12 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
   assert.equal(horizontalSpeedBlur(950),.3);
   assert.equal(horizontalSpeedBlur(1800),.6);
 });
+
+test('desktop experience grid remains behind the timeline and its edge fades',async()=>{
+  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+  assert.match(css,/\.experience-sticky\{background-color:#131414;background-image:linear-gradient\(rgba\(46,49,51,\.42\)/);
+  assert.match(css,/background-size:64px 64px,64px 64px,16px 16px,16px 16px/);
+  assert.match(css,/\.experience-sticky>\*\{position:relative;z-index:1\}/);
+  assert.match(css,/\.experience-pattern\{background:transparent\}/);
+  assert.match(css,/\.experience-fade\{[^}]*z-index:6/);
+});
