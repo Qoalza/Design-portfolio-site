@@ -78,6 +78,9 @@
 .project-back-layer{z-index:2}
 .project-shade{z-index:3;left:50%;top:1px;width:638px;height:328px;inset:1px auto auto 50%;transform:translateX(-50%);background:url('/figma/project-shade-preview.svg') center/100% 100% no-repeat}
 .project-front-layer{z-index:4}
+.projects-grid{position:relative}
+.projects-grid::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);z-index:8;pointer-events:none}
+@media(min-width:1280px){.projects-grid::after{top:96px}}
 .experience-pattern{position:relative}
 .experience-pattern::before,.experience-pattern::after{content:"";position:absolute;top:0;bottom:0;width:1px;background:#2e3133;pointer-events:none}
 .experience-pattern::before{left:calc(50% - 640px)}

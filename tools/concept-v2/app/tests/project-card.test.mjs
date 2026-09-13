@@ -17,6 +17,10 @@ test('project card keeps one layer tree and maps both Figma states',async()=>{
   assert.match(css,/padding:24px 56px 48px/);
   assert.match(css,/\.projects-section\{height:auto;min-height:1125px;padding:120px 0 80px;gap:80px;overflow:visible\}/);
   assert.match(css,/\.projects-grid\{height:709px;padding-top:96px;background:transparent;overflow:visible\}/);
+  assert.match(css,/\.projects-grid\{[^}]*position:relative/);
+  assert.match(css,/\.projects-grid::after\{[^}]*left:50%;[^}]*width:1px;[^}]*background:var\(--border\);[^}]*z-index:8/);
+  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.projects-grid::after\{top:96px\}/);
+  assert.match(responsive,/@media\(max-width:899px\)\{[\s\S]*?\.projects-grid::after\{display:none\}/);
   assert.match(css,/\.project,\.project-preview\{overflow:visible\}/);
   assert.match(css,/\.project-main\{overflow:hidden\}/);
   assert.match(css,/\.project-glow\{z-index:0\}/);

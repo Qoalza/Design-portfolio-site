@@ -66,6 +66,7 @@
 }
 
 @media(max-width:899px){
+ .projects-grid::after{display:none}
  .header-row>nav{display:none}
  .header-row{justify-content:space-between}
  .brand{padding:0}
