@@ -17,8 +17,7 @@
  .project{display:flex;flex-direction:column;height:auto}
  .project-preview{height:auto;aspect-ratio:638.5/440;flex-shrink:0}
  .project-main{height:auto;min-height:284px;padding:24px 32px;flex:1;justify-content:space-between}
- .project-shade{width:74.08%;height:94.77%;right:4.93%;top:7.5%}
- .project.second .project-shade{right:1.4%;top:6.35%}
+ .project-shade{width:calc(100% - .5px);height:74.55%;left:50%;right:auto;top:1px}
  .hero-bottom-inner{gap:16px}
  .hero-bottom{height:60px;display:block;padding-bottom:24px;border-top:0}
  .hero-bottom-inner{height:36px;width:calc(100% - 64px);max-width:1200px;margin:auto;border:0;display:flex;flex-direction:row;align-items:center;justify-content:space-between}

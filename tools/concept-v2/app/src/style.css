@@ -76,7 +76,7 @@
 .project-glow{z-index:0}
 .project-divider{z-index:1}
 .project-back-layer{z-index:2}
-.project-shade{z-index:3;width:473px;height:417px;right:31.5px;top:33px;inset:auto 31.5px auto auto;background:url('/figma/project-shade.svg') center/100% 100% no-repeat}
+.project-shade{z-index:3;left:50%;top:1px;width:638px;height:328px;inset:1px auto auto 50%;transform:translateX(-50%);background:url('/figma/project-shade-preview.svg') center/100% 100% no-repeat}
 .project-front-layer{z-index:4}
 .experience-pattern.pattern-top{background-position:center bottom}
 .experience-pattern.pattern-bottom{background-position:center top}
