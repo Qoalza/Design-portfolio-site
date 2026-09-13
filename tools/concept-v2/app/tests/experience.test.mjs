@@ -127,12 +127,9 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-dates b:first-child\{color:#676e73\}/);
   assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*background-position:center bottom/);
   assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*background-position:center top/);
-  assert.match(css,/\.experience-pattern\{[^}]*position:relative/);
-  assert.match(css,/\.experience-pattern::before,\.experience-pattern::after\{[^}]*position:absolute;[^}]*width:1px;[^}]*background:#2e3133/);
-  assert.match(css,/\.experience-pattern::before\{left:calc\(50% - 640px\)\}/);
-  assert.match(css,/\.experience-pattern::after\{right:calc\(50% - 640px\)\}/);
-  assert.match(css,/\.pattern-top\{[^}]*border-bottom:1px solid #2e3133/);
-  assert.match(css,/\.pattern-bottom\{[^}]*border-top:1px solid #2e3133/);
+  assert.doesNotMatch(css,/\.experience-pattern::before,\.experience-pattern::after/);
+  assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*background-image:url\('\/figma\/experience-pattern-top\.png'\)/);
+  assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*background-image:url\('\/figma\/experience-pattern-bottom\.png'\)/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
   assert.match(source,/className="experience-fade experience-fade-right"/);
   assert.match(css,/\.experience-fade-left\{left:0;right:auto;width:109px;background:linear-gradient\(to right,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
