@@ -76,3 +76,21 @@ Latest corrective run:
 4. Plan 1.1 fidelity/completeness review re-read the exact Preview shade and all four experience storyboard states, then verified shade bounds, edge fades, focus state and single-progress behavior in the live runtime.
 5. Plan 1.1 regression/scope review confirmed one Lenis/RAF, timer/subscription cleanup, keyboard scrolling outside the pointer gate, preserved reverse travel and unchanged behavior below 1280 px. The diff is confined to `tools/concept-v2/app`; Admin, shared contracts, Hero, published schema, process fill, dependencies, Figma and production remain untouched.
 6. Follow-up fidelity/regression review replaced the fixed raster fields with responsive HTML/CSS geometry grounded in the Figma outer/child/tile nodes, and exercised full forward, reverse, second-entry escape and third-entry resume cycles with the real Lenis runtime.
+
+## Stage two — final polish
+
+Status: `READY_FOR_REVIEW`
+
+| Area | Exact source | Confirmed result |
+|---|---|---|
+| Process | `3075:60232`, `3075:60233`, `3075:60247` | Desktop heading is 136 px; the cards use the source 365/446/383 px minima, 56 px padding and 48 px internal spacing. The existing 200 ms stationary icon-fill interaction is retained. |
+| AI strip | `3110:65436`, `3110:65403`, `3110:65404`, `3110:65416` | Full-width 272 px strip has 80 px patterned side fields and a centered 1280 px panel. Its source column split, 56 px padding, 24/32 title and 56 px tool frames are reproduced. |
+| Personal and footer | `3116:78466`, `3116:78467`, `3116:78468`, `3110:66042`, `3075:60343` | Desktop personal section is 1440×1066 with the intentionally empty 709 px area. Footer is 61 px outer / 60 px inner, 1280 px wide at 1440. |
+| Cursor | User-selected Bibata Original Classic | Direct 22 px arrow and hand SVG cursors replace only the ordinary desktop pointer states. The custom scheme lens cursor, disabled states and text cursor remain unchanged; there is no magnetic, trailing or delayed effect. |
+
+### Stage-two runtime evidence
+
+- At 1440×900, `scrollWidth === clientWidth`; Process is 1278×629, AI is 1440×272 with a 1280 px central panel, the personal section is 1440×1066, and the footer is 1440×61 with its 1280 px inner frame.
+- At 1279×900, `scrollWidth === clientWidth`; the personal section is intentionally hidden, AI becomes the single-column adaptive layout, footer becomes 72 px, and the earlier responsive Process layout remains intact.
+- At the desktop breakpoint, computed CSS resolves the 22 px Bibata Original Classic arrow for ordinary content and the matching hand for links/buttons. The process map still resolves to `cursor:none` for its bespoke lens interaction.
+- Latest verification: `npm test` passed 30/30; `npm run lint`, `npm run build`, `npm run check:browser` and `git diff --check` passed.
