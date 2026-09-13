@@ -54,7 +54,7 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | `3110:65163`, `3110:65197` | Front image wrapper | left center −19.75; bottom 20.9; 483.975×396.206; image 471×380; rotate −2°; neutral shadow | left center −47.25; bottom 46.98; 519.311×441.916; image 471×380.064; rotate −8°; blue + neutral shadows | Single persistent layer; computed transforms/shadows checked |
 | `3110:65162`, `3110:65196` | Shade | radial neutral shade visible | transparent | One layer transitions opacity 150 ms Ease In |
 | `3110:65193` | Preview glow | none | Figma radial blue glow with inspected stops | Dedicated same-tree layer transitions opacity 150 ms Ease In |
-| `3116:67014`, `3116:67021` | Accent divider | `#1d90eb`, x=80…557.5 in a 637.5 px line | `#1d90eb`, x=0…637.5 | Centered scale 0.749→1 in 150 ms Ease In; source SVGs compared directly |
+| `3116:67014`, `3116:67021` | Accent divider | `#1d90eb`, x=80…557.5 in a 637.5 px line | `#1d90eb`, x=0…637.5; divider z=1 below back/front artwork z=2/4 | Centered scale 0.749→1 in 150 ms Ease In; source SVGs compared directly; computed layer order and 1135×998 runtime verified |
 | `3110:65169`, `3110:65203` | Description | Onest 350 16/24, `#adb3b8` | same type, `#dadde0` | Color transitions 150 ms Ease In |
 | User contract | State mechanics | one layer tree; links/buttons active | hover and keyboard focus are equivalent | `:hover` and `:focus-within` verified independently; no hidden alternate preview |
 
@@ -67,7 +67,7 @@ This ledger records only values inspected from current Figma data. Screenshots a
 | `3084:63865`, `3142:82981` | Center | source center 1164; 906 px inner composition centered with 129 px free space | Same source values; free space is consumed before internal gaps | matches at 1644; pure layout tests |
 | `3084:63866` | Heading | 1280×112; side padding 48; horizontal gap 4; title 36/48; tech note right | Same hierarchy, geometry and type | matches |
 | `3116:67342`, `3108:64566` | Tape composition | 1440×746; top 24; timeline 530; progress gap 108; bottom 80 | Same; variables adapt in the explicit order 24→0, 108→24, 80→24 after free space | matches; runtime variables at 1600, 1280 and 720 heights |
-| `3108:64584` | Current card | x 148, y 78, 288×216, vertical gap 24 | Same position/content/status rings | matches |
+| `3108:64584` | Current card | x 148, y 78, 288×216, vertical gap 24; date row 44 px with a centered 40 px rail | Same position/content/status rings; date row 44 px, rail 40 px with 2 px top offset | matches; computed at 1135×998 |
 | `3108:64599` | Eyeconweb | x 522, y 258, 280×244, gap 22 | Same position/content | matches |
 | `3108:64616` | Freelance | x 907, y 0, 280×244, gap 22 | Same position/content | matches |
 | `3108:64633` | Vexel | x 1310, y 179, 280×244, gap 22 | Same position/content | matches |
