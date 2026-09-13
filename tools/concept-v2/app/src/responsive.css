@@ -157,6 +157,17 @@
  .mobile-nav-panel{right:-100px;width:min(280px,calc(100vw - 40px))}
 }
 
+@media(max-width:1279px){
+ .about-section{display:none}
+ .site-footer{width:100%;max-width:none;height:auto;min-height:72px;margin:0;padding:0;background:var(--page)}
+ .site-footer-inner{width:100%;max-width:none;min-height:72px;height:auto;padding:24px;align-items:center;font-size:11px;line-height:16px;gap:16px;box-shadow:inset 0 1px var(--border)}
+ .site-footer-inner>span:first-child{max-width:225px}
+}
+
+@media(max-width:380px){
+ .site-footer-inner{padding-inline:16px;gap:8px}
+}
+
 @media(max-width:359px){
  h1{font-size:40px;line-height:48px}
  .intro{font-size:18px;line-height:28px}
