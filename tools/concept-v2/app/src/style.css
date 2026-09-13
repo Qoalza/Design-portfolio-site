@@ -96,3 +96,8 @@
 .experience-fade-right{right:0;width:280px;background:linear-gradient(to left,#131414 3.31%,rgba(19,20,20,0))}
 .experience.is-complete .experience-fade-left{opacity:0}
 .experience-sticky:not(.has-pattern-fields) .experience-pattern{visibility:hidden}
+.experience-window{width:min(1280px,100%)}
+.experience-track{left:50%;transform:translateX(calc(-164px + var(--experience-shift)))}
+.experience-fade-left,.experience-fade-right{width:240px}
+.experience-fade-left{opacity:0}
+.experience.is-started:not(.is-complete) .experience-fade-left{opacity:1}

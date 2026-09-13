@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS,ENTRY_GESTURE_MAX_HOLD_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -33,9 +33,17 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(short.scale,490/694);
 });
 
-test('experience uses 6 vertical pixels for every horizontal pixel',()=>{
-  assert.deepEqual(experienceTravel(),{horizontal:1615,vertical:9690});
+test('experience runs center-to-center and is ten percent faster',()=>{
+  assert.deepEqual(experienceTravel(),{horizontal:2047,vertical:9690/1.1});
+  assert.deepEqual(experienceStops(),[0,374/2047,759/2047,1162/2047,1581/2047,1]);
   assert.ok(800/experienceTravel().vertical<.2);
+});
+
+test('experience activation follows each node through the viewport center',()=>{
+  const stops=experienceStops();
+  stops.forEach((stop,index)=>assert.equal(activeExperienceIndex(stop),index));
+  assert.equal(experienceSegmentProgress(stops[2],1),1);
+  assert.equal(experienceSegmentProgress(stops[2],2),0);
 });
 
 test('experience hides both pattern fields below the 48px visual threshold',()=>{
@@ -142,9 +150,15 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.pattern-bottom\{[^}]*border-top:1px solid #2e3133/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
   assert.match(source,/className="experience-fade experience-fade-right"/);
+  assert.match(css,/\.experience-window\{width:min\(1280px,100%\)\}/);
+  assert.match(css,/\.experience-track\{left:50%;transform:translateX\(calc\(-164px \+ var\(--experience-shift\)\)\)\}/);
+  assert.match(css,/\.experience-fade-left,\.experience-fade-right\{width:240px\}/);
   assert.match(css,/\.experience-fade-left\{left:0;right:auto;width:109px;background:linear-gradient\(to right,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
   assert.match(css,/\.experience-fade-right\{right:0;width:280px;background:linear-gradient\(to left,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
   assert.match(css,/\.experience\.is-complete \.experience-fade-left\{opacity:0\}/);
+  assert.match(css,/\.experience-fade-left\{opacity:0\}/);
+  assert.match(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-fade-left\{opacity:1\}/);
+  assert.match(source,/section\.classList\.toggle\('is-started',progress>0\)/);
   assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;height:auto;display:block;overflow:visible\}/);
@@ -158,20 +172,22 @@ test('one normalized document progress drives the full horizontal travel',()=>{
 });
 
 test('the reached storyboard stop selects its matching experience item',()=>{
+  const stops=experienceStops();
   assert.equal(activeExperienceIndex(0),0);
-  assert.equal(activeExperienceIndex(.1999),0);
-  assert.equal(activeExperienceIndex(.2),1);
-  assert.equal(activeExperienceIndex(.6),3);
+  assert.equal(activeExperienceIndex(stops[1]-.0001),0);
+  assert.equal(activeExperienceIndex(stops[1]),1);
+  assert.equal(activeExperienceIndex(stops[3]),3);
   assert.equal(activeExperienceIndex(1),5);
 });
 
 test('experience states remain reached until reverse progress withdraws the path',()=>{
+  const stops=experienceStops();
   assert.deepEqual(experienceReachedIndexes(0),[0]);
-  assert.deepEqual(experienceReachedIndexes(.1999),[0]);
-  assert.deepEqual(experienceReachedIndexes(.2),[0,1]);
-  assert.deepEqual(experienceReachedIndexes(.6),[0,1,2,3]);
+  assert.deepEqual(experienceReachedIndexes(stops[1]-.0001),[0]);
+  assert.deepEqual(experienceReachedIndexes(stops[1]),[0,1]);
+  assert.deepEqual(experienceReachedIndexes(stops[3]),[0,1,2,3]);
   assert.deepEqual(experienceReachedIndexes(1),[0,1,2,3,4,5]);
-  assert.deepEqual(experienceReachedIndexes(.3999),[0,1]);
+  assert.deepEqual(experienceReachedIndexes(stops[2]-.0001),[0,1]);
 });
 
 test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{

@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 
@@ -107,13 +107,14 @@ export function Experience(){
       section.style.setProperty('--experience-shift',`${-x}px`);
       section.style.setProperty('--experience-blur',`${blur}px`);
       section.dataset.progress=progress.toFixed(4);
+      section.classList.toggle('is-started',progress>0);
       section.classList.toggle('is-complete',progress>=1);
       const activeIndex=activeExperienceIndex(progress);
       const reachedIndexes=new Set(experienceReachedIndexes(progress));
       section.dataset.activeIndex=String(activeIndex);
       section.querySelectorAll('.experience-job').forEach((job,index)=>job.classList.toggle('is-reached',index>0&&reachedIndexes.has(index)));
       section.querySelectorAll('.experience-path-progress').forEach(path=>{
-        const segment=Math.max(0,Math.min(1,progress*5-Number(path.dataset.segment)));
+        const segment=experienceSegmentProgress(progress,Number(path.dataset.segment));
         path.style.setProperty('stroke-dashoffset',String(1-segment));
       });
       previousX=x;previousTime=now;

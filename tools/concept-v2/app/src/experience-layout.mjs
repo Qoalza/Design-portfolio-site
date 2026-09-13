@@ -1,10 +1,17 @@
 const BASE_INNER=906;
 const MIN_COMPOSITION=694;
-const HORIZONTAL_TRAVEL=1615;
+const EXPERIENCE_NODE_ANCHORS=[164,538,923,1326,1745,2211];
+const HORIZONTAL_TRAVEL=EXPERIENCE_NODE_ANCHORS.at(-1)-EXPERIENCE_NODE_ANCHORS[0];
+const VERTICAL_TRAVEL=9690/1.1;
+const EXPERIENCE_STOPS=Object.freeze(EXPERIENCE_NODE_ANCHORS.map(anchor=>(anchor-EXPERIENCE_NODE_ANCHORS[0])/HORIZONTAL_TRAVEL));
 export const EXPERIENCE_PATTERN_MIN_HEIGHT=48;
 
 export function experienceTravel(){
-  return {horizontal:HORIZONTAL_TRAVEL,vertical:HORIZONTAL_TRAVEL*6};
+  return {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL};
+}
+
+export function experienceStops(){
+  return EXPERIENCE_STOPS;
 }
 
 export function experienceLayout(viewportHeight){
@@ -42,12 +49,21 @@ export function scrollProgress({scrollY,sectionTop,verticalTravel}){
 }
 
 export function activeExperienceIndex(progress){
-  return Math.min(5,Math.max(0,Math.floor(progress*5)));
+  const stops=experienceStops();
+  return stops.reduce((active,stop,index)=>progress>=stop?index:active,0);
 }
 
 export function experienceReachedIndexes(progress){
   const active=activeExperienceIndex(progress);
   return Array.from({length:active+1},(_,index)=>index);
+}
+
+export function experienceSegmentProgress(progress,index){
+  const stops=experienceStops();
+  const start=stops[index];
+  const end=stops[index+1];
+  if(start===undefined||end===undefined)return 0;
+  return Math.max(0,Math.min(1,(progress-start)/(end-start)));
 }
 
 export function horizontalSpeedBlur(speed){
