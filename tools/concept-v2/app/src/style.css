@@ -58,7 +58,6 @@
 .experience-node{background:radial-gradient(circle,#7390a6 0 4px,rgba(118,141,159,.2) 4px 10px,rgba(118,141,159,.06) 10px 16px)}
 .experience-job.current .experience-node{background:radial-gradient(circle,#2ed400 0 4px,rgba(46,212,0,.2) 4px 10px,rgba(55,255,0,.06) 10px 16px)}
 .experience-job:not(.current).is-reached .experience-dates b:last-child{color:#adb3b8}
-.experience-job:not(.current).is-reached .date-rail::after{background:#43a2ee;border-color:#43a2ee}
 .experience-job:not(.current).is-reached .experience-node{background:radial-gradient(circle,#62b8fc 0 4px,rgba(3,120,214,.32) 4px 10px,rgba(4,98,175,.12) 10px 16px)}
 .experience-job:not(.current).is-reached h3{color:#f2f4f5}
 .experience-job:not(.current).is-reached .experience-job-copy>div p{color:#dadde0}
@@ -79,7 +78,16 @@
 .project-back-layer{z-index:2}
 .project-shade{z-index:3;width:473px;height:417px;right:31.5px;top:33px;inset:auto 31.5px auto auto;background:url('/figma/project-shade.svg') center/100% 100% no-repeat}
 .project-front-layer{z-index:4}
-.experience-dates{height:44px;align-items:center}
-.date-rail{height:40px;flex:0 0 32px}
 .experience-pattern.pattern-top{background-position:center bottom}
 .experience-pattern.pattern-bottom{background-position:center top}
+.experience-dates{height:44px;align-items:flex-start}
+.date-rail{position:relative;width:32px;height:auto;align-self:stretch;padding-block:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;flex:0 0 32px;background:none;color:inherit}
+.date-rail::before,.date-rail::after{content:none}
+.date-marker{position:relative;width:4px;height:4px;flex:none}
+.date-marker img{position:absolute;inset:-.5px;width:5px;height:5px;max-width:none}
+.date-marker-line{position:relative;width:1px;height:12px;flex:none}
+.date-marker-line img{position:absolute;left:50%;top:50%;width:12px;height:1px;max-width:none;transform:translate(-50%,-50%) rotate(90deg)}
+.date-marker-reached{opacity:0}
+.experience-job:not(.current).is-reached .experience-dates b:first-child{color:#676e73}
+.experience-job:not(.current).is-reached .date-marker-end .date-marker-neutral{opacity:0}
+.experience-job:not(.current).is-reached .date-marker-end .date-marker-reached{opacity:1}

@@ -48,8 +48,15 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-progress-fill,\.experience-progress-glow\{[^}]*background:#1d90eb/);
   assert.doesNotMatch(source,/className="experience-progress"[^\n]*<i/);
   assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-node\{/);
-  assert.match(css,/\.experience-dates\{height:44px;align-items:center\}/);
-  assert.match(css,/\.date-rail\{height:40px;flex:0 0 32px\}/);
+  assert.match(source,/className="date-marker date-marker-start"/);
+  assert.match(source,/className="date-marker-line"/);
+  assert.match(source,/className="date-marker date-marker-end"/);
+  assert.match(css,/\.experience-dates\{[^}]*height:44px;[^}]*align-items:flex-start/);
+  assert.match(css,/\.date-rail\{[^}]*width:32px;[^}]*align-self:stretch;[^}]*padding-block:4px;[^}]*gap:8px/);
+  assert.match(css,/\.date-marker\{[^}]*width:4px;[^}]*height:4px/);
+  assert.match(css,/\.date-marker-line\{[^}]*width:1px;[^}]*height:12px/);
+  assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.date-marker-end \.date-marker-reached/);
+  assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-dates b:first-child\{color:#676e73\}/);
   assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*background-position:center bottom/);
   assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*background-position:center top/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));

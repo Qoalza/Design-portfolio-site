@@ -24,9 +24,21 @@ function ExperiencePath({path,index}){
   return <svg className={`experience-path ${path.className}`} viewBox={path.viewBox} preserveAspectRatio="none" aria-hidden="true"><g transform={path.transform}><path className="experience-path-base" d={path.d}/><path className="experience-path-progress" data-segment={index} pathLength="1" style={{strokeDasharray:1,strokeDashoffset:1}} d={path.d}/></g></svg>;
 }
 
+function DateRail({current}){
+  const variant=current?'current':'neutral';
+  return <span className="date-rail" aria-hidden="true">
+    <span className="date-marker date-marker-start"><img src={`/figma/experience-date-${variant}-start.svg`} alt=""/></span>
+    <span className="date-marker-line"><img src={`/figma/experience-date-${variant}-line.svg`} alt=""/></span>
+    <span className="date-marker date-marker-end">
+      <img className="date-marker-neutral" src={`/figma/experience-date-${variant}-end.svg`} alt=""/>
+      {!current&&<img className="date-marker-reached" src="/figma/experience-date-reached-end.svg" alt=""/>}
+    </span>
+  </span>;
+}
+
 function ExperienceJob({job}){
   return <article className={`experience-job ${job.className}`}>
-    <div className="experience-dates"><span className="date-rail"/><span><b>{job.from}</b><b>{job.to}</b></span></div>
+    <div className="experience-dates"><DateRail current={job.className==='current'}/><span><b>{job.from}</b><b>{job.to}</b></span></div>
     <span className="experience-node" aria-hidden="true"><i/></span>
     <div className="experience-job-copy">{job.role&&<p className="experience-role">{job.role}</p>}<div><h3>{job.company}</h3><p>{job.description}</p></div></div>
   </article>;
