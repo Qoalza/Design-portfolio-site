@@ -140,3 +140,10 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .experience-fade-left,.experience-fade-right{width:240px}
 .experience-fade-left{opacity:0}
 .experience.is-started:not(.is-complete) .experience-fade-left{opacity:1}
+
+/* Bibata Original Classic: direct cursor artwork only, without trailing or magnetic behavior. */
+@media (min-width:1280px) and (hover:hover) and (pointer:fine){
+ html{cursor:url("/cursors/bibata-original-classic-pointer.svg") 6 3,default}
+ a[href],button:not(:disabled),[role="button"]{cursor:url("/cursors/bibata-original-classic-hand.svg") 4 11,pointer}
+ input,textarea,[contenteditable="true"]{cursor:text}
+}
