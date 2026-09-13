@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,experienceLayout,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS,ENTRY_GESTURE_MAX_HOLD_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -36,6 +36,12 @@ test('experience height adaptation follows the contracted priority order',()=>{
 test('experience uses 6 vertical pixels for every horizontal pixel',()=>{
   assert.deepEqual(experienceTravel(),{horizontal:1615,vertical:9690});
   assert.ok(800/experienceTravel().vertical<.2);
+});
+
+test('experience hides both pattern fields below the 48px visual threshold',()=>{
+  assert.equal(EXPERIENCE_PATTERN_MIN_HEIGHT,48);
+  assert.equal(experiencePatternVisible(47.999),false);
+  assert.equal(experiencePatternVisible(48),true);
 });
 
 test('entry gate discards the entering gesture and releases the first delta after 120ms idle',()=>{
@@ -128,7 +134,10 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.doesNotMatch(css,/\.experience-pattern::before,\.experience-pattern::after/);
   assert.doesNotMatch(css,/experience-pattern-(?:top|bottom)\.png/);
   assert.match(source,/className="experience-pattern-grid"/);
-  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*border-inline:1px solid #2e3133;[^}]*radial-gradient\(circle,#232526 0 2px,transparent 2\.5px\);[^}]*background-size:16px 16px/);
+  assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
+  assert.match(css,/\.experience-sticky:not\(\.has-pattern-fields\) \.experience-pattern\{visibility:hidden\}/);
+  assert.match(source,/classList\.toggle\('has-pattern-fields',experiencePatternVisible\(layout\.outer\)\)/);
+  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*border-inline:1px solid #2e3133;[^}]*radial-gradient\(circle,#232526 0 2px,transparent 2\.5px\);[^}]*background-size:16px 16px/);
   assert.match(css,/\.pattern-top\{[^}]*border-bottom:1px solid #2e3133/);
   assert.match(css,/\.pattern-bottom\{[^}]*border-top:1px solid #2e3133/);
   assert.match(source,/className="experience-fade experience-fade-left"/);

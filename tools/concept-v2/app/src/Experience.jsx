@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceLayout,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 
@@ -134,6 +134,7 @@ export function Experience(){
       sticky.current.style.setProperty('--experience-progress-gap',`${layout.progressGap}px`);
       sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
       sticky.current.style.setProperty('--experience-scale',String(layout.scale));
+      sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.outer));
       if(active){
         const top=section.getBoundingClientRect().top+window.scrollY;
         window.scrollTo({top:top+progress*VERTICAL_TRAVEL,behavior:'instant'});

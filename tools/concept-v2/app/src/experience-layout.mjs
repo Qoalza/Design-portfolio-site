@@ -1,6 +1,7 @@
 const BASE_INNER=906;
 const MIN_COMPOSITION=694;
 const HORIZONTAL_TRAVEL=1615;
+export const EXPERIENCE_PATTERN_MIN_HEIGHT=48;
 
 export function experienceTravel(){
   return {horizontal:HORIZONTAL_TRAVEL,vertical:HORIZONTAL_TRAVEL*6};
@@ -29,6 +30,10 @@ export function experienceLayout(viewportHeight){
   const bottom=24+take(56);
   const scale=deficit?center/MIN_COMPOSITION:1;
   return {outer,center,free,headingGap,tapeTop,progressGap,bottom,scale};
+}
+
+export function experiencePatternVisible(outerHeight){
+  return outerHeight>=EXPERIENCE_PATTERN_MIN_HEIGHT;
 }
 
 export function scrollProgress({scrollY,sectionTop,verticalTravel}){
