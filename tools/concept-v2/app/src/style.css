@@ -84,6 +84,21 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .projects-grid{position:relative}
 .projects-grid::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);z-index:8;pointer-events:none}
 @media(min-width:1280px){.projects-grid::after{top:96px}}
+
+/* Process section: exact desktop geometry from Concept V2 node 3075:60247. */
+@media(min-width:1280px){
+ .process-section{padding-top:48px;gap:80px}
+ .process-heading{height:136px;padding-inline:56px;align-items:flex-end;gap:24px}
+ .process-heading .section-title{width:622px;max-width:none;flex:0 0 622px}
+ .steps{grid-template-columns:minmax(365px,415fr) minmax(446px,446fr) minmax(383px,415fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:0}
+ .step{min-width:0;height:364px;padding:56px;gap:48px;background:var(--page)}
+ .step+.step::before{display:none}
+ .step-top{height:64px;display:flex;align-items:flex-start;justify-content:space-between;gap:40px}
+ .step-number{height:57px;align-items:center;justify-content:center;gap:12px;align-self:flex-start}
+ .step-number span{font:400 36px/40px "Source Code Pro",monospace;letter-spacing:-.5px;color:var(--secondary)}
+ .step-text{gap:12px}
+ .step-text p{color:var(--muted)}
+}
 .experience-dates{height:44px;align-items:flex-start}
 .date-rail{position:relative;width:32px;height:auto;align-self:stretch;padding-block:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;flex:0 0 32px;background:none;color:inherit}
 .date-rail::before,.date-rail::after{content:none}

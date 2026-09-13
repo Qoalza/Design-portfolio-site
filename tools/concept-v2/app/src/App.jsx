@@ -66,8 +66,8 @@ function ProcessStep({step,index}){
   exitTimer.current=setTimeout(()=>{settledOutside.current=true},200);
  }
  return <article className={`step step-${index+1} ${active?'is-fill-active':''}`} tabIndex={0} aria-label={step.title} onPointerEnter={()=>begin('pointer')} onPointerLeave={()=>end('pointer')} onFocus={()=>begin('focus')} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))end('focus')}}>
-  <span className="step-icon" aria-hidden="true" style={{'--fill-x':`${origin.x}px`,'--fill-y':`${origin.y}px`,'--icon-mask':`url('/figma/process-mask-${index+1}.svg')`}}><img className="step-icon-base" src={`/figma/${step.image}.svg`} width="64" height="64" alt=""/><i className="step-icon-fill"/></span>
-  <div className="step-number"><span>0{index+1}</span><img src={`/figma/${step.dots}.svg`} width={step.width} height="5" alt=""/></div>
+  <div className="step-top"><span className="step-icon" aria-hidden="true" style={{'--fill-x':`${origin.x}px`,'--fill-y':`${origin.y}px`,'--icon-mask':`url('/figma/process-mask-${index+1}.svg')`}}><img className="step-icon-base" src={`/figma/${step.image}.svg`} width="64" height="64" alt=""/><i className="step-icon-fill"/></span>
+   <div className="step-number"><span>0{index+1}</span><img src={`/figma/${step.dots}.svg`} width={step.width} height="5" alt=""/></div></div>
   <div className="step-text"><h3>{step.title}</h3><p>{step.description}</p></div>
  </article>;
 }
