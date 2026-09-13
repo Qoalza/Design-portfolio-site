@@ -2,9 +2,9 @@
 
 Status: `READY_FOR_REVIEW`
 
-Baseline: `19bf69b4c1c04d91b4a536cf8e63bae6d62fb423`  
+Baseline: `19bf69b4c1c04d91b4a536cf8e63bae6d62fb423`
 Corrective implementation: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, review fix `5177616c66208c93b09c1a52cb6cf13c8943004e`, browser-comment follow-up `2530a86`, acceptance coverage `d97aa0d` and `f5ecabf`
-Runtime: `http://127.0.0.1:43189/`  
+Runtime: `http://127.0.0.1:43189/`
 Figma access: read-only; no Figma writes were made.
 
 ## Source mapping and corrections
