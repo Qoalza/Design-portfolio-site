@@ -3,7 +3,7 @@
 ## Exact checkout
 
 - Baseline: `19bf69b4c1c04d91b4a536cf8e63bae6d62fb423`.
-- Corrective implementation commits through the previous checkpoint: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, `5177616c66208c93b09c1a52cb6cf13c8943004e`, `2530a86`, `d97aa0d`, `f5ecabf`. Current corrective commits: `223e4b0`, `8687286`, `6a035f8`, `009ee7a`.
+- Corrective implementation commits through the previous checkpoint: `613fda4f35730d4d0fbebfb7bca6f70af8e0e9b5`, `5177616c66208c93b09c1a52cb6cf13c8943004e`, `2530a86`, `d97aa0d`, `f5ecabf`. Current corrective commits: `223e4b0`, `8687286`, `6a035f8`, `009ee7a`, documentation checkpoint `188d91d`, exact date-marker fix `2677ae4`.
 - Branch: `codex/concept-v2-heavy-polish`.
 - Isolated worktree used for implementation: `/private/tmp/design-portfolio-concept-v2-heavy-polish`.
 - Runtime root: `tools/concept-v2/app`.
@@ -27,7 +27,7 @@ npm run check:browser
 
 `npm run check` covers lint, 24 focused logic/contract tests, and a production Vite build. The browser smoke runs against that built output. Exact Figma-to-code values and runtime evidence are recorded in `docs/agent/CONCEPT_V2_FIGMA_LEDGER.md` and `tools/concept-v2/app/design-qa.md`.
 
-The previous live acceptance matrix covered 2560×1440, 1920×1600, 1920×1080, 1440×900, 1280×720, both sides of the 1300 px Hero boundary, and 1279×900 adaptive behavior. The current corrective pass revalidated the modified desktop states and automated contracts; a new final acceptance matrix is still required after the current-date marker is corrected. Exact measurements are recorded in `tools/concept-v2/app/design-qa.md`.
+The final live acceptance matrix covers 2560×1440, 1920×1600, 1920×1080, 1440×1300, 1440×1299, 1440×900, 1280×720 and 1279×900 adaptive behavior. It revalidates horizontal overflow, Hero boundary, card geometry/states/layer order, exact date-marker assets and geometry, cumulative forward/reverse experience states, process hover/focus, and the static experience fallback. Exact measurements are recorded in `tools/concept-v2/app/design-qa.md`.
 
 ## Completed components
 
@@ -38,7 +38,7 @@ The previous live acceptance matrix covered 2560×1440, 1920×1600, 1920×1080, 
 - Process icon fill on all three real cards, using exact line-only icon masks, one stable random frame-edge origin per interaction, user-approved 200 ms Ease In, quick re-entry continuity, keyboard focus parity, no icon movement, and reduced-motion final states.
 - One existing Lenis loop only; the original global `wheelMultiplier: 1` is preserved and no wheel event is intercepted.
 
-The project shade, decorative field boundary, cumulative experience states and local scroll pacing are complete. The exact current-date marker remains `IN_PROGRESS`: its dependent visual correction is stopped until the exact Figma node can be read again. Stage 2 must not begin by treating that marker as complete.
+The project shade, decorative field boundary, exact date-marker structure/states, cumulative experience states and local scroll pacing are complete and revalidated. Stage 2 must preserve these Stage 1 boundaries.
 
 ## Allowed Stage 2 zones
 
