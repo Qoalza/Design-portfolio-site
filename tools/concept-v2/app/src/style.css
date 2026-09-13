@@ -74,3 +74,10 @@
 .experience{overflow:visible}
 .project,.project-preview{overflow:visible}
 .project-main{overflow:hidden}
+.project-glow{z-index:0}
+.project-divider{z-index:1}
+.project-back-layer{z-index:2}
+.project-shade{z-index:3}
+.project-front-layer{z-index:4}
+.experience-dates{height:44px;align-items:center}
+.date-rail{height:40px;flex:0 0 32px}
