@@ -22,7 +22,7 @@ export function SmoothScroll(){
       if(!desktop.matches||reduced.matches)return;
       lenis=new Lenis({
         autoRaf:false,smoothWheel:true,syncTouch:false,
-        lerp:.1,wheelMultiplier:1,stopInertiaOnNavigate:true,
+        lerp:.1,wheelMultiplier:.5,stopInertiaOnNavigate:true,
       });
       document.documentElement.dataset.lenisEnabled='true';
       function tick(time){

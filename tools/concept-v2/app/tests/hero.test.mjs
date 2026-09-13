@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {clientPointToSvg,getHeroVariant} from '../src/hero-layout.mjs';
+import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layout.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
 
 test('Hero switches to the Large source at the 1300px height boundary',()=>{
@@ -14,6 +14,11 @@ test('pointer coordinates account for SVG meet fields before magnification',()=>
   assert.deepEqual(clientPointToSvg({clientX:100,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:500,y:500});
   assert.deepEqual(clientPointToSvg({clientX:0,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:0,y:500});
   assert.deepEqual(clientPointToSvg({clientX:200,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:1000,y:500});
+});
+
+test('selected Hero node supplies both the matching label and icon',()=>{
+  assert.deepEqual(captionForPoint({x:495,y:314.667}),{label:'Проектирование',icon:'design',active:true});
+  assert.deepEqual(captionForPoint({x:0,y:0}),{label:'Исследуйте процесс',icon:'search',active:false});
 });
 
 test('route pulses wait 2–3 seconds and arrive only at their direction terminal',()=>{

@@ -1,8 +1,7 @@
 import {useEffect,useRef} from 'react';
-import {experienceLayout,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 
-const HORIZONTAL_TRAVEL=1615;
-const VERTICAL_TRAVEL=HORIZONTAL_TRAVEL/1.5;
+const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
 
 const jobs=[
   {className:'current',from:'Май 2026',to:'Настоящее время',role:'',company:'Открыт к предложениям',description:'Готов к новым задачам — как в рамках отдельных проектов, так и на полной занятости.'},
@@ -15,10 +14,10 @@ const jobs=[
 
 const paths=[
   {className:'line-128',viewBox:'0 0 318 179',d:'M0 0.5H262.5C269.127 0.5 274.5 5.87258 274.5 12.5V166.5C274.5 173.127 279.873 178.5 286.5 178.5H318'},
-  {className:'line-129',viewBox:'0 0 329 259',d:'M329 0.5H279.5C272.873 0.5 267.5 5.87259 267.5 12.5V246.5C267.5 253.127 262.127 258.5 255.5 258.5H0'},
+  {className:'line-129',viewBox:'0 0 329 259',d:'M0 258.5H255.5C262.127 258.5 267.5 253.127 267.5 246.5V12.5C267.5 5.87259 272.873 0.5 279.5 0.5H329'},
   {className:'line-130',viewBox:'0 0 343.5 180',d:'M0 0.5H248.5C255.127 0.5 260.5 5.87258 260.5 12.5V167.5C260.5 174.127 265.873 179.5 272.5 179.5H343.5'},
   {className:'line-131',viewBox:'0 0 363 144',d:'M0 0.5H268.5C275.127 0.5 280.5 5.87258 280.5 12.5V131.5C280.5 138.127 285.873 143.5 292.5 143.5H363',transform:'translate(0 144) scale(1 -1)'},
-  {className:'line-132',viewBox:'0 0 410 148',d:'M0 0.5H105.598C112.225 0.5 117.598 5.87258 117.598 12.5V135.499C117.598 142.127 122.97 147.499 129.598 147.499H410',transform:'translate(410 148) rotate(180)'},
+  {className:'line-132',viewBox:'0 0 410 148',d:'M0 0.5H280.402C287.03 0.5 292.402 5.87258 292.402 12.5V135.499C292.402 142.127 297.775 147.499 304.402 147.499H410'},
 ];
 
 function ExperiencePath({path,index}){
@@ -44,7 +43,17 @@ export function Experience(){
     let blurTimer;
     function paint(){
       const section=root.current;
-      if(window.innerWidth<1280){section.style.height='auto';section.style.setProperty('--experience-progress','0');return;}
+      if(window.innerWidth<1280){
+        section.style.height='auto';
+        section.style.setProperty('--experience-progress','0');
+        section.style.setProperty('--experience-shift','0px');
+        section.style.setProperty('--experience-blur','0px');
+        section.dataset.progress='0.0000';
+        section.dataset.activeIndex='0';
+        section.querySelectorAll('.experience-job').forEach((job,index)=>job.classList.toggle('is-active',index===0));
+        section.querySelectorAll('.experience-path-progress').forEach(path=>path.style.setProperty('stroke-dashoffset','1'));
+        return;
+      }
       const top=section.getBoundingClientRect().top+window.scrollY;
       progress=scrollProgress({scrollY:window.scrollY,sectionTop:top,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;
@@ -55,6 +64,9 @@ export function Experience(){
       section.style.setProperty('--experience-shift',`${-x}px`);
       section.style.setProperty('--experience-blur',`${blur}px`);
       section.dataset.progress=progress.toFixed(4);
+      const activeIndex=activeExperienceIndex(progress);
+      section.dataset.activeIndex=String(activeIndex);
+      section.querySelectorAll('.experience-job').forEach((job,index)=>job.classList.toggle('is-active',index===activeIndex));
       section.querySelectorAll('.experience-path-progress').forEach(path=>{
         const segment=Math.max(0,Math.min(1,progress*5-Number(path.dataset.segment)));
         path.style.setProperty('stroke-dashoffset',String(1-segment));
@@ -95,7 +107,7 @@ export function Experience(){
       <div className="experience-pattern pattern-top"/>
       <div className="experience-center"><div className="experience-composition">
         <div className="experience-heading"><div><p className="eyebrow">ОПЫТ</p><h2 id="experience-title">Где я работал</h2><p>Большую часть опыта проработал продуктовым дизайнером</p></div><p className="tech-note">// все сложное – просто</p></div>
-        <div className="experience-scroll"><div className="experience-window"><div className="experience-track">{paths.map((path,index)=><ExperiencePath key={path.className} path={path} index={index}/>)}{jobs.map(job=><ExperienceJob key={job.className} job={job}/>)}</div><div className="experience-fade"/></div><div className="experience-progress"><span className="experience-progress-fill"/><i/></div></div>
+        <div className="experience-scroll"><div className="experience-window"><div className="experience-track">{paths.map((path,index)=><ExperiencePath key={path.className} path={path} index={index}/>)}{jobs.map(job=><ExperienceJob key={job.className} job={job}/>)}</div><div className="experience-fade"/></div><div className="experience-progress"><span className="experience-progress-fill"/><span className="experience-progress-glow"/></div></div>
       </div></div>
       <div className="experience-pattern pattern-bottom"/>
     </div>

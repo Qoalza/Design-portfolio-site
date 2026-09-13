@@ -2,8 +2,8 @@ import {useEffect, useRef, useState} from 'react';
 import './lens.css';
 import './svg-lens.css';
 import {SvgNetwork} from './SvgNetwork';
-import {HEIGHT,nodes,WIDTH} from './network-data.mjs';
-import {clientPointToSvg,svgPointToClient} from './hero-layout.mjs';
+import {HEIGHT,WIDTH} from './network-data.mjs';
+import {captionForPoint,clientPointToSvg,svgPointToClient} from './hero-layout.mjs';
 
 export function SvgLens(){
   const area=useRef(null);
@@ -39,7 +39,7 @@ export function SvgLens(){
     window.addEventListener('pointermove',followOutside);
     return ()=>window.removeEventListener('pointermove',followOutside);
   },[]);
-  const nearest=nodes.find(([x,y])=>Math.hypot(x*WIDTH/100-point.x,y*HEIGHT/100-point.y)<64);
+  const caption=captionForPoint(active?point:null);
   function move(event){
     if(event.pointerType==='touch'&&!touchExplore)return;
     const rect=area.current.getBoundingClientRect();
@@ -73,7 +73,7 @@ export function SvgLens(){
       </div>
       <div className="lens-rim" aria-hidden="true"/>
     </div>
-    <p className="process-caption" aria-live="polite">{active && nearest?nearest[3]:touchExplore?'Коснитесь схемы и перемещайте лупу':'Исследуйте процесс'}</p>
+    <p className="process-caption" aria-live="polite"><span key={`${caption.icon}:${caption.label}`} className={`process-caption-content ${caption.active?'is-active':''}`}><i className={`caption-icon caption-icon-${caption.icon}`} aria-hidden="true"/><span>{caption.label}</span></span></p>
     <div className="touch-explore"><button type="button" aria-pressed={touchExplore} onClick={()=>{setTouchExplore(!touchExplore);setActive(!touchExplore)}}>{touchExplore?'Завершить просмотр':'Исследовать схему'}</button></div>
     <span className="sr-only">Изучение задачи, анализ данных, пользовательские сценарии, проектирование, передача в разработку, проверка, запуск и развитие.</span>
   </div>;

@@ -1,4 +1,10 @@
 const BASE_INNER=906;
+const MIN_COMPOSITION=694;
+const HORIZONTAL_TRAVEL=1615;
+
+export function experienceTravel(){
+  return {horizontal:HORIZONTAL_TRAVEL,vertical:HORIZONTAL_TRAVEL*1.5};
+}
 
 export function experienceLayout(viewportHeight){
   let outer;
@@ -21,13 +27,17 @@ export function experienceLayout(viewportHeight){
   const tapeTop=take(24);
   const progressGap=24+take(84);
   const bottom=24+take(56);
-  const scale=deficit?Math.max(.65,(766-deficit)/766):1;
+  const scale=deficit?center/MIN_COMPOSITION:1;
   return {outer,center,free,headingGap,tapeTop,progressGap,bottom,scale};
 }
 
 export function scrollProgress({scrollY,sectionTop,verticalTravel}){
   if(verticalTravel<=0)return 0;
   return Math.max(0,Math.min(1,(scrollY-sectionTop)/verticalTravel));
+}
+
+export function activeExperienceIndex(progress){
+  return Math.min(5,Math.max(0,Math.floor(progress*5)));
 }
 
 export function horizontalSpeedBlur(speed){
