@@ -57,11 +57,11 @@
 .experience-path-progress{stroke:#1d90eb}
 .experience-node{background:radial-gradient(circle,#7390a6 0 4px,rgba(118,141,159,.2) 4px 10px,rgba(118,141,159,.06) 10px 16px)}
 .experience-job.current .experience-node{background:radial-gradient(circle,#2ed400 0 4px,rgba(46,212,0,.2) 4px 10px,rgba(55,255,0,.06) 10px 16px)}
-.experience-job:not(.current).is-active .experience-dates b:last-child{color:#adb3b8}
-.experience-job:not(.current).is-active .date-rail::after{background:#43a2ee;border-color:#43a2ee}
-.experience-job:not(.current).is-active .experience-node{background:radial-gradient(circle,#62b8fc 0 4px,rgba(3,120,214,.32) 4px 10px,rgba(4,98,175,.12) 10px 16px)}
-.experience-job:not(.current).is-active h3{color:#f2f4f5}
-.experience-job:not(.current).is-active .experience-job-copy>div p{color:#dadde0}
+.experience-job:not(.current).is-reached .experience-dates b:last-child{color:#adb3b8}
+.experience-job:not(.current).is-reached .date-rail::after{background:#43a2ee;border-color:#43a2ee}
+.experience-job:not(.current).is-reached .experience-node{background:radial-gradient(circle,#62b8fc 0 4px,rgba(3,120,214,.32) 4px 10px,rgba(4,98,175,.12) 10px 16px)}
+.experience-job:not(.current).is-reached h3{color:#f2f4f5}
+.experience-job:not(.current).is-reached .experience-job-copy>div p{color:#dadde0}
 .experience-progress-fill,.experience-progress-glow{position:absolute;inset:0;border-radius:inherit;background:#1d90eb;transform:scaleX(var(--experience-progress));transform-origin:left}
 .experience-progress-glow{filter:blur(4px)}
 

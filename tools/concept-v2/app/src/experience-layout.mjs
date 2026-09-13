@@ -40,6 +40,11 @@ export function activeExperienceIndex(progress){
   return Math.min(5,Math.max(0,Math.floor(progress*5)));
 }
 
+export function experienceReachedIndexes(progress){
+  const active=activeExperienceIndex(progress);
+  return Array.from({length:active+1},(_,index)=>index);
+}
+
 export function horizontalSpeedBlur(speed){
   if(speed<=100)return 0;
   return Math.min(.6,(speed-100)/1700*.6);

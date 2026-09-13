@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,experienceLayout,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -47,7 +47,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-progress\{[^}]*width:296px;[^}]*height:4px/);
   assert.match(css,/\.experience-progress-fill,\.experience-progress-glow\{[^}]*background:#1d90eb/);
   assert.doesNotMatch(source,/className="experience-progress"[^\n]*<i/);
-  assert.match(css,/\.experience-job:not\(\.current\)\.is-active \.experience-node\{/);
+  assert.match(css,/\.experience-job:not\(\.current\)\.is-reached \.experience-node\{/);
   assert.match(css,/\.experience-dates\{height:44px;align-items:center\}/);
   assert.match(css,/\.date-rail\{height:40px;flex:0 0 32px\}/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
@@ -67,6 +67,15 @@ test('the reached storyboard stop selects its matching experience item',()=>{
   assert.equal(activeExperienceIndex(.2),1);
   assert.equal(activeExperienceIndex(.6),3);
   assert.equal(activeExperienceIndex(1),5);
+});
+
+test('experience states remain reached until reverse progress withdraws the path',()=>{
+  assert.deepEqual(experienceReachedIndexes(0),[0]);
+  assert.deepEqual(experienceReachedIndexes(.1999),[0]);
+  assert.deepEqual(experienceReachedIndexes(.2),[0,1]);
+  assert.deepEqual(experienceReachedIndexes(.6),[0,1,2,3]);
+  assert.deepEqual(experienceReachedIndexes(1),[0,1,2,3,4,5]);
+  assert.deepEqual(experienceReachedIndexes(.3999),[0,1]);
 });
 
 test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{

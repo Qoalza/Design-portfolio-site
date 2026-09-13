@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceLayout,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experienceReachedIndexes,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
 
@@ -50,7 +50,7 @@ export function Experience(){
         section.style.setProperty('--experience-blur','0px');
         section.dataset.progress='0.0000';
         section.dataset.activeIndex='0';
-        section.querySelectorAll('.experience-job').forEach((job,index)=>job.classList.toggle('is-active',index===0));
+        section.querySelectorAll('.experience-job').forEach(job=>job.classList.remove('is-reached'));
         section.querySelectorAll('.experience-path-progress').forEach(path=>path.style.setProperty('stroke-dashoffset','1'));
         return;
       }
@@ -65,8 +65,9 @@ export function Experience(){
       section.style.setProperty('--experience-blur',`${blur}px`);
       section.dataset.progress=progress.toFixed(4);
       const activeIndex=activeExperienceIndex(progress);
+      const reachedIndexes=new Set(experienceReachedIndexes(progress));
       section.dataset.activeIndex=String(activeIndex);
-      section.querySelectorAll('.experience-job').forEach((job,index)=>job.classList.toggle('is-active',index===activeIndex));
+      section.querySelectorAll('.experience-job').forEach((job,index)=>job.classList.toggle('is-reached',index>0&&reachedIndexes.has(index)));
       section.querySelectorAll('.experience-path-progress').forEach(path=>{
         const segment=Math.max(0,Math.min(1,progress*5-Number(path.dataset.segment)));
         path.style.setProperty('stroke-dashoffset',String(1-segment));
