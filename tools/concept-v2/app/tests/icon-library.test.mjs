@@ -36,6 +36,10 @@ test('interactive controls use exported Medium icon assets',async()=>{
  assert.match(app,/iconRight="imgColor3"/);
  assert.match(app,/iconRight="imgColor6"/);
  assert.match(app,/iconRight="imgColor7"/);
+ assert.match(await readFile(path.join(root,'src/icon-vectors.js'),'utf8'),/import projectFigma from '\.\.\/public\/figma\/project-figma\.svg\?raw'/);
+ const projectFigma=await readFile(figma('project-figma.svg'),'utf8');
+ assert.match(projectFigma,/width="15\.3" height="21\.3" viewBox="0 0 15\.3 21\.3"/);
+ assert.match(projectFigma,/stroke="white" stroke-width="1\.3"/);
  assert.match(about,/iconRight="about-x"/);
  assert.match(about,/name="about-search-scale"/);
  assert.match(controls,/inlineIconSvg/);
@@ -52,7 +56,8 @@ test('all changing Hero caption glyphs render at the Medium 1.3px line weight',a
 test('control icon frames render their vector child without a CSS mask',async()=>{
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
  const lens=await readFile(path.join(root,'src/SvgLens.jsx'),'utf8');
- assert.match(css,/\.icon>svg\{[^}]*width:100%;height:100%/);
+ assert.match(css,/\.icon>svg\{[^}]*width:100%!important;height:100%!important/);
+ assert.match(css,/\.icon>svg \[stroke\]\{stroke:currentColor;vector-effect:non-scaling-stroke\}/);
  assert.match(css,/\.icon\{[^}]*mask:none!important/);
  assert.match(lens,/<Icon name=\{`hero-\$\{captionFrame\.current\.icon\}`\} className="caption-icon"\/>/);
  assert.match(lens,/<Icon name=\{`hero-\$\{captionFrame\.outgoing\.icon\}`\} className="caption-icon"\/>/);

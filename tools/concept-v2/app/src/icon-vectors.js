@@ -5,7 +5,7 @@ import download from '../public/figma/imgColor3.svg?raw';
 import search from '../public/figma/imgColor4.svg?raw';
 import chevronDown from '../public/figma/imgColor5.svg?raw';
 import chevronRight from '../public/figma/imgColor6.svg?raw';
-import share from '../public/figma/imgColor7.svg?raw';
+import projectFigma from '../public/figma/project-figma.svg?raw';
 import corrupted from '../public/figma/imgColor8.svg?raw';
 import chevronLeft from '../public/figma/about-chevron-left.svg?raw';
 import aboutChevronRight from '../public/figma/about-chevron-right.svg?raw';
@@ -31,7 +31,7 @@ const icons={
  imgColor4:search,
  imgColor5:chevronDown,
  imgColor6:chevronRight,
- imgColor7:share,
+ imgColor7:projectFigma,
  imgColor8:corrupted,
  'about-chevron-left':chevronLeft,
  'about-chevron-right':aboutChevronRight,
