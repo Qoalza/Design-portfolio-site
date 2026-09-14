@@ -132,8 +132,9 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .experience-fade-left{opacity:0}
 .experience.is-started .experience-fade-left{opacity:1}
 .experience{--experience-heading-offset:0px}
-.experience-heading{transform:translateY(var(--experience-heading-offset))}
-.experience-scroll{padding-top:calc(var(--experience-heading-gap) + var(--experience-heading-offset))}
+.experience-heading{transform:translateY(var(--experience-heading-offset));transition:transform 180ms ease-out}
+.experience-scroll{padding-top:calc(var(--experience-heading-gap) + var(--experience-heading-offset));transition:padding-top 180ms ease-out}
+@media(prefers-reduced-motion:reduce){.experience-heading,.experience-scroll{transition:none}}
 
 /* Desktop experience grid: a quiet layer in the central composition only. */
 @media(min-width:1280px){

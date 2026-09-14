@@ -112,8 +112,9 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
   assert.match(css,/\.experience\.is-header-offset \.experience-sticky\{top:80px;height:calc\(100svh - 80px\)\}/);
-  assert.match(css,/\.experience-heading\{transform:translateY\(var\(--experience-heading-offset\)\)\}/);
-  assert.match(css,/\.experience-scroll\{padding-top:calc\(var\(--experience-heading-gap\) \+ var\(--experience-heading-offset\)\)\}/);
+  assert.match(css,/\.experience-heading\{transform:translateY\(var\(--experience-heading-offset\)\);transition:transform 180ms ease-out\}/);
+  assert.match(css,/\.experience-scroll\{padding-top:calc\(var\(--experience-heading-gap\) \+ var\(--experience-heading-offset\)\);transition:padding-top 180ms ease-out\}/);
+  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.experience-heading,\.experience-scroll\{transition:none\}\}/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;top:auto;height:auto;display:block;overflow:visible\}/);
   assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);
