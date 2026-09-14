@@ -16,10 +16,10 @@
 
 ## Verification
 
-- `npm run check`: passed — lint, `50/50` tests and production build at `89c8c6a`.
-- `npm run check:browser`: passed — built runtime smoke at `89c8c6a`.
+- `npm run check`: passed — lint, `50/50` tests and production build at `6bad252`.
+- `npm run check:browser`: passed — built runtime smoke at `6bad252`.
 - `git diff --check`: passed.
-- Existing local browser proof: sticky Header has `z-index:20` above the project divider (`8`). The revised Experience entry has automated coverage for the absence of a scroll-capture path, Header threshold, compact `48px`/`24px` spacing and tall pinned field balance. Local checks cover `1280×900`, `1280×720`, and `1700×1318`, where both dot fields measure `106px`. It still requires direct user visual acceptance. Firefox and WebKit are unavailable in the exposed browser inventory. The separate Chrome automation attempt timed out; it must not be represented as an additional engine result.
+- Existing local browser proof: sticky Header has `z-index:20` above the project divider (`8`). The revised Experience entry has automated coverage for the absence of a scroll-capture path, Header threshold, compact `48px`/`24px` spacing and tall pinned field balance. Local checks cover `1280×900`, `1280×720`, and `1700×1318`, where both dot fields measure `106px`; the current `1280×900` preview confirms the compact Header/Experience composition from this exact checkout. It still requires direct user visual acceptance. Firefox and WebKit are unavailable in the exposed browser inventory. The separate Chrome automation attempt timed out; it must not be represented as an additional engine result.
 
 ## Stop-lines
 
