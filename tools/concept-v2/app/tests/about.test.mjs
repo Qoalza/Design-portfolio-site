@@ -105,7 +105,8 @@ test('about structure maps the complete Figma block with native patterns and com
  assert.match(about,/ControlButton/);
  assert.match(about,/Это я ездил с Урала на Юг\.<br\/>Проехал 2500км за 3 дня\./);
  assert.match(about,/Это мои сладкие дети,<br\/>Тима и Алиса :3/);
- assert.match(css,/\.about-pattern\{[^}]*inset:0[^}]*radial-gradient\(circle,#232526 0 2px,transparent 2\.5px\)[^}]*background-size:16px 16px/);
+ assert.match(css,/\.about-pattern\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
+ assert.doesNotMatch(css,/\.about-pattern\{[^}]*radial-gradient/);
  assert.match(css,/\.about-dash-horizontal/);
  assert.match(css,/\.about-card-content\{[^}]*width:320px[^}]*height:420px/);
  assert.match(css,/\.about-card-frame\{[^}]*overflow:hidden/);
@@ -130,5 +131,6 @@ test('card treatment keeps the sharp border outside geometry and viewer uses one
  assert.match(css,/\.about-viewer-deck-stage\{position:relative;width:720px;height:630px/);
  assert.match(css,/\.about-viewer-deck-scale\{[^}]*transform:translateX\(-50%\) scale\(1\.5\)/);
  assert.match(css,/\.about-viewer-deck \.about-card-motion\{width:var\(--card-width\);height:var\(--card-height\);transform:translate3d\(var\(--card-x\),var\(--card-y\),0\)/);
- assert.match(css,/\.about-viewer-content p\{min-height:96px/);
+ assert.match(css,/\.about-viewer-content p\{[^}]*min-height:96px/);
+ assert.doesNotMatch(css,/1\.625|1\.43333/);
 });

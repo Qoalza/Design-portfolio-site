@@ -43,11 +43,13 @@
 - Completed proof: user visual acceptance plus focused motion, hover/viewer/resize regression checks, `npm run check`, `npm run check:browser`, and `git diff --check` on final HEAD `94f6f9c`.
 - Deferred, not accepted as complete: direct 1.5× enlarged-viewer geometry and the remaining image-card border/gradient refinements. The later site-wide icon, point-pattern, process-hover and experience-fade work requires a separate plan and goal.
 
-## IN_PROGRESS — Concept V2 visual fidelity, Plan 4.0
+## READY_FOR_REVIEW — Concept V2 visual fidelity, Plan 4.0
 
 - Scope: `codex/concept-v2-visual-fidelity` from accepted baseline `7b1f3e4`; no production or shared-contract changes.
 - Sources: About `3223:155421`, `3223:155136`, `3223:139419`, `3263:179635`; Process `3210:124239`; Experience `3142:82981`; dot tile `3116:67455`; current header/buttons and icon-library Medium assets.
-- First verified slice: exact exported Medium assets now replace the relevant header, button, tab, About and Hero-search Light assets; Hero’s changing caption glyphs use a 1.3px stroke. Remaining findings are intentionally tracked in the active ExecPlan.
+- Completed code scope: exact Medium full-frame vectors; About sharp border and caption gradient; uniform `1.5×` viewer composition; Experience fade after completion; shared 3px/16px SVG dot tile; Process Default/Enable hover; and responsive Hero captions.
+- Automated evidence: `48/48` tests, lint, production build, browser smoke and `git diff --check` after the final CSS cleanup. The test suite also rejects stale viewer X/Y scales, obsolete radial dot fields and complete-state fade suppression.
+- Manual visual matrix is still required for Chromium, Firefox and WebKit. The available desktop automation surface timed out, therefore no visual browser acceptance is claimed yet.
 
 ## Не является записью этого файла
 

@@ -147,6 +147,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/classList\.toggle\('has-pattern-fields',experiencePatternVisible\(layout\.outer\)\)/);
   assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*border-inline:1px solid #2e3133/);
   assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
+  assert.doesNotMatch(css,/\.experience-pattern-grid\{[^}]*radial-gradient/);
   assert.match(css,/\.pattern-top\{[^}]*border-bottom:1px solid #2e3133/);
   assert.match(css,/\.pattern-bottom\{[^}]*border-top:1px solid #2e3133/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
@@ -158,6 +159,8 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-fade-right\{right:0;width:280px;background:linear-gradient\(to left,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
   assert.match(css,/\.experience-fade-left\{opacity:0\}/);
   assert.match(css,/\.experience\.is-started \.experience-fade-left\{opacity:1\}/);
+  assert.doesNotMatch(css,/\.experience\.is-complete \.experience-fade-left\{opacity:0\}/);
+  assert.doesNotMatch(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-fade-left/);
   assert.match(source,/section\.classList\.toggle\('is-started',progress>0\)/);
   assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
@@ -203,6 +206,7 @@ test('desktop experience grid stays in the center while masks retain timeline ed
   assert.match(css,/\.experience-pattern\{background:#131414\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
+  assert.doesNotMatch(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-window/);
   assert.match(css,/\.experience-fade\{display:none\}/);
 });
 
