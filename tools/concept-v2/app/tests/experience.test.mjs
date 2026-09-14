@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceCompactPinnedSpacing,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -64,6 +64,12 @@ test('a tall pinned Experience scene balances both decorative fields inside the 
   assert.equal(layout.outer*2+layout.center,1238);
 });
 
+test('a compact pinned Experience scene lowers its heading and lifts the progress bar',()=>{
+  assert.deepEqual(experienceCompactPinnedSpacing(experienceLayout(900),true),{headingGap:42,progressGap:24,headingOffset:48});
+  assert.deepEqual(experienceCompactPinnedSpacing(experienceLayout(720),true),{headingGap:0,progressGap:24,headingOffset:48});
+  assert.deepEqual(experienceCompactPinnedSpacing(experienceLayout(900),false),{headingGap:42,progressGap:108,headingOffset:0});
+});
+
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
@@ -115,7 +121,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/const compactPinnedHeader=offset>0&&window\.innerHeight<1026/);
   assert.match(source,/const layoutViewport=offset>0&&!compactPinnedHeader\?window\.innerHeight-offset:window\.innerHeight/);
   assert.match(source,/const layout=experienceLayout\(layoutViewport\)/);
-  assert.match(source,/setProperty\('--experience-heading-offset',compactPinnedHeader\?'24px':'0px'\)/);
+  assert.match(source,/experienceCompactPinnedSpacing\(layout,compactPinnedHeader\)/);
   assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
   assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);

@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceCompactPinnedSpacing,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
 const HEADER_RESERVE=80;
@@ -60,16 +60,17 @@ export function Experience(){
       const compactPinnedHeader=offset>0&&window.innerHeight<1026;
       const layoutViewport=offset>0&&!compactPinnedHeader?window.innerHeight-offset:window.innerHeight;
       const layout=experienceLayout(layoutViewport);
+      const spacing=experienceCompactPinnedSpacing(layout,compactPinnedHeader);
       section.style.height=window.innerWidth>=1280?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
       sticky.current.style.setProperty('--experience-outer',`${layout.outer}px`);
       sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
       sticky.current.style.setProperty('--experience-free',`${layout.free}px`);
-      sticky.current.style.setProperty('--experience-heading-gap',`${layout.headingGap}px`);
+      sticky.current.style.setProperty('--experience-heading-gap',`${spacing.headingGap}px`);
       sticky.current.style.setProperty('--experience-tape-top',`${layout.tapeTop}px`);
-      sticky.current.style.setProperty('--experience-progress-gap',`${layout.progressGap}px`);
+      sticky.current.style.setProperty('--experience-progress-gap',`${spacing.progressGap}px`);
       sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
       sticky.current.style.setProperty('--experience-scale',String(layout.scale));
-      sticky.current.style.setProperty('--experience-heading-offset',compactPinnedHeader?'24px':'0px');
+      sticky.current.style.setProperty('--experience-heading-offset',`${spacing.headingOffset}px`);
       sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.outer));
     }
     function paint(){

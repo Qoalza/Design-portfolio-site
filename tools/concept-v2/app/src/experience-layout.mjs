@@ -5,6 +5,8 @@ const HORIZONTAL_TRAVEL=EXPERIENCE_NODE_ANCHORS.at(-1)-EXPERIENCE_NODE_ANCHORS[0
 const VERTICAL_TRAVEL=9690/1.1;
 const EXPERIENCE_STOPS=Object.freeze(EXPERIENCE_NODE_ANCHORS.map(anchor=>(anchor-EXPERIENCE_NODE_ANCHORS[0])/HORIZONTAL_TRAVEL));
 export const EXPERIENCE_PATTERN_MIN_HEIGHT=48;
+const COMPACT_PROGRESS_GAP=24;
+const COMPACT_HEADING_OFFSET=48;
 
 export function experienceStickyHeaderOffset(sectionTop,headerHeight){
   return sectionTop<=headerHeight?headerHeight:0;
@@ -41,6 +43,15 @@ export function experienceLayout(viewportHeight){
   const bottom=24+take(56);
   const scale=deficit?center/MIN_COMPOSITION:1;
   return {outer,center,free,headingGap,tapeTop,progressGap,bottom,scale};
+}
+
+export function experienceCompactPinnedSpacing(layout,isCompactPinned){
+  if(!isCompactPinned)return {headingGap:layout.headingGap,progressGap:layout.progressGap,headingOffset:0};
+  return {
+    headingGap:layout.headingGap,
+    progressGap:Math.min(layout.progressGap,COMPACT_PROGRESS_GAP),
+    headingOffset:COMPACT_HEADING_OFFSET,
+  };
 }
 
 export function experiencePatternVisible(outerHeight){
