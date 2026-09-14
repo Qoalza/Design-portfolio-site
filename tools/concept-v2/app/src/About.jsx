@@ -38,9 +38,9 @@ function AboutCard({card,frame,onOpen}){
 
 function ImageViewer({index,onChange,onClose,restoreFocus}){
  const dialogRef=useRef();
- const [scale,setScale]=useState(()=>typeof window==='undefined'?1:Math.min(1,(window.innerWidth-64)/1440,(window.innerHeight-64)/960));
+ const [scale,setScale]=useState(()=>typeof window==='undefined'?1:Math.min(1,window.innerWidth/1440,window.innerHeight/960));
  useEffect(()=>{
-  const update=()=>setScale(Math.min(1,(window.innerWidth-64)/1440,(window.innerHeight-64)/960));
+  const update=()=>setScale(Math.min(1,window.innerWidth/1440,window.innerHeight/960));
   update();window.addEventListener('resize',update);
   return()=>window.removeEventListener('resize',update);
  },[]);
@@ -95,7 +95,7 @@ export function About(){
  const [active,setActive]=useState(0);
  const [motion,setMotion]=useState(null);
  const [viewerIndex,setViewerIndex]=useState(null);
- const [layoutScale,setLayoutScale]=useState(()=>typeof window==='undefined'?1:Math.min(1,Math.max(.74,(window.innerWidth-64)/1440)));
+ const [layoutScale,setLayoutScale]=useState(()=>typeof window==='undefined'?1:Math.min(1,Math.max(.74,window.innerWidth/1440)));
  const rafRef=useRef();
  const openerRef=useRef();
  const activeRef=useRef(active);
@@ -105,7 +105,7 @@ export function About(){
   return()=>cancelAnimationFrame(rafRef.current);
  },[]);
  useEffect(()=>{
-  const update=()=>setLayoutScale(Math.min(1,Math.max(.74,(window.innerWidth-64)/1440)));
+  const update=()=>setLayoutScale(Math.min(1,Math.max(.74,window.innerWidth/1440)));
   update();window.addEventListener('resize',update);
   return()=>window.removeEventListener('resize',update);
  },[]);

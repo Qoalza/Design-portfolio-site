@@ -1,6 +1,6 @@
 # Concept V2 — «Обо мне»: корректирующий этап
 
-Status: `IN_PROGRESS`
+Status: `COMPLETE`
 
 ## Baseline
 
@@ -23,6 +23,14 @@ Status: `IN_PROGRESS`
 3. Card handoff, proportional caption scaling and effects.
 4. Hover and image viewer.
 5. Final evidence and one implementation self-review.
+
+## Completed checkpoints
+
+- `3522012`: baseline/source passport.
+- `158fd30`: native About structure, source assets, fixed internal card stages and control wiring.
+- `2781770`: stable proportional handoff and hover interaction.
+- `887eac2`: enlarged viewer and keyboard/scroll lifecycle.
+- Final evidence records the last review fixes, runtime matrix and scope check in the Figma ledger, QA record and Stage 1 handoff supplement.
 
 ## Stop-lines
 

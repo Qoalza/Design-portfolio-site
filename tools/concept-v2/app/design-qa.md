@@ -94,3 +94,19 @@ Status: `READY_FOR_REVIEW`
 - At 1279×900, `scrollWidth === clientWidth`; the personal section is intentionally hidden, AI becomes the single-column adaptive layout, footer becomes 72 px, and the earlier responsive Process layout remains intact.
 - At the desktop breakpoint, computed CSS resolves the 22 px Bibata Original Classic arrow for ordinary content and the matching hand for links/buttons. The process map still resolves to `cursor:none` for its bespoke lens interaction.
 - Latest verification: `npm test` passed 30/30; `npm run lint`, `npm run build`, `npm run check:browser` and `git diff --check` passed.
+
+## About correction — final evidence
+
+Status: `READY_FOR_REVIEW`
+
+- The implementation is based on the approved Concept V2 line, not the obsolete About worktree: branch `codex/concept-v2-about-correction` starts at exact baseline `3fe274a48d29caf0a96a599a13e97881b9e277dc`.
+- At 1440×960 the section is 1066 px tall with a 312 px heading and 649 px body. The centered content body is 1280 px wide; the copy/panel split is 684 / 1 / 593 px. The CSS dot field reports `16px 16px` and reaches the lower border.
+- At 2560×1440, 1920×1080 and 1440×900 the carousel frame stays at its source dimensions and document `scrollWidth === clientWidth`. At 1280×720 the deck has one uniform scale of `0.888889` and still has no horizontal overflow. At 1279×900 the pre-existing rule hides the desktop-only section; the rest of the approved static layout remains active.
+- Browser interaction evidence: each right/left action selects its target indicator at transition start; the three assets remain individual DOM images; the active card opens the viewer; `Esc` closes it. The viewer uses the active image in its foreground, halo and own side/rear context.
+- Opening the viewer at 1440×960 retained `documentElement.clientWidth` at 1440 before, during and after locking the body. Closing restored the prior vertical position without adding a visible scrollbar or width jump.
+- Automated final run: `npm run check` passed (34 tests, lint and production Vite build); `npm run check:browser` passed against the built bundle; `git diff --check` passed.
+
+### One final implementation self-review
+
+1. Fidelity/completeness: rechecked direct Figma children for heading, hatch, body copy, 16/16 dividers, panel pattern, all three card roles, lower gradient, hover action and enlarged viewer. Fixed the accidental CSS nesting under Experience and restored the 1440 px source scale (rather than scaling it down at the reference viewport).
+2. Regression/scope: rechecked the baseline experience grid, its entry mechanics and the existing below-1280 fallback through the repository tests and browser matrix. The change is confined to the isolated Concept V2 app, assets and evidence; no Admin, shared contract, Figma, published snapshot/archive, dependency, production or deployment action occurred.
