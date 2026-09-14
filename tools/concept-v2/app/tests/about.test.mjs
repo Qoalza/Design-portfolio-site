@@ -137,5 +137,7 @@ test('card treatment keeps the sharp border outside geometry and viewer uses one
  assert.match(about,/variant="light" className="about-square about-viewer-next"/);
  assert.match(css,/\.about-viewer-prev\{left:332px\}/);
  assert.match(css,/\.about-viewer-next\{right:332px\}/);
+ assert.match(css,/\.about-viewer-prev,\.about-viewer-next\{position:absolute;z-index:6;top:calc\(50% - 48px\)/);
+ assert.match(css,/\.about-viewer-close\{position:absolute;z-index:6;top:48px;right:276px;box-sizing:border-box;width:107px/);
  assert.doesNotMatch(css,/1\.625|1\.43333/);
 });

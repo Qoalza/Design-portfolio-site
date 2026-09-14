@@ -61,3 +61,15 @@ test('control icon frames render their vector child without a CSS mask',async()=
   assert.match(source,/stroke-width="1\.3" vector-effect="non-scaling-stroke"/,file);
  }
 });
+
+test('desktop custom cursor remains a full-frame vector layer with actionable states',async()=>{
+ const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
+ const css=await readFile(path.join(root,'src/style.css'),'utf8');
+ assert.match(app,/function CustomCursor\(\)/);
+ assert.match(app,/bibata-original-classic-pointer\.svg/);
+ assert.match(app,/bibata-original-classic-hand\.svg/);
+ assert.match(app,/closest\('a\[href\],button:not\(:disabled\),\[role="button"\]'\)/);
+ assert.match(css,/\.custom-cursor\{[^}]*width:22px;height:22px;pointer-events:none/);
+ assert.match(css,/html\[data-custom-cursor="on"\],html\[data-custom-cursor="on"\] \*\{cursor:none!important\}/);
+ assert.match(css,/\.custom-cursor\[data-mode="hand"\]\{margin-left:-4px;margin-top:-11px\}/);
+});

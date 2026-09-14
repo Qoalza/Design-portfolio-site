@@ -15,6 +15,29 @@ const steps=[
  {title:'Собираю решение в систему',description:'Проектирую сценарии, интерфейсы и логику. Проектирую дизайн систему, описываю гайдлайны. Согласовываю с разработкой.',image:'imgFrame26086400',dots:'imgFrame26086413',width:16},
  {title:'Довожу до продакшена',description:'Согласовываю решения, передаю в разработку и остаюсь на связи до релиза и поддерживаю после него.',image:'imgFrame26086401',dots:'imgFrame26086414',width:27}
 ];
+function CustomCursor(){
+ const cursor=useRef(null),mode=useRef('pointer'),visible=useRef(false);
+ useEffect(()=>{
+  const desktop=window.matchMedia('(min-width:1280px) and (pointer:fine)');
+  let frame=0;
+  const disable=()=>{cancelAnimationFrame(frame);visible.current=false;document.documentElement.dataset.customCursor='off'};
+  const move=event=>{
+   if(!desktop.matches)return disable();
+   const next=event.target instanceof Element&&event.target.closest('a[href],button:not(:disabled),[role="button"]')?'hand':'pointer';
+   if(next!==mode.current){mode.current=next;cursor.current?.setAttribute('data-mode',next)}
+   if(!visible.current){visible.current=true;document.documentElement.dataset.customCursor='on'}
+   cancelAnimationFrame(frame);
+   frame=requestAnimationFrame(()=>{if(cursor.current)cursor.current.style.transform=`translate3d(${event.clientX}px,${event.clientY}px,0)`});
+  };
+  const leave=event=>{if(!event.relatedTarget)disable()};
+  const change=()=>{if(!desktop.matches)disable()};
+  window.addEventListener('pointermove',move,{passive:true});
+  window.addEventListener('pointerout',leave,{passive:true});
+  desktop.addEventListener('change',change);
+  return()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerout',leave);desktop.removeEventListener('change',change);disable()};
+ },[]);
+ return <span ref={cursor} className="custom-cursor" data-mode="pointer" aria-hidden="true"><img className="custom-cursor-pointer" src="/cursors/bibata-original-classic-pointer.svg" alt=""/><img className="custom-cursor-hand" src="/cursors/bibata-original-classic-hand.svg" alt=""/></span>;
+}
 function Header(){
  return <header className="site-header" id="top"><div className="header-row">
   <a className="brand" href="#top" aria-label="Артур — на главную"><img src="/figma/imgSymbol.svg" width="44" height="44" alt=""/><span><strong>ARTUR</strong><small>Product Designer</small></span></a>
@@ -86,5 +109,5 @@ function AISection(){
   </div><p className="tech-note">// итоговые решения всегда остаются за мной</p></div></div><div className="ai-side ai-side-right" aria-hidden="true"/></section>;
 }
 export default function App(){
- return <><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><span className="texture texture-top" aria-hidden="true"><img src="/figma/imgImage21.png" alt=""/></span><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><AISection/><Experience/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
+ return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><span className="texture texture-top" aria-hidden="true"><img src="/figma/imgImage21.png" alt=""/></span><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Все работы</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><AISection/><Experience/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
 }
