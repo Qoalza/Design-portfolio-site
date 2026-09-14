@@ -31,6 +31,7 @@ Status: `COMPLETE`
 - `2781770`: stable proportional handoff and hover interaction.
 - `887eac2`: enlarged viewer and keyboard/scroll lifecycle.
 - Final evidence records the last review fixes, runtime matrix and scope check in the Figma ledger, QA record and Stage 1 handoff supplement.
+- Validated implementation/evidence checkpoint: `15d7eb5a5382e337cc465154f3a93932d64bf0b1`.
 
 ## Stop-lines
 

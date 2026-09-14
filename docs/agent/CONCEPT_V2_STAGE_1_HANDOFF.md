@@ -64,6 +64,7 @@ Protected implementation areas include `src/SvgLens.jsx`, `src/hero-layout.mjs`,
 ## About correction handoff
 
 - Correct line: `codex/concept-v2-about-correction`, created from approved baseline `3fe274a48d29caf0a96a599a13e97881b9e277dc` in `/private/tmp/design-portfolio-concept-v2-about-correction`.
+- Validated implementation/evidence checkpoint: `15d7eb5a5382e337cc465154f3a93932d64bf0b1`.
 - Runtime root remains `tools/concept-v2/app`; local evidence was checked at `http://127.0.0.1:43202/` from this worktree only.
 - The current stage adds the complete desktop-only «Обо мне» block after Experience, preserving the approved Hero, projects, process, AI, experience mechanics/grid, cursor and footer outside that insertion.
 - No change was made in the former `codex/concept-v2-heavy-polish` worktree. It must not be used as a source for future Concept V2 work.
