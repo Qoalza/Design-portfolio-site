@@ -23,7 +23,11 @@ export function aboutNextCard(active,direction,count=3){return wrapAboutCard(act
 
 function compose(frame,frontness,zIndex){
  const bounded={...frame,x:Math.max(0,Math.min(ABOUT_CARD_FRAME.width-frame.width,frame.x))};
- return {...bounded,contentScale:bounded.height/ABOUT_CARD_FRAME.frontHeight,frontness,rearStrength:1-frontness,zIndex};
+ /* The crop is established once by the active 320×420 card.  A changing
+    storyboard mask must not re-fit that crop: photo, gradient and caption
+    travel as one uniformly scaled canvas. */
+ const contentScale=bounded.height/ABOUT_CARD_FRAME.frontHeight;
+ return {...bounded,contentScale,frontness,rearStrength:1-frontness,zIndex};
 }
 
 export function aboutRestFrame(slot){

@@ -60,8 +60,10 @@ test('about structure maps the complete Figma block with native patterns and com
  assert.match(css,/\.about-dash-horizontal/);
  assert.match(css,/\.about-card-content\{[^}]*width:320px[^}]*height:420px/);
  assert.match(css,/\.about-card-frame\{[^}]*overflow:hidden/);
+ assert.match(css,/\.about-card-image\{[^}]*object-fit:cover/);
  assert.match(about,/function useDeckController/);
  assert.match(about,/function ImageViewer/);
+ assert.match(about,/new ResizeObserver\(update\)/);
  assert.match(about,/const \[viewerInitial,setViewerInitial\]/);
  assert.doesNotMatch(about,/setActive\(next\)/);
  assert.match(css,/about-viewer-deck \.about-card-caption[^}]*display:none/);

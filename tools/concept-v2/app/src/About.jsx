@@ -62,22 +62,22 @@ function useDeckController(initialIndex){
  return {active,frames,isMoving,go,move};
 }
 
-function AboutCard({card,frame,onOpen,moving,interactive=true,suppressHover=false,onHoverExit}){
+function AboutCard({card,frame,onOpen,moving,interactive=true,hovered=false,cardTargetRef}){
  const front=frame.frontness>.5;
  const enabled=interactive&&front&&!moving;
- return <article className="about-card-motion" data-slot={front?'front':'back'} data-hover-suppressed={suppressHover||undefined} style={frameStyle(frame)} aria-label={card.alt}>
+ return <article className="about-card-motion" data-slot={front?'front':'back'} data-hovered={enabled&&hovered||undefined} style={frameStyle(frame)} aria-label={card.alt}>
   <div className="about-card-depth" aria-hidden="true"/>
   <div className="about-card-halo" aria-hidden="true"><img src={card.image} alt=""/></div>
-  <div className="about-card-frame" role={enabled?'button':undefined} tabIndex={enabled?0:undefined} onClick={enabled?onOpen:undefined} onPointerLeave={enabled?onHoverExit:undefined} onKeyDown={event=>{if(enabled&&(event.key==='Enter'||event.key===' ')){event.preventDefault();onOpen(event)}}}>
+  <div ref={enabled?cardTargetRef:null} className="about-card-frame" role={enabled?'button':undefined} tabIndex={enabled?0:undefined} onClick={enabled?onOpen:undefined} onKeyDown={event=>{if(enabled&&(event.key==='Enter'||event.key===' ')){event.preventDefault();onOpen(event)}}}>
    <div className="about-card-content"><img className="about-card-image" src={card.image} alt=""/><span className="about-card-shade" aria-hidden="true"/><p className="about-card-caption">{card.caption}</p></div>
    {interactive&&<span className="about-card-open" aria-hidden="true"><Icon name="about-search-scale"/><span className="about-card-open-label">Увеличить</span></span>}
   </div>
  </article>;
 }
 
-function Deck({controller,onOpen,viewer=false,suppressHover=false,onHoverExit}){
+function Deck({controller,onOpen,viewer=false,hovered=false,cardTargetRef}){
  return <div className={viewer?'about-viewer-deck':'about-deck'} aria-live="polite">
-  {controller.frames.map((frame,index)=><AboutCard key={cards[index].id} card={cards[index]} frame={frame} moving={controller.isMoving} interactive={!viewer} suppressHover={suppressHover} onHoverExit={onHoverExit} onOpen={event=>onOpen(index,event)}/>)}</div>;
+  {controller.frames.map((frame,index)=><AboutCard key={cards[index].id} card={cards[index]} frame={frame} moving={controller.isMoving} interactive={!viewer} hovered={hovered} cardTargetRef={cardTargetRef} onOpen={event=>onOpen(index,event)}/>)}</div>;
 }
 
 function ImageViewer({initialIndex,onClose,restoreFocus}){
@@ -117,18 +117,35 @@ function ImageViewer({initialIndex,onClose,restoreFocus}){
 export function About(){
  const controller=useDeckController(0);
  const [viewerInitial,setViewerInitial]=useState(null);
- const [suppressHover,setSuppressHover]=useState(false);
- const [layoutScale,setLayoutScale]=useState(()=>Math.min(1,Math.max(.74,window.innerWidth/1440)));
+ const [hovered,setHovered]=useState(false);
+ const [layoutScale,setLayoutScale]=useState(1);
  const openerRef=useRef();
+ const carouselRef=useRef();
+ const activeCardRef=useRef();
  useEffect(()=>{cards.forEach(card=>{const image=new Image();image.src=card.image;image.decode?.().catch(()=>{})})},[]);
- useEffect(()=>{const update=()=>setLayoutScale(Math.min(1,Math.max(.74,window.innerWidth/1440)));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
- const open=useCallback((index,event)=>{if(controller.isMoving)return;setSuppressHover(false);openerRef.current=event?.currentTarget;setViewerInitial(index)},[controller.isMoving]);
+ useEffect(()=>{
+  const update=()=>{const width=carouselRef.current?.clientWidth??480;setLayoutScale(Math.min(1,Math.max(.74,width/480)));};
+  update();const observer=new ResizeObserver(update);if(carouselRef.current)observer.observe(carouselRef.current);
+  return()=>observer.disconnect();
+ },[]);
+ useEffect(()=>{
+  let current=false;
+  const updateHover=event=>{
+   const target=activeCardRef.current;
+   const rect=target?.getBoundingClientRect();
+   const next=Boolean(rect&&!controller.isMoving&&viewerInitial===null&&event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom);
+   if(next!==current){current=next;setHovered(next);}
+  };
+  document.addEventListener('pointermove',updateHover,{passive:true});
+  return()=>document.removeEventListener('pointermove',updateHover);
+ },[controller.isMoving,viewerInitial]);
+ const open=useCallback((index,event)=>{if(controller.isMoving)return;setHovered(false);openerRef.current=event?.currentTarget;setViewerInitial(index)},[controller.isMoving]);
  const select=useCallback(index=>controller.go(index),[controller]);
- const closeViewer=useCallback(()=>{setViewerInitial(null);setSuppressHover(true)},[]);
+ const closeViewer=useCallback(()=>{setViewerInitial(null);setHovered(false)},[]);
  return <>
   <section className={`about-section ${controller.isMoving?'is-moving':''}`} style={{'--about-layout-scale':layoutScale}} aria-labelledby="about-title">
    <div className="about-heading-shell"><div className="about-hatch about-hatch-left" aria-hidden="true"/><div className="about-heading"><div className="about-heading-copy"><p className="eyebrow">ЛИЧНОЕ</p><h2 id="about-title">Обо мне</h2><p>Немного о личном, увлечениях и карьере</p></div><p className="tech-note">// всегда нужно оставаться человеком</p></div><div className="about-hatch about-hatch-right" aria-hidden="true"/></div>
-   <div className="about-content"><article className="about-copy about-dash-horizontal" data-figma-node="3214:124474"><p>Мой путь в дизайн начался с предметной 3D-графики: несколько лет я создавал высокополигональные модели для игр и не только. Всегда были интересны сложные механизмы. Позднее, так сложилось, что я попробовал «плоскую» графику – постепенно этот интерес и привёл меня в продуктовый дизайн.</p><p>Любопытство никуда не исчезло и со временем стало частью моей работы. Мне нравится погружаться в незнакомые темы, раскладывать сложное на понятные части и осваивать новые инструменты.</p><p>Наверное поэтому, я активно увлекаюсь техникой и сложными устройствами. Испытываю эмоциональное возбуждение, когда узнаю, как устроена та или иная технология. Хотя в то же время, мне интересны не только технологии, но и весь мир. Дотошный, что иногда плохо. Поэтому весь сайт сделан мной с 0, без всякого «слопа».</p><p>В работе мне важны развитие и возможность реализовывать свои идеи, а в общении – открытость и прямота. Считаю себя достаточно самокритичным. Друзья считают меня душой компании, душнилой и любителем плохих шуток, обычно всё сразу.</p><p>А еще, обожаю водить, дальние поездки и горы. И конечно же, люблю сибушек :3</p></article><div className="about-divider about-dash-vertical" aria-hidden="true"/><div className="about-carousel" data-figma-node="3215:124481"><div className="about-pattern" aria-hidden="true"/><p className="about-carousel-heading">Зачем вам нейрослопы? Ну все же требуют работу с AI, а как говорится – бойтесь своих желаний :)</p><Deck controller={controller} onOpen={open} suppressHover={suppressHover} onHoverExit={()=>setSuppressHover(false)}/><div className="about-carousel-controls" aria-label="Переключить карточку"><ControlButton variant="ghost" className="about-square" iconLeft="about-chevron-left" onClick={()=>controller.move(-1)} aria-label="Предыдущая карточка"/><div className="about-dots" role="tablist" aria-label="Карточки">{cards.map((card,index)=><button key={card.id} type="button" role="tab" aria-selected={index===controller.active} aria-label={`Показать: ${card.alt}`} className={index===controller.active?'is-active':''} onClick={()=>select(index)}/>)}</div><ControlButton variant="ghost" className="about-square" iconRight="about-chevron-right" onClick={()=>controller.move(1)} aria-label="Следующая карточка"/></div></div></div>
+   <div className="about-content"><article className="about-copy about-dash-horizontal" data-figma-node="3214:124474"><p>Мой путь в дизайн начался с предметной 3D-графики: несколько лет я создавал высокополигональные модели для игр и не только. Всегда были интересны сложные механизмы. Позднее, так сложилось, что я попробовал «плоскую» графику – постепенно этот интерес и привёл меня в продуктовый дизайн.</p><p>Любопытство никуда не исчезло и со временем стало частью моей работы. Мне нравится погружаться в незнакомые темы, раскладывать сложное на понятные части и осваивать новые инструменты.</p><p>Наверное поэтому, я активно увлекаюсь техникой и сложными устройствами. Испытываю эмоциональное возбуждение, когда узнаю, как устроена та или иная технология. Хотя в то же время, мне интересны не только технологии, но и весь мир. Дотошный, что иногда плохо. Поэтому весь сайт сделан мной с 0, без всякого «слопа».</p><p>В работе мне важны развитие и возможность реализовывать свои идеи, а в общении – открытость и прямота. Считаю себя достаточно самокритичным. Друзья считают меня душой компании, душнилой и любителем плохих шуток, обычно всё сразу.</p><p>А еще, обожаю водить, дальние поездки и горы. И конечно же, люблю сибушек :3</p></article><div className="about-divider about-dash-vertical" aria-hidden="true"/><div ref={carouselRef} className="about-carousel" data-figma-node="3215:124481"><div className="about-pattern" aria-hidden="true"/><p className="about-carousel-heading">Зачем вам нейрослопы? Ну все же требуют работу с AI, а как говорится – бойтесь своих желаний :)</p><Deck controller={controller} onOpen={open} hovered={hovered} cardTargetRef={activeCardRef}/><div className="about-carousel-controls" aria-label="Переключить карточку"><ControlButton variant="ghost" className="about-square" iconLeft="about-chevron-left" onClick={()=>controller.move(-1)} aria-label="Предыдущая карточка"/><div className="about-dots" role="tablist" aria-label="Карточки">{cards.map((card,index)=><button key={card.id} type="button" role="tab" aria-selected={index===controller.active} aria-label={`Показать: ${card.alt}`} className={index===controller.active?'is-active':''} onClick={()=>select(index)}/>)}</div><ControlButton variant="ghost" className="about-square" iconRight="about-chevron-right" onClick={()=>controller.move(1)} aria-label="Следующая карточка"/></div></div></div>
   </section>
   {viewerInitial!==null&&<ImageViewer initialIndex={viewerInitial} onClose={closeViewer} restoreFocus={openerRef}/>}
  </>;
