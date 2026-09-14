@@ -145,7 +145,8 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
   assert.match(css,/\.experience-sticky:not\(\.has-pattern-fields\) \.experience-pattern\{visibility:hidden\}/);
   assert.match(source,/classList\.toggle\('has-pattern-fields',experiencePatternVisible\(layout\.outer\)\)/);
-  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*border-inline:1px solid #2e3133;[^}]*radial-gradient\(circle,#232526 0 2px,transparent 2\.5px\);[^}]*background-size:16px 16px/);
+  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*border-inline:1px solid #2e3133/);
+  assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
   assert.match(css,/\.pattern-top\{[^}]*border-bottom:1px solid #2e3133/);
   assert.match(css,/\.pattern-bottom\{[^}]*border-top:1px solid #2e3133/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
@@ -155,9 +156,8 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-fade-left,\.experience-fade-right\{width:240px\}/);
   assert.match(css,/\.experience-fade-left\{left:0;right:auto;width:109px;background:linear-gradient\(to right,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
   assert.match(css,/\.experience-fade-right\{right:0;width:280px;background:linear-gradient\(to left,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
-  assert.match(css,/\.experience\.is-complete \.experience-fade-left\{opacity:0\}/);
   assert.match(css,/\.experience-fade-left\{opacity:0\}/);
-  assert.match(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-fade-left\{opacity:1\}/);
+  assert.match(css,/\.experience\.is-started \.experience-fade-left\{opacity:1\}/);
   assert.match(source,/section\.classList\.toggle\('is-started',progress>0\)/);
   assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
@@ -202,6 +202,16 @@ test('desktop experience grid stays in the center while masks retain timeline ed
   assert.match(css,/background-size:96px 96px/);
   assert.match(css,/\.experience-pattern\{background:#131414\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
-  assert.match(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
+  assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
   assert.match(css,/\.experience-fade\{display:none\}/);
+});
+
+test('decorative dot fields use the exact 3px Figma tile without changing functional markers',async()=>{
+  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+  const tile=await readFile(path.resolve(import.meta.dirname,'../public/figma/dot-tile.svg'),'utf8');
+  assert.equal(tile,'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="1.5" fill="#232526"/></svg>\n');
+  assert.match(css,/\.about-pattern\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
+  assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
+  assert.match(css,/\.about-dots button::before\{content:"";width:6px;height:6px/);
+  assert.match(css,/\.experience-node\{[^}]*width:32px;height:32px/);
 });

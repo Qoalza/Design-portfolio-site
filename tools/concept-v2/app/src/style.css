@@ -183,11 +183,22 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .about-viewer-content p{min-height:96px}
 @media(min-width:1280px) and (max-width:1439px){.about-heading,.about-content{width:calc(100% - 64px)}.about-content{grid-template-columns:minmax(0,684fr) 1px minmax(0,593fr)}.about-copy{padding-inline:clamp(32px,4vw,56px)}}
 @media(max-width:1439px),(max-height:959px){.about-viewer .control{height:32px}.about-viewer .about-square{width:32px!important;height:32px!important;min-width:32px!important}.about-viewer-dialog{--about-viewer-small-delta:0}}
-    @media(prefers-reduced-motion:reduce){.about-card-motion{will-change:auto}.about-card-open{transition:none}}
+@media(prefers-reduced-motion:reduce){.about-card-motion{will-change:auto}.about-card-open{transition:none}}
 
-    /* Each control has a real Figma SVG inside a layout frame. SVG scales its
-       geometry with the frame while vector-effect preserves the authored stroke. */
-    .icon{display:inline-grid;place-items:center;background:none;mask:none!important;-webkit-mask:none!important}
+/* One exported Figma tile is shared only by decorative repeating fields. */
+.experience-pattern-grid{background-image:url('/figma/dot-tile.svg');background-size:16px 16px;background-position:0 0}
+.about-pattern{background-image:url('/figma/dot-tile.svg');background-size:16px 16px;background-position:0 0}
+
+/* Completion keeps the left edge treatment. Only progress=0 removes
+   is-started and restores the initial one-sided presentation. */
+.experience.is-started .experience-fade-left{opacity:1}
+@media(min-width:1280px){
+ .experience.is-started .experience-window{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 240px,#000 calc(100% - 240px),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 240px,#000 calc(100% - 240px),transparent 100%)}
+}
+
+/* Each control has a real Figma SVG inside a layout frame. SVG scales its
+   geometry with the frame while vector-effect preserves the authored stroke. */
+.icon{display:inline-grid;place-items:center;background:none;mask:none!important;-webkit-mask:none!important}
     .icon>svg{display:block;width:100%;height:100%;overflow:visible}
     .caption-icon{background:none;mask:none!important;-webkit-mask:none!important}
     /* Bibata Original Classic: direct cursor artwork only, without trailing or magnetic behavior. */
