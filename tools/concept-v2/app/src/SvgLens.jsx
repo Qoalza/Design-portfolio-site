@@ -4,6 +4,7 @@ import './svg-lens.css';
 import {SvgNetwork} from './SvgNetwork';
 import {HEIGHT,WIDTH} from './network-data.mjs';
 import {captionForPoint,clientPointToSvg,svgPointToClient} from './hero-layout.mjs';
+import {Icon} from './Controls';
 
 export function SvgLens(){
   const area=useRef(null);
@@ -73,7 +74,7 @@ export function SvgLens(){
       </div>
       <div className="lens-rim" aria-hidden="true"/>
     </div>
-    <p className="process-caption" aria-live="polite"><span key={`${caption.icon}:${caption.label}`} className={`process-caption-content ${caption.active?'is-active':''}`}><i className={`caption-icon caption-icon-${caption.icon}`} aria-hidden="true"/><span>{caption.label}</span></span></p>
+    <p className="process-caption" aria-live="polite"><span key={`${caption.icon}:${caption.label}`} className={`process-caption-content ${caption.active?'is-active':''}`}><Icon name={`hero-${caption.icon}`} className="caption-icon"/><span>{caption.label}</span></span></p>
     <div className="touch-explore"><button type="button" aria-pressed={touchExplore} onClick={()=>{setTouchExplore(!touchExplore);setActive(!touchExplore)}}>{touchExplore?'Завершить просмотр':'Исследовать схему'}</button></div>
     <span className="sr-only">Изучение задачи, анализ данных, пользовательские сценарии, проектирование, передача в разработку, проверка, запуск и развитие.</span>
   </div>;

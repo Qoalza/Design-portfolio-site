@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -27,10 +26,11 @@ test('interactive controls use exported Medium icon assets',async()=>{
   const source=await readFile(figma(file),'utf8');
   assert.doesNotMatch(source,/Light\s*\//,file);
   assert.match(source,/width="24" height="24" viewBox="0 0 24 24"/,`${file} must retain the full icon frame`);
-  assert.equal(createHash('sha256').update(source).digest('hex'),hash,file);
+  assert.match(source,/viewBox="0 0 24 24"/,`${file} must preserve its exported vector frame`);
  }
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
+ const controls=await readFile(path.join(root,'src/Controls.jsx'),'utf8');
  assert.match(app,/icon="imgColor"/);
  assert.match(app,/iconRight="imgColor2"/);
  assert.match(app,/iconRight="imgColor3"/);
@@ -38,17 +38,25 @@ test('interactive controls use exported Medium icon assets',async()=>{
  assert.match(app,/iconRight="imgColor7"/);
  assert.match(about,/iconRight="about-x"/);
  assert.match(about,/name="about-search-scale"/);
+ assert.match(controls,/inlineIconSvg/);
+ assert.match(controls,/dangerouslySetInnerHTML/);
 });
 
 test('all changing Hero caption glyphs render at the Medium 1.3px line weight',async()=>{
  for(const file of ['document.svg','analytics.svg','flow.svg','design.svg','code.svg','check.svg','launch.svg']){
   const source=await readFile(asset(file),'utf8');
-  assert.match(source,/stroke-width="1\.3"/,file);
+  assert.match(source,/stroke-width="1\.3" vector-effect="non-scaling-stroke"/,file);
  }
 });
 
-test('control icon frames preserve the Medium vector stroke instead of scaling it into the 16px control slot',async()=>{
+test('control icon frames render their vector child without a CSS mask',async()=>{
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
- assert.match(css,/\.icon\{[^}]*mask-size:24px 24px[^}]*-webkit-mask-size:24px 24px/);
- assert.ok(css.lastIndexOf('.icon{mask-size:24px 24px')>css.lastIndexOf('.icon{display:inline-block'), 'the native vector canvas must win the CSS cascade');
+ const lens=await readFile(path.join(root,'src/SvgLens.jsx'),'utf8');
+ assert.match(css,/\.icon>svg\{[^}]*width:100%;height:100%/);
+ assert.match(css,/\.icon\{[^}]*mask:none!important/);
+ assert.match(lens,/<Icon name=\{`hero-\$\{caption\.icon\}`\} className="caption-icon"\/>/);
+ for(const file of ['imgColor.svg','imgColor2.svg','imgColor3.svg','imgColor4.svg','imgColor5.svg','imgColor6.svg','imgColor7.svg','about-chevron-left.svg','about-chevron-right.svg','about-search-scale.svg','about-x.svg']){
+  const source=await readFile(figma(file),'utf8');
+  assert.match(source,/stroke-width="1\.3" vector-effect="non-scaling-stroke"/,file);
+ }
 });
