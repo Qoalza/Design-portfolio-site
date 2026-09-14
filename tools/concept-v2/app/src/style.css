@@ -178,6 +178,9 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
    geometry with the frame while vector-effect preserves the authored stroke. */
 .icon{position:relative;display:inline-grid;place-items:center;background:none;mask:none!important;-webkit-mask:none!important}
     .icon>svg{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;overflow:visible}.icon>svg [stroke]{stroke:currentColor;vector-effect:non-scaling-stroke}
+/* This source is a 15.3×21.3 leaf centered inside Figma's 24×24 component.
+   Retain those bounds inside any square runtime layout frame; never stretch it. */
+.icon[data-icon="imgColor7"]>svg{inset:auto;left:18.125%;top:5.625%;width:63.75%!important;height:88.75%!important}
     .caption-icon{background:none;mask:none!important;-webkit-mask:none!important}
 @media (min-width:1280px){
  /* Browser-native SVG cursors are suppressed in the embedded preview, so the
