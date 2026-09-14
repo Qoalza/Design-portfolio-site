@@ -31,7 +31,7 @@ test('viewer is a direct 1.5× scale of the accepted embedded card component',()
  assert.equal(rear.x-(leftRear.x+leftRear.width),-120);
 });
 
-test('embedded motion uses one shared eased path inside the 480px stage',()=>{
+test('embedded motion uses one shared continuous path inside the 480px stage',()=>{
  for(const direction of [-1,1]){
   for(let step=0;step<=120;step++){
    const frames=aboutTransitionFrames({active:0,direction,progress:step/120});
@@ -43,13 +43,19 @@ test('embedded motion uses one shared eased path inside the 480px stage',()=>{
   }
  }
  const start=aboutTransitionFrames({active:0,direction:1,progress:0});
- const middle=aboutTransitionFrames({active:0,direction:1,progress:.5});
  const finish=aboutTransitionFrames({active:0,direction:1,progress:1});
  for(let index=0;index<3;index++){
-  assert.ok(Math.abs(middle[index].x-(start[index].x+finish[index].x)/2)<1e-9);
-  assert.ok(Math.abs(middle[index].y-(start[index].y+finish[index].y)/2)<1e-9);
-  assert.ok(Math.abs(middle[index].width-(start[index].width+finish[index].width)/2)<1e-9);
-  assert.ok(Math.abs(middle[index].height-(start[index].height+finish[index].height)/2)<1e-9);
+  assert.notDeepEqual(start[index],finish[index]);
+ }
+});
+
+test('the exchanging cards clear each other at the continuous hand-off',()=>{
+ for(const direction of [-1,1]){
+  const frames=aboutTransitionFrames({active:0,direction,progress:.5});
+  const outgoing=frames[0];
+  const incoming=frames[direction===1?1:2];
+  const [left,right]=outgoing.x<incoming.x?[outgoing,incoming]:[incoming,outgoing];
+  assert.ok(left.x+left.width<=right.x,`cards overlap at the ${direction===1?'next':'previous'} hand-off`);
  }
 });
 
@@ -124,6 +130,7 @@ test('about structure maps the complete Figma block with native patterns and com
  assert.match(about,/function ImageViewer/);
  assert.match(about,/new ResizeObserver\(update\)/);
  assert.match(about,/const \[viewerInitial,setViewerInitial\]/);
+ assert.match(about,/const visibleCard=cards\[controller\.frames\.reduce/);
  assert.doesNotMatch(about,/setActive\(next\)/);
  assert.match(css,/about-viewer-deck \.about-card-caption[^}]*display:none/);
 });

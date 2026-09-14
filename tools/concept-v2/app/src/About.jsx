@@ -108,12 +108,12 @@ function ImageViewer({initialIndex,onClose,restoreFocus}){
   document.addEventListener('keydown',onKeyDown);requestAnimationFrame(()=>dialogRef.current?.querySelector('button')?.focus());
   return()=>{document.removeEventListener('keydown',onKeyDown);Object.assign(body.style,original);window.scrollTo(0,scrollY);(restoreFocus.current??previous)?.focus?.({preventScroll:true});};
  },[onClose,restoreFocus,viewerMove]);
- const card=cards[controller.active];
+ const visibleCard=cards[controller.frames.reduce((frontIndex,frame,index)=>frame.frontness>controller.frames[frontIndex].frontness?index:frontIndex,0)];
  return <div className="about-viewer" role="presentation" onClick={closeFromEmptyViewerSpace}>
-  <section ref={dialogRef} className="about-viewer-dialog" style={{'--about-viewer-scale':scale}} role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${card.alt}`}>
+  <section ref={dialogRef} className="about-viewer-dialog" style={{'--about-viewer-scale':scale}} role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${visibleCard.alt}`}>
    <ControlButton variant="ghost" className="about-viewer-close" iconRight="about-x" onClick={onClose}>Закрыть</ControlButton>
    <ControlButton variant="light" className="about-square about-viewer-prev" iconLeft="about-chevron-left" onClick={()=>controller.move(-1)} aria-label="Предыдущее изображение"/>
-   <div className="about-viewer-content"><div className="about-viewer-deck-stage"><div className="about-viewer-deck-scale"><Deck controller={controller} onOpen={()=>{}} viewer/></div></div><p>{card.caption}</p></div>
+   <div className="about-viewer-content"><div className="about-viewer-deck-stage"><div className="about-viewer-deck-scale"><Deck controller={controller} onOpen={()=>{}} viewer/></div></div><p>{visibleCard.caption}</p></div>
    <ControlButton variant="light" className="about-square about-viewer-next" iconRight="about-chevron-right" onClick={()=>controller.move(1)} aria-label="Следующее изображение"/>
   </section>
  </div>;
