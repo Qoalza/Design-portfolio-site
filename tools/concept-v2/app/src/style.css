@@ -183,9 +183,12 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .about-viewer-content p{min-height:96px}
 @media(min-width:1280px) and (max-width:1439px){.about-heading,.about-content{width:calc(100% - 64px)}.about-content{grid-template-columns:minmax(0,684fr) 1px minmax(0,593fr)}.about-copy{padding-inline:clamp(32px,4vw,56px)}}
 @media(max-width:1439px),(max-height:959px){.about-viewer .control{height:32px}.about-viewer .about-square{width:32px!important;height:32px!important;min-width:32px!important}.about-viewer-dialog{--about-viewer-small-delta:0}}
-@media(prefers-reduced-motion:reduce){.about-card-motion{will-change:auto}.about-card-open{transition:none}}
+    @media(prefers-reduced-motion:reduce){.about-card-motion{will-change:auto}.about-card-open{transition:none}}
 
-/* Bibata Original Classic: direct cursor artwork only, without trailing or magnetic behavior. */
+    /* Control slots are 16px in Figma; the exported Medium glyph remains on its
+       native 24px vector canvas so the authored 1.3px stroke is never scaled. */
+    .icon{mask-size:24px 24px;-webkit-mask-size:24px 24px}
+    /* Bibata Original Classic: direct cursor artwork only, without trailing or magnetic behavior. */
 @media (min-width:1280px){
  html{cursor:url("/cursors/bibata-original-classic-pointer.svg") 6 3,default}
  a[href],button:not(:disabled),[role="button"]{cursor:url("/cursors/bibata-original-classic-hand.svg") 4 11,pointer}

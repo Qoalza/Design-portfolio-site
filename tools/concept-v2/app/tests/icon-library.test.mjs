@@ -46,3 +46,9 @@ test('all changing Hero caption glyphs render at the Medium 1.3px line weight',a
   assert.match(source,/stroke-width="1\.3"/,file);
  }
 });
+
+test('control icon frames preserve the Medium vector stroke instead of scaling it into the 16px control slot',async()=>{
+ const css=await readFile(path.join(root,'src/style.css'),'utf8');
+ assert.match(css,/\.icon\{[^}]*mask-size:24px 24px[^}]*-webkit-mask-size:24px 24px/);
+ assert.ok(css.lastIndexOf('.icon{mask-size:24px 24px')>css.lastIndexOf('.icon{display:inline-block'), 'the native vector canvas must win the CSS cascade');
+});
