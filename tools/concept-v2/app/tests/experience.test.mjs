@@ -163,8 +163,13 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.doesNotMatch(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-fade-left/);
   assert.match(source,/section\.classList\.toggle\('is-started',progress>0\)/);
   assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
+  assert.match(source,/const HEADER_RESERVE=80/);
+  assert.match(source,/top=section\.getBoundingClientRect\(\)\.top\+window\.scrollY-HEADER_RESERVE/);
+  assert.match(source,/const availableHeight=window\.innerHeight-HEADER_RESERVE/);
+  assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{availableHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
+  assert.match(css,/\.experience-sticky\{position:sticky;top:80px;height:calc\(100svh - 80px\)/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
-  assert.match(tabletBlock,/\.experience-sticky\{position:relative;height:auto;display:block;overflow:visible\}/);
+  assert.match(tabletBlock,/\.experience-sticky\{position:relative;top:auto;height:auto;display:block;overflow:visible\}/);
   assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);
 });
 

@@ -39,11 +39,35 @@ function CustomCursor(){
  return <span ref={cursor} className="custom-cursor" data-mode="pointer" aria-hidden="true"><img className="custom-cursor-pointer" src="/cursors/bibata-original-classic-pointer.svg" alt=""/><img className="custom-cursor-hand" src="/cursors/bibata-original-classic-hand.svg" alt=""/></span>;
 }
 function Header(){
- return <header className="site-header" id="top"><div className="header-row">
+ const shell=useRef(null),pinnedRef=useRef(false),leavingRef=useRef(false),[pinned,setPinned]=useState(false),[leaving,setLeaving]=useState(false);
+ useEffect(()=>{
+  let frame=0,exitTimer=0;
+  const paint=()=>{
+   frame=0;
+   const next=window.scrollY>(shell.current?.offsetHeight??80);
+   if(next){
+    clearTimeout(exitTimer);
+    leavingRef.current=false;
+    setLeaving(false);
+    if(!pinnedRef.current){pinnedRef.current=true;setPinned(true)}
+    return;
+   }
+   if(!pinnedRef.current||leavingRef.current)return;
+   leavingRef.current=true;
+   setLeaving(true);
+   exitTimer=setTimeout(()=>{pinnedRef.current=false;leavingRef.current=false;setPinned(false);setLeaving(false)},150);
+  };
+  const schedule=()=>{if(!frame)frame=requestAnimationFrame(paint)};
+  paint();
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  return()=>{cancelAnimationFrame(frame);clearTimeout(exitTimer);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule)};
+ },[]);
+ return <div ref={shell} className={`site-header-shell${pinned?' is-pinned':''}`}><header className={`site-header${pinned?' is-pinned':''}${leaving?' is-unpinning':''}`} id="top"><div className="header-row">
   <a className="brand" href="#top" aria-label="Артур — на главную"><img src="/figma/imgSymbol.svg" width="44" height="44" alt=""/><span><strong>ARTUR</strong><small>Product Designer</small></span></a>
   <nav aria-label="Основная навигация"><NavigationTab icon="imgColor" active>Главная</NavigationTab><NavigationTab icon="imgColor1" disabled>Блог</NavigationTab><NavigationTab icon="imgColor1" disabled>Лаборатория</NavigationTab></nav>
   <div className="header-actions"><MobileNavigation/><span className="availability"><img src="/figma/imgIndicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ControlButton variant="accent" href="https://t.me/Coco_soul" external iconRight="imgColor2">Связаться</ControlButton></div>
- </div></header>;
+ </div></header></div>;
 }
 function Hero(){
  const [layout,setLayout]=useState(()=>getHeroVariant(typeof window==='undefined'?0:window.innerHeight));

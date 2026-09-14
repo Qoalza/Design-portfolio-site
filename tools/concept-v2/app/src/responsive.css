@@ -31,7 +31,7 @@
  .process-heading .tech-note{margin-left:0;max-width:none}
  .step-top{display:flex;flex-direction:column;gap:40px}
  .experience{height:auto!important}
- .experience-sticky{position:relative;height:auto;display:block;overflow:visible}
+ .experience-sticky{position:relative;top:auto;height:auto;display:block;overflow:visible}
  .experience-pattern{display:none}
  .experience-center{height:auto!important;display:block;overflow:visible}
  .experience-composition{padding:80px 0;transform:none}
@@ -101,7 +101,7 @@
 }
 
 @media(max-width:599px){
- .site-header,.header-row,.brand{height:72px}
+ .site-header-shell,.site-header,.header-row,.brand{height:72px}
  .header-row{width:calc(100% - 40px)}
  .brand{gap:8px}.brand>img{width:32px;height:32px}
  .brand strong{font-size:14px;line-height:20px}

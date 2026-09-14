@@ -4,6 +4,7 @@ import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
+const HEADER_RESERVE=80;
 
 const jobs=[
   {className:'current',from:'Май 2026',to:'Настоящее время',role:'',company:'Открыт к предложениям',description:'Готов к новым задачам — как в рамках отдельных проектов, так и на полной занятости.'},
@@ -86,7 +87,7 @@ export function Experience(){
         previousScrollY=window.scrollY;
         return;
       }
-      const top=section.getBoundingClientRect().top+window.scrollY;
+      const top=section.getBoundingClientRect().top+window.scrollY-HEADER_RESERVE;
       let currentScrollY=window.scrollY;
       const enteredFromAbove=previousScrollY<top&&currentScrollY>=top;
       if(enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth'){
@@ -124,9 +125,10 @@ export function Experience(){
     }
     function size({preserve=false}={}){
       const active=preserve&&progress>0&&progress<1&&window.innerWidth>=1280;
-      const layout=experienceLayout(window.innerHeight);
+      const availableHeight=window.innerHeight-HEADER_RESERVE;
+      const layout=experienceLayout(availableHeight);
       const section=root.current;
-      section.style.height=window.innerWidth>=1280?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
+      section.style.height=window.innerWidth>=1280?`${availableHeight+VERTICAL_TRAVEL}px`:'auto';
       sticky.current.style.setProperty('--experience-outer',`${layout.outer}px`);
       sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
       sticky.current.style.setProperty('--experience-free',`${layout.free}px`);
