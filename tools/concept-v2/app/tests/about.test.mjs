@@ -31,7 +31,7 @@ test('viewer is a direct 1.5× scale of the accepted embedded card component',()
  assert.equal(rear.x-(leftRear.x+leftRear.width),-120);
 });
 
-test('embedded motion stays inside the 480px stage and separates the handoff at midpoint',()=>{
+test('embedded motion uses one shared eased path inside the 480px stage',()=>{
  for(const direction of [-1,1]){
   for(let step=0;step<=120;step++){
    const frames=aboutTransitionFrames({active:0,direction,progress:step/120});
@@ -42,9 +42,15 @@ test('embedded motion stays inside the 480px stage and separates the handoff at 
    }
   }
  }
- const frames=aboutTransitionFrames({active:0,direction:1,progress:.5});
- const outgoing=frames[0],incoming=frames[1];
- assert.ok(outgoing.x+outgoing.width<=incoming.x-8);
+ const start=aboutTransitionFrames({active:0,direction:1,progress:0});
+ const middle=aboutTransitionFrames({active:0,direction:1,progress:.5});
+ const finish=aboutTransitionFrames({active:0,direction:1,progress:1});
+ for(let index=0;index<3;index++){
+  assert.ok(Math.abs(middle[index].x-(start[index].x+finish[index].x)/2)<1e-9);
+  assert.ok(Math.abs(middle[index].y-(start[index].y+finish[index].y)/2)<1e-9);
+  assert.ok(Math.abs(middle[index].width-(start[index].width+finish[index].width)/2)<1e-9);
+  assert.ok(Math.abs(middle[index].height-(start[index].height+finish[index].height)/2)<1e-9);
+ }
 });
 
 test('card content has its own proportional scale track rather than a refit to mask dimensions',()=>{
@@ -52,8 +58,8 @@ test('card content has its own proportional scale track rather than a refit to m
  const middle=aboutTransitionFrames({active:0,direction:1,progress:.5});
  const end=aboutTransitionFrames({active:0,direction:1,progress:1});
  assert.equal(start[0].contentScale,1);
- assert.equal(middle[0].contentScale,.86875);
- assert.equal(middle[1].contentScale,.7129333333333333);
+ assert.equal(middle[0].contentScale,.9);
+ assert.equal(middle[1].contentScale,.9);
  assert.equal(end[0].contentScale,.8);
 });
 
