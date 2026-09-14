@@ -182,6 +182,9 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
    Retain those bounds inside any square runtime layout frame; never stretch it. */
 .icon[data-icon="imgColor7"]>svg{inset:auto;left:18.125%;top:5.625%;width:63.75%!important;height:88.75%!important}
     .caption-icon{background:none;mask:none!important;-webkit-mask:none!important}
+
+/* Compact Experience: lift copy only; the motion frame keeps its coordinates. */
+.experience.is-compact .experience-heading{transform:translateY(-16px)}
 @media (min-width:1280px){
  /* Browser-native SVG cursors are suppressed in the embedded preview, so the
     same Bibata vectors render in a document layer with exact hotspots. */

@@ -120,9 +120,10 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
   assert.match(css,/grid-template-rows:var\(--experience-top-outer\) var\(--experience-center\) var\(--experience-bottom-outer\)/);
   assert.doesNotMatch(source,/is-header-offset|HEADER_RESERVE|experienceStickyHeaderOffset|experienceCompactPinnedSpacing/);
-  assert.doesNotMatch(css,/\.experience\.is-header-offset|--experience-heading-offset|\.experience-heading\{transform:translateY/);
+  assert.doesNotMatch(css,/\.experience\.is-header-offset|--experience-heading-offset/);
   assert.match(css,/\.experience\.is-compact \.experience-center\{align-items:flex-start\}/);
   assert.match(css,/\.experience\.is-compact \.experience-composition\{transform:translateY\(var\(--experience-compact-offset\)\) scale\(var\(--experience-scale\)\);transform-origin:top center\}/);
+  assert.match(css,/\.experience\.is-compact \.experience-heading\{transform:translateY\(-16px\)\}/);
   assert.match(css,/\.experience\.is-compact \.experience-progress\{display:none\}/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;top:auto;height:auto;display:block;overflow:visible\}/);
