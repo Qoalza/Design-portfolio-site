@@ -3,7 +3,8 @@ import './lens.css';
 import './svg-lens.css';
 import {SvgNetwork} from './SvgNetwork';
 import {HEIGHT,WIDTH} from './network-data.mjs';
-import {captionForPoint,clientPointToSvg,svgPointToClient} from './hero-layout.mjs';
+import {clientPointToSvg,svgPointToClient} from './hero-layout.mjs';
+import {createCaptionController,DEFAULT_CAPTION} from './hero-caption.mjs';
 import {Icon} from './Controls';
 
 export function SvgLens(){
@@ -13,6 +14,22 @@ export function SvgLens(){
   const [active,setActive]=useState(false);
   const [coarse,setCoarse]=useState(false);
   const [touchExplore,setTouchExplore]=useState(false);
+  const [captionFrame,setCaptionFrame]=useState({current:DEFAULT_CAPTION,outgoing:null,revision:0});
+  const captionCurrent=useRef(DEFAULT_CAPTION);
+  const captionController=useRef(null);
+  const captionTransitionTimer=useRef(null);
+  useEffect(()=>{
+    captionController.current=createCaptionController({onChange:next=>{
+      const previous=captionCurrent.current;
+      if(previous.key===next.key)return;
+      captionCurrent.current=next;
+      clearTimeout(captionTransitionTimer.current);
+      setCaptionFrame(frame=>({current:next,outgoing:previous,revision:frame.revision+1}));
+      captionTransitionTimer.current=setTimeout(()=>setCaptionFrame(frame=>({...frame,outgoing:null})),300);
+    }});
+    return ()=>{captionController.current?.destroy();clearTimeout(captionTransitionTimer.current)};
+  },[]);
+  useEffect(()=>captionController.current?.update(active?point:null),[active,point.x,point.y]);
   useEffect(()=>{
     const query=window.matchMedia('(pointer: coarse)');
     const update=()=>{setCoarse(query.matches);setTouchExplore(false);setActive(false)};
@@ -40,7 +57,6 @@ export function SvgLens(){
     window.addEventListener('pointermove',followOutside);
     return ()=>window.removeEventListener('pointermove',followOutside);
   },[]);
-  const caption=captionForPoint(active?point:null);
   function move(event){
     if(event.pointerType==='touch'&&!touchExplore)return;
     const rect=area.current.getBoundingClientRect();
@@ -74,7 +90,10 @@ export function SvgLens(){
       </div>
       <div className="lens-rim" aria-hidden="true"/>
     </div>
-    <p className="process-caption" aria-live="polite"><span key={`${caption.icon}:${caption.label}`} className={`process-caption-content ${caption.active?'is-active':''}`}><Icon name={`hero-${caption.icon}`} className="caption-icon"/><span>{caption.label}</span></span></p>
+    <p className="process-caption"><span className="process-caption-shell" aria-hidden="true">
+      {captionFrame.outgoing&&<span key={`out:${captionFrame.revision}`} className={`process-caption-content is-outgoing ${captionFrame.outgoing.active?'is-active':''}`}><Icon name={`hero-${captionFrame.outgoing.icon}`} className="caption-icon"/><span>{captionFrame.outgoing.label}</span></span>}
+      <span key={`in:${captionFrame.revision}`} className={`process-caption-content is-incoming ${captionFrame.current.active?'is-active':''}`}><Icon name={`hero-${captionFrame.current.icon}`} className="caption-icon"/><span>{captionFrame.current.label}</span></span>
+    </span><span className="sr-only" aria-live="polite">{captionFrame.current.label}</span></p>
     <div className="touch-explore"><button type="button" aria-pressed={touchExplore} onClick={()=>{setTouchExplore(!touchExplore);setActive(!touchExplore)}}>{touchExplore?'Завершить просмотр':'Исследовать схему'}</button></div>
     <span className="sr-only">Изучение задачи, анализ данных, пользовательские сценарии, проектирование, передача в разработку, проверка, запуск и развитие.</span>
   </div>;

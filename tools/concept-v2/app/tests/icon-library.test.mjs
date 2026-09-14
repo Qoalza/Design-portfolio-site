@@ -54,7 +54,8 @@ test('control icon frames render their vector child without a CSS mask',async()=
  const lens=await readFile(path.join(root,'src/SvgLens.jsx'),'utf8');
  assert.match(css,/\.icon>svg\{[^}]*width:100%;height:100%/);
  assert.match(css,/\.icon\{[^}]*mask:none!important/);
- assert.match(lens,/<Icon name=\{`hero-\$\{caption\.icon\}`\} className="caption-icon"\/>/);
+ assert.match(lens,/<Icon name=\{`hero-\$\{captionFrame\.current\.icon\}`\} className="caption-icon"\/>/);
+ assert.match(lens,/<Icon name=\{`hero-\$\{captionFrame\.outgoing\.icon\}`\} className="caption-icon"\/>/);
  for(const file of ['imgColor.svg','imgColor2.svg','imgColor3.svg','imgColor4.svg','imgColor5.svg','imgColor6.svg','imgColor7.svg','about-chevron-left.svg','about-chevron-right.svg','about-search-scale.svg','about-x.svg']){
   const source=await readFile(figma(file),'utf8');
   assert.match(source,/stroke-width="1\.3" vector-effect="non-scaling-stroke"/,file);

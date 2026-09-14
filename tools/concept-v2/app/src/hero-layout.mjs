@@ -6,11 +6,12 @@ export function getHeroVariant(height){
 
 export function captionForPoint(point){
   if(point){
-    const nearest=nodes.find(node=>{
+    const nearest=nodes.reduce((best,node)=>{
       const candidate=position(node);
-      return Math.hypot(candidate.x-point.x,candidate.y-point.y)<64;
-    });
-    if(nearest)return {label:nearest[3],icon:nearest[2],active:true};
+      const distance=Math.hypot(candidate.x-point.x,candidate.y-point.y);
+      return !best||distance<best.distance?{node,distance}:best;
+    },null);
+    if(nearest?.distance<64)return {label:nearest.node[3],icon:nearest.node[2],active:true};
   }
   return {label:'Исследуйте процесс',icon:'search',active:false};
 }
