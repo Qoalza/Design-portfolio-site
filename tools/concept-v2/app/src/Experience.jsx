@@ -1,8 +1,7 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceCompactPinnedSpacing,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
-const HEADER_RESERVE=80;
 
 const jobs=[
   {className:'current',from:'Май 2026',to:'Настоящее время',role:'',company:'Открыт к предложениям',description:'Готов к новым задачам — как в рамках отдельных проектов, так и на полной занятости.'},
@@ -54,31 +53,24 @@ export function Experience(){
     let previousX=0;
     let previousTime=performance.now();
     let blurTimer;
-    let headerOffset=0;
-    function applyLayout(offset){
+    function applyLayout(){
       const section=root.current;
-      const compactPinnedHeader=offset>0&&window.innerHeight<1026;
-      const layoutViewport=offset>0&&!compactPinnedHeader?window.innerHeight-offset:window.innerHeight;
-      const layout=experienceLayout(layoutViewport);
-      const spacing=experienceCompactPinnedSpacing(layout,compactPinnedHeader);
+      const layout=experienceLayout(window.innerHeight);
       section.style.height=window.innerWidth>=1280?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
       sticky.current.style.setProperty('--experience-outer',`${layout.outer}px`);
       sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
       sticky.current.style.setProperty('--experience-free',`${layout.free}px`);
-      sticky.current.style.setProperty('--experience-heading-gap',`${spacing.headingGap}px`);
+      sticky.current.style.setProperty('--experience-heading-gap',`${layout.headingGap}px`);
       sticky.current.style.setProperty('--experience-tape-top',`${layout.tapeTop}px`);
-      sticky.current.style.setProperty('--experience-progress-gap',`${spacing.progressGap}px`);
+      sticky.current.style.setProperty('--experience-progress-gap',`${layout.progressGap}px`);
       sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
       sticky.current.style.setProperty('--experience-scale',String(layout.scale));
-      sticky.current.style.setProperty('--experience-heading-offset',`${spacing.headingOffset}px`);
       sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.outer));
     }
     function paint(){
       const section=root.current;
       if(window.innerWidth<1280){
         section.style.height='auto';
-        section.classList.remove('is-header-offset');
-        headerOffset=0;
         section.classList.remove('is-complete');
         section.style.setProperty('--experience-progress','0');
         section.style.setProperty('--experience-shift','0px');
@@ -91,12 +83,6 @@ export function Experience(){
       }
       const top=section.getBoundingClientRect().top+window.scrollY;
       const currentScrollY=window.scrollY;
-      const nextHeaderOffset=experienceStickyHeaderOffset(section.getBoundingClientRect().top,HEADER_RESERVE);
-      if(nextHeaderOffset!==headerOffset){
-        headerOffset=nextHeaderOffset;
-        section.classList.toggle('is-header-offset',headerOffset>0);
-        applyLayout(headerOffset);
-      }
       progress=scrollProgress({scrollY:currentScrollY,sectionTop:top,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;
       const now=performance.now();
@@ -124,10 +110,8 @@ export function Experience(){
       const active=preserve&&progress>0&&progress<1&&window.innerWidth>=1280;
       const section=root.current;
       if(window.innerWidth<1280){
-        headerOffset=0;
-        section.classList.remove('is-header-offset');
       }
-      applyLayout(headerOffset);
+      applyLayout();
       if(active){
         const top=section.getBoundingClientRect().top+window.scrollY;
         window.scrollTo({top:top+progress*VERTICAL_TRAVEL,behavior:'instant'});

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceCompactPinnedSpacing,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -51,23 +51,8 @@ test('experience hides both pattern fields below the 48px visual threshold',()=>
   assert.equal(experiencePatternVisible(48),true);
 });
 
-test('experience preserves its natural layout until it reaches the pinned header edge',()=>{
-  assert.equal(experienceStickyHeaderOffset(81,80),0);
-  assert.equal(experienceStickyHeaderOffset(80,80),80);
-  assert.equal(experienceStickyHeaderOffset(79,80),80);
-});
-
-test('a tall pinned Experience scene balances both decorative fields inside the header-free viewport',()=>{
-  const layout=experienceLayout(1318-80);
-  assert.equal(layout.outer,106);
-  assert.equal(layout.center,1026);
-  assert.equal(layout.outer*2+layout.center,1238);
-});
-
-test('a compact pinned Experience scene lowers its heading and lifts the progress bar',()=>{
-  assert.deepEqual(experienceCompactPinnedSpacing(experienceLayout(900),true),{headingGap:42,progressGap:24,headingOffset:48});
-  assert.deepEqual(experienceCompactPinnedSpacing(experienceLayout(720),true),{headingGap:0,progressGap:24,headingOffset:48});
-  assert.deepEqual(experienceCompactPinnedSpacing(experienceLayout(900),false),{headingGap:42,progressGap:108,headingOffset:0});
+test('Experience keeps one geometry when it enters the sticky range',()=>{
+  assert.deepEqual(experienceLayout(900),{outer:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1});
 });
 
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
@@ -114,21 +99,13 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.doesNotMatch(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-fade-left/);
   assert.match(source,/section\.classList\.toggle\('is-started',progress>0\)/);
   assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
-  assert.match(source,/const HEADER_RESERVE=80/);
   assert.match(source,/top=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
-  assert.match(source,/const nextHeaderOffset=experienceStickyHeaderOffset\(section\.getBoundingClientRect\(\)\.top,HEADER_RESERVE\)/);
-  assert.match(source,/section\.classList\.toggle\('is-header-offset',headerOffset>0\)/);
-  assert.match(source,/const compactPinnedHeader=offset>0&&window\.innerHeight<1026/);
-  assert.match(source,/const layoutViewport=offset>0&&!compactPinnedHeader\?window\.innerHeight-offset:window\.innerHeight/);
-  assert.match(source,/const layout=experienceLayout\(layoutViewport\)/);
-  assert.match(source,/experienceCompactPinnedSpacing\(layout,compactPinnedHeader\)/);
+  assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
   assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
   assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
-  assert.match(css,/\.experience\.is-header-offset \.experience-sticky\{top:80px;height:calc\(100svh - 80px\)\}/);
-  assert.match(css,/\.experience-heading\{transform:translateY\(var\(--experience-heading-offset\)\);transition:transform 180ms ease-out\}/);
-  assert.match(css,/\.experience-scroll\{padding-top:calc\(var\(--experience-heading-gap\) \+ var\(--experience-heading-offset\)\);transition:padding-top 180ms ease-out\}/);
-  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.experience-heading,\.experience-scroll\{transition:none\}\}/);
+  assert.doesNotMatch(source,/is-header-offset|HEADER_RESERVE|experienceStickyHeaderOffset|experienceCompactPinnedSpacing/);
+  assert.doesNotMatch(css,/\.experience\.is-header-offset|--experience-heading-offset|\.experience-heading\{transform:translateY/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;top:auto;height:auto;display:block;overflow:visible\}/);
   assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);
