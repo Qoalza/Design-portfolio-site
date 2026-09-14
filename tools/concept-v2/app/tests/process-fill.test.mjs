@@ -17,12 +17,12 @@ test('edge origin stays inside the full 64px icon frame',()=>{
   assert.deepEqual(point,{x:32,y:64});
 });
 
-test('process icon and background fill use the user-approved 400ms duration',async()=>{
+test('process icon, line, and dots use the user-approved 300ms duration',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
   assert.match(css,/\.step-icon-background\{[^}]*rgba\(67,162,238,\.2\)[^}]*var\(--background-mask\)/);
   assert.match(css,/\.step-icon-fill\{[^}]*#1d90eb/);
-  assert.match(css,/\.step-icon-background,\.step-icon-fill\{transition-duration:400ms\}/);
+  assert.match(css,/\.step-icon-background,\.step-icon-fill\{transition-duration:300ms\}/);
   assert.match(css,/\.step\.is-fill-active \.step-icon-background,\.step\.is-fill-active \.step-icon-fill\{--fill-radius:96px\}/);
   assert.match(app,/process-background-mask-\$\{index\+1\}\.svg/);
   assert.match(app,/exitTimer\.current=setTimeout\(\(\)=>\{settledOutside\.current=true\},200\)/);
@@ -36,13 +36,13 @@ test('process card hover and focus share the exact Figma visual state',async()=>
   assert.match(app,/onPointerEnter=\{\(\)=>begin\('pointer'\)\}/);
   assert.match(app,/onFocus=\{\(\)=>begin\('focus'\)\}/);
   assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
-  assert.match(css,/\.step-divider::after\{[^}]*background:#1d90eb[^}]*scaleX\(0\)[^}]*transform-origin:center[^}]*400ms ease-in/);
+  assert.match(css,/\.step-divider::after\{[^}]*background:#1d90eb[^}]*scaleX\(0\)[^}]*transform-origin:center[^}]*300ms ease-in/);
   assert.match(css,/\.step\.is-fill-active \.step-divider::after\{transform:scaleX\(1\)\}/);
   assert.match(css,/\.step-number span\{[^}]*color:#676e73/);
   assert.match(css,/\.step-text h3\{[^}]*color:#adb3b8/);
   assert.match(css,/\.step-text p\{[^}]*color:#676e73/);
   assert.match(css,/\.step\.is-fill-active \.step-number span,\.step\.is-fill-active \.step-text h3\{color:#dadde0\}/);
-  assert.match(css,/\.step-dots\{[^}]*color:#676e73[^}]*400ms ease-in/);
+  assert.match(css,/\.step-dots\{[^}]*color:#676e73[^}]*300ms ease-in/);
   assert.match(css,/\.step\.is-fill-active \.step-dots\{color:#43a2ee\}/);
   assert.match(css,/\.step\.is-fill-active \.step-text p\{color:#adb3b8\}/);
   assert.match(app,/className="step-dots"[^>]*--dots-mask/);
