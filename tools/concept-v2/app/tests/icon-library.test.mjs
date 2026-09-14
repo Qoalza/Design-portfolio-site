@@ -10,21 +10,23 @@ const asset=file=>path.join(root,'public/assets',file);
 
 test('interactive controls use exported Medium icon assets',async()=>{
  const assets={
-  'imgColor.svg':'1461328da805aa818561dc066a36d95908f555c68c181156f6bcd7c77079000f',
-  'imgColor1.svg':'089041daba456838c4feabab9b9409ee48215acbd11afdf2a94cf5f1cbedd46f',
-  'imgColor2.svg':'52044d1cea0e6456afd67cfcb7f7664bf5a9b8e13087f9bd081bb6c121083314',
-  'imgColor3.svg':'b1625cfe2d73b6ba428c087580ce6e8838e747243bc45752e3a05c6bae8a2477',
-  'imgColor4.svg':'6194bfaf0478e6ba34b673466d125aa3626396071ba0280a3632564b1329a7f9',
-  'imgColor6.svg':'231c44b9a42ec4a3507fb7abb3833a316f17563fe9e34563e7c50f708081706d',
-  'imgColor7.svg':'7caf4758b0cad3c6dadb113cc381aa99bec5bb91368129cc7fd93eac7baefedf',
-  'about-chevron-left.svg':'bdd2dbbfa86114c014358c93307a52ace51a2ebe5ea402210529d1d20032d15f',
-  'about-chevron-right.svg':'231c44b9a42ec4a3507fb7abb3833a316f17563fe9e34563e7c50f708081706d',
-  'about-x.svg':'7080405365a338637c8d85e90402a273d64db7b7c6b51fc6f3b6e4042012b415',
-  'about-search-scale.svg':'17be1be89022b8768ea1e71df5bb9d71c1a875ee240554d15723f9fcc063189a',
+  'imgColor.svg':'5362ca8a4dc22275b3063a294de78f96a94a6913eb6cb261956f9a033199096a',
+  'imgColor1.svg':'4e7843f21698e5651583de37711804c83a9b0e870c017da7f6f0da21233b5dd3',
+  'imgColor2.svg':'7ffa97f99836afde738d052c6c1a488ae3cf928a2880608f08cceca1150c314b',
+  'imgColor3.svg':'e580a3d48e66564a7cfaa3ff634f7f1a09533c716e935550578653bc18ceebba',
+  'imgColor4.svg':'e77914ec449c3d4ddb653882fa463b09331e6327f955cb298b7733d3832ab21f',
+  'imgColor5.svg':'75a90f53b9b118fd8d32ef244c7212cfaf57df1c2196b5e3b2e7d4b5c22cf306',
+  'imgColor6.svg':'8ceaffcad66b56648d80ea31491c5c41ab25309873d045e45ff67ae4e09820c1',
+  'imgColor7.svg':'9c4dc49149eb8b345dccdc410408d1f8fd832dca7050c8b077bfc0adfc1fd228',
+  'about-chevron-left.svg':'02262b07d3d392e29ffb74cadfcce79f889d9516ef1e664d61007da396420771',
+  'about-chevron-right.svg':'8ceaffcad66b56648d80ea31491c5c41ab25309873d045e45ff67ae4e09820c1',
+  'about-x.svg':'3462ec43b58181d02d549024be45911e8d795d7160c81b125668bd0416cad8fb',
+  'about-search-scale.svg':'0796472b7d26d127d9a3bb3ab5a7b7e5943c86c107fd83ff7c089a454bcb0e20',
  };
  for(const [file,hash] of Object.entries(assets)){
   const source=await readFile(figma(file),'utf8');
   assert.doesNotMatch(source,/Light\s*\//,file);
+  assert.match(source,/width="24" height="24" viewBox="0 0 24 24"/,`${file} must retain the full icon frame`);
   assert.equal(createHash('sha256').update(source).digest('hex'),hash,file);
  }
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
