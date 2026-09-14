@@ -34,13 +34,14 @@
 Историческая системная причина сохраняется в `PROJECT_HISTORY.md`.
 
 
-## IN_PROGRESS — Concept V2 «Обо мне», Plan 3.0
+## READY_FOR_REVIEW — Concept V2 «Обо мне», accepted Plan 3.0 scope
 
 - Scope: current Concept V2 worktree `codex/concept-v2-about-correction`, not the historical About implementation.
-- Findings to close on the final runtime: Figma-accurate hatch direction/step and independent lower borders; no duplicate section rule; 16/24 section subtitle; compact interruptible card handoff; proportional card content; full-card hover action with the approved cursor; viewer layout and independent selection state.
+- Accepted on `94f6f9c`: Figma-accurate hatch direction/step and independent lower borders; no duplicate section rule; 16/24 section subtitle; compact interruptible card handoff; proportional embedded-card content; full-card hover action with the approved cursor; and independent viewer selection state.
 - User-confirmed interaction additions: the hover label is informational, the whole dimmed active card opens the viewer; closing viewer clears the active-card dim state without extra click; dogs caption has a required break after «Это мои сладкие дети,». 
 - Current Figma instance `3223:155136`: embedded rear cards are `256×336` (`0.8×` of `320×420`) with an `−80 px` pair overlap. This geometry is intentionally scoped to the embedded deck; the viewer retains its independent prior geometry until its own Figma instance is revised.
-- Required proof: final real-browser visual walkthrough plus focused motion, hover, viewer, resize and regression checks on the final HEAD.
+- Completed proof: user visual acceptance plus focused motion, hover/viewer/resize regression checks, `npm run check`, `npm run check:browser`, and `git diff --check` on final HEAD `94f6f9c`.
+- Deferred, not accepted as complete: direct 1.5× enlarged-viewer geometry and the remaining image-card border/gradient refinements. The later site-wide icon, point-pattern, process-hover and experience-fade work requires a separate plan and goal.
 
 ## Не является записью этого файла
 
