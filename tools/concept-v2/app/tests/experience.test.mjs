@@ -57,6 +57,13 @@ test('experience preserves its natural layout until it reaches the pinned header
   assert.equal(experienceStickyHeaderOffset(79,80),80);
 });
 
+test('a tall pinned Experience scene balances both decorative fields inside the header-free viewport',()=>{
+  const layout=experienceLayout(1318-80);
+  assert.equal(layout.outer,106);
+  assert.equal(layout.center,1026);
+  assert.equal(layout.outer*2+layout.center,1238);
+});
+
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
@@ -105,8 +112,9 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/top=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
   assert.match(source,/const nextHeaderOffset=experienceStickyHeaderOffset\(section\.getBoundingClientRect\(\)\.top,HEADER_RESERVE\)/);
   assert.match(source,/section\.classList\.toggle\('is-header-offset',headerOffset>0\)/);
-  assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
   assert.match(source,/const compactPinnedHeader=offset>0&&window\.innerHeight<1026/);
+  assert.match(source,/const layoutViewport=offset>0&&!compactPinnedHeader\?window\.innerHeight-offset:window\.innerHeight/);
+  assert.match(source,/const layout=experienceLayout\(layoutViewport\)/);
   assert.match(source,/setProperty\('--experience-heading-offset',compactPinnedHeader\?'24px':'0px'\)/);
   assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
   assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);

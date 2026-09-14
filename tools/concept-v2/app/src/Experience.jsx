@@ -57,8 +57,9 @@ export function Experience(){
     let headerOffset=0;
     function applyLayout(offset){
       const section=root.current;
-      const layout=experienceLayout(window.innerHeight);
       const compactPinnedHeader=offset>0&&window.innerHeight<1026;
+      const layoutViewport=offset>0&&!compactPinnedHeader?window.innerHeight-offset:window.innerHeight;
+      const layout=experienceLayout(layoutViewport);
       section.style.height=window.innerWidth>=1280?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
       sticky.current.style.setProperty('--experience-outer',`${layout.outer}px`);
       sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
