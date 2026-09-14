@@ -11,7 +11,7 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.deepEqual(experienceLayout(1440),{outer:207,topOuter:207,bottomOuter:127,center:1106,free:100,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
   assert.deepEqual(experienceLayout(1280),{outer:127,topOuter:127,bottomOuter:47,center:1106,free:100,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
   assert.deepEqual(experienceLayout(1080),{outer:27,topOuter:27,bottomOuter:0,center:1053,free:73.5,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
+  assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:128});
   const compact=experienceLayout(720);
   assert.equal(compact.outer,0);
   assert.equal(compact.center,720);
@@ -22,7 +22,7 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(compact.bottom,50);
   assert.equal(compact.scale,560/642);
   assert.equal(compact.compact,true);
-  assert.equal(compact.compactOffset,160);
+  assert.equal(compact.compactOffset,128);
 
   const short=experienceLayout(490);
   assert.equal(short.outer,0);
@@ -33,7 +33,7 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(short.bottom,24);
   assert.equal(short.scale,330/642);
   assert.equal(short.compact,true);
-  assert.equal(short.compactOffset,160);
+  assert.equal(short.compactOffset,128);
 });
 
 test('experience runs center-to-center and is ten percent faster',()=>{
@@ -56,7 +56,7 @@ test('experience hides both pattern fields below the 48px visual threshold',()=>
 });
 
 test('Experience keeps one geometry when it enters the sticky range',()=>{
-  assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
+  assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:128});
 });
 
 test('large Experience reduces the exposed lower field instead of extending the scene',()=>{

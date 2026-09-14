@@ -46,8 +46,10 @@ export function experienceLayout(viewportHeight){
   // site header, and use that reclaimed room as a real top inset.
   const compact=center<1026;
   const compactFlowHeight=112+headingGap+tapeTop+530;
-  const compactOffset=compact?160:0;
-  const compactScale=compact?Math.max(0,(center-compactOffset)/compactFlowHeight):1;
+  // Keep the compact composition's established scale, but move the complete
+  // scene 32px upward so the header no longer consumes its visual breathing room.
+  const compactOffset=compact?128:0;
+  const compactScale=compact?Math.max(0,(center-compactOffset-32)/compactFlowHeight):1;
   const scale=Math.min(baseScale,compactScale);
   return {outer:topOuter,topOuter,bottomOuter,center,free,headingGap,tapeTop,progressGap,bottom,scale,compact,compactOffset};
 }
