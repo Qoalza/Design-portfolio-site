@@ -31,8 +31,8 @@ Status: `READY_FOR_REVIEW`
 ## Verification
 
 - Focused behavior tests per group, followed by `npm run check`, `npm run check:browser`, and `git diff --check` at the reviewed HEAD.
-- Completed: `48/48` automated tests, lint, production build, browser smoke and diff check after the final CSS cleanup. A post-audit visual report restored the accidentally detached About caption-gradient layer and aligned the viewer arrows to Figma's dark Filled Square state and `x=332/1072` coordinates; the focused About test, lint, build, smoke and diff checks were rerun.
-- Partial manual evidence: in-app local-browser runtime at `1280×720` opened the About viewer, rendered the restored caption gradient, moved viewer-only from «Я» to «Машина», and returned focus to the unchanged embedded «Я» card after close. Pending manual evidence: the remaining desktop/viewer threshold matrix and explicit Firefox/WebKit runs. The desktop automation surface timed out twice, so those engines are explicitly not claimed.
+- Completed: `49/49` automated tests, lint, production build, browser smoke and diff check after the cursor/runtime correction. A post-audit visual report restored the accidentally detached About caption-gradient layer and aligned the viewer arrows to Figma's dark Filled Square state and `x=332/1072` coordinates; the focused About test, lint, build, smoke and diff checks were rerun.
+- Manual local-browser evidence: at `1280×720`, the restored embedded-card gradient, exact `16×16` dot tile and full-frame vector cursor layer render; the cursor changes to the vector hand over an active card while the native cursor is hidden. At `1440×960`, the viewer has exact front `480×630 @ 480,117`, controls at `332/1072,414`, and close `107×36 @ 1057,48`. At `1439×960` and `1440×959`, it uses one reduced composition scale and the entire front card remains visible. Viewer-only «Я → Машина» leaves the embedded «Я» selection unchanged after close. Firefox and WebKit are not exposed by this environment. A separate Chrome automation attempt timed out, so Chrome is not claimed as an additional engine result.
 
 ## Final review record
 

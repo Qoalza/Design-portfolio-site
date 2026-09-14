@@ -1,6 +1,6 @@
 # HANDOFF
 
-Обновлено: 2026-09-14.
+Обновлено: 2026-09-15.
 
 ## Checkout
 
@@ -10,16 +10,16 @@
 
 ## Current checkpoint
 
-- Plan 4.0 implementation is ready for review. The final audit removed superseded card/viewer scales, old dot gradients and complete-state fade suppression rather than relying on CSS override order. A subsequent user visual report restored the detached About caption-gradient layer and corrected viewer arrows to the Figma dark Filled Square state at `x=332/1072`.
-- Current local preview: `http://127.0.0.1:43205/` from this exact worktree. Partial local-browser visual proof at `1280×720` covers viewer controls, restored caption gradient and viewer/embedded-state independence; the wider engine matrix remains open.
+- Plan 4.0 implementation is ready for review. The final audit removed superseded card/viewer scales, old dot gradients and complete-state fade suppression rather than relying on CSS override order. A subsequent user visual report restored the detached About caption-gradient layer and corrected viewer arrows to the Figma dark Filled Square state at `x=332/1072`; `7758bdc` additionally replaces the unreliable native browser cursor with the same full-frame vector layer and semantic arrow/hand states.
+- Current local preview: `http://127.0.0.1:43205/` from this exact worktree. Local-browser proof covers `1280×720`, the exact `1440×960` viewer controls, viewer viewport thresholds `1439×960`/`1440×959`, vector cursor hand state and viewer/embedded-state independence; other engines remain open.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink and must remain out of Git.
 
 ## Verification
 
-- `npm run check`: passed — lint, `48/48` tests, production build.
+- `npm run check`: passed — lint, `49/49` tests, production build.
 - `npm run check:browser`: passed — built runtime smoke.
 - `git diff --check`: passed.
-- The computer-use surface timed out twice; Chromium, Firefox and WebKit visual matrices remain unverified and must not be represented as complete.
+- Firefox and WebKit are unavailable in the exposed browser inventory. The separate Chrome automation attempt timed out; it must not be represented as an additional engine result.
 
 ## Stop-lines
 
@@ -29,7 +29,7 @@
 
 ## Next action
 
-Run the desktop and viewer visual matrix in Chromium/Firefox and the required WebKit subset, then record the outcome and close the ExecPlan only if no discrepancy remains.
+Obtain explicit user visual acceptance or an environment with Firefox/WebKit, then record the outcome and close the ExecPlan only if no discrepancy remains.
 
 ## Pointers
 
