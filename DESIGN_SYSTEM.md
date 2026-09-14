@@ -67,7 +67,7 @@ Code не обязан повторять `Master → Skin` двумя React com
 
 - Figma может собирать `Line`, `Duotone` и `Solid` через `Mask` с отдельным `Color` layer, но этот authoring mechanism не переносится в runtime автоматически.
 - `Line` и stroked-слои `Duotone` в runtime выводятся только настоящим inline SVG внутри отдельного layout-frame. CSS mask для них запрещена: она превращает stroke в альфа-силуэт и не гарантирует заложенную толщину.
-- Layout-frame задаёт consumer size; полный SVG сохраняет исходный `viewBox`, остаётся его реальным дочерним элементом и масштабирует только геометрию.
+- Layout-frame задаёт consumer size; полный SVG сохраняет исходный `viewBox`, остаётся его реальным дочерним элементом и масштабирует только геометрию. Если export выдал leaf без component canvas, сохраняются bytes leaf, но runtime восстанавливает отдельный внешний frame с exact bounds/offset leaf из Figma — leaf нельзя растягивать через `inset:0;width:100%;height:100%`.
 - Каждый stroked path сохраняет точный `stroke-width` из source и получает `vector-effect="non-scaling-stroke"`, если consumer масштабирует frame, но толщина линии должна оставаться неизменной.
 - Запрещены CSS `filter`, `drop-shadow`, дублирование path, искусственный `paint-order` и другие способы имитации толщины.
 - Color задаётся semantic/component role, а не случайным HEX внутри consumer.
@@ -77,7 +77,7 @@ Code не обязан повторять `Master → Skin` двумя React com
 
 ### Size и export
 
-- Размер layout-frame задаётся consumer context; вложенный полный SVG занимает frame без crop по path bounds.
+- Размер layout-frame задаётся consumer context; вложенный полный SVG занимает frame без crop по path bounds. При leaf-only export frame занимает consumer, а неизменённый SVG занимает его exact source bounds внутри восстановленного component canvas.
 - Сохраняются исходный viewBox/canvas, внутренние отступы и optical alignment.
 - Запрещено crop/compact по path bounds и извлечение внутреннего vector вместо полного frame.
 - `Line` экспортируется настоящим SVG `stroke`, не outlined `fill`.
@@ -85,6 +85,7 @@ Code не обязан повторять `Master → Skin` двумя React com
 - `Solid/Color` используют fill только при подтверждённом consumer→source mapping.
 - Сохраняются `stroke-width`, `linecap`, `linejoin`, transforms, opacity и детали.
 - Проверка миграции включает DOM-анатомию `frame > svg > path`, соответствие `viewBox`, фактический computed `stroke-width` и отсутствие `mask-image`; одно имя asset или наличие строки `1.3` недостаточно.
+- Для `Medium / Social logo / Figma` current source — leaf `15.3×21.3` внутри `24×24` component frame: runtime сохраняет frame и размещает leaf в bounds `x:4.35`, `y:1.35`, `w:15.3`, `h:21.3` (`18.125%`, `5.625%`, `63.75%`, `88.75%`). Это guard против non-uniform stretch, а не новый путь или утолщение.
 - XML validation доказывает syntax/attributes, но не source family; mapping остаётся обязательным.
 
 ### Platform icons
