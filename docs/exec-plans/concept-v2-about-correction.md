@@ -1,6 +1,6 @@
 # Concept V2 — «Обо мне»: корректирующий этап
 
-Status: `COMPLETE`
+Status: `IN_PROGRESS` — Plan 3.0 resumed on the same approved branch after visual acceptance findings.
 
 ## Baseline
 
@@ -24,14 +24,20 @@ Status: `COMPLETE`
 4. Hover and image viewer.
 5. Final evidence and one implementation self-review.
 
-## Completed checkpoints
+## Superseded checkpoints
 
 - `3522012`: baseline/source passport.
 - `158fd30`: native About structure, source assets, fixed internal card stages and control wiring.
 - `2781770`: stable proportional handoff and hover interaction.
 - `887eac2`: enlarged viewer and keyboard/scroll lifecycle.
-- Final evidence records the last review fixes, runtime matrix and scope check in the Figma ledger, QA record and Stage 1 handoff supplement.
-- Validated implementation/evidence checkpoint: `15d7eb5a5382e337cc465154f3a93932d64bf0b1`.
+- The prior evidence and checkpoint `15d7eb5a5382e337cc465154f3a93932d64bf0b1` are not acceptance evidence for Plan 3.0. They remain history only.
+
+## Current implementation state
+
+- Current branch/worktree and baseline remain the source of truth; no work is resumed on the failed older implementation.
+- Current work addresses exact Plan 3.0 findings: source-accurate hatch geometry and borders, central alignment, static caption typography, an interruptible 500 ms handoff, full-surface hover action, and independent viewer state.
+- New findings are tracked in `DESIGN_QA.md` until a final two-lens review has completed on the final HEAD.
+- Current local preview is launched only from this worktree. Its address and final commit will be recorded after the final review; no deploy/merge/push is in scope.
 
 ## Stop-lines
 

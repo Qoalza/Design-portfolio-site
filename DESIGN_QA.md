@@ -34,6 +34,13 @@
 Историческая системная причина сохраняется в `PROJECT_HISTORY.md`.
 
 
+## IN_PROGRESS — Concept V2 «Обо мне», Plan 3.0
+
+- Scope: current Concept V2 worktree `codex/concept-v2-about-correction`, not the historical About implementation.
+- Findings to close on the final runtime: Figma-accurate hatch direction/step and independent lower borders; no duplicate section rule; 16/24 section subtitle; compact interruptible card handoff; proportional card content; full-card hover action with the approved cursor; viewer layout and independent selection state.
+- User-confirmed interaction additions: the hover label is informational, the whole dimmed active card opens the viewer; closing viewer clears the active-card dim state without extra click; dogs caption has a required break after «Это мои сладкие дети,».
+- Required proof: final real-browser visual walkthrough plus focused motion, hover, viewer, resize and regression checks on the final HEAD.
+
 ## Не является записью этого файла
 
 - принятые 404/500 pages;
