@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,EXPERIENCE_HEADER_RESERVE,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
 test('experience height adaptation follows the contracted priority order',()=>{
-  assert.deepEqual(experienceLayout(1644),{outer:240,center:1164,free:129,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1600),{outer:240,center:1120,free:107,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1440),{outer:207,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1280),{outer:127,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1080),{outer:27,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(900),{outer:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
+  assert.deepEqual(experienceLayout(1644),{outer:240,topOuter:240,bottomOuter:160,center:1244,free:169,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1600),{outer:240,topOuter:240,bottomOuter:160,center:1200,free:147,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1440),{outer:207,topOuter:207,bottomOuter:127,center:1106,free:100,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1280),{outer:127,topOuter:127,bottomOuter:47,center:1106,free:100,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1080),{outer:27,topOuter:27,bottomOuter:0,center:1053,free:73.5,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
   const compact=experienceLayout(720);
   assert.equal(compact.outer,0);
   assert.equal(compact.center,720);
@@ -56,7 +56,16 @@ test('experience hides both pattern fields below the 48px visual threshold',()=>
 });
 
 test('Experience keeps one geometry when it enters the sticky range',()=>{
-  assert.deepEqual(experienceLayout(900),{outer:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
+  assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
+});
+
+test('large Experience reduces the exposed lower field instead of extending the scene',()=>{
+  const layout=experienceLayout(1318);
+  assert.equal(EXPERIENCE_HEADER_RESERVE,80);
+  assert.equal(layout.topOuter,146);
+  assert.equal(layout.bottomOuter,66);
+  assert.equal(layout.topOuter-EXPERIENCE_HEADER_RESERVE,layout.bottomOuter);
+  assert.equal(layout.topOuter+layout.center+layout.bottomOuter,1318);
 });
 
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
@@ -84,7 +93,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/className="experience-pattern-grid"/);
   assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
   assert.match(css,/\.experience-sticky:not\(\.has-pattern-fields\) \.experience-pattern\{visibility:hidden\}/);
-  assert.match(source,/classList\.toggle\('has-pattern-fields',experiencePatternVisible\(layout\.outer\)\)/);
+  assert.match(source,/classList\.toggle\('has-pattern-fields',experiencePatternVisible\(layout\.bottomOuter\)\)/);
   assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*border-inline:1px solid #2e3133/);
   assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
   assert.doesNotMatch(css,/\.experience-pattern-grid\{[^}]*radial-gradient/);
@@ -109,6 +118,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
   assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
+  assert.match(css,/grid-template-rows:var\(--experience-top-outer\) var\(--experience-center\) var\(--experience-bottom-outer\)/);
   assert.doesNotMatch(source,/is-header-offset|HEADER_RESERVE|experienceStickyHeaderOffset|experienceCompactPinnedSpacing/);
   assert.doesNotMatch(css,/\.experience\.is-header-offset|--experience-heading-offset|\.experience-heading\{transform:translateY/);
   assert.match(css,/\.experience\.is-compact \.experience-center\{align-items:flex-start\}/);

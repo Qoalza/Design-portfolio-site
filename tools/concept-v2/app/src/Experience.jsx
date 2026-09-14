@@ -57,7 +57,8 @@ export function Experience(){
       const section=root.current;
       const layout=experienceLayout(window.innerHeight);
       section.style.height=window.innerWidth>=1280?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
-      sticky.current.style.setProperty('--experience-outer',`${layout.outer}px`);
+      sticky.current.style.setProperty('--experience-top-outer',`${layout.topOuter}px`);
+      sticky.current.style.setProperty('--experience-bottom-outer',`${layout.bottomOuter}px`);
       sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
       sticky.current.style.setProperty('--experience-free',`${layout.free}px`);
       sticky.current.style.setProperty('--experience-heading-gap',`${layout.headingGap}px`);
@@ -66,7 +67,7 @@ export function Experience(){
       sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
       sticky.current.style.setProperty('--experience-scale',String(layout.scale));
       sticky.current.style.setProperty('--experience-compact-offset',`${layout.compactOffset}px`);
-      sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.outer));
+      sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.bottomOuter));
       section.classList.toggle('is-compact',layout.compact);
     }
     function paint(){

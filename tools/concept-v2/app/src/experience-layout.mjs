@@ -5,6 +5,7 @@ const HORIZONTAL_TRAVEL=EXPERIENCE_NODE_ANCHORS.at(-1)-EXPERIENCE_NODE_ANCHORS[0
 const VERTICAL_TRAVEL=9690/1.1;
 const EXPERIENCE_STOPS=Object.freeze(EXPERIENCE_NODE_ANCHORS.map(anchor=>(anchor-EXPERIENCE_NODE_ANCHORS[0])/HORIZONTAL_TRAVEL));
 export const EXPERIENCE_PATTERN_MIN_HEIGHT=48;
+export const EXPERIENCE_HEADER_RESERVE=80;
 
 export function experienceTravel(){
   return {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL};
@@ -15,16 +16,20 @@ export function experienceStops(){
 }
 
 export function experienceLayout(viewportHeight){
-  let outer;
+  let topOuter;
+  let bottomOuter;
   let center;
   if(viewportHeight>=1506){
-    outer=240;
-    center=viewportHeight-outer*2;
+    topOuter=240;
+    bottomOuter=topOuter-EXPERIENCE_HEADER_RESERVE;
+    center=viewportHeight-topOuter-bottomOuter;
   }else if(viewportHeight>=1026){
-    center=1026;
-    outer=(viewportHeight-center)/2;
+    topOuter=(viewportHeight-1026)/2;
+    bottomOuter=Math.max(0,topOuter-EXPERIENCE_HEADER_RESERVE);
+    center=viewportHeight-topOuter-bottomOuter;
   }else{
-    outer=0;
+    topOuter=0;
+    bottomOuter=0;
     center=viewportHeight;
   }
 
@@ -44,7 +49,7 @@ export function experienceLayout(viewportHeight){
   const compactOffset=compact?160:0;
   const compactScale=compact?Math.max(0,(center-compactOffset)/compactFlowHeight):1;
   const scale=Math.min(baseScale,compactScale);
-  return {outer,center,free,headingGap,tapeTop,progressGap,bottom,scale,compact,compactOffset};
+  return {outer:topOuter,topOuter,bottomOuter,center,free,headingGap,tapeTop,progressGap,bottom,scale,compact,compactOffset};
 }
 
 export function experiencePatternVisible(outerHeight){
