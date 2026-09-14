@@ -85,6 +85,10 @@ function ImageViewer({initialIndex,onClose,restoreFocus}){
  const controller=useDeckController(initialIndex);
  const viewerMove=controller.move;
  const dialogRef=useRef();
+ const closeFromEmptyViewerSpace=event=>{
+  if(event.target.closest('.about-viewer-content,.about-viewer-close,.about-viewer-prev,.about-viewer-next'))return;
+  onClose();
+ };
  const [scale,setScale]=useState(()=>Math.min(1,window.innerWidth/1440,window.innerHeight/960));
  useEffect(()=>{const update=()=>setScale(Math.min(1,window.innerWidth/1440,window.innerHeight/960));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
  useEffect(()=>{
@@ -105,7 +109,7 @@ function ImageViewer({initialIndex,onClose,restoreFocus}){
   return()=>{document.removeEventListener('keydown',onKeyDown);Object.assign(body.style,original);window.scrollTo(0,scrollY);(restoreFocus.current??previous)?.focus?.({preventScroll:true});};
  },[onClose,restoreFocus,viewerMove]);
  const card=cards[controller.active];
- return <div className="about-viewer" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)onClose()}}>
+ return <div className="about-viewer" role="presentation" onClick={closeFromEmptyViewerSpace}>
   <section ref={dialogRef} className="about-viewer-dialog" style={{'--about-viewer-scale':scale}} role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${card.alt}`}>
    <ControlButton variant="ghost" className="about-viewer-close" iconRight="about-x" onClick={onClose}>Закрыть</ControlButton>
    <ControlButton variant="light" className="about-square about-viewer-prev" iconLeft="about-chevron-left" onClick={()=>controller.move(-1)} aria-label="Предыдущее изображение"/>

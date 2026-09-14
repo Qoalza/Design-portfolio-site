@@ -144,6 +144,9 @@ test('card treatment keeps the sharp border outside geometry and viewer uses one
  assert.match(css,/\.about-viewer-content p\{[^}]*min-height:96px/);
  assert.match(about,/variant="light" className="about-square about-viewer-prev"/);
  assert.match(about,/variant="light" className="about-square about-viewer-next"/);
+ assert.match(about,/const closeFromEmptyViewerSpace=event=>/);
+ assert.match(about,/event\.target\.closest\('\.about-viewer-content,\.about-viewer-close,\.about-viewer-prev,\.about-viewer-next'\)/);
+ assert.match(about,/<div className="about-viewer" role="presentation" onClick=\{closeFromEmptyViewerSpace\}>/);
  assert.match(css,/\.about-viewer-prev\{left:332px\}/);
  assert.match(css,/\.about-viewer-next\{right:332px\}/);
  assert.match(css,/\.about-viewer-prev,\.about-viewer-next\{position:absolute;z-index:6;top:calc\(50% - 48px\)/);
