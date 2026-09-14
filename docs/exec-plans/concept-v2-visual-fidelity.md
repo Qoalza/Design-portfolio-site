@@ -39,7 +39,7 @@ Status: `READY_FOR_REVIEW`
 ## Final review record
 
 1. Fidelity/completeness: verified the accepted embedded `320×420` / rear `256×336` geometry, the direct viewer `1.5×` scale, border pseudo-element, caption gradient, exact SVG dot tile, Medium SVG frame contract, Process Default/Enable values and Hero timing. Removed obsolete CSS branches that still encoded the prior radial dot fields, complete-state fade hiding and viewer X/Y scales.
-2. Regression/scope: reviewed the changed runtime, tests and assets against the accepted baseline. About and viewer controllers remain independent; no Admin, shared contract, production, dependency, push, PR, merge or deploy files entered the workstream. The only remaining untracked path is the local `node_modules` symlink. The post-review browser smoke passed; direct visual acceptance of the new Experience threshold and the revised deck feel remains outstanding.
+2. Regression/scope: reviewed the changed runtime, tests and assets against the accepted baseline. About and viewer controllers remain independent; no Admin, shared contract, production, dependency, push, PR, merge or deploy files entered the workstream. The only remaining untracked path is the local `node_modules` symlink. The post-review browser smoke and direct local browser review of the compact Experience composition and revised deck feel passed; direct user visual acceptance remains outstanding.
 
 ## Stop-lines
 

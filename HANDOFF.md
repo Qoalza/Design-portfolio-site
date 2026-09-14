@@ -29,7 +29,7 @@
 
 ## Next action
 
-Obtain direct user visual acceptance that Experience enters with ordinary scrolling and retains sufficient space both before and under the pinned Header, then check the unified About/viewer motion. Record the outcome and close the ExecPlan only if no discrepancy remains.
+Obtain direct user visual acceptance of the compact Experience composition and the unified About/viewer motion. Record the outcome and close the ExecPlan only if no discrepancy remains.
 
 ## Pointers
 
