@@ -36,4 +36,7 @@ test('about structure maps the complete Figma block with native patterns and com
  assert.match(css,/\.about-dash-horizontal/);
  assert.match(css,/\.about-card-content\{[^}]*width:363px[^}]*height:420px/);
  assert.match(css,/\.about-card-frame\{[^}]*overflow:hidden/);
+ assert.match(about,/about-viewer-rear/);
+ assert.match(about,/about-viewer-halo/);
+ assert.match(css,/\.about-viewer-rear img\{[^}]*filter:blur\(3px\)/);
 });

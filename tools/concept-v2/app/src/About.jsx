@@ -38,6 +38,12 @@ function AboutCard({card,frame,onOpen}){
 
 function ImageViewer({index,onChange,onClose,restoreFocus}){
  const dialogRef=useRef();
+ const [scale,setScale]=useState(()=>typeof window==='undefined'?1:Math.min(1,(window.innerWidth-64)/1440,(window.innerHeight-64)/960));
+ useEffect(()=>{
+  const update=()=>setScale(Math.min(1,(window.innerWidth-64)/1440,(window.innerHeight-64)/960));
+  update();window.addEventListener('resize',update);
+  return()=>window.removeEventListener('resize',update);
+ },[]);
  useEffect(()=>{
   const previous=document.activeElement;
   const scrollY=window.scrollY;
@@ -66,12 +72,18 @@ function ImageViewer({index,onChange,onClose,restoreFocus}){
   };
  },[onChange,onClose,restoreFocus]);
  const card=cards[index];
+ const slots=aboutCardSlots(index,cards.length);
  return <div className="about-viewer" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)onClose()}}>
-  <section ref={dialogRef} className="about-viewer-dialog" role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${card.alt}`} onMouseDown={event=>{if(event.target===event.currentTarget)onClose()}}>
+  <section ref={dialogRef} className="about-viewer-dialog" style={{'--about-viewer-scale':scale}} role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${card.alt}`} onMouseDown={event=>{if(event.target===event.currentTarget)onClose()}}>
    <ControlButton variant="ghost" className="about-viewer-close" iconRight="about-x" onClick={onClose}>Закрыть</ControlButton>
    <ControlButton variant="neutral" className="about-square about-viewer-prev" iconLeft="about-chevron-left" onClick={()=>onChange(-1)} aria-label="Предыдущее изображение"/>
    <div className="about-viewer-content">
-    <div className="about-viewer-image"><img src={card.image} alt={card.alt}/></div>
+    <div className="about-viewer-deck">
+     <div className="about-viewer-depth" aria-hidden="true"/>
+     {[slots.left,slots.right].map((cardIndex,position)=><div className={`about-viewer-rear about-viewer-rear-${position?'right':'left'}`} key={cards[cardIndex].id} aria-hidden="true"><img src={cards[cardIndex].image} alt=""/></div>)}
+     <div className="about-viewer-halo" aria-hidden="true"><img src={card.image} alt=""/></div>
+     <div className="about-viewer-image"><img src={card.image} alt={card.alt}/></div>
+    </div>
     <p>{card.caption}</p>
    </div>
    <ControlButton variant="neutral" className="about-square about-viewer-next" iconRight="about-chevron-right" onClick={()=>onChange(1)} aria-label="Следующее изображение"/>
