@@ -68,6 +68,28 @@ test('retargeted deck interpolation preserves every card identity and does not l
  }
 });
 
+test('rapid retargets stay inside the embedded stage for every 120fps frame',()=>{
+ for(const direction of [-1,1]){
+  for(let step=1;step<60;step++){
+   const from=aboutTransitionFrames({active:0,direction,progress:step/120});
+   const prior=aboutTransitionFrames({active:0,direction,progress:(step-1)/120});
+   const velocity=from.map((frame,index)=>({
+    x:(frame.x-prior[index].x)/(1000/120),y:(frame.y-prior[index].y)/(1000/120),
+    width:(frame.width-prior[index].width)/(1000/120),height:(frame.height-prior[index].height)/(1000/120),
+    frontness:(frame.frontness-prior[index].frontness)/(1000/120),contentScale:(frame.contentScale-prior[index].contentScale)/(1000/120),
+   }));
+   for(let target=0;target<3;target++){
+    for(let sample=0;sample<=120;sample++){
+     for(const frame of interpolateDeckFrames(from,aboutDeckFrames(target),sample/120,velocity)){
+      assert.ok(frame.x>=0,`retarget left bound at ${direction}/${step}/${target}/${sample}`);
+      assert.ok(frame.x+frame.width<=480,`retarget right bound at ${direction}/${step}/${target}/${sample}`);
+     }
+    }
+   }
+  }
+ }
+});
+
 test('about structure maps the complete Figma block with native patterns and component controls',async()=>{
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
