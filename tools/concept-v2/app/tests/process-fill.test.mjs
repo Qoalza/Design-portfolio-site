@@ -36,11 +36,14 @@ test('process card hover and focus share the exact Figma visual state',async()=>
   assert.match(app,/onPointerEnter=\{\(\)=>begin\('pointer'\)\}/);
   assert.match(app,/onFocus=\{\(\)=>begin\('focus'\)\}/);
   assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
-  assert.match(css,/\.step-divider::after\{[^}]*background:#1d90eb[^}]*scaleX\(\.749\)[^}]*150ms ease-in/);
+  assert.match(css,/\.step-divider::after\{[^}]*background:#1d90eb[^}]*scaleX\(0\)[^}]*transform-origin:center[^}]*400ms ease-in/);
   assert.match(css,/\.step\.is-fill-active \.step-divider::after\{transform:scaleX\(1\)\}/);
   assert.match(css,/\.step-number span\{[^}]*color:#676e73/);
   assert.match(css,/\.step-text h3\{[^}]*color:#adb3b8/);
   assert.match(css,/\.step-text p\{[^}]*color:#676e73/);
   assert.match(css,/\.step\.is-fill-active \.step-number span,\.step\.is-fill-active \.step-text h3\{color:#dadde0\}/);
+  assert.match(css,/\.step-dots\{[^}]*color:#676e73[^}]*400ms ease-in/);
+  assert.match(css,/\.step\.is-fill-active \.step-dots\{color:#43a2ee\}/);
   assert.match(css,/\.step\.is-fill-active \.step-text p\{color:#adb3b8\}/);
+  assert.match(app,/className="step-dots"[^>]*--dots-mask/);
 });
