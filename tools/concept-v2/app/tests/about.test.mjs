@@ -66,9 +66,11 @@ test('card content has its own proportional scale track rather than a refit to m
 test('retargeted deck interpolation preserves every card identity and does not leave the stage',()=>{
  const from=aboutTransitionFrames({active:0,direction:1,progress:.36});
  const to=aboutDeckFrames(2);
- const velocity=from.map(()=>({x:.16,y:0,width:0,height:0,frontness:0}));
+ const velocity=from.map(()=>({x:.16,y:0,width:0,height:0,frontness:0,contentScale:0}));
  const first=interpolateDeckFrames(from,to,0,velocity);
  assert.deepEqual(first,from);
+ const early=interpolateDeckFrames(from,to,.01,velocity);
+ assert.ok(early.every((frame,index)=>frame.x>from[index].x),'retarget carries the current velocity into the next frame');
  const frames=interpolateDeckFrames(from,to,.5,velocity);
  assert.equal(frames.length,3);
  for(const frame of frames){
@@ -93,6 +95,7 @@ test('rapid retargets stay inside the embedded stage for every 120fps frame',()=
      for(const frame of interpolateDeckFrames(from,aboutDeckFrames(target),sample/120,velocity)){
       assert.ok(frame.x>=0,`retarget left bound at ${direction}/${step}/${target}/${sample}`);
       assert.ok(frame.x+frame.width<=480,`retarget right bound at ${direction}/${step}/${target}/${sample}`);
+      assert.ok(frame.contentScale>0&&frame.contentScale<=1,`retarget content scale at ${direction}/${step}/${target}/${sample}`);
      }
     }
    }

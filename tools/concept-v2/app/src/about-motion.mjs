@@ -12,6 +12,7 @@ const BACK_SCALE=.8;
 const clamp=value=>Math.max(0,Math.min(1,value));
 const lerp=(from,to,progress)=>from+(to-from)*progress;
 const easing=progress=>.5-Math.cos(Math.PI*clamp(progress))/2;
+const retargetMomentum=(velocity,progress)=>velocity*ABOUT_CARD_ANIMATION_MS*.25*progress*(1-progress)**2;
 
 export function wrapAboutCard(index,count=3){return(index%count+count)%count;}
 export function aboutCardSlots(active,count=3){return{front:active,left:wrapAboutCard(active-1,count),right:wrapAboutCard(active+1,count)};}
@@ -44,16 +45,17 @@ export function aboutTransitionFrames({active,direction=1,progress=0,count=3}){
 }
 
 export function interpolateDeckFrames(fromFrames,toFrames,progress,initialVelocity=[]){
- const p=easing(progress);
+ const t=clamp(progress),p=easing(t);
  return fromFrames.map((from,index)=>{
   const to=toFrames[index];
+  const velocity=initialVelocity[index]??{};
   const frame={
-   x:lerp(from.x,to.x,p),
-   y:lerp(from.y,to.y,p),
-   width:lerp(from.width,to.width,p),
-   height:lerp(from.height,to.height,p),
+   x:lerp(from.x,to.x,p)+retargetMomentum(velocity.x??0,t),
+   y:lerp(from.y,to.y,p)+retargetMomentum(velocity.y??0,t),
+   width:lerp(from.width,to.width,p)+retargetMomentum(velocity.width??0,t),
+   height:lerp(from.height,to.height,p)+retargetMomentum(velocity.height??0,t),
   };
-  return compose(frame,lerp(from.frontness,to.frontness,p),p<.5?from.zIndex:to.zIndex,lerp(from.contentScale,to.contentScale,p));
+  return compose(frame,lerp(from.frontness,to.frontness,p)+retargetMomentum(velocity.frontness??0,t),p<.5?from.zIndex:to.zIndex,lerp(from.contentScale,to.contentScale,p)+retargetMomentum(velocity.contentScale??0,t));
  });
 }
 
