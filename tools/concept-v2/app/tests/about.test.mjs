@@ -2,32 +2,55 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
-import {ABOUT_CARD_ANIMATION_MS,ABOUT_CARD_FRAME,aboutCardSlots,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames} from '../src/about-motion.mjs';
+import {ABOUT_CARD_ANIMATION_MS,ABOUT_CARD_FRAME,ABOUT_VIEWER_CARD_FRAME,aboutCardSlots,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames} from '../src/about-motion.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 
-test('about deck preserves the approved cyclic 500ms direction contract',()=>{
+test('embedded deck preserves the current Figma 0.8× rear-card geometry',()=>{
  assert.equal(ABOUT_CARD_ANIMATION_MS,500);
- assert.deepEqual(ABOUT_CARD_FRAME,{width:480,height:420,frontWidth:320,frontHeight:420,backWidth:191,backHeight:296});
+ assert.deepEqual(ABOUT_CARD_FRAME,{width:480,height:420,frontWidth:320,frontHeight:420,backWidth:256,backHeight:336});
  assert.deepEqual(aboutCardSlots(0),{front:0,left:2,right:1});
+ const frames=aboutDeckFrames(0);
+ assert.deepEqual(frames[0],{x:80,y:0,width:320,height:420,contentScale:1,frontness:1,rearStrength:0,zIndex:3});
+ assert.deepEqual(frames[1],{x:200,y:42,width:256,height:336,contentScale:.8,frontness:0,rearStrength:1,zIndex:2});
+ assert.deepEqual(frames[2],{x:24,y:42,width:256,height:336,contentScale:.8,frontness:0,rearStrength:1,zIndex:1});
+ assert.equal(frames[1].x-(frames[2].x+frames[2].width),-80);
  assert.equal(aboutNextCard(2,1),0);
  assert.equal(aboutNextCard(0,-1),2);
 });
 
-test('about motion remains inside the 480px stage and separates the handoff at midpoint',()=>{
+test('viewer retains its separate prior rear-card geometry',()=>{
+ assert.deepEqual(ABOUT_VIEWER_CARD_FRAME,{width:480,height:420,frontWidth:320,frontHeight:420,backWidth:191,backHeight:296});
+ const frames=aboutDeckFrames(0,3,'viewer');
+ assert.equal(frames[1].width,191);
+ assert.equal(frames[1].height,296);
+ assert.equal(frames[1].x,289);
+});
+
+test('embedded motion stays inside the 480px stage and separates the handoff at midpoint',()=>{
  for(const direction of [-1,1]){
   for(let step=0;step<=120;step++){
    const frames=aboutTransitionFrames({active:0,direction,progress:step/120});
    for(const frame of frames){
     assert.ok(frame.x>=0,`left bound at ${step}`);
     assert.ok(frame.x+frame.width<=480,`right bound at ${step}`);
-    assert.equal(frame.contentScale,frame.height/420);
+    assert.ok(frame.contentScale>0&&frame.contentScale<=1);
    }
   }
  }
  const frames=aboutTransitionFrames({active:0,direction:1,progress:.5});
  const outgoing=frames[0],incoming=frames[1];
  assert.ok(outgoing.x+outgoing.width<=incoming.x-8);
+});
+
+test('card content has its own proportional scale track rather than a refit to mask dimensions',()=>{
+ const start=aboutTransitionFrames({active:0,direction:1,progress:0});
+ const middle=aboutTransitionFrames({active:0,direction:1,progress:.5});
+ const end=aboutTransitionFrames({active:0,direction:1,progress:1});
+ assert.equal(start[0].contentScale,1);
+ assert.equal(middle[0].contentScale,.86875);
+ assert.equal(middle[1].contentScale,.7129333333333333);
+ assert.equal(end[0].contentScale,.8);
 });
 
 test('retargeted deck interpolation preserves every card identity and does not leave the stage',()=>{
@@ -41,7 +64,7 @@ test('retargeted deck interpolation preserves every card identity and does not l
  for(const frame of frames){
   assert.ok(frame.x>=0);
   assert.ok(frame.x+frame.width<=480);
-  assert.equal(frame.contentScale,frame.height/420);
+  assert.ok(frame.contentScale>0&&frame.contentScale<=1);
  }
 });
 

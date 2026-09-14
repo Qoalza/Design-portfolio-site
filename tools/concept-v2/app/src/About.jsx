@@ -14,12 +14,12 @@ const frameStyle=frame=>({
 });
 const cardDirection=(from,to)=>wrapAboutCard(to-from,cards.length)===1?1:-1;
 
-function useDeckController(initialIndex){
+function useDeckController(initialIndex,variant='embedded'){
  const [active,setActive]=useState(initialIndex);
- const [frames,setFrames]=useState(()=>aboutDeckFrames(initialIndex,cards.length));
+ const [frames,setFrames]=useState(()=>aboutDeckFrames(initialIndex,cards.length,variant));
  const [isMoving,setIsMoving]=useState(false);
  const framesRef=useRef(frames),activeRef=useRef(initialIndex),targetRef=useRef(initialIndex),rafRef=useRef(),movingRef=useRef(false);
- const velocityRef=useRef(frames.map(()=>({x:0,y:0,width:0,height:0,frontness:0})));
+ const velocityRef=useRef(frames.map(()=>({x:0,y:0,width:0,height:0,frontness:0,contentScale:0})));
  const sampleRef=useRef({time:performance.now(),frames});
  useEffect(()=>{framesRef.current=frames},[frames]);
  useEffect(()=>()=>cancelAnimationFrame(rafRef.current),[]);
@@ -32,7 +32,7 @@ function useDeckController(initialIndex){
   const initialVelocity=velocityRef.current;
   const canonical=!movingRef.current;
   const sourceActive=activeRef.current;
-  const finishFrames=aboutDeckFrames(target,cards.length);
+  const finishFrames=aboutDeckFrames(target,cards.length,variant);
   targetRef.current=target;activeRef.current=target;setActive(target);
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    framesRef.current=finishFrames;setFrames(finishFrames);movingRef.current=false;setIsMoving(false);return;
@@ -43,21 +43,21 @@ function useDeckController(initialIndex){
   const tick=now=>{
    const progress=Math.min((now-began)/ABOUT_CARD_ANIMATION_MS,1);
    const nextFrames=canonical
-    ?aboutTransitionFrames({active:sourceActive,direction,progress,count:cards.length})
+    ?aboutTransitionFrames({active:sourceActive,direction,progress,count:cards.length,variant})
     :interpolateDeckFrames(initialFrames,finishFrames,progress,initialVelocity);
    const previous=sampleRef.current;
    const elapsed=Math.max(now-previous.time,1);
    velocityRef.current=nextFrames.map((frame,index)=>{
     const prior=previous.frames[index];
-    return {x:(frame.x-prior.x)/elapsed,y:(frame.y-prior.y)/elapsed,width:(frame.width-prior.width)/elapsed,height:(frame.height-prior.height)/elapsed,frontness:(frame.frontness-prior.frontness)/elapsed};
+    return {x:(frame.x-prior.x)/elapsed,y:(frame.y-prior.y)/elapsed,width:(frame.width-prior.width)/elapsed,height:(frame.height-prior.height)/elapsed,frontness:(frame.frontness-prior.frontness)/elapsed,contentScale:(frame.contentScale-prior.contentScale)/elapsed};
    });
    sampleRef.current={time:now,frames:nextFrames};
    framesRef.current=nextFrames;setFrames(nextFrames);
    if(progress<1){rafRef.current=requestAnimationFrame(tick);return;}
-   framesRef.current=finishFrames;setFrames(finishFrames);velocityRef.current=finishFrames.map(()=>({x:0,y:0,width:0,height:0,frontness:0}));movingRef.current=false;setIsMoving(false);
+   framesRef.current=finishFrames;setFrames(finishFrames);velocityRef.current=finishFrames.map(()=>({x:0,y:0,width:0,height:0,frontness:0,contentScale:0}));movingRef.current=false;setIsMoving(false);
   };
   rafRef.current=requestAnimationFrame(tick);
- },[]);
+ },[variant]);
  const move=useCallback(direction=>go(aboutNextCard(targetRef.current,direction,cards.length)),[go]);
  return {active,frames,isMoving,go,move};
 }
@@ -81,7 +81,7 @@ function Deck({controller,onOpen,viewer=false,hovered=false,cardTargetRef}){
 }
 
 function ImageViewer({initialIndex,onClose,restoreFocus}){
- const controller=useDeckController(initialIndex);
+ const controller=useDeckController(initialIndex,'viewer');
  const viewerMove=controller.move;
  const dialogRef=useRef();
  const [scale,setScale]=useState(()=>Math.min(1,window.innerWidth/1440,window.innerHeight/960));
