@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
-import {ABOUT_CARD_ANIMATION_MS,ABOUT_CARD_FRAME,ABOUT_VIEWER_CARD_FRAME,aboutCardSlots,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames} from '../src/about-motion.mjs';
+import {ABOUT_CARD_ANIMATION_MS,ABOUT_CARD_FRAME,ABOUT_VIEWER_SCALE,ABOUT_VIEWER_STAGE,aboutCardSlots,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames,scaleAboutFrame} from '../src/about-motion.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 
@@ -19,12 +19,16 @@ test('embedded deck preserves the current Figma 0.8× rear-card geometry',()=>{
  assert.equal(aboutNextCard(0,-1),2);
 });
 
-test('viewer retains its separate prior rear-card geometry',()=>{
- assert.deepEqual(ABOUT_VIEWER_CARD_FRAME,{width:480,height:420,frontWidth:320,frontHeight:420,backWidth:191,backHeight:296});
- const frames=aboutDeckFrames(0,3,'viewer');
- assert.equal(frames[1].width,191);
- assert.equal(frames[1].height,296);
- assert.equal(frames[1].x,289);
+test('viewer is a direct 1.5× scale of the accepted embedded card component',()=>{
+ assert.equal(ABOUT_VIEWER_SCALE,1.5);
+ assert.deepEqual(ABOUT_VIEWER_STAGE,{width:720,height:630,scale:1.5});
+ const frames=aboutDeckFrames(0);
+ const front=scaleAboutFrame(frames[0]);
+ const rear=scaleAboutFrame(frames[1]);
+ const leftRear=scaleAboutFrame(frames[2]);
+ assert.deepEqual({x:front.x,y:front.y,width:front.width,height:front.height,contentScale:front.contentScale},{x:120,y:0,width:480,height:630,contentScale:1.5});
+ assert.deepEqual({x:rear.x,y:rear.y,width:rear.width,height:rear.height,contentScale:rear.contentScale},{x:300,y:63,width:384,height:504,contentScale:1.2});
+ assert.equal(rear.x-(leftRear.x+leftRear.width),-120);
 });
 
 test('embedded motion stays inside the 480px stage and separates the handoff at midpoint',()=>{
@@ -112,4 +116,19 @@ test('about structure maps the complete Figma block with native patterns and com
  assert.match(about,/const \[viewerInitial,setViewerInitial\]/);
  assert.doesNotMatch(about,/setActive\(next\)/);
  assert.match(css,/about-viewer-deck \.about-card-caption[^}]*display:none/);
+});
+
+test('card treatment keeps the sharp border outside geometry and viewer uses one direct scale',async()=>{
+ const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
+ const css=await readFile(path.join(root,'src/style.css'),'utf8');
+ assert.match(about,/about-viewer-deck-stage/);
+ assert.match(about,/about-viewer-deck-scale/);
+ assert.match(about,/about-card-hover/);
+ assert.match(css,/\.about-card-frame\{--card-border-width:calc\(\.8px \+ var\(--card-frontness\) \* \.2px\);border:0/);
+ assert.match(css,/box-shadow:inset 0 0 0 var\(--card-border-width\) rgba\(225,231,235,\.2\)/);
+ assert.match(css,/rgba\(19,20,20,calc\(\.7 \* var\(--card-frontness\)\)\) 88\.746%,rgba\(19,20,20,var\(--card-frontness\)\) 100%/);
+ assert.match(css,/\.about-viewer-deck-stage\{position:relative;width:720px;height:630px/);
+ assert.match(css,/\.about-viewer-deck-scale\{[^}]*transform:translateX\(-50%\) scale\(1\.5\)/);
+ assert.match(css,/\.about-viewer-deck \.about-card-motion\{width:var\(--card-width\);height:var\(--card-height\);transform:translate3d\(var\(--card-x\),var\(--card-y\),0\)/);
+ assert.match(css,/\.about-viewer-content p\{min-height:96px/);
 });

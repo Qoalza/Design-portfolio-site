@@ -1,6 +1,7 @@
 export const ABOUT_CARD_ANIMATION_MS=500;
 export const ABOUT_CARD_FRAME={width:480,height:420,frontWidth:320,frontHeight:420,backWidth:256,backHeight:336};
-export const ABOUT_VIEWER_CARD_FRAME={width:480,height:420,frontWidth:320,frontHeight:420,backWidth:191,backHeight:296};
+export const ABOUT_VIEWER_SCALE=1.5;
+export const ABOUT_VIEWER_STAGE={width:720,height:630,scale:ABOUT_VIEWER_SCALE};
 
 const FRONT={x:80,y:0,width:320,height:420};
 const LEFT={x:24,y:42,width:256,height:336};
@@ -8,12 +9,6 @@ const RIGHT={x:200,y:42,width:256,height:336};
 const OUT_MID={x:1,y:27.5625,width:278,height:364.875};
 const IN_MID={x:287,y:60.284,width:193,height:299.432};
 const THIRD_MID={x:168,y:62,width:191,height:296};
-
-/* The viewer remains on its previously approved geometry.  The new 0.8×
-   instance is only for the embedded About carousel. */
-const VIEWER_LEFT={x:0,y:62,width:191,height:296};
-const VIEWER_RIGHT={x:289,y:62,width:191,height:296};
-const VIEWER_BACK_SCALE=296/420;
 
 const FRONT_SCALE=1;
 const BACK_SCALE=.8;
@@ -38,18 +33,19 @@ function compose(frame,frontness,zIndex,contentScale){
  return {...bounded,contentScale,frontness,rearStrength:1-frontness,zIndex};
 }
 
-export function aboutRestFrame(slot,variant='embedded'){
- const left=variant==='viewer'?VIEWER_LEFT:LEFT;
- const right=variant==='viewer'?VIEWER_RIGHT:RIGHT;
- const backScale=variant==='viewer'?VIEWER_BACK_SCALE:BACK_SCALE;
+export function aboutRestFrame(slot){
  if(slot==='front')return compose(FRONT,1,3,FRONT_SCALE);
- if(slot==='left')return compose(left,0,1,backScale);
- return compose(right,0,2,backScale);
+ if(slot==='left')return compose(LEFT,0,1,BACK_SCALE);
+ return compose(RIGHT,0,2,BACK_SCALE);
 }
 
-export function aboutDeckFrames(active,count=3,variant='embedded'){
+export function aboutDeckFrames(active,count=3){
  const slots=aboutCardSlots(active,count);
- return Array.from({length:count},(_,index)=>aboutRestFrame(index===slots.front?'front':index===slots.left?'left':'right',variant));
+ return Array.from({length:count},(_,index)=>aboutRestFrame(index===slots.front?'front':index===slots.left?'left':'right'));
+}
+
+export function scaleAboutFrame(frame,scale=ABOUT_VIEWER_SCALE){
+ return {...frame,x:frame.x*scale,y:frame.y*scale,width:frame.width*scale,height:frame.height*scale,contentScale:Number((frame.contentScale*scale).toFixed(6))};
 }
 
 function hermite(from,fromTangent,to,toTangent,progress){
@@ -80,23 +76,20 @@ function throughScale(from,mid,to,progress){
  return hermite(pointA,second?tangent:0,pointB,second?0:tangent,t);
 }
 
-export function aboutTransitionFrames({active,direction=1,progress=0,count=3,variant='embedded'}){
+export function aboutTransitionFrames({active,direction=1,progress=0,count=3}){
  const p=clamp(progress);
  const slots=aboutCardSlots(active,count);
  const reverse=direction===-1;
- const left=variant==='viewer'?VIEWER_LEFT:LEFT;
- const right=variant==='viewer'?VIEWER_RIGHT:RIGHT;
- const backScale=variant==='viewer'?VIEWER_BACK_SCALE:BACK_SCALE;
- const outgoingEnd=reverse?right:left;
- const incomingStart=reverse?left:right;
- const thirdStart=reverse?right:left;
- const thirdEnd=reverse?left:right;
+ const outgoingEnd=reverse?RIGHT:LEFT;
+ const incomingStart=reverse?LEFT:RIGHT;
+ const thirdStart=reverse?RIGHT:LEFT;
+ const thirdEnd=reverse?LEFT:RIGHT;
  const outgoingMid=reverse?mirror(OUT_MID):OUT_MID;
  const incomingMid=reverse?mirror(IN_MID):IN_MID;
  const thirdMid=reverse?mirror(THIRD_MID):THIRD_MID;
- const outgoing=compose(throughMidpoint(FRONT,outgoingMid,outgoingEnd,p,reverse?-12:12),1-p,p<.5?3:2,throughScale(FRONT_SCALE,OUT_MID_SCALE,backScale,p));
- const incoming=compose(throughMidpoint(incomingStart,incomingMid,FRONT,p,reverse?8:-8),p,p<.5?2:3,throughScale(backScale,IN_MID_SCALE,FRONT_SCALE,p));
- const third=compose(throughMidpoint(thirdStart,thirdMid,thirdEnd,p,reverse?-6:6),0,1,throughScale(backScale,backScale,backScale,p));
+ const outgoing=compose(throughMidpoint(FRONT,outgoingMid,outgoingEnd,p,reverse?-12:12),1-p,p<.5?3:2,throughScale(FRONT_SCALE,OUT_MID_SCALE,BACK_SCALE,p));
+ const incoming=compose(throughMidpoint(incomingStart,incomingMid,FRONT,p,reverse?8:-8),p,p<.5?2:3,throughScale(BACK_SCALE,IN_MID_SCALE,FRONT_SCALE,p));
+ const third=compose(throughMidpoint(thirdStart,thirdMid,thirdEnd,p,reverse?-6:6),0,1,throughScale(BACK_SCALE,BACK_SCALE,BACK_SCALE,p));
  const incomingIndex=reverse?slots.left:slots.right;
  const thirdIndex=reverse?slots.right:slots.left;
  return Array.from({length:count},(_,index)=>index===slots.front?outgoing:index===incomingIndex?incoming:third);

@@ -14,9 +14,9 @@ const frameStyle=frame=>({
 });
 const cardDirection=(from,to)=>wrapAboutCard(to-from,cards.length)===1?1:-1;
 
-function useDeckController(initialIndex,variant='embedded'){
+function useDeckController(initialIndex){
  const [active,setActive]=useState(initialIndex);
- const [frames,setFrames]=useState(()=>aboutDeckFrames(initialIndex,cards.length,variant));
+ const [frames,setFrames]=useState(()=>aboutDeckFrames(initialIndex,cards.length));
  const [isMoving,setIsMoving]=useState(false);
  const framesRef=useRef(frames),activeRef=useRef(initialIndex),targetRef=useRef(initialIndex),rafRef=useRef(),movingRef=useRef(false);
  const velocityRef=useRef(frames.map(()=>({x:0,y:0,width:0,height:0,frontness:0,contentScale:0})));
@@ -32,7 +32,7 @@ function useDeckController(initialIndex,variant='embedded'){
   const initialVelocity=velocityRef.current;
   const canonical=!movingRef.current;
   const sourceActive=activeRef.current;
-  const finishFrames=aboutDeckFrames(target,cards.length,variant);
+  const finishFrames=aboutDeckFrames(target,cards.length);
   targetRef.current=target;activeRef.current=target;setActive(target);
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    framesRef.current=finishFrames;setFrames(finishFrames);movingRef.current=false;setIsMoving(false);return;
@@ -43,7 +43,7 @@ function useDeckController(initialIndex,variant='embedded'){
   const tick=now=>{
    const progress=Math.min((now-began)/ABOUT_CARD_ANIMATION_MS,1);
    const nextFrames=canonical
-    ?aboutTransitionFrames({active:sourceActive,direction,progress,count:cards.length,variant})
+    ?aboutTransitionFrames({active:sourceActive,direction,progress,count:cards.length})
     :interpolateDeckFrames(initialFrames,finishFrames,progress,initialVelocity);
    const previous=sampleRef.current;
    const elapsed=Math.max(now-previous.time,1);
@@ -57,7 +57,7 @@ function useDeckController(initialIndex,variant='embedded'){
    framesRef.current=finishFrames;setFrames(finishFrames);velocityRef.current=finishFrames.map(()=>({x:0,y:0,width:0,height:0,frontness:0,contentScale:0}));movingRef.current=false;setIsMoving(false);
   };
   rafRef.current=requestAnimationFrame(tick);
- },[variant]);
+ },[]);
  const move=useCallback(direction=>go(aboutNextCard(targetRef.current,direction,cards.length)),[go]);
  return {active,frames,isMoving,go,move};
 }
@@ -69,7 +69,8 @@ function AboutCard({card,frame,onOpen,moving,interactive=true,hovered=false,card
   <div className="about-card-depth" aria-hidden="true"/>
   <div className="about-card-halo" aria-hidden="true"><img src={card.image} alt=""/></div>
   <div ref={enabled?cardTargetRef:null} className="about-card-frame" role={enabled?'button':undefined} tabIndex={enabled?0:undefined} onClick={enabled?onOpen:undefined} onKeyDown={event=>{if(enabled&&(event.key==='Enter'||event.key===' ')){event.preventDefault();onOpen(event)}}}>
-   <div className="about-card-content"><img className="about-card-image" src={card.image} alt=""/><span className="about-card-shade" aria-hidden="true"/><p className="about-card-caption">{card.caption}</p></div>
+  <div className="about-card-content"><img className="about-card-image" src={card.image} alt=""/><span className="about-card-shade" aria-hidden="true"/><p className="about-card-caption">{card.caption}</p></div>
+   <span className="about-card-hover" aria-hidden="true"/>
    {interactive&&<span className="about-card-open" aria-hidden="true"><Icon name="about-search-scale"/><span className="about-card-open-label">Увеличить</span></span>}
   </div>
  </article>;
@@ -81,7 +82,7 @@ function Deck({controller,onOpen,viewer=false,hovered=false,cardTargetRef}){
 }
 
 function ImageViewer({initialIndex,onClose,restoreFocus}){
- const controller=useDeckController(initialIndex,'viewer');
+ const controller=useDeckController(initialIndex);
  const viewerMove=controller.move;
  const dialogRef=useRef();
  const [scale,setScale]=useState(()=>Math.min(1,window.innerWidth/1440,window.innerHeight/960));
@@ -108,7 +109,7 @@ function ImageViewer({initialIndex,onClose,restoreFocus}){
   <section ref={dialogRef} className="about-viewer-dialog" style={{'--about-viewer-scale':scale}} role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${card.alt}`}>
    <ControlButton variant="ghost" className="about-viewer-close" iconRight="about-x" onClick={onClose}>Закрыть</ControlButton>
    <ControlButton variant="neutral" className="about-square about-viewer-prev" iconLeft="about-chevron-left" onClick={()=>controller.move(-1)} aria-label="Предыдущее изображение"/>
-   <div className="about-viewer-content"><Deck controller={controller} onOpen={()=>{}} viewer/><p>{card.caption}</p></div>
+   <div className="about-viewer-content"><div className="about-viewer-deck-stage"><div className="about-viewer-deck-scale"><Deck controller={controller} onOpen={()=>{}} viewer/></div></div><p>{card.caption}</p></div>
    <ControlButton variant="neutral" className="about-square about-viewer-next" iconRight="about-chevron-right" onClick={()=>controller.move(1)} aria-label="Следующее изображение"/>
   </section>
  </div>;
