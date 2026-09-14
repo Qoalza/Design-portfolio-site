@@ -63,22 +63,28 @@ Code не обязан повторять `Master → Skin` двумя React com
 - `Solid` и `Color`: без Light/Medium, по exact source.
 - Каноническая единица — полный icon component frame/canvas, не внутренний vector/path.
 
-### Mask и color
+### Runtime rendering и color
 
-- Для `Line`, `Duotone`, `Solid` основной Figma mechanism — `Mask` с отдельным `Color` layer.
+- Figma может собирать `Line`, `Duotone` и `Solid` через `Mask` с отдельным `Color` layer, но этот authoring mechanism не переносится в runtime автоматически.
+- `Line` и stroked-слои `Duotone` в runtime выводятся только настоящим inline SVG внутри отдельного layout-frame. CSS mask для них запрещена: она превращает stroke в альфа-силуэт и не гарантирует заложенную толщину.
+- Layout-frame задаёт consumer size; полный SVG сохраняет исходный `viewBox`, остаётся его реальным дочерним элементом и масштабирует только геометрию.
+- Каждый stroked path сохраняет точный `stroke-width` из source и получает `vector-effect="non-scaling-stroke"`, если consumer масштабирует frame, но толщина линии должна оставаться неизменной.
+- Запрещены CSS `filter`, `drop-shadow`, дублирование path, искусственный `paint-order` и другие способы имитации толщины.
 - Color задаётся semantic/component role, а не случайным HEX внутри consumer.
+- Для перекрашиваемых control icons source-color заменяется на `currentColor` внутри inline SVG; остальные stroke/fill attributes остаются исходными.
 - `Color` icons сохраняют fixed colors и не перекрашиваются mask.
 - Совпадающий текущий цвет текста/icon не объединяет их variables/roles.
 
 ### Size и export
 
-- Размер Mask задаётся consumer context; вложенный icon frame наследует размер.
+- Размер layout-frame задаётся consumer context; вложенный полный SVG занимает frame без crop по path bounds.
 - Сохраняются исходный viewBox/canvas, внутренние отступы и optical alignment.
 - Запрещено crop/compact по path bounds и извлечение внутреннего vector вместо полного frame.
 - `Line` экспортируется настоящим SVG `stroke`, не outlined `fill`.
 - В `Duotone` outline остаётся stroke; fill допустим только у залитых source layers.
 - `Solid/Color` используют fill только при подтверждённом consumer→source mapping.
 - Сохраняются `stroke-width`, `linecap`, `linejoin`, transforms, opacity и детали.
+- Проверка миграции включает DOM-анатомию `frame > svg > path`, соответствие `viewBox`, фактический computed `stroke-width` и отсутствие `mask-image`; одно имя asset или наличие строки `1.3` недостаточно.
 - XML validation доказывает syntax/attributes, но не source family; mapping остаётся обязательным.
 
 ### Platform icons
