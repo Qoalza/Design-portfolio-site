@@ -6,12 +6,12 @@ import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
 test('experience height adaptation follows the contracted priority order',()=>{
-  assert.deepEqual(experienceLayout(1644),{outer:240,center:1164,free:129,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1});
-  assert.deepEqual(experienceLayout(1600),{outer:240,center:1120,free:107,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1});
-  assert.deepEqual(experienceLayout(1440),{outer:207,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1});
-  assert.deepEqual(experienceLayout(1280),{outer:127,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1});
-  assert.deepEqual(experienceLayout(1080),{outer:27,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1});
-  assert.deepEqual(experienceLayout(900),{outer:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1});
+  assert.deepEqual(experienceLayout(1644),{outer:240,center:1164,free:129,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1600),{outer:240,center:1120,free:107,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1440),{outer:207,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1280),{outer:127,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1080),{outer:27,center:1026,free:60,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(900),{outer:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
   const compact=experienceLayout(720);
   assert.equal(compact.outer,0);
   assert.equal(compact.center,720);
@@ -20,7 +20,9 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(compact.tapeTop,0);
   assert.equal(compact.progressGap,24);
   assert.equal(compact.bottom,50);
-  assert.equal(compact.scale,1);
+  assert.equal(compact.scale,560/642);
+  assert.equal(compact.compact,true);
+  assert.equal(compact.compactOffset,160);
 
   const short=experienceLayout(490);
   assert.equal(short.outer,0);
@@ -29,7 +31,9 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(short.tapeTop,0);
   assert.equal(short.progressGap,24);
   assert.equal(short.bottom,24);
-  assert.equal(short.scale,490/694);
+  assert.equal(short.scale,330/642);
+  assert.equal(short.compact,true);
+  assert.equal(short.compactOffset,160);
 });
 
 test('experience runs center-to-center and is ten percent faster',()=>{
@@ -52,7 +56,7 @@ test('experience hides both pattern fields below the 48px visual threshold',()=>
 });
 
 test('Experience keeps one geometry when it enters the sticky range',()=>{
-  assert.deepEqual(experienceLayout(900),{outer:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1});
+  assert.deepEqual(experienceLayout(900),{outer:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:160});
 });
 
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
@@ -101,11 +105,15 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
   assert.match(source,/top=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
   assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
+  assert.match(source,/section\.classList\.toggle\('is-compact',layout\.compact\)/);
   assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
   assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
   assert.doesNotMatch(source,/is-header-offset|HEADER_RESERVE|experienceStickyHeaderOffset|experienceCompactPinnedSpacing/);
   assert.doesNotMatch(css,/\.experience\.is-header-offset|--experience-heading-offset|\.experience-heading\{transform:translateY/);
+  assert.match(css,/\.experience\.is-compact \.experience-center\{align-items:flex-start\}/);
+  assert.match(css,/\.experience\.is-compact \.experience-composition\{transform:translateY\(var\(--experience-compact-offset\)\) scale\(var\(--experience-scale\)\);transform-origin:top center\}/);
+  assert.match(css,/\.experience\.is-compact \.experience-progress\{display:none\}/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;top:auto;height:auto;display:block;overflow:visible\}/);
   assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);

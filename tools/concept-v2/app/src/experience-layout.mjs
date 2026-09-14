@@ -35,8 +35,16 @@ export function experienceLayout(viewportHeight){
   const tapeTop=take(24);
   const progressGap=24+take(84);
   const bottom=24+take(56);
-  const scale=deficit?center/MIN_COMPOSITION:1;
-  return {outer,center,free,headingGap,tapeTop,progressGap,bottom,scale};
+  const baseScale=deficit?center/MIN_COMPOSITION:1;
+  // On short desktop screens the static progress bar costs more vertical room
+  // than it returns. Hide it before the content has to crowd the persistent
+  // site header, and use that reclaimed room as a real top inset.
+  const compact=center<1026;
+  const compactFlowHeight=112+headingGap+tapeTop+530;
+  const compactOffset=compact?160:0;
+  const compactScale=compact?Math.max(0,(center-compactOffset)/compactFlowHeight):1;
+  const scale=Math.min(baseScale,compactScale);
+  return {outer,center,free,headingGap,tapeTop,progressGap,bottom,scale,compact,compactOffset};
 }
 
 export function experiencePatternVisible(outerHeight){

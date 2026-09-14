@@ -65,7 +65,9 @@ export function Experience(){
       sticky.current.style.setProperty('--experience-progress-gap',`${layout.progressGap}px`);
       sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
       sticky.current.style.setProperty('--experience-scale',String(layout.scale));
+      sticky.current.style.setProperty('--experience-compact-offset',`${layout.compactOffset}px`);
       sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.outer));
+      section.classList.toggle('is-compact',layout.compact);
     }
     function paint(){
       const section=root.current;
