@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {activeExperienceIndex,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
-import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS,ENTRY_GESTURE_MAX_HOLD_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -58,73 +57,6 @@ test('experience preserves its natural layout until it reaches the pinned header
   assert.equal(experienceStickyHeaderOffset(79,80),80);
 });
 
-test('entry gate discards the entering gesture and releases the first delta after 120ms idle',()=>{
-  let armed;
-  const scheduled=[];
-  const gate=createExperienceEntryGate({
-    schedule(callback,delay){scheduled.push({callback,delay});return scheduled.length;},
-    cancel(){},
-    onStateChange(state){armed=state;},
-  });
-  assert.equal(ENTRY_GESTURE_IDLE_MS,120);
-  gate.capture();
-  assert.equal(armed,'holding');
-  assert.equal(scheduled.at(-1).delay,120);
-  assert.equal(gate.onVirtualScroll(),false);
-  scheduled.at(-1).callback();
-  assert.equal(gate.state,'armed');
-  assert.equal(gate.onVirtualScroll(),true);
-  assert.equal(gate.state,'released');
-  gate.reset();
-  assert.equal(gate.state,'idle');
-});
-
-test('entry gate can be reused and always releases an upward escape',()=>{
-  const scheduled=[];
-  const gate=createExperienceEntryGate({
-    schedule(callback){scheduled.push(callback);return scheduled.length;},
-    cancel(){},
-  });
-  gate.capture();
-  assert.equal(gate.onVirtualScroll({deltaY:-120}),true);
-  assert.equal(gate.state,'idle');
-  gate.capture();
-  scheduled.at(-1)();
-  assert.equal(gate.state,'armed');
-  assert.equal(gate.onVirtualScroll({deltaY:120}),true);
-  assert.equal(gate.state,'released');
-  gate.reset();
-  gate.capture();
-  scheduled.at(-1)();
-  assert.equal(gate.onVirtualScroll({deltaY:120}),true);
-});
-
-test('entry gate cannot stay locked under a continuous inertial stream',()=>{
-  const scheduled=[];
-  const cancelled=new Set();
-  const gate=createExperienceEntryGate({
-    schedule(callback,delay){
-      const id=scheduled.length+1;
-      scheduled.push({id,callback,delay});
-      return id;
-    },
-    cancel(id){cancelled.add(id);},
-  });
-  gate.capture();
-  assert.equal(ENTRY_GESTURE_MAX_HOLD_MS,600);
-  const maximum=scheduled.find(item=>item.delay===ENTRY_GESTURE_MAX_HOLD_MS);
-  assert.ok(maximum);
-  for(let index=0;index<8;index+=1){
-    assert.equal(gate.onVirtualScroll({deltaY:120}),false);
-    assert.equal(gate.state,'holding');
-  }
-  assert.equal(cancelled.has(maximum.id),false);
-  maximum.callback();
-  assert.equal(gate.state,'armed');
-  assert.equal(gate.onVirtualScroll({deltaY:120}),true);
-  assert.equal(gate.state,'released');
-});
-
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
@@ -173,10 +105,15 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/top=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
   assert.match(source,/const nextHeaderOffset=experienceStickyHeaderOffset\(section\.getBoundingClientRect\(\)\.top,HEADER_RESERVE\)/);
   assert.match(source,/section\.classList\.toggle\('is-header-offset',headerOffset>0\)/);
-  assert.match(source,/const layout=experienceLayout\(window\.innerHeight-offset\)/);
-  assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight-offset\+VERTICAL_TRAVEL\}px`:'auto'/);
+  assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
+  assert.match(source,/const compactPinnedHeader=offset>0&&window\.innerHeight<1026/);
+  assert.match(source,/setProperty\('--experience-heading-offset',compactPinnedHeader\?'24px':'0px'\)/);
+  assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
+  assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
   assert.match(css,/\.experience\.is-header-offset \.experience-sticky\{top:80px;height:calc\(100svh - 80px\)\}/);
+  assert.match(css,/\.experience-heading\{transform:translateY\(var\(--experience-heading-offset\)\)\}/);
+  assert.match(css,/\.experience-scroll\{padding-top:calc\(var\(--experience-heading-gap\) \+ var\(--experience-heading-offset\)\)\}/);
   const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
   assert.match(tabletBlock,/\.experience-sticky\{position:relative;top:auto;height:auto;display:block;overflow:visible\}/);
   assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);

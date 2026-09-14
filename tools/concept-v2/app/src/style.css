@@ -131,6 +131,9 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .experience-fade-left,.experience-fade-right{width:240px}
 .experience-fade-left{opacity:0}
 .experience.is-started .experience-fade-left{opacity:1}
+.experience{--experience-heading-offset:0px}
+.experience-heading{transform:translateY(var(--experience-heading-offset))}
+.experience-scroll{padding-top:calc(var(--experience-heading-gap) + var(--experience-heading-offset))}
 
 /* Desktop experience grid: a quiet layer in the central composition only. */
 @media(min-width:1280px){
