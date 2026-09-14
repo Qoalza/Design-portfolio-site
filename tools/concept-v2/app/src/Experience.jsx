@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStickyHeaderOffset,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 
@@ -58,6 +58,7 @@ export function Experience(){
     let previousScrollY=window.scrollY;
     let blurTimer;
     let lenis;
+    let headerOffset=0;
     let removeVirtualScroll=()=>{};
     const entryGate=createExperienceEntryGate({onStateChange(state){
       if(root.current)root.current.dataset.entryGate=state;
@@ -72,10 +73,26 @@ export function Experience(){
         if(entryGate.onVirtualScroll(event))lenis.start();
       });
     });
+    function applyLayout(offset){
+      const section=root.current;
+      const layout=experienceLayout(window.innerHeight-offset);
+      section.style.height=window.innerWidth>=1280?`${window.innerHeight-offset+VERTICAL_TRAVEL}px`:'auto';
+      sticky.current.style.setProperty('--experience-outer',`${layout.outer}px`);
+      sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
+      sticky.current.style.setProperty('--experience-free',`${layout.free}px`);
+      sticky.current.style.setProperty('--experience-heading-gap',`${layout.headingGap}px`);
+      sticky.current.style.setProperty('--experience-tape-top',`${layout.tapeTop}px`);
+      sticky.current.style.setProperty('--experience-progress-gap',`${layout.progressGap}px`);
+      sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
+      sticky.current.style.setProperty('--experience-scale',String(layout.scale));
+      sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.outer));
+    }
     function paint(){
       const section=root.current;
       if(window.innerWidth<1280){
         section.style.height='auto';
+        section.classList.remove('is-header-offset');
+        headerOffset=0;
         section.classList.remove('is-complete');
         section.style.setProperty('--experience-progress','0');
         section.style.setProperty('--experience-shift','0px');
@@ -87,7 +104,7 @@ export function Experience(){
         previousScrollY=window.scrollY;
         return;
       }
-      const top=section.getBoundingClientRect().top+window.scrollY-HEADER_RESERVE;
+      const top=section.getBoundingClientRect().top+window.scrollY;
       let currentScrollY=window.scrollY;
       const enteredFromAbove=previousScrollY<top&&currentScrollY>=top;
       if(enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth'){
@@ -98,6 +115,12 @@ export function Experience(){
       }else if(currentScrollY<top&&entryGate.state!=='idle'){
         if(lenis?.isStopped)lenis.start();
         entryGate.reset();
+      }
+      const nextHeaderOffset=experienceStickyHeaderOffset(section.getBoundingClientRect().top,HEADER_RESERVE);
+      if(nextHeaderOffset!==headerOffset){
+        headerOffset=nextHeaderOffset;
+        section.classList.toggle('is-header-offset',headerOffset>0);
+        applyLayout(headerOffset);
       }
       progress=scrollProgress({scrollY:currentScrollY,sectionTop:top,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;
@@ -125,19 +148,12 @@ export function Experience(){
     }
     function size({preserve=false}={}){
       const active=preserve&&progress>0&&progress<1&&window.innerWidth>=1280;
-      const availableHeight=window.innerHeight-HEADER_RESERVE;
-      const layout=experienceLayout(availableHeight);
       const section=root.current;
-      section.style.height=window.innerWidth>=1280?`${availableHeight+VERTICAL_TRAVEL}px`:'auto';
-      sticky.current.style.setProperty('--experience-outer',`${layout.outer}px`);
-      sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
-      sticky.current.style.setProperty('--experience-free',`${layout.free}px`);
-      sticky.current.style.setProperty('--experience-heading-gap',`${layout.headingGap}px`);
-      sticky.current.style.setProperty('--experience-tape-top',`${layout.tapeTop}px`);
-      sticky.current.style.setProperty('--experience-progress-gap',`${layout.progressGap}px`);
-      sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
-      sticky.current.style.setProperty('--experience-scale',String(layout.scale));
-      sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.outer));
+      if(window.innerWidth<1280){
+        headerOffset=0;
+        section.classList.remove('is-header-offset');
+      }
+      applyLayout(headerOffset);
       if(active){
         const top=section.getBoundingClientRect().top+window.scrollY;
         window.scrollTo({top:top+progress*VERTICAL_TRAVEL,behavior:'instant'});

@@ -6,6 +6,10 @@ const VERTICAL_TRAVEL=9690/1.1;
 const EXPERIENCE_STOPS=Object.freeze(EXPERIENCE_NODE_ANCHORS.map(anchor=>(anchor-EXPERIENCE_NODE_ANCHORS[0])/HORIZONTAL_TRAVEL));
 export const EXPERIENCE_PATTERN_MIN_HEIGHT=48;
 
+export function experienceStickyHeaderOffset(sectionTop,headerHeight){
+  return sectionTop<=headerHeight?headerHeight:0;
+}
+
 export function experienceTravel(){
   return {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL};
 }
