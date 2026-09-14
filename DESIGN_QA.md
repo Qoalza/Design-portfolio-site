@@ -48,7 +48,7 @@
 - Scope: `codex/concept-v2-visual-fidelity` from accepted baseline `7b1f3e4`; no production or shared-contract changes.
 - Sources: About `3223:155421`, `3223:155136`, `3223:139419`, `3263:179635`; Process `3210:124239`; Experience `3142:82981`; dot tile `3116:67455`; current header/buttons and icon-library Medium assets.
 - Completed code scope: exact Medium full-frame vectors; About sharp border and caption gradient; uniform `1.5×` viewer composition; Experience fade after completion; shared 3px/16px SVG dot tile; Process Default/Enable hover; and responsive Hero captions.
-- Automated evidence: `48/48` tests, lint, production build, browser smoke and `git diff --check` after the final CSS cleanup. The test suite also rejects stale viewer X/Y scales, obsolete radial dot fields and complete-state fade suppression.
+- Automated evidence: `48/48` tests, lint, production build, browser smoke and `git diff --check` after the final CSS cleanup. A later user visual check caught the About caption-gradient structural layer and viewer control-state/position regression; both were corrected and the focused About test, lint, build, smoke and diff checks were rerun. The test suite also rejects stale viewer X/Y scales, obsolete radial dot fields and complete-state fade suppression.
 - Manual visual matrix is still required for Chromium, Firefox and WebKit. The available desktop automation surface timed out, therefore no visual browser acceptance is claimed yet.
 
 ## Не является записью этого файла

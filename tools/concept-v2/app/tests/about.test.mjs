@@ -128,9 +128,14 @@ test('card treatment keeps the sharp border outside geometry and viewer uses one
  assert.match(css,/\.about-card-frame\{--card-border-width:calc\(\.8px \+ var\(--card-frontness\) \* \.2px\);border:0/);
  assert.match(css,/box-shadow:inset 0 0 0 var\(--card-border-width\) rgba\(225,231,235,\.2\)/);
  assert.match(css,/rgba\(19,20,20,calc\(\.7 \* var\(--card-frontness\)\)\) 88\.746%,rgba\(19,20,20,var\(--card-frontness\)\) 100%/);
+ assert.match(css,/\.about-card-shade\{position:absolute;z-index:1;inset:0;background:linear-gradient/);
  assert.match(css,/\.about-viewer-deck-stage\{position:relative;width:720px;height:630px/);
  assert.match(css,/\.about-viewer-deck-scale\{[^}]*transform:translateX\(-50%\) scale\(1\.5\)/);
  assert.match(css,/\.about-viewer-deck \.about-card-motion\{width:var\(--card-width\);height:var\(--card-height\);transform:translate3d\(var\(--card-x\),var\(--card-y\),0\)/);
  assert.match(css,/\.about-viewer-content p\{[^}]*min-height:96px/);
+ assert.match(about,/variant="light" className="about-square about-viewer-prev"/);
+ assert.match(about,/variant="light" className="about-square about-viewer-next"/);
+ assert.match(css,/\.about-viewer-prev\{left:332px\}/);
+ assert.match(css,/\.about-viewer-next\{right:332px\}/);
  assert.doesNotMatch(css,/1\.625|1\.43333/);
 });
