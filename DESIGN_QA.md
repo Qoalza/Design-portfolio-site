@@ -38,7 +38,8 @@
 
 - Scope: current Concept V2 worktree `codex/concept-v2-about-correction`, not the historical About implementation.
 - Findings to close on the final runtime: Figma-accurate hatch direction/step and independent lower borders; no duplicate section rule; 16/24 section subtitle; compact interruptible card handoff; proportional card content; full-card hover action with the approved cursor; viewer layout and independent selection state.
-- User-confirmed interaction additions: the hover label is informational, the whole dimmed active card opens the viewer; closing viewer clears the active-card dim state without extra click; dogs caption has a required break after «Это мои сладкие дети,».
+- User-confirmed interaction additions: the hover label is informational, the whole dimmed active card opens the viewer; closing viewer clears the active-card dim state without extra click; dogs caption has a required break after «Это мои сладкие дети,». 
+- Current Figma instance `3223:155136`: embedded rear cards are `256×336` (`0.8×` of `320×420`) with an `−80 px` pair overlap. This geometry is intentionally scoped to the embedded deck; the viewer retains its independent prior geometry until its own Figma instance is revised.
 - Required proof: final real-browser visual walkthrough plus focused motion, hover, viewer, resize and regression checks on the final HEAD.
 
 ## Не является записью этого файла
