@@ -11,7 +11,7 @@
 ## Current checkpoint
 
 - Plan 4.0 implementation is ready for review. The final audit removed superseded card/viewer scales, old dot gradients and complete-state fade suppression rather than relying on CSS override order. A subsequent user visual report restored the detached About caption-gradient layer and corrected viewer arrows to the Figma dark Filled Square state at `x=332/1072`.
-- Current local preview: `http://127.0.0.1:43205/` from this exact worktree.
+- Current local preview: `http://127.0.0.1:43205/` from this exact worktree. Partial local-browser visual proof at `1280×720` covers viewer controls, restored caption gradient and viewer/embedded-state independence; the wider engine matrix remains open.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink and must remain out of Git.
 
 ## Verification

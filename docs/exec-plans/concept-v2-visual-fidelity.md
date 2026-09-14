@@ -32,7 +32,7 @@ Status: `READY_FOR_REVIEW`
 
 - Focused behavior tests per group, followed by `npm run check`, `npm run check:browser`, and `git diff --check` at the reviewed HEAD.
 - Completed: `48/48` automated tests, lint, production build, browser smoke and diff check after the final CSS cleanup. A post-audit visual report restored the accidentally detached About caption-gradient layer and aligned the viewer arrows to Figma's dark Filled Square state and `x=332/1072` coordinates; the focused About test, lint, build, smoke and diff checks were rerun.
-- Pending manual evidence: browser matrix on the desktop and viewer threshold sizes from Plan 4.0. The desktop automation surface timed out twice, so Chromium, Firefox and WebKit visual runs are explicitly not claimed.
+- Partial manual evidence: in-app local-browser runtime at `1280×720` opened the About viewer, rendered the restored caption gradient, moved viewer-only from «Я» to «Машина», and returned focus to the unchanged embedded «Я» card after close. Pending manual evidence: the remaining desktop/viewer threshold matrix and explicit Firefox/WebKit runs. The desktop automation surface timed out twice, so those engines are explicitly not claimed.
 
 ## Final review record
 
