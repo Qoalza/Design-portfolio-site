@@ -1,6 +1,6 @@
 # Concept V2 — финальная визуальная доводка
 
-Status: `READY_FOR_REVIEW`
+Status: `COMPLETE`
 
 ## Baseline and scope
 
@@ -39,7 +39,13 @@ Status: `READY_FOR_REVIEW`
 ## Final review record
 
 1. Fidelity/completeness: verified the accepted embedded `320×420` / rear `256×336` geometry, the direct viewer `1.5×` scale, border pseudo-element, caption gradient, exact SVG dot tile, Medium SVG frame contract, Process Default/Enable values and Hero timing. Removed obsolete CSS branches that still encoded the prior radial dot fields, complete-state fade hiding and viewer X/Y scales.
-2. Regression/scope: reviewed the changed runtime, tests and assets against the accepted baseline. About and viewer controllers remain independent; no Admin, shared contract, production, dependency, push, PR, merge or deploy files entered the workstream. The only remaining untracked path is the local `node_modules` symlink. The final browser smoke passed at `a6b0806`; direct user visual acceptance of the compact Experience composition, project icon and revised deck feel remains outstanding.
+2. Regression/scope: reviewed the changed runtime, tests and assets against the accepted baseline. About and viewer controllers remain independent; no Admin, shared contract, production, dependency, push, PR, merge or deploy files entered the workstream. The only remaining untracked path is the local `node_modules` symlink. The final browser smoke passed at `a6b0806`; the user accepted the compact Experience composition, project icon and revised deck feel.
+
+## Completion
+
+- User accepted the final local preview on 2026-09-15.
+- Final runtime changes end at `a6b0806`; verification records and the durable icon contract are at `815d98d`.
+- Firefox and WebKit remain explicitly unverified because they were unavailable in this environment; this is a documented engine-coverage gap, not an open implementation defect.
 
 ## Stop-lines
 

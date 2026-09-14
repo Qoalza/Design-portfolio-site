@@ -43,14 +43,6 @@
 - Completed proof: user visual acceptance plus focused motion, hover/viewer/resize regression checks, `npm run check`, `npm run check:browser`, and `git diff --check` on final HEAD `94f6f9c`.
 - Deferred, not accepted as complete: direct 1.5× enlarged-viewer geometry and the remaining image-card border/gradient refinements. The later site-wide icon, point-pattern, process-hover and experience-fade work requires a separate plan and goal.
 
-## READY_FOR_REVIEW — Concept V2 visual fidelity, Plan 4.0
-
-- Scope: `codex/concept-v2-visual-fidelity` from accepted baseline `7b1f3e4`; no production or shared-contract changes.
-- Sources: About `3223:155421`, `3223:155136`, `3223:139419`, `3263:179635`; Process `3210:124239`; Experience `3142:82981`; dot tile `3116:67455`; current header/buttons and icon-library Medium assets.
-- Completed code scope: exact Medium full-frame vectors; About sharp border and caption gradient; uniform `1.5×` viewer composition; Experience fade after completion; shared 3px/16px SVG dot tile; Process Default/Enable hover; responsive Hero captions; the user-requested 150ms two-way sticky Header; and the revised Experience entry with no captured scroll or forced snapping.
-- Automated evidence: at `a6b0806`, `npm run check` passed lint, `50/50` tests and production build; `npm run check:browser` and `git diff --check` also passed. The suite rejects stale viewer X/Y scales, obsolete radial dot fields, complete-state fade suppression and the obsolete Experience `scrollTo`/Lenis-stop gateway. It also guards the current compact heading-only `−16 px` adjustment and the Figma project-icon source bounds inside its `16px` layout frame, with a real computed `1.3px` stroke and no mask.
-- Local-browser visual evidence: `1280×720` shows the restored About gradient, exact dot tile and full-frame vector cursor layer; `1440×960` exactly matches viewer card/control coordinates; `1439×960` and `1440×959` keep a uniformly scaled, fully visible viewer card. Viewer selection remains independent. The active Header shell is `z-index:20` versus project-divider `8`; Experience was checked at `1280×900` and `1280×720`, and at `1700×1318` its dot fields are equal at `106px`. Firefox/WebKit are unavailable, and the separate Chrome automation attempt timed out, so those engines are not represented as acceptance.
-
 ## Не является записью этого файла
 
 - принятые 404/500 pages;
