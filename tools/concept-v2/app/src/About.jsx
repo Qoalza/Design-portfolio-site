@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useRef,useState} from 'react';
+import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {ControlButton,Icon} from './Controls';
 import {ABOUT_CARD_ANIMATION_MS,aboutCardFrame,aboutCardSlots,aboutNextCard,aboutRestFrame,wrapAboutCard} from './about-motion.mjs';
 
@@ -61,13 +61,13 @@ function ImageViewer({index,onChange,onClose,restoreFocus}){
   return()=>{
    document.removeEventListener('keydown',onKeyDown);
    Object.assign(body.style,original);
-   window.scrollTo({top:scrollY,left:0,behavior:'instant'});
+   window.scrollTo(0,scrollY);
    (restoreFocus.current??previous)?.focus?.({preventScroll:true});
   };
  },[onChange,onClose,restoreFocus]);
  const card=cards[index];
  return <div className="about-viewer" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)onClose()}}>
-  <section ref={dialogRef} className="about-viewer-dialog" role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${card.alt}`}>
+  <section ref={dialogRef} className="about-viewer-dialog" role="dialog" aria-modal="true" aria-label={`Увеличенное изображение: ${card.alt}`} onMouseDown={event=>{if(event.target===event.currentTarget)onClose()}}>
    <ControlButton variant="ghost" className="about-viewer-close" iconRight="about-x" onClick={onClose}>Закрыть</ControlButton>
    <ControlButton variant="neutral" className="about-square about-viewer-prev" iconLeft="about-chevron-left" onClick={()=>onChange(-1)} aria-label="Предыдущее изображение"/>
    <div className="about-viewer-content">
@@ -139,11 +139,12 @@ export function About(){
   if(event.key==='ArrowRight'){event.preventDefault();move(1)}
  }
 
- const setViewer=direction=>setViewerIndex(current=>{
+ const setViewer=useCallback(direction=>setViewerIndex(current=>{
   const next=wrapAboutCard(current+direction,cards.length);
   setActive(next);activeRef.current=next;
   return next;
- });
+ }),[]);
+ const closeViewer=useCallback(()=>setViewerIndex(null),[]);
 
  return <section className={`about-section ${motion?'is-moving':''}`} style={{'--about-layout-scale':layoutScale}} aria-labelledby="about-title" onKeyDown={onKeyDown}>
   <div className="about-heading-shell">
@@ -171,6 +172,6 @@ export function About(){
     </div>
    </div>
   </div>
-  {viewerIndex!==null&&<ImageViewer index={viewerIndex} onChange={setViewer} onClose={()=>setViewerIndex(null)} restoreFocus={openerRef}/>}
+  {viewerIndex!==null&&<ImageViewer index={viewerIndex} onChange={setViewer} onClose={closeViewer} restoreFocus={openerRef}/>}
  </section>;
 }
