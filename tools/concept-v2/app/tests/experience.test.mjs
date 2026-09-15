@@ -95,7 +95,11 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
   assert.match(css,/\.experience-sticky:not\(\.has-pattern-fields\) \.experience-pattern\{visibility:hidden\}/);
   assert.match(source,/classList\.toggle\('has-pattern-fields',experiencePatternVisible\(layout\.bottomOuter\)\)/);
-  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*border-inline:1px solid #2e3133/);
+  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*transform:translateX\(-50%\)/);
+  assert.match(css,/\.experience-pattern-grid\{border-inline:0\}/);
+  assert.match(css,/\.experience-pattern-grid::before,\.experience-pattern-grid::after\{[^}]*width:1px;[^}]*background:repeating-linear-gradient\(to bottom,#2e3133 0 16px,transparent 16px 32px\)/);
+  assert.match(css,/\.experience-pattern-grid::before\{left:0\}/);
+  assert.match(css,/\.experience-pattern-grid::after\{right:0\}/);
   assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
   assert.doesNotMatch(css,/\.experience-pattern-grid\{[^}]*radial-gradient/);
   assert.match(css,/\.pattern-top\{[^}]*border-bottom:1px solid #2e3133/);

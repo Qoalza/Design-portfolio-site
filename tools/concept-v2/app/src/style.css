@@ -174,6 +174,12 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .experience-pattern-grid{background-image:url('/figma/dot-tile.svg');background-size:16px 16px;background-position:0 0}
 .about-pattern{background-image:url('/figma/dot-tile.svg');background-size:16px 16px;background-position:0 0}
 
+/* The centered Figma field has 1 px vertical 16/16 dashes, not solid borders. */
+.experience-pattern-grid{border-inline:0}
+.experience-pattern-grid::before,.experience-pattern-grid::after{content:"";position:absolute;z-index:1;top:0;bottom:0;width:1px;pointer-events:none;background:repeating-linear-gradient(to bottom,#2e3133 0 16px,transparent 16px 32px)}
+.experience-pattern-grid::before{left:0}
+.experience-pattern-grid::after{right:0}
+
 /* Each control has a real Figma SVG inside a layout frame. SVG scales its
    geometry with the frame while vector-effect preserves the authored stroke. */
 .icon{position:relative;display:inline-grid;place-items:center;background:none;mask:none!important;-webkit-mask:none!important}
