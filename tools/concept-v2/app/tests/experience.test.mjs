@@ -153,7 +153,10 @@ test('Experience entry consumes the incoming gesture and releases only the next 
 
   gate.capture();
   assert.equal(gate.state,'holding');
-  assert.equal(gate.onVirtualScroll({deltaY:80}),false,'the same incoming gesture remains blocked');
+  for(let index=0;index<8;index+=1){
+    assert.equal(gate.onVirtualScroll({deltaY:80}),false,'every event in the incoming wheel stream remains blocked');
+  }
+  assert.deepEqual([...new Set([...timers.values()].map(timer=>timer.delay))],[ENTRY_GESTURE_IDLE_MS],'a continuous input stream has no hard time-based release');
   const idle=[...timers.values()].find(timer=>timer.delay===ENTRY_GESTURE_IDLE_MS);
   idle.callback();
   assert.equal(gate.state,'armed');
