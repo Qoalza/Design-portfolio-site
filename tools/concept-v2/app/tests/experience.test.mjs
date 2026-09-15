@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {activeExperienceIndex,EXPERIENCE_HEADER_RESERVE,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -116,7 +117,9 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
   assert.match(source,/section\.classList\.toggle\('is-compact',layout\.compact\)/);
   assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
-  assert.doesNotMatch(source,/createExperienceEntryGate|scrollTo\(top,\{immediate:true,force:true\}\)|lenis\.stop\(\)/);
+  assert.match(source,/createExperienceEntryGate/);
+  assert.match(source,/scrollTo\(top,\{immediate:true,force:true\}\)/);
+  assert.match(source,/lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
   assert.match(css,/grid-template-rows:var\(--experience-top-outer\) var\(--experience-center\) var\(--experience-bottom-outer\)/);
   assert.doesNotMatch(source,/is-header-offset|HEADER_RESERVE|experienceStickyHeaderOffset|experienceCompactPinnedSpacing/);
@@ -134,6 +137,32 @@ test('one normalized document progress drives the full horizontal travel',()=>{
   assert.equal(scrollProgress({scrollY:1000,sectionTop:1000,verticalTravel:900}),0);
   assert.equal(scrollProgress({scrollY:1450,sectionTop:1000,verticalTravel:900}),.5);
   assert.equal(scrollProgress({scrollY:1900,sectionTop:1000,verticalTravel:900}),1);
+});
+
+test('Experience entry consumes the incoming gesture and releases only the next one',()=>{
+  let nextId=0;
+  const timers=new Map();
+  const gate=createExperienceEntryGate({
+    schedule:(callback,delay)=>{
+      const id=++nextId;
+      timers.set(id,{callback,delay});
+      return id;
+    },
+    cancel:id=>timers.delete(id),
+  });
+
+  gate.capture();
+  assert.equal(gate.state,'holding');
+  assert.equal(gate.onVirtualScroll({deltaY:80}),false,'the same incoming gesture remains blocked');
+  const idle=[...timers.values()].find(timer=>timer.delay===ENTRY_GESTURE_IDLE_MS);
+  idle.callback();
+  assert.equal(gate.state,'armed');
+  assert.equal(gate.onVirtualScroll({deltaY:80}),true,'a later gesture begins Experience progress');
+  assert.equal(gate.state,'released');
+  gate.reset();
+  gate.capture();
+  assert.equal(gate.onVirtualScroll({deltaY:-20}),true,'reversing before release leaves the section normally');
+  assert.equal(gate.state,'idle');
 });
 
 test('the reached storyboard stop selects its matching experience item',()=>{

@@ -1,5 +1,7 @@
 import {useEffect,useRef} from 'react';
 import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {createExperienceEntryGate} from './experience-entry-gate.mjs';
+import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
 
@@ -52,7 +54,23 @@ export function Experience(){
     let progress=0;
     let previousX=0;
     let previousTime=performance.now();
+    let previousScrollY=window.scrollY;
     let blurTimer;
+    let lenis;
+    let removeVirtualScroll=()=>{};
+    const entryGate=createExperienceEntryGate({onStateChange(state){
+      root.current?.setAttribute('data-entry-gate',state);
+    }});
+    const unsubscribeSmoothScroll=subscribeSmoothScroll(instance=>{
+      removeVirtualScroll();
+      removeVirtualScroll=()=>{};
+      if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
+      entryGate.reset();
+      lenis=instance;
+      if(lenis)removeVirtualScroll=lenis.on('virtual-scroll',event=>{
+        if(entryGate.onVirtualScroll(event))lenis.start();
+      });
+    });
     function applyLayout(){
       const section=root.current;
       const layout=experienceLayout(window.innerHeight);
@@ -82,10 +100,21 @@ export function Experience(){
         section.dataset.activeIndex='0';
         section.querySelectorAll('.experience-job').forEach(job=>job.classList.remove('is-reached'));
         section.querySelectorAll('.experience-path-progress').forEach(path=>path.style.setProperty('stroke-dashoffset','1'));
+        previousScrollY=window.scrollY;
         return;
       }
       const top=section.getBoundingClientRect().top+window.scrollY;
-      const currentScrollY=window.scrollY;
+      let currentScrollY=window.scrollY;
+      const enteredFromAbove=previousScrollY<top&&currentScrollY>=top;
+      if(enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth'){
+        entryGate.capture();
+        lenis.scrollTo(top,{immediate:true,force:true});
+        lenis.stop();
+        currentScrollY=top;
+      }else if(currentScrollY<top&&entryGate.state!=='idle'){
+        if(lenis?.isStopped)lenis.start();
+        entryGate.reset();
+      }
       progress=scrollProgress({scrollY:currentScrollY,sectionTop:top,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;
       const now=performance.now();
@@ -105,7 +134,7 @@ export function Experience(){
         const segment=experienceSegmentProgress(progress,Number(path.dataset.segment));
         path.style.setProperty('stroke-dashoffset',String(1-segment));
       });
-      previousX=x;previousTime=now;
+      previousX=x;previousTime=now;previousScrollY=currentScrollY;
       clearTimeout(blurTimer);
       blurTimer=setTimeout(()=>section.style.setProperty('--experience-blur','0px'),80);
     }
@@ -126,7 +155,7 @@ export function Experience(){
     window.addEventListener('scroll',paint,{passive:true});
     window.addEventListener('resize',onResize);
     reduced.addEventListener('change',paint);
-    return()=>{clearTimeout(blurTimer);window.removeEventListener('scroll',paint);window.removeEventListener('resize',onResize);reduced.removeEventListener('change',paint);};
+    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();clearTimeout(blurTimer);window.removeEventListener('scroll',paint);window.removeEventListener('resize',onResize);reduced.removeEventListener('change',paint);};
   },[]);
 
   return <section ref={root} className="experience" aria-labelledby="experience-title">
