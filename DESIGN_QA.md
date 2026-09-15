@@ -1,6 +1,6 @@
 # DESIGN QA
 
-Обновлено: 2026-08-31.
+Обновлено: 2026-09-16.
 
 ## Назначение
 
@@ -32,6 +32,13 @@
 4. получить пользовательскую visual acceptance конкретных current instances.
 
 Историческая системная причина сохраняется в `PROJECT_HISTORY.md`.
+
+## OPEN — Concept V2 current Figma delta audit
+
+- Source-audit completed against current Concept V2 Main page `3075:60105`, Hero source `3125:81643`, Experience heading `3142:82981` and Library V2 `9:387`; no runtime or Figma mutation is included in this finding.
+- Current source confirms a shared palette migration, rebuilt Hero lower field/fact-chip, current full-frame File-05 icons for CV/Resume, 56 px section-heading padding, new Projects and AI controls, plus About/Experience/Footer token changes.
+- The complete source-to-runtime ledger, node IDs, exact resolved values and implementation guardrails are in `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
+- Before status can move to `READY_FOR_REVIEW`, the follow-up implementation must preserve node-specific colour values (not globally replace hexes), swap exact Medium frames, and complete the shared-CSS visual regression pass.
 
 
 ## READY_FOR_REVIEW — Concept V2 «Обо мне», accepted Plan 3.0 scope
