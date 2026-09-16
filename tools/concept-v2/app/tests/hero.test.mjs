@@ -29,6 +29,8 @@ test('Hero preserves the two authored component structures and the accepted map 
 test('Hero lower field uses a native dot treatment over the exact Bg-main surface',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const fieldAsset=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-field.svg'),'utf8');
+ const largeFieldAsset=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-field-large.svg'),'utf8');
  assert.match(app,/29 лет · Екатеринбург · Senior/);
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
@@ -36,11 +38,16 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-color:var\(--cv2-container-neutral-bg-main\)[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
  const desktopHero=css.slice(css.indexOf('/* The Hero is a single viewport'),css.indexOf('/* About'));
- assert.match(desktopHero,/\.hero-bottom-dots\{[^}]*-webkit-mask-image:none[^}]*mask-image:none/);
- assert.match(app,/className="hero-bottom-wave"/);
- assert.match(desktopHero,/\.hero-bottom\{--hero-wave-x:-12\.708333%;--hero-wave-y:80\.3125%;--hero-wave-width:125\.416667%;--hero-wave-height:109\.6875%\}/);
- assert.match(desktopHero,/\.hero-bottom-wave\{[^}]*left:var\(--hero-wave-x\)[^}]*top:var\(--hero-wave-y\)[^}]*width:var\(--hero-wave-width\)[^}]*height:var\(--hero-wave-height\)/);
- assert.match(desktopHero,/\.hero-bottom-wave img\{[^}]*left:-8\.31%[^}]*top:-32\.34%[^}]*width:116\.62%[^}]*height:175\.08%/);
+ assert.match(desktopHero,/\.hero-bottom-dots\{display:none\}/);
+ assert.match(app,/className="hero-bottom-field hero-bottom-field-small"[^>]*src="\/figma\/hero-bottom-field\.svg"/);
+ assert.match(app,/className="hero-bottom-field hero-bottom-field-large"[^>]*src="\/figma\/hero-bottom-field-large\.svg"/);
+ assert.match(desktopHero,/\.hero-bottom-field\{[^}]*position:absolute[^}]*inset:0[^}]*width:100%[^}]*max-width:none[^}]*height:100%[^}]*object-fit:fill[^}]*pointer-events:none/);
+ assert.match(desktopHero,/\.hero\[data-layout="small"\] \.hero-bottom-field-small,\.hero\[data-layout="large"\] \.hero-bottom-field-large\{display:block\}/);
+ assert.match(fieldAsset,/<svg width="1440" height="320" viewBox="0 0 1440 320"/);
+ assert.match(fieldAsset,/<g id="Rectangle 15" filter="url\(#filter0_f_262_2380\)"/);
+ assert.match(fieldAsset,/<radialGradient id="paint0_radial_262_2380"/);
+ assert.match(fieldAsset,/<stop offset="1" stop-color="#181A1C" stop-opacity="0\.5"\/>/);
+ assert.match(largeFieldAsset,/<svg width="2313" height="560" viewBox="0 0 2313 560"/);
  assert.doesNotMatch(css,/hero-bottom-field(?:-large)?\.png/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
@@ -50,13 +57,14 @@ test('desktop Hero wave leaves the source map and mobile Hero untouched',async()
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.doesNotMatch(app,/texture-(?:top|bottom)/);
  assert.match(app,/className="hero-bottom-dots"/);
- assert.match(app,/src="\/figma\/hero-bottom-wave\.svg"/);
- assert.match(css,/\.hero-bottom\{z-index:0;isolation:auto;background:var\(--cv2-container-neutral-bg-main\)\}/);
+ assert.match(app,/src="\/figma\/hero-bottom-field\.svg"/);
+ assert.match(app,/src="\/figma\/hero-bottom-field-large\.svg"/);
+ assert.match(css,/\.hero-bottom\{position:absolute;z-index:2;inset:auto 0 0;height:320px;flex-basis:auto\}/);
  assert.match(css,/\.hero-main\{z-index:1\}/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
  assert.doesNotMatch(css,/\.hero-graph \.process-map\{[^}]*mask-image/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
- assert.doesNotMatch(css,/hero-bottom-dots::after/);
+ assert.doesNotMatch(css,/hero-bottom-wave/);
  const mobile=css.slice(css.indexOf('@media(max-width:760px)'),css.indexOf('@media(max-width:380px)'));
  assert.match(mobile,/\.hero-bottom\{height:auto;padding:0 20px 24px\}/);
  assert.doesNotMatch(mobile,/\.hero-bottom\{height:320px;flex:0 0 320px;padding:0\}/);
@@ -70,7 +78,7 @@ test('desktop Hero occupies exactly one viewport and keeps the dotted field in i
  assert.match(heroDesktop,/\.hero\{height:calc\(100svh - 80px\);min-height:0\}/);
  assert.match(heroDesktop,/\.hero-main\{height:100%;flex:1 1 auto\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="small"\] \.hero-main\{padding-bottom:120px;box-sizing:border-box\}/);
- assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:320px;flex-basis:auto\}/);
+ assert.match(heroDesktop,/\.hero-bottom\{position:absolute;z-index:2;inset:auto 0 0;height:320px;flex-basis:auto\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\]\{height:calc\(100svh - 80px\)\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-bottom\{inset:auto 0 0;height:560px;flex-basis:auto\}/);
