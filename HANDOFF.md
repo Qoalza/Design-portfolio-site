@@ -5,7 +5,7 @@
 ## Checkout
 
 - Branch: `codex/concept-v2-figma-delta-3ec86f0`.
-- Runtime checkpoint: `c83e7be` (`fix(concept-v2): align process borders and hatch strokes`).
+- Runtime checkpoint: `1eab026` (`fix(concept-v2): release experience on renewed scroll`).
 - Worktree: `/private/tmp/Design-portfolio-site-concept-v2-delta-3ec86f0`.
 - Preview: `http://127.0.0.1:43207/`, launched from this exact worktree.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
@@ -18,14 +18,17 @@ Hero uses the source compositions as separate structures: up to the authored Lar
 
 The Process card rail now has one desktop upper divider: the redundant parent border was removed while its authored card divider, hover/focus fill, and `300ms` timing remain intact. Decorative hatch and dashed fields use the exact exported Figma component stroke `#222629` via `--cv2-decoration-hatch`.
 
+The desktop Experience entry gate still consumes the incoming inertial tail, but now recognizes a renewed wheel impulse from its rising delta and releases immediately. A second scroll gesture therefore starts the timeline without requiring pointer movement; the existing `120ms` idle release remains as a fallback for discrete wheel input. Timeline geometry, progress mapping and mobile/native scrolling are unchanged.
+
 The following accepted mechanics are intentionally untouched: About deck/viewer and custom cursor, Experience gateway/timeline and fade behavior, Hero caption/hysteresis, Process hover/focus timing, shared contract, Admin, production and deploy.
 
 ## Verification
 
-- `npm run check`: passed — lint, 64 tests, Vite production build.
+- `npm run check`: passed — lint, 66 tests, Vite production build.
 - `npm run check:browser`: passed — built runtime smoke.
 - Focused Hero suite: passed — 15 tests.
 - Focused Process suite: passed — 6 tests, including the single desktop divider and Figma hatch-stroke contract.
+- Focused Experience suite: passed — 16 tests, including a decaying inertial tail followed by a renewed wheel impulse before the idle timer.
 - `git diff --check`: passed for `7d61746`.
 - Desktop preview at `1728×900`: `.steps` computes to `border-top: 0px`; the retained card divider computes to `1px`; all checked decorative hatches compute to `rgb(34, 38, 41)` (`#222629`).
 - Desktop visual review at the reported compact viewport `1728×465`, Small `1440×900` and Large `2313×1200` confirmed edge-to-edge dots, intact interface content and no hard construction-grid line in the lower field.
@@ -33,6 +36,6 @@ The following accepted mechanics are intentionally untouched: About deck/viewer 
 
 ## Review / stop-lines
 
-- Status is `READY_FOR_REVIEW`: review the repaired desktop Small/Large Hero field, especially the compact-height viewport that previously clipped the interface. Mobile Hero is explicitly out of scope and unchanged in this group.
+- Status is `READY_FOR_REVIEW`: verify that desktop Experience stops the incoming inertia and begins on the next scroll gesture without pointer movement. Mobile/native scrolling is explicitly unchanged in this group.
 - No Figma write, Admin/shared change, push, PR, merge, deploy or production action was performed.
 - Evidence/source ledger: `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
