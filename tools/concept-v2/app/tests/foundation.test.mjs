@@ -33,7 +33,7 @@ test('tracked standalone app stays outside the public Next.js runtime',async()=>
 test('Library V2 foundation is isolated under its own namespace',async()=>{
   const tokens=await readFile(path.join(appRoot,'src/v2/tokens.css'),'utf8');
   const controls=await readFile(path.join(appRoot,'src/v2/Controls.jsx'),'utf8');
-  assert.match(tokens,/--v2-fill-accent-bg-enable:#0378d6/);
+  assert.match(tokens,/--v2-fill-accent-bg-enable:var\(--cv2-container-accent-tertiary\)/);
   assert.match(controls,/export function V2Button/);
   assert.doesNotMatch(controls,/className={`control /);
 });
