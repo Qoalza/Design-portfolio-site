@@ -2,7 +2,7 @@
 @font-face{font-family:"Google Sans";src:url('/fonts/google-sans-latin.woff2') format('woff2');font-style:normal;font-weight:400 700;font-display:swap}
 @font-face{font-family:Onest;src:url('/fonts/onest-variable.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
 @font-face{font-family:"Source Code Pro";src:url('/fonts/source-code-pro-variable.woff2') format('woff2');font-style:normal;font-weight:200 900;font-display:swap}
-:root{color-scheme:dark;--cv2-container-neutral-bg-main:#16181a;--cv2-container-neutral-faint:#141517;--cv2-container-neutral-thin:#1c1f21;--cv2-container-neutral-soft:#222629;--cv2-container-accent-primary:#004c88;--cv2-container-accent-secondary:#0462af;--cv2-container-accent-tertiary:#0378d6;--cv2-border-neutral-surface:#2a2f33;--cv2-border-neutral-muted:#32383d;--cv2-border-neutral-secondary:#4d5459;--cv2-border-neutral-thin:#222629;--cv2-border-accent-muted:#1d90eb;--cv2-text-neutral-primary:#f2f4f5;--cv2-text-neutral-secondary:#d7dce0;--cv2-text-neutral-tertiary:#a9b1b8;--cv2-text-neutral-muted:#636c73;--cv2-text-neutral-thin:#42484d;--cv2-text-neutral-strong:#ffffff;--cv2-element-neutral-secondary:#d7dce0;--cv2-element-neutral-tertiary:#a9b1b8;--cv2-element-neutral-muted:#636c73;--cv2-element-neutral-thin:#42484d;--page:var(--cv2-container-neutral-bg-main);--primary:var(--cv2-text-neutral-primary);--secondary:var(--cv2-text-neutral-secondary);--tertiary:var(--cv2-text-neutral-tertiary);--muted:var(--cv2-text-neutral-muted);--border:var(--cv2-border-neutral-surface);--surface:var(--cv2-container-neutral-thin);font-family:Onest,sans-serif;color:var(--primary);background:var(--page);font-synthesis:none}
+:root{color-scheme:dark;--cv2-container-neutral-bg-main:#181a1c;--cv2-container-neutral-faint:#141517;--cv2-container-neutral-thin:#1c1f21;--cv2-container-neutral-soft:#222629;--cv2-container-accent-primary:#004c88;--cv2-container-accent-secondary:#0462af;--cv2-container-accent-tertiary:#0378d6;--cv2-border-neutral-surface:#2a2f33;--cv2-border-neutral-muted:#32383d;--cv2-border-neutral-secondary:#4d5459;--cv2-border-neutral-thin:#222629;--cv2-border-accent-muted:#1d90eb;--cv2-text-neutral-primary:#f2f4f5;--cv2-text-neutral-secondary:#d7dce0;--cv2-text-neutral-tertiary:#a9b1b8;--cv2-text-neutral-muted:#636c73;--cv2-text-neutral-thin:#42484d;--cv2-text-neutral-strong:#ffffff;--cv2-element-neutral-secondary:#d7dce0;--cv2-element-neutral-tertiary:#a9b1b8;--cv2-element-neutral-muted:#636c73;--cv2-element-neutral-thin:#42484d;--page:var(--cv2-container-neutral-bg-main);--primary:var(--cv2-text-neutral-primary);--secondary:var(--cv2-text-neutral-secondary);--tertiary:var(--cv2-text-neutral-tertiary);--muted:var(--cv2-text-neutral-muted);--border:var(--cv2-border-neutral-surface);--surface:var(--cv2-container-neutral-thin);font-family:Onest,sans-serif;color:var(--primary);background:var(--page);font-synthesis:none}
 *{box-sizing:border-box}html{scroll-behavior:smooth}html,body{margin:0;background:var(--page)}body{min-width:320px}#root{position:relative;overflow:clip}p,h1,h2,h3{margin:0}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit}button{font:inherit}img{display:block}main,.site-header,.site-footer{position:relative}section{scroll-margin-top:24px}
 html{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar{display:none;width:0;height:0}
@@ -222,3 +222,13 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
  html[data-custom-cursor="on"],html[data-custom-cursor="on"] *{cursor:none!important}
  html[data-custom-cursor="on"] .custom-cursor{opacity:1}
 }
+
+/* The lower Figma field is a Hero background. The map fades before reaching it,
+   which keeps the field seamless without putting an overlay over Hero controls. */
+.hero-main{z-index:1}
+.hero-copy{position:relative;z-index:auto}
+.hero-graph{position:relative;z-index:auto}
+.hero-graph .process-map{-webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 220px),transparent calc(100% - 72px));mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 220px),transparent calc(100% - 72px))}
+.hero-bottom{z-index:0;isolation:auto;background:var(--cv2-container-neutral-bg-main)}
+.hero-bottom-dots{background-size:100% 100%}
+@media(min-width:1280px){.hero[data-layout="large"] .hero-bottom-dots{background-size:100% 100%}}

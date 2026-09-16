@@ -35,7 +35,8 @@ test('Hero lower fields keep the independently authored Small and Large canvases
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
  assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)/);
- assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field-large\.png'\)[^}]*background-size:2313px 560px/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field-large\.png'\)/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom-dots\{background-size:100% 100%\}/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
 
@@ -44,9 +45,13 @@ test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.doesNotMatch(app,/texture-(?:top|bottom)/);
  assert.match(app,/className="hero-bottom-dots"/);
- assert.match(css,/\.hero-bottom\{[^}]*z-index:2[^}]*overflow:hidden[^}]*background:var\(--cv2-container-neutral-bg-main\)/);
+ assert.match(css,/\.hero-bottom\{z-index:0;isolation:auto;background:var\(--cv2-container-neutral-bg-main\)\}/);
+ assert.match(css,/\.hero-main\{z-index:1\}/);
+ assert.match(css,/\.hero-copy\{[^}]*position:relative[^}]*z-index:auto/);
+ assert.match(css,/\.hero-graph\{[^}]*position:relative[^}]*z-index:auto/);
+ assert.match(css,/\.hero-graph \.process-map\{[^}]*mask-image:linear-gradient/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
- assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)[^}]*background-size:1440px 320px/);
+ assert.match(css,/\.hero-bottom-dots\{background-size:100% 100%\}/);
  assert.doesNotMatch(css,/hero-bottom-dots\{[^}]*mask-image/);
 });
 
