@@ -44,3 +44,11 @@ test('AI desktop panel retains its source 272px height and 577px left column',as
  assert.match(css,/\.ai-panel>\.section-title\{padding:40px 56px/);
  assert.match(css,/\.ai-panel \.ai-tools\{[^}]*padding:40px 56px/);
 });
+
+test('AI other-tools chip is a static semantic text element with current source styling',async()=>{
+ const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
+ const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
+ assert.match(app,/<span className="ai-other-chip">и множество других<\/span>/);
+ assert.doesNotMatch(app,/ai-other-chip[^>]*(?:onClick|tabIndex|href)/);
+ assert.match(css,/\.ai-other-chip\{[^}]*padding:8px 12px[^}]*border-radius:8px[^}]*font:400 16px\/20px "Source Code Pro"/);
+});
