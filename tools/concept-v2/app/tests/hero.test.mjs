@@ -37,7 +37,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-color:var\(--cv2-container-neutral-bg-main\)[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
  const desktopHero=css.slice(css.indexOf('/* The Hero is a single viewport'),css.indexOf('/* About'));
- assert.match(desktopHero,/\.hero-bottom-dots\{[^}]*--hero-wave-mask-size:110% 112%[^}]*--hero-wave-mask-position:50% -8px[^}]*display:block[^}]*inset:0[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask\.svg'\)[^}]*mask-size:var\(--hero-wave-mask-size\)[^}]*mask-position:var\(--hero-wave-mask-position\)/);
+ assert.match(desktopHero,/\.hero-bottom-dots\{[^}]*--hero-wave-mask-size:110% calc\(112% - 56px\)[^}]*--hero-wave-mask-position:50% -8px[^}]*display:block[^}]*inset:-50px -8px 0 8px[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask\.svg'\)[^}]*mask-size:var\(--hero-wave-mask-size\)[^}]*mask-position:var\(--hero-wave-mask-position\)/);
  assert.doesNotMatch(app,/hero-bottom-field/);
  assert.doesNotMatch(css,/hero-bottom-field/);
  assert.match(waveMask,/<svg[^>]*viewBox="0 0 1440 320"/);
