@@ -33,8 +33,7 @@ test('Hero lower field replaces legacy facts with the current single fact chip',
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
- assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:560px/);
- assert.match(css,/\.hero\[data-layout="large"\]\{height:1572px/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:min\(560px,50svh\);flex-basis:auto/);
  assert.match(css,/background-image:url\('\/figma\/dot-tile\.svg'\)/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:279px[^}]*height:42px/);
 });
@@ -47,7 +46,18 @@ test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel
  assert.match(css,/\.hero-bottom\{[^}]*overflow:hidden[^}]*background:transparent/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*mask-image:linear-gradient\(to bottom,transparent 0/);
- assert.match(css,/\.hero-bottom::after\{[^}]*url\('\/figma\/hero-dot-fade\.svg'\)/);
+ assert.doesNotMatch(css,/hero-dot-fade\.svg/);
+});
+
+test('desktop Hero occupies exactly one viewport and keeps the dotted field in its background',async()=>{
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const heroDesktop=css.slice(css.indexOf('/* The Hero is a single viewport'),css.indexOf('/* About'));
+ assert.match(heroDesktop,/\.hero-shell\{height:100svh;min-height:0\}/);
+ assert.match(heroDesktop,/\.hero\{height:calc\(100svh - 80px\);min-height:0\}/);
+ assert.match(heroDesktop,/\.hero-main\{height:100%;flex:1 1 auto\}/);
+ assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:min\(320px,33svh\);flex-basis:auto\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\]\{height:calc\(100svh - 80px\)\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto\}/);
 });
 
 test('pointer coordinates account for SVG meet fields before magnification',()=>{
