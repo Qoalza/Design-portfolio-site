@@ -56,7 +56,9 @@ test('desktop Hero wave leaves the source map and mobile Hero untouched',async()
  assert.match(css,/\.hero-bottom\{z-index:0;isolation:auto;background:/);
  assert.match(css,/\.hero-main\{z-index:1\}/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
- assert.doesNotMatch(css,/\.hero-graph \.vector-network \.construction\{[^}]*mask-image/);
+ const mobileConstructionMask=/@media\(max-width:1279px\)\{\.hero-graph \.vector-network \.construction\{[^}]*mask-image:radial-gradient[^}]*linear-gradient\(to bottom,#000 0,#000 50%,transparent 72%\)[^}]*mask-composite:intersect\}\}/;
+ assert.match(css,mobileConstructionMask);
+ assert.doesNotMatch(css.replace(mobileConstructionMask,''),/\.hero-graph \.vector-network \.construction\{[^}]*mask-image/);
  assert.match(network,/<g className="construction" mask=\{`url\(#\$\{id\}-grid\)`\}/);
  assert.match(css,/@media\(min-width:1280px\) and \(max-height:719px\)\{\.hero-graph \.vector-network \.construction\{opacity:0\}\}/);
  assert.doesNotMatch(css,/\.hero-graph \.vector-network \.routes[^}]*mask-image/);
