@@ -5,9 +5,9 @@
 ## Checkout
 
 - Branch: `codex/concept-v2-figma-delta-3ec86f0`.
-- HEAD: `88e204a` (`docs(concept-v2): update hero review checkpoint`).
+- HEAD: `172b18d` (`fix(concept-v2): keep hero within viewport`).
 - Worktree: `/private/tmp/Design-portfolio-site-concept-v2-delta-3ec86f0`.
-- Preview: `http://127.0.0.1:43206/`, launched from this exact worktree.
+- Preview: `http://127.0.0.1:43207/`, launched from this exact worktree.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
 
 ## Current result
@@ -22,7 +22,7 @@ The following accepted mechanics are intentionally untouched: About deck/viewer 
 
 - `npm run check`: passed — lint, 64 tests, Vite production build.
 - `npm run check:browser`: passed — built runtime smoke.
-- `git diff --check`: passed before this documentation checkpoint.
+- `git diff --check`: passed for `172b18d`.
 - Firefox and WebKit are not exposed in this environment and therefore remain unverified.
 
 ## Review / stop-lines
