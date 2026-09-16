@@ -33,9 +33,9 @@ test('Hero lower field replaces legacy facts with the current single fact chip',
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
- assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:min\(560px,50svh\);flex-basis:auto/);
- assert.match(css,/background-image:url\('\/figma\/dot-tile\.svg'\)/);
- assert.match(css,/\.hero-fact-chip\{[^}]*width:279px[^}]*height:42px/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:320px;flex-basis:auto/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)/);
+ assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
 
 test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel',async()=>{
@@ -45,8 +45,8 @@ test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel
  assert.match(app,/className="hero-bottom-dots"/);
  assert.match(css,/\.hero-bottom\{[^}]*overflow:hidden[^}]*background:transparent/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
- assert.match(css,/\.hero-bottom-dots\{[^}]*mask-image:linear-gradient\(to bottom,transparent 0/);
- assert.doesNotMatch(css,/hero-dot-fade\.svg/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)[^}]*background-size:100% 320px/);
+ assert.doesNotMatch(css,/hero-bottom-dots\{[^}]*mask-image/);
 });
 
 test('desktop Hero occupies exactly one viewport and keeps the dotted field in its background',async()=>{
@@ -55,7 +55,8 @@ test('desktop Hero occupies exactly one viewport and keeps the dotted field in i
  assert.match(heroDesktop,/\.hero-shell\{height:100svh;min-height:0\}/);
  assert.match(heroDesktop,/\.hero\{height:calc\(100svh - 80px\);min-height:0\}/);
  assert.match(heroDesktop,/\.hero-main\{height:100%;flex:1 1 auto\}/);
- assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:min\(320px,33svh\);flex-basis:auto\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="small"\] \.hero-main\{padding-bottom:120px;box-sizing:border-box\}/);
+ assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:320px;flex-basis:auto\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\]\{height:calc\(100svh - 80px\)\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto\}/);
 });

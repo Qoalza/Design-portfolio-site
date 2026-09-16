@@ -208,14 +208,15 @@ test('desktop Experience keeps the dark Figma center while masks retain timeline
   assert.match(css,/\.experience-fade\{display:none\}/);
 });
 
-test('Experience heading keeps scroll orchestration while Resume is an icon-only accessible control',async()=>{
+test('Experience heading keeps scroll orchestration while Resume remains its full Figma control',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
  assert.match(css,/\.experience-heading\{[^}]*padding-inline:56px/);
  assert.match(css,/\.experience-heading>div>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
  assert.match(source,/export function Experience\(\{cv\}\)/);
- assert.match(source,/className="experience-resume" variant="light" href=\{cv\} external iconOnly aria-label="Открыть резюме" iconRight="file05"\/>/);
- assert.match(css,/\.experience-resume\{width:36px;padding:0\}/);
+ assert.match(source,/className="experience-resume" variant="light" href=\{cv\} external iconRight="file05">Резюме<\/ControlButton>/);
+ assert.doesNotMatch(source,/\/\/ все сложное – просто/);
+ assert.match(css,/\.experience-resume\{width:105px\}/);
  assert.match(css,/\.experience-pattern\{[^}]*background:var\(--cv2-container-neutral-faint\)/);
  assert.match(source,/createExperienceEntryGate/);
  assert.match(source,/subscribeSmoothScroll/);
