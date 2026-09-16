@@ -7,6 +7,8 @@ const root=path.resolve(import.meta.dirname,'..');
 
 test('Concept V2 exposes distinct current semantic palette roles',async()=>{
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
+ const lens=await readFile(path.join(root,'src/lens.css'),'utf8');
+ const svgLens=await readFile(path.join(root,'src/svg-lens.css'),'utf8');
  for(const [role,value] of Object.entries({
   '--cv2-container-neutral-bg-main':'#16181a',
   '--cv2-container-neutral-faint':'#141517',
@@ -24,6 +26,11 @@ test('Concept V2 exposes distinct current semantic palette roles',async()=>{
  assert.match(css,/--page:var\(--cv2-container-neutral-bg-main\)/);
  assert.match(css,/--surface:var\(--cv2-container-neutral-thin\)/);
  assert.match(css,/--border:var\(--cv2-border-neutral-surface\)/);
+ assert.match(lens,/html,body\{background:var\(--cv2-container-neutral-bg-main\)\}/);
+ assert.match(lens,/\.lens-backing\{[^}]*background:var\(--cv2-container-neutral-bg-main\)/);
+ assert.match(svgLens,/\.vector-network \.network-nodes\{fill:var\(--cv2-container-neutral-bg-main\)\}/);
+ assert.match(svgLens,/\.vector-mode \.lens-backing\{background:var\(--cv2-container-neutral-bg-main\)\}/);
+ assert.doesNotMatch(`${lens}\n${svgLens}`,/#18191a|#1a2029/i);
 });
 
 test('Header preserves its component brand tokens while using current 1280px frame and control states',async()=>{

@@ -26,15 +26,16 @@ test('Hero preserves the two authored component structures and the accepted map 
  assert.match(css,/\.hero-graph \.process-caption\{[^}]*height:16px;[^}]*font:400 14px\/16px/);
 });
 
-test('Hero lower field replaces legacy facts with the current single fact chip',async()=>{
+test('Hero lower fields keep the independently authored Small and Large canvases',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.match(app,/29 лет · Екатеринбург · Senior/);
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
- assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:320px;flex-basis:auto/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field-large\.png'\)[^}]*background-size:2313px 560px/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
 
@@ -43,9 +44,9 @@ test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.doesNotMatch(app,/texture-(?:top|bottom)/);
  assert.match(app,/className="hero-bottom-dots"/);
- assert.match(css,/\.hero-bottom\{[^}]*overflow:hidden[^}]*background:transparent/);
+ assert.match(css,/\.hero-bottom\{[^}]*z-index:2[^}]*overflow:hidden[^}]*background:var\(--cv2-container-neutral-bg-main\)/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
- assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)[^}]*background-size:100% 320px/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)[^}]*background-size:1440px 320px/);
  assert.doesNotMatch(css,/hero-bottom-dots\{[^}]*mask-image/);
 });
 
@@ -59,6 +60,8 @@ test('desktop Hero occupies exactly one viewport and keeps the dotted field in i
  assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:320px;flex-basis:auto\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\]\{height:calc\(100svh - 80px\)\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-bottom\{inset:auto 0 0;height:560px;flex-basis:auto\}/);
+ assert.doesNotMatch(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-12px\) scale\(/);
 });
 
 test('pointer coordinates account for SVG meet fields before magnification',()=>{

@@ -1,6 +1,6 @@
 @property --lens-progress{syntax:"<number>";inherits:true;initial-value:0}
 html,body{overflow-x:clip}
-html,body{background:#18191A}
+html,body{background:var(--cv2-container-neutral-bg-main)}
 .process-demo{min-width:0;width:124%;margin-left:-12%}
 .process-map{position:relative;width:100%;aspect-ratio:1.5;touch-action:none;cursor:none;--radius:104px;--lens-progress:0;--visible-radius:calc(var(--radius) * var(--lens-progress));isolation:isolate;outline-offset:8px;transition:--lens-progress 180ms cubic-bezier(.22,.61,.36,1)}
 .process-map.lens-active{--lens-progress:1;transition-duration:180ms}
@@ -10,7 +10,7 @@ html,body{background:#18191A}
 /* The viewport clips horizontal overflow; the lens itself must not be
    paint-contained to the map rectangle, which creates a hard inner edge. */
 .lens-window{position:absolute;inset:0;pointer-events:none;background:transparent;clip-path:circle(var(--visible-radius) at var(--lx) var(--ly))}
-.lens-backing{position:absolute;left:var(--lx);top:var(--ly);width:calc(var(--radius)*2 + 2px);height:calc(var(--radius)*2 + 2px);transform:translate(-50%,-50%);background:#18191A;pointer-events:none}
+.lens-backing{position:absolute;left:var(--lx);top:var(--ly);width:calc(var(--radius)*2 + 2px);height:calc(var(--radius)*2 + 2px);transform:translate(-50%,-50%);background:var(--cv2-container-neutral-bg-main);pointer-events:none}
 .magnified-map{position:absolute;inset:0;background:transparent}
 .magnified-map>.network{filter:url(#blue-network);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent);mask-composite:intersect}
 .revealed-node{position:absolute;width:38px;height:38px;transform:translate(-50%,-50%);display:grid;place-items:center;background:#202733;border:1px solid #4a94f4;border-radius:50%}

@@ -1,12 +1,12 @@
 .vector-mode .vector-network{overflow:visible;opacity:1;filter:none;mask-image:none}
 .vector-network .construction{stroke:#6d7784;opacity:.32}
 .vector-network .routes,.vector-network .network-nodes{stroke:#717980}
-.vector-network .network-nodes{fill:#18191a}
+.vector-network .network-nodes{fill:var(--cv2-container-neutral-bg-main)}
 .vector-network.is-revealed .routes,.vector-network.is-revealed .network-nodes{stroke:#4a94f4}
 .vector-network.is-revealed .network-nodes{fill:#1c2430}
 .vector-network.is-revealed .construction{stroke:#638bc2;opacity:.38}
 .vector-network .node-icon{filter:brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(1477%) hue-rotate(185deg) brightness(99%) contrast(94%)}
-.vector-mode .lens-backing{background:#1a2029}
+.vector-mode .lens-backing{background:var(--cv2-container-neutral-bg-main)}
 .vector-network .route-pulse{stroke:#65adff;filter:drop-shadow(0 0 1.5px #4098ff60);pointer-events:none}
 .vector-network .pulse-segment{animation:route-current 1.5s linear both}
 .vector-network .terminal-arrival{fill:none;stroke:#65adff;stroke-width:1.2;filter:drop-shadow(0 0 7px #4098ff);animation:terminal-arrival 300ms linear both;pointer-events:none}
