@@ -65,7 +65,7 @@ The authoritative Hero source is the two-variant component `3125:81643`, not the
 
 - The lower `171 px` disciplines/facts strip in the runtime is superseded by a separate dotted field. In `Screen=Small`, it begins at `y=1012` and is `320px` high; in `Screen=Large`, it remains a direct Hero child beneath the main content. The centred fact-chip remains `279×42`.
 - The chip contains only `29 лет · Екатеринбург · Senior`; it has `20 px` horizontal and `12 px` vertical padding, `12 px` radius, `#1c1f21` container, `#222629` border and `#636c73` medium body text. Runtime instead renders four labelled columns, including `СТАЖ 7 лет`, and disciplines above them.
-- `Screen=Small` hides the former “Артур” eyebrow; `Screen=Large` shows it. Runtime’s existing height-based source switch is therefore preserved.
+- `Screen=Small` hides the former “Артур” eyebrow; `Screen=Large` shows it. They are separate structural compositions, not a visual-scale tweak: Small uses the left-copy/right-graph order with the caption first; Large centres the copy and puts the caption after the graph.
 - Small Hero content is inside a `1200px` frame with a further `24px` left-copy inset. Large centres a `751px` copy and uses a `947×594` graph.
 - Small graph remains `720×452`; Hero title remains `56/68`, intro is `20/36` and uses `#d7dce0`.
 - The two action controls retain `36 px` height, `12 px` horizontal padding, `4 px` gap and `8 px` radius. `Мои работы` now uses neutral fill `#d7dce0`/label `#42484d`; `CV` uses ghost-neutral `#a9b1b8`.
@@ -167,5 +167,6 @@ Implemented in isolated worktree `/private/tmp/Design-portfolio-site-concept-v2-
 - Semantic palette and Header (`fd4f1eb`), Hero lower field (`2b3ce70`), Projects (`08cf699`), Process (`d521b95`), AI panel/chip (`b52207c`, `a0a130f`), Experience roles (`34a2163`), About roles (`9487e6e`), Footer (`caea8e5`).
 - The exact current `Medium / Files / File-05` SVG was retrieved from the verified Experience source, retained as a `24×24` frame with a real `1.3px` non-scaling stroke, and wired to both CV and Resume (`1be52ce`).
 - Existing About deck/viewer, custom cursor, Hero caption mechanics, Process 300 ms interaction, Experience entry gateway/timeline data and all non-Concept V2 surfaces were deliberately retained.
+- Follow-up correction (`63716bb`): the runtime selects Small until the exact authored Large canvas width (`2313px`), then renders Large. Both use their exact content frame, copy, graph and caption geometry from the component tree. The Resume control is an explicit user exception to the Figma label: it remains an accessible icon-only link (`aria-label="Открыть резюме"`).
 
-Verification on the final runtime head before the documentation checkpoint: `npm run check` (61 tests, lint, production build), `npm run check:browser`, and `git diff --check` passed. Firefox and WebKit remain unverified in this environment; this record is ready for user visual review, not a claim of cross-engine acceptance.
+Verification on the final runtime head before the documentation checkpoint: `npm run check` (62 tests, lint, production build), `npm run check:browser`, and `git diff --check` passed. Firefox and WebKit remain unverified in this environment; this record is ready for user visual review, not a claim of cross-engine acceptance.
