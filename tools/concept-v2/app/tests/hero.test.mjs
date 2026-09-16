@@ -26,7 +26,7 @@ test('Hero preserves the two authored component structures and the accepted map 
  assert.match(css,/\.hero-graph \.process-caption\{[^}]*height:16px;[^}]*font:400 14px\/16px/);
 });
 
-test('Hero lower fields keep the independently authored Small and Large canvases',async()=>{
+test('Hero lower field uses a native dot treatment over the exact Bg-main surface',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.match(app,/29 лет · Екатеринбург · Senior/);
@@ -34,9 +34,8 @@ test('Hero lower fields keep the independently authored Small and Large canvases
  assert.doesNotMatch(app,/className="disciplines"/);
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
  assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
- assert.match(css,/\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field\.png'\)/);
- assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom-dots\{[^}]*background-image:url\('\/figma\/hero-bottom-field-large\.png'\)/);
- assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom-dots\{background-size:100% 100%\}/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*background-color:var\(--cv2-container-neutral-bg-main\)[^}]*background-image:radial-gradient\([^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
+ assert.doesNotMatch(css,/hero-bottom-field(?:-large)?\.png/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
 
@@ -51,8 +50,7 @@ test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel
  assert.match(css,/\.hero-graph\{[^}]*position:relative[^}]*z-index:auto/);
  assert.match(css,/\.hero-graph \.process-map\{[^}]*mask-image:linear-gradient/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
- assert.match(css,/\.hero-bottom-dots\{background-size:100% 100%\}/);
- assert.doesNotMatch(css,/hero-bottom-dots\{[^}]*mask-image/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
 });
 
 test('desktop Hero occupies exactly one viewport and keeps the dotted field in its background',async()=>{
