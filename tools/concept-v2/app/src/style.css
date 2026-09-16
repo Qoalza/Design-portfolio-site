@@ -157,7 +157,7 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
  .hero[data-layout="large"] .hero-main{height:100%;flex:1 1 auto}
  .hero[data-layout="large"] .hero-layout{transform:translateY(-24.5px)}
  .hero[data-layout="large"] .hero-bottom{inset:auto 0 0;height:560px;flex-basis:auto}
- .hero-bottom-dots{display:block;inset:0;-webkit-mask-image:url('/figma/hero-bottom-wave-mask.svg');mask-image:url('/figma/hero-bottom-wave-mask.svg');-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+ .hero-bottom-dots{--hero-wave-mask-size:110% 112%;--hero-wave-mask-position:50% 12px;display:block;inset:0;-webkit-mask-image:url('/figma/hero-bottom-wave-mask.svg');mask-image:url('/figma/hero-bottom-wave-mask.svg');-webkit-mask-size:var(--hero-wave-mask-size);mask-size:var(--hero-wave-mask-size);-webkit-mask-position:var(--hero-wave-mask-position);mask-position:var(--hero-wave-mask-position);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 }
 
 /* About — current Figma 3223:139418. The 480×420 deck and viewer share one
