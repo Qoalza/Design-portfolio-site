@@ -165,7 +165,8 @@ test('About adopts the current palette without changing deck or viewer mechanics
  const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
  assert.match(css,/\.about-heading\{[^}]*border-inline:1px solid var\(--cv2-border-neutral-surface\)/);
- assert.match(css,/\.about-heading h2\{[^}]*color:var\(--cv2-text-neutral-primary\)/);
+ assert.match(css,/\.about-heading-shell\{[^}]*background:var\(--cv2-container-neutral-bg-main\)/);
+ assert.match(css,/\.about-heading h2\{[^}]*font:500 36px\/48px "Google Sans"[^}]*color:var\(--cv2-text-neutral-primary\)/);
  assert.match(css,/\.about-heading-copy>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
  assert.match(css,/\.about-copy\{[^}]*background:var\(--cv2-container-neutral-bg-main\)[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
  assert.match(css,/\.about-viewer-content p\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);

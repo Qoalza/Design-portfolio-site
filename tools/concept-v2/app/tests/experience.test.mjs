@@ -213,6 +213,9 @@ test('Experience heading updates only its visual contract, leaving scroll orches
  const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
  assert.match(css,/\.experience-heading\{[^}]*padding-inline:56px/);
  assert.match(css,/\.experience-heading>div>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
+ assert.match(source,/export function Experience\(\{cv\}\)/);
+ assert.match(source,/className="experience-resume" variant="light" href=\{cv\} external iconRight="file05">Резюме/);
+ assert.match(css,/\.experience-resume\{width:105px;padding-inline:0\}/);
  assert.match(css,/\.experience-pattern\{[^}]*background:var\(--cv2-container-neutral-faint\)/);
  assert.match(source,/createExperienceEntryGate/);
  assert.match(source,/subscribeSmoothScroll/);

@@ -2,6 +2,7 @@ import {useEffect,useRef} from 'react';
 import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
+import {ControlButton} from './Controls';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
 
@@ -46,7 +47,7 @@ function ExperienceJob({job}){
   </article>;
 }
 
-export function Experience(){
+export function Experience({cv}){
   const root=useRef(null);
   const sticky=useRef(null);
   useEffect(()=>{
@@ -162,7 +163,7 @@ export function Experience(){
     <div ref={sticky} className="experience-sticky">
       <div className="experience-pattern pattern-top"><div className="experience-pattern-grid"/></div>
       <div className="experience-center"><div className="experience-composition">
-        <div className="experience-heading"><div><p className="eyebrow">ОПЫТ</p><h2 id="experience-title">Где я работал</h2><p>Большую часть опыта проработал продуктовым дизайнером</p></div><p className="tech-note">// все сложное – просто</p></div>
+        <div className="experience-heading"><div><p className="eyebrow">ОПЫТ</p><h2 id="experience-title">Где я работал</h2><p>Большую часть опыта проработал продуктовым дизайнером</p></div><p className="tech-note">// все сложное – просто</p><ControlButton className="experience-resume" variant="light" href={cv} external iconRight="file05">Резюме</ControlButton></div>
         <div className="experience-scroll"><div className="experience-window"><div className="experience-track">{paths.map((path,index)=><ExperiencePath key={path.className} path={path} index={index}/>)}{jobs.map(job=><ExperienceJob key={job.className} job={job}/>)}</div><div className="experience-fade experience-fade-left"/><div className="experience-fade experience-fade-right"/></div><div className="experience-progress"><span className="experience-progress-fill"/><span className="experience-progress-glow"/></div></div>
       </div></div>
       <div className="experience-pattern pattern-bottom"><div className="experience-pattern-grid"/></div>

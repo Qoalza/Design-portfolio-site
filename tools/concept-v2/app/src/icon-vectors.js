@@ -2,6 +2,7 @@ import home from '../public/figma/imgColor.svg?raw';
 import lock from '../public/figma/imgColor1.svg?raw';
 import telegram from '../public/figma/imgColor2.svg?raw';
 import download from '../public/figma/imgColor3.svg?raw';
+import file05 from '../public/figma/file-05.svg?raw';
 import search from '../public/figma/imgColor4.svg?raw';
 import chevronDown from '../public/figma/imgColor5.svg?raw';
 import chevronRight from '../public/figma/imgColor6.svg?raw';
@@ -28,6 +29,7 @@ const icons={
  imgColor1:lock,
  imgColor2:telegram,
  imgColor3:download,
+ file05,
  imgColor4:search,
  imgColor5:chevronDown,
  imgColor6:chevronRight,
