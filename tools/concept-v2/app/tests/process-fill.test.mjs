@@ -54,5 +54,16 @@ test('Process keeps its approved 300ms motion while using the current text and b
  assert.match(css,/\.step-dots\{[^}]*color:var\(--cv2-text-neutral-muted\)/);
  assert.match(css,/\.step-text h3\{[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
  assert.match(css,/\.step\.is-fill-active \.step-number span,\.step\.is-fill-active \.step-text h3\{color:var\(--cv2-text-neutral-secondary\)/);
- assert.match(css,/\.step-divider::after\{[^}]*transition:transform 300ms ease-in/);
+  assert.match(css,/\.step-divider::after\{[^}]*transition:transform 300ms ease-in/);
+});
+
+test('desktop Process uses one upper divider and decorative hatches use the Figma stroke',async()=>{
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(css,/:root\{--cv2-decoration-hatch:#222629\}/);
+ assert.match(css,/\.steps\{[^}]*background:var\(--border\)[^}]*border-top:0[^}]*border-bottom:0/);
+ assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
+ assert.match(css,/\.ai-side\{background:repeating-linear-gradient\(135deg,transparent 0 14px,var\(--cv2-decoration-hatch\) 14px 15px\)\}/);
+ assert.match(css,/\.about-hatch\{background:repeating-linear-gradient\(126\.826deg,var\(--cv2-decoration-hatch\) 0 1px,transparent 1px 15px\)\}/);
+ assert.match(css,/\.about-dash-horizontal::before\{background:repeating-linear-gradient\(to right,var\(--cv2-decoration-hatch\) 0 16px,transparent 16px 32px\)\}/);
+ assert.match(css,/\.about-divider,\.experience-pattern-grid::before,\.experience-pattern-grid::after\{background:repeating-linear-gradient\(to bottom,var\(--cv2-decoration-hatch\) 0 16px,transparent 16px 32px\)\}/);
 });

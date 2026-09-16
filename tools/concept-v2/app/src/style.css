@@ -5,6 +5,9 @@
 :root{color-scheme:dark;--cv2-container-neutral-bg-main:#181a1c;--cv2-container-neutral-faint:#141517;--cv2-container-neutral-thin:#1c1f21;--cv2-container-neutral-soft:#222629;--cv2-container-accent-primary:#004c88;--cv2-container-accent-secondary:#0462af;--cv2-container-accent-tertiary:#0378d6;--cv2-border-neutral-surface:#2a2f33;--cv2-border-neutral-muted:#32383d;--cv2-border-neutral-secondary:#4d5459;--cv2-border-neutral-thin:#222629;--cv2-border-accent-muted:#1d90eb;--cv2-text-neutral-primary:#f2f4f5;--cv2-text-neutral-secondary:#d7dce0;--cv2-text-neutral-tertiary:#a9b1b8;--cv2-text-neutral-muted:#636c73;--cv2-text-neutral-thin:#42484d;--cv2-text-neutral-strong:#ffffff;--cv2-element-neutral-secondary:#d7dce0;--cv2-element-neutral-tertiary:#a9b1b8;--cv2-element-neutral-muted:#636c73;--cv2-element-neutral-thin:#42484d;--page:var(--cv2-container-neutral-bg-main);--primary:var(--cv2-text-neutral-primary);--secondary:var(--cv2-text-neutral-secondary);--tertiary:var(--cv2-text-neutral-tertiary);--muted:var(--cv2-text-neutral-muted);--border:var(--cv2-border-neutral-surface);--surface:var(--cv2-container-neutral-thin);font-family:Onest,sans-serif;color:var(--primary);background:var(--page);font-synthesis:none}
 *{box-sizing:border-box}html{scroll-behavior:smooth}html,body{margin:0;background:var(--page)}body{min-width:320px}#root{position:relative;overflow:clip}p,h1,h2,h3{margin:0}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit}button{font:inherit}img{display:block}main,.site-header,.site-footer{position:relative}section{scroll-margin-top:24px}
 html{scrollbar-width:none;-ms-overflow-style:none}
+
+/* Figma component 3084:63631: shared decorative hatch stroke. */
+:root{--cv2-decoration-hatch:#222629}
 html::-webkit-scrollbar{display:none;width:0;height:0}
 body::-webkit-scrollbar{display:none;width:0;height:0}
 .icon{display:inline-block;flex-shrink:0;background:currentColor;mask-repeat:no-repeat;mask-position:center;mask-size:100% 100%}
@@ -91,7 +94,7 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
  .process-section{padding-top:48px;gap:80px}
  .process-heading{height:136px;padding-inline:56px;align-items:flex-end;gap:24px}
  .process-heading .section-title{width:622px;max-width:none;flex:0 0 622px}
- .steps{grid-template-columns:minmax(365px,415fr) minmax(446px,446fr) minmax(383px,415fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:0}
+ .steps{grid-template-columns:minmax(365px,415fr) minmax(446px,446fr) minmax(383px,415fr);gap:1px;background:var(--border);border-top:0;border-bottom:0}
  .step{min-width:0;height:364px;padding:56px;gap:48px;background:var(--page)}
  .step+.step::before{display:none}
  .step-top{height:64px;display:flex;align-items:flex-start;justify-content:space-between;gap:40px}
@@ -228,3 +231,9 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 /* The lower desktop Hero field sits behind the composition without changing the source map. */
 .hero-main{z-index:1}
 .hero-bottom{z-index:0;isolation:auto;background:radial-gradient(ellipse 55% 90% at 50% 112%,#171a1b 0,var(--cv2-container-neutral-bg-main) 72%)}
+
+/* All decorative hatches share the exported Figma component stroke. */
+.ai-side{background:repeating-linear-gradient(135deg,transparent 0 14px,var(--cv2-decoration-hatch) 14px 15px)}
+.about-hatch{background:repeating-linear-gradient(126.826deg,var(--cv2-decoration-hatch) 0 1px,transparent 1px 15px)}
+.about-dash-horizontal::before{background:repeating-linear-gradient(to right,var(--cv2-decoration-hatch) 0 16px,transparent 16px 32px)}
+.about-divider,.experience-pattern-grid::before,.experience-pattern-grid::after{background:repeating-linear-gradient(to bottom,var(--cv2-decoration-hatch) 0 16px,transparent 16px 32px)}
