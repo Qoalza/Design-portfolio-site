@@ -34,3 +34,10 @@ test('project card keeps one layer tree and maps both Figma states',async()=>{
   assert.match(css,/transition:[^}]*150ms ease-in/);
   assert.match(css,/\.project:is\(:hover,:focus-within\)/);
 });
+
+test('Projects action uses the source label, exact Medium chevron, and fixed 218px frame',async()=>{
+ const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
+ const css=await readFile(path.join(root,'src/style.css'),'utf8');
+ assert.match(app,/className="projects-all-action"[^>]*iconRight="imgColor6">Посмотреть все проекты/);
+ assert.match(css,/\.projects-all-action\{width:218px/);
+});
