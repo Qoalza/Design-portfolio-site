@@ -77,7 +77,7 @@ function Hero(){
    <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens/></div>
   </div></div>
-  <div className="hero-bottom"><span className="hero-bottom-dots" aria-hidden="true"/><img className="hero-bottom-field hero-bottom-field-small" src="/figma/hero-bottom-field.svg" alt="" aria-hidden="true"/><img className="hero-bottom-field hero-bottom-field-large" src="/figma/hero-bottom-field-large.svg" alt="" aria-hidden="true"/><div className="hero-bottom-inner"><p className="hero-fact-chip">29 лет · Екатеринбург · Senior</p></div></div>
+  <div className="hero-bottom"><span className="hero-bottom-dots" aria-hidden="true"/><div className="hero-bottom-inner"><p className="hero-fact-chip">29 лет · Екатеринбург · Senior</p></div></div>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){
