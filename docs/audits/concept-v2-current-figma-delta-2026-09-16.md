@@ -1,6 +1,6 @@
 # Concept V2 — current Figma source delta audit
 
-**Status:** `OPEN` — source audit complete; runtime implementation has not started. **Audited on:** 2026-09-16. **Runtime baseline:** `codex/concept-v2-visual-fidelity` at `b6f1a5a`. **Scope:** public Concept V2 runtime only. No Figma write, source-code change, asset download, Admin, shared contract, production or deploy action is included.
+**Status:** `READY_FOR_REVIEW` — implementation completed on `codex/concept-v2-figma-delta-3ec86f0`; user visual review remains. **Audited on:** 2026-09-16. **Runtime baseline:** `codex/concept-v2-visual-fidelity` at `b6f1a5a`. **Scope:** public Concept V2 runtime only. No Figma write, Admin, shared contract, production or deploy action is included.
 
 ## Sources and method
 
@@ -158,4 +158,14 @@ The affected runtime ownership is deliberately kept separate from implementation
 
 ## Audit result
 
-The source change is broader than the initially named items. It includes a new semantic neutral palette, node-specific header colours, a rebuilt Hero lower section, full-frame document icons for both CV/Resume, 56 px side padding in Projects/Process/Experience headings, a new Projects action, an updated AI layout with an additional chip, and About typography/background updates. No unresolved source ambiguity blocks a follow-up implementation; the only intentionally deferred item is byte-level asset export, which should occur when the user authorizes implementation.
+The source change is broader than the initially named items. It includes a new semantic neutral palette, node-specific header colours, a rebuilt Hero lower section, full-frame document icons for both CV/Resume, 56 px side padding in Projects/Process/Experience headings, a new Projects action, an updated AI layout with an additional chip, and About typography/background updates.
+
+## Implementation record — 2026-09-16
+
+Implemented in isolated worktree `/private/tmp/Design-portfolio-site-concept-v2-delta-3ec86f0`, branch `codex/concept-v2-figma-delta-3ec86f0`:
+
+- Semantic palette and Header (`fd4f1eb`), Hero lower field (`2b3ce70`), Projects (`08cf699`), Process (`d521b95`), AI panel/chip (`b52207c`, `a0a130f`), Experience roles (`34a2163`), About roles (`9487e6e`), Footer (`caea8e5`).
+- The exact current `Medium / Files / File-05` SVG was retrieved from the verified Experience source, retained as a `24×24` frame with a real `1.3px` non-scaling stroke, and wired to both CV and Resume (`1be52ce`).
+- Existing About deck/viewer, custom cursor, Hero caption mechanics, Process 300 ms interaction, Experience entry gateway/timeline data and all non-Concept V2 surfaces were deliberately retained.
+
+Verification on the final runtime head before the documentation checkpoint: `npm run check` (61 tests, lint, production build), `npm run check:browser`, and `git diff --check` passed. Firefox and WebKit remain unverified in this environment; this record is ready for user visual review, not a claim of cross-engine acceptance.

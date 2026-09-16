@@ -4,34 +4,27 @@
 
 ## Checkout
 
-- Current branch: `codex/concept-v2-visual-fidelity`.
-- Worktree: `/private/tmp/design-portfolio-concept-v2-visual-fidelity`.
-- Scope is Concept V2 only. Admin, shared contracts, production, deploy and `USERSPACE/**` are untouched.
+- Branch: `codex/concept-v2-figma-delta-3ec86f0`.
+- HEAD before this documentation checkpoint: `1be52ce` (`feat(concept-v2): add current resume controls`).
+- Worktree: `/private/tmp/Design-portfolio-site-concept-v2-delta-3ec86f0`.
+- Preview: `http://127.0.0.1:43205/`, launched from this exact worktree.
+- `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
 
-## Current checkpoint
+## Current result
 
-- Plan 4.0 remains user-accepted. A subsequent user-reported Experience regression is corrected locally: incoming Lenis inertia now stops at zero progress and a continuous wheel stream stays held indefinitely; only after that stream has actually ended can the next input begin the timeline. There is no hard time-based release. This does not alter the accepted geometry, Header behavior or compact layout. The centered patterned fields now also use Figma’s 1 px vertical 16 px dash / 16 px gap boundaries instead of solid side lines.
-- A new, read-only Concept V2 Figma source audit is complete. It covers every current top-level Main-page section and direct children, the referenced Hero/Experience nodes, Library V2 Primitive/Semantic/Component colors and exact button/icon instances. The recorded delta is broader than the original request: it includes the node-specific palette migration, Hero lower-area replacement, CV/Resume File-05 frames, 56 px heading paddings, Projects/AI controls and About/Footer values. See `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
-- Current local preview: `http://127.0.0.1:43205/` from this exact worktree. Local-browser proof covers `1280×720`, the exact `1440×960` viewer controls, viewer viewport thresholds `1439×960`/`1440×959`, vector cursor hand state and viewer/embedded-state independence. The current `1440×960` browser pass opened embedded «Машина», switched the viewer to «Собачки», and confirmed that the embedded selection remained «Машина» after Escape; other engines remain open.
-- `tools/concept-v2/app/node_modules` is an untracked local dependency symlink and must remain out of Git.
+The current Figma delta is implemented for Concept V2 only: semantic palette, Header, Hero lower fact-chip, Projects action, Process roles, AI panel/chip, Experience roles and Resume, About roles, Footer, and the exact `Medium / Files / File-05` frame for CV/Resume.
+
+The following accepted mechanics are intentionally untouched: About deck/viewer and custom cursor, Experience gateway/timeline and fade behavior, Hero caption/hysteresis, Process hover/focus timing, shared contract, Admin, production and deploy.
 
 ## Verification
 
-- Full `npm run check` (lint, 51 tests and production build), browser-runtime smoke and `git diff --check` pass for the Experience side-boundary correction.
-- Existing local browser proof: sticky Header has `z-index:20` above the project divider (`8`). The revised Experience entry has automated coverage for the absence of a scroll-capture path, compact heading-only adjustment and tall pinned field balance. Local checks cover `1280×900`, `1280×720`, and `1700×1318`, where both dot fields measure `106px`; user accepted the final preview. Firefox and WebKit were unavailable in the exposed browser inventory, and the separate Chrome automation attempt timed out; those engines are not represented as acceptance.
+- `npm run check`: passed — lint, 61 tests, Vite production build.
+- `npm run check:browser`: passed — built runtime smoke.
+- `git diff --check`: passed before this documentation checkpoint.
+- Firefox and WebKit are not exposed in this environment and therefore remain unverified.
 
-## Stop-lines
+## Review / stop-lines
 
-- No Figma write, Admin/shared change, push, PR, merge, deploy or production action.
-- Do not stage the local `node_modules` symlink.
-- The workstream is complete; do not amend it without a new user-requested scope.
-
-## Next action
-
-Await explicit user authorization for the follow-up implementation group. The audit itself is complete; do not change Figma or runtime merely from this record.
-
-## Pointers
-
-- ExecPlan: `docs/exec-plans/concept-v2-visual-fidelity.md`.
-- Current source audit: `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
-- Runtime: `tools/concept-v2/app`.
+- Status is `READY_FOR_REVIEW`: user visual acceptance is the next action.
+- No Figma write, Admin/shared change, push, PR, merge, deploy or production action was performed.
+- Evidence/source ledger: `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
