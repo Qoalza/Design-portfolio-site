@@ -35,22 +35,27 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
  assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-color:var\(--cv2-container-neutral-bg-main\)[^}]*background-image:radial-gradient\([^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
+ const desktopHero=css.slice(css.indexOf('/* The Hero is a single viewport'),css.indexOf('/* About'));
+ assert.match(desktopHero,/\.hero-bottom-dots\{[^}]*-webkit-mask-image:none[^}]*mask-image:none/);
+ assert.match(desktopHero,/\.hero-bottom-dots::after\{[^}]*top:80\.3125%[^}]*background:linear-gradient\(to bottom,rgba\(24,26,28,\.5\),var\(--cv2-container-neutral-bg-main\)\)[^}]*clip-path:polygon\([^}]*filter:blur\(75px\)/);
  assert.doesNotMatch(css,/hero-bottom-field(?:-large)?\.png/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
 
-test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel',async()=>{
+test('desktop Hero wave leaves the source map and mobile Hero untouched',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.doesNotMatch(app,/texture-(?:top|bottom)/);
  assert.match(app,/className="hero-bottom-dots"/);
  assert.match(css,/\.hero-bottom\{z-index:0;isolation:auto;background:var\(--cv2-container-neutral-bg-main\)\}/);
  assert.match(css,/\.hero-main\{z-index:1\}/);
- assert.match(css,/\.hero-copy\{[^}]*position:relative[^}]*z-index:auto/);
- assert.match(css,/\.hero-graph\{[^}]*position:relative[^}]*z-index:auto/);
- assert.match(css,/\.hero-graph \.process-map\{[^}]*mask-image:linear-gradient/);
- assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
+ assert.doesNotMatch(css,/\.hero-graph \.process-map\{[^}]*mask-image/);
+ assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
+ const mobile=css.slice(css.indexOf('@media(max-width:760px)'),css.indexOf('@media(max-width:380px)'));
+ assert.match(mobile,/\.hero-bottom\{height:auto;padding:0 20px 24px\}/);
+ assert.doesNotMatch(mobile,/\.hero-bottom\{height:320px;flex:0 0 320px;padding:0\}/);
+ assert.doesNotMatch(mobile,/hero-bottom-dots::after/);
 });
 
 test('desktop Hero occupies exactly one viewport and keeps the dotted field in its background',async()=>{
