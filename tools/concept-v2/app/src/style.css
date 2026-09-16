@@ -235,5 +235,6 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 /* All decorative hatches share the exported Figma component stroke. */
 .ai-side{background:repeating-linear-gradient(135deg,transparent 0 14px,var(--cv2-decoration-hatch) 14px 15px)}
 .about-hatch{background:repeating-linear-gradient(126.826deg,var(--cv2-decoration-hatch) 0 1px,transparent 1px 15px)}
-.about-dash-horizontal::before{background:repeating-linear-gradient(to right,var(--cv2-decoration-hatch) 0 16px,transparent 16px 32px)}
-.about-divider,.experience-pattern-grid::before,.experience-pattern-grid::after{background:repeating-linear-gradient(to bottom,var(--cv2-decoration-hatch) 0 16px,transparent 16px 32px)}
+.about-dash-horizontal::before{background:repeating-linear-gradient(to right,var(--cv2-border-neutral-surface) 0 16px,transparent 16px 32px)}
+.about-divider{background:repeating-linear-gradient(to bottom,var(--cv2-border-neutral-surface) 0 16px,transparent 16px 32px)}
+.experience-pattern-grid::before,.experience-pattern-grid::after{background:repeating-linear-gradient(to bottom,var(--cv2-decoration-hatch) 0 16px,transparent 16px 32px)}
