@@ -7,11 +7,11 @@
 | Source | Exact target | What was read |
 |---|---|---|
 | Concept V2 | [`3075:60105`](https://www.figma.com/design/sgKtUASp0aYzdkeH8kcXrL/Concept-V.2?node-id=3075-60105) | Current `Main page`, its top-level sections and their direct children/bindings. |
-| Hero variants | [`3125:81643`](https://www.figma.com/design/sgKtUASp0aYzdkeH8kcXrL/Concept-V.2?node-id=3125-81643) | Large and small component structure, then the current main-page Hero instance `3337:228682`. |
+| Hero variants | [`3125:81643`](https://www.figma.com/design/sgKtUASp0aYzdkeH8kcXrL/Concept-V.2?node-id=3125-81643) | Current authoritative Hero component: `Screen=Small` `3125:81642` and `Screen=Large` `3125:81641`. It supersedes the now-unavailable page instance `3337:228682` for Hero D04 only. |
 | Experience heading | [`3142:82981`](https://www.figma.com/design/sgKtUASp0aYzdkeH8kcXrL/Concept-V.2?node-id=3142-82981) | Exact heading, Resume control and scroll-scene instance. |
 | Library V2 | [`9:387`](https://www.figma.com/design/nrqHGuE0qOo4Dwj59I9wEc/My-portfolio---Library-V.2?node-id=9-387) | All local Primitive, Semantic and Component color variables, including button states. |
 
-The audit used Figma node metadata, component/instance design context, resolved variable bindings and direct child trees. Current screenshots of `3075:60105`, `3337:228682` and `3142:82981` were inspected during the audit but are not committed: Figma screenshot URLs are short-lived. The parent Hero component context timed out at its full size, so it was read through its direct descendants; no source was inferred from a screenshot alone.
+The audit used Figma node metadata, component/instance design context, resolved variable bindings and direct child trees. Current screenshots of `3075:60105`, `3125:81642`, `3125:81641` and `3142:82981` were inspected during the audit but are not committed: Figma screenshot URLs are short-lived. The parent Hero component context timed out at its full size, so it was read through its direct descendants; no source was inferred from a screenshot alone.
 
 Important: do not flatten equal-looking token names into one CSS value. The current source has both Library variables and existing component-instance variables. For example, the header’s `Color/Text/Neutral/Muted` resolves to `#909498`, while the current main-page headings resolve to `#636c73`. Node-level resolved values below are the implementation authority.
 
@@ -19,7 +19,8 @@ Important: do not flatten equal-looking token names into one CSS value. The curr
 
 | Section | Figma node | Current geometry | Direct source observations |
 |---|---:|---:|---|
-| Hero | `3337:228682` | `1574×1044` | Main Hero in the current page; lower area is a separate `320 px` dotted field. |
+| Hero, Small | `3125:81642` | `1440×1332` | `1200×492` main content, `720×452` graph and separate `320px` lower dotted field. |
+| Hero, Large | `3125:81641` | `2313×1652` | Centred `751×316` copy, `947×594` graph and separate lower dotted field. |
 | Projects + Process | `3075:60180` | `1574×2025` | Central content frame is `1280 px` wide, centred at `x=147`. |
 | Tools | `3110:65436` | `1574×272` | Centre panel is `1280×272`; both side fields are `147 px`. |
 | Experience | `3088:64107` | `1574×1644` | Top and bottom patterned fields are `240 px`; middle scene is `1164 px`. |
@@ -60,13 +61,13 @@ This is a confirmed all-section change: the root, Hero border, Projects/Process 
 
 ### 3. Hero — structural lower-area redesign
 
-The visible current Hero source is `3337:228682`, not only the legacy component container.
+The authoritative Hero source is the two-variant component `3125:81643`, not the unavailable legacy page instance `3337:228682`.
 
-- The lower `171 px` disciplines/facts strip in the runtime is superseded by a `320 px` dotted field (`3337:238827`) with one centred `279×42` fact-chip (`3337:243691`).
+- The lower `171 px` disciplines/facts strip in the runtime is superseded by a separate dotted field. In `Screen=Small`, it begins at `y=1012` and is `320px` high; in `Screen=Large`, it remains a direct Hero child beneath the main content. The centred fact-chip remains `279×42`.
 - The chip contains only `29 лет · Екатеринбург · Senior`; it has `20 px` horizontal and `12 px` vertical padding, `12 px` radius, `#1c1f21` container, `#222629` border and `#636c73` medium body text. Runtime instead renders four labelled columns, including `СТАЖ 7 лет`, and disciplines above them.
-- The current source hides the former “Артур” eyebrow in the Hero title. Runtime still renders it.
-- Hero content is inside a `1200 px` frame at `x=187`; its left copy has a further `24 px` inset. Runtime currently starts the copy at the outer layout edge.
-- The graph remains `720×452`; Hero title remains `56/68`, intro is `20/36` but now uses `#d7dce0`.
+- `Screen=Small` hides the former “Артур” eyebrow; `Screen=Large` shows it. Runtime’s existing height-based source switch is therefore preserved.
+- Small Hero content is inside a `1200px` frame with a further `24px` left-copy inset. Large centres a `751px` copy and uses a `947×594` graph.
+- Small graph remains `720×452`; Hero title remains `56/68`, intro is `20/36` and uses `#d7dce0`.
 - The two action controls retain `36 px` height, `12 px` horizontal padding, `4 px` gap and `8 px` radius. `Мои работы` now uses neutral fill `#d7dce0`/label `#42484d`; `CV` uses ghost-neutral `#a9b1b8`.
 - The CV action icon is now the full vector frame **`Medium / Files / File-05`** (`3361:147862`), not the existing download asset. It must be swapped as a full 24×24 frame with an SVG child under the established icon contract; no stroke/CSS approximation.
 
