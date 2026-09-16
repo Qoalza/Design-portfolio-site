@@ -49,13 +49,15 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
 test('desktop Hero wave leaves the source map and mobile Hero untouched',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const network=await readFile(path.resolve(import.meta.dirname,'../src/SvgNetwork.jsx'),'utf8');
  assert.doesNotMatch(app,/texture-(?:top|bottom)/);
  assert.match(app,/className="hero-bottom-dots"/);
  assert.doesNotMatch(app,/hero-bottom-field/);
  assert.match(css,/\.hero-bottom\{z-index:0;isolation:auto;background:/);
  assert.match(css,/\.hero-main\{z-index:1\}/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
- assert.match(css,/\.hero-graph \.vector-network \.construction\{[^}]*mask-image:radial-gradient[^}]*linear-gradient\(to bottom,#000 0,#000 50%,transparent 72%\)[^}]*mask-composite:intersect/);
+ assert.doesNotMatch(css,/\.hero-graph \.vector-network \.construction\{[^}]*mask-image/);
+ assert.match(network,/<g className="construction" mask=\{`url\(#\$\{id\}-grid\)`\}/);
  assert.match(css,/@media\(min-width:1280px\) and \(max-height:719px\)\{\.hero-graph \.vector-network \.construction\{opacity:0\}\}/);
  assert.doesNotMatch(css,/\.hero-graph \.vector-network \.routes[^}]*mask-image/);
  assert.doesNotMatch(css,/\.hero-graph \.process-map\{[^}]*mask-image/);
