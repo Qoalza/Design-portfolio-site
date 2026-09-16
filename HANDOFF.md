@@ -1,11 +1,11 @@
 # HANDOFF
 
-Обновлено: 2026-09-16.
+Обновлено: 2026-09-17.
 
 ## Checkout
 
 - Branch: `codex/concept-v2-figma-delta-3ec86f0`.
-- Runtime checkpoint: `f3284d9` (`fix(concept-v2): align about border dashes`).
+- Runtime checkpoint: `8d7dc58` (`fix(concept-v2): preserve mobile hero mask`).
 - Worktree: `/private/tmp/Design-portfolio-site-concept-v2-delta-3ec86f0`.
 - Preview: `http://127.0.0.1:43207/`, launched from this exact worktree.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
@@ -15,6 +15,8 @@
 The current Figma delta is implemented for Concept V2 only: semantic palette, Header, the two authored Hero compositions and lower fact-chip, Projects action, Process roles, AI panel/chip, Experience roles and icon-only Resume control, About roles, Footer, and the exact `Medium / Files / File-05` frame for CV/Resume.
 
 Hero uses the source compositions as separate structures: up to the authored Large canvas width of `2313px`, the runtime shows Small (left copy, right graph, caption above, no eyebrow); at or above it, it shows Large (centred copy with eyebrow, graph below, caption after). The accepted interactive graph/caption mechanics remain intact. On desktop it occupies exactly one viewport. `Color/Container/Neutral/Other/Bg-main` is the current Figma binding `#181a1c`. The lower field is now a native full-viewport CSS dot tile (`3px` dots on a `16px` grid) over Bg-main, with a scalable vector wave mask that preserves the exact Figma wave path and `75px` blur. The former whole-scene SVG exports were removed: they caused the field to appear inset and allowed its 320px layer to cover the interface. The field now sits behind the main composition, reaches both viewport edges and cannot clip the copy, actions or graph. The desktop dot tile is identical to the accepted `d9d6b21` `320px` lower field. Its mask is `50px` taller and starts `50px` higher while retaining the former lower edge, and is shifted right by `8px`; this extends the wave upward without creating a transparent bottom strip or moving the dot grid. On compact-height desktop only the graph's decorative construction grid is suppressed to prevent a hard overlap line; routes, nodes, lens, geometry and interaction remain unchanged. Mobile Hero keeps the previous accepted CSS unchanged. The fact chip hugs its content and sits `44px` above the field edge. Small layout's main composition has the source `120px` bottom inset. Project preview shade also renders natively and ends in its owning `--surface`, so the Corvo image area and text block use the same background colour. The Experience heading retains the full `105×36px` «Резюме» button with File-05, and has no adjacent technical-note caption.
+
+On desktop, the Hero dot wave mask is isolated to `.hero-bottom-dots`. The diagram construction strokes no longer receive a second CSS vertical fade; they retain only the original radial mask authored inside `SvgNetwork`, so the dot fade cannot dim the scheme. Below the desktop breakpoint the previous construction mask is preserved unchanged.
 
 The Process card rail now has one desktop upper divider: the redundant parent border was removed while its authored card divider, hover/focus fill, and `300ms` timing remain intact. Decorative hatch and dashed fields use the exact exported Figma component stroke `#222629` via `--cv2-decoration-hatch`.
 
@@ -29,6 +31,7 @@ The following accepted mechanics are intentionally untouched: About deck/viewer 
 - `npm run check`: passed — lint, 66 tests, Vite production build.
 - `npm run check:browser`: passed — built runtime smoke.
 - Focused Hero suite: passed — 15 tests.
+- Desktop Hero visual check at `1568×918`: the dot field retains `hero-bottom-wave-mask.svg`, while the construction layer computes only its intrinsic `url(#…-grid)` SVG mask and remains visible over the wave transition. At `597×998`, the pre-existing radial + vertical construction mask remains intact.
 - Focused Process suite: passed — 6 tests, including the single desktop divider and Figma hatch-stroke contract.
 - Focused Experience suite: passed — 16 tests, including a decaying inertial tail followed by a renewed wheel impulse before the idle timer.
 - `git diff --check`: passed for `7d61746`.
