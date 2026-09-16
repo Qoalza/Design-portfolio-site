@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display:block" width="2106" height="614.497" viewBox="0 0 2106 614.497" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g filter="url(#hero-bottom-wave-blur)">
+    <path d="M150 150L386.092 208.666C526.828 243.638 674.582 238.124 812.32 192.762C968.644 141.279 1137.36 141.279 1293.68 192.762C1431.42 238.124 1579.17 243.638 1719.91 208.666L1956 150V464.497H150V150Z" fill="url(#hero-bottom-wave-fill)"/>
+  </g>
+  <defs>
+    <filter id="hero-bottom-wave-blur" x="0" y="0" width="2106" height="614.497" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="75" result="effect1_foregroundBlur"/>
+    </filter>
+    <linearGradient id="hero-bottom-wave-fill" x1="1053" y1="319.519" x2="1053" y2="7.56896" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#181A1C"/>
+      <stop offset="1" stop-color="#181A1C" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+</svg>
