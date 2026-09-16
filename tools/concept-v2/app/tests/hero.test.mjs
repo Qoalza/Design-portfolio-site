@@ -13,6 +13,17 @@ test('Hero switches to the Large source at the 1300px height boundary',()=>{
   assert.equal(getHeroVariant(1600),'large');
 });
 
+test('Hero lower field replaces legacy facts with the current single fact chip',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(app,/29 лет · Екатеринбург · Senior/);
+ assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
+ assert.doesNotMatch(app,/className="disciplines"/);
+ assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
+ assert.match(css,/background-image:url\('\/figma\/dot-tile\.svg'\)/);
+ assert.match(css,/\.hero-fact-chip\{[^}]*width:279px[^}]*height:42px/);
+});
+
 test('pointer coordinates account for SVG meet fields before magnification',()=>{
   assert.deepEqual(clientPointToSvg({clientX:100,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:500,y:500});
   assert.deepEqual(clientPointToSvg({clientX:0,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:0,y:500});

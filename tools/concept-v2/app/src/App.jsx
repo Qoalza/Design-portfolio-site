@@ -78,7 +78,7 @@ function Hero(){
    <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="imgColor3">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens/></div>
   </div></div>
-  <div className="hero-bottom"><div className="hero-bottom-inner"><div className="disciplines">{['Design systems','Data-heavy','Enterprise systems','B2B','SaaS'].map((s,i)=><span key={s}>{i>0&&<b aria-hidden="true">•</b>}{s}</span>)}</div><ControlButton className="legacy-works-link" variant="ghost" href="#projects" iconRight="imgColor5">К работам</ControlButton><dl className="hero-facts">{[['ВОЗРАСТ','29 лет'],['ГОРОД','Екатеринбург'],['УРОВЕНЬ','Senior'],['СТАЖ','7 лет']].map(([term,value])=><div key={term}><dt>{term}</dt><dd>{value}</dd></div>)}</dl></div></div>
+  <div className="hero-bottom"><div className="hero-bottom-inner"><p className="hero-fact-chip">29 лет · Екатеринбург · Senior</p></div></div>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){
