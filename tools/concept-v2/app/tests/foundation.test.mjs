@@ -37,3 +37,10 @@ test('Library V2 foundation is isolated under its own namespace',async()=>{
   assert.match(controls,/export function V2Button/);
   assert.doesNotMatch(controls,/className={`control /);
 });
+
+test('AI desktop panel retains its source 272px height and 577px left column',async()=>{
+ const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
+ assert.match(css,/\.ai-panel\{[^}]*min-height:272px[^}]*grid-template-columns:577px minmax\(0,1fr\)/);
+ assert.match(css,/\.ai-panel>\.section-title\{padding:40px 56px/);
+ assert.match(css,/\.ai-panel \.ai-tools\{[^}]*padding:40px 56px/);
+});
