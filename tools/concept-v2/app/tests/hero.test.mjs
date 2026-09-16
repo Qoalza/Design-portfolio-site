@@ -7,10 +7,11 @@ import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layou
 import {createCaptionController,DEFAULT_CAPTION,resolveCaptionCandidate} from '../src/hero-caption.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
 
-test('Hero switches to the Large source at the 1300px height boundary',()=>{
-  assert.equal(getHeroVariant(1299),'small');
-  assert.equal(getHeroVariant(1300),'large');
-  assert.equal(getHeroVariant(1600),'large');
+test('Hero selects its Figma variant by viewport width, never height alone',()=>{
+  assert.equal(getHeroVariant({width:1440,height:1600}),'small');
+  assert.equal(getHeroVariant({width:1919,height:2400}),'small');
+  assert.equal(getHeroVariant({width:1920,height:720}),'large');
+  assert.equal(getHeroVariant({width:2313,height:900}),'large');
 });
 
 test('Hero lower field replaces legacy facts with the current single fact chip',async()=>{
@@ -20,6 +21,8 @@ test('Hero lower field replaces legacy facts with the current single fact chip',
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:560px/);
+ assert.match(css,/\.hero\[data-layout="large"\]\{height:1572px/);
  assert.match(css,/background-image:url\('\/figma\/dot-tile\.svg'\)/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:279px[^}]*height:42px/);
 });

@@ -70,8 +70,8 @@ function Header(){
  </div></header></div>;
 }
 function Hero(){
- const [layout,setLayout]=useState(()=>getHeroVariant(typeof window==='undefined'?0:window.innerHeight));
- useEffect(()=>{const update=()=>setLayout(getHeroVariant(window.innerHeight));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
+ const [layout,setLayout]=useState(()=>getHeroVariant(typeof window==='undefined'?{}:{width:window.innerWidth,height:window.innerHeight}));
+ useEffect(()=>{const update=()=>setLayout(getHeroVariant({width:window.innerWidth,height:window.innerHeight}));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
  return <section className="hero" data-layout={layout} aria-labelledby="hero-title">
   <span className="texture texture-bottom" aria-hidden="true"><img src="/figma/imgImage21.png" alt=""/></span>
   <div className="hero-main"><div className="hero-layout">
