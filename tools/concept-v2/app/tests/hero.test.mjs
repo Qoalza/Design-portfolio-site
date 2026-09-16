@@ -39,6 +39,17 @@ test('Hero lower field replaces legacy facts with the current single fact chip',
  assert.match(css,/\.hero-fact-chip\{[^}]*width:279px[^}]*height:42px/);
 });
 
+test('Hero decorative field is a seamless dot-and-fade layer, not a framed panel',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.doesNotMatch(app,/texture-(?:top|bottom)/);
+ assert.match(app,/className="hero-bottom-dots"/);
+ assert.match(css,/\.hero-bottom\{[^}]*overflow:hidden[^}]*background:transparent/);
+ assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*mask-image:linear-gradient\(to bottom,transparent 0/);
+ assert.match(css,/\.hero-bottom::after\{[^}]*url\('\/figma\/hero-dot-fade\.svg'\)/);
+});
+
 test('pointer coordinates account for SVG meet fields before magnification',()=>{
   assert.deepEqual(clientPointToSvg({clientX:100,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:500,y:500});
   assert.deepEqual(clientPointToSvg({clientX:0,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:0,y:500});

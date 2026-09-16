@@ -73,12 +73,11 @@ function Hero(){
  const [layout,setLayout]=useState(()=>getHeroVariant(typeof window==='undefined'?{}:{width:window.innerWidth,height:window.innerHeight}));
  useEffect(()=>{const update=()=>setLayout(getHeroVariant({width:window.innerWidth,height:window.innerHeight}));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
  return <section className="hero" data-layout={layout} aria-labelledby="hero-title">
-  <span className="texture texture-bottom" aria-hidden="true"><img src="/figma/imgImage21.png" alt=""/></span>
   <div className="hero-main"><div className="hero-layout">
    <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens/></div>
   </div></div>
-  <div className="hero-bottom"><div className="hero-bottom-inner"><p className="hero-fact-chip">29 лет · Екатеринбург · Senior</p></div></div>
+  <div className="hero-bottom"><span className="hero-bottom-dots" aria-hidden="true"/><div className="hero-bottom-inner"><p className="hero-fact-chip">29 лет · Екатеринбург · Senior</p></div></div>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){
@@ -133,5 +132,5 @@ function AISection(){
   </div><span className="ai-other-chip">и множество других</span><p className="tech-note">// итоговые решения всегда остаются за мной</p></div></div><div className="ai-side ai-side-right" aria-hidden="true"/></section>;
 }
 export default function App(){
- return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><span className="texture texture-top" aria-hidden="true"><img src="/figma/imgImage21.png" alt=""/></span><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton className="projects-all-action" variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Посмотреть все проекты</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
+ return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton className="projects-all-action" variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Посмотреть все проекты</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
 }
