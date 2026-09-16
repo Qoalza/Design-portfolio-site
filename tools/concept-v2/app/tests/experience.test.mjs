@@ -97,20 +97,20 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/classList\.toggle\('has-pattern-fields',experiencePatternVisible\(layout\.bottomOuter\)\)/);
   assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*transform:translateX\(-50%\)/);
   assert.match(css,/\.experience-pattern-grid\{border-inline:0\}/);
-  assert.match(css,/\.experience-pattern-grid::before,\.experience-pattern-grid::after\{[^}]*width:1px;[^}]*background:repeating-linear-gradient\(to bottom,#2e3133 0 16px,transparent 16px 32px\)/);
+  assert.match(css,/\.experience-pattern-grid::before,\.experience-pattern-grid::after\{[^}]*width:1px;[^}]*background:repeating-linear-gradient\(to bottom,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)/);
   assert.match(css,/\.experience-pattern-grid::before\{left:0\}/);
   assert.match(css,/\.experience-pattern-grid::after\{right:0\}/);
   assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
   assert.doesNotMatch(css,/\.experience-pattern-grid\{[^}]*radial-gradient/);
-  assert.match(css,/\.pattern-top\{[^}]*border-bottom:1px solid #2e3133/);
-  assert.match(css,/\.pattern-bottom\{[^}]*border-top:1px solid #2e3133/);
+  assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*border-bottom:1px solid var\(--cv2-border-neutral-surface\)/);
+  assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*border-top:1px solid var\(--cv2-border-neutral-surface\)/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
   assert.match(source,/className="experience-fade experience-fade-right"/);
   assert.match(css,/\.experience-window\{width:min\(1280px,100%\)\}/);
   assert.match(css,/\.experience-track\{left:50%;transform:translateX\(calc\(-164px \+ var\(--experience-shift\)\)\)\}/);
   assert.match(css,/\.experience-fade-left,\.experience-fade-right\{width:240px\}/);
-  assert.match(css,/\.experience-fade-left\{left:0;right:auto;width:109px;background:linear-gradient\(to right,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
-  assert.match(css,/\.experience-fade-right\{right:0;width:280px;background:linear-gradient\(to left,#131414 3\.31%,rgba\(19,20,20,0\)\)\}/);
+  assert.match(css,/\.experience-fade-left\{left:0;right:auto;width:109px;background:linear-gradient\(to right,var\(--cv2-container-neutral-faint\) 3\.31%,rgba\(20,21,23,0\)\)\}/);
+  assert.match(css,/\.experience-fade-right\{right:0;width:280px;background:linear-gradient\(to left,var\(--cv2-container-neutral-faint\) 3\.31%,rgba\(20,21,23,0\)\)\}/);
   assert.match(css,/\.experience-fade-left\{opacity:0\}/);
   assert.match(css,/\.experience\.is-started \.experience-fade-left\{opacity:1\}/);
   assert.doesNotMatch(css,/\.experience\.is-complete \.experience-fade-left\{opacity:0\}/);
@@ -199,13 +199,23 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
 
 test('desktop experience grid stays in the center while masks retain timeline edge fades',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
-  assert.match(css,/\.experience-center\{background-color:#131414;background-image:linear-gradient\(rgba\(46,49,51,\.16\)/);
+  assert.match(css,/\.experience-center\{background-color:var\(--cv2-container-neutral-soft\);background-image:linear-gradient\(rgba\(42,47,51,\.16\)/);
   assert.match(css,/background-size:96px 96px/);
-  assert.match(css,/\.experience-pattern\{background:#131414\}/);
+  assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
   assert.doesNotMatch(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-window/);
   assert.match(css,/\.experience-fade\{display:none\}/);
+});
+
+test('Experience heading updates only its visual contract, leaving scroll orchestration untouched',async()=>{
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
+ assert.match(css,/\.experience-heading\{[^}]*padding-inline:56px/);
+ assert.match(css,/\.experience-heading>div>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
+ assert.match(css,/\.experience-pattern\{[^}]*background:var\(--cv2-container-neutral-faint\)/);
+ assert.match(source,/createExperienceEntryGate/);
+ assert.match(source,/subscribeSmoothScroll/);
 });
 
 test('decorative dot fields use the exact 3px Figma tile without changing functional markers',async()=>{
