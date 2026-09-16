@@ -5,7 +5,7 @@
 ## Checkout
 
 - Branch: `codex/concept-v2-figma-delta-3ec86f0`.
-- Runtime checkpoint: `8d7dc58` (`fix(concept-v2): preserve mobile hero mask`).
+- Runtime checkpoint: `95548e7` (`fix(concept-v2): release experience on second gesture`).
 - Worktree: `/private/tmp/Design-portfolio-site-concept-v2-delta-3ec86f0`.
 - Preview: `http://127.0.0.1:43207/`, launched from this exact worktree.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
@@ -22,19 +22,20 @@ The Process card rail now has one desktop upper divider: the redundant parent bo
 
 The top and right dashed borders of the About text frame are deliberately separate from those decorative hatches: they use the exact `Color/Border/Neutral/Surface` token from Figma node `3214:124474` — `--cv2-border-neutral-surface` / `#2a2f33`.
 
-The desktop Experience entry gate still consumes the incoming inertial tail, but now recognizes a renewed wheel impulse from its rising delta and releases immediately. A second scroll gesture therefore starts the timeline without requiring pointer movement; the existing `120ms` idle release remains as a fallback for discrete wheel input. Timeline geometry, progress mapping and mobile/native scrolling are unchanged.
+The desktop Experience entry gate records the latest wheel timestamp before capture. After snapping, uninterrupted inertia remains blocked, while the first event after a `48ms` gesture boundary releases Lenis even when its delta is equal or smaller. The rising-delta detector and existing `120ms` idle release remain fallback paths. Pointer movement does not participate. Timeline geometry, progress mapping and mobile/native scrolling are unchanged.
 
 The following accepted mechanics are intentionally untouched: About deck/viewer and custom cursor, Experience gateway/timeline and fade behavior, Hero caption/hysteresis, Process hover/focus timing, shared contract, Admin, production and deploy.
 
 ## Verification
 
-- `npm run check`: passed — lint, 66 tests, Vite production build.
+- `npm run check`: passed — lint, 67 tests, Vite production build.
 - `npm run check:browser`: passed — built runtime smoke.
 - Focused Hero suite: passed — 15 tests.
 - Desktop Hero visual check at `1568×918`: the dot field retains `hero-bottom-wave-mask.svg`, while the construction layer computes only its intrinsic `url(#…-grid)` SVG mask and remains visible over the wave transition. At `597×998`, the pre-existing radial + vertical construction mask remains intact.
 - Focused Process suite: passed — 6 tests, including the single desktop divider and Figma hatch-stroke contract.
-- Focused Experience suite: passed — 16 tests, including a decaying inertial tail followed by a renewed wheel impulse before the idle timer.
-- `git diff --check`: passed for `7d61746`.
+- Focused Experience suite: passed — 17 tests, including a second gesture whose first delta is equal to the final inertial delta and which occurs without pointer movement.
+- Exact desktop browser reproduction at `1440×900`: the first `5000px` wheel gesture snapped Experience at `scrollY=2945`, `gate=holding`, `progress=0`; a second `120px` wheel gesture at the same pointer coordinates `(720,450)` changed the state to `released` and progress to `0.0212`. No pointer event was dispatched between gestures.
+- `git diff --check`: passed for the current Experience gate group.
 - Desktop preview at `1728×900`: `.steps` computes to `border-top: 0px`; the retained card divider computes to `1px`; all checked decorative hatches compute to `rgb(34, 38, 41)` (`#222629`).
 - Live preview computed-style check: the About top dash pseudo-element and right divider both compute to `rgb(42, 47, 51)` (`#2a2f33`), matching `Color/Border/Neutral/Surface` from Figma node `3214:124474`.
 - Desktop visual review at the reported compact viewport `1728×465`, Small `1440×900` and Large `2313×1200` confirmed edge-to-edge dots, intact interface content and no hard construction-grid line in the lower field.
