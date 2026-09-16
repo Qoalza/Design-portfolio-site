@@ -160,3 +160,16 @@ test('card treatment keeps the sharp border outside geometry and viewer uses one
  assert.match(css,/\.about-viewer-close\{position:absolute;z-index:6;top:48px;right:276px;box-sizing:border-box;width:107px/);
  assert.doesNotMatch(css,/1\.625|1\.43333/);
 });
+
+test('About adopts the current palette without changing deck or viewer mechanics',async()=>{
+ const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
+ const css=await readFile(path.join(root,'src/style.css'),'utf8');
+ assert.match(css,/\.about-heading\{[^}]*border-inline:1px solid var\(--cv2-border-neutral-surface\)/);
+ assert.match(css,/\.about-heading h2\{[^}]*color:var\(--cv2-text-neutral-primary\)/);
+ assert.match(css,/\.about-heading-copy>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
+ assert.match(css,/\.about-copy\{[^}]*background:var\(--cv2-container-neutral-bg-main\)[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
+ assert.match(css,/\.about-viewer-content p\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
+ assert.match(about,/aboutTransitionFrames/);
+ assert.match(about,/interpolateDeckFrames/);
+ assert.match(css,/\.about-viewer-deck-scale\{[^}]*scale\(1\.5\)/);
+});
