@@ -7,11 +7,23 @@ import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layou
 import {createCaptionController,DEFAULT_CAPTION,resolveCaptionCandidate} from '../src/hero-caption.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
 
-test('Hero selects its Figma variant by viewport width, never height alone',()=>{
+test('Hero selects the matching Figma composition only at its authored Large width',()=>{
   assert.equal(getHeroVariant({width:1440,height:1600}),'small');
-  assert.equal(getHeroVariant({width:1919,height:2400}),'small');
-  assert.equal(getHeroVariant({width:1920,height:720}),'large');
+  assert.equal(getHeroVariant({width:2312,height:2400}),'small');
   assert.equal(getHeroVariant({width:2313,height:900}),'large');
+});
+
+test('Hero preserves the two authored component structures and the accepted map interaction',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(app,/<SvgLens\/>/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-copy\{[^}]*flex:0 0 408px;[^}]*height:412px/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:492px;[^}]*padding-inline:24px/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.name\{display:none\}/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:1014px;[^}]*padding-inline:24px/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-copy\{[^}]*width:751px;[^}]*height:316px/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-graph\{[^}]*width:947px;[^}]*height:634px/);
+ assert.match(css,/\.hero-graph \.process-caption\{[^}]*height:16px;[^}]*font:400 14px\/16px/);
 });
 
 test('Hero lower field replaces legacy facts with the current single fact chip',async()=>{
@@ -98,7 +110,7 @@ test('caption crossfade keeps one stable shell and one live-region value',async(
  assert.match(source,/className="sr-only" aria-live="polite"/);
  assert.match(source,/createCaptionController/);
  assert.doesNotMatch(source,/key=\{`\$\{caption\.icon\}:\$\{caption\.label\}`\}/);
- assert.match(css,/\.process-caption-shell\{height:20px;display:grid;place-items:center\}/);
+ assert.match(css,/\.process-caption-shell\{height:16px;display:grid;place-items:center\}/);
  assert.match(css,/\.process-caption-content\.is-incoming\{animation:caption-enter 300ms cubic-bezier\(\.22,\.61,\.36,1\) both\}/);
  assert.match(css,/@keyframes caption-enter\{from\{opacity:0;transform:translateY\(6px\) scale\(\.985\)\}/);
  assert.match(css,/@keyframes caption-exit\{from\{opacity:1;transform:translateY\(0\) scale\(1\)\}to\{opacity:0;transform:translateY\(-6px\) scale\(\.985\)\}\}/);

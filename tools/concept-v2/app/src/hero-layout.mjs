@@ -1,9 +1,9 @@
 import {nodes,position} from './network-data.mjs';
 
 export function getHeroVariant({width=0}={}){
-  // The two Figma sources are responsive compositions, not tall/short states:
-  // Small is 1440 px wide and Large is 2313 px wide.
-  return width>=1920?'large':'small';
+  // The authored compositions have different structural layouts. Keep Small
+  // until the viewport can show the Large source at its 2313 px canvas width.
+  return width>=2313?'large':'small';
 }
 
 export function captionForPoint(point){
