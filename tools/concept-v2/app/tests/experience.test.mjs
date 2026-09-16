@@ -172,6 +172,17 @@ test('Experience entry consumes the incoming gesture and releases only the next 
   assert.equal(gate.state,'idle');
 });
 
+test('a renewed wheel impulse releases Experience before the inertial tail fully idles',()=>{
+  const gate=createExperienceEntryGate({schedule:()=>1,cancel:()=>{}});
+  gate.capture();
+  for(const deltaY of [32,20,12,6,3]){
+    assert.equal(gate.onVirtualScroll({deltaY}),false,'the decaying entry gesture stays blocked');
+  }
+  assert.equal(gate.onVirtualScroll({deltaY:6}),false,'the first rising event identifies a possible renewed gesture');
+  assert.equal(gate.onVirtualScroll({deltaY:14}),true,'the continued rise releases the renewed gesture immediately');
+  assert.equal(gate.state,'released');
+});
+
 test('the reached storyboard stop selects its matching experience item',()=>{
   const stops=experienceStops();
   assert.equal(activeExperienceIndex(0),0);
