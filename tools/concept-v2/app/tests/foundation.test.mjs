@@ -52,3 +52,11 @@ test('AI other-tools chip is a static semantic text element with current source 
  assert.doesNotMatch(app,/ai-other-chip[^>]*(?:onClick|tabIndex|href)/);
  assert.match(css,/\.ai-other-chip\{[^}]*padding:8px 12px[^}]*border-radius:8px[^}]*font:400 16px\/20px "Source Code Pro"/);
 });
+
+test('footer retains its Figma spacing and uses current semantic color roles',async()=>{
+ const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
+ const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
+ assert.match(app,/<footer className="site-footer"><div className="site-footer-inner">/);
+ assert.match(css,/\.site-footer\{[^}]*height:61px[^}]*background:var\(--cv2-container-neutral-faint\)[^}]*border-top:1px solid var\(--cv2-border-neutral-surface\)/);
+ assert.match(css,/\.site-footer-inner\{[^}]*padding:20px 48px 24px[^}]*font:400 12px\/16px "Source Code Pro"[^}]*color:var\(--cv2-text-neutral-muted\)/);
+});
