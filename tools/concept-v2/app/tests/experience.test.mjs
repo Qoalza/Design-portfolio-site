@@ -183,6 +183,17 @@ test('a renewed wheel impulse releases Experience before the inertial tail fully
   assert.equal(gate.state,'released');
 });
 
+test('a second wheel gesture releases Experience without pointer movement or a larger delta',()=>{
+  const gate=createExperienceEntryGate({schedule:()=>1,cancel:()=>{}});
+  assert.equal(gate.onVirtualScroll({deltaY:24,event:{timeStamp:100}}),false,'the entry wheel event is observed before the section captures');
+  gate.capture();
+  for(const [deltaY,timeStamp] of [[18,116],[10,132],[4,148]]){
+    assert.equal(gate.onVirtualScroll({deltaY,event:{timeStamp}}),false,'the uninterrupted inertial tail stays blocked');
+  }
+  assert.equal(gate.onVirtualScroll({deltaY:4,event:{timeStamp:212}}),true,'a later wheel gesture releases even when its first delta is not larger');
+  assert.equal(gate.state,'released');
+});
+
 test('the reached storyboard stop selects its matching experience item',()=>{
   const stops=experienceStops();
   assert.equal(activeExperienceIndex(0),0);

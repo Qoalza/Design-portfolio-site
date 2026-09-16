@@ -1,16 +1,19 @@
 export const ENTRY_GESTURE_IDLE_MS=120;
+export const ENTRY_GESTURE_GAP_MS=48;
 export const ENTRY_GESTURE_RESTART_RATIO=1.5;
 export const ENTRY_GESTURE_RESTART_STEP=2;
 
 export function createExperienceEntryGate({
   schedule=setTimeout,
   cancel=clearTimeout,
+  now=()=>performance.now(),
   onStateChange=()=>{},
 }={}){
   let state='idle';
   let timer;
   let generation=0;
   let previousDeltaMagnitude=Infinity;
+  let previousInputTime;
   let risingEvents=0;
   const setState=next=>{
     state=next;
@@ -32,11 +35,21 @@ export function createExperienceEntryGate({
       setState('holding');
       scheduleArm();
     },
-    onVirtualScroll({deltaY=0}={}){
+    onVirtualScroll({deltaY=0,event}={}){
+      const eventTime=Number(event?.timeStamp);
+      const inputTime=Number.isFinite(eventTime)?eventTime:now();
+      const gap=previousInputTime===undefined?0:inputTime-previousInputTime;
+      if(deltaY!==0)previousInputTime=inputTime;
+      if(state==='idle')return false;
       if(state==='holding'){
         if(deltaY<0){
           cancel(timer);
           setState('idle');
+          return true;
+        }
+        if(deltaY>0&&gap>=ENTRY_GESTURE_GAP_MS){
+          cancel(timer);
+          setState('released');
           return true;
         }
         const magnitude=Math.abs(deltaY);
@@ -64,6 +77,7 @@ export function createExperienceEntryGate({
       generation+=1;
       cancel(timer);
       previousDeltaMagnitude=Infinity;
+      previousInputTime=undefined;
       risingEvents=0;
       setState('idle');
     },
