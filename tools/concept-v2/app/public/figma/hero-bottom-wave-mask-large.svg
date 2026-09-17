@@ -1,0 +1,8 @@
+<svg preserveAspectRatio="none" viewBox="0 0 1440 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="wave-blur" x="-333" y="-244" width="2106" height="714" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="75"/>
+    </filter>
+  </defs>
+  <path filter="url(#wave-blur)" d="M-183 180L53 110C180 65 310 80 420 175C520 260 600 355 720 370C840 355 920 260 1020 175C1130 80 1260 65 1387 110L1623 180V470H-183V180Z" fill="white"/>
+</svg>

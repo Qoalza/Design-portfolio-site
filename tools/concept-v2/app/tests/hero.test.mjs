@@ -30,6 +30,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const waveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask.svg'),'utf8');
+ const largeWaveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask-large.svg'),'utf8');
  assert.match(app,/29 лет · Екатеринбург · Senior/);
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
@@ -43,6 +44,11 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(waveMask,/<svg[^>]*viewBox="0 0 1440 320"/);
  assert.match(waveMask,/<feGaussianBlur stdDeviation="75"/);
  assert.match(waveMask,/M-183 220\.497L53\.0918 161\.831/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots\{[^}]*background-image:radial-gradient\(circle at 2px 2px,#232526 0 2px,transparent 2\.1px\)[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask-large\.svg'\)/);
+ assert.match(largeWaveMask,/<svg[^>]*viewBox="0 0 1440 320"/);
+ assert.match(largeWaveMask,/<feGaussianBlur stdDeviation="75"/);
+ assert.match(largeWaveMask,/L53 110C180 65/);
+ assert.match(largeWaveMask,/600 355 720 370C840 355/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
 
