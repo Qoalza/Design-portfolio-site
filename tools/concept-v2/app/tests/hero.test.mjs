@@ -81,6 +81,7 @@ test('desktop Hero occupies exactly one viewport and keeps the dotted field in i
  assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:320px;flex-basis:auto\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\]\{height:calc\(100svh - 80px\)\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-74\.5px\)\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-bottom\{inset:auto 0 0;height:560px;flex-basis:auto\}/);
  assert.doesNotMatch(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-12px\) scale\(/);
 });
