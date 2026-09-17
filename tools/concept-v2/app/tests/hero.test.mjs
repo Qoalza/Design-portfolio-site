@@ -46,7 +46,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(waveMask,/M-183 220\.497L53\.0918 161\.831/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots\{[^}]*background-image:radial-gradient\(circle at 2px 2px,#232526 0 2px,transparent 2\.1px\)[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask-large\.svg'\)/);
  assert.match(largeWaveMask,/<svg[^>]*viewBox="0 0 1440 320"/);
- assert.match(largeWaveMask,/<feGaussianBlur stdDeviation="115"/);
+ assert.match(largeWaveMask,/<feGaussianBlur stdDeviation="0 140"/);
  assert.match(largeWaveMask,/L53 96C180 58/);
  assert.match(largeWaveMask,/600 270 720 286C840 270/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
