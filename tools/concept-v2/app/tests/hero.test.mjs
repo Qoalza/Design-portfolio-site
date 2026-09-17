@@ -44,7 +44,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(waveMask,/<feGaussianBlur stdDeviation="75"/);
  assert.match(waveMask,/M-183 220\.497L53\.0918 161\.831/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots\{[^}]*background-image:radial-gradient\(circle at 2px 2px,#232526 0 2px,transparent 2\.1px\)[^}]*mask-image:none/);
- assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots::after\{[^}]*radial-gradient\(ellipse 48% 37\.5% at 50% 0,[^}]*linear-gradient\(to bottom,var\(--cv2-container-neutral-bg-main\) 0%[^}]*35%[^}]*50%/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots::after\{[^}]*radial-gradient\(ellipse 48% 78% at 50% 0,[^}]*linear-gradient\(to bottom,var\(--cv2-container-neutral-bg-main\) 0%[^}]*57%[^}]*65%/);
  assert.doesNotMatch(css,/hero-bottom-wave-mask-large/);
  assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
 });
