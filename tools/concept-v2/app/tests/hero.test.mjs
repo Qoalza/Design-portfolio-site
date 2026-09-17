@@ -21,6 +21,7 @@ test('Hero preserves the two authored component structures and the accepted map 
  assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:492px;[^}]*padding-inline:24px/);
  assert.match(css,/\.hero\[data-layout="small"\] \.name\{display:none\}/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:1014px;[^}]*padding-inline:24px/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-main\{[^}]*height:100%;[^}]*flex:1 1 auto;[^}]*padding-bottom:56px/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-copy\{[^}]*width:751px;[^}]*height:316px/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-graph\{[^}]*width:947px;[^}]*height:634px/);
  assert.match(css,/\.hero-graph \.process-caption\{[^}]*height:16px;[^}]*font:400 14px\/16px/);
@@ -83,7 +84,7 @@ test('desktop Hero occupies exactly one viewport and keeps the dotted field in i
  assert.match(heroDesktop,/\.hero\[data-layout="small"\] \.hero-main\{padding-bottom:120px;box-sizing:border-box\}/);
  assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:320px;flex-basis:auto\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\]\{height:calc\(100svh - 80px\)\}/);
- assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto;padding-bottom:56px\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-74\.5px\)\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-bottom\{inset:auto 0 0;height:560px;flex-basis:auto\}/);
  assert.doesNotMatch(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-12px\) scale\(/);
