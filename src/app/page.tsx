@@ -147,9 +147,9 @@ function RadioVisual({ visual }: { visual: ProjectVisualInstance }) {
   const payment = visual.assets.payment[0];
   return (
     <div className={styles.projectVisual} aria-hidden="true">
-      <Image className={styles.radioDashboard} src={dashboard.src} alt="" width={dashboard.width} height={dashboard.height} />
-      <Image className={styles.radioPlayer} src={player.src} alt="" width={player.width} height={player.height} />
-      <Image className={styles.radioPayment} src={payment.src} alt="" width={payment.width} height={payment.height} />
+      <Image className={styles.radioDashboard} src={dashboard.src} alt="" width={dashboard.width} height={dashboard.height} unoptimized />
+      <Image className={styles.radioPlayer} src={player.src} alt="" width={player.width} height={player.height} unoptimized />
+      <Image className={styles.radioPayment} src={payment.src} alt="" width={payment.width} height={payment.height} unoptimized />
     </div>
   );
 }
