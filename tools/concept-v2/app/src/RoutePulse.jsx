@@ -1,58 +1,56 @@
 import {useEffect,useRef,useState} from 'react';
-import {glyph,nodes,position,STROKE} from './network-data.mjs';
-import {pulseRoutes,pulseTiming} from './pulse-routes.mjs';
+import {glyph,nodes,position} from './network-data.mjs';
+import {measurePulseRoutes,scalePulseRoutes,screenScale} from './pulse-routes.mjs';
 import {schedulePulses} from './pulse.mjs';
+import {createFrameTask} from './runtime/frame-task.mjs';
+import {createViewActivity} from './runtime/view-activity.mjs';
 
 export function RoutePulse(){
   const root=useRef(null);
   const [pulse,setPulse]=useState(null);
   const [arrival,setArrival]=useState(null);
   useEffect(()=>{
+    const svg=root.current?.ownerSVGElement;
+    if(!svg)return undefined;
     const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
     let stop;
-    let exitFrame=0;
-    let visible=true;
-    function sync({immediate=false}={}){
+    let active=false;
+    let hasStarted=false;
+    let lastScale;
+    const measured=measurePulseRoutes(d=>{
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);
+      return path.getTotalLength();
+    });
+    function clear(){
       stop?.();
       stop=undefined;
       setPulse(null);
       setArrival(null);
-      if(visible&&!motion.matches&&!document.hidden){
-        const matrix=root.current.ownerSVGElement.getScreenCTM();
-        const scale=Math.hypot(matrix.a,matrix.b);
-        const measured=pulseRoutes.map(route=>{
-          const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-          path.setAttribute('d',route.d);
-          const length=path.getTotalLength();
-          return {...route,length,strokeWidth:STROKE/scale,...pulseTiming(length,scale)};
-        });
-        stop=schedulePulses({routes:measured,emit:value=>{setPulse(value);if(value)setArrival(null);},arrive:setArrival,initialDelay:immediate?0:undefined});
-      }
     }
-    sync();
-    motion.addEventListener('change',sync);
-    document.addEventListener('visibilitychange',sync);
-    const resizeObserver=new ResizeObserver(()=>sync());
-    resizeObserver.observe(root.current.ownerSVGElement);
-    const observer=new IntersectionObserver(([entry])=>{
-      const next=entry.isIntersecting;
-      if(next){
-        cancelAnimationFrame(exitFrame);
-        exitFrame=0;
-        if(visible)return;
-        visible=true;
-        sync({immediate:true});
-        return;
-      }
-      if(!visible||exitFrame)return;
-      exitFrame=requestAnimationFrame(()=>{
-        exitFrame=0;
-        visible=false;
-        sync();
-      });
-    },{rootMargin:'8px 0px',threshold:0});
-    observer.observe(root.current.ownerSVGElement);
-    return ()=>{stop?.();cancelAnimationFrame(exitFrame);observer.disconnect();resizeObserver.disconnect();motion.removeEventListener('change',sync);document.removeEventListener('visibilitychange',sync);};
+    function readScale(){
+      return screenScale(svg.getScreenCTM?.());
+    }
+    function sync({immediate=false}={}){
+      if(!active||motion.matches||document.hidden){clear();return;}
+      const scale=readScale();
+      if(scale===null){clear();return;}
+      if(stop&&lastScale===scale)return;
+      clear();
+      lastScale=scale;
+      stop=schedulePulses({routes:scalePulseRoutes(measured,scale),emit:value=>{setPulse(value);if(value)setArrival(null);},arrive:setArrival,initialDelay:immediate?0:undefined});
+      hasStarted=true;
+    }
+    const task=createFrameTask({write:sync});
+    const activity=createViewActivity({target:svg,rootMargin:'8px 0px',onChange:change=>{
+      active=change.active;
+      task.schedule({immediate:change.reason==='enter'&&hasStarted});
+    }});
+    const resizeObserver=new ResizeObserver(()=>task.schedule({}));
+    resizeObserver.observe(svg);
+    const onMotionChange=()=>task.schedule({});
+    motion.addEventListener('change',onMotionChange);
+    return ()=>{activity.dispose();task.dispose();clear();resizeObserver.disconnect();motion.removeEventListener('change',onMotionChange);};
   },[]);
   // Short contiguous dashes approximate an arc-length gradient, including bends.
   // A spatial SVG gradient would point the wrong way when the route turns.

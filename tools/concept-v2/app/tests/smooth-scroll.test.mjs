@@ -24,9 +24,10 @@ test('scroll, resize, visibility, and pulse work is removed on unmount',async()=
   assert.match(experience,/removeEventListener\('resize',onResize\)/);
   assert.match(experience,/reduced\.removeEventListener\('change',paint\)/);
   assert.match(pulse,/stop\?\.\(\)/);
-  assert.match(pulse,/observer\.disconnect\(\)/);
-  assert.match(pulse,/motion\.removeEventListener\('change',sync\)/);
-  assert.match(pulse,/document\.removeEventListener\('visibilitychange',sync\)/);
+  assert.match(pulse,/activity\.dispose\(\)/);
+  assert.match(pulse,/task\.dispose\(\)/);
+  assert.match(pulse,/resizeObserver\.disconnect\(\)/);
+  assert.match(pulse,/motion\.removeEventListener\('change',onMotionChange\)/);
 });
 
 test('native scrollbar never changes the layout viewport while Lenis stops',async()=>{

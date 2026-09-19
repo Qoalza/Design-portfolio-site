@@ -6,6 +6,7 @@ import path from 'node:path';
 import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layout.mjs';
 import {createCaptionController,DEFAULT_CAPTION,resolveCaptionCandidate} from '../src/hero-caption.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
+import {measurePulseRoutes,pulseRoutes,scalePulseRoutes,screenScale} from '../src/pulse-routes.mjs';
 
 test('Hero selects the matching Figma composition only at its authored Large width',()=>{
   assert.equal(getHeroVariant({width:1440,height:1600}),'small');
@@ -213,14 +214,32 @@ test('a returning Hero pulse starts immediately, then resumes the normal idle ca
   assert.equal(scheduled[2].delay,2000);
 });
 
+test('pulse route lengths are measured once and reused when the screen scale changes',()=>{
+ const calls=[];
+ const measured=measurePulseRoutes(path=>{calls.push(path);return calls.length*10;});
+ assert.equal(calls.length,pulseRoutes.length);
+ const atOne=scalePulseRoutes(measured,1);
+ const atTwo=scalePulseRoutes(measured,2);
+ assert.deepEqual(atOne.map(route=>route.length),atTwo.map(route=>route.length));
+ assert.notDeepEqual(atOne.map(route=>route.duration),atTwo.map(route=>route.duration));
+});
+
+test('pulse scale rejects missing, zero and non-finite SVG matrices',()=>{
+ assert.equal(screenScale(null),null);
+ assert.equal(screenScale({a:0,b:0}),null);
+ assert.equal(screenScale({a:Infinity,b:0}),null);
+ assert.equal(screenScale({a:3,b:4}),5);
+});
+
 test('Hero pulse lifecycle follows the visible map instead of page visibility alone',async()=>{
   const source=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
-  assert.match(source,/new IntersectionObserver/);
+  assert.match(source,/createViewActivity/);
   assert.match(source,/rootMargin:'8px 0px'/);
-  assert.match(source,/observer\.observe\(root\.current\.ownerSVGElement\)/);
-  assert.match(source,/exitFrame=requestAnimationFrame/);
-  assert.match(source,/cancelAnimationFrame\(exitFrame\)/);
+  assert.match(source,/createFrameTask/);
+  assert.match(source,/target:svg/);
   assert.match(source,/initialDelay:immediate\?0:undefined/);
+  assert.match(source,/measurePulseRoutes/);
+  assert.match(source,/scalePulseRoutes/);
   assert.doesNotMatch(source,/opacity:\s*0/);
 });
 

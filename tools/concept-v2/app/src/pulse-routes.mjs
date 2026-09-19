@@ -1,3 +1,5 @@
+import {STROKE} from './network-data.mjs';
+
 // Same geometry as the visible network, split at its actual nodes.
 const a='H258 Q284 163.333 284 189 V240';
 const b='H333 Q354 240 354 263 V291 Q354 314.667 378 314.667 H495';
@@ -16,6 +18,19 @@ export const pulseRoutes=[
 export const PULSE_SPEED=160; // CSS pixels per second
 export const TAIL_PIXELS=64;
 export function pulseTiming(length,scale=1){
- const tail=TAIL_PIXELS/scale;
- return {tail,duration:(length*scale+TAIL_PIXELS)/PULSE_SPEED*1000};
+  const tail=TAIL_PIXELS/scale;
+  return {tail,duration:(length*scale+TAIL_PIXELS)/PULSE_SPEED*1000};
+}
+
+export function measurePulseRoutes(measureLength){
+ return pulseRoutes.map(route=>({...route,length:measureLength(route.d)}));
+}
+
+export function scalePulseRoutes(measured,scale){
+ return measured.map(route=>({...route,strokeWidth:STROKE/scale,...pulseTiming(route.length,scale)}));
+}
+
+export function screenScale(matrix){
+ const scale=matrix&&Math.hypot(matrix.a,matrix.b);
+ return Number.isFinite(scale)&&scale>0?scale:null;
 }
