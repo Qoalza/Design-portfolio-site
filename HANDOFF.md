@@ -1,12 +1,12 @@
 # HANDOFF
 
-Обновлено: 2026-09-19.
+Обновлено: 2026-09-20.
 
 ## Checkout
 
 - Branch: `codex/concept-v2-figma-delta-3ec86f0`.
 - Worktree: `/private/tmp/design-portfolio-concept-v2-latest`.
-- Tested runtime SHA: `26aa90d42ea068c2489aaf1ae9bb78b3e8f76c3d` (`fix(concept-v2): gate project hover at scroll input`).
+- Tested runtime SHA: `7ea0c27` (`fix(concept-v2): restore project preview shade`).
 - Documentation/evidence is committed after that runtime SHA and must not be read as a rebuilt runtime.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
 
@@ -20,6 +20,7 @@
 - Final automated evidence for the tested runtime: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (HTTP built-runtime smoke) and `git diff --check` passed.
 - Follow-up: Project previews now have 640 px and 1080 px AVIF candidates with an unchanged PNG fallback. Their real rendered maximum is 519 px, so the 1080 px candidate covers a 2× Retina/5K display without upscaling.
 - Revised scoped correction: project-card pointer hover is immediately suppressed for physical and Lenis scrolling, then returns under a stationary pointer after settlement. It uses a synchronous document-level gate at wheel input instead of a deferred React render; the original layers and image `box-shadow` remain intact.
+- Visual correction: the desktop preview now uses the exact exported Figma shade vector (`638×328`) between the back and front artwork. The CSS radial-gradient approximation was the cause of the missing depth; no hover, geometry, animation or image layer was changed.
 - This correction passed `npm run check` (90 tests, lint and Vite production build), `npm run check:browser`, `git diff --check`, and a Chromium pass covering the original rest shadow, wheel-time hover suppression and post-settlement restoration.
 
 ## Acceptance and stop-lines
@@ -30,7 +31,7 @@
 
 ## Next action
 
-- Perform the Zen acceptance pass for Hero → Projects → Experience, with a fresh pass over first entry into Projects after the scroll-hover correction. After an explicit request, push the local commit series or prepare the next scoped correction.
+- Perform the Zen acceptance pass for Hero → Projects → Experience, with a fresh pass over first entry into Projects after the scroll-hover correction and visual comparison of the restored preview shade. After an explicit request, push the local commit series or prepare the next scoped correction.
 
 ## Pointers
 

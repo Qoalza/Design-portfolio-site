@@ -69,8 +69,9 @@ Status: `READY_FOR_REVIEW`
 - Investigation found the visible hitch near Hero/Projects occurs when the stationary pointer first enters a moving project card and starts its large hover transition; image network loading was not the trigger at that point.
 - The scoped correction uses the existing Lenis stream, not another scroll loop: physical `virtual-scroll` writes a document-level gate synchronously, so pointer hover is suppressed in the same input turn; Lenis settlement restores it. Keyboard `:focus-within` behavior remains unchanged.
 - The initial prepared-shadow implementation changed the approved darkening and was removed. Original image layers and `box-shadow` declarations are retained exactly; the correction has no rest/hover visual delta.
+- A subsequent visual audit found the remaining missing depth came from an approximation introduced in the desktop preview shade: the CSS radial gradient replaced the exact Figma `project-shade-preview.svg` vector. The `638×328` vector is restored only in its approved Preview layer, between the rear and front artwork; card geometry, opacity states, animation and image shadows are unchanged.
 - Final local verification: `npm run check` passed with 90 tests, lint and Vite production build; `npm run check:browser` passed; `git diff --check` passed. A Chromium desktop pass confirmed the original rest shadow, hover suppression during wheel input, and original hover restoration after Lenis settlement.
-- Exact tested runtime: `26aa90d42ea068c2489aaf1ae9bb78b3e8f76c3d` (`fix(concept-v2): gate project hover at scroll input`).
+- Exact tested runtime: `7ea0c27` (`fix(concept-v2): restore project preview shade`).
 - The remaining acceptance is an independent user feel pass in Zen. Zen automation is not evidence for this item.
 
 ## Stop-lines
