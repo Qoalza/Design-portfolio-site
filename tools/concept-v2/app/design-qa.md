@@ -178,3 +178,13 @@ Status: `READY_FOR_REVIEW`
 - Browser proof at the local preview: all four project image nodes selected the 1080 px AVIF candidate and rendered at 407–484 px. The 1080 px source therefore retains more than 2× sampling for the largest 519 px card layer.
 - Verification: focused Project card test; `npm run check` (87 tests, lint and Vite build); `npm run check:browser`; `git diff --check`.
 - Limit: first-entry feel/performance in Zen remains the acceptance check; it was not substituted with a synthetic benchmark.
+
+## Project preview Zen decode correction (2026-09-20)
+
+Status: `READY_FOR_REVIEW`
+
+- The earlier macOS-generated Project AVIF files exposed `clap`/`clli` parser warnings in Zen. All four 640/1080 derivatives were rebuilt as 8-bit 4:4:4 AVIF without those boxes; the original PNG fallback remains untouched.
+- The new files are approximately 20–43 KiB and retain 47–48 dB PSNR against equivalently resized source PNGs. The 1080 px candidate still supplies more than 2× sampling for the largest 519 px rendered layer.
+- Real Project image nodes now switch from lazy/low to eager/high and run through the shared `decode()` preparation when Projects enters a 150% viewport margin. There is no hidden duplicate loader and no change to the approved card geometry, layer order, shade, shadow, hover or scroll behavior.
+- Runtime proof: all four browser nodes were complete on `imgDesktop3-1080.avif` / `imgDesktop4-1080.avif` with high/eager preparation; Zen directly decoded and rendered the 640 px AVIF without the previous parser errors; desktop Projects retained the approved two-card composition and effects.
+- Verification: focused Project tests, `npm run check` (92 tests, lint and Vite build), `npm run check:browser` and `git diff --check` passed. Manual Zen scroll-feel acceptance remains open.

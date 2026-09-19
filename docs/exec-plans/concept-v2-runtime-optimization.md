@@ -74,6 +74,14 @@ Status: `READY_FOR_REVIEW`
 - Exact tested runtime: `7ea0c27` (`fix(concept-v2): restore project preview shade`).
 - The remaining acceptance is an independent user feel pass in Zen. Zen automation is not evidence for this item.
 
+### Follow-up — Zen-compatible Project media preparation
+
+- Zen diagnostics exposed decode warnings for metadata emitted by the earlier macOS AVIF conversion: the 640 px derivatives contained `clap` and all four derivatives contained `clli`. The files were rebuilt with one-off Sharp 0.35.4 using 8-bit 4:4:4 AVIF output; no runtime dependency was added.
+- The replacement assets retain the 640/1080 responsive contract and PNG fallback, are smaller at approximately 20–43 KiB, and measured 47–48 dB PSNR against equivalently resized source PNGs. The 1080 px candidate still covers the largest 519 px rendered layer above 2× density.
+- Projects now reuses the existing real-node image preparer. At a 150% viewport margin it raises the four rendered image nodes to high/eager and waits for `decode()` before ordinary entry; fallback resource changes remain handled by the existing `onLoad` path.
+- Exact tested runtime: `521e4eb9090b2482ba008140ea0c58b47b51f158` (`perf(concept-v2): predecode compatible project avif`). Verification: focused RED/GREEN Project tests, `npm run check` with 92 tests, lint and Vite production build, `npm run check:browser`, `git diff --check`, direct successful Zen decode without the prior AVIF parser errors, and desktop visual inspection with unchanged geometry/effects.
+- Remaining acceptance: the user must compare first and repeated Hero → Projects scrolling in Zen. Headless/direct decode evidence proves asset compatibility, not subjective scroll smoothness.
+
 ## Stop-lines
 
 - Stop the dependent group if preserving behavior would require changing visible geometry/effects, the Experience gate, Lenis ownership/configuration, canonical assets/content, dependencies, Figma or production state.
