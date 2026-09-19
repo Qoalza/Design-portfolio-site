@@ -50,6 +50,12 @@ Status: `IN_PROGRESS`
 - About hover activity is viewport-gated and uses one hit-test task per frame. A deck animation generation is cancelled and invalidated before reduced-motion settlement, so an old RAF cannot overwrite the latest target.
 - Final group checks: `npm run check` (83 tests, lint and Vite production build), `npm run check:browser` (built-runtime smoke) and `git diff --check` all passed. Review found no visual-geometry, interaction-contract, Lenis, dependency or protected-path change.
 
+### G4 — responsive media and preparation lifecycle
+
+- Completed in the dedicated Git group: browser-selected About `picture` nodes now own AVIF/WebP/PNG loading and decode preparation; foreground and halo layers remain distinct. Viewer preparation is required/high and embedded preparation is idle/near-section promoted.
+- Projects use the same fallback-only renderer but retain their existing PNG source files, wrapper layers, lazy loading and geometry. No image derivative or extra hidden `Image` loader was added.
+- Final group checks: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (built-runtime smoke) and `git diff --check` all passed. Review found no image asset, visual-layer, dependency or protected-path change.
+
 ## Stop-lines
 
 - Stop the dependent group if preserving behavior would require changing visible geometry/effects, the Experience gate, Lenis ownership/configuration, canonical assets/content, dependencies, Figma or production state.

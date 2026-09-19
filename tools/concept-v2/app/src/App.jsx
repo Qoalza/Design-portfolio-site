@@ -7,6 +7,8 @@ import {Experience} from './Experience';
 import {About} from './About';
 import {randomEdgePoint} from './process-fill.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
+import {ResponsivePicture} from './media/ResponsivePicture';
+import {projectBackImage,projectFrontImage} from './media/image-sources.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -95,9 +97,9 @@ function ProjectCard(){
  return <article className="project">
   <div className="project-preview" aria-label="Интерфейс Corvo">
    <div className="project-divider"/><div className="project-glow"/>
-   <div className="project-back-layer"><img className="project-back" src="/figma/imgDesktop3.png" alt="" loading="lazy"/></div>
+   <div className="project-back-layer"><ResponsivePicture source={projectBackImage} className="project-back" alt="" loading="lazy" decoding="async"/></div>
    <div className="project-shade"/>
-   <div className="project-front-layer"><img className="project-front" src="/figma/imgDesktop4.png" alt="Corvo — управление партнёрской программой, таблица компаний" loading="lazy"/></div>
+   <div className="project-front-layer"><ResponsivePicture source={projectFrontImage} className="project-front" alt="Corvo — управление партнёрской программой, таблица компаний" loading="lazy" decoding="async"/></div>
   </div>
   <div className="project-main"><div className="project-info"><h3>Corvo<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/></h3><p>{description}</p></div><div className="project-actions"><ControlButton href="https://art-des.ru/projects/corvo" external>Подробнее</ControlButton><ControlButton variant="ghost" href={corvoFigma} external iconRight="imgColor7">Figma</ControlButton></div></div>
  </article>;

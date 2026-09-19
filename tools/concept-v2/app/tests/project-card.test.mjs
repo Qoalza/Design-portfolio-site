@@ -7,10 +7,14 @@ const root=path.resolve(import.meta.dirname,'..');
 
 test('project card keeps one layer tree and maps both Figma states',async()=>{
   const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
+  const picture=await readFile(path.join(root,'src/media/ResponsivePicture.jsx'),'utf8');
   const css=await readFile(path.join(root,'src/style.css'),'utf8');
   const responsive=await readFile(path.join(root,'src/responsive.css'),'utf8');
   assert.match(app,/project-back-layer/);
   assert.match(app,/project-front-layer/);
+  assert.match(app,/ResponsivePicture source=\{projectBackImage\}/);
+  assert.match(app,/ResponsivePicture source=\{projectFrontImage\}/);
+  assert.match(picture,/if\(!sources\.length\)return <img \{\.\.\.imageProps\}\/>/);
   assert.doesNotMatch(app,/project-hover-preview/);
   assert.match(css,/height:613px/);
   assert.match(css,/height:329px/);
