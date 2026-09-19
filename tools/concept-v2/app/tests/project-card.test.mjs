@@ -12,9 +12,7 @@ test('project card keeps one layer tree and maps both Figma states',async()=>{
   const responsive=await readFile(path.join(root,'src/responsive.css'),'utf8');
   assert.match(app,/project-back-layer/);
   assert.match(app,/project-front-layer/);
-  assert.match(app,/project-back-shadow/);
-  assert.match(app,/project-front-shadow-base/);
-  assert.match(app,/project-front-shadow-hover/);
+  assert.doesNotMatch(app,/project-(?:back|front)-shadow/);
   assert.match(app,/ResponsivePicture source=\{projectBackImage\}/);
   assert.match(app,/ResponsivePicture source=\{projectFrontImage\}/);
   assert.match(app,/ResponsivePicture source=\{projectBackImage\}[^>]*sizes="520px"/);
@@ -42,12 +40,11 @@ test('project card keeps one layer tree and maps both Figma states',async()=>{
   assert.match(responsive,/@media\(max-width:1279px\)[\s\S]*?\.project\{[^}]*height:auto/);
   assert.match(responsive,/@media\(max-width:1279px\)[\s\S]*?\.project-main\{[^}]*height:auto;min-height:284px/);
   assert.match(css,/transition:[^}]*150ms ease-in/);
-  assert.match(css,/\.project:not\(\.is-scrolling\):hover/);
-  assert.match(css,/\.project\.is-scrolling [^{]+\{transition:none\}/);
-  assert.match(css,/\.project-back-shadow\{[^}]*box-shadow:0 4px 50px -10px rgba\(163,213,253,.5\)/);
-  assert.match(css,/\.project-front-shadow-base\{[^}]*box-shadow:0 4px 100px -20px rgba\(29,30,31,.4\)/);
-  assert.match(css,/\.project-front-shadow-hover\{[^}]*box-shadow:5px 0 50px -27px #1d1e1f,0 4px 100px -20px rgba\(163,213,253,.5\)/);
-  assert.match(css,/\.project-back,\.project-front,\.project-back-shadow,\.project-front-shadow,\.project p\{transition:none\}/);
+  assert.match(css,/html:not\(\[data-scroll-active\]\) \.project:hover/);
+  assert.match(css,/html\[data-scroll-active\] \.project:hover [^{]+\{transition:none\}/);
+  assert.match(css,/\.project-back\{[^}]*box-shadow:0 4px 50px -10px rgba\(163,213,253,.5\)/);
+  assert.match(css,/\.project-front\{[^}]*box-shadow:0 4px 100px -20px rgba\(29,30,31,.4\)/);
+  assert.match(css,/\.project-back,\.project-front,\.project p\{transition:none\}/);
 });
 
 test('Projects action uses the source label, exact Medium chevron, and fixed 218px frame',async()=>{

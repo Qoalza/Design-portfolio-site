@@ -20,6 +20,10 @@ export function publishScrollActivity(next){
   const active=Boolean(next);
   if(scrollActive===active)return;
   scrollActive=active;
+  if(typeof document!=='undefined'){
+    if(active)document.documentElement.dataset.scrollActive='true';
+    else delete document.documentElement.dataset.scrollActive;
+  }
   scrollActivitySubscribers.forEach(subscriber=>subscriber(active));
 }
 
