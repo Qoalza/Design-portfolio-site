@@ -57,6 +57,8 @@ Relevant owners: `src/lib/project-contract.ts`, `src/lib/project-visual-registry
 
 ## Source boundary
 
+The standalone Concept V2 Vite app follows its separate [Concept V2 runtime contract](CONCEPT_V2_RUNTIME.md). Its primitives and rules must not be copied into this Next.js runtime without a separate integration decision.
+
 Этот документ не хранит:
 
 - Figma component tokens/icon rules — `DESIGN_SYSTEM.md`;

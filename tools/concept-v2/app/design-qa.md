@@ -157,3 +157,14 @@ Remove avoidable main-thread, paint, image-transfer and decode work around Hero,
 
 1. Fidelity/completeness: confirmed that no stylesheet geometry or visual tokens changed; Hero preserves its pulse renderer and cadence, Experience preserves blur/masks/travel/gate, and About preserves both image layers, fallback originals and fixed card dimensions. Browser screenshots confirmed the existing Hero, Experience and About compositions.
 2. Regression/scope/risk: confirmed cleanup for timers, observers, animation frames and listeners; verified immediate Hero re-entry, complete offscreen cancellation, responsive-image selection, Experience progress/reached/path states and a clean console. The diff remains inside the isolated Concept V2 app and adds no package dependency or production action.
+
+## Runtime optimization — final implementation record (2026-09-19)
+
+Status: `READY_FOR_REVIEW`
+
+- Baseline: `5955fde01e408a21e936e86af0805f45bc807313`.
+- Tested runtime: `3ad9b55161d10efe35f7069141793036147032a7`.
+- Changed owners: finite frame/activity primitives; Hero route lifecycle; Experience geometry invalidation and state cleanup; Header/cursor/lens/About pointer consumers; About deck animation generation; responsive rendered-media preparation.
+- Preserved: Hero geometry and 36-segment renderer, Experience travel/gate/blur/masks, Lenis owner/configuration, About foreground/halo layers and card geometry, Projects source PNG/layer order.
+- Automated evidence: `npm run check` passed with 86 tests, lint and Vite production build; `npm run check:browser` HTTP smoke passed; `git diff --check` passed. See `design-reference/concept-v2-runtime-optimization/3ad9b55161d10efe35f7069141793036147032a7/`.
+- Limit: manual performance/feel acceptance in Zen remains open. Automated Chromium-style checks do not substitute for it.

@@ -1,6 +1,6 @@
 # Concept V2 runtime optimization
 
-Status: `IN_PROGRESS`
+Status: `READY_FOR_REVIEW`
 
 ## Source and boundary
 
@@ -55,6 +55,13 @@ Status: `IN_PROGRESS`
 - Completed in the dedicated Git group: browser-selected About `picture` nodes now own AVIF/WebP/PNG loading and decode preparation; foreground and halo layers remain distinct. Viewer preparation is required/high and embedded preparation is idle/near-section promoted.
 - Projects use the same fallback-only renderer but retain their existing PNG source files, wrapper layers, lazy loading and geometry. No image derivative or extra hidden `Image` loader was added.
 - Final group checks: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (built-runtime smoke) and `git diff --check` all passed. Review found no image asset, visual-layer, dependency or protected-path change.
+
+### G5 — integration, contract and handoff
+
+- Completed against tested runtime `3ad9b55161d10efe35f7069141793036147032a7`: the Concept V2 runtime contract documents the reusable finite-work primitives, their concrete consumers, media ownership and the boundary from the public Next.js runtime.
+- Immutable evidence is stored under `design-reference/concept-v2-runtime-optimization/3ad9b55161d10efe35f7069141793036147032a7/` and names its exact runtime SHA rather than treating the following docs commit as a code build.
+- Final fidelity/completeness review maps every P01–P10 to G1–G4 behavior and test coverage. Regression/scope review confirms the five D01–D05 exclusions: Lenis, Experience blur/masks, Project derivatives, Zen substitution and public-runtime integration remain outside this workstream.
+- Final code evidence for the tested runtime: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (HTTP built-runtime smoke) and `git diff --check` passed. The manual Zen feel/performance pass remains an explicit user-acceptance item.
 
 ## Stop-lines
 
