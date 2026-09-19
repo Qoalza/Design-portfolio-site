@@ -44,9 +44,12 @@ test('header pins only after its original area leaves the viewport and uses Bord
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
  assert.match(app,/className=\{`site-header-shell\$\{pinned\?' is-pinned':''\}`\}/);
- assert.match(app,/const next=window\.scrollY>\(shell\.current\?\.offsetHeight\?\?80\)/);
+ assert.match(app,/const paintTask=createFrameTask\(\{read:\(\)=>window\.scrollY>threshold,write:paint\}\)/);
+ assert.match(app,/const thresholdTask=createFrameTask\(\{read:\(\)=>shell\.current\?\.offsetHeight\?\?80/);
+ assert.match(app,/const observer=new ResizeObserver\(invalidateThreshold\)/);
  assert.match(app,/window\.addEventListener\('scroll',schedule,\{passive:true\}\)/);
  assert.match(app,/removeEventListener\('scroll',schedule\)/);
+ assert.match(app,/paintTask\.dispose\(\);thresholdTask\.dispose\(\);observer\.disconnect\(\)/);
  assert.match(app,/setLeaving\(true\)/);
  assert.match(app,/exitTimer=setTimeout\(\(\)=>\{pinnedRef\.current=false;leavingRef\.current=false;setPinned\(false\);setLeaving\(false\)\},150\)/);
  assert.match(css,/\.site-header\.is-pinned\{position:fixed;z-index:20;inset:0 0 auto;background:var\(--page\);box-shadow:inset 0 -1px var\(--border\);will-change:transform;animation:header-enter 150ms ease-out both\}/);

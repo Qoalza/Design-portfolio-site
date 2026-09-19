@@ -2,6 +2,8 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import {ControlButton,Icon} from './Controls';
 import {ABOUT_CARD_ANIMATION_MS,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames,wrapAboutCard} from './about-motion.mjs';
 import {notifyLayoutInvalidated} from './runtime/layout-invalidation.mjs';
+import {createFrameTask} from './runtime/frame-task.mjs';
+import {createViewActivity} from './runtime/view-activity.mjs';
 
 const cards=[
  {id:'artur',image:'/figma/about-artur.png',alt:'Иллюстрация Артура',caption:<>Это я :)<br/>Типа дизайнер.</>},
@@ -27,10 +29,11 @@ function useDeckController(initialIndex){
  const [frames,setFrames]=useState(()=>aboutDeckFrames(initialIndex,cards.length));
  const [isMoving,setIsMoving]=useState(false);
  const framesRef=useRef(frames),activeRef=useRef(initialIndex),targetRef=useRef(initialIndex),rafRef=useRef(),movingRef=useRef(false);
+ const generationRef=useRef(0);
  const velocityRef=useRef(frames.map(()=>({x:0,y:0,width:0,height:0,frontness:0,contentScale:0})));
  const sampleRef=useRef({time:performance.now(),frames});
  useEffect(()=>{framesRef.current=frames},[frames]);
- useEffect(()=>()=>cancelAnimationFrame(rafRef.current),[]);
+ useEffect(()=>()=>{generationRef.current+=1;cancelAnimationFrame(rafRef.current)},[]);
  const go=useCallback((nextIndex)=>{
   const target=wrapAboutCard(nextIndex,cards.length);
   if(target===targetRef.current)return;
@@ -41,14 +44,18 @@ function useDeckController(initialIndex){
   const canonical=!movingRef.current;
   const sourceActive=activeRef.current;
   const finishFrames=aboutDeckFrames(target,cards.length);
+  const generation=++generationRef.current;
+  cancelAnimationFrame(rafRef.current);
+  rafRef.current=undefined;
   targetRef.current=target;activeRef.current=target;setActive(target);
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-   framesRef.current=finishFrames;setFrames(finishFrames);movingRef.current=false;setIsMoving(false);return;
+   framesRef.current=finishFrames;setFrames(finishFrames);velocityRef.current=finishFrames.map(()=>({x:0,y:0,width:0,height:0,frontness:0,contentScale:0}));movingRef.current=false;setIsMoving(false);return;
   }
-  cancelAnimationFrame(rafRef.current);movingRef.current=true;setIsMoving(true);
+  movingRef.current=true;setIsMoving(true);
   const began=performance.now();
   sampleRef.current={time:began,frames:initialFrames};
   const tick=now=>{
+   if(generation!==generationRef.current)return;
    const progress=Math.min((now-began)/ABOUT_CARD_ANIMATION_MS,1);
    const nextFrames=canonical
     ?aboutTransitionFrames({active:sourceActive,direction,progress,count:cards.length})
@@ -136,6 +143,7 @@ export function About(){
  const sectionRef=useRef();
  const carouselRef=useRef();
  const activeCardRef=useRef();
+ const pointerRef=useRef(null);
  useEffect(()=>{
   let started=false,idleId,timerId;
   const images=[];
@@ -175,14 +183,36 @@ export function About(){
  },[]);
  useEffect(()=>{
   let current=false;
-  const updateHover=event=>{
-   const target=activeCardRef.current;
-   const rect=target?.getBoundingClientRect();
-   const next=Boolean(rect&&!controller.isMoving&&viewerInitial===null&&event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom);
-   if(next!==current){current=next;setHovered(next);}
+  let activity;
+  const task=createFrameTask({
+   read:point=>{
+    const target=activeCardRef.current;
+    const rect=target?.getBoundingClientRect();
+    return Boolean(rect&&point&&point.clientX>=rect.left&&point.clientX<=rect.right&&point.clientY>=rect.top&&point.clientY<=rect.bottom);
+   },
+   write:next=>{
+    if(!activity?.active||controller.isMoving||viewerInitial!==null)return;
+    if(next!==current){current=next;setHovered(next);}
+   },
+  });
+  const scheduleLatest=()=>{
+   if(activity?.active&&!controller.isMoving&&viewerInitial===null&&pointerRef.current)task.schedule(pointerRef.current);
   };
+  activity=createViewActivity({target:carouselRef.current,onChange:change=>{
+   if(!change.active){task.cancel();if(current){current=false;setHovered(false);}return;}
+   scheduleLatest();
+  }});
+  const observer=new ResizeObserver(scheduleLatest);
+  observer.observe(carouselRef.current);
+  const updateHover=event=>{
+   pointerRef.current={clientX:event.clientX,clientY:event.clientY};
+   scheduleLatest();
+  };
+  const onScroll=()=>scheduleLatest();
   document.addEventListener('pointermove',updateHover,{passive:true});
-  return()=>document.removeEventListener('pointermove',updateHover);
+  window.addEventListener('scroll',onScroll,{passive:true});
+  scheduleLatest();
+  return()=>{document.removeEventListener('pointermove',updateHover);window.removeEventListener('scroll',onScroll);observer.disconnect();activity.dispose();task.dispose();if(current)setHovered(false);};
  },[controller.isMoving,viewerInitial]);
  const open=useCallback((index,event)=>{if(controller.isMoving)return;setHovered(false);openerRef.current=event?.currentTarget;setViewerInitial(index)},[controller.isMoving]);
  const select=useCallback(index=>controller.go(index),[controller]);

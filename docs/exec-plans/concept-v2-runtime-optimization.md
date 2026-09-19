@@ -44,6 +44,12 @@ Status: `IN_PROGRESS`
 - Gate release above the section now precedes offscreen early return. Static mode resets internal progress/classes/paths/blur consistently; resize preservation remains desktop-to-desktop only.
 - Final group checks: `npm run check` (81 tests, lint and Vite production build), `npm run check:browser` (built-runtime smoke) and `git diff --check` all passed. Review found no Lenis, gate-parameter, blur/mask, travel, dependency or protected-path change.
 
+### G3 — pointer consumers and finite deck lifecycle
+
+- Completed in the dedicated Git group: Header and desktop cursor coalesce frame work; Hero lens samples geometry once per pointer frame and preserves keyboard/touch/180 ms follow behavior; static base SVG is memoized while the dynamic lens stays independent.
+- About hover activity is viewport-gated and uses one hit-test task per frame. A deck animation generation is cancelled and invalidated before reduced-motion settlement, so an old RAF cannot overwrite the latest target.
+- Final group checks: `npm run check` (83 tests, lint and Vite production build), `npm run check:browser` (built-runtime smoke) and `git diff --check` all passed. Review found no visual-geometry, interaction-contract, Lenis, dependency or protected-path change.
+
 ## Stop-lines
 
 - Stop the dependent group if preserving behavior would require changing visible geometry/effects, the Experience gate, Lenis ownership/configuration, canonical assets/content, dependencies, Figma or production state.

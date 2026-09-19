@@ -6,6 +6,7 @@ import {getHeroVariant} from './hero-layout.mjs';
 import {Experience} from './Experience';
 import {About} from './About';
 import {randomEdgePoint} from './process-fill.mjs';
+import {createFrameTask} from './runtime/frame-task.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -19,32 +20,34 @@ function CustomCursor(){
  const cursor=useRef(null),mode=useRef('pointer'),visible=useRef(false);
  useEffect(()=>{
   const desktop=window.matchMedia('(min-width:1280px) and (pointer:fine)');
-  let frame=0;
-  const disable=()=>{cancelAnimationFrame(frame);visible.current=false;document.documentElement.dataset.customCursor='off'};
+  const task=createFrameTask({write:({x,y,nextMode})=>{
+   if(!desktop.matches)return;
+   if(nextMode!==mode.current){mode.current=nextMode;cursor.current?.setAttribute('data-mode',nextMode);}
+   if(!visible.current){visible.current=true;document.documentElement.dataset.customCursor='on';}
+   if(cursor.current)cursor.current.style.transform=`translate3d(${x}px,${y}px,0)`;
+  }});
+  const disable=()=>{task.cancel();visible.current=false;document.documentElement.dataset.customCursor='off'};
   const move=event=>{
    if(!desktop.matches)return disable();
    const next=event.target instanceof Element&&event.target.closest('a[href],button:not(:disabled),[role="button"]')?'hand':'pointer';
-   if(next!==mode.current){mode.current=next;cursor.current?.setAttribute('data-mode',next)}
-   if(!visible.current){visible.current=true;document.documentElement.dataset.customCursor='on'}
-   cancelAnimationFrame(frame);
-   frame=requestAnimationFrame(()=>{if(cursor.current)cursor.current.style.transform=`translate3d(${event.clientX}px,${event.clientY}px,0)`});
+   task.schedule({x:event.clientX,y:event.clientY,nextMode:next});
   };
   const leave=event=>{if(!event.relatedTarget)disable()};
   const change=()=>{if(!desktop.matches)disable()};
+  const visibility=()=>{if(document.hidden)disable()};
   window.addEventListener('pointermove',move,{passive:true});
   window.addEventListener('pointerout',leave,{passive:true});
   desktop.addEventListener('change',change);
-  return()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerout',leave);desktop.removeEventListener('change',change);disable()};
+  document.addEventListener('visibilitychange',visibility);
+  return()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerout',leave);desktop.removeEventListener('change',change);document.removeEventListener('visibilitychange',visibility);task.dispose();disable()};
  },[]);
  return <span ref={cursor} className="custom-cursor" data-mode="pointer" aria-hidden="true"><img className="custom-cursor-pointer" src="/cursors/bibata-original-classic-pointer.svg" alt=""/><img className="custom-cursor-hand" src="/cursors/bibata-original-classic-hand.svg" alt=""/></span>;
 }
 function Header(){
  const shell=useRef(null),pinnedRef=useRef(false),leavingRef=useRef(false),[pinned,setPinned]=useState(false),[leaving,setLeaving]=useState(false);
  useEffect(()=>{
-  let frame=0,exitTimer=0;
-  const paint=()=>{
-   frame=0;
-   const next=window.scrollY>(shell.current?.offsetHeight??80);
+  let threshold=80,exitTimer=0;
+  const paint=next=>{
    if(next){
     clearTimeout(exitTimer);
     leavingRef.current=false;
@@ -57,11 +60,16 @@ function Header(){
    setLeaving(true);
    exitTimer=setTimeout(()=>{pinnedRef.current=false;leavingRef.current=false;setPinned(false);setLeaving(false)},150);
   };
-  const schedule=()=>{if(!frame)frame=requestAnimationFrame(paint)};
-  paint();
+  const paintTask=createFrameTask({read:()=>window.scrollY>threshold,write:paint});
+  const thresholdTask=createFrameTask({read:()=>shell.current?.offsetHeight??80,write:next=>{threshold=next;paintTask.schedule();}});
+  const schedule=()=>paintTask.schedule();
+  const invalidateThreshold=()=>thresholdTask.schedule();
+  const observer=new ResizeObserver(invalidateThreshold);
+  if(shell.current)observer.observe(shell.current);
+  invalidateThreshold();
   window.addEventListener('scroll',schedule,{passive:true});
-  window.addEventListener('resize',schedule);
-  return()=>{cancelAnimationFrame(frame);clearTimeout(exitTimer);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule)};
+  window.addEventListener('resize',invalidateThreshold);
+  return()=>{paintTask.dispose();thresholdTask.dispose();observer.disconnect();clearTimeout(exitTimer);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',invalidateThreshold)};
  },[]);
  return <div ref={shell} className={`site-header-shell${pinned?' is-pinned':''}`}><header className={`site-header${pinned?' is-pinned':''}${leaving?' is-unpinning':''}`} id="top"><div className="header-row">
   <a className="brand" href="#top" aria-label="Артур — на главную"><img src="/figma/imgSymbol.svg" width="44" height="44" alt=""/><span><strong>ARTUR</strong><small>Product Designer</small></span></a>

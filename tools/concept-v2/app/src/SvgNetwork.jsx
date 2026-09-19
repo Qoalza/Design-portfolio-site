@@ -1,8 +1,8 @@
-import {useId} from 'react';
+import {memo,useId} from 'react';
 import {RoutePulse} from './RoutePulse';
 import {nodes,WIDTH,HEIGHT,STROKE,position,glyph,routes} from './network-data.mjs';
 
-export function SvgNetwork({revealed=false,idle=false,viewTransform=null}){
+export const SvgNetwork=memo(function SvgNetwork({revealed=false,idle=false,viewTransform=null}){
   const id=useId();
   const edge=`${id}-edge`;
   const transform=viewTransform?`translate(${viewTransform.x} ${viewTransform.y}) scale(${viewTransform.scale}) translate(${-viewTransform.x} ${-viewTransform.y})`:undefined;
@@ -25,4 +25,4 @@ export function SvgNetwork({revealed=false,idle=false,viewTransform=null}){
       </g>;})}
     </g></g>
   </svg>;
-}
+});
