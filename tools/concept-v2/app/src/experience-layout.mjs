@@ -63,6 +63,11 @@ export function scrollProgress({scrollY,sectionTop,verticalTravel}){
   return Math.max(0,Math.min(1,(scrollY-sectionTop)/verticalTravel));
 }
 
+export function experienceShouldPaint({scrollY,viewportHeight,sectionTop,sectionHeight,marginViewports=2}){
+  const margin=viewportHeight*marginViewports;
+  return scrollY>=sectionTop-margin&&scrollY<=sectionTop+sectionHeight+margin;
+}
+
 export function activeExperienceIndex(progress){
   const stops=experienceStops();
   return stops.reduce((active,stop,index)=>progress>=stop?index:active,0);

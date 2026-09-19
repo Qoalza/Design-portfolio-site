@@ -110,3 +110,50 @@ Status: `READY_FOR_REVIEW`
 
 1. Fidelity/completeness: rechecked direct Figma children for heading, hatch, body copy, 16/16 dividers, panel pattern, all three card roles, lower gradient, hover action and enlarged viewer. Fixed the accidental CSS nesting under Experience and restored the 1440 px source scale (rather than scaling it down at the reference viewport).
 2. Regression/scope: rechecked the baseline experience grid, its entry mechanics and the existing below-1280 fallback through the repository tests and browser matrix. The change is confined to the isolated Concept V2 app, assets and evidence; no Admin, shared contract, Figma, published snapshot/archive, dependency, production or deployment action occurred.
+
+## Scroll runtime optimization — 2026-09-19
+
+Status: `READY_FOR_REVIEW`
+
+Baseline: `ce040c9a22bb3dab227e6aceb2673e186a096a55`
+
+### Goal
+
+Remove avoidable main-thread, paint, image-transfer and decode work around Hero, Projects and Experience while preserving the approved Concept V2 composition, geometry, appearance, transitions and interaction semantics. The optimization must be invisible: no visual redesign, no removed effect and no altered Experience entry/exit behavior.
+
+### Implemented decisions
+
+- Hero route pulses now exist only while the actual map SVG intersects the viewport. The observer follows the map rather than the whole Hero, keeps an 8 px offscreen safety margin and confirms exit on the next animation frame so a still-visible edge cannot lose its pulse. A true exit cancels the scheduler, current 36-segment pulse and arrival state instead of hiding them with opacity. Re-entry emits the first pulse immediately and then resumes the original random 2–3 second cadence. Tab visibility, reduced motion and resize behavior remain active.
+- Experience retains the approved 2500×530 tape, sticky scene, dynamic blur, masks, center-to-center travel and Lenis entry gate. Its DOM targets are resolved once, section geometry is refreshed on layout/resize rather than every scroll event, repeated style/class writes are suppressed, and scroll work is coalesced to at most one paint per animation frame. Heavy painting is skipped until the section is within two viewports and resumes from the current document position without changing progress semantics.
+- About keeps the original PNG files as compatibility fallbacks and keeps both foreground and halo DOM instances required by the visual treatment. Responsive 640 px and 1080 px AVIF/WebP derivatives were added for all three cards. The browser chooses AVIF first, WebP second and PNG last; reserved card geometry remains unchanged.
+- About preparation is proactive rather than immediate: after the page load, the browser may prepare the AVIF set during idle time at low priority; entering a 200% viewport margin promotes preparation to the required path and requests decode before the section is visible. Ordinary `<img>` elements remain lazy and asynchronous, so About no longer competes with Hero during the critical initial render and still arrives without a broken or empty image state during normal scrolling.
+- No dependency was added. Derivatives were produced with a one-off external image tool and committed as ordinary static assets.
+
+### Asset result
+
+- Original PNG set remains approximately 6.9 MiB: Artur 2.0 MiB, road 2.7 MiB and dogs 2.2 MiB.
+- The complete 640 px AVIF set is approximately 336 KiB; the complete 1080 px AVIF set is approximately 660 KiB.
+- WebP equivalents are retained as the intermediate browser fallback: approximately 384 KiB at 640 px and 828 KiB at 1080 px.
+- At the checked 1280×720 runtime the browser selected the 640 px AVIF variants; all six visible foreground/halo image nodes were decoded, complete and rendered at the existing 320×420 or 256×336 geometry.
+
+### Runtime evidence
+
+- With the Hero map visible, a scheduled route rendered all 36 pulse segments. After the map moved fully beyond the viewport, the segment count became zero and remained zero past a complete 3.2 second cadence window. Returning to the top produced 36 segments immediately.
+- At Experience progress `0.2317`, the optimized runtime retained active index 1, shift `-474.27447884416927px`, the expected first completed/second partial path offsets and the cumulative reached state. The dynamic blur still responded to movement and returned to zero after the existing quiet timer.
+- The About section rendered with unchanged card composition and dimensions; Chromium selected `about-*-640.avif`. No runtime console errors were recorded.
+- `npm run check` passed: lint checked 29 source files, all 72 tests passed and the production Vite build transformed 76 modules.
+- `npm run check:browser` passed against the built bundle on a temporary loopback server.
+- `git diff --check` passed.
+
+### Constraints and explicit non-scope
+
+- This change is confined to the local Concept V2 app under `tools/concept-v2/app`. It does not modify the public Next.js portfolio, current production version, Admin, shared content contract, canonical project data, Figma, deploy configuration or production.
+- Lenis retains its existing continuous root RAF loop. Changing its idle lifecycle was intentionally deferred because it is coupled to the Experience gesture gate and was not needed to remove the confirmed dominant waste.
+- The Experience dynamic blur and its visual masks remain unchanged. The first pass removes surrounding JS/DOM work; any later blur redesign requires new profiling evidence and separate visual approval.
+- Oversized Project artwork is not converted in this group. Final project assets should be exported near their real rendered dimensions with density-aware responsive sources when final content is prepared.
+- Direct profiling in Zen remains an acceptance follow-up because browser automation access was unavailable there. The Chromium production-build checks prove the implemented lifecycle and rendering contracts, but Zen should still receive one manual feel/performance pass before this concept becomes a release candidate.
+
+### Review passes
+
+1. Fidelity/completeness: confirmed that no stylesheet geometry or visual tokens changed; Hero preserves its pulse renderer and cadence, Experience preserves blur/masks/travel/gate, and About preserves both image layers, fallback originals and fixed card dimensions. Browser screenshots confirmed the existing Hero, Experience and About compositions.
+2. Regression/scope/risk: confirmed cleanup for timers, observers, animation frames and listeners; verified immediate Hero re-entry, complete offscreen cancellation, responsive-image selection, Experience progress/reached/path states and a clean console. The diff remains inside the isolated Concept V2 app and adds no package dependency or production action.

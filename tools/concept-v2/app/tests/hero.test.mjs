@@ -194,6 +194,36 @@ test('route pulses wait 2–3 seconds and arrive only at their direction termina
   assert.ok(cancelled.length>=1);
 });
 
+test('a returning Hero pulse starts immediately, then resumes the normal idle cadence',()=>{
+  const scheduled=[];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:()=>{},
+    initialDelay:0,
+    random:()=>0,
+    schedule,
+    cancel:()=>{},
+  });
+
+  assert.equal(scheduled[0].delay,0);
+  scheduled[0].callback();
+  assert.equal(scheduled[1].delay,800);
+  scheduled[1].callback();
+  assert.equal(scheduled[2].delay,2000);
+});
+
+test('Hero pulse lifecycle follows the visible map instead of page visibility alone',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
+  assert.match(source,/new IntersectionObserver/);
+  assert.match(source,/rootMargin:'8px 0px'/);
+  assert.match(source,/observer\.observe\(root\.current\.ownerSVGElement\)/);
+  assert.match(source,/exitFrame=requestAnimationFrame/);
+  assert.match(source,/cancelAnimationFrame\(exitFrame\)/);
+  assert.match(source,/initialDelay:immediate\?0:undefined/);
+  assert.doesNotMatch(source,/opacity:\s*0/);
+});
+
 test('forward route arrival targets the opposite terminal',()=>{
   const scheduled=[];
   const arrivals=[];

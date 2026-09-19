@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 import {ControlButton} from './Controls';
@@ -57,8 +57,18 @@ export function Experience({cv}){
     let previousTime=performance.now();
     let previousScrollY=window.scrollY;
     let blurTimer;
+    let paintFrame=0;
+    let sectionTop=0;
+    let sectionHeight=0;
     let lenis;
     let removeVirtualScroll=()=>{};
+    const section=root.current;
+    const jobs=[...section.querySelectorAll('.experience-job')];
+    const paths=[...section.querySelectorAll('.experience-path-progress')];
+    const styles=new Map();
+    const states={progress:'',activeIndex:'',started:null,complete:null,reached:jobs.map(()=>null),segments:paths.map(()=>null)};
+    const setStyle=(name,value)=>{if(styles.get(name)===value)return;styles.set(name,value);section.style.setProperty(name,value);};
+    const setDataset=(name,value)=>{if(states[name]===value)return;states[name]=value;section.dataset[name]=value;};
     const entryGate=createExperienceEntryGate({onStateChange(state){
       root.current?.setAttribute('data-entry-gate',state);
     }});
@@ -73,7 +83,6 @@ export function Experience({cv}){
       });
     });
     function applyLayout(){
-      const section=root.current;
       const layout=experienceLayout(window.innerHeight);
       section.style.height=window.innerWidth>=1280?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
       sticky.current.style.setProperty('--experience-top-outer',`${layout.topOuter}px`);
@@ -88,75 +97,78 @@ export function Experience({cv}){
       sticky.current.style.setProperty('--experience-compact-offset',`${layout.compactOffset}px`);
       sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.bottomOuter));
       section.classList.toggle('is-compact',layout.compact);
+      sectionTop=section.getBoundingClientRect().top+window.scrollY;
+      sectionHeight=section.offsetHeight;
     }
     function paint(){
-      const section=root.current;
       if(window.innerWidth<1280){
         section.style.height='auto';
         section.classList.remove('is-complete');
-        section.style.setProperty('--experience-progress','0');
-        section.style.setProperty('--experience-shift','0px');
-        section.style.setProperty('--experience-blur','0px');
-        section.dataset.progress='0.0000';
-        section.dataset.activeIndex='0';
-        section.querySelectorAll('.experience-job').forEach(job=>job.classList.remove('is-reached'));
-        section.querySelectorAll('.experience-path-progress').forEach(path=>path.style.setProperty('stroke-dashoffset','1'));
+        setStyle('--experience-progress','0');
+        setStyle('--experience-shift','0px');
+        setStyle('--experience-blur','0px');
+        setDataset('progress','0.0000');
+        setDataset('activeIndex','0');
+        jobs.forEach((job,index)=>{if(states.reached[index]!==false){states.reached[index]=false;job.classList.remove('is-reached');}});
+        paths.forEach((path,index)=>{if(states.segments[index]!==1){states.segments[index]=1;path.style.setProperty('stroke-dashoffset','1');}});
         previousScrollY=window.scrollY;
         return;
       }
-      const top=section.getBoundingClientRect().top+window.scrollY;
       let currentScrollY=window.scrollY;
-      const enteredFromAbove=previousScrollY<top&&currentScrollY>=top;
+      if(!experienceShouldPaint({scrollY:currentScrollY,viewportHeight:window.innerHeight,sectionTop,sectionHeight})){
+        previousScrollY=currentScrollY;
+        return;
+      }
+      const enteredFromAbove=previousScrollY<sectionTop&&currentScrollY>=sectionTop;
       if(enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth'){
         entryGate.capture();
-        lenis.scrollTo(top,{immediate:true,force:true});
+        lenis.scrollTo(sectionTop,{immediate:true,force:true});
         lenis.stop();
-        currentScrollY=top;
-      }else if(currentScrollY<top&&entryGate.state!=='idle'){
+        currentScrollY=sectionTop;
+      }else if(currentScrollY<sectionTop&&entryGate.state!=='idle'){
         if(lenis?.isStopped)lenis.start();
         entryGate.reset();
       }
-      progress=scrollProgress({scrollY:currentScrollY,sectionTop:top,verticalTravel:VERTICAL_TRAVEL});
+      progress=scrollProgress({scrollY:currentScrollY,sectionTop,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;
       const now=performance.now();
       const speed=Math.abs(x-previousX)/Math.max(1,now-previousTime)*1000;
       const blur=reduced.matches?0:horizontalSpeedBlur(speed);
-      section.style.setProperty('--experience-progress',String(progress));
-      section.style.setProperty('--experience-shift',`${-x}px`);
-      section.style.setProperty('--experience-blur',`${blur}px`);
-      section.dataset.progress=progress.toFixed(4);
-      section.classList.toggle('is-started',progress>0);
-      section.classList.toggle('is-complete',progress>=1);
+      setStyle('--experience-progress',String(progress));
+      setStyle('--experience-shift',`${-x}px`);
+      setStyle('--experience-blur',`${blur}px`);
+      setDataset('progress',progress.toFixed(4));
+      const started=progress>0,complete=progress>=1;
+      if(states.started!==started){states.started=started;section.classList.toggle('is-started',started);}
+      if(states.complete!==complete){states.complete=complete;section.classList.toggle('is-complete',complete);}
       const activeIndex=activeExperienceIndex(progress);
       const reachedIndexes=new Set(experienceReachedIndexes(progress));
-      section.dataset.activeIndex=String(activeIndex);
-      section.querySelectorAll('.experience-job').forEach((job,index)=>job.classList.toggle('is-reached',index>0&&reachedIndexes.has(index)));
-      section.querySelectorAll('.experience-path-progress').forEach(path=>{
+      setDataset('activeIndex',String(activeIndex));
+      jobs.forEach((job,index)=>{const reached=index>0&&reachedIndexes.has(index);if(states.reached[index]!==reached){states.reached[index]=reached;job.classList.toggle('is-reached',reached);}});
+      paths.forEach((path,index)=>{
         const segment=experienceSegmentProgress(progress,Number(path.dataset.segment));
-        path.style.setProperty('stroke-dashoffset',String(1-segment));
+        const offset=1-segment;
+        if(states.segments[index]!==offset){states.segments[index]=offset;path.style.setProperty('stroke-dashoffset',String(offset));}
       });
       previousX=x;previousTime=now;previousScrollY=currentScrollY;
       clearTimeout(blurTimer);
-      blurTimer=setTimeout(()=>section.style.setProperty('--experience-blur','0px'),80);
+      blurTimer=setTimeout(()=>setStyle('--experience-blur','0px'),80);
     }
+    function schedulePaint(){if(!paintFrame)paintFrame=requestAnimationFrame(()=>{paintFrame=0;paint()});}
     function size({preserve=false}={}){
       const active=preserve&&progress>0&&progress<1&&window.innerWidth>=1280;
-      const section=root.current;
-      if(window.innerWidth<1280){
-      }
       applyLayout();
       if(active){
-        const top=section.getBoundingClientRect().top+window.scrollY;
-        window.scrollTo({top:top+progress*VERTICAL_TRAVEL,behavior:'instant'});
+        window.scrollTo({top:sectionTop+progress*VERTICAL_TRAVEL,behavior:'instant'});
       }
       paint();
     }
     const onResize=()=>size({preserve:true});
     size();
-    window.addEventListener('scroll',paint,{passive:true});
+    window.addEventListener('scroll',schedulePaint,{passive:true});
     window.addEventListener('resize',onResize);
     reduced.addEventListener('change',paint);
-    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();clearTimeout(blurTimer);window.removeEventListener('scroll',paint);window.removeEventListener('resize',onResize);reduced.removeEventListener('change',paint);};
+    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();cancelAnimationFrame(paintFrame);clearTimeout(blurTimer);window.removeEventListener('scroll',schedulePaint);window.removeEventListener('resize',onResize);reduced.removeEventListener('change',paint);};
   },[]);
 
   return <section ref={root} className="experience" aria-labelledby="experience-title">

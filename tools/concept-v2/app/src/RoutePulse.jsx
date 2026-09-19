@@ -10,11 +10,14 @@ export function RoutePulse(){
   useEffect(()=>{
     const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
     let stop;
-    function sync(){
+    let exitFrame=0;
+    let visible=true;
+    function sync({immediate=false}={}){
       stop?.();
+      stop=undefined;
       setPulse(null);
       setArrival(null);
-      if(!motion.matches&&!document.hidden){
+      if(visible&&!motion.matches&&!document.hidden){
         const matrix=root.current.ownerSVGElement.getScreenCTM();
         const scale=Math.hypot(matrix.a,matrix.b);
         const measured=pulseRoutes.map(route=>{
@@ -23,15 +26,33 @@ export function RoutePulse(){
           const length=path.getTotalLength();
           return {...route,length,strokeWidth:STROKE/scale,...pulseTiming(length,scale)};
         });
-        stop=schedulePulses({routes:measured,emit:value=>{setPulse(value);if(value)setArrival(null);},arrive:setArrival});
+        stop=schedulePulses({routes:measured,emit:value=>{setPulse(value);if(value)setArrival(null);},arrive:setArrival,initialDelay:immediate?0:undefined});
       }
     }
     sync();
     motion.addEventListener('change',sync);
     document.addEventListener('visibilitychange',sync);
-    const observer=new ResizeObserver(sync);
+    const resizeObserver=new ResizeObserver(()=>sync());
+    resizeObserver.observe(root.current.ownerSVGElement);
+    const observer=new IntersectionObserver(([entry])=>{
+      const next=entry.isIntersecting;
+      if(next){
+        cancelAnimationFrame(exitFrame);
+        exitFrame=0;
+        if(visible)return;
+        visible=true;
+        sync({immediate:true});
+        return;
+      }
+      if(!visible||exitFrame)return;
+      exitFrame=requestAnimationFrame(()=>{
+        exitFrame=0;
+        visible=false;
+        sync();
+      });
+    },{rootMargin:'8px 0px',threshold:0});
     observer.observe(root.current.ownerSVGElement);
-    return ()=>{stop?.();observer.disconnect();motion.removeEventListener('change',sync);document.removeEventListener('visibilitychange',sync);};
+    return ()=>{stop?.();cancelAnimationFrame(exitFrame);observer.disconnect();resizeObserver.disconnect();motion.removeEventListener('change',sync);document.removeEventListener('visibilitychange',sync);};
   },[]);
   // Short contiguous dashes approximate an arc-length gradient, including bends.
   // A spatial SVG gradient would point the wrong way when the route turns.

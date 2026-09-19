@@ -1,4 +1,4 @@
-export function schedulePulses({routes,emit,arrive=()=>{},random=Math.random,schedule=setTimeout,cancel=clearTimeout}){
+export function schedulePulses({routes,emit,arrive=()=>{},initialDelay,random=Math.random,schedule=setTimeout,cancel=clearTimeout}){
   let stopped=false;
   let serial=0;
   let startTimer;
@@ -18,7 +18,7 @@ export function schedulePulses({routes,emit,arrive=()=>{},random=Math.random,sch
       },pulse.duration);
     },delay);
   }
-  next();
+  next(initialDelay);
   return ()=>{
     stopped=true;
     cancel(startTimer);

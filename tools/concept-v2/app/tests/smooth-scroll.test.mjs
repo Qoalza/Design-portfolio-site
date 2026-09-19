@@ -19,7 +19,8 @@ test('scroll, resize, visibility, and pulse work is removed on unmount',async()=
   const experience=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
   const pulse=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
   assert.match(experience,/clearTimeout\(blurTimer\)/);
-  assert.match(experience,/removeEventListener\('scroll',paint\)/);
+  assert.match(experience,/removeEventListener\('scroll',schedulePaint\)/);
+  assert.match(experience,/cancelAnimationFrame\(paintFrame\)/);
   assert.match(experience,/removeEventListener\('resize',onResize\)/);
   assert.match(experience,/reduced\.removeEventListener\('change',paint\)/);
   assert.match(pulse,/stop\?\.\(\)/);

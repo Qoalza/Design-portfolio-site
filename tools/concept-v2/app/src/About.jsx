@@ -8,6 +8,13 @@ const cards=[
  {id:'dogs',image:'/figma/about-dogs.png',alt:'Тима и Алиса',caption:<>Это мои сладкие дети,<br/>Тима и Алиса :3</>},
 ];
 
+const responsiveSources=(card,format)=>`/figma/about-${card.id}-640.${format} 640w, /figma/about-${card.id}-1080.${format} 1080w`;
+
+function AboutPicture({card,className,alt,viewer=false}){
+ const sizes=viewer?'480px':'320px';
+ return <picture><source type="image/avif" srcSet={responsiveSources(card,'avif')} sizes={sizes}/><source type="image/webp" srcSet={responsiveSources(card,'webp')} sizes={sizes}/><img className={className} src={card.image} alt={alt} sizes={sizes} loading="lazy" decoding="async"/></picture>;
+}
+
 const frameStyle=frame=>({
  '--card-x':`${frame.x}px`,'--card-y':`${frame.y}px`,'--card-width':`${frame.width}px`,'--card-height':`${frame.height}px`,
  '--card-content-scale':frame.contentScale,'--card-frontness':frame.frontness,'--card-rear-strength':frame.rearStrength,zIndex:frame.zIndex,
@@ -62,14 +69,14 @@ function useDeckController(initialIndex){
  return {active,frames,isMoving,go,move};
 }
 
-function AboutCard({card,frame,onOpen,moving,interactive=true,hovered=false,cardTargetRef}){
+function AboutCard({card,frame,onOpen,moving,interactive=true,hovered=false,cardTargetRef,viewer=false}){
  const front=frame.frontness>.5;
  const enabled=interactive&&front&&!moving;
  return <article className="about-card-motion" data-slot={front?'front':'back'} data-hovered={enabled&&hovered||undefined} style={frameStyle(frame)} aria-label={card.alt}>
   <div className="about-card-depth" aria-hidden="true"/>
-  <div className="about-card-halo" aria-hidden="true"><img src={card.image} alt=""/></div>
+  <div className="about-card-halo" aria-hidden="true"><AboutPicture card={card} alt="" viewer={viewer}/></div>
   <div ref={enabled?cardTargetRef:null} className="about-card-frame" role={enabled?'button':undefined} tabIndex={enabled?0:undefined} onClick={enabled?onOpen:undefined} onKeyDown={event=>{if(enabled&&(event.key==='Enter'||event.key===' ')){event.preventDefault();onOpen(event)}}}>
-  <div className="about-card-content"><img className="about-card-image" src={card.image} alt=""/><span className="about-card-shade" aria-hidden="true"/><p className="about-card-caption">{card.caption}</p></div>
+  <div className="about-card-content"><AboutPicture card={card} className="about-card-image" alt="" viewer={viewer}/><span className="about-card-shade" aria-hidden="true"/><p className="about-card-caption">{card.caption}</p></div>
    <span className="about-card-hover" aria-hidden="true"/>
    {interactive&&<span className="about-card-open" aria-hidden="true"><Icon name="about-search-scale"/><span className="about-card-open-label">Увеличить</span></span>}
   </div>
@@ -78,7 +85,7 @@ function AboutCard({card,frame,onOpen,moving,interactive=true,hovered=false,card
 
 function Deck({controller,onOpen,viewer=false,hovered=false,cardTargetRef}){
  return <div className={viewer?'about-viewer-deck':'about-deck'} aria-live="polite">
-  {controller.frames.map((frame,index)=><AboutCard key={cards[index].id} card={cards[index]} frame={frame} moving={controller.isMoving} interactive={!viewer} hovered={hovered} cardTargetRef={cardTargetRef} onOpen={event=>onOpen(index,event)}/>)}</div>;
+  {controller.frames.map((frame,index)=><AboutCard key={cards[index].id} card={cards[index]} frame={frame} moving={controller.isMoving} interactive={!viewer} hovered={hovered} cardTargetRef={cardTargetRef} onOpen={event=>onOpen(index,event)} viewer={viewer}/>)}</div>;
 }
 
 function ImageViewer({initialIndex,onClose,restoreFocus}){
@@ -125,9 +132,41 @@ export function About(){
  const [hovered,setHovered]=useState(false);
  const [layoutScale,setLayoutScale]=useState(1);
  const openerRef=useRef();
+ const sectionRef=useRef();
  const carouselRef=useRef();
  const activeCardRef=useRef();
- useEffect(()=>{cards.forEach(card=>{const image=new Image();image.src=card.image;image.decode?.().catch(()=>{})})},[]);
+ useEffect(()=>{
+  let started=false,idleId,timerId;
+  const images=[];
+  const preload=priority=>{
+   if(started){images.forEach(image=>{image.fetchPriority=priority});return;}
+   started=true;
+   cards.forEach(card=>{
+    const image=new Image();
+    image.fetchPriority=priority;
+    image.srcset=responsiveSources(card,'avif');
+    image.sizes='480px';
+    image.decoding='async';
+    images.push(image);
+    image.decode?.().catch(()=>{});
+   });
+  };
+  const scheduleIdle=()=>{
+   if('requestIdleCallback' in window)idleId=window.requestIdleCallback(()=>preload('low'),{timeout:4000});
+   else timerId=setTimeout(()=>preload('low'),1500);
+  };
+  if(document.readyState==='complete')scheduleIdle();
+  else window.addEventListener('load',scheduleIdle,{once:true});
+  const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))preload('high')},{rootMargin:'200% 0px',threshold:0});
+  observer.observe(sectionRef.current);
+  return()=>{
+   observer.disconnect();
+   window.removeEventListener('load',scheduleIdle);
+   if(idleId!==undefined)window.cancelIdleCallback?.(idleId);
+   clearTimeout(timerId);
+   images.length=0;
+  };
+ },[]);
  useEffect(()=>{
   const update=()=>{const width=carouselRef.current?.clientWidth??480;setLayoutScale(Math.min(1,Math.max(.74,width/480)));};
   update();const observer=new ResizeObserver(update);if(carouselRef.current)observer.observe(carouselRef.current);
@@ -148,7 +187,7 @@ export function About(){
  const select=useCallback(index=>controller.go(index),[controller]);
  const closeViewer=useCallback(()=>{setViewerInitial(null);setHovered(false)},[]);
  return <>
-  <section className={`about-section ${controller.isMoving?'is-moving':''}`} style={{'--about-layout-scale':layoutScale}} aria-labelledby="about-title">
+  <section ref={sectionRef} className={`about-section ${controller.isMoving?'is-moving':''}`} style={{'--about-layout-scale':layoutScale}} aria-labelledby="about-title">
    <div className="about-heading-shell"><div className="about-hatch about-hatch-left" aria-hidden="true"/><div className="about-heading"><div className="about-heading-copy"><p className="eyebrow">ЛИЧНОЕ</p><h2 id="about-title">Обо мне</h2><p>Немного о личном, увлечениях и карьере</p></div><p className="tech-note">// всегда нужно оставаться человеком</p></div><div className="about-hatch about-hatch-right" aria-hidden="true"/></div>
    <div className="about-content"><article className="about-copy about-dash-horizontal" data-figma-node="3214:124474"><p>Мой путь в дизайн начался с предметной 3D-графики: несколько лет я создавал высокополигональные модели для игр и не только. Всегда были интересны сложные механизмы. Позднее, так сложилось, что я попробовал «плоскую» графику – постепенно этот интерес и привёл меня в продуктовый дизайн.</p><p>Любопытство никуда не исчезло и со временем стало частью моей работы. Мне нравится погружаться в незнакомые темы, раскладывать сложное на понятные части и осваивать новые инструменты.</p><p>Наверное поэтому, я активно увлекаюсь техникой и сложными устройствами. Испытываю эмоциональное возбуждение, когда узнаю, как устроена та или иная технология. Хотя в то же время, мне интересны не только технологии, но и весь мир. Дотошный, что иногда плохо. Поэтому весь сайт сделан мной с 0, без всякого «слопа».</p><p>В работе мне важны развитие и возможность реализовывать свои идеи, а в общении – открытость и прямота. Считаю себя достаточно самокритичным. Друзья считают меня душой компании, душнилой и любителем плохих шуток, обычно всё сразу.</p><p>А еще, обожаю водить, дальние поездки и горы. И конечно же, люблю сибушек :3</p></article><div className="about-divider about-dash-vertical" aria-hidden="true"/><div ref={carouselRef} className="about-carousel" data-figma-node="3215:124481"><div className="about-pattern" aria-hidden="true"/><p className="about-carousel-heading">Зачем вам нейрослопы? Ну все же требуют работу с AI, а как говорится – бойтесь своих желаний :)</p><Deck controller={controller} onOpen={open} hovered={hovered} cardTargetRef={activeCardRef}/><div className="about-carousel-controls" aria-label="Переключить карточку"><ControlButton variant="ghost" className="about-square" iconLeft="about-chevron-left" onClick={()=>controller.move(-1)} aria-label="Предыдущая карточка"/><div className="about-dots" role="tablist" aria-label="Карточки">{cards.map((card,index)=><button key={card.id} type="button" role="tab" aria-selected={index===controller.active} aria-label={`Показать: ${card.alt}`} className={index===controller.active?'is-active':''} onClick={()=>select(index)}/>)}</div><ControlButton variant="ghost" className="about-square" iconRight="about-chevron-right" onClick={()=>controller.move(1)} aria-label="Следующая карточка"/></div></div></div>
   </section>

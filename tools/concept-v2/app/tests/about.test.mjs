@@ -174,3 +174,21 @@ test('About adopts the current palette without changing deck or viewer mechanics
  assert.match(about,/interpolateDeckFrames/);
  assert.match(css,/\.about-viewer-deck-scale\{[^}]*scale\(1\.5\)/);
 });
+
+test('About serves responsive AVIF and WebP without eager startup decoding',async()=>{
+ const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
+ assert.match(about,/function AboutPicture/);
+ assert.match(about,/type="image\/avif"/);
+ assert.match(about,/type="image\/webp"/);
+ assert.match(about,/loading="lazy" decoding="async"/);
+ assert.match(about,/rootMargin:'200% 0px'/);
+ assert.match(about,/requestIdleCallback/);
+ assert.match(about,/if\(started\)\{images\.forEach\(image=>\{image\.fetchPriority=priority\}\);return;\}/);
+ assert.doesNotMatch(about,/cards\.forEach\(card=>\{const image=new Image\(\);image\.src=card\.image/);
+ for(const name of ['artur','road','dogs']){
+  for(const width of [640,1080]){
+   await readFile(path.join(root,`public/figma/about-${name}-${width}.avif`));
+   await readFile(path.join(root,`public/figma/about-${name}-${width}.webp`));
+  }
+ }
+});

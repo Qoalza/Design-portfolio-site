@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,EXPERIENCE_HEADER_RESERVE,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,EXPERIENCE_HEADER_RESERVE,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -115,14 +115,15 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience\.is-started \.experience-fade-left\{opacity:1\}/);
   assert.doesNotMatch(css,/\.experience\.is-complete \.experience-fade-left\{opacity:0\}/);
   assert.doesNotMatch(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-fade-left/);
-  assert.match(source,/section\.classList\.toggle\('is-started',progress>0\)/);
-  assert.match(source,/section\.classList\.toggle\('is-complete',progress>=1\)/);
-  assert.match(source,/top=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
+  assert.match(source,/const started=progress>0,complete=progress>=1/);
+  assert.match(source,/section\.classList\.toggle\('is-started',started\)/);
+  assert.match(source,/section\.classList\.toggle\('is-complete',complete\)/);
+  assert.match(source,/sectionTop=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
   assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
   assert.match(source,/section\.classList\.toggle\('is-compact',layout\.compact\)/);
   assert.match(source,/section\.style\.height=window\.innerWidth>=1280\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
   assert.match(source,/createExperienceEntryGate/);
-  assert.match(source,/scrollTo\(top,\{immediate:true,force:true\}\)/);
+  assert.match(source,/scrollTo\(sectionTop,\{immediate:true,force:true\}\)/);
   assert.match(source,/lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
   assert.match(css,/grid-template-rows:var\(--experience-top-outer\) var\(--experience-center\) var\(--experience-bottom-outer\)/);
@@ -141,6 +142,25 @@ test('one normalized document progress drives the full horizontal travel',()=>{
   assert.equal(scrollProgress({scrollY:1000,sectionTop:1000,verticalTravel:900}),0);
   assert.equal(scrollProgress({scrollY:1450,sectionTop:1000,verticalTravel:900}),.5);
   assert.equal(scrollProgress({scrollY:1900,sectionTop:1000,verticalTravel:900}),1);
+});
+
+test('Experience does heavy scroll work only within two viewports of its section',()=>{
+  const input={viewportHeight:900,sectionTop:3000,sectionHeight:9700};
+  assert.equal(experienceShouldPaint({...input,scrollY:1199}),false);
+  assert.equal(experienceShouldPaint({...input,scrollY:1200}),true);
+  assert.equal(experienceShouldPaint({...input,scrollY:12700}),true);
+  assert.equal(experienceShouldPaint({...input,scrollY:14501}),false);
+});
+
+test('Experience caches geometry and DOM targets and batches scroll work to one frame',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
+  assert.match(source,/const jobs=\[\.\.\.section\.querySelectorAll\('\.experience-job'\)\]/);
+  assert.match(source,/const paths=\[\.\.\.section\.querySelectorAll\('\.experience-path-progress'\)\]/);
+  assert.match(source,/function schedulePaint\(\)/);
+  assert.match(source,/requestAnimationFrame\(\(\)=>\{paintFrame=0;paint\(\)\}\)/);
+  assert.match(source,/experienceShouldPaint/);
+  assert.doesNotMatch(source,/section\.querySelectorAll\('\.experience-job'\)\.forEach/);
+  assert.doesNotMatch(source,/section\.querySelectorAll\('\.experience-path-progress'\)\.forEach/);
 });
 
 test('Experience entry consumes the incoming gesture and releases only the next one',()=>{
