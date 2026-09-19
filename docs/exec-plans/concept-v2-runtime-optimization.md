@@ -38,6 +38,12 @@ Status: `IN_PROGRESS`
 - Completed in the dedicated Git group: `frame-task` and `view-activity` have behavioral tests; RoutePulse now uses them and route geometry is split from scale-dependent timing.
 - Final group checks: `npm run check` (80 tests, lint and Vite production build), `npm run check:browser` (built-runtime smoke) and `git diff --check` all passed. Review found no Lenis, wheel, visual-geometry, dependency or out-of-scope change.
 
+### G2 — Experience geometry and state transitions
+
+- Completed in the dedicated Git group: finite `frame-task` scheduling now owns Experience paint; exact upstream layout owners, font completion and About viewer unlock invalidate cached position without adding scroll-time geometry reads.
+- Gate release above the section now precedes offscreen early return. Static mode resets internal progress/classes/paths/blur consistently; resize preservation remains desktop-to-desktop only.
+- Final group checks: `npm run check` (81 tests, lint and Vite production build), `npm run check:browser` (built-runtime smoke) and `git diff --check` all passed. Review found no Lenis, gate-parameter, blur/mask, travel, dependency or protected-path change.
+
 ## Stop-lines
 
 - Stop the dependent group if preserving behavior would require changing visible geometry/effects, the Experience gate, Lenis ownership/configuration, canonical assets/content, dependencies, Figma or production state.

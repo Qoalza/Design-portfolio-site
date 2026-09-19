@@ -2,6 +2,8 @@ import {useEffect,useRef} from 'react';
 import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
+import {createFrameTask} from './runtime/frame-task.mjs';
+import {subscribeLayoutInvalidation} from './runtime/layout-invalidation.mjs';
 import {ControlButton} from './Controls';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
@@ -57,17 +59,22 @@ export function Experience({cv}){
     let previousTime=performance.now();
     let previousScrollY=window.scrollY;
     let blurTimer;
-    let paintFrame=0;
     let sectionTop=0;
     let sectionHeight=0;
+    let layoutDirty=true;
+    let positionDirty=true;
+    let desktop=window.innerWidth>=1280;
     let lenis;
     let removeVirtualScroll=()=>{};
     const section=root.current;
     const jobs=[...section.querySelectorAll('.experience-job')];
     const paths=[...section.querySelectorAll('.experience-path-progress')];
     const styles=new Map();
+    const stickyStyles=new Map();
+    const layoutStates={height:'',compact:null,patterns:null};
     const states={progress:'',activeIndex:'',started:null,complete:null,reached:jobs.map(()=>null),segments:paths.map(()=>null)};
     const setStyle=(name,value)=>{if(styles.get(name)===value)return;styles.set(name,value);section.style.setProperty(name,value);};
+    const setStickyStyle=(name,value)=>{if(stickyStyles.get(name)===value)return;stickyStyles.set(name,value);sticky.current.style.setProperty(name,value);};
     const setDataset=(name,value)=>{if(states[name]===value)return;states[name]=value;section.dataset[name]=value;};
     const entryGate=createExperienceEntryGate({onStateChange(state){
       root.current?.setAttribute('data-entry-gate',state);
@@ -84,38 +91,69 @@ export function Experience({cv}){
     });
     function applyLayout(){
       const layout=experienceLayout(window.innerHeight);
-      section.style.height=window.innerWidth>=1280?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
-      sticky.current.style.setProperty('--experience-top-outer',`${layout.topOuter}px`);
-      sticky.current.style.setProperty('--experience-bottom-outer',`${layout.bottomOuter}px`);
-      sticky.current.style.setProperty('--experience-center',`${layout.center}px`);
-      sticky.current.style.setProperty('--experience-free',`${layout.free}px`);
-      sticky.current.style.setProperty('--experience-heading-gap',`${layout.headingGap}px`);
-      sticky.current.style.setProperty('--experience-tape-top',`${layout.tapeTop}px`);
-      sticky.current.style.setProperty('--experience-progress-gap',`${layout.progressGap}px`);
-      sticky.current.style.setProperty('--experience-bottom',`${layout.bottom}px`);
-      sticky.current.style.setProperty('--experience-scale',String(layout.scale));
-      sticky.current.style.setProperty('--experience-compact-offset',`${layout.compactOffset}px`);
-      sticky.current.classList.toggle('has-pattern-fields',experiencePatternVisible(layout.bottomOuter));
-      section.classList.toggle('is-compact',layout.compact);
+      const height=desktop?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
+      if(layoutStates.height!==height){layoutStates.height=height;section.style.height=height;}
+      setStickyStyle('--experience-top-outer',`${layout.topOuter}px`);
+      setStickyStyle('--experience-bottom-outer',`${layout.bottomOuter}px`);
+      setStickyStyle('--experience-center',`${layout.center}px`);
+      setStickyStyle('--experience-free',`${layout.free}px`);
+      setStickyStyle('--experience-heading-gap',`${layout.headingGap}px`);
+      setStickyStyle('--experience-tape-top',`${layout.tapeTop}px`);
+      setStickyStyle('--experience-progress-gap',`${layout.progressGap}px`);
+      setStickyStyle('--experience-bottom',`${layout.bottom}px`);
+      setStickyStyle('--experience-scale',String(layout.scale));
+      setStickyStyle('--experience-compact-offset',`${layout.compactOffset}px`);
+      const patterns=experiencePatternVisible(layout.bottomOuter);
+      if(layoutStates.patterns!==patterns){layoutStates.patterns=patterns;sticky.current.classList.toggle('has-pattern-fields',patterns);}
+      if(layoutStates.compact!==layout.compact){layoutStates.compact=layout.compact;section.classList.toggle('is-compact',layout.compact);}
+      layoutDirty=false;
+      positionDirty=true;
+    }
+    function refreshPosition(){
+      if(document.body.style.position==='fixed')return false;
       sectionTop=section.getBoundingClientRect().top+window.scrollY;
       sectionHeight=section.offsetHeight;
+      positionDirty=false;
+      return true;
     }
-    function paint(){
-      if(window.innerWidth<1280){
-        section.style.height='auto';
-        section.classList.remove('is-complete');
+    function clearBlur(){
+      clearTimeout(blurTimer);
+      blurTimer=undefined;
+      setStyle('--experience-blur','0px');
+    }
+    function resetStatic(){
+      if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
+      entryGate.reset();
+      progress=0;
+      previousX=0;
+      previousTime=performance.now();
+      previousScrollY=window.scrollY;
+      clearBlur();
+      if(desktop===false){
         setStyle('--experience-progress','0');
         setStyle('--experience-shift','0px');
-        setStyle('--experience-blur','0px');
         setDataset('progress','0.0000');
         setDataset('activeIndex','0');
+        if(states.started!==false){states.started=false;section.classList.remove('is-started');}
+        if(states.complete!==false){states.complete=false;section.classList.remove('is-complete');}
         jobs.forEach((job,index)=>{if(states.reached[index]!==false){states.reached[index]=false;job.classList.remove('is-reached');}});
         paths.forEach((path,index)=>{if(states.segments[index]!==1){states.segments[index]=1;path.style.setProperty('stroke-dashoffset','1');}});
-        previousScrollY=window.scrollY;
-        return;
       }
+    }
+    function syncGate(currentScrollY){
+      if(currentScrollY<sectionTop&&entryGate.state!=='idle'){
+        if(lenis?.isStopped)lenis.start();
+        entryGate.reset();
+      }
+    }
+    function paint(){
       let currentScrollY=window.scrollY;
+      if(!desktop){resetStatic();return;}
+      syncGate(currentScrollY);
       if(!experienceShouldPaint({scrollY:currentScrollY,viewportHeight:window.innerHeight,sectionTop,sectionHeight})){
+        clearBlur();
+        previousX=scrollProgress({scrollY:currentScrollY,sectionTop,verticalTravel:VERTICAL_TRAVEL})*HORIZONTAL_TRAVEL;
+        previousTime=performance.now();
         previousScrollY=currentScrollY;
         return;
       }
@@ -125,9 +163,6 @@ export function Experience({cv}){
         lenis.scrollTo(sectionTop,{immediate:true,force:true});
         lenis.stop();
         currentScrollY=sectionTop;
-      }else if(currentScrollY<sectionTop&&entryGate.state!=='idle'){
-        if(lenis?.isStopped)lenis.start();
-        entryGate.reset();
       }
       progress=scrollProgress({scrollY:currentScrollY,sectionTop,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;
@@ -152,23 +187,51 @@ export function Experience({cv}){
       });
       previousX=x;previousTime=now;previousScrollY=currentScrollY;
       clearTimeout(blurTimer);
-      blurTimer=setTimeout(()=>setStyle('--experience-blur','0px'),80);
+      blurTimer=blur>0?setTimeout(()=>{blurTimer=undefined;setStyle('--experience-blur','0px');},80):undefined;
     }
-    function schedulePaint(){if(!paintFrame)paintFrame=requestAnimationFrame(()=>{paintFrame=0;paint()});}
-    function size({preserve=false}={}){
-      const active=preserve&&progress>0&&progress<1&&window.innerWidth>=1280;
-      applyLayout();
-      if(active){
-        window.scrollTo({top:sectionTop+progress*VERTICAL_TRAVEL,behavior:'instant'});
-      }
-      paint();
+    const paintTask=createFrameTask({
+      read:payload=>{
+        const nextDesktop=window.innerWidth>=1280;
+        const preserve=payload?.preserve===true&&desktop&&nextDesktop&&progress>0&&progress<1;
+        desktop=nextDesktop;
+        if(layoutDirty)applyLayout();
+        const documentLocked=positionDirty&&!refreshPosition();
+        return {preserve,documentLocked};
+      },
+      write:({preserve,documentLocked})=>{
+        if(documentLocked){clearBlur();return;}
+        if(preserve){
+          window.scrollTo({top:sectionTop+progress*VERTICAL_TRAVEL,behavior:'instant'});
+          positionDirty=true;
+          paintTask.schedule({});
+          return;
+        }
+        paint();
+      },
+    });
+    function schedulePaint(payload){paintTask.schedule(payload);}
+    function invalidatePosition(){positionDirty=true;schedulePaint({});}
+    function onResize(){layoutDirty=true;positionDirty=true;schedulePaint({preserve:true});}
+    function onVisibilityChange(){
+      if(document.hidden){paintTask.cancel();clearBlur();previousX=scrollProgress({scrollY:window.scrollY,sectionTop,verticalTravel:VERTICAL_TRAVEL})*HORIZONTAL_TRAVEL;previousTime=performance.now();return;}
+      positionDirty=true;
+      schedulePaint({});
     }
-    const onResize=()=>size({preserve:true});
-    size();
+    const resizeObserver=new ResizeObserver(invalidatePosition);
+    resizeObserver.observe(section);
+    ['.hero-shell','.body-sections','.ai-section'].map(selector=>document.querySelector(selector)).filter(Boolean).forEach(owner=>resizeObserver.observe(owner));
+    let fontsDisposed=false;
+    const onFonts=()=>invalidatePosition();
+    document.fonts?.ready?.then(()=>{if(!fontsDisposed)invalidatePosition();});
+    document.fonts?.addEventListener?.('loadingdone',onFonts);
+    const unsubscribeLayoutInvalidation=subscribeLayoutInvalidation(invalidatePosition);
+    const onMotionChange=()=>schedulePaint({});
+    schedulePaint({});
     window.addEventListener('scroll',schedulePaint,{passive:true});
     window.addEventListener('resize',onResize);
-    reduced.addEventListener('change',paint);
-    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();cancelAnimationFrame(paintFrame);clearTimeout(blurTimer);window.removeEventListener('scroll',schedulePaint);window.removeEventListener('resize',onResize);reduced.removeEventListener('change',paint);};
+    document.addEventListener('visibilitychange',onVisibilityChange);
+    reduced.addEventListener('change',onMotionChange);
+    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();unsubscribeLayoutInvalidation();paintTask.dispose();clearBlur();resizeObserver.disconnect();fontsDisposed=true;document.fonts?.removeEventListener?.('loadingdone',onFonts);window.removeEventListener('scroll',schedulePaint);window.removeEventListener('resize',onResize);document.removeEventListener('visibilitychange',onVisibilityChange);reduced.removeEventListener('change',onMotionChange);};
   },[]);
 
   return <section ref={root} className="experience" aria-labelledby="experience-title">

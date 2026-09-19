@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {ControlButton,Icon} from './Controls';
 import {ABOUT_CARD_ANIMATION_MS,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames,wrapAboutCard} from './about-motion.mjs';
+import {notifyLayoutInvalidated} from './runtime/layout-invalidation.mjs';
 
 const cards=[
  {id:'artur',image:'/figma/about-artur.png',alt:'Иллюстрация Артура',caption:<>Это я :)<br/>Типа дизайнер.</>},
@@ -113,7 +114,7 @@ function ImageViewer({initialIndex,onClose,restoreFocus}){
    if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   };
   document.addEventListener('keydown',onKeyDown);requestAnimationFrame(()=>dialogRef.current?.querySelector('button')?.focus());
-  return()=>{document.removeEventListener('keydown',onKeyDown);Object.assign(body.style,original);window.scrollTo(0,scrollY);(restoreFocus.current??previous)?.focus?.({preventScroll:true});};
+  return()=>{document.removeEventListener('keydown',onKeyDown);Object.assign(body.style,original);window.scrollTo(0,scrollY);notifyLayoutInvalidated();(restoreFocus.current??previous)?.focus?.({preventScroll:true});};
  },[onClose,restoreFocus,viewerMove]);
  const visibleCard=cards[controller.frames.reduce((frontIndex,frame,index)=>frame.frontness>controller.frames[frontIndex].frontness?index:frontIndex,0)];
  return <div className="about-viewer" role="presentation" onClick={closeFromEmptyViewerSpace}>
