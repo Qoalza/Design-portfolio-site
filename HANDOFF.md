@@ -6,7 +6,7 @@
 
 - Branch: `codex/concept-v2-figma-delta-3ec86f0`.
 - Worktree: `/private/tmp/design-portfolio-concept-v2-latest`.
-- Tested runtime SHA: `3ad9b55161d10efe35f7069141793036147032a7` (`refactor(concept-v2): prepare rendered media`).
+- Tested runtime SHA: `0ee7dc6cfea4af28cbe852b441933d2abc67d1e7` (`fix(concept-v2): suppress project hover while scrolling`).
 - Documentation/evidence is committed after that runtime SHA and must not be read as a rebuilt runtime.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
 
