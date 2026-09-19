@@ -7,5 +7,7 @@ export function aboutImageSource(id){
  };
 }
 
-export const projectBackImage={fallback:'/figma/imgDesktop3.png',sources:[]};
-export const projectFrontImage={fallback:'/figma/imgDesktop4.png',sources:[]};
+const projectAvif=fallback=>[{type:'image/avif',srcSet:`${fallback.replace('.png','-640.avif')} 640w, ${fallback.replace('.png','-1080.avif')} 1080w`}];
+
+export const projectBackImage={fallback:'/figma/imgDesktop3.png',sources:projectAvif('/figma/imgDesktop3.png')};
+export const projectFrontImage={fallback:'/figma/imgDesktop4.png',sources:projectAvif('/figma/imgDesktop4.png')};

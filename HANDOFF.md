@@ -18,16 +18,17 @@
 - G3: finite Header/cursor/lens/About pointer work and safe reduced-motion deck settlement.
 - G4: rendered-media preparation contract with About source selection and Projects fallback-only behavior.
 - Final automated evidence for the tested runtime: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (HTTP built-runtime smoke) and `git diff --check` passed.
+- Follow-up: Project previews now have 640 px and 1080 px AVIF candidates with an unchanged PNG fallback. Their real rendered maximum is 519 px, so the 1080 px candidate covers a 2× Retina/5K display without upscaling.
 
 ## Acceptance and stop-lines
 
 - The manual Zen feel/performance pass is still required; automated smoke checks do not replace it.
 - No Figma write, public Portfolio, Admin, shared contract, canonical content/assets, dependency, push, PR, merge, deploy or production action occurred.
-- Lenis, Experience blur/masks and Project derivatives remain unchanged by this workstream.
+- Lenis and Experience blur/masks remain unchanged. Project AVIF derivatives are a separate, user-authorized follow-up; their geometry, layers, effects and PNG fallback remain unchanged.
 
 ## Next action
 
-- Perform the Zen acceptance pass for Hero → Projects → Experience. After an explicit request, push the local commit series or prepare the next scoped correction.
+- Perform the Zen acceptance pass for Hero → Projects → Experience, with a fresh pass over first entry into Projects after the AVIF follow-up. After an explicit request, push the local commit series or prepare the next scoped correction.
 
 ## Pointers
 

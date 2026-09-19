@@ -24,7 +24,7 @@ This contract applies only to `tools/concept-v2/app`. It does not share the publ
 - `src/media/ResponsivePicture.jsx` renders browser-selected sources for responsive media and returns a bare `img` for fallback-only consumers.
 - `src/media/image-sources.mjs` owns only local paths, dimensions and MIME source data. It does not own project copy or canonical content.
 - `src/media/image-preparation.mjs` prepares actual rendered image nodes. Priority may rise from low to high but never drops; decode readiness belongs to the node and selected resource.
-- About retains both foreground and halo images. Project cards retain their existing PNGs and wrappers until approved responsive derivatives exist.
+- About retains both foreground and halo images. Project cards retain their existing wrappers and PNG fallback, while the browser may select their 640 px or 1080 px AVIF candidates for the actual 520 px slot.
 
 ## Consumer rule
 

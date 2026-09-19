@@ -168,3 +168,13 @@ Status: `READY_FOR_REVIEW`
 - Preserved: Hero geometry and 36-segment renderer, Experience travel/gate/blur/masks, Lenis owner/configuration, About foreground/halo layers and card geometry, Projects source PNG/layer order.
 - Automated evidence: `npm run check` passed with 86 tests, lint and Vite production build; `npm run check:browser` HTTP smoke passed; `git diff --check` passed. See `design-reference/concept-v2-runtime-optimization/3ad9b55161d10efe35f7069141793036147032a7/`.
 - Limit: manual performance/feel acceptance in Zen remains open. Automated Chromium-style checks do not substitute for it.
+
+## Project preview AVIF follow-up (2026-09-19)
+
+Status: `READY_FOR_REVIEW`
+
+- The observed one-second scroll stall at first Projects entry is consistent with lazy decoding/upload of the original 2960×2400 PNG layers. This follow-up changes no card geometry, layers, effects or interaction.
+- Each Project preview layer now supplies 640 px and 1080 px AVIF candidates through the existing responsive-picture contract, declares its actual 520 px slot, and retains the original PNG as fallback.
+- Browser proof at the local preview: all four project image nodes selected the 1080 px AVIF candidate and rendered at 407–484 px. The 1080 px source therefore retains more than 2× sampling for the largest 519 px card layer.
+- Verification: focused Project card test; `npm run check` (87 tests, lint and Vite build); `npm run check:browser`; `git diff --check`.
+- Limit: first-entry feel/performance in Zen remains the acceptance check; it was not substituted with a synthetic benchmark.

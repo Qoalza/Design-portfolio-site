@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {access,readFile} from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 
@@ -14,6 +14,8 @@ test('project card keeps one layer tree and maps both Figma states',async()=>{
   assert.match(app,/project-front-layer/);
   assert.match(app,/ResponsivePicture source=\{projectBackImage\}/);
   assert.match(app,/ResponsivePicture source=\{projectFrontImage\}/);
+  assert.match(app,/ResponsivePicture source=\{projectBackImage\}[^>]*sizes="520px"/);
+  assert.match(app,/ResponsivePicture source=\{projectFrontImage\}[^>]*sizes="520px"/);
   assert.match(picture,/if\(!sources\.length\)return <img \{\.\.\.imageProps\}\/>/);
   assert.doesNotMatch(app,/project-hover-preview/);
   assert.match(css,/height:613px/);
@@ -45,4 +47,15 @@ test('Projects action uses the source label, exact Medium chevron, and fixed 218
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
  assert.match(app,/className="projects-all-action"[^>]*iconRight="imgColor6">Посмотреть все проекты/);
  assert.match(css,/\.projects-all-action\{width:218px/);
+});
+
+test('project previews select Retina-safe AVIF sources and retain the PNG fallback',async()=>{
+ const {projectBackImage,projectFrontImage}=await import('../src/media/image-sources.mjs');
+ for(const source of [projectBackImage,projectFrontImage]){
+  assert.match(source.fallback,/\.png$/);
+  assert.deepEqual(source.sources,[{type:'image/avif',srcSet:source.fallback.replace(/\.png$/,'-640.avif')+' 640w, '+source.fallback.replace(/\.png$/,'-1080.avif')+' 1080w'}]);
+  for(const candidate of source.sources){
+   for(const entry of candidate.srcSet.split(', '))await access(path.join(root,'public',entry.split(' ')[0]));
+  }
+ }
 });
