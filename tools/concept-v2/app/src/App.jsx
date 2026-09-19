@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useRef,useState} from 'react';
 import {ControlButton,NavigationTab,Icon} from './Controls';
 import {SvgLens} from './SvgLens';
 import {MobileNavigation} from './MobileNavigation';
@@ -9,6 +9,7 @@ import {randomEdgePoint} from './process-fill.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {ResponsivePicture} from './media/ResponsivePicture';
 import {projectBackImage,projectFrontImage} from './media/image-sources.mjs';
+import {createImagePreparer} from './media/image-preparation.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -93,16 +94,33 @@ function Hero(){
 function SectionTitle({eyebrow,title,children,className='',id}){
  return <div className={`section-title ${className}`}><p className="eyebrow">{eyebrow}</p><h2 id={id}>{title}</h2><div className="section-description">{children}</div></div>;
 }
-function ProjectCard(){
+function ProjectCard({imageRef,onImageLoad}){
  return <article className="project">
   <div className="project-preview" aria-label="Интерфейс Corvo">
    <div className="project-divider"/><div className="project-glow"/>
-   <div className="project-back-layer"><ResponsivePicture source={projectBackImage} className="project-back" alt="" sizes="520px" loading="lazy" decoding="async"/></div>
+   <div className="project-back-layer"><ResponsivePicture source={projectBackImage} ref={imageRef} className="project-back" alt="" sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
    <div className="project-shade"/>
-   <div className="project-front-layer"><ResponsivePicture source={projectFrontImage} className="project-front" alt="Corvo — управление партнёрской программой, таблица компаний" sizes="520px" loading="lazy" decoding="async"/></div>
+   <div className="project-front-layer"><ResponsivePicture source={projectFrontImage} ref={imageRef} className="project-front" alt="Corvo — управление партнёрской программой, таблица компаний" sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
   </div>
   <div className="project-main"><div className="project-info"><h3>Corvo<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/></h3><p>{description}</p></div><div className="project-actions"><ControlButton href="https://art-des.ru/projects/corvo" external>Подробнее</ControlButton><ControlButton variant="ghost" href={corvoFigma} external iconRight="imgColor7">Figma</ControlButton></div></div>
  </article>;
+}
+function Projects(){
+ const sectionRef=useRef(null),imageNodes=useRef(new Set()),imagePreparer=useRef(null);
+ const collectImage=useCallback(image=>{if(image)imageNodes.current.add(image)},[]);
+ const prepareLoadedImage=useCallback(event=>imagePreparer.current?.prepare(event.currentTarget,'high'),[]);
+ useEffect(()=>{
+  const preparer=createImagePreparer();
+  imagePreparer.current=preparer;
+  const observer=new IntersectionObserver(entries=>{
+   if(!entries.some(entry=>entry.isIntersecting))return;
+   observer.disconnect();
+   preparer.prepareAll(imageNodes.current,'high');
+  },{rootMargin:'150% 0px',threshold:0});
+  if(sectionRef.current)observer.observe(sectionRef.current);
+  return()=>{observer.disconnect();preparer.dispose();if(imagePreparer.current===preparer)imagePreparer.current=null};
+ },[]);
+ return <section ref={sectionRef} className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton className="projects-all-action" variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Посмотреть все проекты</ControlButton></div><div className="projects-grid"><ProjectCard imageRef={collectImage} onImageLoad={prepareLoadedImage}/><ProjectCard imageRef={collectImage} onImageLoad={prepareLoadedImage}/></div></section>;
 }
 function ProcessStep({step,index}){
  const [active,setActive]=useState(false);
@@ -142,5 +160,5 @@ function AISection(){
   </div><span className="ai-other-chip">и множество других</span><p className="tech-note">// итоговые решения всегда остаются за мной</p></div></div><div className="ai-side ai-side-right" aria-hidden="true"/></section>;
 }
 export default function App(){
- return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><section className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton className="projects-all-action" variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Посмотреть все проекты</ControlButton></div><div className="projects-grid"><ProjectCard/><ProjectCard/></div></section><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
+ return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><Projects/><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
 }

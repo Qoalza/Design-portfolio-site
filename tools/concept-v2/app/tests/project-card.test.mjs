@@ -63,3 +63,22 @@ test('project previews select Retina-safe AVIF sources and retain the PNG fallba
   }
  }
 });
+
+test('project AVIF derivatives omit metadata boxes rejected by Zen',async()=>{
+ for(const name of ['imgDesktop3-640.avif','imgDesktop3-1080.avif','imgDesktop4-640.avif','imgDesktop4-1080.avif']){
+  const asset=await readFile(path.join(root,'public/figma',name));
+  assert.equal(asset.includes(Buffer.from('clap')),false,`${name} contains clap`);
+  assert.equal(asset.includes(Buffer.from('clli')),false,`${name} contains clli`);
+ }
+});
+
+test('project images are promoted and decoded before the section enters the viewport',async()=>{
+ const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
+ assert.match(app,/import \{createImagePreparer\} from '\.\/media\/image-preparation\.mjs'/);
+ assert.match(app,/function Projects\(\)/);
+ assert.match(app,/new IntersectionObserver\(/);
+ assert.match(app,/\{rootMargin:'150% 0px',threshold:0\}\);/);
+ assert.match(app,/preparer\.prepareAll\(imageNodes\.current,'high'\)/);
+ assert.match(app,/ResponsivePicture source=\{projectBackImage\}[^>]*imageRef|ResponsivePicture source=\{projectBackImage\}[^>]*ref=\{imageRef\}/);
+ assert.match(app,/ResponsivePicture source=\{projectFrontImage\}[^>]*imageRef|ResponsivePicture source=\{projectFrontImage\}[^>]*ref=\{imageRef\}/);
+});
