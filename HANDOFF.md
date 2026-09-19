@@ -19,16 +19,18 @@
 - G4: rendered-media preparation contract with About source selection and Projects fallback-only behavior.
 - Final automated evidence for the tested runtime: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (HTTP built-runtime smoke) and `git diff --check` passed.
 - Follow-up: Project previews now have 640 px and 1080 px AVIF candidates with an unchanged PNG fallback. Their real rendered maximum is 519 px, so the 1080 px candidate covers a 2× Retina/5K display without upscaling.
+- New scoped correction: project-card pointer hover is immediately suppressed for physical and Lenis scrolling, then returns under a stationary pointer after settlement. Its rest/hover geometry, 150 ms timing, colors and keyboard focus behavior are unchanged; shadows are prepared layers instead of an animated image `box-shadow`.
+- This correction passed `npm run check` (89 tests, lint and Vite production build), `npm run check:browser`, `git diff --check`, and a Chromium pass covering rest, hover, immediate wheel suppression and post-settlement restoration.
 
 ## Acceptance and stop-lines
 
-- The manual Zen feel/performance pass is still required; automated smoke checks do not replace it.
+- The manual Zen feel/performance pass is still required; automated smoke checks do not replace it. Its latest target is the first entry into Projects with a stationary cursor over either card.
 - No Figma write, public Portfolio, Admin, shared contract, canonical content/assets, dependency, push, PR, merge, deploy or production action occurred.
 - Lenis and Experience blur/masks remain unchanged. Project AVIF derivatives are a separate, user-authorized follow-up; their geometry, layers, effects and PNG fallback remain unchanged.
 
 ## Next action
 
-- Perform the Zen acceptance pass for Hero → Projects → Experience, with a fresh pass over first entry into Projects after the AVIF follow-up. After an explicit request, push the local commit series or prepare the next scoped correction.
+- Perform the Zen acceptance pass for Hero → Projects → Experience, with a fresh pass over first entry into Projects after the scroll-hover correction. After an explicit request, push the local commit series or prepare the next scoped correction.
 
 ## Pointers
 

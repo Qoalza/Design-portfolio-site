@@ -9,6 +9,7 @@ import {randomEdgePoint} from './process-fill.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {ResponsivePicture} from './media/ResponsivePicture';
 import {projectBackImage,projectFrontImage} from './media/image-sources.mjs';
+import {subscribeScrollActivity} from './smooth-scroll-runtime.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -94,12 +95,14 @@ function SectionTitle({eyebrow,title,children,className='',id}){
  return <div className={`section-title ${className}`}><p className="eyebrow">{eyebrow}</p><h2 id={id}>{title}</h2><div className="section-description">{children}</div></div>;
 }
 function ProjectCard(){
- return <article className="project">
+ const [scrolling,setScrolling]=useState(false);
+ useEffect(()=>subscribeScrollActivity(setScrolling),[]);
+ return <article className={`project${scrolling?' is-scrolling':''}`}>
   <div className="project-preview" aria-label="Интерфейс Corvo">
    <div className="project-divider"/><div className="project-glow"/>
-   <div className="project-back-layer"><ResponsivePicture source={projectBackImage} className="project-back" alt="" sizes="520px" loading="lazy" decoding="async"/></div>
+   <div className="project-back-layer"><span className="project-back-shadow" aria-hidden="true"/><ResponsivePicture source={projectBackImage} className="project-back" alt="" sizes="520px" loading="lazy" decoding="async"/></div>
    <div className="project-shade"/>
-   <div className="project-front-layer"><ResponsivePicture source={projectFrontImage} className="project-front" alt="Corvo — управление партнёрской программой, таблица компаний" sizes="520px" loading="lazy" decoding="async"/></div>
+   <div className="project-front-layer"><span className="project-front-shadow project-front-shadow-base" aria-hidden="true"/><span className="project-front-shadow project-front-shadow-hover" aria-hidden="true"/><ResponsivePicture source={projectFrontImage} className="project-front" alt="Corvo — управление партнёрской программой, таблица компаний" sizes="520px" loading="lazy" decoding="async"/></div>
   </div>
   <div className="project-main"><div className="project-info"><h3>Corvo<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/></h3><p>{description}</p></div><div className="project-actions"><ControlButton href="https://art-des.ru/projects/corvo" external>Подробнее</ControlButton><ControlButton variant="ghost" href={corvoFigma} external iconRight="imgColor7">Figma</ControlButton></div></div>
  </article>;

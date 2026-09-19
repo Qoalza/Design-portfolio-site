@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
-import {publishSmoothScroll} from './smooth-scroll-runtime.mjs';
+import {publishScrollActivity,publishSmoothScroll} from './smooth-scroll-runtime.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -12,8 +12,12 @@ export function SmoothScroll(){
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let lenis;
     let frame;
+    let removeScrollActivity=()=>{};
     function destroy(){
       cancelAnimationFrame(frame);
+      removeScrollActivity();
+      removeScrollActivity=()=>{};
+      publishScrollActivity(false);
       publishSmoothScroll(undefined);
       lenis?.destroy();
       lenis=undefined;
@@ -27,6 +31,9 @@ export function SmoothScroll(){
         lerp:.1,wheelMultiplier:1,stopInertiaOnNavigate:true,
       });
       publishSmoothScroll(lenis);
+      const removeVirtualScroll=lenis.on('virtual-scroll',()=>publishScrollActivity(true));
+      const removeScroll=lenis.on('scroll',instance=>publishScrollActivity(instance.isScrolling));
+      removeScrollActivity=()=>{removeVirtualScroll();removeScroll()};
       document.documentElement.dataset.lenisEnabled='true';
       function tick(time){
         lenis.raf(time);

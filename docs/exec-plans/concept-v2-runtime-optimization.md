@@ -25,6 +25,7 @@ Status: `READY_FOR_REVIEW`
 - Keep one existing Lenis owner and its current configuration. Do not redesign Experience blur or masks.
 - Do not generate Project image derivatives in this workstream.
 - A missing Zen pass is an explicit acceptance gap, never a Chromium substitute.
+- Project-card hover must not compete with scrolling: its existing visual state and keyboard focus behavior remain intact at rest, while pointer hover is removed immediately for active scroll and may resume after settlement.
 
 ## Progress
 
@@ -62,6 +63,14 @@ Status: `READY_FOR_REVIEW`
 - Immutable evidence is stored under `design-reference/concept-v2-runtime-optimization/3ad9b55161d10efe35f7069141793036147032a7/` and names its exact runtime SHA rather than treating the following docs commit as a code build.
 - Final fidelity/completeness review maps every P01–P10 to G1–G4 behavior and test coverage. Regression/scope review confirms the five D01–D05 exclusions: Lenis, Experience blur/masks, Project derivatives, Zen substitution and public-runtime integration remain outside this workstream.
 - Final code evidence for the tested runtime: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (HTTP built-runtime smoke) and `git diff --check` passed. The manual Zen feel/performance pass remains an explicit user-acceptance item.
+
+### Follow-up — Project card hover during scrolling
+
+- Investigation found the visible hitch near Hero/Projects occurs when the stationary pointer first enters a moving project card and starts its large hover transition; image network loading was not the trigger at that point.
+- The scoped correction uses the existing Lenis stream, not another scroll loop: physical `virtual-scroll` immediately suppresses pointer hover, and Lenis settlement restores it. Keyboard `:focus-within` behavior remains unchanged.
+- The existing shadow colors, dimensions, rotations and 150 ms hover timing are represented by prepared shadow layers whose opacity changes, avoiding interpolation of expensive image `box-shadow` paint during the restored hover transition.
+- Final local verification: `npm run check` passed with 89 tests, lint and Vite production build; `npm run check:browser` passed; `git diff --check` passed. A Chromium visual pass confirmed baseline state, hover suppression at wheel input, and hover restoration after Lenis settlement.
+- The remaining acceptance is an independent user feel pass in Zen. Zen automation is not evidence for this item.
 
 ## Stop-lines
 
