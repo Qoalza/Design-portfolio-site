@@ -83,7 +83,7 @@ html:not([data-scroll-active]) .project:hover .project-divider::after,.project:f
 .project-glow{z-index:0}
 .project-divider{z-index:1}
 .project-back-layer{z-index:2}
-.project-shade{z-index:3;left:50%;top:1px;width:638px;height:328px;inset:1px auto auto 50%;transform:translateX(-50%);background:radial-gradient(circle at 88% 1%,transparent 0 10%,var(--surface) 97%)}
+.project-shade{z-index:3;left:50%;top:1px;width:638px;height:328px;inset:1px auto auto 50%;transform:translateX(-50%);background:url('/figma/project-shade-preview.svg') center/100% 100% no-repeat}
 .project-front-layer{z-index:4}
 .projects-grid{position:relative}
 .projects-grid::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);z-index:8;pointer-events:none}
