@@ -6,7 +6,7 @@
 
 - Branch: `codex/concept-v2-figma-delta-3ec86f0`.
 - Worktree: `/private/tmp/design-portfolio-concept-v2-latest`.
-- Tested runtime SHA: `0ee7dc6cfea4af28cbe852b441933d2abc67d1e7` (`fix(concept-v2): suppress project hover while scrolling`).
+- Tested runtime SHA: `26aa90d42ea068c2489aaf1ae9bb78b3e8f76c3d` (`fix(concept-v2): gate project hover at scroll input`).
 - Documentation/evidence is committed after that runtime SHA and must not be read as a rebuilt runtime.
 - `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
 
@@ -19,8 +19,8 @@
 - G4: rendered-media preparation contract with About source selection and Projects fallback-only behavior.
 - Final automated evidence for the tested runtime: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (HTTP built-runtime smoke) and `git diff --check` passed.
 - Follow-up: Project previews now have 640 px and 1080 px AVIF candidates with an unchanged PNG fallback. Their real rendered maximum is 519 px, so the 1080 px candidate covers a 2× Retina/5K display without upscaling.
-- New scoped correction: project-card pointer hover is immediately suppressed for physical and Lenis scrolling, then returns under a stationary pointer after settlement. Its rest/hover geometry, 150 ms timing, colors and keyboard focus behavior are unchanged; shadows are prepared layers instead of an animated image `box-shadow`.
-- This correction passed `npm run check` (89 tests, lint and Vite production build), `npm run check:browser`, `git diff --check`, and a Chromium pass covering rest, hover, immediate wheel suppression and post-settlement restoration.
+- Revised scoped correction: project-card pointer hover is immediately suppressed for physical and Lenis scrolling, then returns under a stationary pointer after settlement. It uses a synchronous document-level gate at wheel input instead of a deferred React render; the original layers and image `box-shadow` remain intact.
+- This correction passed `npm run check` (90 tests, lint and Vite production build), `npm run check:browser`, `git diff --check`, and a Chromium pass covering the original rest shadow, wheel-time hover suppression and post-settlement restoration.
 
 ## Acceptance and stop-lines
 

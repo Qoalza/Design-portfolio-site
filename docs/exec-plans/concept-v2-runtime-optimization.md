@@ -67,10 +67,10 @@ Status: `READY_FOR_REVIEW`
 ### Follow-up — Project card hover during scrolling
 
 - Investigation found the visible hitch near Hero/Projects occurs when the stationary pointer first enters a moving project card and starts its large hover transition; image network loading was not the trigger at that point.
-- The scoped correction uses the existing Lenis stream, not another scroll loop: physical `virtual-scroll` immediately suppresses pointer hover, and Lenis settlement restores it. Keyboard `:focus-within` behavior remains unchanged.
-- The existing shadow colors, dimensions, rotations and 150 ms hover timing are represented by prepared shadow layers whose opacity changes, avoiding interpolation of expensive image `box-shadow` paint during the restored hover transition.
-- Final local verification: `npm run check` passed with 89 tests, lint and Vite production build; `npm run check:browser` passed; `git diff --check` passed. A Chromium visual pass confirmed baseline state, hover suppression at wheel input, and hover restoration after Lenis settlement.
-- Exact tested runtime: `0ee7dc6cfea4af28cbe852b441933d2abc67d1e7` (`fix(concept-v2): suppress project hover while scrolling`).
+- The scoped correction uses the existing Lenis stream, not another scroll loop: physical `virtual-scroll` writes a document-level gate synchronously, so pointer hover is suppressed in the same input turn; Lenis settlement restores it. Keyboard `:focus-within` behavior remains unchanged.
+- The initial prepared-shadow implementation changed the approved darkening and was removed. Original image layers and `box-shadow` declarations are retained exactly; the correction has no rest/hover visual delta.
+- Final local verification: `npm run check` passed with 90 tests, lint and Vite production build; `npm run check:browser` passed; `git diff --check` passed. A Chromium desktop pass confirmed the original rest shadow, hover suppression during wheel input, and original hover restoration after Lenis settlement.
+- Exact tested runtime: `26aa90d42ea068c2489aaf1ae9bb78b3e8f76c3d` (`fix(concept-v2): gate project hover at scroll input`).
 - The remaining acceptance is an independent user feel pass in Zen. Zen automation is not evidence for this item.
 
 ## Stop-lines
