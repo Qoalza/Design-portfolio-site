@@ -1,0 +1,99 @@
+.statistics .crumbs span:nth-of-type(1) { width: 88px; }
+.statistics .crumbs span:nth-of-type(2) { width: 75px; }
+.statistics .crumbs span:nth-of-type(3) { width: 141px; }
+.statistics .my-title { align-items: center; }
+.statistics .my-title > div { gap: 4px; }
+.statistics .content { height: 732px; padding: 20px 16px 16px 8px; }
+.statistics .filters { align-items: center; display: flex; gap: 20px; height: 48px; }
+.statistics .search { flex: 0 1 520px; min-width: 360px; }
+.statistics-actions { align-items: center; display: flex; gap: 4px; margin-left: auto; }
+.statistics-actions button { align-items: center; background: transparent; color: #5e6260; display: flex; font-size: 16px; gap: 8px; height: 48px; letter-spacing: -.2px; padding: 0 16px; }
+.statistics-actions button img { display: block; height: 20px; width: 20px; }
+.statistics-actions .export-icon { background: #5e6260; display: block; flex: 0 0 20px; height: 20px; mask: url("../assets/statistics/export.svg") center / 20px 20px no-repeat; width: 20px; }
+.statistics-actions i { background: #ebebeb; height: 48px; width: 1px; }
+.statistics .table-wrap { border-radius: 24px; height: 636px; margin-top: 12px; overflow: hidden; }
+.statistics .table-wrap > table { border-collapse: separate; border-spacing: 0; margin: 0 16px; min-width: 1391px; table-layout: fixed; width: 1391px; }
+.statistics .col-affiliate { width: 200px; }
+.statistics .col-clicks { width: 132px; }
+.statistics .col-unique { width: 135px; }
+.statistics .col-registrations { width: 132px; }
+.statistics .col-ftd { width: 132px; }
+.statistics .col-reg-ftd { width: 120px; }
+.statistics .col-click-reg { width: 160px; }
+.statistics .col-click-ftd { width: 180px; }
+.statistics .col-repeat { width: 200px; }
+.statistics th, .statistics td { border-bottom: 1px solid #f2f2f2; padding: 0 24px; text-align: left; }
+.statistics th { color: #777c79; font-size: 14px; font-weight: 450; height: 48px; letter-spacing: -.1px; line-height: 16px; white-space: nowrap; }
+.statistics td { color: #3b3d3c; font-size: 16px; height: 64px; letter-spacing: -.2px; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.statistics th:first-child, .statistics td:first-child { border-right: 1px solid #f2f2f2; position: static; }
+.statistics th:last-child, .statistics td:last-child { background: transparent; border-left: 0; position: static; }
+.statistics th:last-child::after, .statistics td:last-child::after { content: none; }
+.statistics .affiliate { display: flex; flex-direction: column; min-width: 0; }
+.statistics .affiliate b { font-weight: 450; overflow: hidden; text-overflow: ellipsis; }
+.statistics .affiliate small { color: #5e6260; font-size: 14px; letter-spacing: -.1px; line-height: 16px; }
+.statistics .table-wrap footer { height: 68px; padding: 12px 16px 16px; }
+.statistics .table-wrap footer > span:first-child { align-items: center; display: flex; gap: 12px; }
+
+@media (min-width: 600px) and (max-width: 1279px) {
+  .statistics .crumbs span:nth-of-type(1) { width: 77px; }
+  .statistics .crumbs span:nth-of-type(2) { width: 68px; }
+  .statistics .crumbs span:nth-of-type(3) { width: 127px; }
+  .statistics .my-title { min-height: 100px; padding: 16px 12px; }
+  .statistics .content { height: 884px; padding: 16px 12px 12px; }
+  .statistics .filters { display: flex; height: 48px; position: static; }
+  .statistics .search { flex: 1 1 430px; left: auto; min-width: 240px; position: static; top: auto; width: auto; }
+  .statistics-actions { flex: 0 0 auto; }
+  .statistics-actions button { font-size: 14px; height: 48px; padding: 0 12px; }
+  .statistics-actions i { height: 48px; }
+  .statistics .table-wrap { border-radius: 20px; height: 792px; margin-top: 16px; width: 100%; }
+  .statistics .table-wrap > table { margin: 0 16px; min-width: 0; width: 1221px; }
+  .statistics .col-affiliate { width: 160px; }
+  .statistics .col-clicks { width: 116px; }
+  .statistics .col-unique { width: 119px; }
+  .statistics .col-registrations { width: 116px; }
+  .statistics .col-ftd { width: 116px; }
+  .statistics .col-reg-ftd { width: 106px; }
+  .statistics .col-click-reg { width: 156px; }
+  .statistics .col-click-ftd { width: 156px; }
+  .statistics .col-repeat { width: 176px; }
+  .statistics th, .statistics td { padding: 0 22px; }
+  .statistics th { font-size: 12px; height: 40px; }
+  .statistics td { font-size: 14px; height: 56px; }
+  .statistics .affiliate small { font-size: 12px; }
+  .statistics .table-wrap footer { height: 68px; }
+}
+
+@media (max-width: 599px) {
+  .statistics .crumbs span:nth-of-type(1) { width: 64px; }
+  .statistics .crumbs span:nth-of-type(2) { width: 58px; }
+  .statistics .crumbs span:nth-of-type(3) { width: 109px; }
+  .statistics .my-title { height: 104px; padding: 12px 8px; }
+  .statistics .my-title > div { padding: 2px 4px; }
+  .statistics .content { height: 618px; padding: 12px 8px 8px; }
+  .statistics .filters { display: flex; flex-direction: row; gap: 12px; height: 40px; }
+  .statistics .search { flex: 1 1 auto; font-size: 14px; height: 40px; min-width: 0; order: 0; width: auto; }
+  .statistics-actions { flex: 0 0 84px; gap: 0; height: 40px; order: 1; }
+  .statistics-actions button { height: 40px; justify-content: center; padding: 10px; width: 40px; }
+  .statistics-actions button span { display: none; }
+  .statistics-actions button img { height: 20px; width: 20px; }
+  .statistics-actions i { height: 40px; width: 1px; }
+  .statistics .table-wrap { border: 1px solid #f2f2f2; border-radius: 18px; height: 546px; margin-top: 12px; width: 100%; }
+  .statistics .table-wrap > table { display: table; margin: 0; min-width: 0; table-layout: fixed; width: 994px; }
+  .statistics .col-affiliate { width: 120px; }
+  .statistics .col-clicks { width: 96px; }
+  .statistics .col-unique { width: 95px; }
+  .statistics .col-registrations { width: 92px; }
+  .statistics .col-ftd { width: 105px; }
+  .statistics .col-reg-ftd { width: 84px; }
+  .statistics .col-click-reg { width: 116px; }
+  .statistics .col-click-ftd { width: 136px; }
+  .statistics .col-repeat { width: 142px; }
+  .statistics th, .statistics td { padding: 0 16px; }
+  .statistics th { font-size: 10px; height: 32px; line-height: 12px; }
+  .statistics td { font-size: 12px; height: 48px; line-height: 16px; }
+  .statistics .affiliate small { font-size: 10px; line-height: 12px; }
+  .statistics .table-wrap footer { display: flex; height: 56px; padding: 12px; }
+  .statistics .table-wrap footer > span:first-child { display: flex; font-size: 0; gap: 0; }
+  .statistics .table-wrap footer > span:first-child button { font-size: 14px; }
+  .statistics .table-wrap footer .count { display: block; font-size: 12px; }
+}

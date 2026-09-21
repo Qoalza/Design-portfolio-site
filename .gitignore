@@ -49,3 +49,7 @@ dist/Des-art Admin.app/Contents/Resources/source/
 dist/Des-art Admin.app/Contents/Resources/launcher-policy.mjs
 dist/Des-art Admin.app/Contents/Resources/managed-repository.mjs
 dist/Des-art Admin.app/Contents/_CodeSignature/
+
+# Licensed Corvo reference fonts stay local and must never enter Git history.
+/tools/corvo-responsive-scenes/site/assets/fonts/*
+/tools/corvo-responsive-scenes/archive/tt-norms/local-fonts/*
