@@ -16,7 +16,8 @@ TT Norms хранится только в `archive/tt-norms/`: её responsive-�
 | Statistics | `/statistics/` | `site/statistics/` |
 
 Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. Desktop-фрейм занимает полные 1600px.
-Диапазоны: Mobile 360–599px, Tablet 600–1599px, Desktop 1600px и шире. Значение 960px является фиксированной высотой desktop-сцены, а не breakpoint по ширине.
+Диапазоны: Mobile 360–599px, Tablet 600–1279px, Desktop 1280px и шире.
+Исходный desktop-фрейм — 1600 × 960; эти размеры не являются breakpoint.
 
 ## Как использовать пакет
 
@@ -61,5 +62,5 @@ node tools/corvo-responsive-scenes/test-statistics.mjs
 node --check tools/corvo-responsive-scenes/serve.mjs
 ```
 
-После переноса проверить все четыре сцены на 360px, 744px, 1599px и 1600px, отсутствие
+После переноса проверить все четыре сцены на 360px, 744px, 1279px, 1280px и 1600px, отсутствие
 горизонтального overflow у root frame и отсутствие ошибок в console.

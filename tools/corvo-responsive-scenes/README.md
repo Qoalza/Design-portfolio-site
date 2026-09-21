@@ -26,7 +26,8 @@ CSS нет ссылок на TT Norms Pro или локальные font-фай�
 
 Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. Проверяйте responsive-режим изменением ширины viewport, а не browser zoom. Desktop-фрейм занимает полные 1600px.
 
-Диапазоны плана: Mobile 360–599px, Tablet 600–1599px, Desktop 1600px и шире. Desktop-сцена имеет размер 1600 × 960.
+Диапазоны плана остаются прежними: Mobile 360–599px, Tablet 600–1279px,
+Desktop 1280px и шире. Исходный desktop-фрейм теперь имеет размер 1600 × 960.
 
 ## Архив TT Norms Pro
 
@@ -37,5 +38,5 @@ font-файлы находятся в игнорируемой Git папке
 `archive/tt-norms/local-fonts/`.
 
 Manrope остаётся единственной активной версией. Архив TT Norms синхронизирован
-с ней только по responsive-геометрии: Mobile 360–599px, Tablet 600–1599px,
-Desktop 1600px и шире, desktop-фрейм 1600 × 960.
+с ней только по responsive-геометрии: Mobile 360–599px, Tablet 600–1279px,
+Desktop 1280px и шире, исходный desktop-фрейм 1600 × 960.

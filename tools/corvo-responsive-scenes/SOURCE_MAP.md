@@ -42,8 +42,8 @@
   текста, 500 для KPI-заголовков и 600 для главных заголовков. Загрузка идёт
   через CSS2 endpoint с `display=swap`.
 - Responsive-режим определяется шириной viewport: Mobile 360–599px, Tablet
-  600–1599px, Desktop 1600px и шире. Рабочий desktop-фрейм имеет размер
-  1600 × 960; 960px — фиксированная высота сцены, не breakpoint ширины.
+  600–1279px, Desktop 1280px и шире. Рабочий исходный desktop-фрейм имеет
+  размер 1600 × 960; это размер сцены, а не breakpoint.
 - Внешние content frames квадратные во всех адаптивах. Скругления остаются
   только у внутренней authorization card: 24px mobile, 28px tablet и 32px
   desktop.
@@ -56,7 +56,7 @@
 - `site/media-campaigns/` maps their product header, metrics, filters and table;
   source SVG/PNG assets live in `site/assets/media-campaigns/`.
 - The approved plan defines continuous ranges: mobile below 600px, tablet
-  600–1599px, desktop at 1600px and above. Tablet cards retain their 252px
+  600–1279px, desktop at 1280px and above. Tablet cards retain their 252px
   minimum and clip.
 
 ### Exact structure

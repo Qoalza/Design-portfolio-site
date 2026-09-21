@@ -39,13 +39,13 @@ for (const icon of authorizationIcons) assert.match(icon, /stroke-width="1\.3"/,
 assert.match(archivedBase, /TT Norms Pro/, 'The historical TT Norms font contract remains archived');
 assert.match(archivedCampaigns, /font-family: 'TT Norms Pro'/, 'The historical TT Norms scene CSS remains archived');
 assert.match(archivedAuthorization, /\.authorization \{[^}]*max-width: 1600px;/, 'Archived Authorization uses the same 1600px desktop frame');
-assert.match(archivedAuthorization, /@media \(min-width: 1600px\)/, 'Archived Authorization enters Desktop at 1600px');
+assert.match(archivedAuthorization, /@media \(min-width: 1280px\)/, 'Archived Authorization enters Desktop at 1280px');
 assert.match(archivedCampaigns, /\.campaigns \{[^}]*max-width: 1600px;/, 'Archived signed-in scenes use the same 1600px desktop frame');
 for (const [name, css] of [['Campaigns', archivedCampaigns], ['Items', archivedItems], ['Statistics', archivedStatistics]]) {
-  assert.match(css, /@media \(min-width: 600px\) and \(max-width: 1599px\)/, `Archived ${name} keeps Tablet through 1599px`);
+  assert.match(css, /@media \(min-width: 600px\) and \(max-width: 1279px\)/, `Archived ${name} keeps Tablet through 1279px`);
 }
-assert.match(archivedCampaigns, /@media \(min-width: 1600px\)/, 'Archived signed-in scenes enter Desktop at 1600px');
-assert.match(archivedCampaignsHtml, /max-width: 1599px/, 'Archived responsive assets keep Tablet variants through 1599px');
+assert.match(archivedCampaigns, /@media \(min-width: 1280px\)/, 'Archived signed-in scenes enter Desktop at 1280px');
+assert.match(archivedCampaignsHtml, /max-width: 1279px/, 'Archived responsive assets keep Tablet variants through 1279px');
 for (const path of ['site/authorization-manrope', 'site/media-campaigns-manrope', 'site/my-space-manrope', 'site/statistics-manrope']) {
   assert.equal(existsSync(new URL(path, root)), false, `${path} is no longer a parallel working route`);
 }

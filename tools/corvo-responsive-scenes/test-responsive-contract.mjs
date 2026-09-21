@@ -17,8 +17,7 @@ assert.match(authorization, /\.authorization \{[^}]*max-width: 1600px;/, 'Author
 assert.doesNotMatch(authorization, /\.authorization \{[^}]*max-width: 1440px;/, 'Authorization is not capped at the former 1440px width');
 assert.match(authorization, /\.auth-panel \{[^}]*border-radius: 24px;/, 'Authorization mobile card keeps its 24px radius');
 assert.match(authorization, /@media \(min-width: 600px\)[\s\S]*?\.auth-panel \{ border-radius: 28px; \}/, 'Authorization tablet card keeps its 28px radius');
-assert.match(authorization, /@media \(min-width: 1600px\)[\s\S]*?\.auth-panel \{ border-radius: 32px; \}/, 'Authorization desktop card keeps its 32px radius');
-assert.doesNotMatch(authorization, /@media \(min-width: 1280px\)/, 'Authorization does not enter Desktop before 1600px');
+assert.match(authorization, /@media \(min-width: 1280px\)[\s\S]*?\.auth-panel \{ border-radius: 32px; \}/, 'Authorization enters Desktop at 1280px while its frame can grow to 1600px');
 assert.doesNotMatch(authorization, /@media \(min-width: 960px\)/, 'Authorization never treats the Desktop scene height as a width breakpoint');
 assert.match(campaignsCss, /\.campaigns \{[^}]*border-radius: 0;/, 'Shared content frame has square corners on every signed-in scene');
 assert.match(campaignsCss, /\.campaigns \{[^}]*max-width: 1600px;/, 'Every signed-in desktop frame can occupy the full 1600px viewport');
@@ -29,15 +28,14 @@ for (const [name, css] of [
   ['Media items', mySpace],
   ['Statistics', statistics],
 ]) {
-  assert.match(css, /@media \(min-width: 600px\) and \(max-width: 1599px\)/, `${name} owns exactly the 600–1599px Tablet range`);
+  assert.match(css, /@media \(min-width: 600px\) and \(max-width: 1279px\)/, `${name} owns exactly the 600–1279px Tablet range`);
   assert.doesNotMatch(css, /@media \(min-width: 600px\) and \(max-width: 959px\)/, `${name} does not end Tablet at the Desktop scene height`);
 }
 
-assert.match(campaignsCss, /@media \(min-width: 1600px\)/, 'Media campaigns enters Desktop at 1600px');
-assert.doesNotMatch(campaignsCss, /@media \(min-width: 1280px\)/, 'Media campaigns does not enter Desktop before 1600px');
+assert.match(campaignsCss, /@media \(min-width: 1280px\)/, 'Media campaigns enters Desktop at 1280px while its frame can grow to 1600px');
 assert.doesNotMatch(campaignsCss, /@media \(min-width: 960px\)/, 'Desktop scene height is never used as a width breakpoint');
-assert.doesNotMatch(campaignsCss, /@media \(min-width: 960px\) and \(max-width: 1599px\)/, 'Media campaigns has no extra intermediate breakpoint');
+assert.doesNotMatch(campaignsCss, /@media \(min-width: 960px\) and \(max-width: 1279px\)/, 'Media campaigns has no extra intermediate breakpoint');
 assert.doesNotMatch(campaignsCss, /@media \(min-width: 480px\)/, 'Media campaigns has no unplanned 480px breakpoint');
-assert.match(campaignsHtml, /max-width: 1599px/, 'Responsive assets retain their Tablet variants through 1599px');
+assert.match(campaignsHtml, /max-width: 1279px/, 'Responsive assets retain their Tablet variants through 1279px');
 
 console.log('responsive plan contract: OK');
