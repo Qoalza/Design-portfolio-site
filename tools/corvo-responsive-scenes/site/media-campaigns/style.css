@@ -3,7 +3,7 @@ body { background: #fff; }
 button { color: inherit; }
 .icon { display: block; flex: 0 0 20px; height: 20px; width: 20px; }
 .responsive-icon { display: contents; }
-.campaigns { background: #fafafa; border-radius: 0; display: flex; height: 960px; margin: 0 auto; max-width: 1440px; min-width: 360px; overflow: clip; }
+.campaigns { background: #fafafa; border-radius: 0; display: flex; height: 960px; margin: 0 auto; max-width: 1600px; min-width: 360px; overflow: clip; }
 .rail { background: transparent; border: 0; display: flex; flex: 0 0 72px; flex-direction: column; }
 .rail-brand { align-items: center; display: flex; flex-direction: column; height: 56px; padding-top: 24px; }
 .rail-brand img { height: 32px; width: 32px; }

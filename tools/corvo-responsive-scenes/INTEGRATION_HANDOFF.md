@@ -5,6 +5,8 @@
 Пользователь вручную проверил и утвердил четыре responsive-сцены Corvo:
 Authorization, Media Campaigns, Media Items и Statistics. Канонические сцены
 используют Manrope из Google Fonts и находятся в `site/`.
+TT Norms хранится только в `archive/tt-norms/`: её responsive-геометрия
+синхронизирована с Manrope, но она не является активной рабочей версией.
 
 | Сцена | Рабочий маршрут | Source |
 | --- | --- | --- |
@@ -13,7 +15,7 @@ Authorization, Media Campaigns, Media Items и Statistics. Каноническ�
 | Media Items | `/my-space/` | `site/my-space/` |
 | Statistics | `/statistics/` | `site/statistics/` |
 
-Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. В desktop содержимое ограничено шириной 1440px и центрируется внутри viewport.
+Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. Desktop-фрейм занимает полные 1600px.
 Диапазоны: Mobile 360–599px, Tablet 600–1599px, Desktop 1600px и шире. Значение 960px является фиксированной высотой desktop-сцены, а не breakpoint по ширине.
 
 ## Как использовать пакет

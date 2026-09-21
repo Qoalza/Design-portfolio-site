@@ -42,8 +42,8 @@
   текста, 500 для KPI-заголовков и 600 для главных заголовков. Загрузка идёт
   через CSS2 endpoint с `display=swap`.
 - Responsive-режим определяется шириной viewport: Mobile 360–599px, Tablet
-  600–1599px, Desktop 1600px и шире. В desktop содержимое ограничено шириной
-  1440px и центрируется; 960px — фиксированная высота сцены, не breakpoint ширины.
+  600–1599px, Desktop 1600px и шире. Рабочий desktop-фрейм имеет размер
+  1600 × 960; 960px — фиксированная высота сцены, не breakpoint ширины.
 - Внешние content frames квадратные во всех адаптивах. Скругления остаются
   только у внутренней authorization card: 24px mobile, 28px tablet и 32px
   desktop.

@@ -24,9 +24,9 @@ CSS нет ссылок на TT Norms Pro или локальные font-фай�
 `INTEGRATION_HANDOFF.md`. Соответствие Figma и локальных участков хранится в
 `SOURCE_MAP.md`.
 
-Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. Проверяйте responsive-режим изменением ширины viewport, а не browser zoom. В desktop содержимое ограничено шириной 1440px и центрируется внутри viewport.
+Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. Проверяйте responsive-режим изменением ширины viewport, а не browser zoom. Desktop-фрейм занимает полные 1600px.
 
-Диапазоны плана: Mobile 360–599px, Tablet 600–1599px, Desktop 1600px и шире. Высота desktop-сцены фиксирована на 960px; максимальная ширина её содержимого — 1440px.
+Диапазоны плана: Mobile 360–599px, Tablet 600–1599px, Desktop 1600px и шире. Desktop-сцена имеет размер 1600 × 960.
 
 ## Архив TT Norms Pro
 
@@ -35,3 +35,7 @@ reference и не раздаётся локальным сервером. Она
 версии и не должна переноситься в Portfolio. Локальные лицензированные
 font-файлы находятся в игнорируемой Git папке
 `archive/tt-norms/local-fonts/`.
+
+Manrope остаётся единственной активной версией. Архив TT Norms синхронизирован
+с ней только по responsive-геометрии: Mobile 360–599px, Tablet 600–1599px,
+Desktop 1600px и шире, desktop-фрейм 1600 × 960.

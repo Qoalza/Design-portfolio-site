@@ -13,12 +13,16 @@ const statistics = read('./site/statistics/style.css');
 assert.match(authorization, /@media \(min-width: 600px\)/, 'Authorization enters Tablet at 600px');
 assert.doesNotMatch(authorization, /@media \(min-width: 480px\)/, 'Authorization keeps 480–599px in Mobile');
 assert.doesNotMatch(authorization, /\.authorization \{[^}]*border-radius: (?!0)/, 'Authorization outer frame never restores rounded corners');
+assert.match(authorization, /\.authorization \{[^}]*max-width: 1600px;/, 'Authorization desktop frame can occupy the full 1600px viewport');
+assert.doesNotMatch(authorization, /\.authorization \{[^}]*max-width: 1440px;/, 'Authorization is not capped at the former 1440px width');
 assert.match(authorization, /\.auth-panel \{[^}]*border-radius: 24px;/, 'Authorization mobile card keeps its 24px radius');
 assert.match(authorization, /@media \(min-width: 600px\)[\s\S]*?\.auth-panel \{ border-radius: 28px; \}/, 'Authorization tablet card keeps its 28px radius');
 assert.match(authorization, /@media \(min-width: 1600px\)[\s\S]*?\.auth-panel \{ border-radius: 32px; \}/, 'Authorization desktop card keeps its 32px radius');
 assert.doesNotMatch(authorization, /@media \(min-width: 1280px\)/, 'Authorization does not enter Desktop before 1600px');
 assert.doesNotMatch(authorization, /@media \(min-width: 960px\)/, 'Authorization never treats the Desktop scene height as a width breakpoint');
 assert.match(campaignsCss, /\.campaigns \{[^}]*border-radius: 0;/, 'Shared content frame has square corners on every signed-in scene');
+assert.match(campaignsCss, /\.campaigns \{[^}]*max-width: 1600px;/, 'Every signed-in desktop frame can occupy the full 1600px viewport');
+assert.doesNotMatch(campaignsCss, /\.campaigns \{[^}]*max-width: 1440px;/, 'Signed-in scenes are not capped at the former 1440px width');
 
 for (const [name, css] of [
   ['Media campaigns', campaignsCss],

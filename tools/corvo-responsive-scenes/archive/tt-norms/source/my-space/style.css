@@ -33,7 +33,7 @@
 /* Media items has no inherited fixed trailing Action/Created cell. */
 .my-space th:last-child, .my-space td:last-child { background: transparent; border-left: 0; position: static; }.my-space th:last-child::after, .my-space td:last-child::after { content: none; }
 
-@media (min-width: 600px) and (max-width: 959px) {
+@media (min-width: 600px) and (max-width: 1599px) {
   .my-space .campaigns { height: 1100px; }.my-space .rail { display: none; }.my-space .campaigns-body { width: 100%; }
   .my-space .crumbs { font-size: 14px; height: 44px; margin: 0; padding: 16px 12px 0; }.my-space .crumbs span { border-radius: 10px; height: 28px; padding: 0 8px; }.my-space .crumbs .crumb-home img { height: 16px; width: 16px; }.my-space .crumbs i { height: 28px; }.my-space .crumbs b { height: 20px; width: 20px; }.my-space .crumbs b img { height: 20px; width: 20px; }
   .my-space .mobile-brand img { height: 40px; width: 40px; }.my-space .date { margin-left: 16px; }.my-space .profile .role-super { display: none; }.my-space .profile .role-manager { display: block; }
