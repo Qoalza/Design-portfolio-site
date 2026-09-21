@@ -63,7 +63,7 @@
   .auth-footer { height: 60px; }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1600px) {
   .authorization { border-radius: 0; display: flex; height: 960px; padding: 0; }
   .promo { display: block; flex: 1 1 0; min-width: 360px; overflow: clip; position: relative; }
   .promo::after { background: radial-gradient(ellipse at 58% 62%, rgba(255,246,236,.06), transparent 38%); content: ''; inset: 0; position: absolute; }

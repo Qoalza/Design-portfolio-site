@@ -13,8 +13,8 @@ Authorization, Media Campaigns, Media Items и Statistics. Каноническ�
 | Media Items | `/my-space/` | `site/my-space/` |
 | Statistics | `/statistics/` | `site/statistics/` |
 
-Эталонные viewport: Desktop 1440 × 960, Tablet 744 × 1100, Mobile 360 × 640.
-Диапазоны: Mobile 360–599px, Tablet 600–1279px, Desktop 1280px и шире. В размере desktop-эталона 1440 × 960 значение 960px является высотой сцены, а не breakpoint по ширине.
+Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. В desktop содержимое ограничено шириной 1440px и центрируется внутри viewport.
+Диапазоны: Mobile 360–599px, Tablet 600–1599px, Desktop 1600px и шире. Значение 960px является фиксированной высотой desktop-сцены, а не breakpoint по ширине.
 
 ## Как использовать пакет
 
@@ -59,5 +59,5 @@ node tools/corvo-responsive-scenes/test-statistics.mjs
 node --check tools/corvo-responsive-scenes/serve.mjs
 ```
 
-После переноса проверить все четыре сцены на 360px, 744px и 1440px, отсутствие
+После переноса проверить все четыре сцены на 360px, 744px, 1599px и 1600px, отсутствие
 горизонтального overflow у root frame и отсутствие ошибок в console.

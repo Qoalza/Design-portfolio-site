@@ -24,9 +24,9 @@ CSS нет ссылок на TT Norms Pro или локальные font-фай�
 `INTEGRATION_HANDOFF.md`. Соответствие Figma и локальных участков хранится в
 `SOURCE_MAP.md`.
 
-Эталонные viewport: Desktop 1440 × 960, Tablet 744 × 1100, Mobile 360 × 640. Проверяйте responsive-режим изменением ширины viewport, а не browser zoom.
+Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. Проверяйте responsive-режим изменением ширины viewport, а не browser zoom. В desktop содержимое ограничено шириной 1440px и центрируется внутри viewport.
 
-Диапазоны плана: Mobile 360–599px, Tablet 600–1279px, Desktop 1280px и шире. Эталонная desktop-сцена имеет размер 1440 × 960; 960px — её высота, а не breakpoint по ширине.
+Диапазоны плана: Mobile 360–599px, Tablet 600–1599px, Desktop 1600px и шире. Высота desktop-сцены фиксирована на 960px; максимальная ширина её содержимого — 1440px.
 
 ## Архив TT Norms Pro
 
