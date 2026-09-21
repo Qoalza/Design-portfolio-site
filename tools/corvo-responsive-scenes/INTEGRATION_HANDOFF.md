@@ -14,7 +14,7 @@ Authorization, Media Campaigns, Media Items и Statistics. Каноническ�
 | Statistics | `/statistics/` | `site/statistics/` |
 
 Эталонные viewport: Desktop 1440 × 960, Tablet 744 × 1100, Mobile 360 × 640.
-Диапазоны: Mobile 360–599px, Tablet 600–959px, Desktop 960px и шире.
+Диапазоны: Mobile 360–599px, Tablet 600–1279px, Desktop 1280px и шире. В размере desktop-эталона 1440 × 960 значение 960px является высотой сцены, а не breakpoint по ширине.
 
 ## Как использовать пакет
 

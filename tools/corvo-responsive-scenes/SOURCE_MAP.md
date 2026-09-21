@@ -42,7 +42,8 @@
   текста, 500 для KPI-заголовков и 600 для главных заголовков. Загрузка идёт
   через CSS2 endpoint с `display=swap`.
 - Scene width следует ширине документа в диапазоне 360–1440px. Mobile:
-  360–599px, Tablet: 600–959px, Desktop: 960px и шире.
+  360–599px, Tablet: 600–1279px, Desktop: 1280px и шире. В desktop
+  source frame `1440 × 960` значение 960px — высота, не breakpoint ширины.
 - Внешние content frames квадратные во всех адаптивах. Скругления остаются
   только у внутренней authorization card: 24px mobile, 28px tablet и 32px
   desktop.
@@ -55,7 +56,7 @@
 - `site/media-campaigns/` maps their product header, metrics, filters and table;
   source SVG/PNG assets live in `site/assets/media-campaigns/`.
 - The approved plan defines continuous ranges: mobile below 600px, tablet
-  600–959px, desktop at 960px and above. Tablet cards retain their 252px
+  600–1279px, desktop at 1280px and above. Tablet cards retain their 252px
   minimum and clip.
 
 ### Exact structure
