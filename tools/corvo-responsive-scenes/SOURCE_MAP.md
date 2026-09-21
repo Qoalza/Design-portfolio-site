@@ -7,7 +7,7 @@
 
 | Figma root | Режим | Локальный участок |
 | --- | --- | --- |
-| `3600:172160` | Desktop, 1440 × 960 | `site/authorization/` desktop-scene |
+| `3600:172160` | Desktop, 1660 × 960 | `site/authorization/` desktop-scene |
 | `3600:172155` | Tablet, 744 × 1100 | `site/authorization/` tablet override |
 | `3600:172158` | Mobile, 360 × 640 | `site/authorization/` mobile base |
 
@@ -43,7 +43,7 @@
   через CSS2 endpoint с `display=swap`.
 - Responsive-режим определяется шириной viewport: Mobile 360–599px, Tablet
   600–1279px, Desktop 1280px и шире. Рабочий исходный desktop-фрейм имеет
-  размер 1600 × 960; это размер сцены, а не breakpoint.
+  размер 1660 × 960; это размер сцены, а не breakpoint.
 - Внешние content frames квадратные во всех адаптивах. Скругления остаются
   только у внутренней authorization card: 24px mobile, 28px tablet и 32px
   desktop.
@@ -64,7 +64,7 @@
 | Figma nodes | Code surface | Constraint retained |
 | --- | --- | --- |
 | Desktop `3600:173697`, `173698` | `.global`, `.title` | 72px rail; header 80px; title 100px |
-| Desktop `3600:173723` | `.metrics`, `.metric-card` | x=8 / right=16; three 440 × 252 cards at 1440px |
+| Desktop `3600:173723` | `.metrics`, `.metric-card` | x=8 / right=16; three 440 × 252 cards at 1660px |
 | Desktop `3600:173725`, `173726` | `.filters`, `.table-wrap` | 1344 × 48 filters; 1344 × 424 table |
 | Tablet `3600:173728`, `173730`, `173755` | tablet overrides | header 72px; 252 × 212 no-wrap cards, third card clips |
 | Tablet `3600:173757`, `173758` | tablet filters/table | 720 × 112 filters; 720 × 552 table |
@@ -87,7 +87,7 @@ Action while all four middle fields remain horizontally traversable.
 ## My Space / Media items · Figma read 2026-09-20
 
 - Cloud Figma file `sgKtUASp0aYzdkeH8kcXrL`; exact roots: desktop
-  `3600:186134` (1440×960), tablet `3600:186175` (744×1100), mobile
+  `3600:186134` (1660×960), tablet `3600:186175` (744×1100), mobile
   `3600:186213` (360×640). The rejected preview nodes `3510:113449` /
   `3510:118257` are deliberately not a source for this scene.
 - Title/action: `3600:186142` / `3600:186180` / `3600:186218` → `.my-title`:
@@ -125,7 +125,7 @@ Action while all four middle fields remain horizontally traversable.
 ## Statistics · Figma read 2026-09-20
 
 - Cloud Figma section `3600:199174`; canonical roots: desktop `3600:199175`
-  (1440×960), tablet `3600:199187` (744×1100), mobile `3600:199198`
+  (1660×960), tablet `3600:199187` (744×1100), mobile `3600:199198`
   (360×640).
 - Global/header: `3600:199182` / `3600:199192` / `3600:199203`; it reuses the
   approved shell and full `Home | Affiliate > Media Campaign` breadcrumbs.
