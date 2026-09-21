@@ -15,9 +15,9 @@ TT Norms хранится только в `archive/tt-norms/`: её responsive-�
 | Media Items | `/my-space/` | `site/my-space/` |
 | Statistics | `/statistics/` | `site/statistics/` |
 
-Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. Desktop-фрейм занимает полные 1600px.
+Эталонные viewport: Desktop 1600 × 960, Tablet 744 × 1100, Mobile 360 × 640. 1600px — стартовый эталон для desktop-предпросмотра, а не максимальная ширина.
 Диапазоны: Mobile 360–599px, Tablet 600–1279px, Desktop 1280px и шире.
-Исходный desktop-фрейм — 1600 × 960; эти размеры не являются breakpoint.
+Исходный desktop-фрейм — 1600 × 960; эти размеры не являются breakpoint или ограничением `max-width`. Desktop остаётся резиновым выше 1600px.
 
 ## Как использовать пакет
 

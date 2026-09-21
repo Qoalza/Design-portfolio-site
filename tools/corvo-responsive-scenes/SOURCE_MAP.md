@@ -43,7 +43,8 @@
   через CSS2 endpoint с `display=swap`.
 - Responsive-режим определяется шириной viewport: Mobile 360–599px, Tablet
   600–1279px, Desktop 1280px и шире. Рабочий исходный desktop-фрейм имеет
-  размер 1600 × 960; это размер сцены, а не breakpoint.
+  размер 1600 × 960; это размер исходной сцены, а не breakpoint или ограничение
+  `max-width`. Runtime desktop остаётся резиновым при более широком viewport.
 - Внешние content frames квадратные во всех адаптивах. Скругления остаются
   только у внутренней authorization card: 24px mobile, 28px tablet и 32px
   desktop.

@@ -38,9 +38,9 @@ for (const icon of authorizationIcons) assert.match(icon, /stroke-width="1\.3"/,
 
 assert.match(archivedBase, /TT Norms Pro/, 'The historical TT Norms font contract remains archived');
 assert.match(archivedCampaigns, /font-family: 'TT Norms Pro'/, 'The historical TT Norms scene CSS remains archived');
-assert.match(archivedAuthorization, /\.authorization \{[^}]*max-width: 1600px;/, 'Archived Authorization uses the same 1600px desktop frame');
+assert.doesNotMatch(archivedAuthorization, /\.authorization \{[^}]*max-width:/, 'Archived Authorization keeps the same fluid desktop frame');
 assert.match(archivedAuthorization, /@media \(min-width: 1280px\)/, 'Archived Authorization enters Desktop at 1280px');
-assert.match(archivedCampaigns, /\.campaigns \{[^}]*max-width: 1600px;/, 'Archived signed-in scenes use the same 1600px desktop frame');
+assert.doesNotMatch(archivedCampaigns, /\.campaigns \{[^}]*max-width:/, 'Archived signed-in scenes keep the same fluid desktop frame');
 for (const [name, css] of [['Campaigns', archivedCampaigns], ['Items', archivedItems], ['Statistics', archivedStatistics]]) {
   assert.match(css, /@media \(min-width: 600px\) and \(max-width: 1279px\)/, `Archived ${name} keeps Tablet through 1279px`);
 }
