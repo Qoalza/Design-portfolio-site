@@ -36,13 +36,12 @@
         </defs>
         <g id="a-exact" fill="#f2f4f5">
           <use href="#body-source" transform="scale(2)"/>
-          <use href="#dot-source" transform="scale(2)"/>
         </g>
-        <g id="morph-shapes" fill="#f2f4f5" hidden>
-          <path/><path/><path/><path/><path/>
-        </g>
-        <g id="plug-exact" fill="#c84828" hidden>
-          <use href="#plug-0"/><use href="#plug-1"/><use href="#plug-2"/><use href="#plug-3"/><use href="#plug-4"/>
+        <path id="dot-morph" fill="#f2f4f5"/>
+        <g id="plug-left" fill="#c84828" hidden><use href="#plug-1"/></g>
+        <g id="plug-right" fill="#c84828" hidden><use href="#plug-2"/></g>
+        <g id="plug-fragments" fill="#c84828" hidden>
+          <use href="#plug-0"/><use href="#plug-4"/>
         </g>
       </svg>
       <h1>Проверка морфинга</h1>
@@ -54,12 +53,13 @@
   <script>
     const svg=document.querySelector('#mark');
     const aExact=document.querySelector('#a-exact');
-    const plugExact=document.querySelector('#plug-exact');
-    const morphGroup=document.querySelector('#morph-shapes');
-    const morphPaths=[...morphGroup.querySelectorAll('path')];
+    const dotMorph=document.querySelector('#dot-morph');
+    const plugLeft=document.querySelector('#plug-left');
+    const plugRight=document.querySelector('#plug-right');
+    const plugFragments=document.querySelector('#plug-fragments');
     const button=document.querySelector('#toggle');
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-    const duration=700;
+    const duration=300;
     let progress=0;
     let frame=0;
 
@@ -70,59 +70,63 @@
         return [point.x*scale,point.y*scale];
       });
     }
-    function align(from,to){
-      let best=to,bestCost=Infinity;
-      for(const candidate of [to,[...to].reverse()]){
-        for(let offset=0;offset<candidate.length;offset+=1){
-          let cost=0;
-          for(let index=0;index<candidate.length;index+=1){
-            const target=candidate[(index+offset)%candidate.length];
-            const dx=from[index][0]-target[0],dy=from[index][1]-target[1];
-            cost+=dx*dx+dy*dy;
-          }
-          if(cost<bestCost){
-            bestCost=cost;
-            best=Array.from({length:candidate.length},(_,index)=>candidate[(index+offset)%candidate.length]);
-          }
+    const dotFrom=sample(document.querySelector('#dot-source'),64,2);
+    const dotTarget=document.querySelector('#plug-3');
+    const dotSamples=sample(dotTarget,64);
+    let dotTo=dotSamples,bestCost=Infinity;
+    for(const points of [dotSamples,[...dotSamples].reverse()]){
+      for(let offset=0;offset<points.length;offset+=1){
+        let cost=0;
+        for(let index=0;index<points.length;index+=1){
+          const target=points[(index+offset)%points.length];
+          const dx=dotFrom[index][0]-target[0],dy=dotFrom[index][1]-target[1];
+          cost+=dx*dx+dy*dy;
+        }
+        if(cost<bestCost){
+          bestCost=cost;
+          dotTo=Array.from({length:points.length},(_,index)=>points[(index+offset)%points.length]);
         }
       }
-      return best;
     }
-    const count=96;
-    const body=sample(document.querySelector('#body-source'),count,2);
-    const dot=sample(document.querySelector('#dot-source'),count,2);
-    const seed=(x,y)=>Array.from({length:count},(_,index)=>{
-      const angle=index/count*Math.PI*2;
-      return [x+Math.cos(angle)*.15,y+Math.sin(angle)*.15];
-    });
-    const sources=[seed(48,48),body,dot,seed(48,48),seed(42,40)];
-    const targets=Array.from({length:5},(_,index)=>sample(document.querySelector('#plug-'+index),count));
-    const aligned=targets.map((target,index)=>align(sources[index],target));
-    const easing=value=>value<.5?4*value*value*value:1-Math.pow(-2*value+2,3)/2;
+    const smooth=(from,to,value)=>{
+      const t=Math.max(0,Math.min(1,(value-from)/(to-from)));
+      return t*t*(3-2*t);
+    };
+    function visible(node,opacity){
+      node.toggleAttribute('hidden',opacity<=0);
+      node.setAttribute('opacity',opacity.toFixed(3));
+    }
 
     function draw(value){
       progress=Math.max(0,Math.min(1,value));
-      aExact.toggleAttribute('hidden',progress>0);
-      plugExact.toggleAttribute('hidden',progress<1);
-      const exact=progress===0||progress===1;
-      morphGroup.toggleAttribute('hidden',exact);
-      if(exact)return;
-      const eased=easing(progress);
+      const collapse=smooth(.12,.68,progress);
+      const aOpacity=1-smooth(.48,.70,progress);
+      const plugOpacity=1-aOpacity;
+      const fragmentOpacity=smooth(.45,.88,progress);
       const color=[0,1,2].map((_,index)=>{
-        const first=[242,244,245][index],last=[200,72,40][index];
-        return Math.round(first+(last-first)*eased);
+        const start=[242,244,245][index],end=[200,72,40][index];
+        return Math.round(start+(end-start)*smooth(.16,.56,progress));
       });
-      morphGroup.setAttribute('fill',`rgb(${color.join(',')})`);
-      for(let shape=0;shape<5;shape+=1){
-        const from=sources[shape],to=aligned[shape];
-        let d='';
-        for(let point=0;point<count;point+=1){
-          const x=from[point][0]+(to[point][0]-from[point][0])*eased;
-          const y=from[point][1]+(to[point][1]-from[point][1])*eased;
-          d+=`${point?'L':'M'}${x.toFixed(2)} ${y.toFixed(2)}`;
-        }
-        morphPaths[shape].setAttribute('d',d+'Z');
+      aExact.setAttribute('fill',`rgb(${color.join(',')})`);
+      dotMorph.setAttribute('fill',`rgb(${color.join(',')})`);
+      const dotProgress=smooth(.38,.90,progress);
+      if(progress===1)dotMorph.setAttribute('d',dotTarget.getAttribute('d'));
+      else{
+        const points=dotFrom.map(([x,y],index)=>{
+          const to=dotTo[index];
+          return `${index?'L':'M'}${(x+(to[0]-x)*dotProgress).toFixed(2)} ${(y+(to[1]-y)*dotProgress).toFixed(2)}`;
+        });
+        dotMorph.setAttribute('d',points.join('')+'Z');
       }
+      const scale=(1-.08*collapse).toFixed(3);
+      aExact.setAttribute('transform',`translate(48 48) scale(${scale}) translate(-48 -48)`);
+      const spread=1-smooth(.30,.84,progress);
+      plugLeft.setAttribute('transform',`translate(${(8*spread).toFixed(2)} ${(-8*spread).toFixed(2)})`);
+      plugRight.setAttribute('transform',`translate(${(-8*spread).toFixed(2)} ${(8*spread).toFixed(2)})`);
+      visible(aExact,aOpacity);
+      visible(plugLeft,plugOpacity);
+      visible(plugRight,plugOpacity);
+      visible(plugFragments,fragmentOpacity);
     }
     function animate(to){
       cancelAnimationFrame(frame);
