@@ -3,7 +3,7 @@ export function mountPreloaderLogo(svg){
   if(!svg)return ()=>{};
   const CYCLE=1800;
   const ORBIT_END=1700;
-  const SPEED=1.32;
+  const SPEED=1.26;
   const cx=24,cy=26.2,radius=cy-9.62777;
   const marker=svg.querySelector('#preloader-marker');
   const tail=svg.querySelector('#preloader-tail');
