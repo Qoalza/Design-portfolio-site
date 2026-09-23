@@ -1,9 +1,9 @@
-// Motion copied from USERSPACE/Logo/logo-preloader-final.html. Geometry and timing stay intact.
+// Motion copied from USERSPACE/Logo/logo-preloader-final.html. Geometry and relative phase timing stay intact.
 export function mountPreloaderLogo(svg){
   if(!svg)return ()=>{};
   const CYCLE=1800;
   const ORBIT_END=1700;
-  const SPEED=1.2;
+  const SPEED=1.38;
   const cx=24,cy=26.2,radius=cy-9.62777;
   const marker=svg.querySelector('#preloader-marker');
   const tail=svg.querySelector('#preloader-tail');
