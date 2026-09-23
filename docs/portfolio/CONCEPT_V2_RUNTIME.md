@@ -30,3 +30,12 @@ This contract applies only to `tools/concept-v2/app`. It does not share the publ
 ## Consumer rule
 
 New Concept V2 pages with similar behavior import these primitives instead of copying local RAF, pointer, scroll or preload effects. A new consumer needs coalescing, disposal, inactive-state and real-browser outcome coverage. Moving this behavior into the public Next.js Portfolio requires a separate integration decision.
+
+## Approved preloader and navigation boundary
+
+- The approved Concept V2 preloader has three visual states: ordinary loading, loading longer than ten seconds, and a confirmed connection failure. The 404 page is separate.
+- The current `/preloader` route is a visual and copy demo. Its ten-second alternation and Retry button do not inspect or restart real navigation. The separate `transition-preview.html` is a provisional visual sample, not site navigation.
+- A real navigation must preserve the site's existing readiness and intentional lazy-loading rules. The preloader may cover work already required for a usable first view; it must not turn separately specified background or proximity-based loading into a blocking condition.
+- Once the preloader is actually shown, keep it visible through one complete logo revolution and until the destination is ready. The phrase `Всё, перехожу` is reserved for confirmed readiness; its timed appearance in the demo is not the runtime contract.
+- At ten seconds, the loading attempt continues and the long-loading state offers waiting or Retry. A confirmed connection failure uses the connection state. Retry starts a new real attempt when navigation is connected.
+- The threshold that chooses a short page transition versus the preloader, the exact navigation target, and the runtime readiness signal remain open integration decisions. Do not infer them from the visual demo.
