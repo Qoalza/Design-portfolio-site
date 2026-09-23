@@ -36,12 +36,12 @@
         </defs>
         <g id="a-exact" fill="#f2f4f5">
           <use href="#body-source" transform="scale(2)"/>
+          <use href="#dot-source" transform="scale(2)"/>
         </g>
-        <path id="dot-morph" fill="#f2f4f5"/>
         <g id="plug-left" fill="#c84828" hidden><use href="#plug-1"/></g>
         <g id="plug-right" fill="#c84828" hidden><use href="#plug-2"/></g>
         <g id="plug-fragments" fill="#c84828" hidden>
-          <use href="#plug-0"/><use href="#plug-4"/>
+          <use href="#plug-0"/><use href="#plug-3"/><use href="#plug-4"/>
         </g>
       </svg>
       <h1>Проверка морфинга</h1>
@@ -53,41 +53,15 @@
   <script>
     const svg=document.querySelector('#mark');
     const aExact=document.querySelector('#a-exact');
-    const dotMorph=document.querySelector('#dot-morph');
     const plugLeft=document.querySelector('#plug-left');
     const plugRight=document.querySelector('#plug-right');
     const plugFragments=document.querySelector('#plug-fragments');
     const button=document.querySelector('#toggle');
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-    const duration=300;
+    const duration=340;
     let progress=0;
     let frame=0;
 
-    function sample(path,count,scale=1){
-      const total=path.getTotalLength();
-      return Array.from({length:count},(_,index)=>{
-        const point=path.getPointAtLength(total*index/count);
-        return [point.x*scale,point.y*scale];
-      });
-    }
-    const dotFrom=sample(document.querySelector('#dot-source'),64,2);
-    const dotTarget=document.querySelector('#plug-3');
-    const dotSamples=sample(dotTarget,64);
-    let dotTo=dotSamples,bestCost=Infinity;
-    for(const points of [dotSamples,[...dotSamples].reverse()]){
-      for(let offset=0;offset<points.length;offset+=1){
-        let cost=0;
-        for(let index=0;index<points.length;index+=1){
-          const target=points[(index+offset)%points.length];
-          const dx=dotFrom[index][0]-target[0],dy=dotFrom[index][1]-target[1];
-          cost+=dx*dx+dy*dy;
-        }
-        if(cost<bestCost){
-          bestCost=cost;
-          dotTo=Array.from({length:points.length},(_,index)=>points[(index+offset)%points.length]);
-        }
-      }
-    }
     const smooth=(from,to,value)=>{
       const t=Math.max(0,Math.min(1,(value-from)/(to-from)));
       return t*t*(3-2*t);
@@ -108,16 +82,6 @@
         return Math.round(start+(end-start)*smooth(.16,.56,progress));
       });
       aExact.setAttribute('fill',`rgb(${color.join(',')})`);
-      dotMorph.setAttribute('fill',`rgb(${color.join(',')})`);
-      const dotProgress=smooth(.38,.90,progress);
-      if(progress===1)dotMorph.setAttribute('d',dotTarget.getAttribute('d'));
-      else{
-        const points=dotFrom.map(([x,y],index)=>{
-          const to=dotTo[index];
-          return `${index?'L':'M'}${(x+(to[0]-x)*dotProgress).toFixed(2)} ${(y+(to[1]-y)*dotProgress).toFixed(2)}`;
-        });
-        dotMorph.setAttribute('d',points.join('')+'Z');
-      }
       const scale=(1-.08*collapse).toFixed(3);
       aExact.setAttribute('transform',`translate(48 48) scale(${scale}) translate(-48 -48)`);
       const spread=1-smooth(.30,.84,progress);
