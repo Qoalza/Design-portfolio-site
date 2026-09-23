@@ -2,33 +2,33 @@
   min-height: 100svh;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle 622px at 50% 52.1875%, #121517 16.014%, #0e1012 100%);
+  background: radial-gradient(circle 923px at 50% 52.1875%, #121517 0%, #0e1012 100%);
 }
 
 .preloader-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
   max-width: calc(100vw - 32px);
 }
 
 .preloader-symbol {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 96px;
+  height: 96px;
   flex: none;
   overflow: visible;
 }
 
 .preloader-caption {
-  height: 16px;
+  height: 20px;
   display: grid;
   place-items: center;
   margin: 0;
   color: #949ea6;
-  font: 500 14px/16px Onest, sans-serif;
-  letter-spacing: -.1px;
+  font: 400 16px/20px Onest, sans-serif;
+  letter-spacing: -.2px;
   text-align: center;
 }
 
