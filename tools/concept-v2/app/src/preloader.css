@@ -1,4 +1,5 @@
 .preloader-page {
+  --preloader-state-duration: 370ms;
   min-height: 100svh;
   display: grid;
   place-items: center;
@@ -14,7 +15,7 @@
   z-index: -1;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 300ms cubic-bezier(.22,.61,.36,1);
+  transition: opacity var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1);
 }
 
 .preloader-page::before {
@@ -38,6 +39,7 @@
 }
 
 .preloader-symbol-slot {
+  position: relative;
   width: 96px;
   height: 96px;
   flex: none;
@@ -50,16 +52,23 @@
   flex: none;
   overflow: visible;
   color: #f2f4f5;
-  transition: color 300ms cubic-bezier(.22,.61,.36,1);
+  transition: color var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1), opacity 90ms ease;
 }
 
 .preloader-page[data-state='slow'] .preloader-symbol { color: #d59928; }
 
-.preloader-connection-symbol {
-  display: block;
+.preloader-morph {
+  position: absolute;
+  inset: 0;
   width: 96px;
   height: 96px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 90ms ease;
 }
+
+.preloader-morph.is-active { opacity: 1; }
+.preloader-symbol-slot:has(.preloader-morph.is-active) .preloader-symbol { opacity: 0; }
 
 .preloader-caption {
   height: 20px;
@@ -70,7 +79,7 @@
   font: 400 16px/20px Onest, sans-serif;
   letter-spacing: -.2px;
   text-align: center;
-  transition: opacity 300ms cubic-bezier(.22,.61,.36,1);
+  transition: opacity var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1);
 }
 
 .preloader-caption.is-hidden { opacity: 0; }
@@ -85,7 +94,12 @@
   gap: 32px;
   width: min(320px, calc(100vw - 32px));
   text-align: center;
-  animation: preloader-status-enter 300ms cubic-bezier(.22,.61,.36,1) both;
+  animation: preloader-status-enter var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1) both;
+}
+
+.preloader-status.is-exiting {
+  animation: preloader-status-exit var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1) both;
+  pointer-events: none;
 }
 
 .preloader-status.connection { width: min(360px, calc(100vw - 32px)); }
@@ -116,6 +130,11 @@
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 
+@keyframes preloader-status-exit {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to { opacity: 0; transform: translate(-50%, 8px); }
+}
+
 .preloader-caption-content {
   grid-area: 1 / 1;
   max-width: calc(100vw - 32px);
@@ -135,8 +154,10 @@
   .preloader-page::before,
   .preloader-page::after,
   .preloader-symbol,
+  .preloader-morph,
   .preloader-caption { transition: none; }
   .preloader-status { animation: none; transform: translateX(-50%); }
+  .preloader-status.is-exiting { visibility: hidden; }
   .preloader-caption-content { animation: none; }
   .preloader-caption-content.is-outgoing { display: none; }
 }

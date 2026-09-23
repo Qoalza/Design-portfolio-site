@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {mountPreloaderLogo} from './preloader-motion.mjs';
+import {PreloaderMorph, MORPH_DURATION} from './PreloaderMorph';
 import {ControlButton} from './Controls';
 import './preloader.css';
 
@@ -47,11 +48,11 @@ const RETRY_MESSAGES={
 const CAPTION_INTERVAL=2000;
 const CAPTION_TRANSITION=300;
 
-function AnimatedSymbol({speedMultiplier=1}){
+function AnimatedSymbol({speedMultiplier=1,running=true}){
   const svg=useRef(null);
   const speed=useRef(speedMultiplier);
   speed.current=speedMultiplier;
-  useEffect(()=>mountPreloaderLogo(svg.current,speed),[]);
+  useEffect(()=>running?mountPreloaderLogo(svg.current,speed):undefined,[running]);
   return <svg ref={svg} className="preloader-symbol" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="preloader-tail-gradient" gradientUnits="userSpaceOnUse">
@@ -85,7 +86,22 @@ export function Preloader(){
   const [attempt,setAttempt]=useState(requested==='connection'?1:0);
   const [frame,setFrame]=useState({current:0,outgoing:null,revision:0});
   const [messages,setMessages]=useState(DEFAULT_MESSAGES);
+  const [lastStatus,setLastStatus]=useState(mode==='normal'?null:mode);
+  const [logoRunning,setLogoRunning]=useState(mode!=='connection');
   const retryCounts=useRef({slow:0,connection:0});
+  useEffect(()=>{
+    if(mode!=='connection')return;
+    const timer=setTimeout(()=>setLogoRunning(false),90);
+    return()=>clearTimeout(timer);
+  },[mode]);
+  useEffect(()=>{
+    if(mode!=='normal'){
+      setLastStatus(mode);
+      return;
+    }
+    const timer=setTimeout(()=>setLastStatus(null),MORPH_DURATION);
+    return()=>clearTimeout(timer);
+  },[mode]);
   useEffect(()=>{
     if(mode!=='normal'||requested==='normal')return;
     const timer=setTimeout(()=>setMode(attempt%2===0?'slow':'connection'),10000);
@@ -123,26 +139,26 @@ export function Preloader(){
     setAttempt(previous=>previous+1);
     setMode('normal');
   };
+  const statusMode=mode==='normal'?lastStatus:mode;
   return <main className="preloader-page" data-state={mode} aria-label="Прелоадер">
     <div className="preloader-content">
       <div className="preloader-symbol-slot">
-        {mode==='connection'
-          ?<img className="preloader-connection-symbol" src="/figma/preloader-connection-symbol.svg" width="96" height="96" alt="" aria-hidden="true"/>
-          :<AnimatedSymbol speedMultiplier={mode==='slow'?.5:1}/>}
+        <AnimatedSymbol speedMultiplier={mode==='slow'?.5:1} running={logoRunning}/>
+        <PreloaderMorph connection={mode==='connection'} onReturnComplete={()=>setLogoRunning(true)}/>
       </div>
       <p className={`preloader-caption ${mode==='normal'?'':'is-hidden'}`} aria-hidden={mode!=='normal'}>
         {frame.outgoing!==null&&<span key={`out:${frame.revision}`} className="preloader-caption-content is-outgoing" aria-hidden="true">{messages[frame.outgoing]}</span>}
         <span key={`in:${frame.revision}`} className="preloader-caption-content is-incoming" aria-hidden="true">{messages[frame.current]}</span>
         {mode==='normal'&&<span className="sr-only" aria-live="polite">{messages[frame.current]}</span>}
       </p>
-      {mode!=='normal'&&<div className={`preloader-status ${mode}`} role={mode==='connection'?'alert':'status'}>
+      {statusMode&&<div key={statusMode} className={`preloader-status ${statusMode} ${mode==='normal'?'is-exiting':''}`} role={mode==='normal'?undefined:statusMode==='connection'?'alert':'status'} aria-hidden={mode==='normal'}>
         <div className="preloader-status-copy">
-          <h1>{mode==='slow'?'Долгая загрузка':'Проблема соединения'}</h1>
-          <p>{mode==='slow'
+          <h1>{statusMode==='slow'?'Долгая загрузка':'Проблема соединения'}</h1>
+          <p>{statusMode==='slow'
             ?<>Страница открывается дольше обычного.<br/>Подождите или повторите попытку.</>
             :<>Не удалось открыть страницу.<br/>Проверьте соединение и попробуйте ещё раз.</>}</p>
         </div>
-        <ControlButton variant="accent" iconRight="preloader-refresh" onClick={retry}>Повторить</ControlButton>
+        <ControlButton variant="accent" iconRight="preloader-refresh" onClick={mode==='normal'?undefined:retry}>Повторить</ControlButton>
       </div>}
     </div>
   </main>;
