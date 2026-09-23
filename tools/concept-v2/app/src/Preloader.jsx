@@ -48,12 +48,13 @@ function AnimatedSymbol({speedMultiplier=1}){
 export function Preloader(){
   const requested=new URLSearchParams(location.search).get('state');
   const [mode,setMode]=useState(requested==='slow'||requested==='connection'?requested:'normal');
+  const [attempt,setAttempt]=useState(requested==='connection'?1:0);
   const [frame,setFrame]=useState({current:0,outgoing:null,revision:0});
   useEffect(()=>{
-    if(mode!=='normal')return;
-    const timer=setTimeout(()=>setMode('slow'),10000);
+    if(mode!=='normal'||requested==='normal')return;
+    const timer=setTimeout(()=>setMode(attempt%2===0?'slow':'connection'),10000);
     return()=>clearTimeout(timer);
-  },[mode]);
+  },[mode,attempt,requested]);
   useEffect(()=>{
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let interval;
@@ -80,6 +81,7 @@ export function Preloader(){
   },[frame.revision,frame.outgoing]);
   const retry=()=>{
     setFrame({current:0,outgoing:null,revision:0});
+    setAttempt(previous=>previous+1);
     setMode('normal');
   };
   return <main className="preloader-page" data-state={mode} aria-label="Прелоадер">
@@ -87,7 +89,7 @@ export function Preloader(){
       <div className="preloader-symbol-slot">
         {mode==='connection'
           ?<img className="preloader-connection-symbol" src="/figma/preloader-connection-symbol.svg" width="96" height="96" alt="" aria-hidden="true"/>
-          :<AnimatedSymbol speedMultiplier={mode==='slow'?.6:1}/>}
+          :<AnimatedSymbol speedMultiplier={mode==='slow'?.5:1}/>}
       </div>
       <p className={`preloader-caption ${mode==='normal'?'':'is-hidden'}`} aria-hidden={mode!=='normal'}>
         {frame.outgoing!==null&&<span key={`out:${frame.revision}`} className="preloader-caption-content is-outgoing" aria-hidden="true">{messages[frame.outgoing]}</span>}
@@ -96,7 +98,7 @@ export function Preloader(){
       </p>
       {mode!=='normal'&&<div className={`preloader-status ${mode}`} role={mode==='connection'?'alert':'status'}>
         <div className="preloader-status-copy">
-          <h1>{mode==='slow'?'Долгая загрузка':'Проблема с соединением'}</h1>
+          <h1>{mode==='slow'?'Долгая загрузка':'Проблема соединения'}</h1>
           <p>{mode==='slow'
             ?<>Страница открывается дольше обычного.<br/>Подождите или повторите попытку.</>
             :<>Не удалось открыть страницу.<br/>Проверьте соединение и попробуйте ещё раз.</>}</p>

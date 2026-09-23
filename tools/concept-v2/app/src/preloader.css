@@ -108,7 +108,7 @@
 .preloader-status-copy p {
   color: #949ea6;
   font: 350 16px/24px Onest, sans-serif;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 @keyframes preloader-status-enter {
