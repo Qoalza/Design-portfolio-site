@@ -3,6 +3,7 @@ export function mountPreloaderLogo(svg){
   if(!svg)return ()=>{};
   const CYCLE=1800;
   const ORBIT_END=1700;
+  const SPEED=1.2;
   const cx=24,cy=26.2,radius=cy-9.62777;
   const marker=svg.querySelector('#preloader-marker');
   const tail=svg.querySelector('#preloader-tail');
@@ -114,7 +115,7 @@ export function mountPreloaderLogo(svg){
     updateLegTipCuts(ms,x,y);
   }
   function tick(now){
-    elapsed+=now-last;
+    elapsed+=(now-last)*SPEED;
     last=now;
     render(elapsed);
     frame=requestAnimationFrame(tick);

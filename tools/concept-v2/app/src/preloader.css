@@ -2,7 +2,7 @@
   min-height: 100svh;
   display: grid;
   place-items: center;
-  background: radial-gradient(ellipse 1020px 622px at 50% 52.1875%, #121517 16.014%, #0e1012 100%);
+  background: radial-gradient(circle 622px at 50% 52.1875%, #121517 16.014%, #0e1012 100%);
 }
 
 .preloader-content {
