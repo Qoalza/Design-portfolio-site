@@ -3,13 +3,47 @@ import {mountPreloaderLogo} from './preloader-motion.mjs';
 import {ControlButton} from './Controls';
 import './preloader.css';
 
-const messages=[
+const DEFAULT_MESSAGES=[
   'Посмотрю, готова ли страница',
   'Да-да, еще чуть-чуть осталось',
   'У осьминога 3 сердца',
   'Простите, отвлекал внимание',
   'Все, перехожу',
 ];
+const RETRY_MESSAGES={
+  slow:[
+    [
+      'Второй заход пошёл',
+      'Проверяю, откликнулась ли страница',
+      'Пока держу секундомер в кармане',
+      'Но рука уже тянется',
+      'Слежу, не пришёл ли ответ',
+    ],
+    [
+      'Третий заход без капитуляции',
+      'Снова проверяю ответ страницы',
+      'Кажется, секундомер нашёл меня',
+      'Делаю вид, что не замечаю',
+      'Как только откроется, покажу',
+    ],
+  ],
+  connection:[
+    [
+      'Пробую достучаться снова',
+      'Проверяю, отвечает ли сайт',
+      'Тишина пока не считается ответом',
+      'Ключ на десять отложу',
+      'Жду сигнала',
+    ],
+    [
+      'Снова пробую выйти на связь',
+      'Проверяю, откликнулся ли сайт',
+      'Тишина уже слишком общительная',
+      'Взял ключ на десять',
+      'Если ответа нет, скажу прямо',
+    ],
+  ],
+};
 const CAPTION_INTERVAL=2000;
 const CAPTION_TRANSITION=300;
 
@@ -50,6 +84,8 @@ export function Preloader(){
   const [mode,setMode]=useState(requested==='slow'||requested==='connection'?requested:'normal');
   const [attempt,setAttempt]=useState(requested==='connection'?1:0);
   const [frame,setFrame]=useState({current:0,outgoing:null,revision:0});
+  const [messages,setMessages]=useState(DEFAULT_MESSAGES);
+  const retryCounts=useRef({slow:0,connection:0});
   useEffect(()=>{
     if(mode!=='normal'||requested==='normal')return;
     const timer=setTimeout(()=>setMode(attempt%2===0?'slow':'connection'),10000);
@@ -80,6 +116,9 @@ export function Preloader(){
     return()=>clearTimeout(timer);
   },[frame.revision,frame.outgoing]);
   const retry=()=>{
+    const count=retryCounts.current[mode];
+    setMessages(RETRY_MESSAGES[mode][Math.min(count,1)]);
+    retryCounts.current[mode]=count+1;
     setFrame({current:0,outgoing:null,revision:0});
     setAttempt(previous=>previous+1);
     setMode('normal');
