@@ -1,5 +1,5 @@
 // Motion copied from USERSPACE/Logo/logo-preloader-final.html. Geometry and relative phase timing stay intact.
-export function mountPreloaderLogo(svg){
+export function mountPreloaderLogo(svg,speedMultiplier){
   if(!svg)return ()=>{};
   const CYCLE=1800;
   const ORBIT_END=1700;
@@ -115,7 +115,7 @@ export function mountPreloaderLogo(svg){
     updateLegTipCuts(ms,x,y);
   }
   function tick(now){
-    elapsed+=(now-last)*SPEED;
+    elapsed+=(now-last)*SPEED*(speedMultiplier?.current??1);
     last=now;
     render(elapsed);
     frame=requestAnimationFrame(tick);

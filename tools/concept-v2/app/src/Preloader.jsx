@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {mountPreloaderLogo} from './preloader-motion.mjs';
+import {ControlButton} from './Controls';
 import './preloader.css';
 
 const messages=[
@@ -12,14 +13,16 @@ const messages=[
 const CAPTION_INTERVAL=2000;
 const CAPTION_TRANSITION=300;
 
-function AnimatedSymbol(){
+function AnimatedSymbol({speedMultiplier=1}){
   const svg=useRef(null);
-  useEffect(()=>mountPreloaderLogo(svg.current),[]);
+  const speed=useRef(speedMultiplier);
+  speed.current=speedMultiplier;
+  useEffect(()=>mountPreloaderLogo(svg.current,speed),[]);
   return <svg ref={svg} className="preloader-symbol" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="preloader-tail-gradient" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stopColor="#f2f4f5" stopOpacity="0"/>
-        <stop offset="1" stopColor="#f2f4f5" stopOpacity=".4"/>
+        <stop offset="0" stopColor="currentColor" stopOpacity="0"/>
+        <stop offset="1" stopColor="currentColor" stopOpacity=".4"/>
       </linearGradient>
       <filter id="preloader-tip-motion-filter" filterUnits="userSpaceOnUse" x="0" y="0" width="48" height="48">
         <feGaussianBlur id="preloader-tip-motion-blur" stdDeviation="0 0"/>
@@ -34,16 +37,23 @@ function AnimatedSymbol(){
     </defs>
     <g>
       <path id="preloader-tail" fill="none" stroke="url(#preloader-tail-gradient)" strokeWidth="2.9072" strokeLinecap="round"/>
-      <path id="preloader-marker" d="M25.4536 9.62777C25.4536 10.4306 24.8028 11.0813 24 11.0813C23.1972 11.0813 22.5464 10.4306 22.5464 9.62777C22.5464 8.82498 23.1972 8.17419 24 8.17419C24.8028 8.17419 25.4536 8.82498 25.4536 9.62777Z" fill="#f2f4f5"/>
+      <path id="preloader-marker" d="M25.4536 9.62777C25.4536 10.4306 24.8028 11.0813 24 11.0813C23.1972 11.0813 22.5464 10.4306 22.5464 9.62777C22.5464 8.82498 23.1972 8.17419 24 8.17419C24.8028 8.17419 25.4536 8.82498 25.4536 9.62777Z" fill="currentColor"/>
     </g>
     <g mask="url(#preloader-leg-tip-mask)">
-      <use href="#preloader-main-geometry" fill="#f2f4f5"/>
+      <use href="#preloader-main-geometry" fill="currentColor"/>
     </g>
   </svg>;
 }
 
 export function Preloader(){
+  const requested=new URLSearchParams(location.search).get('state');
+  const [mode,setMode]=useState(requested==='slow'||requested==='connection'?requested:'normal');
   const [frame,setFrame]=useState({current:0,outgoing:null,revision:0});
+  useEffect(()=>{
+    if(mode!=='normal')return;
+    const timer=setTimeout(()=>setMode('slow'),10000);
+    return()=>clearTimeout(timer);
+  },[mode]);
   useEffect(()=>{
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let interval;
@@ -55,27 +65,44 @@ export function Preloader(){
     const stop=()=>{clearInterval(interval);interval=undefined;};
     const start=()=>{
       stop();
-      if(reduced.matches||document.hidden)return;
+      if(reduced.matches||document.hidden||mode!=='normal')return;
       interval=setInterval(advance,CAPTION_INTERVAL);
     };
     start();
     reduced.addEventListener('change',start);
     document.addEventListener('visibilitychange',start);
     return()=>{stop();reduced.removeEventListener('change',start);document.removeEventListener('visibilitychange',start);};
-  },[]);
+  },[mode]);
   useEffect(()=>{
     if(frame.outgoing===null)return;
     const timer=setTimeout(()=>setFrame(previous=>previous.revision===frame.revision?{...previous,outgoing:null}:previous),CAPTION_TRANSITION);
     return()=>clearTimeout(timer);
   },[frame.revision,frame.outgoing]);
-  return <main className="preloader-page" aria-label="Прелоадер">
+  const retry=()=>{
+    setFrame({current:0,outgoing:null,revision:0});
+    setMode('normal');
+  };
+  return <main className="preloader-page" data-state={mode} aria-label="Прелоадер">
     <div className="preloader-content">
-      <AnimatedSymbol/>
-      <p className="preloader-caption">
+      <div className="preloader-symbol-slot">
+        {mode==='connection'
+          ?<img className="preloader-connection-symbol" src="/figma/preloader-connection-symbol.svg" width="96" height="96" alt="" aria-hidden="true"/>
+          :<AnimatedSymbol speedMultiplier={mode==='slow'?.6:1}/>}
+      </div>
+      <p className={`preloader-caption ${mode==='normal'?'':'is-hidden'}`} aria-hidden={mode!=='normal'}>
         {frame.outgoing!==null&&<span key={`out:${frame.revision}`} className="preloader-caption-content is-outgoing" aria-hidden="true">{messages[frame.outgoing]}</span>}
         <span key={`in:${frame.revision}`} className="preloader-caption-content is-incoming" aria-hidden="true">{messages[frame.current]}</span>
-        <span className="sr-only" aria-live="polite">{messages[frame.current]}</span>
+        {mode==='normal'&&<span className="sr-only" aria-live="polite">{messages[frame.current]}</span>}
       </p>
+      {mode!=='normal'&&<div className={`preloader-status ${mode}`} role={mode==='connection'?'alert':'status'}>
+        <div className="preloader-status-copy">
+          <h1>{mode==='slow'?'Долгая загрузка':'Проблема с соединением'}</h1>
+          <p>{mode==='slow'
+            ?<>Страница открывается дольше обычного.<br/>Подождите или повторите попытку.</>
+            :<>Не удалось открыть страницу.<br/>Проверьте соединение и попробуйте ещё раз.</>}</p>
+        </div>
+        <ControlButton variant="accent" iconRight="preloader-refresh" onClick={retry}>Повторить</ControlButton>
+      </div>}
     </div>
   </main>;
 }
