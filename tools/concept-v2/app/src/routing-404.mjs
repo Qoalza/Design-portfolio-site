@@ -21,8 +21,8 @@ export function status(state){
  return {correct,total:packets.length,wrong,launched:correct===packets.length};
 }
 
-// A placed packet makes its destination reachable. Blue runs only through an
-// uninterrupted sequence of correct packets; gaps on the way are neutral.
+// A placed packet makes its destination reachable. Fixed markers do not
+// interrupt either branch; progress is still used for their visual state.
 export function routeProgress(state){
  const research=state.research==='research',concept=state.concept==='concept',delivery=state.delivery==='delivery';
  const gitBranch=state.gitBranch==='gitBranch',connector=state.connector==='connector';
@@ -35,18 +35,22 @@ export function routeProgress(state){
 }
 
 export function chooseRoutes(placed,launched,signal){
- if(launched)return routeLayers.final.map((layer,index)=>({state:index===7||index===13?'white':'final',layer}));
- const wrongTop=Object.entries(placed).some(([slot,id])=>slot!==id&&['research','concept','delivery'].includes(slot))?signal.topReach:-1;
- const wrongLower=Object.entries(placed).some(([slot,id])=>slot!==id&&['gitBranch','connector'].includes(slot))?signal.lowerReach:-1;
- return routeLayers.final.map((layer,index)=>{
-  if(index<=wrongTop||(index>=8&&index<=wrongLower))return {state:'red',layer};
-  if(index===0)return {state:signal.topReach?'final':'neutral',layer};
-  if(index===8)return {state:signal.lowerReach?'final':'neutral',layer};
-  if(index===7)return {state:placed.delivery==='delivery'?'white':'neutral',layer};
-  if(index===13)return {state:placed.connector==='connector'&&placed.gitBranch==='gitBranch'?'white':'neutral',layer};
-  const bottom=index>=9,blue=bottom?signal.lowerBlue:signal.topBlue,reach=bottom?signal.lowerReach:signal.topReach;
-  if(index<=blue)return {state:'final',layer};
-  if(index<=reach)return {state:'white',layer};
-  return {state:'neutral',layer};
- });
+ if(launched)return routeLayers.final.map((layer,index)=>({state:[0,7,8,12,13].includes(index)?'white':'final',layer}));
+ const states=routeLayers.final.map(()=>'neutral');
+ states[0]='white';states[8]='white';
+ const paintBranch=(triggers,entrance)=>{
+  let previous=-1,previousEnd=entrance;
+  triggers.forEach(({slot,end},index)=>{
+   const packet=placed[slot];if(!packet)return;
+   const gap=triggers.slice(previous+1,index).some(trigger=>!placed[trigger.slot]);
+   const color=packet!==slot?'red':gap?'white':'final';
+   for(let segment=previousEnd+1;segment<=end;segment++)states[segment]=color;
+   previous=index;previousEnd=end;
+  });
+ };
+ paintBranch([{slot:'research',end:1},{slot:'concept',end:3},{slot:'delivery',end:6}],0);
+ paintBranch([{slot:'gitBranch',end:9},{slot:'connector',end:11}],8);
+ if(placed.delivery==='delivery')states[7]='white';
+ if(signal.lowerReach>=11&&placed.connector==='connector'){states[12]='white';states[13]='white';}
+ return routeLayers.final.map((layer,index)=>({state:states[index],layer}));
 }

@@ -32,19 +32,32 @@ test('a wrong packet still carries neutral signal to its slot without creating b
  assert.deepEqual(routeProgress({gitBranch:'connector'}),{topReach:0,topBlue:0,lowerReach:9,lowerBlue:0});
  assert.deepEqual(routeProgress({concept:'delivery'}),{topReach:3,topBlue:0,lowerReach:0,lowerBlue:0});
 });
-test('a wrong upper packet colors every incoming segment through its slot red',()=>{
+test('a wrong upper packet colors the path behind it red while the fade before 01 stays white',()=>{
  const placed={delivery:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(0,7).map(({state})=>state),Array(7).fill('red'));
+ assert.deepEqual(routes.slice(0,7).map(({state})=>state),['white',...Array(6).fill('red')]);
  assert.equal(routes[7].state,'neutral');
 });
-test('a wrong lower packet colors its whole incoming branch red',()=>{
+test('a wrong lower packet colors its incoming branch red after the white fade',()=>{
  const placed={connector:'gitBranch'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(8,12).map(({state})=>state),Array(4).fill('red'));
+ assert.deepEqual(routes.slice(8,12).map(({state})=>state),['white',...Array(3).fill('red')]);
  assert.equal(routes[12].state,'neutral');
 });
-test('an upstream mismatch keeps the reached downstream chain red',()=>{
+test('each placed packet colors only its preceding interval across fixed nodes',()=>{
  const placed={research:'delivery',concept:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(0,4).map(({state})=>state),Array(4).fill('red'));
+ assert.deepEqual(routes.slice(0,5).map(({state})=>state),['white','red','final','final','neutral']);
+});
+test('a missing earlier packet leaves the path to a later correct packet white',()=>{
+ const placed={concept:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(0,5).map(({state})=>state),['white','white','white','white','neutral']);
+});
+test('a later wrong packet changes only its own preceding interval',()=>{
+ const placed={research:'research',concept:'delivery'},routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(0,5).map(({state})=>state),['white','final','red','red','neutral']);
+});
+test('the final lower packet leaves a white path through fixed B8 to the edge',()=>{
+ const placed={gitBranch:'gitBranch',connector:'connector'},routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(8).map(({state})=>state),['white','final','final','final','white','white']);
+ assert.deepEqual(chooseRoutes(placed,true,routeProgress(placed)).slice(12).map(({state})=>state),['white','white']);
 });
 test('route segment bounds stay on the fixed final grid before and after any placement',()=>{
  const initial=chooseRoutes({},false,routeProgress({}));
