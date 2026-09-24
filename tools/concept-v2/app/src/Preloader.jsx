@@ -80,12 +80,18 @@ function AnimatedSymbol({speedMultiplier=1,running=true}){
   </svg>;
 }
 
-export function Preloader(){
+export const INITIAL_MESSAGES=DEFAULT_MESSAGES.slice(0,-1);
+export {RETRY_MESSAGES};
+
+export function Preloader({state,captionSet,onRetry,showReadyMessage=false,overlay=false,leaving=false}){
+  const controlled=state!==undefined;
   const requested=new URLSearchParams(location.search).get('state');
-  const [mode,setMode]=useState(requested==='slow'||requested==='connection'?requested:'normal');
+  const [demoMode,setDemoMode]=useState(requested==='slow'||requested==='connection'?requested:'normal');
+  const mode=controlled?state:demoMode;
   const [attempt,setAttempt]=useState(requested==='connection'?1:0);
   const [frame,setFrame]=useState({current:0,outgoing:null,revision:0});
-  const [messages,setMessages]=useState(DEFAULT_MESSAGES);
+  const [demoMessages,setDemoMessages]=useState(DEFAULT_MESSAGES);
+  const messages=captionSet??demoMessages;
   const [lastStatus,setLastStatus]=useState(mode==='normal'?null:mode);
   const [logoRunning,setLogoRunning]=useState(mode!=='connection');
   const retryCounts=useRef({slow:0,connection:0});
@@ -103,10 +109,10 @@ export function Preloader(){
     return()=>clearTimeout(timer);
   },[mode]);
   useEffect(()=>{
-    if(mode!=='normal'||requested==='normal')return;
-    const timer=setTimeout(()=>setMode(attempt%2===0?'slow':'connection'),10000);
+    if(controlled||mode!=='normal'||requested==='normal')return;
+    const timer=setTimeout(()=>setDemoMode(attempt%2===0?'slow':'connection'),10000);
     return()=>clearTimeout(timer);
-  },[mode,attempt,requested]);
+  },[controlled,mode,attempt,requested]);
   useEffect(()=>{
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let interval;
@@ -118,38 +124,43 @@ export function Preloader(){
     const stop=()=>{clearInterval(interval);interval=undefined;};
     const start=()=>{
       stop();
-      if(reduced.matches||document.hidden||mode!=='normal')return;
+      if(reduced.matches||document.hidden||mode!=='normal'||showReadyMessage)return;
       interval=setInterval(advance,CAPTION_INTERVAL);
     };
     start();
     reduced.addEventListener('change',start);
     document.addEventListener('visibilitychange',start);
     return()=>{stop();reduced.removeEventListener('change',start);document.removeEventListener('visibilitychange',start);};
-  },[mode]);
+  },[mode,messages.length,showReadyMessage]);
   useEffect(()=>{
     if(frame.outgoing===null)return;
     const timer=setTimeout(()=>setFrame(previous=>previous.revision===frame.revision?{...previous,outgoing:null}:previous),CAPTION_TRANSITION);
     return()=>clearTimeout(timer);
   },[frame.revision,frame.outgoing]);
   const retry=()=>{
+    if(controlled){
+      setFrame({current:0,outgoing:null,revision:0});
+      onRetry?.(mode);
+      return;
+    }
     const count=retryCounts.current[mode];
-    setMessages(RETRY_MESSAGES[mode][Math.min(count,1)]);
+    setDemoMessages(RETRY_MESSAGES[mode][Math.min(count,1)]);
     retryCounts.current[mode]=count+1;
     setFrame({current:0,outgoing:null,revision:0});
     setAttempt(previous=>previous+1);
-    setMode('normal');
+    setDemoMode('normal');
   };
   const statusMode=mode==='normal'?lastStatus:mode;
-  return <main className="preloader-page" data-state={mode} aria-label="Прелоадер">
+  return <main className={`preloader-page${overlay?' is-overlay':''}${leaving?' is-leaving':''}`} data-state={mode} aria-label="Прелоадер">
     <div className="preloader-content">
       <div className="preloader-symbol-slot">
         <AnimatedSymbol speedMultiplier={mode==='slow'?.5:1} running={logoRunning}/>
         <PreloaderMorph connection={mode==='connection'} onReturnComplete={()=>setLogoRunning(true)}/>
       </div>
       <p className={`preloader-caption ${mode==='normal'?'':'is-hidden'}`} aria-hidden={mode!=='normal'}>
-        {frame.outgoing!==null&&<span key={`out:${frame.revision}`} className="preloader-caption-content is-outgoing" aria-hidden="true">{messages[frame.outgoing]}</span>}
-        <span key={`in:${frame.revision}`} className="preloader-caption-content is-incoming" aria-hidden="true">{messages[frame.current]}</span>
-        {mode==='normal'&&<span className="sr-only" aria-live="polite">{messages[frame.current]}</span>}
+        {!showReadyMessage&&frame.outgoing!==null&&<span key={`out:${frame.revision}`} className="preloader-caption-content is-outgoing" aria-hidden="true">{messages[frame.outgoing]}</span>}
+        <span key={`in:${frame.revision}:${showReadyMessage}`} className="preloader-caption-content is-incoming" aria-hidden="true">{showReadyMessage?'Всё, перехожу':messages[frame.current]}</span>
+        {mode==='normal'&&<span className="sr-only" aria-live="polite">{showReadyMessage?'Всё, перехожу':messages[frame.current]}</span>}
       </p>
       {statusMode&&<div key={statusMode} className={`preloader-status ${statusMode} ${mode==='normal'?'is-exiting':''}`} role={mode==='normal'?undefined:statusMode==='connection'?'alert':'status'} aria-hidden={mode==='normal'}>
         <div className="preloader-status-copy">

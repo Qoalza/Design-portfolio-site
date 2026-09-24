@@ -7,6 +7,19 @@
   background: radial-gradient(circle 923px at 50% 52.1875%, #121517 0%, #0e1012 100%);
 }
 
+.preloader-page.is-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 180ms cubic-bezier(.4,0,.2,1);
+}
+
+.preloader-page.is-overlay.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .preloader-page::before,
 .preloader-page::after {
   content: '';
