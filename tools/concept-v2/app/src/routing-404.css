@@ -248,7 +248,8 @@
 .routing404-packet.is-free .routing404-packet-inner {top:3px;left:3px}
 .routing404-packet.has-icon .routing404-packet-inner {border-color:#1d90eb;background:#14181b;color:#b7c0c7}
 .routing404-packet.is-placed.has-icon .routing404-packet-inner {background:#02233d;color:#43a2ee}
-.routing404-packet.is-wrong .routing404-packet-inner {border-color:#ff635e;background:#4e1e1d;color:#ff635e}
+.routing404-packet.is-wrong.has-icon .routing404-packet-inner,
+.routing404-packet.is-wrong.has-number .routing404-packet-inner {border-color:#ff635e;background:#4e1e1d;color:#ff635e}
 .routing404-packet.has-number:not(.is-wrong):hover .routing404-packet-inner {border-color:#0378d6;background:#0462af;color:#f2f4f5}
 .routing404-packet.has-number:not(.is-wrong):active .routing404-packet-inner,
 .routing404-packet.has-number:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#004c88;color:#fff}
