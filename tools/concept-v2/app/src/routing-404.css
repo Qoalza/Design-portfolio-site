@@ -51,7 +51,7 @@
   --control-border:transparent;
 }
 .routing404-home.control.light:hover {--control-bg:#222629;--control-fg:#e9eef2}
-.routing404-home.control.light:active {--control-bg:#2d3438;--control-fg:#fff}
+.routing404-home.control.light:active {--control-bg:#2d3438;--control-fg:#fff;--control-border:var(--cv2-text-neutral-thin)}
 .routing404-corner {
   position:fixed;
   z-index:6;
@@ -216,9 +216,9 @@
 .routing404-packet.has-icon .routing404-packet-inner {border-color:#1d90eb;background:#14181b;color:#b7c0c7}
 .routing404-packet.is-placed.has-icon .routing404-packet-inner {background:#02233d;color:#43a2ee}
 .routing404-packet.is-wrong .routing404-packet-inner {border-color:#ff635e;background:#4e1e1d;color:#ff635e}
-.routing404-packet.has-number:hover .routing404-packet-inner {border-color:#0378d6;background:#0462af;color:#f2f4f5}
-.routing404-packet.has-number:active .routing404-packet-inner,
-.routing404-packet.has-number.is-dragging .routing404-packet-inner {border-color:#0462af;background:#004c88;color:#fff}
+.routing404-packet.has-number:not(.is-wrong):hover .routing404-packet-inner {border-color:#0378d6;background:#0462af;color:#f2f4f5}
+.routing404-packet.has-number:not(.is-wrong):active .routing404-packet-inner,
+.routing404-packet.has-number:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#004c88;color:#fff}
 .routing404-packet.has-icon:not(.is-wrong):hover .routing404-packet-inner {border-color:#43a2ee;background:#14181b;color:#e9eef2}
 .routing404-packet.has-icon:not(.is-wrong):active .routing404-packet-inner,
 .routing404-packet.has-icon:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#14181b;color:#fff}
