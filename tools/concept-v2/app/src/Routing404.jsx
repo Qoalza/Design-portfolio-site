@@ -4,6 +4,7 @@ import {ControlButton} from './Controls';
 import connectorSvg from './figma/routing404-connector-full.svg?raw';
 import branchSvg from './figma/routing404-git-branch-full.svg?raw';
 import {routeLayers, routingAsset} from './routing-404-design.mjs';
+import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from './routing-404-pulse.mjs';
 import {drop, packets, routeProgress, status} from './routing-404.mjs';
 import './routing-404.css';
 
@@ -28,7 +29,6 @@ const nodes = [
   {x:1149,y:302.5,width:100,id:'Б8',label:'ПОЛЬЗОВАТЕЛИ',final:'active'},
 ];
 const fullIcons = {connector:connectorSvg,gitBranch:branchSvg};
-const checkingOrder = [1,2,3,4,5,6,9,10,11,12];
 const iconMarkup = svg => svg.replaceAll('#E2E2EC','currentColor').replaceAll('<path ','<path vector-effect="non-scaling-stroke" ');
 
 function Icon({type}) {return <span className="routing404-icon-frame" aria-hidden="true" dangerouslySetInnerHTML={{__html:iconMarkup(fullIcons[type])}}/>;}
@@ -48,6 +48,23 @@ function Node({node,visual}) {
 function Vector({state,layer}) {
   return <img className="routing404-route-vector" data-figma-node={layer.nodeId} src={routingAsset(state,layer.file)} alt="" draggable="false"
     style={{left:layer.x+80-(layer.assetWidth-layer.width)/2,top:layer.y-(layer.assetHeight-layer.height)/2}}/>;
+}
+function CompletionPulse() {
+  return pulseTracks.flatMap((track,trackIndex)=>{
+    let elapsed=track.start;
+    return track.segments.map(([index,length,reverse])=>{
+      const layer=routeLayers.final[index],duration=length/pulseSpeed*1000,delay=elapsed;
+      elapsed+=duration;
+      return <svg key={`${trackIndex}-${index}`} className="routing404-pulse-vector" aria-hidden="true"
+        viewBox={`0 0 ${layer.assetWidth} ${layer.assetHeight}`}
+        style={{left:layer.x+80-(layer.assetWidth-layer.width)/2,top:layer.y-(layer.assetHeight-layer.height)/2,
+          width:layer.assetWidth,height:layer.assetHeight,
+          '--pulse-delay':`${delay}ms`,'--pulse-duration':`${duration}ms`,
+          '--pulse-from':reverse?-12:112,'--pulse-to':reverse?112:-12}}>
+        <path d={pulsePaths[index]} pathLength="100"/>
+      </svg>;
+    });
+  });
 }
 function chooseRoutes(placed,launched,signal) {
   if(launched)return routeLayers.final.map(layer=>({state:'final',layer}));
@@ -91,7 +108,7 @@ export function Routing404() {
     if(progress.correct!==progress.total){setPhase('idle');return undefined;}
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){setPhase('launched');return undefined;}
     setPhase('checking');
-    const timer=window.setTimeout(()=>setPhase('launched'),1250);
+    const timer=window.setTimeout(()=>setPhase('launched'),pulseDuration);
     return ()=>window.clearTimeout(timer);
   },[progress.correct,progress.total]);
 
@@ -148,10 +165,13 @@ export function Routing404() {
       <p>{launched?<>Путь полностью собран. Это очень мне поможет, спасибо!<br/>Я обязательно разберусь, почему так произошло.</>:'Помогите мне собрать путь заново или вернитесь на главную'}</p>
       <ControlButton variant={launched?'accent':'light'} href={import.meta.env.BASE_URL} className="routing404-home">На главную</ControlButton></header>
     <div ref={mapRef} className="routing404-map" aria-label="Маршрут 404">
-      <div className="routing404-number-art" aria-hidden="true"><img src={routingAsset(launched?'final':'initial','imgSubtract')} alt=""/><img src={routingAsset(launched?'final':'initial','imgRectangle26')} alt=""/></div>
+      <div className="routing404-number-art" aria-hidden="true">
+        <span className="routing404-number-initial"><img src={routingAsset('initial','imgSubtract')} alt=""/><img src={routingAsset('initial','imgRectangle26')} alt=""/></span>
+        <span className="routing404-number-final"><img src={routingAsset('final','imgSubtract')} alt=""/><img src={routingAsset('final','imgRectangle26')} alt=""/></span>
+      </div>
       <div className="routing404-routes" aria-hidden="true">
         {vectors.map(({state,layer})=><Vector key={`${layer.nodeId}-${state}`} state={state} layer={layer}/>)}
-        {phase==='checking'&&checkingOrder.map((index,step)=><span key={index} className="routing404-check-route" style={{animationDelay:`${step*.1}s`}}><Vector state="final" layer={routeLayers.final[index]}/></span>)}
+        {phase==='checking'&&<CompletionPulse/>}
       </div>
       {nodes.map(node=><Node key={node.id} node={node} visual={launched?node.final:nodeVisual(node,signal)}/>)}
       {Object.entries(slots).map(([slotId,slot])=>{

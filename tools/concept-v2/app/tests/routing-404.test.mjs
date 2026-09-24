@@ -1,4 +1,6 @@
 import test from 'node:test'; import assert from 'node:assert/strict'; import {drop,routeProgress,status} from '../src/routing-404.mjs';
+import {readFileSync} from 'node:fs';
+import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from '../src/routing-404-pulse.mjs';
 const slots={research:{x:0,y:0},concept:{x:100,y:0},delivery:{x:200,y:0},gitBranch:{x:300,y:0},connector:{x:400,y:0}};
 test('free drop retains no slot',()=>assert.deepEqual(drop({},'research',{x:900,y:900,slots}),{}));
 test('nearest free slot snaps only inside radius',()=>assert.deepEqual(drop({},'research',{x:5,y:0,slots}),{research:'research'}));
@@ -23,4 +25,16 @@ test('the lower blue route stops at the last connected packet',()=>{
 test('a wrong packet still carries neutral signal to its slot without creating blue progress',()=>{
  assert.deepEqual(routeProgress({gitBranch:'connector'}),{topReach:0,topBlue:0,lowerReach:9,lowerBlue:0});
  assert.deepEqual(routeProgress({concept:'delivery'}),{topReach:3,topBlue:0,lowerReach:0,lowerBlue:0});
+});
+test('completion pulse follows each exact final Figma vector once and ends before success appears',()=>{
+ const indices=pulseTracks.flatMap(track=>track.segments.map(([index])=>index)).sort((a,b)=>a-b);
+ assert.deepEqual(indices,Array.from({length:14},(_,index)=>index));
+ for(let index=0;index<14;index++){
+  const source=readFileSync(new URL(`../public/figma/routing404/states/final/imgVector${index+36}.svg`,import.meta.url),'utf8');
+  assert.equal(pulsePaths[index],source.match(/<path[^>]* d="([^"]+)"/)?.[1]);
+ }
+ for(const track of pulseTracks){
+  const end=track.start+track.segments.reduce((sum,[,length])=>sum+length/pulseSpeed*1000,0);
+  assert.ok(end<pulseDuration,`pulse arm ends at ${end}ms`);
+ }
 });
