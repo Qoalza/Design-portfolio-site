@@ -103,7 +103,7 @@ test('ready copy appears only after a confirmed late result',async()=>{
   gate.dispose();
 });
 
-test('a page may still finish after the ten-second warning',async()=>{
+test('a page ready after the ten-second warning opens directly from the slow state',async()=>{
   const timer=clock(),states=[],calls=[],work=deferred();
   const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
   gate.start({prepare:()=>work.promise,commit:value=>calls.push(value)},{immediate:true});
@@ -111,9 +111,12 @@ test('a page may still finish after the ten-second warning',async()=>{
   assert.equal(states.at(-1).mode,'slow');
   work.resolve('finally ready');
   await timer.advance(0);
-  assert.equal(states.at(-1).showReadyMessage,true);
-  await timer.advance(450);
   assert.deepEqual(calls,['finally ready']);
+  assert.equal(states.at(-1).mode,'slow');
+  assert.equal(states.at(-1).showReadyMessage,false);
+  assert.equal(states.at(-1).leaving,true);
+  await timer.advance(180);
+  assert.equal(states.at(-1).visible,false);
   gate.dispose();
 });
 

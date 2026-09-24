@@ -61,6 +61,10 @@ export function createPreloaderGate({onState,now=()=>performance.now(),setTimer=
         .then(()=>finish(attempt),error=>fail(attempt,error));
       return;
     }
+    if(attempt.mode==='slow'){
+      reveal(attempt,value);
+      return;
+    }
     const elapsed=now()-attempt.shownAt;
     if(elapsed>=LOGO_REVOLUTION_MS){
       attempt.mode='normal';
