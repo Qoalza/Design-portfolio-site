@@ -24,7 +24,12 @@ export function RoutePulse(){
       path.setAttribute('d',d);
       return path.getTotalLength();
     });
+    const resumeTask=createFrameTask({write:()=>{
+      if(scrollActive||!active||!controller)return;
+      controller.resume({immediate:true});
+    }});
     function clear(){
+      resumeTask.cancel();
       controller?.stop();
       controller=undefined;
       setPulse(null);
@@ -47,19 +52,21 @@ export function RoutePulse(){
     const task=createFrameTask({write:sync});
     const activity=createViewActivity({target:svg,rootMargin:'8px 0px',onChange:change=>{
       active=change.active;
+      if(!active)resumeTask.cancel();
       task.schedule({immediate:change.reason==='enter'&&hasStarted});
     }});
     const resizeObserver=new ResizeObserver(()=>task.schedule({}));
     resizeObserver.observe(svg);
     const unsubscribeScroll=subscribeScrollActivity(next=>{
       scrollActive=next;
+      resumeTask.cancel();
       if(!controller||!active)return;
       if(next)controller.pause({cancelActive:true});
-      else controller.resume({immediate:true});
+      else resumeTask.schedule({});
     });
     const onMotionChange=()=>task.schedule({});
     motion.addEventListener('change',onMotionChange);
-    return ()=>{unsubscribeScroll();activity.dispose();task.dispose();clear();resizeObserver.disconnect();motion.removeEventListener('change',onMotionChange);};
+    return ()=>{unsubscribeScroll();activity.dispose();task.dispose();resumeTask.dispose();clear();resizeObserver.disconnect();motion.removeEventListener('change',onMotionChange);};
   },[]);
   // Short contiguous dashes approximate an arc-length gradient, including bends.
   // A spatial SVG gradient would point the wrong way when the route turns.

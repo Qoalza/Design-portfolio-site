@@ -391,11 +391,17 @@ test('scroll pause cancels the visible pulse and terminal work, then resumes imm
   controller.stop();
 });
 
-test('Hero removes active pulse paths for scroll and restarts immediately after settlement',async()=>{
+test('Hero removes active pulse paths for scroll and defers the immediate restart past the final scroll frame',async()=>{
   const source=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
   assert.match(source,/subscribeScrollActivity/);
   assert.match(source,/controller\.pause\(\{cancelActive:true\}\)/);
+  assert.match(source,/const resumeTask=createFrameTask\(\{write:\(\)=>\{/);
+  assert.match(source,/if\(scrollActive\|\|!active\|\|!controller\)return;/);
   assert.match(source,/controller\.resume\(\{immediate:true\}\)/);
+  assert.match(source,/resumeTask\.cancel\(\)/);
+  assert.match(source,/resumeTask\.schedule\(\{\}\)/);
+  assert.match(source,/resumeTask\.dispose\(\)/);
+  assert.doesNotMatch(source,/else controller\.resume\(\{immediate:true\}\)/);
 });
 
 test('terminal highlight uses 60ms reveal and 240ms fade',async()=>{
