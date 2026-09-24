@@ -1,15 +1,172 @@
-import {useMemo, useRef, useState} from 'react';
-import connectorSvg from './figma/routing404-connector.svg?raw';
-import branchSvg from './figma/routing404-branch.svg?raw';
-import {drop, packets, status} from './routing-404.mjs';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
+import {ControlButton} from './Controls';
+import connectorSvg from './figma/routing404-connector-full.svg?raw';
+import branchSvg from './figma/routing404-git-branch-full.svg?raw';
+import {routeLayers, routingAsset} from './routing-404-design.mjs';
+import {drop, packets, routeProgress, status} from './routing-404.mjs';
 import './routing-404.css';
-const asset = name => `${import.meta.env.BASE_URL}figma/routing404/${name}.svg`;
-const slots = {research:{x:231,y:175.5,width:84,label:'ИССЛЕДОВАНИЕ',empty:'НЕТ СВЯЗИ',emptyId:'02',kind:'number'},concept:{x:638,y:175.5,width:49,label:'КОНЦЕПТ',empty:'НЕТ СВЯЗИ',emptyId:'04',kind:'number'},delivery:{x:1083,y:149,width:84,label:'В РАЗРАБОТКУ',empty:'НЕТ СВЯЗИ',emptyId:'06',kind:'number'},connector:{x:304,y:387,width:70,label:'ПОДКЛЮЧЕНО',empty:'НЕТ ПОДКЛЮЧЕНИЯ',kind:'connector'},branch:{x:904,y:455,width:70,label:'ПОДКЛЮЧЕНО',empty:'НЕТ ПОДКЛЮЧЕНИЯ',kind:'branch'}};
-const snapSlots=Object.fromEntries(Object.entries(slots).map(([name,slot])=>[name,{x:slot.x+slot.width/2,y:slot.y+16}]));
-const nodes=[{x:30,y:175.5,width:106,id:'01',label:'ЦЕЛЬ/ПРОБЛЕМА'},{x:442,y:119.5,width:79,id:'03',label:'ВАРФРЕЙМЫ',active:true},{x:901,y:175.5,width:58,id:'05.1',label:'ДИЗАЙН',active:true},{x:901,y:303.5,width:113,id:'05.2',label:'ДИЗАЙН СИСТЕМА',active:true},{x:128,y:347.5,width:100,id:'А2',label:'ПАРТНЕРЫ'},{x:528,y:436.5,width:100,id:'С1',label:'БИЗНЕС',active:true},{x:1149,y:302.5,width:100,id:'Б8',label:'ПОЛЬЗОВАТЕЛИ',active:true}];
-const start={research:{x:503,y:323.5},concept:{x:126,y:83.5},delivery:{x:1174,y:62},connector:{x:207,y:512},branch:{x:1195,y:403}};
-const routePieces=[{file:'03',x:-45,y:191.5,width:83.5,height:1},{file:'07',x:53.5,y:191.5,width:203,height:1},{file:'10',x:288.5,y:135.5,width:161.5,height:57},{file:'08',x:466,y:135.5,width:180.5,height:57},{file:'05',x:862,y:191.5,width:47.5,height:129},{file:'09',x:925,y:164.5,width:183.5,height:28},{file:'13',x:1140.5,y:164.5,width:170.5,height:28},{file:'14',x:-45,y:310.5,width:181,height:54},{file:'06',x:552,y:383.5,width:371,height:89},{file:'17',x:955,y:318.5,width:202,height:154},{file:'19',x:1173,y:318.5,width:138,height:1}];
-const iconMarkup=source=>source.replaceAll('#E2E2EC','currentColor').replace('<path ','<path vector-effect="non-scaling-stroke" ');
-function RoutingIcon({type}){const svg=type==='connector'?connectorSvg:branchSvg;return <span className={`routing404-icon-frame is-${type}`} aria-hidden="true" dangerouslySetInnerHTML={{__html:iconMarkup(svg)}}/>}
-function PacketButton({packet,className='',style,onPointerDown,onKeyDown}){return <button className={`routing404-packet ${className}`} style={style} onPointerDown={onPointerDown} onKeyDown={onKeyDown} aria-label={`Пакет ${packet.label||packet.id}`}>{packet.id==='connector'||packet.id==='branch'?<RoutingIcon type={packet.id}/>:packet.label}</button>}
-export function Routing404(){const stage=useRef(null),activePacket=useRef(null),[placed,setPlaced]=useState({}),[free,setFree]=useState(start),[drag,setDrag]=useState(null),current=status(placed);const packetSlots=useMemo(()=>Object.fromEntries(packets.map(packet=>[packet.id,Object.entries(placed).find(([,id])=>id===packet.id)?.[0]])),[placed]);const pointFor=event=>{const box=stage.current.getBoundingClientRect();return {x:(event.clientX-box.left)/box.width*1280,y:(event.clientY-box.top)/box.height*548,slots:snapSlots}};const move=event=>{const id=activePacket.current;if(!id)return;const point=pointFor(event);setFree(value=>({...value,[id]:{x:point.x-20,y:point.y-20}}))};const finish=event=>{const id=activePacket.current;if(!id)return;const next=drop(placed,id,pointFor(event));setPlaced(next);if(!Object.values(next).includes(id)){const point=pointFor(event);setFree(value=>({...value,[id]:{x:point.x-20,y:point.y-20}}))}activePacket.current=null;setDrag(null)};const handlers=packet=>({onPointerDown:event=>{event.currentTarget.setPointerCapture(event.pointerId);activePacket.current=packet.id;setDrag(packet.id)},onKeyDown:event=>{if(event.key!=='Enter'&&event.key!==' ')return;event.preventDefault();setPlaced(value=>({...value,[packet.target]:packet.id}))}});return <main className="routing404"><section ref={stage} className={`routing404-stage ${current.launched?'is-launched':''}`} onPointerMove={move} onPointerUp={finish}><img className="routing404-corner corner-tl" src={asset('corner-frame')} alt=""/><img className="routing404-corner corner-tr" src={asset('corner-frame')} alt=""/><img className="routing404-corner corner-bl" src={asset('corner-frame')} alt=""/><img className="routing404-corner corner-br" src={asset('corner-frame')} alt=""/><div className="routing404-side-fade is-left"/><div className="routing404-side-fade is-right"/><header><h1>{current.launched?'Маршрут выстроен':'Похоже, маршрут нарушен'}</h1><p>{current.launched?<>Путь полностью собран. Это очень мне поможет, спасибо!<br/>Я обязательно разберусь, почему так произошло.</>:'Помогите мне собрать путь заново или вернитесь на главную'}</p><a href={import.meta.env.BASE_URL} className="routing404-home">На главную</a></header><div className="routing404-map" aria-label="Маршрут 404"><span className="routing404-404">404</span><div className="routing404-routes" aria-hidden="true">{routePieces.map(piece=><img key={piece.file} className={['05','06','07','08','09','10','17'].includes(piece.file)?'is-active':''} src={asset(piece.file)} style={{left:piece.x,top:piece.y,width:piece.width,height:piece.height}} alt=""/>)}<svg viewBox="0 0 1280 548"><path d="M678.5 191.5H909M152 363.5H324M355.5 402.5H536"/></svg></div>{nodes.map(node=><div key={node.id} className={`routing404-node ${node.active&&current.launched?'is-active':''}`} style={{left:node.x,top:node.y,width:node.width}}><i/><div><strong>{node.id}</strong><span>{node.label}</span></div></div>)}{Object.entries(slots).map(([id,slot])=>{const packetId=placed[id],packet=packets.find(item=>item.id===packetId),wrong=current.wrong.some(([wrongSlot])=>wrongSlot===id);return <div key={id} className={`routing404-slot ${packet?'is-filled':''} ${wrong?'is-wrong':''} is-${slot.kind}`} style={{left:slot.x,top:slot.y,width:slot.width}}>{packet?<PacketButton packet={packet} className={wrong?'is-wrong':''} style={{left:(slot.width-32)/2,top:0}} {...handlers(packet)}/>:<div className="routing404-slot-empty">{slot.kind==='number'?<span>{slot.emptyId}</span>:<RoutingIcon type={slot.kind}/>}</div>}<span className="routing404-slot-label">{packet?slot.label:slot.empty}</span>{wrong&&<span className="routing404-error"><small>СМЕНИТЕ ЯЧЕЙКУ</small>НЕПОДХОДЯЩИЙ<br/>ПАКЕТ</span>}</div>})}{!current.correct&&!current.wrong.length&&<><p className="routing404-hint">Перетащите пакет<br/>в свободный узел</p><img className="routing404-arrow" src={asset('arrow')} alt=""/></>}{packets.filter(packet=>!packetSlots[packet.id]).map(packet=><div key={packet.id} className="routing404-free-packet" style={{left:free[packet.id].x,top:free[packet.id].y}}><PacketButton packet={packet} className={drag===packet.id?'is-dragging':''} {...handlers(packet)}/></div>)}</div><div className="routing404-live" aria-live="polite">{current.launched?'Маршрут выстроен':`Собрано ${current.correct} из ${current.total}`}</div></section></main>}
+
+const slots = {
+  research:{x:231,y:175.5,width:84,number:'02',label:'ИССЛЕДОВАНИЕ'},
+  concept:{x:638,y:175.5,width:49,number:'04',label:'КОНЦЕПТ'},
+  delivery:{x:1083,y:149,width:84,number:'06',label:'В РАЗРАБОТКУ'},
+  gitBranch:{x:301,y:386.5,width:77,icon:'gitBranch',label:'ПОДКЛЮЧЕНО'},
+  connector:{x:904,y:456,width:77,icon:'connector',label:'ПОДКЛЮЧЕНО'},
+};
+const snapSlots = Object.fromEntries(Object.entries(slots).map(([id,s])=>[id,{x:s.x+s.width/2,y:s.y+16}]));
+const initialPositions = {research:{x:503,y:323.5},concept:{x:126,y:83.5},delivery:{x:1174,y:62},connector:{x:207,y:512},gitBranch:{x:1195,y:403}};
+const nodes = [
+  {x:30,y:175.5,width:106,id:'01',label:'ЦЕЛЬ/ПРОБЛЕМА',final:'other'},
+  {x:442,y:119.5,width:79,id:'03',label:'ВАРФРЕЙМЫ',final:'active'},
+  {x:901,y:175.5,width:58,id:'05.1',label:'ДИЗАЙН',final:'active'},
+  {x:901,y:303.5,width:113,id:'05.2',label:'ДИЗАЙН СИСТЕМА',final:'active'},
+  {x:128,y:347.5,width:100,id:'А2',label:'ПАРТНЕРЫ',final:'other'},
+  {x:528,y:436.5,width:100,id:'C1',label:'БИЗНЕС',final:'active'},
+  {x:1149,y:302.5,width:100,id:'Б8',label:'ПОЛЬЗОВАТЕЛИ',final:'active'},
+];
+const fullIcons = {connector:connectorSvg,gitBranch:branchSvg};
+const checkingOrder = [1,2,3,4,5,6,9,10,11,12];
+const iconMarkup = svg => svg.replaceAll('#E2E2EC','currentColor').replaceAll('<path ','<path vector-effect="non-scaling-stroke" ');
+
+function Icon({type}) {return <span className="routing404-icon-frame" aria-hidden="true" dangerouslySetInnerHTML={{__html:iconMarkup(fullIcons[type])}}/>;}
+function Packet({packet,free=false,wrong=false,dragging=false,onPointerDown,onKeyDown}) {
+  const icon = packet.id==='connector'||packet.id==='gitBranch';
+  return <button type="button" aria-label={`Пакет ${packet.label||packet.id}`} onPointerDown={onPointerDown} onKeyDown={onKeyDown}
+    className={`routing404-packet ${free?'is-free':'is-placed'} ${icon?'has-icon':'has-number'} ${wrong?'is-wrong':''} ${dragging?'is-dragging':''}`}>
+    <span className="routing404-packet-inner">{icon?<Icon type={packet.id}/>:<span>{packet.label}</span>}</span>
+  </button>;
+}
+function Node({node,visual}) {
+  return <div className={`routing404-node is-${visual}`} style={{left:node.x,top:node.y,width:node.width}}>
+    <span className="routing404-node-marker"/>
+    <span className="routing404-node-label"><strong>{node.id}</strong><span>{node.label}</span></span>
+  </div>;
+}
+function Vector({state,layer}) {
+  return <img className="routing404-route-vector" data-figma-node={layer.nodeId} src={routingAsset(state,layer.file)} alt="" draggable="false"
+    style={{left:layer.x+80-(layer.assetWidth-layer.width)/2,top:layer.y-(layer.assetHeight-layer.height)/2}}/>;
+}
+function chooseRoutes(placed,launched,signal) {
+  if(launched)return routeLayers.final.map(layer=>({state:'final',layer}));
+  if(!Object.keys(placed).length)return routeLayers.initial.map(layer=>({state:'initial',layer}));
+  const wrongSegment={research:1,concept:3,delivery:6,gitBranch:9,connector:11};
+  const wrong=new Set(Object.entries(placed).filter(([slot,id])=>slot!==id).map(([slot])=>wrongSegment[slot]));
+  return routeLayers.final.map((layer,index)=>{
+    if(wrong.has(index))return {state:'red',layer};
+    if(index===0)return {state:'final',layer};
+    if(index===8)return {state:signal.lowerReach?'final':'neutral',layer};
+    if(index===7)return {state:signal.topReach===6?'final':'neutral',layer};
+    if(index===13)return {state:signal.lowerReach===12?'final':'neutral',layer};
+    const bottom=index>=9,blue=bottom?signal.lowerBlue:signal.topBlue,reach=bottom?signal.lowerReach:signal.topReach;
+    if(index<=blue)return {state:'final',layer:routeLayers.final[index]};
+    if(index<=reach)return {state:'white',layer:routeLayers.final[index]};
+    return {state:'neutral',layer};
+  });
+}
+
+function nodeVisual(node,signal) {
+  const thresholds={'01':['topReach',1],'03':['topReach',2],'05.1':['topReach',4],
+    '05.2':['topReach',5],'А2':['lowerReach',9],'C1':['lowerReach',10],'Б8':['lowerReach',12]};
+  const [reachKey,threshold]=thresholds[node.id];
+  if(signal[reachKey]<threshold)return 'default';
+  if(node.final==='other')return 'other';
+  const blueKey=reachKey==='topReach'?'topBlue':'lowerBlue';
+  return signal[blueKey]>=threshold?'active':'other';
+}
+
+export function Routing404() {
+  const mapRef=useRef(null),stageRef=useRef(null),dragRef=useRef(null);
+  const [placed,setPlaced]=useState({}),[freePositions,setFreePositions]=useState(initialPositions);
+  const [dragging,setDragging]=useState(null),[proximity,setProximity]=useState(null),[phase,setPhase]=useState('idle');
+  const progress=status(placed),launched=phase==='launched'&&progress.correct===progress.total;
+  const signal=routeProgress(placed);
+  const occupied=useMemo(()=>Object.fromEntries(Object.entries(placed).map(([slot,id])=>[id,slot])),[placed]);
+  const vectors=chooseRoutes(placed,launched,signal);
+  const hasActivity=Object.keys(placed).length>0;
+
+  useEffect(()=>{
+    if(progress.correct!==progress.total){setPhase('idle');return undefined;}
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){setPhase('launched');return undefined;}
+    setPhase('checking');
+    const timer=window.setTimeout(()=>setPhase('launched'),1250);
+    return ()=>window.clearTimeout(timer);
+  },[progress.correct,progress.total]);
+
+  const dragPosition=(event,active)=>({x:event.clientX-active.offsetX,y:event.clientY-active.offsetY,space:'viewport'});
+  const nearby=(position,current)=>{const map=mapRef.current.getBoundingClientRect();return Object.entries(snapSlots).filter(([id])=>!current[id])
+    .map(([id,center])=>({id,distance:Math.hypot(position.x+20-map.left-center.x,position.y+20-map.top-center.y)}))
+    .filter(item=>item.distance<=56).sort((a,b)=>a.distance-b.distance)[0]?.id||null;
+  };
+  const start=(event,packet)=>{
+    if(event.pointerType==='mouse'&&event.button!==0)return;
+    const oldSlot=occupied[packet.id],button=event.currentTarget.getBoundingClientRect();
+    const origin={x:button.left-(oldSlot?4:0),y:button.top-(oldSlot?4:0),space:'viewport'};
+    dragRef.current={id:packet.id,pointerId:event.pointerId,offsetX:event.clientX-origin.x,offsetY:event.clientY-origin.y};
+    stageRef.current.setPointerCapture(event.pointerId);
+    setFreePositions(value=>({...value,[packet.id]:origin}));
+    if(oldSlot)setPlaced(value=>{const next={...value};delete next[oldSlot];return next;});
+    setDragging(packet.id);
+    event.preventDefault();
+  };
+  const move=event=>{
+    const active=dragRef.current;if(!active||active.pointerId!==event.pointerId)return;
+    const position=dragPosition(event,active);
+    setFreePositions(value=>({...value,[active.id]:position}));
+    setProximity(nearby(position,placed));
+  };
+  const finish=event=>{
+    const active=dragRef.current;if(!active||active.pointerId!==event.pointerId)return;
+    const position=dragPosition(event,active);
+    const map=mapRef.current.getBoundingClientRect();
+    setPlaced(value=>drop(value,active.id,{x:position.x+20-map.left,y:position.y+20-map.top,slots:snapSlots},56));
+    setFreePositions(value=>({...value,[active.id]:position}));
+    setProximity(null);setDragging(null);dragRef.current=null;
+    if(stageRef.current.hasPointerCapture(event.pointerId))stageRef.current.releasePointerCapture(event.pointerId);
+  };
+  const keyboard=(event,packet)=>{
+    if(event.key!=='Enter'&&event.key!==' ')return;
+    event.preventDefault();
+    setPlaced(value=>{
+      if(value[packet.target]&&value[packet.target]!==packet.id)return value;
+      const next={...value};for(const [slot,id] of Object.entries(next))if(id===packet.id)delete next[slot];
+      next[packet.target]=packet.id;return next;
+    });
+  };
+  const events=packet=>({onPointerDown:event=>start(event,packet),onKeyDown:event=>keyboard(event,packet)});
+  const corner=launched?'final':'initial',first=launched?'imgFrame26092571':'imgFrame26086431',second=launched?'imgFrame26092572':'imgFrame26086432',third=launched?'imgFrame26092573':'imgFrame26086433';
+
+  return <main className="routing404">
+    <img className="routing404-corner corner-tl" src={routingAsset(corner,first)} alt=""/>
+    <img className="routing404-corner corner-tr" src={routingAsset(corner,second)} alt=""/>
+    <img className="routing404-corner corner-bl" src={routingAsset(corner,third)} alt=""/>
+    <img className="routing404-corner corner-br" src={routingAsset(corner,second)} alt=""/>
+    <section ref={stageRef} className={`routing404-stage ${launched?'is-launched':''} ${phase==='checking'?'is-checking':''}`} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish}>
+    <header className="routing404-header"><h1>{launched?'Маршрут выстроен':'Похоже, маршрут нарушен'}</h1>
+      <p>{launched?<>Путь полностью собран. Это очень мне поможет, спасибо!<br/>Я обязательно разберусь, почему так произошло.</>:'Помогите мне собрать путь заново или вернитесь на главную'}</p>
+      <ControlButton variant={launched?'accent':'light'} href={import.meta.env.BASE_URL} className="routing404-home">На главную</ControlButton></header>
+    <div ref={mapRef} className="routing404-map" aria-label="Маршрут 404">
+      <div className="routing404-number-art" aria-hidden="true"><img src={routingAsset(launched?'final':'initial','imgSubtract')} alt=""/><img src={routingAsset(launched?'final':'initial','imgRectangle26')} alt=""/></div>
+      <div className="routing404-routes" aria-hidden="true">
+        {vectors.map(({state,layer})=><Vector key={`${layer.nodeId}-${state}`} state={state} layer={layer}/>)}
+        {phase==='checking'&&checkingOrder.map((index,step)=><span key={index} className="routing404-check-route" style={{animationDelay:`${step*.1}s`}}><Vector state="final" layer={routeLayers.final[index]}/></span>)}
+      </div>
+      {nodes.map(node=><Node key={node.id} node={node} visual={launched?node.final:nodeVisual(node,signal)}/>)}
+      {Object.entries(slots).map(([slotId,slot])=>{
+        const packet=packets.find(item=>item.id===placed[slotId]),wrong=Boolean(packet&&packet.target!==slotId);
+        return <div key={slotId} className={`routing404-slot ${slot.icon?'has-icon':'has-number'} ${packet?'is-occupied':'is-empty'} ${wrong?'is-wrong':''} ${proximity===slotId?'is-proximity':''}`} style={{left:slot.x,top:slot.y,width:slot.width}}>
+          {wrong&&<span className="routing404-error-lead">СМЕНИТЕ ЯЧЕЙКУ</span>}
+          {packet?<Packet packet={packet} wrong={wrong} {...events(packet)}/>:<span className="routing404-empty-packet">
+            {slot.icon?<Icon type={slot.icon}/>:<span>{slot.number}</span>}
+          </span>}
+          <span className="routing404-slot-label">{wrong?<>НЕПОДХОДЯЩИЙ<br/>ПАКЕТ</>:packet?slot.label:slot.icon?<>НЕТ<br/>ПОДКЛЮЧЕНИЯ</>:'НЕТ СВЯЗИ'}</span>
+        </div>;
+      })}
+      {!hasActivity&&<><p className="routing404-hint">Перетащите пакет<br/>в свободный узел</p><img className="routing404-arrow" src={routingAsset('initial','imgVector50')} alt=""/></>}
+      {packets.filter(packet=>!occupied[packet.id]&&!freePositions[packet.id].space).map(packet=><div key={packet.id} className="routing404-free-packet" style={{left:freePositions[packet.id].x,top:freePositions[packet.id].y}}><Packet packet={packet} free dragging={dragging===packet.id} {...events(packet)}/></div>)}
+    </div>
+    <div className="routing404-live" aria-live="polite">{launched?'Маршрут выстроен':`Собрано ${progress.correct} из ${progress.total}`}</div>
+    </section>
+    {packets.filter(packet=>!occupied[packet.id]&&freePositions[packet.id].space==='viewport').map(packet=>createPortal(<div key={packet.id} className="routing404-viewport-packet" style={{left:freePositions[packet.id].x,top:freePositions[packet.id].y}}><Packet packet={packet} free dragging={dragging===packet.id} {...events(packet)}/></div>,document.body))}
+  </main>;
+}
