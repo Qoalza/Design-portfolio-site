@@ -5,7 +5,7 @@ import connectorSvg from './figma/routing404-connector-full.svg?raw';
 import branchSvg from './figma/routing404-git-branch-full.svg?raw';
 import {routeLayers, routingAsset} from './routing-404-design.mjs';
 import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from './routing-404-pulse.mjs';
-import {drop, packets, routeProgress, status} from './routing-404.mjs';
+import {chooseRoutes,dropResult,packets,routeProgress,status} from './routing-404.mjs';
 import './routing-404.css';
 
 const slots = {
@@ -66,24 +66,6 @@ function CompletionPulse() {
     });
   });
 }
-function chooseRoutes(placed,launched,signal) {
-  if(launched)return routeLayers.final.map((layer,index)=>({state:index===7||index===13?'white':'final',layer}));
-  if(!Object.keys(placed).length)return routeLayers.initial.map(layer=>({state:'initial',layer}));
-  const wrongSegment={research:1,concept:3,delivery:6,gitBranch:9,connector:11};
-  const wrong=new Set(Object.entries(placed).filter(([slot,id])=>slot!==id).map(([slot])=>wrongSegment[slot]));
-  return routeLayers.final.map((layer,index)=>{
-    if(wrong.has(index))return {state:'red',layer};
-    if(index===0)return {state:'final',layer};
-    if(index===8)return {state:signal.lowerReach?'final':'neutral',layer};
-    if(index===7)return {state:signal.topReach===6?'white':'neutral',layer};
-    if(index===13)return {state:signal.lowerReach===12?'white':'neutral',layer};
-    const bottom=index>=9,blue=bottom?signal.lowerBlue:signal.topBlue,reach=bottom?signal.lowerReach:signal.topReach;
-    if(index<=blue)return {state:'final',layer:routeLayers.final[index]};
-    if(index<=reach)return {state:'white',layer:routeLayers.final[index]};
-    return {state:'neutral',layer};
-  });
-}
-
 function nodeVisual(node,signal) {
   const thresholds={'01':['topReach',1],'03':['topReach',2],'05.1':['topReach',4],
     '05.2':['topReach',5],'А2':['lowerReach',9],'C1':['lowerReach',10],'Б8':['lowerReach',12]};
@@ -95,7 +77,7 @@ function nodeVisual(node,signal) {
 }
 
 export function Routing404() {
-  const mapRef=useRef(null),stageRef=useRef(null),dragRef=useRef(null);
+  const mapRef=useRef(null),stageRef=useRef(null),dragRef=useRef(null),placedRef=useRef({});
   const [placed,setPlaced]=useState({}),[freePositions,setFreePositions]=useState(initialPositions);
   const [dragging,setDragging]=useState(null),[proximity,setProximity]=useState(null),[phase,setPhase]=useState('idle');
   const progress=status(placed),launched=phase==='launched'&&progress.correct===progress.total;
@@ -113,10 +95,12 @@ export function Routing404() {
   },[progress.correct,progress.total]);
 
   const dragPosition=(event,active)=>({x:event.clientX-active.offsetX,y:event.clientY-active.offsetY,space:'viewport'});
-  const nearby=(position,current)=>{const map=mapRef.current.getBoundingClientRect();return Object.entries(snapSlots).filter(([id])=>!current[id])
+  const nearby=position=>{const map=mapRef.current.getBoundingClientRect();return Object.entries(snapSlots)
     .map(([id,center])=>({id,distance:Math.hypot(position.x+20-map.left-center.x,position.y+20-map.top-center.y)}))
     .filter(item=>item.distance<=56).sort((a,b)=>a.distance-b.distance)[0]?.id||null;
   };
+  const commitPlaced=next=>{placedRef.current=next;setPlaced(next);};
+  const displacedPosition=(slot,map)=>({x:map.left+snapSlots[slot].x+28,y:map.top+snapSlots[slot].y-20,space:'viewport'});
   const start=(event,packet)=>{
     if(event.pointerType==='mouse'&&event.button!==0)return;
     const oldSlot=occupied[packet.id],button=event.currentTarget.getBoundingClientRect();
@@ -124,7 +108,7 @@ export function Routing404() {
     dragRef.current={id:packet.id,pointerId:event.pointerId,offsetX:event.clientX-origin.x,offsetY:event.clientY-origin.y};
     stageRef.current.setPointerCapture(event.pointerId);
     setFreePositions(value=>({...value,[packet.id]:origin}));
-    if(oldSlot)setPlaced(value=>{const next={...value};delete next[oldSlot];return next;});
+    if(oldSlot){const next={...placedRef.current};delete next[oldSlot];commitPlaced(next);}
     setDragging(packet.id);
     event.preventDefault();
   };
@@ -132,25 +116,26 @@ export function Routing404() {
     const active=dragRef.current;if(!active||active.pointerId!==event.pointerId)return;
     const position=dragPosition(event,active);
     setFreePositions(value=>({...value,[active.id]:position}));
-    setProximity(nearby(position,placed));
+    setProximity(nearby(position));
   };
   const finish=event=>{
     const active=dragRef.current;if(!active||active.pointerId!==event.pointerId)return;
     const position=dragPosition(event,active);
     const map=mapRef.current.getBoundingClientRect();
-    setPlaced(value=>drop(value,active.id,{x:position.x+20-map.left,y:position.y+20-map.top,slots:snapSlots},56));
-    setFreePositions(value=>({...value,[active.id]:position}));
+    const result=dropResult(placedRef.current,active.id,{x:position.x+20-map.left,y:position.y+20-map.top,slots:snapSlots},56);
+    commitPlaced(result.state);
+    setFreePositions(value=>({...value,[active.id]:position,...(result.displaced?{[result.displaced]:displacedPosition(result.slot,map)}:{})}));
     setProximity(null);setDragging(null);dragRef.current=null;
     if(stageRef.current.hasPointerCapture(event.pointerId))stageRef.current.releasePointerCapture(event.pointerId);
   };
   const keyboard=(event,packet)=>{
     if(event.key!=='Enter'&&event.key!==' ')return;
     event.preventDefault();
-    setPlaced(value=>{
-      if(value[packet.target]&&value[packet.target]!==packet.id)return value;
-      const next={...value};for(const [slot,id] of Object.entries(next))if(id===packet.id)delete next[slot];
-      next[packet.target]=packet.id;return next;
-    });
+    const map=mapRef.current.getBoundingClientRect();
+    const center=snapSlots[packet.target];
+    const result=dropResult(placedRef.current,packet.id,{...center,slots:snapSlots},0);
+    commitPlaced(result.state);
+    if(result.displaced)setFreePositions(value=>({...value,[result.displaced]:displacedPosition(result.slot,map)}));
   };
   const events=packet=>({onPointerDown:event=>start(event,packet),onKeyDown:event=>keyboard(event,packet)});
   const corner=launched?'final':'initial',first=launched?'imgFrame26092571':'imgFrame26086431',second=launched?'imgFrame26092572':'imgFrame26086432',third=launched?'imgFrame26092573':'imgFrame26086433';
@@ -179,7 +164,7 @@ export function Routing404() {
         return <div key={slotId} className={`routing404-slot ${slot.icon?'has-icon':'has-number'} ${packet?'is-occupied':'is-empty'} ${wrong?'is-wrong':''} ${proximity===slotId?'is-proximity':''}`} style={{left:slot.x,top:slot.y,width:slot.width}}>
           {wrong&&<span className="routing404-error-lead">СМЕНИТЕ ЯЧЕЙКУ</span>}
           {packet?<Packet packet={packet} wrong={wrong} {...events(packet)}/>:<span className="routing404-empty-packet">
-            {slot.icon?<><svg className="routing404-empty-outline" viewBox="0 0 32 32" aria-hidden="true"><rect x="0.5" y="0.5" width="31" height="31" rx="7.5"/></svg><Icon type={slot.icon}/></>:<span>{slot.number}</span>}
+            {slot.icon?<><svg className="routing404-empty-outline" viewBox="0 0 33 33" aria-hidden="true"><path d="M0.5 8.5C0.5 4.08172 4.08172 0.5 8.5 0.5H24.5C28.9183 0.5 32.5 4.08172 32.5 8.5V24.5C32.5 28.9183 28.9183 32.5 24.5 32.5H8.5C4.08172 32.5 0.5 28.9183 0.5 24.5V8.5Z"/></svg><Icon type={slot.icon}/></>:<span>{slot.number}</span>}
           </span>}
           <span className="routing404-slot-label">{wrong?<>НЕПОДХОДЯЩИЙ<br/>ПАКЕТ</>:packet?slot.label:slot.icon?<>НЕТ<br/>ПОДКЛЮЧЕНИЯ</>:'НЕТ СВЯЗИ'}</span>
         </div>;

@@ -1,4 +1,4 @@
-import test from 'node:test'; import assert from 'node:assert/strict'; import {drop,routeProgress,status} from '../src/routing-404.mjs';
+import test from 'node:test'; import assert from 'node:assert/strict'; import {chooseRoutes,drop,dropResult,routeProgress,status} from '../src/routing-404.mjs';
 import {readFileSync} from 'node:fs';
 import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from '../src/routing-404-pulse.mjs';
 const slots={research:{x:0,y:0},concept:{x:100,y:0},delivery:{x:200,y:0},gitBranch:{x:300,y:0},connector:{x:400,y:0}};
@@ -6,7 +6,13 @@ test('free drop retains no slot',()=>assert.deepEqual(drop({},'research',{x:900,
 test('nearest free slot snaps only inside radius',()=>assert.deepEqual(drop({},'research',{x:5,y:0,slots}),{research:'research'}));
 test('wrong slot remains and reports mismatch',()=>assert.equal(status(drop({},'research',{x:100,y:0,slots})).wrong.length,1));
 test('extracting a wrong packet removes its mismatch',()=>assert.deepEqual(drop({concept:'research'},'research',{x:900,y:900,slots}),{}));
-test('occupied slot is not replaced',()=>assert.deepEqual(drop({research:'research'},'concept',{x:0,y:0,slots}),{research:'research'}));
+test('dropping onto an occupied slot replaces its packet and identifies the displaced packet',()=>{
+ assert.deepEqual(dropResult({research:'research'},'concept',{x:0,y:0,slots}),{state:{research:'concept'},slot:'research',displaced:'research'});
+ assert.deepEqual(drop({research:'research'},'concept',{x:0,y:0,slots}),{research:'concept'});
+});
+test('a placed packet can replace another occupied slot without duplicating either packet',()=>{
+ assert.deepEqual(dropResult({research:'research',concept:'concept'},'concept',{x:0,y:0,slots}),{state:{research:'concept'},slot:'research',displaced:'research'});
+});
 test('the two icon packets match the Figma slots, not the nearest starting slot',()=>{
  assert.equal(status({gitBranch:'connector'}).wrong.length,1);
  assert.equal(status({connector:'gitBranch'}).wrong.length,1);
@@ -25,6 +31,25 @@ test('the lower blue route stops at the last connected packet',()=>{
 test('a wrong packet still carries neutral signal to its slot without creating blue progress',()=>{
  assert.deepEqual(routeProgress({gitBranch:'connector'}),{topReach:0,topBlue:0,lowerReach:9,lowerBlue:0});
  assert.deepEqual(routeProgress({concept:'delivery'}),{topReach:3,topBlue:0,lowerReach:0,lowerBlue:0});
+});
+test('a wrong upper packet colors every incoming segment through its slot red',()=>{
+ const placed={delivery:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(0,7).map(({state})=>state),Array(7).fill('red'));
+ assert.equal(routes[7].state,'neutral');
+});
+test('a wrong lower packet colors its whole incoming branch red',()=>{
+ const placed={connector:'gitBranch'},routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(8,12).map(({state})=>state),Array(4).fill('red'));
+ assert.equal(routes[12].state,'neutral');
+});
+test('an upstream mismatch keeps the reached downstream chain red',()=>{
+ const placed={research:'delivery',concept:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(0,4).map(({state})=>state),Array(4).fill('red'));
+});
+test('route segment bounds stay on the fixed final grid before and after any placement',()=>{
+ const initial=chooseRoutes({},false,routeProgress({}));
+ const placed={concept:'concept'},next=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(initial.map(({layer})=>layer),next.map(({layer})=>layer));
 });
 test('completion pulse follows each exact final Figma vector once and ends before success appears',()=>{
  const indices=pulseTracks.flatMap(track=>track.segments.map(([index])=>index)).sort((a,b)=>a-b);
