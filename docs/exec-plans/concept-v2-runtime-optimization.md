@@ -99,6 +99,15 @@ Status: `READY_FOR_REVIEW`
 - Two post-fix traces measured 24 and 26 Paint events, zero long tasks and maximum main-thread `RunTask` durations below 5 ms. A browser interaction check confirmed the original hover state returns after one pointer movement.
 - Final verification: focused RED/GREEN tests, lint and 96/96 tests, Vite production build, built-runtime browser smoke and `git diff --check` passed. Manual Zen scroll-feel acceptance remains open.
 
+### Follow-up — One-time Hero dot-field raster
+
+- A clean rerun found that the earlier automated anchor scenario also activated the global custom cursor during the trace. Warm-cursor wheel and trackpad passes crossed the Project entry without a renderer-main stall; Project AVIF decode, Lenis root-class mutation, active route-pulse cancellation and offscreen Experience paint were not the remaining concentrated owner.
+- Controlled render A/B isolated the remaining Firefox/Zen-sensitive cost to the full-width `.hero-bottom-dots` CSS `mask-image`. Replacing the radial dot source alone did not reduce the work; removing the mask did, so the correction targets composition rather than changing the dot artwork.
+- Runtime commit `e2b4cbfb488476171f135e9bfcf2ac853255eb27` (`perf(concept-v2): rasterize hero dot mask once`) paints the same `16px` dot grid and existing `2880×640` alpha mask into a DPR-aware canvas once on load/resize. The live masked source remains visible until the bitmap is ready or permanently when image/context preparation fails.
+- The canvas is limited to Desktop Small Hero. Mobile keeps the existing CSS field and Large Hero keeps its authored unmasked dots plus overlay. At `1438×879`, DPR `2.2`, the bitmap is `3164×704`; mobile and Large reset it to `0×0`, releasing memory.
+- Final production-preview verification: lint and 99/99 tests passed, Vite production build transformed 83 modules, built-runtime browser smoke passed and `git diff --check` passed. Two full boundary traces reported no dropped, high-latency or missing frames; maximum renderer-main `RunTask` was `2.20/3.21 ms` and maximum Paint `0.13/0.20 ms`.
+- Manual Zen first/repeated scroll-feel acceptance remains open. If a hitch remains, the next change requires a Zen profile of this exact SHA; Chromium evidence is not a substitute.
+
 ## Stop-lines
 
 - Stop the dependent group if preserving behavior would require changing visible geometry/effects, the Experience gate, Lenis ownership/configuration, canonical assets/content, dependencies, Figma or production state.
