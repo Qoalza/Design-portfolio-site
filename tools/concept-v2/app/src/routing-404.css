@@ -95,14 +95,15 @@
   100% {opacity:1;filter:drop-shadow(0 0 0 #43a2ee00);transform:scale(1)}
 }
 .routing404-routes {
+  --routing404-visible-inset:max(0px,calc((1440px - 100vw)/2));
   position:absolute;
   top:0;
   left:-80px;
   width:1440px;
   height:548px;
   pointer-events:none;
-  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 160px,#000 1280px,transparent 1440px);
-  mask-image:linear-gradient(to right,transparent 0,#000 160px,#000 1280px,transparent 1440px);
+  -webkit-mask-image:linear-gradient(to right,transparent var(--routing404-visible-inset),#000 calc(var(--routing404-visible-inset) + 160px),#000 calc(1280px - var(--routing404-visible-inset)),transparent calc(1440px - var(--routing404-visible-inset)));
+  mask-image:linear-gradient(to right,transparent var(--routing404-visible-inset),#000 calc(var(--routing404-visible-inset) + 160px),#000 calc(1280px - var(--routing404-visible-inset)),transparent calc(1440px - var(--routing404-visible-inset)));
 }
 .routing404-route-vector {position:absolute;max-width:none}
 .routing404-pulse-vector {position:absolute;overflow:visible}
