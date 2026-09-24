@@ -39,7 +39,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-color:var\(--cv2-container-neutral-bg-main\)[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
  const desktopHero=css.slice(css.indexOf('/* The Hero is a single viewport'),css.indexOf('/* About'));
- assert.match(desktopHero,/\.hero-bottom-dots\{[^}]*--hero-wave-mask-size:110% calc\(112% \+ 100px\)[^}]*--hero-wave-mask-position:calc\(50% \+ 8px\) -108px[^}]*display:block[^}]*inset:0[^}]*background-position:0 0[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask\.svg'\)[^}]*mask-size:var\(--hero-wave-mask-size\)[^}]*mask-position:var\(--hero-wave-mask-position\)/);
+ assert.match(desktopHero,/\.hero-bottom-dots\{[^}]*--hero-wave-mask-size:110% calc\(112% \+ 100px\)[^}]*--hero-wave-mask-position:calc\(50% \+ 8px\) -108px[^}]*display:block[^}]*inset:0[^}]*background-position:0 0[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask-2x\.png'\)[^}]*mask-size:var\(--hero-wave-mask-size\)[^}]*mask-position:var\(--hero-wave-mask-position\)/);
  assert.doesNotMatch(app,/hero-bottom-field/);
  assert.doesNotMatch(css,/hero-bottom-field/);
  assert.match(waveMask,/<svg[^>]*viewBox="0 0 1440 320"/);
@@ -69,7 +69,7 @@ test('desktop Hero wave leaves the source map and mobile Hero untouched',async()
  assert.doesNotMatch(css,/\.hero-graph \.vector-network \.routes[^}]*mask-image/);
  assert.doesNotMatch(css,/\.hero-graph \.process-map\{[^}]*mask-image/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
- assert.match(css,/hero-bottom-wave-mask\.svg/);
+ assert.match(css,/hero-bottom-wave-mask-2x\.png/);
  const mobile=css.slice(css.indexOf('@media(max-width:760px)'),css.indexOf('@media(max-width:380px)'));
  assert.match(mobile,/\.hero-bottom\{height:auto;padding:0 20px 24px\}/);
  assert.doesNotMatch(mobile,/\.hero-bottom\{height:320px;flex:0 0 320px;padding:0\}/);
@@ -89,6 +89,14 @@ test('desktop Hero occupies exactly one viewport and keeps the dotted field in i
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-74\.5px\)\}/);
  assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-bottom\{inset:auto 0 0;height:560px;flex-basis:auto\}/);
  assert.doesNotMatch(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-12px\) scale\(/);
+});
+
+test('desktop Hero uses a pre-rasterized wave alpha instead of a live blurred SVG mask',async()=>{
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const mask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask-2x.png'));
+ assert.equal(mask.subarray(1,4).toString(),'PNG');
+ assert.match(css,/\.hero-bottom-dots\{[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask-2x\.png'\)/);
+ assert.doesNotMatch(css,/mask-image:url\('\/figma\/hero-bottom-wave-mask\.svg'\)/);
 });
 
 test('pointer coordinates account for SVG meet fields before magnification',()=>{
