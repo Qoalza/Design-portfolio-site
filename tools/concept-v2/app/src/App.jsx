@@ -3,6 +3,7 @@ import {ControlButton,NavigationTab,Icon} from './Controls';
 import {SvgLens} from './SvgLens';
 import {MobileNavigation} from './MobileNavigation';
 import {getHeroVariant} from './hero-layout.mjs';
+import {paintDotField} from './hero-dot-field.mjs';
 import {Experience} from './Experience';
 import {About} from './About';
 import {randomEdgePoint} from './process-fill.mjs';
@@ -81,6 +82,49 @@ function Header(){
   <div className="header-actions"><MobileNavigation/><span className="availability"><img src="/figma/imgIndicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ControlButton variant="accent" href="https://t.me/Coco_soul" external iconRight="imgColor2">Связаться</ControlButton></div>
  </div></header></div>;
 }
+function HeroDotField({layout}){
+ const canvasRef=useRef(null),[ready,setReady]=useState(false),[desktop,setDesktop]=useState(()=>window.matchMedia('(min-width:1280px)').matches);
+ useEffect(()=>{
+  const query=window.matchMedia('(min-width:1280px)');
+  const change=()=>setDesktop(query.matches);
+  query.addEventListener('change',change);
+  return()=>query.removeEventListener('change',change);
+ },[]);
+ useEffect(()=>{
+  setReady(false);
+  const canvas=canvasRef.current;
+  if(layout!=='small'||!desktop||!canvas){if(canvas){canvas.width=0;canvas.height=0;}return undefined;}
+  const host=canvas.parentElement;
+  const context=canvas.getContext('2d');
+  if(!host||!context)return undefined;
+  const mask=new Image();
+  let disposed=false,frame=0,loaded=false;
+  const draw=()=>{
+   frame=0;
+   if(disposed||!loaded)return;
+   const {width,height}=host.getBoundingClientRect();
+   if(width<=0||height<=0)return;
+   const dpr=window.devicePixelRatio||1;
+   const pixelWidth=Math.round(width*dpr),pixelHeight=Math.round(height*dpr);
+   if(canvas.width!==pixelWidth)canvas.width=pixelWidth;
+   if(canvas.height!==pixelHeight)canvas.height=pixelHeight;
+   const background=getComputedStyle(canvas).getPropertyValue('--cv2-container-neutral-bg-main').trim()||'#181a1c';
+   paintDotField(context,{width,height,dpr,mask,background});
+   setReady(true);
+  };
+  const schedule=()=>{if(frame===0)frame=requestAnimationFrame(draw);};
+  const load=()=>{if(loaded)return;loaded=true;schedule();};
+  const observer=new ResizeObserver(schedule);
+  observer.observe(host);
+  window.addEventListener('resize',schedule);
+  mask.decoding='async';
+  mask.onload=load;
+  mask.src='/figma/hero-bottom-wave-mask-2x.png';
+  if(mask.complete&&mask.naturalWidth>0)load();
+  return()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',schedule);mask.onload=null;};
+ },[desktop,layout]);
+ return <><span className="hero-bottom-dots" data-rasterized={ready?'true':undefined} aria-hidden="true"/><canvas ref={canvasRef} className={`hero-bottom-dots-bitmap${ready?' is-ready':''}`} aria-hidden="true"/></>;
+}
 function Hero(){
  const [layout,setLayout]=useState(()=>getHeroVariant(typeof window==='undefined'?{}:{width:window.innerWidth,height:window.innerHeight}));
  useEffect(()=>{const update=()=>setLayout(getHeroVariant({width:window.innerWidth,height:window.innerHeight}));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
@@ -89,7 +133,7 @@ function Hero(){
    <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens/></div>
   </div></div>
-  <div className="hero-bottom"><span className="hero-bottom-dots" aria-hidden="true"/><div className="hero-bottom-inner"><p className="hero-fact-chip">29 лет · Екатеринбург · Senior</p></div></div>
+  <div className="hero-bottom"><HeroDotField layout={layout}/><div className="hero-bottom-inner"><p className="hero-fact-chip">29 лет · Екатеринбург · Senior</p></div></div>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){

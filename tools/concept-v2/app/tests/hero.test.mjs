@@ -5,6 +5,7 @@ import path from 'node:path';
 
 import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layout.mjs';
 import {createCaptionController,DEFAULT_CAPTION,resolveCaptionCandidate} from '../src/hero-caption.mjs';
+import {dotFieldMaskRect,paintDotField} from '../src/hero-dot-field.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
 import {measurePulseRoutes,pulseRoutes,scalePulseRoutes,screenScale} from '../src/pulse-routes.mjs';
 
@@ -97,6 +98,60 @@ test('desktop Hero uses a pre-rasterized wave alpha instead of a live blurred SV
  assert.equal(mask.subarray(1,4).toString(),'PNG');
  assert.match(css,/\.hero-bottom-dots\{[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask-2x\.png'\)/);
  assert.doesNotMatch(css,/mask-image:url\('\/figma\/hero-bottom-wave-mask\.svg'\)/);
+});
+
+test('desktop Hero raster keeps the authored wave mask geometry at any DPR',()=>{
+ assert.deepEqual(dotFieldMaskRect({width:1438,height:320}),{
+  width:1581.8000000000002,
+  height:458.40000000000003,
+  x:-63.90000000000009,
+  y:-108,
+ });
+ assert.deepEqual(dotFieldMaskRect({width:2560,height:320}),{
+  width:2816,
+  height:458.40000000000003,
+  x:-120,
+  y:-108,
+ });
+});
+
+test('Hero dot raster paints the native 16px grid before applying the same alpha mask',()=>{
+ const operations=[];
+ const context={
+  save:()=>operations.push(['save']),
+  restore:()=>operations.push(['restore']),
+  setTransform:(...args)=>operations.push(['setTransform',...args]),
+  clearRect:(...args)=>operations.push(['clearRect',...args]),
+  fillRect:(...args)=>operations.push(['fillRect',...args]),
+  beginPath:()=>operations.push(['beginPath']),
+  arc:(...args)=>operations.push(['arc',...args]),
+  fill:()=>operations.push(['fill']),
+  drawImage:(...args)=>operations.push(['drawImage',...args]),
+  set fillStyle(value){operations.push(['fillStyle',value]);},
+  set globalCompositeOperation(value){operations.push(['composite',value]);},
+ };
+ const mask={id:'mask'};
+ paintDotField(context,{width:32,height:32,dpr:2,mask});
+ assert.deepEqual(operations.filter(([name])=>name==='arc'),[
+  ['arc',1.5,1.5,1.5,0,Math.PI*2],
+  ['arc',17.5,1.5,1.5,0,Math.PI*2],
+  ['arc',1.5,17.5,1.5,0,Math.PI*2],
+  ['arc',17.5,17.5,1.5,0,Math.PI*2],
+ ]);
+ assert.deepEqual(operations.find(([name])=>name==='setTransform'),['setTransform',2,0,0,2,0,0]);
+ assert.deepEqual(operations.find(([name])=>name==='composite'),['composite','destination-in']);
+ assert.deepEqual(operations.find(([name])=>name==='drawImage'),['drawImage',mask,6.399999999999999,-108,35.2,135.84]);
+});
+
+test('desktop Hero retires the live CSS mask only after its bitmap is ready',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(app,/function HeroDotField/);
+ assert.match(app,/paintDotField\(context,\{width,height,dpr,mask,background\}\)/);
+ assert.match(app,/data-rasterized=\{ready\?'true':undefined\}/);
+ assert.match(app,/className=\{`hero-bottom-dots-bitmap\$\{ready\?' is-ready':''\}`\}/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-bottom-dots-bitmap\.is-ready\{opacity:1\}/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-bottom-dots\[data-rasterized="true"\]\{display:none\}/);
 });
 
 test('pointer coordinates account for SVG meet fields before magnification',()=>{
