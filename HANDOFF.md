@@ -6,37 +6,37 @@
 
 - Branch: `codex/concept-v2-scroll-lag`.
 - Worktree: `/Users/designer/.codex/worktrees/concept-v2-scroll-lag/Design-portfolio-site`.
-- Tested runtime SHA: `7b12f8f7f8b6f366a3863764ed0a7e762af18e3e` (`perf(concept-v2): prerasterize hero wave mask`).
+- Tested runtime SHA: `55c0da23c9a170738b45cb1dbdbc378889dfee9f` (`perf(concept-v2): defer project hover after scroll`).
 - Local acceptance URL: `http://127.0.0.1:43221/`.
 
 ## Current checkpoint
 
-- The remaining concentrated Hero → Projects hitch was isolated to the desktop Small Hero's full-width SVG mask. Its source applies `feGaussianBlur stdDeviation="75"` over a `2106×714` filter region while the masked dotted field leaves the viewport.
-- An identical controlled scroll trace at `1438×879` measured a roughly `30 ms` maximum Graphics/SwapBuffers stage with the live SVG mask. Disabling that mask reduced the maximum to roughly `2.4 ms`.
-- Runtime commit `7b12f8f` replaces only the live mask resource with a pre-rasterized `2880×640` alpha PNG. The CSS dots, fade size and position, Hero geometry, route map, project cards, hover mechanics and Lenis behavior are unchanged.
-- The replacement trace measured about `3.6 ms` maximum SwapBuffers and `3.5 ms` maximum Graphics.Pipeline on the same pass.
-- A 2× pixel comparison of the old SVG-rendered field and the new raster-mask field measured mean channel delta `0.063/255` and maximum delta `7/255`; visual inspection found no observable difference.
-- The preceding runtime commit `5250d763425a353c62f4bc921cc2bf760e4ae1d1` still cancels active Hero route pulse paths synchronously during scroll and resumes with an immediate first pulse after settlement.
+- After the rasterized Hero mask removed the large compositor stall, the user reported a much smaller residual snag at the Hero → Projects boundary.
+- A fresh trace showed that scroll activity was still written to the root `html` element and that settlement automatically restarted the 150 ms Project hover when the stationary pointer happened to land over the moving card. That caused a document-wide style invalidation and about 125 Paint events during the controlled anchor-scroll pass.
+- Runtime commit `55c0da2` keeps the activity flag local to `.projects-section`. Pointer hover is removed synchronously for active scroll and remains suspended after settlement until the next real pointer movement; keyboard `:focus-within` stays independent.
+- Two identical post-fix traces measured only 24 and 26 Paint events, zero long tasks, and maximum main-thread `RunTask` durations of `4.95 ms` and `4.58 ms`. The root element no longer receives `data-scroll-active`.
+- A browser interaction check confirmed that one pointer movement removes the local gate and restores the exact existing line expansion, glow, shade opacity, front-image rotation and shadow without changing their CSS values.
+- The preceding commits still retain the prerasterized Hero wave mask and cancel active Hero route pulses synchronously during scroll, with the first returning pulse immediate after settlement.
 
 ## Verification
 
-- Focused RED/GREEN Hero test passed.
-- Full lint and 95/95 tests passed.
+- Focused RED/GREEN Project hover lifecycle test passed, including repeated scroll before pointer re-arm and cleanup.
+- Full lint and 96/96 tests passed.
 - Vite production build passed (82 modules).
 - Built-runtime browser smoke passed.
 - `git diff --check` passed.
-- Fidelity/completeness review confirmed the same mask sizing/position, live CSS dot texture, unchanged geometry and visually indistinguishable output.
-- Regression/scope review confirmed no change to Project media/layers, hover animation, Lenis, Experience, dependencies, public Portfolio, Admin, shared contract, Figma, deploy or production.
+- Fidelity/completeness review confirmed that every Project rest/hover declaration remains unchanged and keyboard focus is not gated.
+- Regression/scope review confirmed finite listener cleanup and no change to Project media/layers, Lenis, Experience, dependencies, public Portfolio, Admin, shared contract, Figma, deploy or production.
 
 ## Acceptance and stop-lines
 
-- Manual first and repeated Hero → Projects scroll-feel acceptance in the user's normal Zen window remains required; Chromium tracing proves the isolated rendering cost but does not substitute for that final Zen feel pass.
+- Manual first and repeated Hero → Projects scroll-feel acceptance in the user's normal Zen window remains required; Chromium tracing proves the removed automatic hover work but does not substitute for that final Zen feel pass.
 - Do not change the approved Hero dots, fade geometry, project visuals or animations unless new evidence requires a separately reviewed correction.
 - No Figma write, public Portfolio, Admin, shared contract, canonical content/assets, dependency, push, PR, merge, deploy or production action occurred.
 
 ## Next action
 
-- User tests `http://127.0.0.1:43221/` in Zen. If the concentrated hitch remains, capture a Zen profile of the updated exact runtime before changing another visual/render owner.
+- User tests `http://127.0.0.1:43221/` in Zen, including a pass with the pointer resting over the destination card. If a hitch remains, capture a Zen profile of this exact runtime before changing another visual/render owner.
 
 ## Pointers
 

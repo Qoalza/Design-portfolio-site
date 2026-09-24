@@ -10,7 +10,7 @@ This contract applies only to `tools/concept-v2/app`. It does not share the publ
 - `src/runtime/view-activity.mjs` combines target intersection with document visibility. A consumer must release pending work on inactivity instead of hiding it with opacity.
 - `src/runtime/layout-invalidation.mjs` is a narrow position-invalidating signal. It is not a scroll controller.
 - Hero pulses own their timer and only run for the visible map SVG. Experience owns its paint task; the existing Lenis root RAF remains the sole intentional permanent scroll loop.
-- The Lenis owner publishes only scroll activity transitions. Project hover effects yield immediately while a physical or smooth scroll is active, then retain their existing hover behavior once scrolling settles.
+- The Lenis owner publishes only scroll activity transitions. Project pointer hover yields immediately while a physical or smooth scroll is active and remains suspended after settlement until new pointer movement; its existing visual state and keyboard `:focus-within` behavior remain unchanged.
 - About deck motion remains a finite 500 ms RAF animation. Its generation is invalidated before reduced-motion settlement.
 
 ## Geometry and input

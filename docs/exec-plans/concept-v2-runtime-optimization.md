@@ -25,7 +25,7 @@ Status: `READY_FOR_REVIEW`
 - Keep one existing Lenis owner and its current configuration. Do not redesign Experience blur or masks.
 - Do not generate Project image derivatives in this workstream.
 - A missing Zen pass is an explicit acceptance gap, never a Chromium substitute.
-- Project-card hover must not compete with scrolling: its existing visual state and keyboard focus behavior remain intact at rest, while pointer hover is removed immediately for active scroll and may resume after settlement.
+- Project-card hover must not compete with scrolling: its existing visual state and keyboard focus behavior remain intact at rest, while pointer hover is removed immediately for active scroll and resumes only after settlement plus new pointer movement.
 
 ## Progress
 
@@ -90,6 +90,14 @@ Status: `READY_FOR_REVIEW`
 - Runtime commit `7b12f8f7f8b6f366a3863764ed0a7e762af18e3e` changes only the mask resource to a `2880×640` 2× PNG. The dot texture remains live CSS, and its exact mask size, position, geometry and surrounding interaction owners remain unchanged.
 - Pixel comparison against the old SVG-rendered field measured mean channel delta `0.063/255` and maximum delta `7/255`; visual inspection found no observable change.
 - Final verification: lint and 95/95 tests passed; Vite production build and built-runtime browser smoke passed; `git diff --check` passed. Manual Zen scroll-feel acceptance remains open.
+
+### Follow-up — Project hover settlement repaint
+
+- After the rasterized mask removed the large stall, a smaller residual snag remained. The scroll activity flag still mutated the root `html` element, and Lenis settlement immediately restarted Project hover when the stationary pointer landed over a card during the scroll.
+- Controlled tracing measured about 125 Paint events in that pass. Removing the hover selectors or holding the gate after settlement reduced the count to roughly 24–26, identifying the automatic hover restart rather than Project image decode or Header pinning as the remaining repeated paint source.
+- Runtime commit `55c0da23c9a170738b45cb1dbdbc378889dfee9f` localizes `data-scroll-active` to `.projects-section`. Active scroll removes pointer hover synchronously; settlement keeps it suspended until the next pointer movement. Existing rest/hover declarations, the expanding divider line and keyboard `:focus-within` state are unchanged.
+- Two post-fix traces measured 24 and 26 Paint events, zero long tasks and maximum main-thread `RunTask` durations below 5 ms. A browser interaction check confirmed the original hover state returns after one pointer movement.
+- Final verification: focused RED/GREEN tests, lint and 96/96 tests, Vite production build, built-runtime browser smoke and `git diff --check` passed. Manual Zen scroll-feel acceptance remains open.
 
 ## Stop-lines
 
