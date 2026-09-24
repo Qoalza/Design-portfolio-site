@@ -67,7 +67,7 @@ function CompletionPulse() {
   });
 }
 function chooseRoutes(placed,launched,signal) {
-  if(launched)return routeLayers.final.map(layer=>({state:'final',layer}));
+  if(launched)return routeLayers.final.map((layer,index)=>({state:index===7||index===13?'white':'final',layer}));
   if(!Object.keys(placed).length)return routeLayers.initial.map(layer=>({state:'initial',layer}));
   const wrongSegment={research:1,concept:3,delivery:6,gitBranch:9,connector:11};
   const wrong=new Set(Object.entries(placed).filter(([slot,id])=>slot!==id).map(([slot])=>wrongSegment[slot]));
@@ -75,8 +75,8 @@ function chooseRoutes(placed,launched,signal) {
     if(wrong.has(index))return {state:'red',layer};
     if(index===0)return {state:'final',layer};
     if(index===8)return {state:signal.lowerReach?'final':'neutral',layer};
-    if(index===7)return {state:signal.topReach===6?'final':'neutral',layer};
-    if(index===13)return {state:signal.lowerReach===12?'final':'neutral',layer};
+    if(index===7)return {state:signal.topReach===6?'white':'neutral',layer};
+    if(index===13)return {state:signal.lowerReach===12?'white':'neutral',layer};
     const bottom=index>=9,blue=bottom?signal.lowerBlue:signal.topBlue,reach=bottom?signal.lowerReach:signal.topReach;
     if(index<=blue)return {state:'final',layer:routeLayers.final[index]};
     if(index<=reach)return {state:'white',layer:routeLayers.final[index]};
