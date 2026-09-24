@@ -20,3 +20,7 @@ test('the lower blue route stops at the last connected packet',()=>{
  assert.deepEqual(routeProgress({connector:'connector'}),{topReach:0,topBlue:0,lowerReach:11,lowerBlue:0});
  assert.deepEqual(routeProgress({gitBranch:'gitBranch',connector:'connector'}),{topReach:0,topBlue:0,lowerReach:12,lowerBlue:12});
 });
+test('a wrong packet still carries neutral signal to its slot without creating blue progress',()=>{
+ assert.deepEqual(routeProgress({gitBranch:'connector'}),{topReach:0,topBlue:0,lowerReach:9,lowerBlue:0});
+ assert.deepEqual(routeProgress({concept:'delivery'}),{topReach:3,topBlue:0,lowerReach:0,lowerBlue:0});
+});

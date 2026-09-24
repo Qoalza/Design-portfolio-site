@@ -23,9 +23,9 @@ export function routeProgress(state){
  const research=state.research==='research',concept=state.concept==='concept',delivery=state.delivery==='delivery';
  const gitBranch=state.gitBranch==='gitBranch',connector=state.connector==='connector';
  return {
-  topReach:delivery?6:concept?3:research?1:0,
+  topReach:state.delivery?6:state.concept?3:state.research?1:0,
   topBlue:research?(concept?(delivery?6:3):1):0,
-  lowerReach:connector?(gitBranch?12:11):gitBranch?9:0,
+  lowerReach:state.connector?(state.gitBranch?12:11):state.gitBranch?9:0,
   lowerBlue:gitBranch?(connector?12:9):0,
  };
 }
