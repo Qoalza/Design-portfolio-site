@@ -10,6 +10,7 @@ import {createFrameTask} from './runtime/frame-task.mjs';
 import {ResponsivePicture} from './media/ResponsivePicture';
 import {projectBackImage,projectFrontImage} from './media/image-sources.mjs';
 import {createImagePreparer} from './media/image-preparation.mjs';
+import {bindScrollHoverGate} from './smooth-scroll-runtime.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
@@ -109,6 +110,11 @@ function Projects(){
  const sectionRef=useRef(null),imageNodes=useRef(new Set()),imagePreparer=useRef(null);
  const collectImage=useCallback(image=>{if(image)imageNodes.current.add(image)},[]);
  const prepareLoadedImage=useCallback(event=>imagePreparer.current?.prepare(event.currentTarget,'high'),[]);
+ useEffect(()=>{
+  const section=sectionRef.current;
+  if(!section)return;
+  return bindScrollHoverGate(section);
+ },[]);
  useEffect(()=>{
   const preparer=createImagePreparer();
   imagePreparer.current=preparer;
