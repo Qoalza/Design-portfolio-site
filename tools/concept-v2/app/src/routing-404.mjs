@@ -29,13 +29,13 @@ export function routeProgress(state){
  return {
   topReach:state.delivery?6:state.concept?3:state.research?1:0,
   topBlue:research?(concept?(delivery?6:3):1):0,
-  lowerReach:state.connector?(state.gitBranch?12:11):state.gitBranch?9:0,
+  lowerReach:state.connector?12:state.gitBranch?9:0,
   lowerBlue:gitBranch?(connector?12:9):0,
  };
 }
 
 export function chooseRoutes(placed,launched,signal){
- if(launched)return routeLayers.final.map((layer,index)=>({state:[0,7,8,12,13].includes(index)?'white':'final',layer}));
+ if(launched)return routeLayers.final.map((layer,index)=>({state:[0,7,8,13].includes(index)?'white':'final',layer}));
  const states=routeLayers.final.map(()=>'neutral');
  if(signal.topReach)states[0]='white';
  if(signal.lowerReach)states[8]='white';
@@ -51,8 +51,8 @@ export function chooseRoutes(placed,launched,signal){
  };
  paintBranch([{slot:'research',end:1},{slot:'concept',end:3},{slot:'delivery',end:6}],0);
  paintBranch([{slot:'gitBranch',end:9},{slot:'connector',end:11}],8);
- if(placed.delivery==='delivery')states[7]='white';
- if(signal.lowerReach>=11&&placed.connector==='connector'){states[12]='white';states[13]='white';}
+ if(placed.delivery)states[7]='white';
+ if(placed.connector){states[12]=states[11];states[13]='white';}
  return routeLayers.final.map((layer,index)=>({state:states[index],layer}));
 }
 

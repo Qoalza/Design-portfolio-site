@@ -25,7 +25,7 @@ test('a later upper packet leaves a neutral path through missing predecessors',(
 });
 test('the lower blue route stops at the last connected packet',()=>{
  assert.deepEqual(routeProgress({gitBranch:'gitBranch'}),{topReach:0,topBlue:0,lowerReach:9,lowerBlue:9});
- assert.deepEqual(routeProgress({connector:'connector'}),{topReach:0,topBlue:0,lowerReach:11,lowerBlue:0});
+ assert.deepEqual(routeProgress({connector:'connector'}),{topReach:0,topBlue:0,lowerReach:12,lowerBlue:0});
  assert.deepEqual(routeProgress({gitBranch:'gitBranch',connector:'connector'}),{topReach:0,topBlue:0,lowerReach:12,lowerBlue:12});
 });
 test('a wrong packet still carries neutral signal to its slot without creating blue progress',()=>{
@@ -39,15 +39,15 @@ test('an untouched branch keeps its fade entrance gray',()=>{
  assert.equal(routes[0].state,'neutral');
  assert.equal(routes[8].state,'white');
 });
-test('a wrong upper packet colors the path behind it red while the fade before 01 stays white',()=>{
+test('a wrong upper packet colors its incoming path red while both fade tails stay white',()=>{
  const placed={delivery:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
  assert.deepEqual(routes.slice(0,7).map(({state})=>state),['white',...Array(6).fill('red')]);
- assert.equal(routes[7].state,'neutral');
+ assert.equal(routes[7].state,'white');
 });
 test('a wrong lower packet colors its incoming branch red after the white fade',()=>{
  const placed={connector:'gitBranch'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(8,12).map(({state})=>state),['white',...Array(3).fill('red')]);
- assert.equal(routes[12].state,'neutral');
+ assert.deepEqual(routes.slice(8).map(({state})=>state),['white',...Array(4).fill('red'),'white']);
+ assert.equal(fixedNodeVisual({id:'Б8',final:'other'},routeProgress(placed),routes),'other');
 });
 test('each placed packet colors only its preceding interval across fixed nodes',()=>{
  const placed={research:'delivery',concept:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
@@ -85,10 +85,36 @@ test('a later wrong packet changes only its own preceding interval',()=>{
  const placed={research:'research',concept:'delivery'},routes=chooseRoutes(placed,false,routeProgress(placed));
  assert.deepEqual(routes.slice(0,5).map(({state})=>state),['white','final','red','red','neutral']);
 });
-test('the final lower packet leaves a white path through fixed B8 to the edge',()=>{
+test('the final lower packet keeps its color up to fixed B8 and a white tail beyond it',()=>{
  const placed={gitBranch:'gitBranch',connector:'connector'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(8).map(({state})=>state),['white','final','final','final','white','white']);
- assert.deepEqual(chooseRoutes(placed,true,routeProgress(placed)).slice(12).map(({state})=>state),['white','white']);
+ assert.deepEqual(routes.slice(8).map(({state})=>state),['white','final','final','final','final','white']);
+ assert.equal(fixedNodeVisual({id:'Б8',final:'other'},routeProgress(placed),routes),'other');
+ assert.deepEqual(chooseRoutes(placed,true,routeProgress(placed)).slice(12).map(({state})=>state),['final','white']);
+});
+test('the last fixed node stays white while the preceding interval follows its packet',()=>{
+ const empty=routeProgress({});
+ assert.equal(fixedNodeVisual({id:'Б8',final:'other'},empty,chooseRoutes({},false,empty)),'default');
+ const cases=[
+  [{connector:'connector'},'white'],
+  [{gitBranch:'connector',connector:'connector'},'final'],
+  [{gitBranch:'gitBranch',connector:'research'},'red'],
+ ];
+ for(const [placed,incoming] of cases){
+  const signal=routeProgress(placed),routes=chooseRoutes(placed,false,signal);
+  assert.equal(routes[12].state,incoming);
+  assert.equal(routes[13].state,'white');
+  assert.equal(fixedNodeVisual({id:'Б8',final:'other'},signal,routes),'other');
+ }
+});
+test('the first fixed nodes and their fade entrances stay white after either branch activates',()=>{
+ for(const [placed,first,entrance] of [
+  [{research:'delivery'},'01',0],
+  [{gitBranch:'connector'},'А2',8],
+ ]){
+  const signal=routeProgress(placed),routes=chooseRoutes(placed,false,signal);
+  assert.equal(routes[entrance].state,'white');
+  assert.equal(fixedNodeVisual({id:first,final:'other'},signal,routes),'other');
+ }
 });
 test('route segment bounds stay on the fixed final grid before and after any placement',()=>{
  const initial=chooseRoutes({},false,routeProgress({}));

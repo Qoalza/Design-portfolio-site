@@ -3,7 +3,7 @@
   min-width:1280px;
   min-height:max(100vh, 960px);
   overflow:hidden;
-  background:#0e1012;
+  background:radial-gradient(1746.221px 1196.5px at 50% max(0px,calc((100vh - 960px)/2)),#121517 0,#0e1012 100%);
   color:#e9eef2;
   font-family:Onest,sans-serif;
 }
@@ -15,7 +15,7 @@
   height:960px;
   transform:translateX(-50%);
   overflow:hidden;
-  background:radial-gradient(1746.221px 1196.5px at 720px 0,#121517 0,#0e1012 100%);
+  background:transparent;
 }
 .routing404-header {
   position:absolute;

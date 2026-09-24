@@ -26,7 +26,7 @@ const nodes = [
   {x:901,y:303.5,width:113,id:'05.2',label:'ДИЗАЙН СИСТЕМА',final:'active'},
   {x:128,y:347.5,width:100,id:'А2',label:'ПАРТНЕРЫ',final:'other'},
   {x:528,y:436.5,width:100,id:'C1',label:'БИЗНЕС',final:'active'},
-  {x:1149,y:302.5,width:100,id:'Б8',label:'ПОЛЬЗОВАТЕЛИ',final:'active'},
+  {x:1149,y:302.5,width:100,id:'Б8',label:'ПОЛЬЗОВАТЕЛИ',final:'other'},
 ];
 const fullIcons = {connector:connectorSvg,gitBranch:branchSvg};
 const iconMarkup = svg => svg.replaceAll('#E2E2EC','currentColor').replaceAll('<path ','<path vector-effect="non-scaling-stroke" ');
