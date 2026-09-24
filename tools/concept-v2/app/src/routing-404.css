@@ -154,7 +154,8 @@
 .routing404-node-label span {color:#949ea6}
 .routing404-node.is-other .routing404-node-marker {border-color:#747f87}
 .routing404-node.is-other .routing404-node-marker::after,
-.routing404-node.is-active .routing404-node-marker::after {
+.routing404-node.is-active .routing404-node-marker::after,
+.routing404-node.is-error .routing404-node-marker::after {
   position:absolute;
   top:2px;
   left:2px;
@@ -166,10 +167,14 @@
 .routing404-node.is-other .routing404-node-marker::after {background:#b7c0c7}
 .routing404-node.is-active .routing404-node-marker {border-color:#0462af;background:#00355f}
 .routing404-node.is-active .routing404-node-marker::after {background:#0378d6}
+.routing404-node.is-error .routing404-node-marker {border-color:#ff635e;background:#14181b}
+.routing404-node.is-error .routing404-node-marker::after {background:#dd4743}
 .routing404-node.is-other .routing404-node-label strong,
-.routing404-node.is-active .routing404-node-label strong {color:#d3dbe0}
+.routing404-node.is-active .routing404-node-label strong,
+.routing404-node.is-error .routing404-node-label strong {color:#d3dbe0}
 .routing404-node.is-other .routing404-node-label span,
-.routing404-node.is-active .routing404-node-label span {color:#b7c0c7}
+.routing404-node.is-active .routing404-node-label span,
+.routing404-node.is-error .routing404-node-label span {color:#b7c0c7}
 .routing404-slot {
   position:absolute;
   z-index:3;

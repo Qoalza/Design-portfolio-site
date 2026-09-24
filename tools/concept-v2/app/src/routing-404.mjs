@@ -37,7 +37,8 @@ export function routeProgress(state){
 export function chooseRoutes(placed,launched,signal){
  if(launched)return routeLayers.final.map((layer,index)=>({state:[0,7,8,12,13].includes(index)?'white':'final',layer}));
  const states=routeLayers.final.map(()=>'neutral');
- states[0]='white';states[8]='white';
+ if(signal.topReach)states[0]='white';
+ if(signal.lowerReach)states[8]='white';
  const paintBranch=(triggers,entrance)=>{
   let previous=-1,previousEnd=entrance;
   triggers.forEach(({slot,end},index)=>{
@@ -62,7 +63,10 @@ export function fixedNodeVisual(node,signal,routes){
  if(signal[reachKey]<threshold)return 'default';
  if(node.final==='other')return 'other';
  const throughSegment={'03':2,'05.1':4,'05.2':5,'C1':10};
- if(Object.hasOwn(throughSegment,node.id))return routes[throughSegment[node.id]].state==='final'?'active':'other';
+ if(Object.hasOwn(throughSegment,node.id)){
+  const state=routes[throughSegment[node.id]].state;
+  return state==='final'?'active':state==='red'?'error':'other';
+ }
  const blueKey=reachKey==='topReach'?'topBlue':'lowerBlue';
  return signal[blueKey]>=threshold?'active':'other';
 }

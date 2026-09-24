@@ -32,6 +32,13 @@ test('a wrong packet still carries neutral signal to its slot without creating b
  assert.deepEqual(routeProgress({gitBranch:'connector'}),{topReach:0,topBlue:0,lowerReach:9,lowerBlue:0});
  assert.deepEqual(routeProgress({concept:'delivery'}),{topReach:3,topBlue:0,lowerReach:0,lowerBlue:0});
 });
+test('an untouched branch keeps its fade entrance gray',()=>{
+ assert.deepEqual(chooseRoutes({},false,routeProgress({})).map(({state})=>state),Array(14).fill('neutral'));
+ const lowerOnly={gitBranch:'gitBranch'};
+ const routes=chooseRoutes(lowerOnly,false,routeProgress(lowerOnly));
+ assert.equal(routes[0].state,'neutral');
+ assert.equal(routes[8].state,'white');
+});
 test('a wrong upper packet colors the path behind it red while the fade before 01 stays white',()=>{
  const placed={delivery:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
  assert.deepEqual(routes.slice(0,7).map(({state})=>state),['white',...Array(6).fill('red')]);
@@ -51,9 +58,18 @@ test('each placed packet colors only its preceding interval across fixed nodes',
 test('a fixed node follows the colored interval crossing it instead of an earlier mismatch',()=>{
  const placed={research:'research',concept:'delivery',delivery:'delivery'};
  const signal=routeProgress(placed),routes=chooseRoutes(placed,false,signal);
- assert.equal(fixedNodeVisual({id:'03',final:'active'},signal,routes),'other');
+ assert.equal(fixedNodeVisual({id:'03',final:'active'},signal,routes),'error');
  assert.equal(fixedNodeVisual({id:'05.1',final:'active'},signal,routes),'active');
  assert.equal(fixedNodeVisual({id:'05.2',final:'active'},signal,routes),'active');
+});
+test('the new Figma Error marker follows red segments through upper and lower fixed nodes',()=>{
+ const top={concept:'concept',delivery:'research'};
+ const topSignal=routeProgress(top),topRoutes=chooseRoutes(top,false,topSignal);
+ assert.equal(fixedNodeVisual({id:'05.1',final:'active'},topSignal,topRoutes),'error');
+ assert.equal(fixedNodeVisual({id:'05.2',final:'active'},topSignal,topRoutes),'error');
+ const lower={gitBranch:'gitBranch',connector:'research'};
+ const lowerSignal=routeProgress(lower),lowerRoutes=chooseRoutes(lower,false,lowerSignal);
+ assert.equal(fixedNodeVisual({id:'C1',final:'active'},lowerSignal,lowerRoutes),'error');
 });
 test('fixed C1 takes the blue accent when a later correct packet follows an earlier error',()=>{
  const placed={gitBranch:'connector',connector:'connector'};
