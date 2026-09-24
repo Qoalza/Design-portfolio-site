@@ -79,6 +79,7 @@ export function createPreloaderGate({onState,now=()=>performance.now(),setTimer=
   };
   const start=(config,{immediate=false,reason=null,retryNumber=0}={})=>{
     cancel();
+    if(!reason){retries.slow=0;retries.connection=0;}
     const attempt={config,controller:new AbortController(),timers:new Set(),visible:false,shownAt:null,mode:'normal',reason,retryNumber,showReadyMessage:false,leaving:false};
     active=attempt;
     if(immediate)show(attempt);
@@ -88,7 +89,7 @@ export function createPreloaderGate({onState,now=()=>performance.now(),setTimer=
       attempt.mode='slow';
       emit(attempt);
     });
-    Promise.resolve().then(()=>config.prepare(attempt.controller.signal)).then(
+    Promise.resolve().then(()=>active===attempt?config.prepare(attempt.controller.signal,{reason,retryNumber}):undefined).then(
       value=>ready(attempt,value),
       error=>fail(attempt,error),
     );

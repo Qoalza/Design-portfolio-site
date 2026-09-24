@@ -86,3 +86,49 @@ test('a failed request shows the connection state and a contextual retry',async(
   assert.deepEqual([states.at(-1).mode,states.at(-1).reason,states.at(-1).retryNumber],['normal','connection',1]);
   gate.dispose();
 });
+
+test('ready copy appears only after a confirmed late result',async()=>{
+  const timer=clock(),states=[],calls=[],work=deferred();
+  const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+  gate.start({prepare:()=>work.promise,commit:value=>calls.push(value)},{immediate:true});
+  await timer.advance(LOGO_REVOLUTION_MS+1);
+  assert.equal(states.at(-1).showReadyMessage,false);
+  work.resolve('ready');
+  await timer.advance(0);
+  assert.equal(states.at(-1).showReadyMessage,true);
+  await timer.advance(449);
+  assert.deepEqual(calls,[]);
+  await timer.advance(1);
+  assert.deepEqual(calls,['ready']);
+  gate.dispose();
+});
+
+test('a page may still finish after the ten-second warning',async()=>{
+  const timer=clock(),states=[],calls=[],work=deferred();
+  const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+  gate.start({prepare:()=>work.promise,commit:value=>calls.push(value)},{immediate:true});
+  await timer.advance(10000);
+  assert.equal(states.at(-1).mode,'slow');
+  work.resolve('finally ready');
+  await timer.advance(0);
+  assert.equal(states.at(-1).showReadyMessage,true);
+  await timer.advance(450);
+  assert.deepEqual(calls,['finally ready']);
+  gate.dispose();
+});
+
+test('a new navigation starts with fresh contextual retry copy',async()=>{
+  const timer=clock(),states=[];
+  const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+  const connection={prepare:()=>Promise.reject(new TypeError('network'))};
+  gate.start(connection);
+  await timer.advance(0);
+  gate.retry();
+  await timer.advance(0);
+  assert.equal(states.at(-1).retryNumber,1);
+  gate.start(connection);
+  await timer.advance(0);
+  gate.retry();
+  assert.deepEqual([states.at(-1).reason,states.at(-1).retryNumber],['connection',1]);
+  gate.dispose();
+});

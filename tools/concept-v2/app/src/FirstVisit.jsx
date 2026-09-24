@@ -12,7 +12,7 @@ export function FirstVisit({children}){
   useEffect(()=>{
     const session=createPreloaderGate({onState:setState});
     gate.current=session;
-    session.start({prepare:signal=>prepareFirstView(page.current,signal)},{immediate:true});
+    session.start({prepare:(signal,{retryNumber})=>prepareFirstView(page.current,signal,retryNumber)},{immediate:true});
     return()=>{session.dispose();if(gate.current===session)gate.current=null;};
   },[]);
   const captions=state.reason

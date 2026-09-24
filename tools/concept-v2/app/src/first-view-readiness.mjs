@@ -10,7 +10,7 @@ function nextPaint(signal){
   });
 }
 
-function loadImage(image,signal){
+function loadImage(image,signal,retryNumber){
   return new Promise((resolve,reject)=>{
     if(signal.aborted){reject(signal.reason);return;}
     const cleanup=()=>{
@@ -31,11 +31,18 @@ function loadImage(image,signal){
     image.addEventListener('load',loaded,{once:true});
     image.addEventListener('error',failed,{once:true});
     signal.addEventListener('abort',aborted,{once:true});
-    if(image.complete)(image.naturalWidth>0?loaded:failed)();
+    const retryFailedImage=image.complete&&image.naturalWidth===0&&retryNumber>0;
+    if(retryFailedImage){
+      const url=new URL(image.src,location.href);
+      url.searchParams.set('preloader-retry',String(retryNumber));
+      image.src=url.href;
+    }
+    if(image.complete&&image.naturalWidth>0)loaded();
+    else if(image.complete&&!retryFailedImage)failed();
   });
 }
 
-export async function prepareFirstView(root,signal){
+export async function prepareFirstView(root,signal,retryNumber=0){
   await nextPaint(signal);
   const visibleImages=[...root.querySelectorAll('.site-header img,.hero img')]
     .filter(image=>image.loading!=='lazy'&&image.getBoundingClientRect().top<innerHeight);
@@ -43,7 +50,7 @@ export async function prepareFirstView(root,signal){
     document.fonts.load('400 16px Onest','Артур'),
     document.fonts.load('500 48px "Google Sans"','Продуктовый дизайнер'),
   ];
-  await Promise.all([...fonts,...visibleImages.map(image=>loadImage(image,signal))]);
+  await Promise.all([...fonts,...visibleImages.map(image=>loadImage(image,signal,retryNumber))]);
   if(signal.aborted)throw signal.reason;
   await nextPaint(signal);
 }
