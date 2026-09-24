@@ -179,7 +179,7 @@ export function Routing404() {
         return <div key={slotId} className={`routing404-slot ${slot.icon?'has-icon':'has-number'} ${packet?'is-occupied':'is-empty'} ${wrong?'is-wrong':''} ${proximity===slotId?'is-proximity':''}`} style={{left:slot.x,top:slot.y,width:slot.width}}>
           {wrong&&<span className="routing404-error-lead">СМЕНИТЕ ЯЧЕЙКУ</span>}
           {packet?<Packet packet={packet} wrong={wrong} {...events(packet)}/>:<span className="routing404-empty-packet">
-            {slot.icon?<Icon type={slot.icon}/>:<span>{slot.number}</span>}
+            {slot.icon?<><svg className="routing404-empty-outline" viewBox="0 0 32 32" aria-hidden="true"><rect x="0.5" y="0.5" width="31" height="31" rx="7.5"/></svg><Icon type={slot.icon}/></>:<span>{slot.number}</span>}
           </span>}
           <span className="routing404-slot-label">{wrong?<>НЕПОДХОДЯЩИЙ<br/>ПАКЕТ</>:packet?slot.label:slot.icon?<>НЕТ<br/>ПОДКЛЮЧЕНИЯ</>:'НЕТ СВЯЗИ'}</span>
         </div>;
