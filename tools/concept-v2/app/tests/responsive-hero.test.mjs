@@ -17,6 +17,7 @@ test('responsive Hero is isolated to the Concept V2 preview route',async()=>{
  assert.doesNotMatch(app,/ResponsiveHeroPreview|ProjectResponsiveHero/);
  assert.match(definition,/sceneSrc:'\/responsive-scenes\/corvo-v1\/media-campaigns\/index\.html'/);
  await access(path.join(appRoot,'public/responsive-scenes/corvo-v1/media-campaigns/index.html'));
+ await access(path.join(appRoot,'public/responsive-scenes/corvo-v1/assets/authorization/logo.svg'));
 });
 
 test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{

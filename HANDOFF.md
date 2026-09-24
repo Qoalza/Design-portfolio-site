@@ -17,6 +17,8 @@
   главную concept-страницу или 404.
 - Готовая Corvo-сцена скопирована без внутренних изменений и отображается
   прямым `scale(.6)` в неинтерактивном iframe.
+- Общий Corvo `assets/authorization/logo.svg`, используемый Media Campaigns,
+  сохранён отдельно от неактивной Authorization scene и защищён focused-тестом.
 - Внешняя оболочка сохраняет принятую Figma-геометрию, fixed `1000px` Hero,
   сценарные табы, ruler, presets, resize handle и фиксированные locks.
 - Motion использует pinned `motion@13.4.2`: вязкий drag, `500ms` ease-in-out
@@ -30,6 +32,8 @@
 ## Проверка
 
 - Focused Hero tests: `6/6`.
+- Runtime: Corvo logo визуально подтверждён в `min-width`; SVG совпадает с
+  разрешённым source байт-в-байт и отдаётся как `image/svg+xml`.
 - Runtime: быстрый drag из desktop завершился на logical width `894`, что
   подтверждает полный дополнительный physical докат `-160px`; release в
   minimum дал измеренный inward recoil примерно `27px` и вернулся к границе.
