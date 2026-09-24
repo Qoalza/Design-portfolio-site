@@ -15,7 +15,9 @@ const slots = {
   connector:{x:904,y:456,width:77,icon:'connector',label:'ПОДКЛЮЧЕНО'},
 };
 const snapSlots = Object.fromEntries(Object.entries(slots).map(([id,s])=>[id,{x:s.x+s.width/2,y:s.y+16}]));
-const initialPositions = {research:{x:503,y:323.5},concept:{x:126,y:83.5},delivery:{x:1174,y:62},connector:{x:207,y:512},gitBranch:{x:1195,y:403}};
+// The initial Figma map starts 28px above the fixed final-position grid.
+// Free packets keep their original screen positions while nodes and routes stay fixed.
+const initialPositions = {research:{x:503,y:295.5},concept:{x:126,y:55.5},delivery:{x:1174,y:34},connector:{x:207,y:484},gitBranch:{x:1195,y:375}};
 const nodes = [
   {x:30,y:175.5,width:106,id:'01',label:'ЦЕЛЬ/ПРОБЛЕМА',final:'other'},
   {x:442,y:119.5,width:79,id:'03',label:'ВАРФРЕЙМЫ',final:'active'},

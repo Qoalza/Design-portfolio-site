@@ -241,7 +241,7 @@
 .routing404-hint {
   position:absolute;
   z-index:4;
-  top:17px;
+  top:-11px;
   left:1039px;
   width:111px;
   color:#747f87;
@@ -249,7 +249,7 @@
   font:400 10px/16px 'Source Code Pro',monospace;
   letter-spacing:-.3px;
 }
-.routing404-arrow {position:absolute;z-index:4;top:33.308px;left:1160.402px;pointer-events:none}
+.routing404-arrow {position:absolute;z-index:4;top:5.308px;left:1160.402px;pointer-events:none}
 .routing404-live {position:absolute;left:-9999px}
 @media (prefers-reduced-motion:reduce) {
   .routing404 * {scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important}
