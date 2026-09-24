@@ -218,6 +218,20 @@ test('latest caption candidate wins immediately and cancels a pending default',(
   controller.destroy();
 });
 
+test('caption controller can settle immediately without leaving delayed default work',()=>{
+ const clock=fakeClock();
+ const changes=[];
+ const controller=createCaptionController({onChange:value=>changes.push(value),schedule:clock.schedule,cancel:clock.cancel});
+ controller.update({x:495,y:314.667});
+ controller.update(null);
+ controller.reset();
+ assert.deepEqual(changes.at(-1),DEFAULT_CAPTION);
+ const settledCount=changes.length;
+ clock.tick(300);
+ assert.equal(changes.length,settledCount);
+ controller.destroy();
+});
+
 test('caption crossfade keeps one stable shell and one live-region value',async()=>{
  const source=await readFile(path.resolve(import.meta.dirname,'../src/SvgLens.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');

@@ -23,6 +23,22 @@ test('pointer consumers route high-frequency work through the shared finite fram
  assert.match(about,/document\.addEventListener\('pointermove',updateHover,\{passive:true\}\)/);
 });
 
+test('Hero lens yields to active scroll and waits for real pointer movement before reopening',async()=>{
+ const lens=await readFile(path.join(root,'src/SvgLens.jsx'),'utf8');
+ const css=await readFile(path.join(root,'src/lens.css'),'utf8');
+ const appCss=await readFile(path.join(root,'src/style.css'),'utf8');
+ assert.match(lens,/import \{subscribeScrollActivity\} from '\.\/smooth-scroll-runtime\.mjs'/);
+ assert.match(lens,/const scrollActiveRef=useRef\(false\)/);
+ assert.match(lens,/const host=area\.current\?\.parentElement;\s*host\?\.toggleAttribute\('data-scroll-active',next\);/);
+ assert.match(lens,/captionController\.current\?\.reset\(\)/);
+ assert.match(lens,/if\(scrollActiveRef\.current\)\{\s*setCaptionFrame\(frame=>\(\{current:next,outgoing:null,revision:frame\.revision\+1\}\)\);\s*return;\s*\}/);
+ assert.match(lens,/return\(\)=>\{unsubscribe\(\);area\.current\?\.parentElement\?\.removeAttribute\('data-scroll-active'\)\}/);
+ assert.match(lens,/function move\(event\)\{\s*if\(scrollActiveRef\.current\)\{pointerTaskRef\.current\?\.cancel\(\);setLensActive\(false\);return;\}/);
+ assert.match(css,/\.process-demo\[data-scroll-active\] \.process-map\{transition:none\}/);
+ assert.match(appCss,/\.process-demo\[data-scroll-active\] \.process-caption-content\{animation:none\}/);
+ assert.match(appCss,/\.process-demo\[data-scroll-active\] \.process-caption-content\.is-outgoing\{display:none\}/);
+});
+
 test('deck reduced-motion settlement invalidates an earlier animation before it can write again',async()=>{
  const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
  const go=about.slice(about.indexOf('const go=useCallback'));

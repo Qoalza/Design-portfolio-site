@@ -7,6 +7,7 @@ import {clientPointToSvg,svgPointToClient} from './hero-layout.mjs';
 import {createCaptionController,DEFAULT_CAPTION} from './hero-caption.mjs';
 import {Icon} from './Controls';
 import {createFrameTask} from './runtime/frame-task.mjs';
+import {subscribeScrollActivity} from './smooth-scroll-runtime.mjs';
 
 export function SvgLens(){
   const area=useRef(null);
@@ -23,19 +24,24 @@ export function SvgLens(){
   const coarseRef=useRef(false);
   const touchExploreRef=useRef(false);
   const pointerTaskRef=useRef(null);
+  const scrollActiveRef=useRef(false);
+  const closingUntil=useRef(0);
   useEffect(()=>{
     captionController.current=createCaptionController({onChange:next=>{
       const previous=captionCurrent.current;
       if(previous.key===next.key)return;
       captionCurrent.current=next;
       clearTimeout(captionTransitionTimer.current);
+      if(scrollActiveRef.current){
+        setCaptionFrame(frame=>({current:next,outgoing:null,revision:frame.revision+1}));
+        return;
+      }
       setCaptionFrame(frame=>({current:next,outgoing:previous,revision:frame.revision+1}));
       captionTransitionTimer.current=setTimeout(()=>setCaptionFrame(frame=>({...frame,outgoing:null})),300);
     }});
     return ()=>{captionController.current?.destroy();clearTimeout(captionTransitionTimer.current)};
   },[]);
   useEffect(()=>captionController.current?.update(active?point:null),[active,point.x,point.y]);
-  const closingUntil=useRef(0);
   const setLensActive=next=>{activeRef.current=next;setActive(current=>current===next?current:next);};
   const setMapPoint=(svgPoint,rect)=>{pointRef.current=svgPoint;setPoint(svgPoint);setLensPosition(svgPointToClient({...svgPoint,rect,viewWidth:WIDTH,viewHeight:HEIGHT}));};
   useEffect(()=>{
@@ -67,6 +73,19 @@ export function SvgLens(){
     update();query.addEventListener('change',update);
     return ()=>query.removeEventListener('change',update);
   },[]);
+  useEffect(()=>{
+    const unsubscribe=subscribeScrollActivity(next=>{
+      scrollActiveRef.current=next;
+      const host=area.current?.parentElement;
+      host?.toggleAttribute('data-scroll-active',next);
+      if(!next)return;
+      closingUntil.current=0;
+      pointerTaskRef.current?.cancel();
+      captionController.current?.reset();
+      setLensActive(false);
+    });
+    return()=>{unsubscribe();area.current?.parentElement?.removeAttribute('data-scroll-active')};
+  },[]);
   function leave(event){
     if(event.pointerType==='touch')return;
     closingUntil.current=performance.now()+180;
@@ -83,6 +102,7 @@ export function SvgLens(){
     return ()=>window.removeEventListener('pointermove',followOutside);
   },[]);
   function move(event){
+    if(scrollActiveRef.current){pointerTaskRef.current?.cancel();setLensActive(false);return;}
     if(event.pointerType==='touch'&&!touchExploreRef.current)return;
     pointerTaskRef.current?.schedule({kind:'move',clientX:event.clientX,clientY:event.clientY});
   }

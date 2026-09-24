@@ -31,6 +31,10 @@ export function createCaptionController({onChange,schedule=setTimeout,cancel=cle
    if(shown.key==='default'||defaultTimer!==null)return;
    defaultTimer=schedule(()=>{defaultTimer=null;commit(DEFAULT_CAPTION)},160);
   },
+  reset(){
+   clearDefault();
+   if(shown.key!=='default')commit(DEFAULT_CAPTION);
+  },
   destroy(){clearDefault()},
   current(){return shown},
  };
