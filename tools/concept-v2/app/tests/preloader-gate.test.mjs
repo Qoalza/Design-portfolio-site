@@ -76,14 +76,29 @@ test('slow loading keeps the attempt alive and Retry aborts it',async()=>{
   gate.dispose();
 });
 
-test('a failed request shows the connection state and a contextual retry',async()=>{
+test('an immediate connection failure waits for one visible logo revolution',async()=>{
   const timer=clock(),states=[];
   const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
   gate.start({prepare:()=>Promise.reject(new TypeError('network'))});
   await timer.advance(0);
+  assert.deepEqual([states.at(-1).visible,states.at(-1).mode],[true,'normal']);
+  await timer.advance(LOGO_REVOLUTION_MS-1);
+  assert.equal(states.at(-1).mode,'normal');
+  await timer.advance(1);
   assert.equal(states.at(-1).mode,'connection');
   gate.retry();
   assert.deepEqual([states.at(-1).mode,states.at(-1).reason,states.at(-1).retryNumber],['normal','connection',1]);
+  gate.dispose();
+});
+
+test('a connection failure after one revolution appears without extra waiting',async()=>{
+  const timer=clock(),states=[],work=deferred();
+  const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+  gate.start({prepare:()=>work.promise});
+  await timer.advance(200+LOGO_REVOLUTION_MS);
+  work.reject(new TypeError('network'));
+  await timer.advance(0);
+  assert.equal(states.at(-1).mode,'connection');
   gate.dispose();
 });
 
@@ -125,12 +140,12 @@ test('a new navigation starts with fresh contextual retry copy',async()=>{
   const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
   const connection={prepare:()=>Promise.reject(new TypeError('network'))};
   gate.start(connection);
-  await timer.advance(0);
+  await timer.advance(LOGO_REVOLUTION_MS);
   gate.retry();
   await timer.advance(0);
   assert.equal(states.at(-1).retryNumber,1);
   gate.start(connection);
-  await timer.advance(0);
+  await timer.advance(LOGO_REVOLUTION_MS);
   gate.retry();
   assert.deepEqual([states.at(-1).reason,states.at(-1).retryNumber],['connection',1]);
   gate.dispose();

@@ -78,8 +78,13 @@ export function createPreloaderGate({onState,now=()=>performance.now(),setTimer=
     clear(attempt);
     if(error?.name==='AbortError')return;
     show(attempt);
-    attempt.mode='connection';
-    emit(attempt);
+    const showConnection=()=>{
+      attempt.mode='connection';
+      emit(attempt);
+    };
+    const remaining=attempt.mode==='slow'?0:LOGO_REVOLUTION_MS-(now()-attempt.shownAt);
+    if(remaining<=0)showConnection();
+    else schedule(attempt,remaining,showConnection);
   };
   const start=(config,{immediate=false,reason=null,retryNumber=0}={})=>{
     cancel();
