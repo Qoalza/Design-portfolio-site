@@ -26,7 +26,8 @@ test('scroll, resize, visibility, and pulse work is removed on unmount',async()=
   assert.match(experience,/removeEventListener\('resize',onResize\)/);
   assert.match(experience,/removeEventListener\('visibilitychange',onVisibilityChange\)/);
   assert.match(experience,/reduced\.removeEventListener\('change',onMotionChange\)/);
-  assert.match(pulse,/stop\?\.\(\)/);
+  assert.match(pulse,/controller\?\.stop\(\)/);
+  assert.match(pulse,/unsubscribeScroll\(\)/);
   assert.match(pulse,/activity\.dispose\(\)/);
   assert.match(pulse,/task\.dispose\(\)/);
   assert.match(pulse,/resizeObserver\.disconnect\(\)/);

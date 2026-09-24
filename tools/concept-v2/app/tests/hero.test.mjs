@@ -284,6 +284,43 @@ test('cancelled pulse cannot emit a late arrival or schedule another route',()=>
   assert.equal(scheduled.length,2);
 });
 
+test('scroll pause cancels the visible pulse and terminal work, then resumes immediately',()=>{
+  const scheduled=[];
+  const cancelled=[];
+  const pulses=[];
+  const arrivals=[];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  const controller=schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:pulse=>pulses.push(pulse),
+    arrive:event=>arrivals.push(event),
+    initialDelay:0,
+    random:()=>0,
+    schedule,
+    cancel:id=>cancelled.push(id),
+  });
+
+  scheduled[0].callback();
+  controller.pause({cancelActive:true});
+  assert.ok(cancelled.includes(scheduled[1].id));
+  assert.equal(pulses.at(-1),null);
+  assert.equal(arrivals.at(-1),null);
+  scheduled[1].callback();
+  assert.equal(scheduled.length,2);
+  assert.equal(arrivals.filter(Boolean).length,0);
+
+  controller.resume({immediate:true});
+  assert.equal(scheduled[2].delay,0);
+  controller.stop();
+});
+
+test('Hero removes active pulse paths for scroll and restarts immediately after settlement',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
+  assert.match(source,/subscribeScrollActivity/);
+  assert.match(source,/controller\.pause\(\{cancelActive:true\}\)/);
+  assert.match(source,/controller\.resume\(\{immediate:true\}\)/);
+});
+
 test('terminal highlight uses 60ms reveal and 240ms fade',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/svg-lens.css'),'utf8');
   assert.match(css,/\.terminal-arrival\{[^}]*animation:terminal-arrival 300ms linear both/);

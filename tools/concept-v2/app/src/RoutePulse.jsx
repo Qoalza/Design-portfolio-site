@@ -4,6 +4,7 @@ import {measurePulseRoutes,scalePulseRoutes,screenScale} from './pulse-routes.mj
 import {schedulePulses} from './pulse.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {createViewActivity} from './runtime/view-activity.mjs';
+import {subscribeScrollActivity} from './smooth-scroll-runtime.mjs';
 
 export function RoutePulse(){
   const root=useRef(null);
@@ -13,8 +14,9 @@ export function RoutePulse(){
     const svg=root.current?.ownerSVGElement;
     if(!svg)return undefined;
     const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
-    let stop;
+    let controller;
     let active=false;
+    let scrollActive=false;
     let hasStarted=false;
     let lastScale;
     const measured=measurePulseRoutes(d=>{
@@ -23,8 +25,8 @@ export function RoutePulse(){
       return path.getTotalLength();
     });
     function clear(){
-      stop?.();
-      stop=undefined;
+      controller?.stop();
+      controller=undefined;
       setPulse(null);
       setArrival(null);
     }
@@ -35,10 +37,11 @@ export function RoutePulse(){
       if(!active||motion.matches||document.hidden){clear();return;}
       const scale=readScale();
       if(scale===null){clear();return;}
-      if(stop&&lastScale===scale)return;
+      if(controller&&lastScale===scale)return;
       clear();
       lastScale=scale;
-      stop=schedulePulses({routes:scalePulseRoutes(measured,scale),emit:value=>{setPulse(value);if(value)setArrival(null);},arrive:setArrival,initialDelay:immediate?0:undefined});
+      controller=schedulePulses({routes:scalePulseRoutes(measured,scale),emit:value=>{setPulse(value);if(value)setArrival(null);},arrive:setArrival,initialDelay:immediate?0:undefined});
+      if(scrollActive)controller.pause({cancelActive:true});
       hasStarted=true;
     }
     const task=createFrameTask({write:sync});
@@ -48,9 +51,15 @@ export function RoutePulse(){
     }});
     const resizeObserver=new ResizeObserver(()=>task.schedule({}));
     resizeObserver.observe(svg);
+    const unsubscribeScroll=subscribeScrollActivity(next=>{
+      scrollActive=next;
+      if(!controller||!active)return;
+      if(next)controller.pause({cancelActive:true});
+      else controller.resume({immediate:true});
+    });
     const onMotionChange=()=>task.schedule({});
     motion.addEventListener('change',onMotionChange);
-    return ()=>{activity.dispose();task.dispose();clear();resizeObserver.disconnect();motion.removeEventListener('change',onMotionChange);};
+    return ()=>{unsubscribeScroll();activity.dispose();task.dispose();clear();resizeObserver.disconnect();motion.removeEventListener('change',onMotionChange);};
   },[]);
   // Short contiguous dashes approximate an arc-length gradient, including bends.
   // A spatial SVG gradient would point the wrong way when the route turns.
