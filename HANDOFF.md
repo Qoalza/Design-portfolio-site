@@ -1,42 +1,45 @@
 # HANDOFF
 
-Обновлено: 2026-09-20.
+Обновлено: 2026-09-24.
 
 ## Checkout
 
-- Branch: `codex/concept-v2-figma-delta-3ec86f0`.
-- Worktree: `/private/tmp/design-portfolio-concept-v2-latest`.
-- Tested runtime SHA: `521e4eb9090b2482ba008140ea0c58b47b51f158` (`perf(concept-v2): predecode compatible project avif`).
-- Documentation/evidence is committed after that runtime SHA and must not be read as a rebuilt runtime.
-- `tools/concept-v2/app/node_modules` is an untracked local dependency symlink; never stage it.
+- Branch: `codex/concept-v2-scroll-lag`.
+- Worktree: `/Users/designer/.codex/worktrees/concept-v2-scroll-lag/Design-portfolio-site`.
+- Tested runtime SHA: `7b12f8f7f8b6f366a3863764ed0a7e762af18e3e` (`perf(concept-v2): prerasterize hero wave mask`).
+- Local acceptance URL: `http://127.0.0.1:43221/`.
 
 ## Current checkpoint
 
-- The Concept V2 runtime-optimization plan G1–G5 is implemented and recorded as `READY_FOR_REVIEW`.
-- G1: finite frame/activity scheduling and Hero map lifecycle.
-- G2: Experience geometry invalidation and offscreen/static cleanup.
-- G3: finite Header/cursor/lens/About pointer work and safe reduced-motion deck settlement.
-- G4: rendered-media preparation contract with About source selection and Projects fallback-only behavior.
-- Final automated evidence for the tested runtime: `npm run check` (86 tests, lint and Vite production build), `npm run check:browser` (HTTP built-runtime smoke) and `git diff --check` passed.
-- Follow-up: Project previews now have 640 px and 1080 px AVIF candidates with an unchanged PNG fallback. Their real rendered maximum is 519 px, so the 1080 px candidate covers a 2× Retina/5K display without upscaling.
-- Revised scoped correction: project-card pointer hover is immediately suppressed for physical and Lenis scrolling, then returns under a stationary pointer after settlement. It uses a synchronous document-level gate at wheel input instead of a deferred React render; the original layers and image `box-shadow` remain intact.
-- Visual correction: the desktop preview now uses the exact exported Figma shade vector (`638×328`) between the back and front artwork. The CSS radial-gradient approximation was the cause of the missing depth; no hover, geometry, animation or image layer was changed.
-- Projects media correction: all four 640/1080 AVIF derivatives were rebuilt as 8-bit 4:4:4 files without the `clap`/`clli` boxes rejected by the tested Zen decoder. Real Project image nodes are promoted to high priority and decoded when their section enters a 150% viewport margin; PNG fallback, layer order and visual geometry remain unchanged.
-- This runtime passed `npm run check` (92 tests, lint and Vite production build), `npm run check:browser`, `git diff --check`, direct Zen decoding of the 640 px AVIF, desktop visual inspection and a browser check confirming all four image nodes complete on the 1080 px AVIF with eager/high preparation.
+- The remaining concentrated Hero → Projects hitch was isolated to the desktop Small Hero's full-width SVG mask. Its source applies `feGaussianBlur stdDeviation="75"` over a `2106×714` filter region while the masked dotted field leaves the viewport.
+- An identical controlled scroll trace at `1438×879` measured a roughly `30 ms` maximum Graphics/SwapBuffers stage with the live SVG mask. Disabling that mask reduced the maximum to roughly `2.4 ms`.
+- Runtime commit `7b12f8f` replaces only the live mask resource with a pre-rasterized `2880×640` alpha PNG. The CSS dots, fade size and position, Hero geometry, route map, project cards, hover mechanics and Lenis behavior are unchanged.
+- The replacement trace measured about `3.6 ms` maximum SwapBuffers and `3.5 ms` maximum Graphics.Pipeline on the same pass.
+- A 2× pixel comparison of the old SVG-rendered field and the new raster-mask field measured mean channel delta `0.063/255` and maximum delta `7/255`; visual inspection found no observable difference.
+- The preceding runtime commit `5250d763425a353c62f4bc921cc2bf760e4ae1d1` still cancels active Hero route pulse paths synchronously during scroll and resumes with an immediate first pulse after settlement.
+
+## Verification
+
+- Focused RED/GREEN Hero test passed.
+- Full lint and 95/95 tests passed.
+- Vite production build passed (82 modules).
+- Built-runtime browser smoke passed.
+- `git diff --check` passed.
+- Fidelity/completeness review confirmed the same mask sizing/position, live CSS dot texture, unchanged geometry and visually indistinguishable output.
+- Regression/scope review confirmed no change to Project media/layers, hover animation, Lenis, Experience, dependencies, public Portfolio, Admin, shared contract, Figma, deploy or production.
 
 ## Acceptance and stop-lines
 
-- The manual Zen feel/performance pass is still required; direct Zen decoding proves compatibility but does not replace a human scroll-feel pass. Its latest target is the first entry into Projects after a reload, followed by a repeated pass through the section.
+- Manual first and repeated Hero → Projects scroll-feel acceptance in the user's normal Zen window remains required; Chromium tracing proves the isolated rendering cost but does not substitute for that final Zen feel pass.
+- Do not change the approved Hero dots, fade geometry, project visuals or animations unless new evidence requires a separately reviewed correction.
 - No Figma write, public Portfolio, Admin, shared contract, canonical content/assets, dependency, push, PR, merge, deploy or production action occurred.
-- Lenis and Experience blur/masks remain unchanged. Project AVIF derivatives are a separate, user-authorized follow-up; their geometry, layers, effects and PNG fallback remain unchanged.
 
 ## Next action
 
-- Perform the Zen acceptance pass for Hero → Projects → Experience, comparing the first and repeated Projects entries after the compatible AVIF/predecode correction. After an explicit request, push the local commit series or prepare the next scoped correction.
+- User tests `http://127.0.0.1:43221/` in Zen. If the concentrated hitch remains, capture a Zen profile of the updated exact runtime before changing another visual/render owner.
 
 ## Pointers
 
 - Execution record: `docs/exec-plans/concept-v2-runtime-optimization.md`.
 - Runtime contract: `docs/portfolio/CONCEPT_V2_RUNTIME.md`.
-- Immutable evidence: `design-reference/concept-v2-runtime-optimization/3ad9b55161d10efe35f7069141793036147032a7/`.
-- QA summary: `tools/concept-v2/app/design-qa.md`.
+- QA record: `tools/concept-v2/app/design-qa.md`.

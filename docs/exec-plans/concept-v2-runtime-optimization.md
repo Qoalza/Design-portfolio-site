@@ -82,6 +82,15 @@ Status: `READY_FOR_REVIEW`
 - Exact tested runtime: `521e4eb9090b2482ba008140ea0c58b47b51f158` (`perf(concept-v2): predecode compatible project avif`). Verification: focused RED/GREEN Project tests, `npm run check` with 92 tests, lint and Vite production build, `npm run check:browser`, `git diff --check`, direct successful Zen decode without the prior AVIF parser errors, and desktop visual inspection with unchanged geometry/effects.
 - Remaining acceptance: the user must compare first and repeated Hero → Projects scrolling in Zen. Headless/direct decode evidence proves asset compatibility, not subjective scroll smoothness.
 
+### Follow-up — Hero/Projects boundary compositor stall
+
+- The pulse and Project-media corrections reduced secondary work but did not remove the concentrated hitch at the section boundary. A fresh layer-level audit moved the investigation from card decoding to the exact render owner crossing the viewport edge.
+- At the user's desktop Small Hero breakpoint, `.hero-bottom-dots` used `hero-bottom-wave-mask.svg`, whose `feGaussianBlur stdDeviation="75"` covers a `2106×714` filter region. The full-width filtered mask leaves the viewport at the same position where the hitch concentrates.
+- Identical `1438×879` controlled traces measured a roughly `30 ms` maximum Graphics/SwapBuffers stage with the live SVG mask, about `2.4 ms` with the mask disabled, and about `3.6 ms` after replacing it with the pre-rasterized alpha mask.
+- Runtime commit `7b12f8f7f8b6f366a3863764ed0a7e762af18e3e` changes only the mask resource to a `2880×640` 2× PNG. The dot texture remains live CSS, and its exact mask size, position, geometry and surrounding interaction owners remain unchanged.
+- Pixel comparison against the old SVG-rendered field measured mean channel delta `0.063/255` and maximum delta `7/255`; visual inspection found no observable change.
+- Final verification: lint and 95/95 tests passed; Vite production build and built-runtime browser smoke passed; `git diff --check` passed. Manual Zen scroll-feel acceptance remains open.
+
 ## Stop-lines
 
 - Stop the dependent group if preserving behavior would require changing visible geometry/effects, the Experience gate, Lenis ownership/configuration, canonical assets/content, dependencies, Figma or production state.

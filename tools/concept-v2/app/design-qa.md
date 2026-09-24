@@ -188,3 +188,13 @@ Status: `READY_FOR_REVIEW`
 - Real Project image nodes now switch from lazy/low to eager/high and run through the shared `decode()` preparation when Projects enters a 150% viewport margin. There is no hidden duplicate loader and no change to the approved card geometry, layer order, shade, shadow, hover or scroll behavior.
 - Runtime proof: all four browser nodes were complete on `imgDesktop3-1080.avif` / `imgDesktop4-1080.avif` with high/eager preparation; Zen directly decoded and rendered the 640 px AVIF without the previous parser errors; desktop Projects retained the approved two-card composition and effects.
 - Verification: focused Project tests, `npm run check` (92 tests, lint and Vite build), `npm run check:browser` and `git diff --check` passed. Manual Zen scroll-feel acceptance remains open.
+
+## Hero → Projects compositor correction (2026-09-24)
+
+Status: `READY_FOR_REVIEW`
+
+- The remaining concentrated hitch was reproduced at the desktop Small Hero boundary and isolated from Project AVIF decode, card hover and Hero pulse scheduling.
+- The active full-width dot-field mask used a live SVG `feGaussianBlur` with `stdDeviation="75"`. On the same `1438×879` scroll trace its maximum Graphics/SwapBuffers stage was about `30 ms`; removing the mask reduced that stage to about `2.4 ms`.
+- Tested runtime `7b12f8f7f8b6f366a3863764ed0a7e762af18e3e` replaces only that live filter with a pre-rasterized `2880×640` alpha mask. The CSS dot texture, mask geometry, Hero content, map animation and Project card appearance/animation remain unchanged.
+- The replacement trace measured approximately `3.5–3.6 ms` at the same graphics stage. The old/new screenshot comparison measured mean channel delta `0.063/255`, maximum `7/255`, with no observable visual difference.
+- Verification: focused Hero RED/GREEN test; full lint and 95/95 tests; Vite production build; built-runtime browser smoke; `git diff --check`; fidelity/completeness and regression/scope reviews. Final user scroll-feel acceptance in normal Zen remains open.
