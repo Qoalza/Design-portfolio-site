@@ -70,6 +70,7 @@ export function Routing404() {
   const mapRef=useRef(null),stageRef=useRef(null),dragRef=useRef(null),placedRef=useRef({});
   const [placed,setPlaced]=useState({}),[freePositions,setFreePositions]=useState(initialPositions);
   const [dragging,setDragging]=useState(null),[proximity,setProximity]=useState(null),[phase,setPhase]=useState('idle');
+  const [hintDismissed,setHintDismissed]=useState(false);
   const progress=status(placed),launched=phase==='launched'&&progress.correct===progress.total;
   const signal=routeProgress(placed);
   const occupied=useMemo(()=>Object.fromEntries(Object.entries(placed).map(([slot,id])=>[id,slot])),[placed]);
@@ -105,6 +106,7 @@ export function Routing404() {
   const move=event=>{
     const active=dragRef.current;if(!active||active.pointerId!==event.pointerId)return;
     const position=dragPosition(event,active);
+    setHintDismissed(true);
     setFreePositions(value=>({...value,[active.id]:position}));
     setProximity(nearby(position));
   };
@@ -159,7 +161,7 @@ export function Routing404() {
           <span className="routing404-slot-label">{wrong?<>НЕПОДХОДЯЩИЙ<br/>ПАКЕТ</>:packet?slot.label:slot.icon?<>НЕТ<br/>ПОДКЛЮЧЕНИЯ</>:'НЕТ СВЯЗИ'}</span>
         </div>;
       })}
-      {!hasActivity&&<><p className="routing404-hint">Перетащите пакет<br/>в свободный узел</p><img className="routing404-arrow" src={routingAsset('initial','imgVector50')} alt=""/></>}
+      {!hasActivity&&!hintDismissed&&<><p className="routing404-hint">Перетащите пакет<br/>в свободный узел</p><img className="routing404-arrow" src={routingAsset('initial','imgVector50')} alt=""/></>}
       {packets.filter(packet=>!occupied[packet.id]&&!freePositions[packet.id].space).map(packet=><div key={packet.id} className="routing404-free-packet" style={{left:freePositions[packet.id].x,top:freePositions[packet.id].y}}><Packet packet={packet} free dragging={dragging===packet.id} {...events(packet)}/></div>)}
     </div>
     <div className="routing404-live" aria-live="polite">{launched?'Маршрут выстроен':`Собрано ${progress.correct} из ${progress.total}`}</div>
