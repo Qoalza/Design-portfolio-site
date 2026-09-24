@@ -54,3 +54,15 @@ export function chooseRoutes(placed,launched,signal){
  if(signal.lowerReach>=11&&placed.connector==='connector'){states[12]='white';states[13]='white';}
  return routeLayers.final.map((layer,index)=>({state:states[index],layer}));
 }
+
+export function fixedNodeVisual(node,signal,routes){
+ const thresholds={'01':['topReach',1],'03':['topReach',2],'05.1':['topReach',4],
+  '05.2':['topReach',5],'А2':['lowerReach',9],'C1':['lowerReach',10],'Б8':['lowerReach',12]};
+ const [reachKey,threshold]=thresholds[node.id];
+ if(signal[reachKey]<threshold)return 'default';
+ if(node.final==='other')return 'other';
+ const throughSegment={'03':2,'05.1':4,'05.2':5,'C1':10};
+ if(Object.hasOwn(throughSegment,node.id))return routes[throughSegment[node.id]].state==='final'?'active':'other';
+ const blueKey=reachKey==='topReach'?'topBlue':'lowerBlue';
+ return signal[blueKey]>=threshold?'active':'other';
+}

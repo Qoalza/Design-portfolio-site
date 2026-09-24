@@ -5,7 +5,7 @@ import connectorSvg from './figma/routing404-connector-full.svg?raw';
 import branchSvg from './figma/routing404-git-branch-full.svg?raw';
 import {routeLayers, routingAsset} from './routing-404-design.mjs';
 import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from './routing-404-pulse.mjs';
-import {chooseRoutes,dropResult,packets,routeProgress,status} from './routing-404.mjs';
+import {chooseRoutes,dropResult,fixedNodeVisual,packets,routeProgress,status} from './routing-404.mjs';
 import './routing-404.css';
 
 const slots = {
@@ -66,16 +66,6 @@ function CompletionPulse() {
     });
   });
 }
-function nodeVisual(node,signal) {
-  const thresholds={'01':['topReach',1],'03':['topReach',2],'05.1':['topReach',4],
-    '05.2':['topReach',5],'А2':['lowerReach',9],'C1':['lowerReach',10],'Б8':['lowerReach',12]};
-  const [reachKey,threshold]=thresholds[node.id];
-  if(signal[reachKey]<threshold)return 'default';
-  if(node.final==='other')return 'other';
-  const blueKey=reachKey==='topReach'?'topBlue':'lowerBlue';
-  return signal[blueKey]>=threshold?'active':'other';
-}
-
 export function Routing404() {
   const mapRef=useRef(null),stageRef=useRef(null),dragRef=useRef(null),placedRef=useRef({});
   const [placed,setPlaced]=useState({}),[freePositions,setFreePositions]=useState(initialPositions);
@@ -158,7 +148,7 @@ export function Routing404() {
         {vectors.map(({state,layer})=><Vector key={`${layer.nodeId}-${state}`} state={state} layer={layer}/>)}
         {phase==='checking'&&<CompletionPulse/>}
       </div>
-      {nodes.map(node=><Node key={node.id} node={node} visual={launched?node.final:nodeVisual(node,signal)}/>)}
+      {nodes.map(node=><Node key={node.id} node={node} visual={launched?node.final:fixedNodeVisual(node,signal,vectors)}/>)}
       {Object.entries(slots).map(([slotId,slot])=>{
         const packet=packets.find(item=>item.id===placed[slotId]),wrong=Boolean(packet&&packet.target!==slotId);
         return <div key={slotId} className={`routing404-slot ${slot.icon?'has-icon':'has-number'} ${packet?'is-occupied':'is-empty'} ${wrong?'is-wrong':''} ${proximity===slotId?'is-proximity':''}`} style={{left:slot.x,top:slot.y,width:slot.width}}>

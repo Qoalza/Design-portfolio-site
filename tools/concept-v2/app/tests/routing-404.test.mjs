@@ -1,4 +1,4 @@
-import test from 'node:test'; import assert from 'node:assert/strict'; import {chooseRoutes,drop,dropResult,routeProgress,status} from '../src/routing-404.mjs';
+import test from 'node:test'; import assert from 'node:assert/strict'; import {chooseRoutes,drop,dropResult,fixedNodeVisual,routeProgress,status} from '../src/routing-404.mjs';
 import {readFileSync} from 'node:fs';
 import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from '../src/routing-404-pulse.mjs';
 const slots={research:{x:0,y:0},concept:{x:100,y:0},delivery:{x:200,y:0},gitBranch:{x:300,y:0},connector:{x:400,y:0}};
@@ -45,6 +45,21 @@ test('a wrong lower packet colors its incoming branch red after the white fade',
 test('each placed packet colors only its preceding interval across fixed nodes',()=>{
  const placed={research:'delivery',concept:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
  assert.deepEqual(routes.slice(0,5).map(({state})=>state),['white','red','final','final','neutral']);
+ assert.equal(fixedNodeVisual({id:'03',final:'active'},routeProgress(placed),routes),'active');
+ assert.equal(fixedNodeVisual({id:'01',final:'other'},routeProgress(placed),routes),'other');
+});
+test('a fixed node follows the colored interval crossing it instead of an earlier mismatch',()=>{
+ const placed={research:'research',concept:'delivery',delivery:'delivery'};
+ const signal=routeProgress(placed),routes=chooseRoutes(placed,false,signal);
+ assert.equal(fixedNodeVisual({id:'03',final:'active'},signal,routes),'other');
+ assert.equal(fixedNodeVisual({id:'05.1',final:'active'},signal,routes),'active');
+ assert.equal(fixedNodeVisual({id:'05.2',final:'active'},signal,routes),'active');
+});
+test('fixed C1 takes the blue accent when a later correct packet follows an earlier error',()=>{
+ const placed={gitBranch:'connector',connector:'connector'};
+ const signal=routeProgress(placed),routes=chooseRoutes(placed,false,signal);
+ assert.deepEqual(routes.slice(8,12).map(({state})=>state),['white','red','final','final']);
+ assert.equal(fixedNodeVisual({id:'C1',final:'active'},signal,routes),'active');
 });
 test('a missing earlier packet leaves the path to a later correct packet white',()=>{
  const placed={concept:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
