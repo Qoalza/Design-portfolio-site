@@ -1,7 +1,9 @@
 import {useEffect,useRef,useState} from 'react';
 import {animate,motion,useMotionValue,useReducedMotion,useTransform} from 'motion/react';
 import {
+  BOUNDARY_RECOIL_TRANSITION,
   DRAG_SPRING,
+  getBoundaryRecoil,
   getGestureVelocity,
   getInertiaOffset,
   getMagneticPreset,
@@ -170,6 +172,23 @@ export function ProjectResponsiveHero({definition}) {
     ];
   }
 
+  function recoilFromBoundary(current, recoil) {
+    stopAnimations();
+    setGeometry(current);
+    animationControls.current = [
+      animate(
+        displayWidth,
+        [displayWidth.get(), recoil.displayWidth, current.displayWidth],
+        BOUNDARY_RECOIL_TRANSITION,
+      ),
+      animate(
+        logicalWidth,
+        [logicalWidth.get(), recoil.logicalWidth, current.logicalWidth],
+        BOUNDARY_RECOIL_TRANSITION,
+      ),
+    ];
+  }
+
   function selectAdaptive(id, transition = PRESET_TRANSITION) {
     const preset = ADAPTIVE_PRESETS[id];
     setSelectionMode("preset");
@@ -232,6 +251,11 @@ export function ProjectResponsiveHero({definition}) {
       : 0;
 
     if (inertiaOffset !== 0) {
+      const boundaryRecoil = getBoundaryRecoil(drag.latestGeometry.displayWidth, inertiaOffset);
+      if (boundaryRecoil) {
+        recoilFromBoundary(drag.latestGeometry, boundaryRecoil);
+        return;
+      }
       const inertiaGeometry = geometryFromDrag({
         startLogicalWidth: drag.latestGeometry.logicalWidth,
         startDisplayWidth: drag.latestGeometry.displayWidth,

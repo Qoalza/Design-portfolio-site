@@ -34,9 +34,9 @@ test('Concept V2 motion keeps the accepted resize and perceptible inertia contra
  const motion=await import('../src/project-hero/motion.mjs');
  const width=await import('../src/project-hero/width.mjs');
  assert.equal(width.RESPONSIVE_HERO_SCALE,.6);
- assert.equal(motion.INERTIA_MAX_OFFSET,96);
- assert.equal(motion.INERTIA_TRANSITION.duration,.32);
- assert.equal(motion.getInertiaOffset(2000,0),96);
+ assert.equal(motion.INERTIA_MAX_OFFSET,160);
+ assert.equal(motion.INERTIA_TRANSITION.duration,.42);
+ assert.equal(motion.getInertiaOffset(2000,0),160);
  assert.equal(motion.getInertiaOffset(1000,81),0);
  assert.deepEqual(motion.PRESET_TRANSITION,{type:'tween',duration:.5,ease:[.65,0,.35,1]});
 });
@@ -65,7 +65,22 @@ test('release motion preserves a fast gesture through a tiny final pointer step'
   {position:202,time:70}
  ],70);
  assert.ok(velocity>2800);
- assert.equal(motion.getInertiaOffset(velocity,0),96);
+ assert.equal(motion.getInertiaOffset(velocity,0),160);
  assert.equal(motion.getMagneticPreset(772+16),'tablet');
  assert.equal(motion.getMagneticPreset(772+16.01),null);
+});
+
+test('a fast release against either hard boundary produces a visible inward recoil',async()=>{
+ const motion=await import('../src/project-hero/motion.mjs');
+ const width=await import('../src/project-hero/width.mjs');
+ assert.equal(motion.BOUNDARY_RECOIL_DISTANCE,28);
+ assert.deepEqual(
+  motion.getBoundaryRecoil(width.MIN_DISPLAY_WIDTH,-160),
+  {displayWidth:244,logicalWidth:406.6666666666667}
+ );
+ assert.deepEqual(
+  motion.getBoundaryRecoil(width.MAX_DISPLAY_WIDTH,160),
+  {displayWidth:1132,logicalWidth:1886.6666666666667}
+ );
+ assert.equal(motion.getBoundaryRecoil(800,-160),null);
 });

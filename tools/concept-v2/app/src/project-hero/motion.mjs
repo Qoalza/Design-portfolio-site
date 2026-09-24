@@ -1,11 +1,17 @@
-import {ADAPTIVE_PRESETS} from './width.mjs';
+import {
+  ADAPTIVE_PRESETS,
+  MAX_DISPLAY_WIDTH,
+  MIN_DISPLAY_WIDTH,
+  RESPONSIVE_HERO_SCALE,
+} from './width.mjs';
 
 export const MAGNETIC_SNAP_RADIUS = 16;
-export const INERTIA_VELOCITY_THRESHOLD = 250;
+export const INERTIA_VELOCITY_THRESHOLD = 180;
 export const INERTIA_SAMPLE_MAX_AGE = 80;
-export const INERTIA_MAX_OFFSET = 96;
+export const INERTIA_MAX_OFFSET = 160;
 export const GESTURE_VELOCITY_WINDOW = 120;
-const INERTIA_PROJECTION = .08;
+export const BOUNDARY_RECOIL_DISTANCE = 28;
+const INERTIA_PROJECTION = .12;
 
 export const DRAG_SPRING = {
   type: "spring",
@@ -30,8 +36,14 @@ export const MAGNETIC_TRANSITION = {
 
 export const INERTIA_TRANSITION = {
   type: "tween",
-  duration: .32,
+  duration: .42,
   ease: [.22, 1, .36, 1],
+};
+
+export const BOUNDARY_RECOIL_TRANSITION = {
+  duration: .46,
+  times: [0, .34, 1],
+  ease: [[.22, 1, .36, 1], [.65, 0, .35, 1]],
 };
 
 export function getInertiaOffset(velocity, sampleAge) {
@@ -60,6 +72,18 @@ export function getGestureVelocity(samples, releaseTime) {
   if (elapsed <= 0) return 0;
 
   return ((last.position - first.position) / elapsed) * 1000;
+}
+
+export function getBoundaryRecoil(displayWidth, inertiaOffset) {
+  const atMinimum = displayWidth <= MIN_DISPLAY_WIDTH + .5 && inertiaOffset < 0;
+  const atMaximum = displayWidth >= MAX_DISPLAY_WIDTH - .5 && inertiaOffset > 0;
+  if (!atMinimum && !atMaximum) return null;
+
+  const displayRecoil = displayWidth - Math.sign(inertiaOffset) * BOUNDARY_RECOIL_DISTANCE;
+  return {
+    displayWidth: displayRecoil,
+    logicalWidth: displayRecoil / RESPONSIVE_HERO_SCALE,
+  };
 }
 
 export function getMagneticPreset(displayWidth) {

@@ -20,18 +20,20 @@
 - Внешняя оболочка сохраняет принятую Figma-геометрию, fixed `1000px` Hero,
   сценарные табы, ruler, presets, resize handle и фиксированные locks.
 - Motion использует pinned `motion@13.4.2`: вязкий drag, `500ms` ease-in-out
-  presets, magnetic snap и быстрый release с докатом максимум `96px` за
-  `320ms`. Внутренняя Corvo-разметка motion не получает.
+  presets, magnetic snap и быстрый release с докатом максимум `160px` за
+  `420ms`. На жёсткой границе вместо съеденного clamp-ом доката срабатывает
+  `28px` inward recoil за `460ms`. Внутренняя Corvo-разметка motion не получает.
 - Ошибочный preview из основного checkout на `3001` остановлен. Порт `4190`
   не используется, потому что Zen блокирует его как зарезервированный.
   Живой `concept-v2-routing-404` на `4189` не изменён.
 
 ## Проверка
 
-- Focused Hero tests: `5/5`.
-- Runtime: быстрый physical drag `-250px` завершился на logical width `1357`,
-  что подтверждает дополнительный physical докат `-96px`.
-- Полный Concept V2 check: lint, `131/131` tests и Vite build — PASS.
+- Focused Hero tests: `6/6`.
+- Runtime: быстрый drag из desktop завершился на logical width `894`, что
+  подтверждает полный дополнительный physical докат `-160px`; release в
+  minimum дал измеренный inward recoil примерно `27px` и вернулся к границе.
+- Полный Concept V2 check: lint, `132/132` tests и Vite build — PASS.
 - Fidelity/completeness review удалил случайно перенесённые неиспользуемые
   сцены; `media-campaigns`, `shared` и chrome assets байт-в-байт совпадают с
   разрешённым source.
