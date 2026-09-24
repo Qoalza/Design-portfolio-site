@@ -7,7 +7,7 @@
 - Branch: `codex/concept-v2-responsive-hero`.
 - Worktree: `/Users/designer/.codex/worktrees/concept-v2-responsive-hero/Design-portfolio-site`.
 - Baseline: `4205fbe` (`codex/concept-v2-routing-404`).
-- Development URL: `http://127.0.0.1:4190/preview/project-responsive-hero`.
+- Development URL: `http://127.0.0.1:4173/preview/project-responsive-hero`.
 
 ## Checkpoint
 
@@ -22,8 +22,9 @@
 - Motion использует pinned `motion@13.4.2`: вязкий drag, `500ms` ease-in-out
   presets, magnetic snap и быстрый release с докатом максимум `96px` за
   `320ms`. Внутренняя Corvo-разметка motion не получает.
-- Ошибочный preview из основного checkout на `3001` остановлен. Живой
-  `concept-v2-routing-404` на `4189` не изменён.
+- Ошибочный preview из основного checkout на `3001` остановлен. Порт `4190`
+  не используется, потому что Zen блокирует его как зарезервированный.
+  Живой `concept-v2-routing-404` на `4189` не изменён.
 
 ## Проверка
 
