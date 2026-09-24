@@ -108,6 +108,14 @@ Status: `READY_FOR_REVIEW`
 - Final production-preview verification: lint and 99/99 tests passed, Vite production build transformed 83 modules, built-runtime browser smoke passed and `git diff --check` passed. Two full boundary traces reported no dropped, high-latency or missing frames; maximum renderer-main `RunTask` was `2.20/3.21 ms` and maximum Paint `0.13/0.20 ms`.
 - Manual Zen first/repeated scroll-feel acceptance remains open. If a hitch remains, the next change requires a Zen profile of this exact SHA; Chromium evidence is not a substitute.
 
+### Follow-up — Hero lens scroll settlement
+
+- After the dot-field raster, the user reported a substantial improvement with one small remaining snag. Controlled passes ruled out Header pinning, ready Project media and the held Project-hover gate at that point; starting the pass with the Hero lens active increased renderer paint/style and GPU raster work because the second filtered/masked SVG network was still transitioning as scroll began.
+- Runtime commit `0e45829e703937f31fe050e90c93dd62a83fa5b2` (`perf(concept-v2): suspend hero lens during scroll`) reuses the existing Lenis activity signal. It cancels queued lens pointer work, rejects layout-driven pointer movement during scroll, removes the 180 ms lens transition only for active scroll and resets the caption without its delayed 160 ms default or 300 ms crossfade.
+- Rest-state behavior is unchanged: the lens retains its approved radius, mask/filter, keyboard/touch routes and 180 ms transition; the caption retains its 300 ms crossfade; both pointer interactions require a new real pointer movement after settlement.
+- Final verification: focused RED/GREEN tests, lint and 101/101 tests, Vite production build, built-runtime browser smoke and `git diff --check` passed. Two production-preview boundary traces began with the lens active, crossed to `scrollY=1020`, recorded 13 Paint events each and zero dropped frames; maximum renderer-main `RunTask` was `4.68/3.37 ms` and maximum Paint was `1.05/0.71 ms`.
+- Manual Zen first/repeated scroll-feel acceptance remains open for exact runtime `0e45829`; Chromium evidence remains a bounded implementation check rather than a substitute for the user's Zen acceptance.
+
 ## Stop-lines
 
 - Stop the dependent group if preserving behavior would require changing visible geometry/effects, the Experience gate, Lenis ownership/configuration, canonical assets/content, dependencies, Figma or production state.

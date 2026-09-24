@@ -6,33 +6,28 @@
 
 - Branch: `codex/concept-v2-scroll-lag`.
 - Worktree: `/Users/designer/.codex/worktrees/concept-v2-scroll-lag/Design-portfolio-site`.
-- Tested runtime SHA: `e2b4cbfb488476171f135e9bfcf2ac853255eb27` (`perf(concept-v2): rasterize hero dot mask once`).
+- Tested runtime SHA: `0e45829e703937f31fe050e90c93dd62a83fa5b2` (`perf(concept-v2): suspend hero lens during scroll`).
 - Development URL: `http://127.0.0.1:43221/`.
 - Production-preview acceptance URL: `http://127.0.0.1:43222/`.
 
 ## Current checkpoint
 
-- After the rasterized Hero mask removed the large compositor stall, the user reported a much smaller residual snag at the Hero → Projects boundary.
-- A fresh trace showed that scroll activity was still written to the root `html` element and that settlement automatically restarted the 150 ms Project hover when the stationary pointer happened to land over the moving card. That caused a document-wide style invalidation and about 125 Paint events during the controlled anchor-scroll pass.
-- Runtime commit `55c0da2` keeps the activity flag local to `.projects-section`. Pointer hover is removed synchronously for active scroll and remains suspended after settlement until the next real pointer movement; keyboard `:focus-within` stays independent.
-- Two identical post-fix traces measured only 24 and 26 Paint events, zero long tasks, and maximum main-thread `RunTask` durations of `4.95 ms` and `4.58 ms`. The root element no longer receives `data-scroll-active`.
-- A browser interaction check confirmed that one pointer movement removes the local gate and restores the exact existing line expansion, glow, shade opacity, front-image rotation and shadow without changing their CSS values.
-- The preceding commits still retain the prerasterized Hero wave mask and cancel active Hero route pulses synchronously during scroll, with the first returning pulse immediate after settlement.
-- Clean wheel and trackpad traces showed that the earlier automated anchor pass also paid the one-time global custom-cursor activation cost. With the cursor warmed, Chromium crossed the complete Hero boundary without a main-thread stall; Project media, Lenis class mutation, active pulse removal and offscreen Experience work were ruled out as the remaining concentrated owner.
-- The remaining Firefox/Zen-sensitive render owner was the full-width CSS `mask-image` on `.hero-bottom-dots`. Removing only that mask cut the controlled GPU workload substantially, while replacing the radial dot generator alone did not.
-- Runtime commit `e2b4cbf` keeps the existing `2880×640` mask, exact `110% calc(112% + 100px)` geometry, `16px` dot grid and current colors, but applies them once to a DPR-aware canvas. The original masked element remains as the load/error fallback and is removed from rendering only after the bitmap is ready.
-- Desktop Small Hero at `1438×879`, DPR `2.2` produced the expected `3164×704` canvas. Mobile resets to the original CSS field with a `0×0` canvas; authored Large Hero retains its original unmasked field and gradient overlay.
+- The one-time Hero dot-field raster in `e2b4cbf` removed the large compositor stall. The user reported that scrolling became substantially better but retained a small snag.
+- Controlled passes ruled out Header pinning, already-decoded Project media and the held Project-hover gate at this remaining point. Starting the same pass with the Hero lens active increased renderer paint/style work and GPU raster work; the lens still owned a second filtered/masked SVG network while the page began moving.
+- Runtime commit `0e45829` subscribes the Hero lens to the existing Lenis activity signal. Physical scroll closes the lens in the same input turn, cancels queued pointer work and prevents layout-driven pointer events from reopening it while scrolling.
+- Scroll closure is intentionally immediate: the local `--lens-progress` transition is disabled only while active scroll is published. The selected caption resets immediately without its delayed 160 ms default or 300 ms crossfade. After settlement, both approved animations return unchanged and a real pointer movement re-arms the interaction.
+- The prior Project hover gate, route-pulse cancellation, responsive AVIF preparation and one-time DPR-aware dot-field canvas remain intact. No new listener loop, RAF owner, dependency, asset derivative or visual rest/hover state was introduced.
 
 ## Verification
 
-- Focused RED/GREEN Project hover lifecycle test passed, including repeated scroll before pointer re-arm and cleanup.
-- Full lint and 99/99 tests passed.
+- Focused RED/GREEN tests cover synchronous lens closure, scroll-time pointer rejection, immediate caption reset, timer cancellation and cleanup.
+- Full lint and 101/101 tests passed.
 - Vite production build passed (83 modules).
 - Built-runtime browser smoke passed.
 - `git diff --check` passed.
-- Fidelity/completeness review confirmed the same mask source, position, size, dot spacing, colors and visual stacking; the `1438×879` browser check showed no observable Hero delta.
-- Regression/scope review confirmed finite resize/media cleanup and no change to Project media/layers, Hero graph/pulses, Lenis, Experience, dependencies, public Portfolio, Admin, shared contract, Figma, deploy or production.
-- Two final production-preview boundary traces crossed to `scrollY=1636.5` with zero dropped/high-latency/missing frames. Maximum renderer-main `RunTask` was `2.20 ms` and `3.21 ms`; maximum Paint was `0.13 ms` and `0.20 ms`.
+- Browser behavior checks proved `transition:none` in the same wheel turn, no reactivation from pointer movement during active scroll, neutral caption settlement with no outgoing node, and restoration of both the existing lens transition and Project card hover after real pointer movement.
+- Two final production-preview passes began with the lens visibly active and crossed to `scrollY=1020` with zero dropped frames. Maximum renderer-main `RunTask` was `4.68 ms` and `3.37 ms`; only 13 Paint events occurred in each pass, with maximum Paint `1.05 ms` and `0.71 ms`.
+- Fidelity/completeness review found no change to rest-state lens geometry, radius, mask/filter, caption copy or approved 180/300 ms interaction timing. Regression/scope review found no change to Lenis configuration, Project visuals, Experience, media, dependencies, public Portfolio, Admin, shared contract, Figma, deploy or production.
 
 ## Acceptance and stop-lines
 
@@ -43,7 +38,7 @@
 
 ## Next action
 
-- User tests `http://127.0.0.1:43222/` in Zen, including first and repeated passes with the pointer resting over the destination card. If a hitch remains, capture a Zen profile of exact runtime `e2b4cbf` before changing another visual/render owner.
+- User tests `http://127.0.0.1:43222/` in Zen, including first and repeated passes after moving the pointer over the Hero map. If a hitch remains, capture a Zen profile of exact runtime `0e45829` before changing another visual/render owner.
 
 ## Pointers
 
