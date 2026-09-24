@@ -9,7 +9,7 @@ This contract applies only to `tools/concept-v2/app`. It does not share the publ
 - `src/runtime/frame-task.mjs` coalesces a consumer's latest input into one read/write frame. It is disposable and never owns a permanent loop.
 - `src/runtime/view-activity.mjs` combines target intersection with document visibility. A consumer must release pending work on inactivity instead of hiding it with opacity.
 - `src/runtime/layout-invalidation.mjs` is a narrow position-invalidating signal. It is not a scroll controller.
-- Hero pulses own their timer and only run for the visible map SVG. Experience owns its paint task; the existing Lenis root RAF remains the sole intentional permanent scroll loop.
+- Hero pulses own their timer and only run for the visible map SVG. Active scroll cancels them synchronously; their immediate return is deferred through one finite frame task so it cannot overlap the final scroll event. Experience owns its paint task; the existing Lenis root RAF remains the sole intentional permanent scroll loop.
 - The Lenis owner publishes only scroll activity transitions. Project pointer hover yields immediately while a physical or smooth scroll is active and remains suspended after settlement until new pointer movement; its existing visual state and keyboard `:focus-within` behavior remain unchanged.
 - The Hero lens consumes that same activity signal. Active scroll cancels pending pointer work, settles the lens and caption without transition work, and requires new pointer movement before pointer interaction resumes; its approved radius, mask/filter and rest-state transition remain unchanged.
 - About deck motion remains a finite 500 ms RAF animation. Its generation is invalidated before reduced-motion settlement.

@@ -1,6 +1,6 @@
 # Concept V2 runtime optimization
 
-Status: `READY_FOR_REVIEW`
+Status: `COMPLETE`
 
 ## Source and boundary
 
@@ -115,6 +115,13 @@ Status: `READY_FOR_REVIEW`
 - Rest-state behavior is unchanged: the lens retains its approved radius, mask/filter, keyboard/touch routes and 180 ms transition; the caption retains its 300 ms crossfade; both pointer interactions require a new real pointer movement after settlement.
 - Final verification: focused RED/GREEN tests, lint and 101/101 tests, Vite production build, built-runtime browser smoke and `git diff --check` passed. Two production-preview boundary traces began with the lens active, crossed to `scrollY=1020`, recorded 13 Paint events each and zero dropped frames; maximum renderer-main `RunTask` was `4.68/3.37 ms` and maximum Paint was `1.05/0.71 ms`.
 - Manual Zen first/repeated scroll-feel acceptance remains open for exact runtime `0e45829`; Chromium evidence remains a bounded implementation check rather than a substitute for the user's Zen acceptance.
+
+### Follow-up — Hero pulse restart settlement
+
+- A final timing probe found that active scroll removed the 36-path pulse immediately, but Lenis settlement recreated it 5–7 ms before the last scroll event. This placed SVG/filter setup back inside the tail of the gesture.
+- Runtime commit `714397c4fd77a8c55e33a059533ca469b520d8c7` (`perf(concept-v2): defer pulse restart past scroll`) routes the immediate restart through a finite frame task. A renewed gesture, inactive map or cleanup cancels the pending restart; pulse artwork, duration, direction and normal 2–3 second cadence are unchanged.
+- Three production-preview probes placed the new pulse after the final scroll event. Three traces recorded zero dropped frames, maximum renderer-main `RunTask` of `3.12–3.20 ms` and maximum Paint of `0.27–0.29 ms`.
+- Final checks: 101/101 tests, lint, Vite production build, built-runtime browser smoke and `git diff --check` passed. On 2026-09-24 the user completed the final scroll-feel pass and confirmed that the result works well. No additional render-owner changes are queued.
 
 ## Stop-lines
 
