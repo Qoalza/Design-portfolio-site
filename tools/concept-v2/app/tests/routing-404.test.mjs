@@ -39,14 +39,14 @@ test('an untouched branch keeps its fade entrance gray',()=>{
  assert.equal(routes[0].state,'neutral');
  assert.equal(routes[8].state,'white');
 });
-test('a wrong upper packet colors its incoming path red while both fade tails stay white',()=>{
+test('a wrong upper packet colors its own incoming interval red while gaps stay white',()=>{
  const placed={delivery:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(0,7).map(({state})=>state),['white',...Array(6).fill('red')]);
+ assert.deepEqual(routes.slice(0,7).map(({state})=>state),['white','white','white','white','red','red','red']);
  assert.equal(routes[7].state,'white');
 });
 test('a wrong lower packet colors its incoming branch red after the white fade',()=>{
  const placed={connector:'gitBranch'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(8).map(({state})=>state),['white',...Array(4).fill('red'),'white']);
+ assert.deepEqual(routes.slice(8).map(({state})=>state),['white','white','red','red','red','white']);
  assert.equal(fixedNodeVisual({id:'Б8',final:'other'},routeProgress(placed),routes),'other');
 });
 test('each placed packet colors only its preceding interval across fixed nodes',()=>{
@@ -77,9 +77,25 @@ test('fixed C1 takes the blue accent when a later correct packet follows an earl
  assert.deepEqual(routes.slice(8,12).map(({state})=>state),['white','red','final','final']);
  assert.equal(fixedNodeVisual({id:'C1',final:'active'},signal,routes),'active');
 });
-test('a missing earlier packet leaves the path to a later correct packet white',()=>{
+test('a missing earlier packet leaves its own interval white and a later correct interval blue',()=>{
  const placed={concept:'concept'},routes=chooseRoutes(placed,false,routeProgress(placed));
- assert.deepEqual(routes.slice(0,5).map(({state})=>state),['white','white','white','white','neutral']);
+ assert.deepEqual(routes.slice(0,5).map(({state})=>state),['white','white','final','final','neutral']);
+});
+test('upper intervals follow their own slots with a wrong 02, empty 04, and correct 06',()=>{
+ const placed={research:'concept',delivery:'delivery'};
+ const routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(0,8).map(({state})=>state),['white','red','white','white','final','final','final','white']);
+});
+test('upper intervals stay independently red for two wrong packets before a correct 06',()=>{
+ const placed={research:'concept',concept:'research',delivery:'delivery'};
+ const routes=chooseRoutes(placed,false,routeProgress(placed));
+ assert.deepEqual(routes.slice(0,8).map(({state})=>state),['white','red','red','red','final','final','final','white']);
+});
+test('lower intervals apply the same rule when the first icon slot is empty',()=>{
+ const placed={connector:'connector'};
+ const signal=routeProgress(placed),routes=chooseRoutes(placed,false,signal);
+ assert.deepEqual(routes.slice(8).map(({state})=>state),['white','white','final','final','final','white']);
+ assert.equal(fixedNodeVisual({id:'C1',final:'active'},signal,routes),'active');
 });
 test('a later wrong packet changes only its own preceding interval',()=>{
  const placed={research:'research',concept:'delivery'},routes=chooseRoutes(placed,false,routeProgress(placed));
@@ -95,7 +111,7 @@ test('the last fixed node stays white while the preceding interval follows its p
  const empty=routeProgress({});
  assert.equal(fixedNodeVisual({id:'Б8',final:'other'},empty,chooseRoutes({},false,empty)),'default');
  const cases=[
-  [{connector:'connector'},'white'],
+  [{connector:'connector'},'final'],
   [{gitBranch:'connector',connector:'connector'},'final'],
   [{gitBranch:'gitBranch',connector:'research'},'red'],
  ];

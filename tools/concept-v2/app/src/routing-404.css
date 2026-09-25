@@ -199,10 +199,12 @@
   color:#949ea6;
 }
 .routing404-slot.has-icon .routing404-empty-packet {border:0;color:#747f87}
-.routing404-empty-outline {position:absolute;top:-.5px;left:-.5px;width:33px;height:33px;fill:none;stroke:#2d3438;stroke-width:1;stroke-miterlimit:1.86116;stroke-dasharray:12 12}
+.routing404-empty-outline {position:absolute;top:-.5px;left:-.5px;width:33px;height:33px;fill:none;overflow:visible}
+.routing404-empty-outline path:first-child {fill:#0e1012}
+.routing404-empty-outline path:last-child {stroke:#2d3438;stroke-width:1;stroke-miterlimit:1.86116;stroke-dasharray:12 12}
 .routing404-slot.has-icon .routing404-icon-frame {z-index:1}
 .routing404-slot.is-proximity .routing404-empty-packet {border-color:#43a2ee}
-.routing404-slot.is-proximity .routing404-empty-outline {stroke:#43a2ee}
+.routing404-slot.is-proximity .routing404-empty-outline path:last-child {stroke:#43a2ee}
 .routing404-slot-label {display:block;margin-top:8px;white-space:nowrap}
 .routing404-slot.is-occupied .routing404-slot-label {color:#d3dbe0}
 .routing404-slot.is-wrong .routing404-slot-label {color:#d3dbe0}
@@ -253,8 +255,8 @@
 .routing404-packet.is-free .routing404-packet-inner {top:3px;left:3px}
 .routing404-packet.has-icon .routing404-packet-inner {border-color:#1d90eb;background:#14181b;color:#b7c0c7}
 .routing404-packet.is-placed.has-icon .routing404-packet-inner {background:#02233d;color:#43a2ee}
-.routing404-packet.is-wrong.has-icon .routing404-packet-inner,
-.routing404-packet.is-wrong.has-number .routing404-packet-inner {border-color:#ff635e;background:#4e1e1d;color:#ff635e}
+.routing404-packet.is-wrong.has-icon .routing404-packet-inner {border-color:#ff635e;background:#4e1e1d;color:#ff635e}
+.routing404-packet.is-wrong.has-number .routing404-packet-inner {border-color:#ff635e;background:#dd4743;color:#e9eef2}
 .routing404-packet.has-number:not(.is-wrong):hover .routing404-packet-inner {border-color:#0378d6;background:#0462af;color:#f2f4f5}
 .routing404-packet.has-number:not(.is-wrong):active .routing404-packet-inner,
 .routing404-packet.has-number:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#004c88;color:#fff}

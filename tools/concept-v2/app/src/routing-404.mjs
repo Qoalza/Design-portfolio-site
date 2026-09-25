@@ -40,13 +40,13 @@ export function chooseRoutes(placed,launched,signal){
  if(signal.topReach)states[0]='white';
  if(signal.lowerReach)states[8]='white';
  const paintBranch=(triggers,entrance)=>{
-  let previous=-1,previousEnd=entrance;
-  triggers.forEach(({slot,end},index)=>{
-   const packet=placed[slot];if(!packet)return;
-   const gap=triggers.slice(previous+1,index).some(trigger=>!placed[trigger.slot]);
-   const color=packet!==slot?'red':gap?'white':'final';
+  const last=triggers.findLastIndex(({slot})=>Boolean(placed[slot]));
+  let previousEnd=entrance;
+  triggers.slice(0,last+1).forEach(({slot,end})=>{
+   const packet=placed[slot];
+   const color=!packet?'white':packet!==slot?'red':'final';
    for(let segment=previousEnd+1;segment<=end;segment++)states[segment]=color;
-   previous=index;previousEnd=end;
+   previousEnd=end;
   });
  };
  paintBranch([{slot:'research',end:1},{slot:'concept',end:3},{slot:'delivery',end:6}],0);
