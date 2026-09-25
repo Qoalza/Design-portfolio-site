@@ -1,6 +1,6 @@
 # Desktop Corvo Responsive Hero для Concept V2
 
-**Статус:** Complete
+**Статус:** Active — Library V2 tabs revision
 **Baseline:** `codex/concept-v2-routing-404` · `4205fbe`
 **Target:** standalone Concept V2 app, isolated preview only
 
@@ -50,3 +50,33 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - главная concept-страница и 404 не изменены;
 - pre-existing High advisory относится к pinned `vite@6.4.2`, не к Motion;
   обновление Vite не входит в этот scope.
+
+## Ревизия 2026-09-25 — актуальные Library V2 tabs
+
+### Target
+
+Актуализировать только внешнюю оболочку Hero по Figma `3774:200462` и
+библиотечные сценарные/размерные табы по `2147:1776` и `2151:15044`.
+
+### Change
+
+- Hero `980px`, header `52px`, ruler `64px`.
+- Scenario tabs: `40px`, exact typography/colors/icons, быстрый motion нижней
+  линии на hover; Media Campaigns остаётся единственным active-сценарием.
+- Size tabs: `48px`, exact typography/colors/icons и мгновенные visual states.
+- Сегменты ruler остаются `256 / 141 / 415 / 188 / 200`.
+- Iframe Corvo, его logical/display geometry, `scale(.6)`, breakpoints,
+  содержимое, assets, presets и принятый resize motion не меняются.
+
+### Verification
+
+- focused component/geometry tests;
+- overlays header/ruler для пяти presets;
+- iframe source/geometry regression check;
+- lint, полный test suite, production build;
+- fidelity/completeness review, затем regression/scope/risk review.
+
+### Stop-lines
+
+Нет scenario switching, popup, integration в concept page, Portfolio
+tablet/mobile, изменений Corvo iframe, Figma write, merge или deploy.
