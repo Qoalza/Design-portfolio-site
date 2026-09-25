@@ -15,7 +15,8 @@ import {
   geometryFromDrag,
   getAdaptiveRange,
   getExactAdaptivePreset,
-  getProductHeight,
+  getLogicalWidth,
+  getProductHeightForDisplayWidth,
   getStageHeight,
   getStageWidth,
   MAX_LOGICAL_WIDTH,
@@ -122,8 +123,8 @@ export function ProjectResponsiveHero({definition}) {
   const [selectedPreset, setSelectedPreset] = useState('max');
   const prefersReducedMotion = useReducedMotion();
   const displayWidth = useMotionValue(initialPreset.displayWidth);
-  const logicalWidth = useMotionValue(initialPreset.logicalWidth);
-  const productHeight = useMotionValue(initialPreset.productHeight);
+  const logicalWidth = useTransform(displayWidth, getLogicalWidth);
+  const productHeight = useTransform(displayWidth, getProductHeightForDisplayWidth);
   const stageWidth = useTransform(displayWidth, getStageWidth);
   const stageHeight = useTransform(productHeight, getStageHeight);
   const logicalHeight = useTransform(productHeight, (height) => height / RESPONSIVE_HERO_SCALE);
@@ -152,31 +153,23 @@ export function ProjectResponsiveHero({definition}) {
   }
 
   function moveGeometry(next, transition) {
-    const nextProductHeight = getProductHeight(getAdaptiveRange(next.logicalWidth));
     stopAnimations();
     setGeometry(next);
 
     if (prefersReducedMotion) {
       displayWidth.jump(next.displayWidth);
-      logicalWidth.jump(next.logicalWidth);
-      productHeight.jump(nextProductHeight);
       return;
     }
 
     animationControls.current = [
       animate(displayWidth, next.displayWidth, transition),
-      animate(logicalWidth, next.logicalWidth, transition),
-      animate(productHeight, nextProductHeight, transition),
     ];
   }
 
   function settleGeometry(next) {
-    const nextProductHeight = getProductHeight(getAdaptiveRange(next.logicalWidth));
     stopAnimations();
     setGeometry(next);
     displayWidth.jump(next.displayWidth);
-    logicalWidth.jump(next.logicalWidth);
-    productHeight.jump(nextProductHeight);
   }
 
   function selectAdaptive(id, transition = PRESET_TRANSITION) {
@@ -208,7 +201,6 @@ export function ProjectResponsiveHero({definition}) {
     dragState.current = {
       pointerId: event.pointerId,
       startClientX: event.clientX,
-      startLogicalWidth: currentGeometry.logicalWidth,
       startDisplayWidth: currentGeometry.displayWidth,
       latestGeometry: currentGeometry,
       samples: [{ position: event.clientX, time: event.timeStamp }],
@@ -222,7 +214,6 @@ export function ProjectResponsiveHero({definition}) {
     drag.samples.push({ position: event.clientX, time: event.timeStamp });
     if (drag.samples.length > 16) drag.samples.shift();
     const nextGeometry = geometryFromDrag({
-      startLogicalWidth: drag.startLogicalWidth,
       startDisplayWidth: drag.startDisplayWidth,
       physicalDelta: event.clientX - drag.startClientX,
     });
@@ -255,7 +246,6 @@ export function ProjectResponsiveHero({definition}) {
         return;
       }
       const inertiaGeometry = geometryFromDrag({
-        startLogicalWidth: drag.latestGeometry.logicalWidth,
         startDisplayWidth: drag.latestGeometry.displayWidth,
         physicalDelta: inertiaOffset,
       });
@@ -288,7 +278,6 @@ export function ProjectResponsiveHero({definition}) {
     const physicalDelta = (event.shiftKey ? 10 : 1) * (event.key === "ArrowLeft" ? -1 : 1);
     setSelectionMode("free");
     const nextGeometry = geometryFromDrag({
-      startLogicalWidth: logicalWidth.get(),
       startDisplayWidth: displayWidth.get(),
       physicalDelta,
     });
@@ -361,7 +350,7 @@ export function ProjectResponsiveHero({definition}) {
                 <span className={`${styles.stageLock} ${styles.stageLockRight}`} style={{'--lock-icon': `url("${assetRoot}/lock.svg")`}} />
               </div>
               <motion.div className={styles.stageSurface} style={{ height: productHeight }}>
-                <motion.div className={styles.productViewport} style={{ width: displayWidth, height: productHeight }}>
+                <motion.div className={styles.productViewport} style={{ width: displayWidth, height: productHeight, backgroundColor: activeScene.id === 'authorization' ? '#242625' : '#fff' }}>
                   <motion.div className={styles.logicalProduct} style={{ width: logicalWidth, height: logicalHeight }}>
                     <iframe
                       className={styles.productFrame}

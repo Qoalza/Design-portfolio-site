@@ -16,19 +16,19 @@ export const ADAPTIVE_PRESETS = {
   mobile: {
     id: "mobile",
     logicalWidth: 595.256245,
-    displayWidth: 357,
+    displayWidth: 595.256245 * RESPONSIVE_HERO_SCALE,
     productHeight: 384,
   },
   tablet: {
     id: "tablet",
     logicalWidth: 1279,
-    displayWidth: 772,
+    displayWidth: 1279 * RESPONSIVE_HERO_SCALE,
     productHeight: 660,
   },
   desktop: {
     id: "desktop",
     logicalWidth: 1599,
-    displayWidth: 960,
+    displayWidth: 1599 * RESPONSIVE_HERO_SCALE,
     // The supplied scene owns its canvas height at each responsive range.
     // Keep the enclosing frame at the direct .6 scale instead of adding
     // blank space or reflowing the scene to meet an independently taller
@@ -51,6 +51,10 @@ export function clampDisplayWidth(value) {
   return Math.min(MAX_DISPLAY_WIDTH, Math.max(MIN_DISPLAY_WIDTH, value));
 }
 
+export function getLogicalWidth(displayWidth) {
+  return clampDisplayWidth(displayWidth) / RESPONSIVE_HERO_SCALE;
+}
+
 export function getAdaptiveRange(logicalWidth) {
   const width = clampLogicalWidth(logicalWidth);
   if (width <= MIN_LOGICAL_WIDTH) return "min";
@@ -71,6 +75,10 @@ export function getProductHeight(adaptive) {
   return ADAPTIVE_PRESETS[adaptive].productHeight;
 }
 
+export function getProductHeightForDisplayWidth(displayWidth) {
+  return getProductHeight(getAdaptiveRange(getLogicalWidth(displayWidth)));
+}
+
 export function getStageWidth(displayWidth) {
   return displayWidth + RESIZE_EDGE_VISIBLE_WIDTH;
 }
@@ -80,12 +88,12 @@ export function getStageHeight(productHeight) {
 }
 
 export function geometryFromDrag({
-  startLogicalWidth,
   startDisplayWidth,
   physicalDelta,
 }) {
+  const displayWidth = clampDisplayWidth(startDisplayWidth + physicalDelta);
   return {
-    logicalWidth: clampLogicalWidth(startLogicalWidth + physicalDelta / RESPONSIVE_HERO_SCALE),
-    displayWidth: clampDisplayWidth(startDisplayWidth + physicalDelta),
+    logicalWidth: getLogicalWidth(displayWidth),
+    displayWidth,
   };
 }

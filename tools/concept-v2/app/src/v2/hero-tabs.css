@@ -96,18 +96,24 @@ button.v2-scenario-tab { cursor: pointer; }
   content: "";
   background: var(--v2-scenario-line-hover);
   transform: translateY(4px);
-  transition: transform 140ms cubic-bezier(.22, 1, .36, 1);
+  visibility: hidden;
+  transition: transform 140ms cubic-bezier(.22, 1, .36, 1), visibility 0s linear 140ms;
 }
 
 .v2-scenario-tab:hover { color: var(--v2-scenario-label-hover); }
 .v2-scenario-tab:hover .v2-hero-tab-icon { color: var(--v2-scenario-icon-hover); }
-.v2-scenario-tab:hover .v2-scenario-tab-line::after { transform: translateY(0); }
+.v2-scenario-tab:hover .v2-scenario-tab-line::after {
+  transform: translateY(0);
+  visibility: visible;
+  transition: transform 140ms cubic-bezier(.22, 1, .36, 1), visibility 0s;
+}
 
 .v2-scenario-tab.is-active { color: var(--v2-scenario-label-active); }
 .v2-scenario-tab.is-active .v2-hero-tab-icon { color: var(--v2-scenario-icon-active); }
 .v2-scenario-tab.is-active .v2-scenario-tab-line::after {
   background: var(--v2-scenario-line-active);
   transform: translateY(0);
+  visibility: visible;
   transition: none;
 }
 
@@ -117,7 +123,7 @@ button.v2-scenario-tab { cursor: pointer; }
 }
 
 .v2-scenario-tab:disabled .v2-hero-tab-icon { color: var(--v2-scenario-icon-disabled); }
-.v2-scenario-tab:disabled .v2-scenario-tab-line::after { transform: translateY(4px); }
+.v2-scenario-tab:disabled .v2-scenario-tab-line::after { transform: translateY(4px); visibility: hidden; transition: none; }
 
 .v2-scenario-tab:focus-visible,
 .v2-size-tab:focus-visible {
@@ -202,5 +208,6 @@ button.v2-scenario-tab { cursor: pointer; }
 .v2-size-tab:disabled .v2-size-tab-icon-box { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
-  .v2-scenario-tab-line::after { transition: none; }
+  .v2-scenario-tab-line::after,
+  .v2-scenario-tab:hover .v2-scenario-tab-line::after { transition: none; }
 }

@@ -6,7 +6,8 @@
 
 - Branch: `codex/concept-v2-responsive-hero`.
 - Worktree: `/Users/designer/.codex/worktrees/concept-v2-responsive-hero/Design-portfolio-site`.
-- Baseline: `fcd0438` (`Fix Hero boundary controls and add Corvo scenes`).
+- Baseline этой ревизии: `5882497`; актуальный результат — последний commit
+  текущей ветки.
 - Development URL: `http://127.0.0.1:4173/preview/project-responsive-hero`.
 
 ## Checkpoint
@@ -21,6 +22,10 @@
 - Все четыре готовые сцены Corvo связаны с tab-выбором. Они перенесены из
   разрешённого source byte-to-byte и загружаются без изменения внутренних
   HTML/CSS/assets, layout, scale или breakpoint-логики.
+- Неактивное подчёркивание табов скрыто; hover-линия плавно поднимается снизу.
+- Физическая и логическая ширины внешнего фрейма теперь всегда связаны ровным
+  `scale(.6)`; высота следует текущему breakpoint без отдельной анимации.
+  У Authorization внешняя подложка использует исходный тёмный цвет `#242625`.
 
 ## Проверка
 
@@ -32,6 +37,9 @@
 - `diff -qr` подтвердил точное совпадение 142 Corvo source files.
 - Два review-прохода: fidelity/completeness и regression/scope/risk — без
   открытых замечаний.
+- В актуальном runtime: Tablet viewport `767.398px` против scaled iframe
+  `767.400px`; при preset-переходе и drag максимальный кадр `10.5ms`, без
+  интервалов свыше `25ms` на локальном устройстве. Corvo files не менялись.
 
 ## Следующее действие
 

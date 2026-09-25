@@ -35,6 +35,9 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  ]);
  assert.match(css,/\.logicalProduct\s*\{[\s\S]*?transform:\s*scale\(\.6\)/);
  assert.match(css,/\.productFrame\s*\{[\s\S]*?pointer-events:\s*none/);
+ assert.match(component,/useTransform\(displayWidth, getLogicalWidth\)/);
+ assert.match(component,/useTransform\(displayWidth, getProductHeightForDisplayWidth\)/);
+ assert.match(component,/activeScene\.id === 'authorization' \? '#242625' : '#fff'/);
  assert.match(component,/tabIndex=\{-1\}/);
  assert.match(component,/aria-hidden="true"/);
 });
@@ -60,7 +63,10 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(tabCss,/--v2-size-subtitle-active:\s*#43a2ee/);
  assert.match(tabCss,/\.v2-scenario-tab-line\s*\{[\s\S]*?height:\s*5px/);
  assert.match(tabCss,/\.v2-scenario-tab-line::after\s*\{[\s\S]*?transform:\s*translateY\(4px\)/);
+ assert.match(tabCss,/\.v2-scenario-tab-line::after\s*\{[\s\S]*?visibility:\s*hidden/);
+ assert.match(tabCss,/\.v2-scenario-tab:hover \.v2-scenario-tab-line::after\s*\{[\s\S]*?visibility:\s*visible/);
  assert.match(tabCss,/140ms cubic-bezier\(\.22,\s*1,\s*\.36,\s*1\)/);
+ assert.doesNotMatch(heroCss,/\.heroTopbar\s*\{[^}]*overflow:\s*hidden/);
  assert.match(tabCss,/user-select:\s*none/);
  assert.match(heroCss,/height:\s*980px/);
  assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
@@ -93,10 +99,20 @@ test('Concept V2 motion keeps the accepted resize and perceptible inertia contra
 
 test('responsive width uses one logical model across presets, breakpoints and drag',async()=>{
  const width=await import('../src/project-hero/width.mjs');
+ for(const preset of Object.values(width.ADAPTIVE_PRESETS)) {
+  assert.ok(Math.abs(preset.logicalWidth*width.RESPONSIVE_HERO_SCALE-preset.displayWidth)<.000001,preset.id);
+ }
  assert.deepEqual(width.geometryFromDrag({startLogicalWidth:1600,startDisplayWidth:960,physicalDelta:-60}),{
   logicalWidth:1500,
   displayWidth:900
  });
+ assert.deepEqual(width.geometryFromDrag({startLogicalWidth:1279,startDisplayWidth:772,physicalDelta:0}),{
+  logicalWidth:1286.6666666666667,
+  displayWidth:772
+ });
+ assert.equal(width.getProductHeightForDisplayWidth(599*width.RESPONSIVE_HERO_SCALE),384);
+ assert.equal(width.getProductHeightForDisplayWidth(600*width.RESPONSIVE_HERO_SCALE),660);
+ assert.equal(width.getProductHeightForDisplayWidth(1280*width.RESPONSIVE_HERO_SCALE),576);
  assert.equal(width.getAdaptiveRange(599),'mobile');
  assert.equal(width.getAdaptiveRange(600),'tablet');
  assert.equal(width.getAdaptiveRange(1279),'tablet');
@@ -109,6 +125,7 @@ test('responsive width uses one logical model across presets, breakpoints and dr
 
 test('release motion preserves a fast gesture through a tiny final pointer step',async()=>{
  const motion=await import('../src/project-hero/motion.mjs');
+ const width=await import('../src/project-hero/width.mjs');
  const velocity=motion.getGestureVelocity([
   {position:0,time:0},
   {position:200,time:50},
@@ -116,8 +133,9 @@ test('release motion preserves a fast gesture through a tiny final pointer step'
  ],70);
  assert.ok(velocity>2800);
  assert.equal(motion.getInertiaOffset(velocity,0),160);
- assert.equal(motion.getMagneticPreset(772+16),'tablet');
- assert.equal(motion.getMagneticPreset(772+16.01),null);
+ const tabletDisplayWidth=width.ADAPTIVE_PRESETS.tablet.displayWidth;
+ assert.equal(motion.getMagneticPreset(tabletDisplayWidth+16),'tablet');
+ assert.equal(motion.getMagneticPreset(tabletDisplayWidth+16.01),null);
 });
 
 test('outward motion at hard boundaries is suppressed without a recoil',async()=>{
