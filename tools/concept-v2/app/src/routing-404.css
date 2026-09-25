@@ -199,12 +199,10 @@
   color:#949ea6;
 }
 .routing404-slot.has-icon .routing404-empty-packet {border:0;color:#747f87}
-.routing404-empty-outline {position:absolute;top:-.5px;left:-.5px;width:33px;height:33px;fill:none;overflow:visible}
-.routing404-empty-outline path:first-child {fill:#0e1012}
-.routing404-empty-outline path:last-child {stroke:#2d3438;stroke-width:1;stroke-miterlimit:1.86116;stroke-dasharray:12 12}
+.routing404-empty-outline {position:absolute;top:-.5px;left:-.5px;width:33px;height:33px;fill:none;stroke:#2d3438;stroke-width:1}
 .routing404-slot.has-icon .routing404-icon-frame {z-index:1}
 .routing404-slot.is-proximity .routing404-empty-packet {border-color:#43a2ee}
-.routing404-slot.is-proximity .routing404-empty-outline path:last-child {stroke:#43a2ee}
+.routing404-slot.is-proximity .routing404-empty-outline {stroke:#43a2ee}
 .routing404-slot-label {display:block;margin-top:8px;white-space:nowrap}
 .routing404-slot.is-occupied .routing404-slot-label {color:#d3dbe0}
 .routing404-slot.is-wrong .routing404-slot-label {color:#d3dbe0}

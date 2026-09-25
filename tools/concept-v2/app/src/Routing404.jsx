@@ -29,7 +29,6 @@ const nodes = [
   {x:1149,y:302.5,width:100,id:'Б8',label:'ПОЛЬЗОВАТЕЛИ',final:'other'},
 ];
 const fullIcons = {connector:connectorSvg,gitBranch:branchSvg};
-const emptyIconOutlinePath='M0.5 8.5C0.5 4.08172 4.08172 0.5 8.5 0.5H24.5C28.9183 0.5 32.5 4.08172 32.5 8.5V24.5C32.5 28.9183 28.9183 32.5 24.5 32.5H8.5C4.08172 32.5 0.5 28.9183 0.5 24.5V8.5Z';
 const iconMarkup = svg => svg.replaceAll('#E2E2EC','currentColor').replaceAll('<path ','<path vector-effect="non-scaling-stroke" ');
 
 function Icon({type}) {return <span className="routing404-icon-frame" aria-hidden="true" dangerouslySetInnerHTML={{__html:iconMarkup(fullIcons[type])}}/>;}
@@ -157,7 +156,17 @@ export function Routing404() {
         return <div key={slotId} className={`routing404-slot ${slot.icon?'has-icon':'has-number'} ${packet?'is-occupied':'is-empty'} ${wrong?'is-wrong':''} ${proximity===slotId?'is-proximity':''}`} style={{left:slot.x,top:slot.y,width:slot.width}}>
           {wrong&&<span className="routing404-error-lead">СМЕНИТЕ ЯЧЕЙКУ</span>}
           {packet?<Packet packet={packet} wrong={wrong} {...events(packet)}/>:<span className="routing404-empty-packet">
-            {slot.icon?<><svg className="routing404-empty-outline" viewBox="0 0 33 33" aria-hidden="true"><path d={emptyIconOutlinePath}/><path d={emptyIconOutlinePath}/></svg><Icon type={slot.icon}/></>:<span>{slot.number}</span>}
+            {/* Figma 3839:230021 renders its 12/12 dashed border as eight clipped side fragments. */}
+            {slot.icon?<><svg className="routing404-empty-outline" viewBox="0 0 33 33" aria-hidden="true">
+              <path d="M5.5 1.1C6.4 0.7 7.4 0.5 8.5 0.5H12.5"/>
+              <path d="M20.5 0.5H24.5C25.6 0.5 26.6 0.7 27.5 1.1"/>
+              <path d="M31.9 5.5C32.3 6.4 32.5 7.4 32.5 8.5V12.5"/>
+              <path d="M32.5 20.5V24.5C32.5 25.6 32.3 26.6 31.9 27.5"/>
+              <path d="M27.5 31.9C26.6 32.3 25.6 32.5 24.5 32.5H20.5"/>
+              <path d="M12.5 32.5H8.5C7.4 32.5 6.4 32.3 5.5 31.9"/>
+              <path d="M1.1 27.5C0.7 26.6 0.5 25.6 0.5 24.5V20.5"/>
+              <path d="M0.5 12.5V8.5C0.5 7.4 0.7 6.4 1.1 5.5"/>
+            </svg><Icon type={slot.icon}/></>:<span>{slot.number}</span>}
           </span>}
           <span className="routing404-slot-label">{wrong?<>НЕПОДХОДЯЩИЙ<br/>ПАКЕТ</>:packet?slot.label:slot.icon?<>НЕТ<br/>ПОДКЛЮЧЕНИЯ</>:'НЕТ СВЯЗИ'}</span>
         </div>;
