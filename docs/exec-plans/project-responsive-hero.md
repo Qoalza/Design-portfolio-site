@@ -1,6 +1,6 @@
 # Desktop Corvo Responsive Hero для Concept V2
 
-**Статус:** Complete — external controls and ready Corvo scenes
+**Статус:** Ready for user review — latest Hero edge and tab correction
 **Baseline:** `codex/concept-v2-responsive-hero` · `bd66525`
 **Target:** standalone Concept V2 app, isolated preview only
 
@@ -159,3 +159,35 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - Fidelity/completeness и regression/scope/risk review закрыты без открытых
   замечаний. Это локальная проверка, а не обещание одинаковой частоты кадров
   на любом устройстве.
+
+## Ревизия 2026-09-25 — точный clip таба и правый край iframe
+
+### Target → Change → Expected result → Verification
+
+- Сценарный таб Library V2 `2147:1776`: заменить пяти-пиксельную область
+  линии на `1px` с `overflow:hidden` у линии и таба. Неактивная линия стоит
+  на `1px` ниже видимой области; hover за `250ms` переводит её на место без
+  `visibility`-скачка и без выхода под header. Active-линия остаётся сплошной.
+- Внешняя оболочка Authorization: её исходный iframe-документ округляет
+  дробную ширину до целых CSS-пикселей и оставляет справа узкий белый canvas.
+  Логическая ширина iframe округляется вверх менее чем на `1px`; непрерывная
+  физическая ширина, `scale(.6)`, drag, inertia и размеры preset не меняются.
+  Высота оболочки определяется тем же округлённым диапазоном, что и сцена.
+- У тёмной Authorization убрана дополнительная скруглённая маска внешнего
+  viewport; остаются её собственные внутренние скругления и фон `#242625`.
+  HTML, CSS и assets исходной Corvo-сцены не меняются.
+
+### Проверка и остаточный риск
+
+- RED→GREEN focused Hero test `8/8`; затем lint, полный suite `134/134`,
+  production build — PASS.
+- Built runtime: tab и линия имеют clip и высоту `1px`, hover движется от
+  `1px` к `0` за `250ms`; нет отрицательного overshoot.
+- Authorization на дробной ширине: внешний viewport `667.227px`, iframe
+  `667.800px`, документ/корневая сцена имеют одинаковые `1113px`; излишек
+  обрезает внешний viewport. Mobile, Tablet, Desktop и max сохранили высоту
+  исходной сцены при `scale(.6)`; на проходе через breakpoint mismatch высоты
+  `0px` в измеренной последовательности.
+- Проверка в Codex browser выполнена. Автоматическое управление открытым Zen
+  временно недоступно, поэтому окончательная визуальная приёмка именно в Zen
+  остаётся за пользователем; нельзя заявлять кроссбраузерное завершение.

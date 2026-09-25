@@ -263,6 +263,11 @@
   background: #fff;
 }
 
+.productViewportDark {
+  border-radius: 0;
+  background: #242625;
+}
+
 .logicalProduct {
   transform: scale(.6);
   transform-origin: top left;

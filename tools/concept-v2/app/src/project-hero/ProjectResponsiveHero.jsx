@@ -15,6 +15,7 @@ import {
   geometryFromDrag,
   getAdaptiveRange,
   getExactAdaptivePreset,
+  getIframeLogicalWidth,
   getLogicalWidth,
   getProductHeightForDisplayWidth,
   getStageHeight,
@@ -123,7 +124,7 @@ export function ProjectResponsiveHero({definition}) {
   const [selectedPreset, setSelectedPreset] = useState('max');
   const prefersReducedMotion = useReducedMotion();
   const displayWidth = useMotionValue(initialPreset.displayWidth);
-  const logicalWidth = useTransform(displayWidth, getLogicalWidth);
+  const iframeLogicalWidth = useTransform(displayWidth, getIframeLogicalWidth);
   const productHeight = useTransform(displayWidth, getProductHeightForDisplayWidth);
   const stageWidth = useTransform(displayWidth, getStageWidth);
   const stageHeight = useTransform(productHeight, getStageHeight);
@@ -193,7 +194,7 @@ export function ProjectResponsiveHero({definition}) {
     event.preventDefault();
     stopAnimations();
     const currentGeometry = {
-      logicalWidth: logicalWidth.get(),
+      logicalWidth: getLogicalWidth(displayWidth.get()),
       displayWidth: displayWidth.get(),
     };
     setGeometry(currentGeometry);
@@ -350,8 +351,8 @@ export function ProjectResponsiveHero({definition}) {
                 <span className={`${styles.stageLock} ${styles.stageLockRight}`} style={{'--lock-icon': `url("${assetRoot}/lock.svg")`}} />
               </div>
               <motion.div className={styles.stageSurface} style={{ height: productHeight }}>
-                <motion.div className={styles.productViewport} style={{ width: displayWidth, height: productHeight, backgroundColor: activeScene.id === 'authorization' ? '#242625' : '#fff' }}>
-                  <motion.div className={styles.logicalProduct} style={{ width: logicalWidth, height: logicalHeight }}>
+                <motion.div className={`${styles.productViewport} ${activeScene.id === 'authorization' ? styles.productViewportDark : ''}`} style={{ width: displayWidth, height: productHeight }}>
+                  <motion.div className={styles.logicalProduct} style={{ width: iframeLogicalWidth, height: logicalHeight }}>
                     <iframe
                       className={styles.productFrame}
                       src={activeScene?.src}

@@ -55,6 +55,12 @@ export function getLogicalWidth(displayWidth) {
   return clampDisplayWidth(displayWidth) / RESPONSIVE_HERO_SCALE;
 }
 
+export function getIframeLogicalWidth(displayWidth) {
+  // The iframe document rounds its viewport to whole CSS pixels. Overscan by
+  // less than one logical pixel so its white body cannot peek past the scene.
+  return Math.ceil(getLogicalWidth(displayWidth) - 1e-9);
+}
+
 export function getAdaptiveRange(logicalWidth) {
   const width = clampLogicalWidth(logicalWidth);
   if (width <= MIN_LOGICAL_WIDTH) return "min";
@@ -76,7 +82,7 @@ export function getProductHeight(adaptive) {
 }
 
 export function getProductHeightForDisplayWidth(displayWidth) {
-  return getProductHeight(getAdaptiveRange(getLogicalWidth(displayWidth)));
+  return getProductHeight(getAdaptiveRange(getIframeLogicalWidth(displayWidth)));
 }
 
 export function getStageWidth(displayWidth) {
