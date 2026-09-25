@@ -89,6 +89,11 @@ export function getIframeLogicalHeight(displayWidth) {
   return getProductHeightForDisplayWidth(displayWidth) / RESPONSIVE_HERO_SCALE;
 }
 
+export function getIframeViewportHeight(displayHeight) {
+  // Match the integer document viewport, while the outer clip stays continuous.
+  return Math.ceil(displayHeight / RESPONSIVE_HERO_SCALE - 1e-9);
+}
+
 export function getStageWidth(displayWidth) {
   return displayWidth + RESIZE_EDGE_VISIBLE_WIDTH;
 }
