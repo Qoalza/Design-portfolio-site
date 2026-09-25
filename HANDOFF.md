@@ -1,8 +1,17 @@
 # HANDOFF
 
-Обновлено: 2026-09-25.
+Обновлено: 2026-09-26.
 
 ## Текущий checkout
+
+- Активная цель: сохранить и собрать `Redesign portfolio` до очистки старых
+  мест. Полный контракт: `docs/exec-plans/redesign-portfolio-consolidation.md`.
+- Этап 1 завершён: проверяемая страховочная копия Git-истории Concept V2, 29
+  reflog-only Concept/Corvo commits, source archive и двух незакоммиченных
+  вариантов. Старые worktree/ветки не менялись.
+- Следующий этап: отдельной Git-группой добавить `f4b63e0` и `9e4660d`.
+- Stop-lines: Admin, Shared contract, `USERSPACE/**`, `main`, production,
+  Figma write, public Hero integration и любая очистка.
 
 - Branch: `codex/concept-v2-responsive-hero`.
 - Worktree: `/Users/designer/.codex/worktrees/concept-v2-responsive-hero/Design-portfolio-site`.
