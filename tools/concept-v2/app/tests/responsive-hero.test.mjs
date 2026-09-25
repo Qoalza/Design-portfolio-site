@@ -39,7 +39,9 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  assert.match(component,/const productHeight = useMotionValue\(initialPreset\.productHeight\)/);
  assert.match(component,/animate\(productHeight, nextProductHeight, transition\)/);
  assert.match(component,/useTransform\(displayWidth, getIframeLogicalHeight\)/);
- assert.doesNotMatch(component,/useTransform\(productHeight, \(height\) => height \/ RESPONSIVE_HERO_SCALE\)/);
+ assert.match(component,/useTransform\(productHeight, \(height\) => height \/ RESPONSIVE_HERO_SCALE\)/);
+ assert.match(component,/className=\{styles\.iframeCanvas\} style=\{\{ height: animatedLogicalHeight \}\}/);
+ assert.match(css,/\.logicalProduct\s*\{[^}]*overflow:\s*clip/);
  assert.doesNotMatch(component,/useTransform\(displayWidth, getProductHeightForDisplayWidth\)/);
  assert.match(component,/activeScene\.id === 'authorization' \? styles\.productViewportDark/);
  assert.match(css,/\.productViewportDark\s*\{[^}]*border-radius:\s*8px 0 0 8px;[^}]*background:\s*#242625/);

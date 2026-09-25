@@ -269,8 +269,13 @@
 }
 
 .logicalProduct {
+  overflow: clip;
   transform: scale(.6);
   transform-origin: top left;
+}
+
+.iframeCanvas {
+  width: 100%;
 }
 
 .productFrame {

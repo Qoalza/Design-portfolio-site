@@ -23,6 +23,7 @@ import {
   getStageWidth,
   MAX_LOGICAL_WIDTH,
   MIN_LOGICAL_WIDTH,
+  RESPONSIVE_HERO_SCALE,
 } from './width.mjs';
 import {AdaptiveSizeTab,ScenarioTab} from '../v2/HeroTabs.jsx';
 import styles from './ProjectResponsiveHero.module.css';
@@ -129,6 +130,7 @@ export function ProjectResponsiveHero({definition}) {
   const stageWidth = useTransform(displayWidth, getStageWidth);
   const stageHeight = useTransform(productHeight, getStageHeight);
   const logicalHeight = useTransform(displayWidth, getIframeLogicalHeight);
+  const animatedLogicalHeight = useTransform(productHeight, (height) => height / RESPONSIVE_HERO_SCALE);
   const rulerPosition = useTransform(displayWidth, (width) => width - 1);
   const resizeEdgePosition = useTransform(displayWidth, (width) => width - 16);
   const animationControls = useRef([]);
@@ -357,13 +359,15 @@ export function ProjectResponsiveHero({definition}) {
               <motion.div className={styles.stageSurface} style={{ height: productHeight }}>
                 <motion.div className={`${styles.productViewport} ${activeScene.id === 'authorization' ? styles.productViewportDark : ''}`} style={{ width: displayWidth, height: productHeight }}>
                   <motion.div className={styles.logicalProduct} style={{ width: iframeLogicalWidth, height: logicalHeight }}>
-                    <iframe
-                      className={styles.productFrame}
-                      src={activeScene?.src}
-                      title={`${activeScene?.label ?? "Project scene"} — проект`}
-                      aria-hidden="true"
-                      tabIndex={-1}
-                    />
+                    <motion.div className={styles.iframeCanvas} style={{ height: animatedLogicalHeight }}>
+                      <iframe
+                        className={styles.productFrame}
+                        src={activeScene?.src}
+                        title={`${activeScene?.label ?? "Project scene"} — проект`}
+                        aria-hidden="true"
+                        tabIndex={-1}
+                      />
+                    </motion.div>
                   </motion.div>
                 </motion.div>
 
