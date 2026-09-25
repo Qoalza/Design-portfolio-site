@@ -29,9 +29,10 @@ test('responsive Hero is isolated to the Concept V2 preview route',async()=>{
 });
 
 test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
- const [component,css]=await Promise.all([
+ const [component,css,authorizationCss]=await Promise.all([
   read('src/project-hero/ProjectResponsiveHero.jsx'),
-  read('src/project-hero/ProjectResponsiveHero.module.css')
+  read('src/project-hero/ProjectResponsiveHero.module.css'),
+  read('public/responsive-scenes/corvo-v1/authorization/style.css')
  ]);
  assert.match(css,/\.logicalProduct\s*\{[\s\S]*?transform:\s*scale\(\.6\)/);
  assert.match(css,/\.productFrame\s*\{[\s\S]*?pointer-events:\s*none/);
@@ -44,7 +45,12 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  assert.match(css,/\.logicalProduct\s*\{[^}]*overflow:\s*clip/);
  assert.doesNotMatch(component,/useTransform\(displayWidth, getProductHeightForDisplayWidth\)/);
  assert.match(component,/activeScene\.id === 'authorization' \? styles\.productViewportDark/);
- assert.match(css,/\.productViewportDark\s*\{[^}]*border-radius:\s*8px 0 0 8px;[^}]*background:\s*#242625/);
+ assert.match(css,/\.productViewportDark\s*\{[^}]*border-radius:\s*0;[^}]*background:\s*transparent/);
+ assert.match(authorizationCss,/\.authorization\s*\{[^}]*background:\s*transparent/);
+ assert.match(authorizationCss,/\.auth-panel\s*\{[^}]*border-radius:\s*0/);
+ assert.match(authorizationCss,/@media \(min-width:\s*600px\)[\s\S]*?\.authorization\s*\{[^}]*background:\s*#242625/);
+ assert.match(authorizationCss,/@media \(min-width:\s*600px\)[\s\S]*?\.auth-panel\s*\{[^}]*border-radius:\s*28px/);
+ assert.match(authorizationCss,/@media \(min-width:\s*1280px\)[\s\S]*?\.auth-panel\s*\{[^}]*border-radius:\s*32px/);
  assert.match(component,/tabIndex=\{-1\}/);
  assert.match(component,/aria-hidden="true"/);
 });

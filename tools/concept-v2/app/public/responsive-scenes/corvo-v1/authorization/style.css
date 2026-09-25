@@ -1,9 +1,9 @@
 :root { color: #242625; font-family: 'Manrope', sans-serif; font-weight: 450; }
 
-.authorization { background: #242625; height: 640px; min-width: 360px; overflow: clip; position: relative; width: 100%; }
+.authorization { background: transparent; height: 640px; min-width: 360px; overflow: clip; position: relative; width: 100%; }
 .promo { display: none; }
 .auth-shell { height: 100%; position: relative; width: 100%; }
-.auth-panel { background: #fafafa; border-radius: 24px; height: 100%; overflow: clip; position: relative; width: 100%; }
+.auth-panel { background: #fafafa; border-radius: 0; height: 100%; overflow: clip; position: relative; width: 100%; }
 
 .brand { align-items: center; display: flex; gap: 16px; height: 64px; padding: 20px; }
 .brand img { display: block; flex: 0 0 auto; height: 24px; width: 24px; }
@@ -40,7 +40,7 @@
 .auth-footer i { background: #afb2b1; border-radius: 50%; display: block; height: 4px; width: 4px; }
 
 @media (min-width: 600px) {
-  .authorization { height: 1100px; padding: 16px; }
+  .authorization { background: #242625; height: 1100px; padding: 16px; }
   .auth-panel { border-radius: 28px; }
   .brand { height: 64px; padding: 20px; }
   .brand-copy strong { font-size: 18px; line-height: 24px; }

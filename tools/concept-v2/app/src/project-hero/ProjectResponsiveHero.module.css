@@ -264,8 +264,8 @@
 }
 
 .productViewportDark {
-  border-radius: 8px 0 0 8px;
-  background: #242625;
+  border-radius: 0;
+  background: transparent;
 }
 
 .logicalProduct {
