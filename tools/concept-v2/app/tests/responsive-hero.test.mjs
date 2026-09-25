@@ -38,6 +38,8 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  assert.match(component,/useTransform\(displayWidth, getIframeLogicalWidth\)/);
  assert.match(component,/const productHeight = useMotionValue\(initialPreset\.productHeight\)/);
  assert.match(component,/animate\(productHeight, nextProductHeight, transition\)/);
+ assert.match(component,/useTransform\(displayWidth, getIframeLogicalHeight\)/);
+ assert.doesNotMatch(component,/useTransform\(productHeight, \(height\) => height \/ RESPONSIVE_HERO_SCALE\)/);
  assert.doesNotMatch(component,/useTransform\(displayWidth, getProductHeightForDisplayWidth\)/);
  assert.match(component,/activeScene\.id === 'authorization' \? styles\.productViewportDark/);
  assert.match(css,/\.productViewportDark\s*\{[^}]*border-radius:\s*8px 0 0 8px;[^}]*background:\s*#242625/);
@@ -128,6 +130,10 @@ test('responsive width uses one logical model across presets, breakpoints and dr
  });
  assert.equal(width.getProductHeightForDisplayWidth(599*width.RESPONSIVE_HERO_SCALE),384);
  assert.equal(width.getProductHeightForDisplayWidth(600*width.RESPONSIVE_HERO_SCALE),660);
+ assert.equal(width.getIframeLogicalHeight(599*width.RESPONSIVE_HERO_SCALE),640);
+ assert.equal(width.getIframeLogicalWidth(599.4*width.RESPONSIVE_HERO_SCALE),600);
+ assert.equal(width.getIframeLogicalHeight(599.4*width.RESPONSIVE_HERO_SCALE),1100);
+ assert.equal(width.getIframeLogicalHeight(600*width.RESPONSIVE_HERO_SCALE),1100);
  assert.equal(width.getProductHeightForDisplayWidth(1280*width.RESPONSIVE_HERO_SCALE),576);
  assert.equal(width.getProductHeightForDisplayWidth(1279*width.RESPONSIVE_HERO_SCALE+.01),576);
  assert.equal(width.getAdaptiveRange(599),'mobile');

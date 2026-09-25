@@ -85,6 +85,10 @@ export function getProductHeightForDisplayWidth(displayWidth) {
   return getProductHeight(getAdaptiveRange(getIframeLogicalWidth(displayWidth)));
 }
 
+export function getIframeLogicalHeight(displayWidth) {
+  return getProductHeightForDisplayWidth(displayWidth) / RESPONSIVE_HERO_SCALE;
+}
+
 export function getStageWidth(displayWidth) {
   return displayWidth + RESIZE_EDGE_VISIBLE_WIDTH;
 }

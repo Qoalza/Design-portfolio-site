@@ -15,6 +15,7 @@ import {
   geometryFromDrag,
   getAdaptiveRange,
   getExactAdaptivePreset,
+  getIframeLogicalHeight,
   getIframeLogicalWidth,
   getLogicalWidth,
   getProductHeightForDisplayWidth,
@@ -22,7 +23,6 @@ import {
   getStageWidth,
   MAX_LOGICAL_WIDTH,
   MIN_LOGICAL_WIDTH,
-  RESPONSIVE_HERO_SCALE,
 } from './width.mjs';
 import {AdaptiveSizeTab,ScenarioTab} from '../v2/HeroTabs.jsx';
 import styles from './ProjectResponsiveHero.module.css';
@@ -128,7 +128,7 @@ export function ProjectResponsiveHero({definition}) {
   const productHeight = useMotionValue(initialPreset.productHeight);
   const stageWidth = useTransform(displayWidth, getStageWidth);
   const stageHeight = useTransform(productHeight, getStageHeight);
-  const logicalHeight = useTransform(productHeight, (height) => height / RESPONSIVE_HERO_SCALE);
+  const logicalHeight = useTransform(displayWidth, getIframeLogicalHeight);
   const rulerPosition = useTransform(displayWidth, (width) => width - 1);
   const resizeEdgePosition = useTransform(displayWidth, (width) => width - 16);
   const animationControls = useRef([]);
