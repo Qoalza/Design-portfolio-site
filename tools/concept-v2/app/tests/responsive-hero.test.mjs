@@ -15,8 +15,16 @@ test('responsive Hero is isolated to the Concept V2 preview route',async()=>{
  assert.match(main,/\/preview\/project-responsive-hero/);
  assert.match(main,/<ResponsiveHeroPreview\/>/);
  assert.doesNotMatch(app,/ResponsiveHeroPreview|ProjectResponsiveHero/);
- assert.match(definition,/sceneSrc:'\/responsive-scenes\/corvo-v1\/media-campaigns\/index\.html'/);
- await access(path.join(appRoot,'public/responsive-scenes/corvo-v1/media-campaigns/index.html'));
+ assert.match(definition,/id:'media-campaigns'[\s\S]*?src:'\/responsive-scenes\/corvo-v1\/media-campaigns\/index\.html'/);
+ assert.match(definition,/id:'statistics'[\s\S]*?src:'\/responsive-scenes\/corvo-v1\/statistics\/index\.html'/);
+ assert.match(definition,/id:'my-space'[\s\S]*?src:'\/responsive-scenes\/corvo-v1\/my-space\/index\.html'/);
+ assert.match(definition,/id:'authorization'[\s\S]*?src:'\/responsive-scenes\/corvo-v1\/authorization\/index\.html'/);
+ await Promise.all([
+  access(path.join(appRoot,'public/responsive-scenes/corvo-v1/media-campaigns/index.html')),
+  access(path.join(appRoot,'public/responsive-scenes/corvo-v1/statistics/index.html')),
+  access(path.join(appRoot,'public/responsive-scenes/corvo-v1/my-space/index.html')),
+  access(path.join(appRoot,'public/responsive-scenes/corvo-v1/authorization/index.html')),
+ ]);
  await access(path.join(appRoot,'public/responsive-scenes/corvo-v1/assets/authorization/logo.svg'));
 });
 
@@ -42,15 +50,18 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
 
  assert.match(component,/ScenarioTab/);
  assert.match(component,/AdaptiveSizeTab/);
- assert.match(component,/selected \? "ruler-end-tick" : "ruler-edge-tick"/);
+ assert.match(component,/src=\{`\$\{assetRoot\}\/ruler-edge-tick\.svg`\}/);
+ assert.doesNotMatch(component,/selected \? "ruler-end-tick" : "ruler-edge-tick"/);
  assert.match(tabComponent,/<svg/);
  assert.doesNotMatch(tabComponent,/maskImage|mask-image/);
  assert.match(tabCss,/\.v2-scenario-tab\s*\{[\s\S]*?height:\s*40px/);
  assert.match(tabCss,/\.v2-size-tab\s*\{[\s\S]*?height:\s*48px/);
  assert.match(tabCss,/--v2-scenario-icon-enable:\s*#747f87/);
  assert.match(tabCss,/--v2-size-subtitle-active:\s*#43a2ee/);
- assert.match(tabCss,/transform:\s*translateY\(100%\)/);
+ assert.match(tabCss,/\.v2-scenario-tab-line\s*\{[\s\S]*?height:\s*5px/);
+ assert.match(tabCss,/\.v2-scenario-tab-line::after\s*\{[\s\S]*?transform:\s*translateY\(4px\)/);
  assert.match(tabCss,/140ms cubic-bezier\(\.22,\s*1,\s*\.36,\s*1\)/);
+ assert.match(tabCss,/user-select:\s*none/);
  assert.match(heroCss,/height:\s*980px/);
  assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
  assert.match(heroCss,/\.adaptiveRuler\s*\{[\s\S]*?height:\s*64px/);
@@ -60,11 +71,13 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(definition,/tabWidth:119/);
 });
 
-test('scenario tabs remain presentational while adaptive tabs retain preset controls',async()=>{
+test('scenario tabs select ready Corvo scenes while adaptive tabs retain preset controls',async()=>{
  const component=await read('src/project-hero/ProjectResponsiveHero.jsx');
- assert.match(component,/interactive=\{false\}/);
+ assert.match(component,/const \[activeSceneId, setActiveSceneId\] = useState\(initialScene\.id\)/);
+ assert.match(component,/onClick=\{\(\) => selectScene\(scene\.id\)\}/);
+ assert.match(component,/src=\{activeScene\?\.src\}/);
  assert.match(component,/onSelect=\{\(\) => selectAdaptive\(layout\.id\)\}/);
- assert.doesNotMatch(component,/setSelectedScene|selectScenario/);
+ assert.doesNotMatch(component,/interactive=\{false\}/);
 });
 
 test('Concept V2 motion keeps the accepted resize and perceptible inertia contract',async()=>{
@@ -107,17 +120,12 @@ test('release motion preserves a fast gesture through a tiny final pointer step'
  assert.equal(motion.getMagneticPreset(772+16.01),null);
 });
 
-test('a fast release against either hard boundary produces a visible inward recoil',async()=>{
+test('outward motion at hard boundaries is suppressed without a recoil',async()=>{
  const motion=await import('../src/project-hero/motion.mjs');
  const width=await import('../src/project-hero/width.mjs');
- assert.equal(motion.BOUNDARY_RECOIL_DISTANCE,28);
- assert.deepEqual(
-  motion.getBoundaryRecoil(width.MIN_DISPLAY_WIDTH,-160),
-  {displayWidth:244,logicalWidth:406.6666666666667}
- );
- assert.deepEqual(
-  motion.getBoundaryRecoil(width.MAX_DISPLAY_WIDTH,160),
-  {displayWidth:1132,logicalWidth:1886.6666666666667}
- );
- assert.equal(motion.getBoundaryRecoil(800,-160),null);
+ assert.equal(motion.isOutwardBoundaryMotion(width.MIN_DISPLAY_WIDTH,-160),true);
+ assert.equal(motion.isOutwardBoundaryMotion(width.MAX_DISPLAY_WIDTH,160),true);
+ assert.equal(motion.isOutwardBoundaryMotion(width.MIN_DISPLAY_WIDTH,160),false);
+ assert.equal(motion.isOutwardBoundaryMotion(width.MAX_DISPLAY_WIDTH,-160),false);
+ assert.equal(motion.isOutwardBoundaryMotion(800,-160),false);
 });
