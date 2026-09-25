@@ -7,9 +7,9 @@ export const corvoResponsiveHero={
  chromeAssetRoot:assetRoot,
  initialSceneId:'media-campaigns',
  scenes:[
-  {id:'media-campaigns',label:'Media Campaigns',iconSrc:`${assetRoot}/tab-media-campaigns.svg`,tabWidth:150},
-  {id:'statistics',label:'Statistics',iconSrc:`${assetRoot}/tab-statistics.svg`,tabWidth:96},
-  {id:'my-space',label:'My Space',iconSrc:`${assetRoot}/tab-my-space.svg`,tabWidth:101},
-  {id:'authorization',label:'Authorization',iconSrc:`${assetRoot}/tab-authorization.svg`,tabWidth:123}
+  {id:'media-campaigns',label:'Media Campaigns',icon:'scenario-media',tabWidth:146},
+  {id:'statistics',label:'Statistics',icon:'scenario-statistics',tabWidth:92},
+  {id:'my-space',label:'My Space',icon:'scenario-space',tabWidth:97},
+  {id:'authorization',label:'Authorization',icon:'scenario-auth',tabWidth:119}
  ]
 };

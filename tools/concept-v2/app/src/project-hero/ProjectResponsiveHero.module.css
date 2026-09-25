@@ -1,13 +1,9 @@
 .responsiveHero {
-  --responsive-hero-icon-scenario-active: #43a2ee;
-  --responsive-hero-icon-scenario-inactive: #363d42;
-  --responsive-hero-icon-adaptive-active: #1d90eb;
-  --responsive-hero-icon-adaptive-inactive: #747f87;
   --responsive-hero-icon-stage: #363d42;
   --responsive-hero-icon-handle: #d3dbe0;
 
   width: 100vw;
-  height: 1000px;
+  height: 980px;
   margin-left: calc(50% - 50vw);
   overflow: hidden;
   background: #121517;
@@ -18,7 +14,7 @@
 .heroTopbar {
   position: relative;
   z-index: 5;
-  height: 68px;
+  height: 52px;
   background-color: #181c1f;
 }
 
@@ -57,7 +53,7 @@
   top: 0;
   display: flex;
   width: max(0px, calc((100vw - 1280px) / 2));
-  height: 68px;
+  height: 52px;
   overflow: hidden;
   background-color: #121517;
   background-image: repeating-linear-gradient(126.87deg, #1d2124 0 1px, transparent 1px 12px);
@@ -67,7 +63,7 @@
   display: block;
   flex: 0 0 auto;
   width: 1px;
-  height: 68px;
+  height: 52px;
 }
 
 .topbarSideLeft {
@@ -86,71 +82,24 @@
 .scenarioTabs {
   position: absolute;
   z-index: 3;
-  top: 24px;
+  top: 12px;
   left: 40px;
   display: flex;
-  width: 542px;
-  height: 44px;
+  width: 526px;
+  height: 40px;
   gap: 24px;
-}
-
-.scenarioTab {
-  position: relative;
-  flex: 0 0 auto;
-  height: 44px;
-  color: #949ea6;
-  font-family: "Onest", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -.1px;
-  white-space: nowrap;
-}
-
-.scenarioTabActive { color: #f7fafc; }
-
-.scenarioTabContent {
-  display: flex;
-  width: 100%;
-  height: 20px;
-  align-items: center;
-  gap: 8px;
-}
-
-.scenarioIcon {
-  display: block;
-  width: 20px;
-  height: 20px;
-  margin-left: 4px;
-  background: var(--responsive-hero-icon-scenario-inactive);
-  -webkit-mask-image: var(--scenario-icon);
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: 20px 20px;
-  mask-image: var(--scenario-icon);
-  mask-position: center;
-  mask-repeat: no-repeat;
-  mask-size: 20px 20px;
-}
-
-.scenarioIconActive { background: var(--responsive-hero-icon-scenario-active); }
-
-.scenarioActiveLine {
-  position: absolute;
-  bottom: 0;
-  left: 8px;
-  display: block;
-  width: calc(100% - 16px);
-  height: 1px;
-  background: #1d90eb;
 }
 
 .heroHint {
   position: absolute;
-  top: 26px;
-  left: 892px;
-  width: 352px;
-  height: 16px;
+  top: 12px;
+  left: 926px;
+  display: flex;
+  width: 318px;
+  height: 40px;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 0 8px;
   margin: 0;
   color: #949ea6;
   font-family: "Source Code Pro", monospace;
@@ -163,7 +112,7 @@
 }
 
 .heroWorkspace {
-  height: 932px;
+  height: 928px;
   background-color: #121517;
   background-image:
     linear-gradient(90deg, #16191c 1px, transparent 1px),
@@ -184,13 +133,13 @@
   position: relative;
   display: flex;
   width: 1200px;
-  height: 72px;
+  height: 64px;
 }
 
 .rulerPosition {
   position: absolute;
   z-index: 2;
-  top: 57px;
+  top: 49px;
   display: block;
   width: 1px;
   height: 15px;
@@ -200,99 +149,24 @@
 
 .adaptiveLayout {
   display: flex;
-  height: 72px;
+  height: 64px;
   flex: 0 0 auto;
   flex-direction: column;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  appearance: none;
 }
 
 .adaptiveMain {
   position: relative;
-  display: flex;
   width: 100%;
-  height: 56px;
-  flex: 0 0 56px;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  height: 48px;
+  flex: 0 0 48px;
   overflow: hidden;
-  padding: 12px;
 }
-
-.adaptiveCopy {
-  display: flex;
-  height: 32px;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: flex-end;
-  font-family: "Source Code Pro", monospace;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 16px;
-  white-space: nowrap;
-}
-
-.adaptiveLabel,
-.adaptiveLabelActive {
-  font-size: 12px;
-  font-feature-settings: "cv01" 1, "cv02" 1, "cv12" 1;
-  letter-spacing: -.3px;
-}
-
-.adaptiveValue,
-.adaptiveValueActive {
-  font-size: 14px;
-  font-feature-settings: "ss02" 1, "cv01" 1, "cv12" 1, "cv14" 1, "cv17" 1;
-  letter-spacing: -.5px;
-}
-
-.adaptiveLabel { color: #414a4f; }
-.adaptiveValue { color: #949ea6; }
-.adaptiveLabelActive { color: #43a2ee; }
-.adaptiveValueActive { color: #d3dbe0; }
-
-.adaptiveIconBox {
-  display: flex;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.adaptiveIconBoxActive { background: #1d2124; }
-
-.adaptiveIcon {
-  display: block;
-  width: 20px;
-  height: 20px;
-  background: var(--responsive-hero-icon-adaptive-inactive);
-  -webkit-mask-image: var(--adaptive-icon);
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: 20px 20px;
-  mask-image: var(--adaptive-icon);
-  mask-position: center;
-  mask-repeat: no-repeat;
-  mask-size: 20px 20px;
-}
-
-.adaptiveIconActive { background: var(--responsive-hero-icon-adaptive-active); }
 
 .adaptiveMainBoundary {
   position: absolute;
   bottom: 0;
   width: 1px;
-  height: 15px;
+  height: 16px;
 }
 
 .adaptiveMainBoundary_min { left: 0; }

@@ -1,7 +1,7 @@
 .preview {
   width: 100%;
   min-width: 1280px;
-  min-height: max(1000px, 100vh);
+  min-height: max(980px, 100vh);
   overflow: hidden;
   background-color: #121517;
   background-image:

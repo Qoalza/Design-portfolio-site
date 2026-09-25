@@ -103,6 +103,7 @@ button.v2-scenario-tab { cursor: pointer; }
 .v2-scenario-tab.is-active .v2-scenario-tab-line::after {
   background: var(--v2-scenario-line-active);
   transform: translateY(0);
+  transition: none;
 }
 
 .v2-scenario-tab:disabled {

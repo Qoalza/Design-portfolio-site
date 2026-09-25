@@ -31,6 +31,42 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  assert.match(component,/aria-hidden="true"/);
 });
 
+test('responsive Hero uses the current Library V2 tab contracts',async()=>{
+ const [component,tabComponent,tabCss,heroCss,definition]=await Promise.all([
+  read('src/project-hero/ProjectResponsiveHero.jsx'),
+  read('src/v2/HeroTabs.jsx'),
+  read('src/v2/hero-tabs.css'),
+  read('src/project-hero/ProjectResponsiveHero.module.css'),
+  read('src/project-hero/definition.mjs')
+ ]);
+
+ assert.match(component,/ScenarioTab/);
+ assert.match(component,/AdaptiveSizeTab/);
+ assert.match(component,/selected \? "ruler-end-tick" : "ruler-edge-tick"/);
+ assert.match(tabComponent,/<svg/);
+ assert.doesNotMatch(tabComponent,/maskImage|mask-image/);
+ assert.match(tabCss,/\.v2-scenario-tab\s*\{[\s\S]*?height:\s*40px/);
+ assert.match(tabCss,/\.v2-size-tab\s*\{[\s\S]*?height:\s*48px/);
+ assert.match(tabCss,/--v2-scenario-icon-enable:\s*#747f87/);
+ assert.match(tabCss,/--v2-size-subtitle-active:\s*#43a2ee/);
+ assert.match(tabCss,/transform:\s*translateY\(100%\)/);
+ assert.match(tabCss,/140ms cubic-bezier\(\.22,\s*1,\s*\.36,\s*1\)/);
+ assert.match(heroCss,/height:\s*980px/);
+ assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
+ assert.match(heroCss,/\.adaptiveRuler\s*\{[\s\S]*?height:\s*64px/);
+ assert.match(definition,/tabWidth:146/);
+ assert.match(definition,/tabWidth:92/);
+ assert.match(definition,/tabWidth:97/);
+ assert.match(definition,/tabWidth:119/);
+});
+
+test('scenario tabs remain presentational while adaptive tabs retain preset controls',async()=>{
+ const component=await read('src/project-hero/ProjectResponsiveHero.jsx');
+ assert.match(component,/interactive=\{false\}/);
+ assert.match(component,/onSelect=\{\(\) => selectAdaptive\(layout\.id\)\}/);
+ assert.doesNotMatch(component,/setSelectedScene|selectScenario/);
+});
+
 test('Concept V2 motion keeps the accepted resize and perceptible inertia contract',async()=>{
  const motion=await import('../src/project-hero/motion.mjs');
  const width=await import('../src/project-hero/width.mjs');

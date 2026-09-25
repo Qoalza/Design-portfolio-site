@@ -23,14 +23,15 @@ import {
   MIN_LOGICAL_WIDTH,
   RESPONSIVE_HERO_SCALE,
 } from './width.mjs';
+import {AdaptiveSizeTab,ScenarioTab} from '../v2/HeroTabs.jsx';
 import styles from './ProjectResponsiveHero.module.css';
 
 const ADAPTIVE_LAYOUTS = [
-  { id: "min", label: "min-width", value: "360", segmentWidth: 256, iconFile: "adaptive-min.svg" },
-  { id: "mobile", label: "Mobile", value: "360x599", segmentWidth: 141, iconFile: "adaptive-mobile.svg" },
-  { id: "tablet", label: "Tablet", value: "600x1279", segmentWidth: 415, iconFile: "adaptive-tablet.svg" },
-  { id: "desktop", label: "Desktop", value: "1280x1599", segmentWidth: 188, iconFile: "adaptive-desktop.svg" },
-  { id: "max", label: "max-width", value: "1600+", segmentWidth: 200, iconFile: "adaptive-max.svg" },
+  { id: "min", label: "min-width", value: "360", segmentWidth: 256, icon: "size-min" },
+  { id: "mobile", label: "Mobile", value: "360x599", segmentWidth: 141, icon: "size-mobile" },
+  { id: "tablet", label: "Tablet", value: "600x1279", segmentWidth: 415, icon: "size-tablet" },
+  { id: "desktop", label: "Desktop", value: "1280x1599", segmentWidth: 188, icon: "size-desktop" },
+  { id: "max", label: "max-width", value: "1600+", segmentWidth: 200, icon: "size-max" },
 ] ;
 
 function ExactAsset({
@@ -81,35 +82,31 @@ function AdaptiveControl({
   endpointSelected,
   onSelect,
 }) {
-  const iconStyle = { '--adaptive-icon': `url("${assetRoot}/${layout.iconFile}")` };
-
   return (
-    <button
+    <div
       className={styles.adaptiveLayout}
       style={{ width: `${layout.segmentWidth}px` }}
-      type="button"
-      aria-pressed={selected}
-      onClick={onSelect}
     >
       <span className={styles.adaptiveMain}>
-        <span className={styles.adaptiveCopy}>
-          <span className={selected ? styles.adaptiveLabelActive : styles.adaptiveLabel}>{layout.label}</span>
-          <span className={selected ? styles.adaptiveValueActive : styles.adaptiveValue}>{layout.value}</span>
-        </span>
-        <span className={`${styles.adaptiveIconBox} ${selected ? styles.adaptiveIconBoxActive : ""}`}>
-          <span className={`${styles.adaptiveIcon} ${selected ? styles.adaptiveIconActive : ""}`} style={iconStyle} aria-hidden="true" />
-        </span>
+        <AdaptiveSizeTab
+          icon={layout.icon}
+          caption={layout.label}
+          value={layout.value}
+          active={selected}
+          aria-label={`${layout.label} ${layout.value}`}
+          onClick={onSelect}
+        />
         {layout.id === "min" || layout.id === "max" ? (
           <ExactAsset
             className={`${styles.adaptiveMainBoundary} ${styles[`adaptiveMainBoundary_${layout.id}`]}`}
-            src={`${assetRoot}/ruler-edge-tick.svg`}
+            src={`${assetRoot}/${selected ? "ruler-end-tick" : "ruler-edge-tick"}.svg`}
             width={1}
-            height={15}
+            height={16}
           />
         ) : null}
       </span>
       <AdaptiveTrack assetRoot={assetRoot} id={layout.id} selected={endpointSelected} />
-    </button>
+    </div>
   );
 }
 
@@ -301,34 +298,26 @@ export function ProjectResponsiveHero({definition}) {
       <header className={styles.heroTopbar}>
         <div className={styles.heroTopbarInner}>
           <span className={`${styles.topbarSide} ${styles.topbarSideLeft}`} aria-hidden="true">
-            <ExactAsset src={`${assetRoot}/topbar-separation.svg`} width={1} height={68} />
+            <ExactAsset src={`${assetRoot}/topbar-separation.svg`} width={1} height={52} />
           </span>
           <div className={styles.scenarioTabs} aria-label="Сценарии проекта">
             {definition.scenes.map((scene) => {
               const active = scene.id === definition.initialSceneId;
               return (
-                <div
-                  className={`${styles.scenarioTab} ${active ? styles.scenarioTabActive : ""}`}
+                <ScenarioTab
                   key={scene.id}
+                  icon={scene.icon}
+                  label={scene.label}
+                  active={active}
+                  interactive={false}
                   style={{ width: `${scene.tabWidth}px` }}
-                  aria-current={active ? "true" : undefined}
-                >
-                  <span className={styles.scenarioTabContent}>
-                    <span
-                      className={`${styles.scenarioIcon} ${active ? styles.scenarioIconActive : ""}`}
-                      style={{'--scenario-icon': `url("${scene.iconSrc}")`}}
-                      aria-hidden="true"
-                    />
-                    <span>{scene.label}</span>
-                  </span>
-                  {active ? <span className={styles.scenarioActiveLine} aria-hidden="true" /> : null}
-                </div>
+                />
               );
             })}
           </div>
           <p className={styles.heroHint}>{hint}</p>
           <span className={`${styles.topbarSide} ${styles.topbarSideRight}`} aria-hidden="true">
-            <ExactAsset src={`${assetRoot}/topbar-separation.svg`} width={1} height={68} />
+            <ExactAsset src={`${assetRoot}/topbar-separation.svg`} width={1} height={52} />
           </span>
         </div>
       </header>

@@ -17,7 +17,7 @@ function HeroTabIcon({name}) {
           <path d="M14 9a1 1 0 0 0 1 1h7v7h-4a1 1 0 0 0-1 1v4h-7v-7a1 1 0 0 0-1-1H2V7h4a1 1 0 0 0 1-1V2h7v7Z" fill="currentColor" fillOpacity=".2"/>
           <path d="M2 14h7a1 1 0 0 1 1 1v7M22 10h-7a1 1 0 0 1-1-1V2M9.707 14.293 2 22M14.293 9.707l7.5-7.5M22 17h-4a1 1 0 0 0-1 1v4M2 7h4a1 1 0 0 0 1-1V2" {...shared}/>
         </> : null}
-        {name==='size-mobile' ? <path d="M18 3.538h-.65v16.924H18h.65V3.538H18Zm0 16.924h-.65c0 .506-.396.888-.85.888V22v.65c1.203 0 2.15-.995 2.15-2.188H18ZM16.5 22v-.65h-9V22v.65h9V22Zm-9 0v-.65c-.454 0-.85-.382-.85-.888H6h-.65c0 1.193.947 2.188 2.15 2.188V22ZM6 20.462h.65V3.538H6h-.65v16.924H6ZM6 3.538h.65c0-.506.396-.888.85-.888V2v-.65c-1.203 0-2.15.995-2.15 2.188H6ZM7.5 2v.65h9V2v-.65h-9V2Zm9 0v.65c.454 0 .85.382.85.888H18h.65c0-1.193-.947-2.188-2.15-2.188V2Zm-3.75 3.462h-.65c0 .081-.06.119-.1.119v.65h.75c.789 0 1.4-.651 1.4-1.419h-1.3c0 .425-.336.77-.75.77-.414 0-.75-.345-.75-.77h-1.3c0 .768.611 1.419 1.4 1.419h.75v-.65c-.04 0-.1-.038-.1-.119h-.65c0-.768.611-1.419 1.4-1.419s1.4.651 1.4 1.419h-1.3Z" fill="currentColor"/> : null}
+        {name==='size-mobile' ? <path d="M18 3.53846H17.35V20.4615H18H18.65V3.53846H18ZM18 20.4615H17.35C17.35 20.9678 16.954 21.35 16.5 21.35V22V22.65C17.7028 22.65 18.65 21.6546 18.65 20.4615H18ZM16.5 22V21.35H7.5V22V22.65H16.5V22ZM7.5 22V21.35C7.04597 21.35 6.65 20.9678 6.65 20.4615H6H5.35C5.35 21.6546 6.29717 22.65 7.5 22.65V22ZM6 20.4615H6.65V3.53846H6H5.35V20.4615H6ZM6 3.53846H6.65C6.65 3.03217 7.04597 2.65 7.5 2.65V2V1.35C6.29717 1.35 5.35 2.34542 5.35 3.53846H6ZM7.5 2V2.65H16.5V2V1.35H7.5V2ZM16.5 2V2.65C16.954 2.65 17.35 3.03217 17.35 3.53846H18H18.65C18.65 2.34542 17.7028 1.35 16.5 1.35V2ZM12.75 5.46154H12.1C12.1 5.543 12.0398 5.58077 12 5.58077V6.23077V6.88077C12.7886 6.88077 13.4 6.22975 13.4 5.46154H12.75ZM12 6.23077V5.58077C11.9602 5.58077 11.9 5.543 11.9 5.46154H11.25H10.6C10.6 6.22975 11.2114 6.88077 12 6.88077V6.23077ZM11.25 5.46154H11.9C11.9 5.38008 11.9602 5.34231 12 5.34231V4.69231V4.04231C11.2114 4.04231 10.6 4.69333 10.6 5.46154H11.25ZM12 4.69231V5.34231C12.0398 5.34231 12.1 5.38008 12.1 5.46154H12.75H13.4C13.4 4.69333 12.7886 4.04231 12 4.04231V4.69231Z" fill="currentColor"/> : null}
         {name==='size-tablet' ? <>
           <path d="M20 20.333V3.667C20 2.746 19.284 2 18.4 2H5.6C4.716 2 4 2.746 4 3.667v16.666C4 21.254 4.716 22 5.6 22h12.8c.884 0 1.6-.746 1.6-1.667Z" fill="currentColor" fillOpacity=".2"/>
           <path d="M9 5h6m5-1.333v16.666C20 21.254 19.284 22 18.4 22H5.6C4.716 22 4 21.254 4 20.333V3.667C4 2.746 4.716 2 5.6 2h12.8c.884 0 1.6.746 1.6 1.667Z" {...shared} strokeLinecap="round" strokeLinejoin="round"/>
@@ -40,7 +40,7 @@ export function ScenarioTab({icon,label,active=false,disabled=false,interactive=
   const content=<><span className="v2-scenario-tab-content"><HeroTabIcon name={icon}/><span>{label}</span></span><span className="v2-scenario-tab-line" aria-hidden="true"/></>;
 
   if (!interactive) {
-    return <div className={classes} aria-current={active?'true':undefined}>{content}</div>;
+    return <div className={classes} aria-current={active?'true':undefined} {...props}>{content}</div>;
   }
 
   return <button type="button" className={classes} disabled={disabled} aria-pressed={active} {...props}>{content}</button>;
