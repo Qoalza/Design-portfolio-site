@@ -6,7 +6,7 @@
 
 - Branch: `codex/concept-v2-responsive-hero`.
 - Worktree: `/Users/designer/.codex/worktrees/concept-v2-responsive-hero/Design-portfolio-site`.
-- Baseline этой ревизии: `b96689f`; актуальный результат — последний commit
+- Baseline этой ревизии: `20f7408`; актуальный результат — последний commit
   текущей ветки.
 - Development URL: `http://127.0.0.1:4173/preview/project-responsive-hero`.
 
@@ -23,12 +23,17 @@
   разрешённого source byte-to-byte и загружаются без изменения внутренних
   HTML/CSS/assets, layout, scale или breakpoint-логики.
 - Неактивное подчёркивание табов находится на `1px` ниже clipped frame;
-  hover-линия поднимается на `1px` за `250ms`, не выезжая под header.
+  hover-линия поднимается на `1px` за `250ms` с синхронным opacity-ramp,
+  не выезжая под header и не появляясь мгновенно.
+- Девять иконок верхних табов сверены с actual Figma Hero instances: Medium
+  stroke `1.3px` остаётся неизменным при уменьшении полного SVG canvas до
+  `16px`. Key восстановлен как повёрнутый line-вектор; Mobile — line без fill.
 - Физическая и логическая ширины внешнего фрейма теперь всегда связаны ровным
   `scale(.6)`; высота следует текущему breakpoint без отдельной анимации.
   Логическая ширина самого iframe округляется вверх менее чем на `1px`, чтобы
   белый document canvas не мелькал у правого края. У Authorization внешняя
-  подложка использует исходный тёмный цвет `#242625` без лишнего скругления.
+  подложка использует исходный тёмный цвет `#242625` и левое скругление
+  `8px 0 0 8px`.
 
 ## Проверка
 
@@ -48,6 +53,10 @@
   источника и оболочки. Focused tests `8/8`, suite `134/134`, lint и build — PASS.
 - Built runtime проверен в Codex browser; автоматическое взаимодействие с
   открытым Zen было недоступно. Визуальная приёмка в Zen остаётся открытой.
+- Новая проверка: focused `8/8`, полный suite `134/134`, lint и production
+  build — PASS; в runtime все 9 верхних иконок имеют computed stroke `1.3px`,
+  Mobile — только line. Hover измерен в промежуточных кадрах; Authorization
+  на Tablet сохраняет перекрытие правого края и левое скругление.
 
 ## Следующее действие
 

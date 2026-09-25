@@ -1,7 +1,7 @@
 # Desktop Corvo Responsive Hero для Concept V2
 
-**Статус:** Ready for user review — latest Hero edge and tab correction
-**Baseline:** `codex/concept-v2-responsive-hero` · `bd66525`
+**Статус:** Ready for user review — icon fidelity, tab motion and dark-scene radius correction
+**Baseline этой ревизии:** `codex/concept-v2-responsive-hero` · `20f7408`
 **Target:** standalone Concept V2 app, isolated preview only
 
 ## Результат
@@ -191,3 +191,39 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - Проверка в Codex browser выполнена. Автоматическое управление открытым Zen
   временно недоступно, поэтому окончательная визуальная приёмка именно в Zen
   остаётся за пользователем; нельзя заявлять кроссбраузерное завершение.
+
+## Ревизия 2026-09-25 — Medium-иконки, видимый hover и левое скругление
+
+### Target → Change → Expected result → Verification
+
+- Девять иконок верхних табов: текущий Figma Hero `3774:200461` содержит
+  четыре scenario-иконки и пять size-иконок в полном `16×16` frame. У всех
+  Medium-векторов stroke `1.3px` на итоговом размере. Исходный SVG `24×24`
+  внутри frame `16×16` уменьшался вместе с stroke до `≈0.87px`;
+  `vector-effect="non-scaling-stroke"` сохраняет исходную толщину.
+- Key: source — один line-вектор без fill, поворот `45°`, один составной path;
+  прежняя замена была неверным обведённым fill-контуром. Mobile: source —
+  line-вектор без fill, два path в bounds `x=4`, `y=1.333`, `8×13.333`;
+  прежний fill-силуэт заменён исходной геометрией. Остальные семь source roles
+  подтверждены: три scenario — line без fill; size-min/tablet/desktop/max —
+  stroke `1.3px` с source fill `20%` (min/max как отдельные vector layers).
+- Сценарный underline остаётся толщиной `1px` и целиком clipped в tab frame;
+  к физическому ходу `1px/250ms` добавлен синхронный opacity-ramp и плавный
+  центрированный easing, чтобы промежуточное движение читалось, а не выглядело
+  мгновенным. Active остаётся сплошным и всегда видимым.
+- Authorization: внешний viewport снова имеет только левое скругление
+  `8px 0 0 8px`; тёмная подложка и округление логической ширины iframe,
+  устранившие правое мерцание, сохранены.
+
+### Проверка
+
+- RED focused test подтвердил прежние ошибки; затем focused `8/8`, полный
+  Concept V2 suite `134/134`, lint и Vite production build — PASS.
+- Built runtime: все девять видимых SVG занимают `16px`; на всех stroked paths
+  computed `1.3px` и `non-scaling-stroke`; Mobile не содержит fill-layer.
+- Hover Statistics измерен по кадрам: opacity `0 → 0.23 → 0.50 → 1`, а
+  translateY `1 → 0.94 → 0.50 → 0px` за `250ms`.
+- Authorization на Tablet: viewport `767.398px`, iframe `767.400px`, background
+  `#242625`, radius `8px 0 0 8px`; лишняя доля пикселя обрезается справа.
+- Внутренние Corvo files и motion-параметры не изменены. Пользовательская
+  визуальная приёмка в Zen остаётся отдельным шагом.

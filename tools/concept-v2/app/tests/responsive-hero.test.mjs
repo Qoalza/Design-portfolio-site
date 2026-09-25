@@ -38,7 +38,7 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  assert.match(component,/useTransform\(displayWidth, getIframeLogicalWidth\)/);
  assert.match(component,/useTransform\(displayWidth, getProductHeightForDisplayWidth\)/);
  assert.match(component,/activeScene\.id === 'authorization' \? styles\.productViewportDark/);
- assert.match(css,/\.productViewportDark\s*\{[^}]*border-radius:\s*0;[^}]*background:\s*#242625/);
+ assert.match(css,/\.productViewportDark\s*\{[^}]*border-radius:\s*8px 0 0 8px;[^}]*background:\s*#242625/);
  assert.match(component,/tabIndex=\{-1\}/);
  assert.match(component,/aria-hidden="true"/);
 });
@@ -58,6 +58,11 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.doesNotMatch(component,/selected \? "ruler-end-tick" : "ruler-edge-tick"/);
  assert.match(tabComponent,/<svg/);
  assert.doesNotMatch(tabComponent,/maskImage|mask-image/);
+ assert.match(tabComponent,/vectorEffect:\s*'non-scaling-stroke'/);
+ assert.match(tabComponent,/name==='scenario-auth'[^\n]*transform="matrix\(/);
+ assert.match(tabComponent,/name==='size-mobile'[^\n]*stroke="currentColor"/);
+ assert.match(tabComponent,/name==='size-mobile'[^\n]*transform="translate\(4 1\.33333337\)"/);
+ assert.doesNotMatch(tabComponent,/name==='size-mobile'[^\n]*fill="currentColor"/);
  assert.match(tabCss,/\.v2-scenario-tab\s*\{[\s\S]*?height:\s*40px/);
  assert.match(tabCss,/\.v2-size-tab\s*\{[\s\S]*?height:\s*48px/);
  assert.match(tabCss,/--v2-scenario-icon-enable:\s*#747f87/);
@@ -66,6 +71,8 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(tabCss,/\.v2-scenario-tab-line\s*\{[^}]*height:\s*1px;[^}]*overflow:\s*hidden/);
  assert.match(tabCss,/\.v2-scenario-tab-line::after\s*\{[^}]*transform:\s*translateY\(1px\)/);
  assert.match(tabCss,/\.v2-scenario-tab-line::after\s*\{[^}]*transition:\s*transform 250ms/);
+ assert.match(tabCss,/\.v2-scenario-tab-line::after\s*\{[^}]*opacity:\s*0/);
+ assert.match(tabCss,/\.v2-scenario-tab:hover \.v2-scenario-tab-line::after\s*\{[^}]*opacity:\s*1/);
  assert.doesNotMatch(tabCss,/\.v2-scenario-tab-line::after\s*\{[^}]*visibility:/);
  assert.doesNotMatch(heroCss,/\.heroTopbar\s*\{[^}]*overflow:\s*hidden/);
  assert.match(tabCss,/user-select:\s*none/);
