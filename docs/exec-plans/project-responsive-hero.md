@@ -1,6 +1,6 @@
 # Desktop Corvo Responsive Hero для Concept V2
 
-**Статус:** Active — Library V2 tabs revision
+**Статус:** Complete — Library V2 tabs revision
 **Baseline:** `codex/concept-v2-routing-404` · `4205fbe`
 **Target:** standalone Concept V2 app, isolated preview only
 
@@ -75,6 +75,22 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - iframe source/geometry regression check;
 - lint, полный test suite, production build;
 - fidelity/completeness review, затем regression/scope/risk review.
+
+### Result
+
+- Hero обновлён до `980px`; header — до `52px`, ruler — до `64px`.
+- Сценарные и размерные табы вынесены в переиспользуемые Library V2
+  компоненты с точными состояниями, typography, icon canvas и цветами.
+- Hover underline сценарного таба выезжает снизу за `140ms`; active-линия
+  остаётся сплошной, size-tab меняет visual state мгновенно.
+- Координаты групп, hint, ширины табов и сегментов ruler соответствуют
+  измерительному контракту актуальных Figma nodes.
+- Corvo iframe, `scale(.6)`, preset-значения, width model, drag softness,
+  inertia, magnetic release и isolated route не изменены.
+- Fidelity/completeness review и regression/scope/risk review завершены без
+  открытых замечаний.
+- Финальная проверка: lint — PASS; focused Hero tests `8/8`; полный test suite
+  `134/134`; Vite production build — PASS.
 
 ### Stop-lines
 

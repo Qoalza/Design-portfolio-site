@@ -43,3 +43,18 @@ Size tabs: `nrqHGuE0qOo4Dwj59I9wEc` · `2151:15044`
 Corvo iframe is owned by the existing runtime, not by the current Figma
 comparison. Its geometry, direct `scale(.6)`, source layout, breakpoints,
 assets, preset values and motion are regression-only and must remain unchanged.
+
+## Runtime acceptance
+
+- Final chrome geometry: `980 / 52 / 928 / 64` for Hero, header, workspace
+  and ruler respectively.
+- Scenario instances: `146 / 92 / 97 / 119`; ruler segments:
+  `256 / 141 / 415 / 188 / 200`.
+- Active endpoint uses the Figma blue upper boundary; neutral endpoints retain
+  the neutral edge token.
+- Header hatch, three separately phased `8×8` dashed baselines and solid
+  active underline remain separate layers.
+- Regression diff contains no changes to responsive scene files, iframe source,
+  `width.mjs`, `motion.mjs`, `App.jsx` or the main Concept page.
+- Verification: focused Hero tests `8/8`; complete suite `134/134`; lint and
+  Vite production build passed on 2026-09-25.

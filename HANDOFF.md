@@ -19,8 +19,11 @@
   прямым `scale(.6)` в неинтерактивном iframe.
 - Общий Corvo `assets/authorization/logo.svg`, используемый Media Campaigns,
   сохранён отдельно от неактивной Authorization scene и защищён focused-тестом.
-- Внешняя оболочка сохраняет принятую Figma-геометрию, fixed `1000px` Hero,
-  сценарные табы, ruler, presets, resize handle и фиксированные locks.
+- Внешняя оболочка обновлена по актуальным Figma nodes: fixed `980px` Hero,
+  header `52px`, ruler `64px`, новая геометрия сценарных и размерных табов.
+- Оба типа табов реализованы переиспользуемыми Library V2 components с
+  точными inline SVG, typography и visual states. Hover-линия сценария
+  выезжает снизу; size-tab переключается визуально без transition.
 - Motion использует pinned `motion@13.4.2`: вязкий drag, `500ms` ease-in-out
   presets, magnetic snap и быстрый release с докатом максимум `160px` за
   `420ms`. На жёсткой границе вместо съеденного clamp-ом доката срабатывает
@@ -31,7 +34,13 @@
 
 ## Проверка
 
-- Focused Hero tests: `6/6`.
+- Focused Hero tests: `8/8`; полный Concept V2 suite: `134/134`.
+- Lint и Vite production build — PASS.
+- Fidelity/completeness review подтвердил актуальные Figma geometry, states,
+  tokens, typography и icon contract верхней оболочки.
+- Regression/scope/risk review подтвердил отсутствие изменений в Corvo scene,
+  iframe geometry/source, `width.mjs`, `motion.mjs`, `App.jsx` и основной
+  Concept-странице.
 - Runtime: Corvo logo визуально подтверждён в `min-width`; SVG совпадает с
   разрешённым source байт-в-байт и отдаётся как `image/svg+xml`.
 - Runtime: быстрый drag из desktop завершился на logical width `894`, что
@@ -48,8 +57,8 @@
 
 ## Следующее действие
 
-Показать правильный preview пользователю и дождаться оценки motion. После
-подтверждения продолжить только с переданными пользователем компонентами.
+Показать пользователю завершённый isolated preview. Дальнейшее scenario
+switching, popup увеличения или интеграция в страницу требуют нового scope.
 
 ## Stop-lines
 
