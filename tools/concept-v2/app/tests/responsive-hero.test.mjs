@@ -60,6 +60,8 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  assert.match(authorizationCss,/@media \(min-width:\s*600px\)[\s\S]*?\.auth-panel\s*\{[^}]*border-radius:\s*28px/);
  assert.match(authorizationCss,/@media \(min-width:\s*1280px\)[\s\S]*?\.auth-panel\s*\{[^}]*border-radius:\s*32px/);
  assert.match(component,/tabIndex=\{-1\}/);
+ // This inert preview must not flash browser scrollbars during animated resize.
+ assert.match(component,/<iframe\s+className=\{styles\.productFrame\}\s+scrolling="no"/);
  assert.match(component,/aria-hidden="true"/);
 });
 

@@ -362,6 +362,7 @@ export function ProjectResponsiveHero({definition}) {
                     <motion.div className={styles.iframeCanvas} style={{ height: animatedLogicalHeight }}>
                       <iframe
                         className={styles.productFrame}
+                        scrolling="no"
                         src={activeScene?.src}
                         title={`${activeScene?.label ?? "Project scene"} — проект`}
                         aria-hidden="true"

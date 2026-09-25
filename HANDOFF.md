@@ -12,6 +12,19 @@
 
 ## Checkpoint
 
+- Пользователь подтвердил исправление скруглений Zen; их не менять.
+- Правый край при drag: Chromium rAF trace воспроизвёл временное вертикальное
+  переполнение: t=172ms iframe 1264×1026, document scrollHeight=1100;
+  до t=414ms высота догоняет 1100. Root/body overflow visible, scrolling отсутствовал.
+  Добавлен только `scrolling="no"` на внешний inert iframe и regression assertion.
+  Это legacy/deprecated embedding attribute (MDN iframe), выбран узко, чтобы
+  не инжектировать CSS и не менять внутренний продукт или принятую анимацию.
+  Chromium built runtime подтвердил атрибут и drag. Suite 138/138, lint/build PASS.
+  Zen reload и Authorization подтверждены, но drag capture прерван
+  noWindowsAvailable; полную визуальную приёмку движения Zen не заявлять.
+  Предыдущие записи OPEN ниже исторические; точечная scrollbar-коррекция
+  требует пользовательской/повторной Zen-проверки правого края.
+
 - Актуальная проверка: native Zen снова управляется после foreground пользователем.
   Удаление дублирующего border-radius само по себе не убрало кайму; opaque
   `mask-image: linear-gradient(#000, #000)` на внешнем productViewport убрало
