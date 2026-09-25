@@ -227,3 +227,18 @@ Concept V2 worktree. Hero должен быть доступен по отдел
   `#242625`, radius `8px 0 0 8px`; лишняя доля пикселя обрезается справа.
 - Внутренние Corvo files и motion-параметры не изменены. Пользовательская
   визуальная приёмка в Zen остаётся отдельным шагом.
+
+## Ревизия 2026-09-25 — Mobile Duotone по прямой правке пользователя
+
+- Target → только иконка Mobile в size-tab; текущий Figma Hero instance имеет
+  семейство Line без fill, но пользователь явно утвердил Duotone, как у Tablet
+  и Desktop. Этот override не меняет исходный Figma-файл.
+- Change → сохранены bounds `x=4`, `y=1.333`, `8×13.333`, два исходных path и
+  stroke `1.3px`; корпус получил fill `currentColor` с opacity `0.2`, точка
+  осталась без fill. Остальные иконки, iframe и resize не менялись.
+- Expected result → Mobile визуально относится к Duotone-группе устройств,
+  не теряя точную геометрию и обводку.
+- Verification → focused Hero tests `8/8`, lint и Vite production build PASS.
+  В собранном runtime проверены все пять size-tab icons: frame `16px`, каждый
+  stroked path `1.3px` с `non-scaling-stroke`; Mobile/Tablet/Desktop имеют
+  computed fill-opacity `0.2` и тот же semantic `currentColor`.

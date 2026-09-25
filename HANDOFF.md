@@ -27,7 +27,9 @@
   не выезжая под header и не появляясь мгновенно.
 - Девять иконок верхних табов сверены с actual Figma Hero instances: Medium
   stroke `1.3px` остаётся неизменным при уменьшении полного SVG canvas до
-  `16px`. Key восстановлен как повёрнутый line-вектор; Mobile — line без fill.
+  `16px`. Key восстановлен как повёрнутый line-вектор. По прямой новой правке
+  пользователя Mobile имеет Duotone-корпус с fill `20%` и stroke `1.3px`;
+  текущий Figma Hero instance Mobile остаётся Line, это сознательный override.
 - Физическая и логическая ширины внешнего фрейма теперь всегда связаны ровным
   `scale(.6)`; высота следует текущему breakpoint без отдельной анимации.
   Логическая ширина самого iframe округляется вверх менее чем на `1px`, чтобы
@@ -54,9 +56,12 @@
 - Built runtime проверен в Codex browser; автоматическое взаимодействие с
   открытым Zen было недоступно. Визуальная приёмка в Zen остаётся открытой.
 - Новая проверка: focused `8/8`, полный suite `134/134`, lint и production
-  build — PASS; в runtime все 9 верхних иконок имеют computed stroke `1.3px`,
-  Mobile — только line. Hover измерен в промежуточных кадрах; Authorization
+  build — PASS; в runtime все 9 верхних иконок имеют computed stroke `1.3px`.
+  Hover измерен в промежуточных кадрах; Authorization
   на Tablet сохраняет перекрытие правого края и левое скругление.
+- Дополнительный runtime-review после Mobile-правки: все 5 size-tab SVG имеют
+  итоговый frame `16px`, stroke `1.3px`; Mobile, Tablet и Desktop имеют
+  fill-opacity `0.2`. Mobile остается на том же месте в табе.
 
 ## Следующее действие
 

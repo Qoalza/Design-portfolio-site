@@ -62,7 +62,7 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(tabComponent,/name==='scenario-auth'[^\n]*transform="matrix\(/);
  assert.match(tabComponent,/name==='size-mobile'[^\n]*stroke="currentColor"/);
  assert.match(tabComponent,/name==='size-mobile'[^\n]*transform="translate\(4 1\.33333337\)"/);
- assert.doesNotMatch(tabComponent,/name==='size-mobile'[^\n]*fill="currentColor"/);
+ assert.match(tabComponent,/name==='size-mobile'[^\n]*fill="currentColor" fillOpacity="\.2"/);
  assert.match(tabCss,/\.v2-scenario-tab\s*\{[\s\S]*?height:\s*40px/);
  assert.match(tabCss,/\.v2-size-tab\s*\{[\s\S]*?height:\s*48px/);
  assert.match(tabCss,/--v2-scenario-icon-enable:\s*#747f87/);
