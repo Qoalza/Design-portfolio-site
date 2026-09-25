@@ -264,8 +264,8 @@
 }
 
 .productViewportDark {
-  border-radius: 0;
-  background: transparent;
+  /* Fill the animated frame while the scene retains its breakpoint height. */
+  background: #242625;
 }
 
 .logicalProduct {

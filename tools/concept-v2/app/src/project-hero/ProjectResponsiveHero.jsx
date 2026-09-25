@@ -131,7 +131,6 @@ export function ProjectResponsiveHero({definition}) {
   const stageHeight = useTransform(productHeight, getStageHeight);
   const logicalHeight = useTransform(displayWidth, getIframeLogicalHeight);
   const animatedLogicalHeight = useTransform(productHeight, getIframeViewportHeight);
-  const mobileIframeRadius = useTransform(displayWidth, (width) => getIframeLogicalWidth(width) < 600 ? 8 : 0);
   const rulerPosition = useTransform(displayWidth, (width) => width - 1);
   const resizeEdgePosition = useTransform(displayWidth, (width) => width - 16);
   const animationControls = useRef([]);
@@ -358,7 +357,7 @@ export function ProjectResponsiveHero({definition}) {
                 <span className={`${styles.stageLock} ${styles.stageLockRight}`} style={{'--lock-icon': `url("${assetRoot}/lock.svg")`}} />
               </div>
               <motion.div className={styles.stageSurface} style={{ height: productHeight }}>
-                <motion.div className={`${styles.productViewport} ${activeScene.id === 'authorization' ? styles.productViewportDark : ''}`} style={{ width: displayWidth, height: productHeight, borderTopLeftRadius: activeScene.id === 'authorization' ? mobileIframeRadius : 8, borderBottomLeftRadius: activeScene.id === 'authorization' ? mobileIframeRadius : 8 }}>
+                <motion.div className={`${styles.productViewport} ${activeScene.id === 'authorization' ? styles.productViewportDark : ''}`} style={{ width: displayWidth, height: productHeight }}>
                   <motion.div className={styles.logicalProduct} style={{ width: iframeLogicalWidth, height: logicalHeight }}>
                     <motion.div className={styles.iframeCanvas} style={{ height: animatedLogicalHeight }}>
                       <iframe
