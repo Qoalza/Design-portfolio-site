@@ -50,11 +50,19 @@ assets, preset values and motion are regression-only and must remain unchanged.
   and ruler respectively.
 - Scenario instances: `146 / 92 / 97 / 119`; ruler segments:
   `256 / 141 / 415 / 188 / 200`.
-- Active endpoint uses the Figma blue upper boundary; neutral endpoints retain
-  the neutral edge token.
+- Верхние endpoint stop-lines min/max всегда используют Surface `#272d30`;
+  active-color не применяется к этим дополнительным разделителям.
 - Header hatch, three separately phased `8×8` dashed baselines and solid
   active underline remain separate layers.
-- Regression diff contains no changes to responsive scene files, iframe source,
-  `width.mjs`, `motion.mjs`, `App.jsx` or the main Concept page.
-- Verification: focused Hero tests `8/8`; complete suite `134/134`; lint and
-  Vite production build passed on 2026-09-25.
+- Hover underline имеет видимый старт `4px` ниже baseline и приходит к нему за
+  `140ms`; scenario tabs используют `user-select: none`.
+- Boundary outward input фиксируется на min/max без inward recoil. Допустимый
+  inward drag, approved inertia, preset easing и magnetic release сохранены.
+- Corvo scene mapping: `media-campaigns`, `statistics`, `my-space`,
+  `authorization` → свои `index.html`; выбор меняет только `iframe.src`.
+- Все 142 файлов `public/responsive-scenes/corvo-v1` byte-to-byte совпадают с
+  разрешённым `tools/corvo-responsive-scenes/site` commit `127256e`.
+- Regression diff не затрагивает `width.mjs`, `App.jsx`, главную Concept page
+  или содержимое Corvo-source; product scene files добавлены без модификаций.
+- Verification: focused Hero tests `8/8`; complete suite `134/134`; lint,
+  Vite production build и built runtime smoke passed on 2026-09-25.

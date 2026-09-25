@@ -1,7 +1,7 @@
 # Desktop Corvo Responsive Hero для Concept V2
 
-**Статус:** Complete — Library V2 tabs revision
-**Baseline:** `codex/concept-v2-routing-404` · `4205fbe`
+**Статус:** Complete — external controls and ready Corvo scenes
+**Baseline:** `codex/concept-v2-responsive-hero` · `bd66525`
 **Target:** standalone Concept V2 app, isolated preview only
 
 ## Результат
@@ -18,7 +18,7 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - точная неизменённая копия разрешённой Corvo Media Campaigns scene;
 - pinned `motion@13.4.2`;
 - drag spring, fixed preset easing, magnetic release и заметная короткая
-  inertia `160px / 420ms` и `28px / 460ms` boundary recoil;
+  inertia `160px / 420ms`;
 - focused tests, полный Concept V2 check и runtime acceptance.
 
 ## Non-scope
@@ -26,7 +26,7 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - интеграция в главную concept-страницу;
 - изменения 404, preloader или Portfolio Next.js;
 - внутренние изменения Corvo iframe;
-- scenario switching, popup enlarge, tablet/mobile Portfolio;
+- popup enlarge, tablet/mobile Portfolio;
 - merge, deploy или Figma write.
 
 ## Приёмка
@@ -34,8 +34,8 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - title и URL однозначно показывают Concept V2 runtime;
 - основная страница и 404 не импортируют Hero;
 - iframe сохраняет прямой `scale(.6)`, не принимает pointer/focus;
-- быстрый drag получает максимум `160px` доката; на жёсткой границе clamp
-  заменяется коротким `28px` inward recoil без выхода за допустимую ширину;
+- быстрый drag получает максимум `160px` доката; на жёсткой границе внешний
+  импульс не сдвигает фрейм и не вызывает recoil;
 - presets, keyboard resize, magnetic snap и reduced motion сохраняются;
 - `npm run check` проходит, после чего выполнены два последовательных review.
 
@@ -44,8 +44,7 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 - focused Hero tests `6/6`;
 - полный Concept V2 check: lint, `132/132` tests, Vite build — PASS;
 - runtime fast drag из desktop: полный дополнительный докат `-160px`;
-- runtime release в minimum: измеренный inward recoil примерно `27px` с
-  возвратом к точной границе;
+- runtime release на жёсткой границе остаётся на точном крайном значении;
 - `media-campaigns`, `shared` и chrome assets совпадают с source;
 - главная concept-страница и 404 не изменены;
 - pre-existing High advisory относится к pinned `vite@6.4.2`, не к Motion;
@@ -94,5 +93,39 @@ Concept V2 worktree. Hero должен быть доступен по отдел
 
 ### Stop-lines
 
-Нет scenario switching, popup, integration в concept page, Portfolio
-tablet/mobile, изменений Corvo iframe, Figma write, merge или deploy.
+Нет popup, integration в concept page, Portfolio tablet/mobile, изменений
+внутреннего Corvo iframe, Figma write, merge или deploy.
+
+## Ревизия 2026-09-25 — крайние упоры и готовые сцены
+
+### Target
+
+Исправить внешний control layer, который ошибочно подсвечивал крайние
+разделители и делал recoil на границах; подключить три уже готовые Corvo-сцены
+к существующим сценарным табам. Внутренности iframe остаются вне редактирования
+и Figma-сверки.
+
+### Change
+
+- Верхние крайние разделители min/max всегда используют Surface `#272d30` и
+  никогда не получают active-цвет.
+- Hover-подчёркивание scenario tab проходит видимые `4px` снизу вверх за
+  `140ms`; текст таба нельзя выделить курсором.
+- На min/max hard boundary drag, inertia и keyboard outward input фиксируются
+  непосредственно на границе, без inward recoil.
+- `Media Campaigns`, `Statistics`, `My Space`, `Authorization` получили свои
+  URL в definition; выбор таба мгновенно меняет `iframe.src`, не меняя ширину
+  или motion-state.
+- Полный набор Corvo files скопирован напрямую из
+  `tools/corvo-responsive-scenes/site` commit `127256e`; `diff -qr` подтвердил
+  byte-to-byte совпадение всех 142 файлов.
+
+### Verification
+
+- focused Hero tests `8/8`;
+- lint и полный Concept V2 suite `134/134`;
+- Vite production build и built runtime smoke — PASS;
+- runtime: переключены Statistics, My Space и Authorization, каждый подтвердил
+  свой `iframe.src`; Authorization визуально загружен;
+- runtime: ArrowRight при max оставляет slider на logical width `1933`;
+- fidelity/completeness и regression/scope/risk review закрыты без замечаний.
