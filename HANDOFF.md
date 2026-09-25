@@ -6,7 +6,7 @@
 
 - Branch: `codex/concept-v2-responsive-hero`.
 - Worktree: `/Users/designer/.codex/worktrees/concept-v2-responsive-hero/Design-portfolio-site`.
-- Baseline этой ревизии: `20f7408`; актуальный результат — последний commit
+- Baseline этой ревизии: `cdc3e96`; актуальный результат — последний commit
   текущей ветки.
 - Development URL: `http://127.0.0.1:4173/preview/project-responsive-hero`.
 
@@ -31,7 +31,8 @@
   пользователя Mobile имеет Duotone-корпус с fill `20%` и stroke `1.3px`;
   текущий Figma Hero instance Mobile остаётся Line, это сознательный override.
 - Физическая и логическая ширины внешнего фрейма теперь всегда связаны ровным
-  `scale(.6)`; высота следует текущему breakpoint без отдельной анимации.
+  `scale(.6)`. Высота внешнего фрейма снова плавно анимируется вместе с
+  шириной при preset и drag; конечное значение следует текущему breakpoint.
   Логическая ширина самого iframe округляется вверх менее чем на `1px`, чтобы
   белый document canvas не мелькал у правого края. У Authorization внешняя
   подложка использует исходный тёмный цвет `#242625` и левое скругление
@@ -62,6 +63,10 @@
 - Дополнительный runtime-review после Mobile-правки: все 5 size-tab SVG имеют
   итоговый frame `16px`, stroke `1.3px`; Mobile, Tablet и Desktop имеют
   fill-opacity `0.2`. Mobile остается на том же месте в табе.
+- Исправление скачка высоты: до правки Tablet → Mobile давал одномоментное
+  `660 → 384px` при плавной ширине. В свежей сборке оба направления имеют
+  промежуточные кадры по ширине и высоте; focused tests `8/8`, полный suite
+  `134/134`, lint и build прошли. Внутренние Corvo files и `scale(.6)` не изменены.
 
 ## Следующее действие
 

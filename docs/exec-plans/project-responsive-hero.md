@@ -242,3 +242,24 @@ Concept V2 worktree. Hero должен быть доступен по отдел
   В собранном runtime проверены все пять size-tab icons: frame `16px`, каждый
   stroked path `1.3px` с `non-scaling-stroke`; Mobile/Tablet/Desktop имеют
   computed fill-opacity `0.2` и тот же semantic `currentColor`.
+
+## Ревизия 2026-09-25 — возврат плавной высоты resize
+
+- Target → внешняя высота Hero viewport при смене preset и ручном resize.
+- Root cause → в коррекции дробной ширины высоту сделали дискретной функцией
+  анимируемой ширины. На границе адаптива она мгновенно менялась с `660` на
+  `384px`, хотя ширина продолжала плавно двигаться.
+- Change → высота снова имеет собственный MotionValue и анимируется тем же
+  переходом, что и ширина. Целевая высота по-прежнему вычисляется из
+  утверждённого breakpoint; логическая ширина iframe и overscan остаются
+  производными от физической ширины, чтобы не вернуть мерцающий край.
+- Expected result → frame, resize hatch и iframe viewport плавно меняют
+  высоту; конечные размеры и масштаб Corvo прежние. Reduced motion и жёсткая
+  граница мгновенно фиксируют обе величины.
+- Verification → исходный скачок воспроизведён в built runtime; focused
+  regression test RED `7/8` → GREEN `8/8`, полный suite `134/134`, lint и
+  production build PASS.
+  Покадровый runtime Mobile → Tablet: высота `505 → 519 → 531 → 545px`,
+  обратно: `536 → 522 → 509 → 496px`; ширина менялась синхронно. Финальные
+  размеры Tablet `767.4×660px`, Mobile `357.15×384px`; внутренние Corvo
+  files не изменены.

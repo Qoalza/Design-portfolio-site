@@ -125,7 +125,7 @@ export function ProjectResponsiveHero({definition}) {
   const prefersReducedMotion = useReducedMotion();
   const displayWidth = useMotionValue(initialPreset.displayWidth);
   const iframeLogicalWidth = useTransform(displayWidth, getIframeLogicalWidth);
-  const productHeight = useTransform(displayWidth, getProductHeightForDisplayWidth);
+  const productHeight = useMotionValue(initialPreset.productHeight);
   const stageWidth = useTransform(displayWidth, getStageWidth);
   const stageHeight = useTransform(productHeight, getStageHeight);
   const logicalHeight = useTransform(productHeight, (height) => height / RESPONSIVE_HERO_SCALE);
@@ -154,16 +154,19 @@ export function ProjectResponsiveHero({definition}) {
   }
 
   function moveGeometry(next, transition) {
+    const nextProductHeight = getProductHeightForDisplayWidth(next.displayWidth);
     stopAnimations();
     setGeometry(next);
 
     if (prefersReducedMotion) {
       displayWidth.jump(next.displayWidth);
+      productHeight.jump(nextProductHeight);
       return;
     }
 
     animationControls.current = [
       animate(displayWidth, next.displayWidth, transition),
+      animate(productHeight, nextProductHeight, transition),
     ];
   }
 
@@ -171,6 +174,7 @@ export function ProjectResponsiveHero({definition}) {
     stopAnimations();
     setGeometry(next);
     displayWidth.jump(next.displayWidth);
+    productHeight.jump(getProductHeightForDisplayWidth(next.displayWidth));
   }
 
   function selectAdaptive(id, transition = PRESET_TRANSITION) {
