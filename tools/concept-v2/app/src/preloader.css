@@ -1,0 +1,176 @@
+.preloader-page {
+  --preloader-state-duration: 370ms;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  background: radial-gradient(circle 923px at 50% 52.1875%, #121517 0%, #0e1012 100%);
+}
+
+.preloader-page.is-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 180ms cubic-bezier(.4,0,.2,1);
+}
+
+.preloader-page.is-overlay.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preloader-page::before,
+.preloader-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1);
+}
+
+.preloader-page::before {
+  background: radial-gradient(circle 923px at 50% 52.1875%, #171512 0%, #0e1012 100%);
+}
+
+.preloader-page::after {
+  background: radial-gradient(circle 923px at 50% 52.1875%, #171312 0%, #0e1012 100%);
+}
+
+.preloader-page[data-state='slow']::before,
+.preloader-page[data-state='connection']::after { opacity: 1; }
+
+.preloader-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  max-width: calc(100vw - 32px);
+}
+
+.preloader-symbol-slot {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex: none;
+}
+
+.preloader-symbol {
+  display: block;
+  width: 96px;
+  height: 96px;
+  flex: none;
+  overflow: visible;
+  color: #f2f4f5;
+  transition: color var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1), opacity 90ms ease;
+}
+
+.preloader-page[data-state='slow'] .preloader-symbol { color: #d59928; }
+
+.preloader-morph {
+  position: absolute;
+  inset: 0;
+  width: 96px;
+  height: 96px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 90ms ease;
+}
+
+.preloader-morph.is-active { opacity: 1; }
+.preloader-symbol-slot:has(.preloader-morph.is-active) .preloader-symbol { opacity: 0; }
+
+.preloader-caption {
+  height: 20px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: #949ea6;
+  font: 400 16px/20px Onest, sans-serif;
+  letter-spacing: -.2px;
+  text-align: center;
+  transition: opacity var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1);
+}
+
+.preloader-caption.is-hidden { opacity: 0; }
+
+.preloader-status {
+  position: absolute;
+  top: 128px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: min(320px, calc(100vw - 32px));
+  text-align: center;
+  animation: preloader-status-enter var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1) both;
+}
+
+.preloader-status.is-exiting {
+  animation: preloader-status-exit var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1) both;
+  pointer-events: none;
+}
+
+.preloader-status.connection { width: min(360px, calc(100vw - 32px)); }
+
+.preloader-status .control { width: 123px; }
+
+.preloader-status-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.preloader-status-copy h1 {
+  color: #e9eef2;
+  font: 400 20px/28px "Google Sans", sans-serif;
+}
+
+.preloader-status-copy p {
+  color: #949ea6;
+  font: 350 16px/24px Onest, sans-serif;
+  white-space: nowrap;
+}
+
+@keyframes preloader-status-enter {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes preloader-status-exit {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to { opacity: 0; transform: translate(-50%, 8px); }
+}
+
+.preloader-caption-content {
+  grid-area: 1 / 1;
+  max-width: calc(100vw - 32px);
+  overflow-wrap: anywhere;
+  will-change: opacity, transform;
+}
+
+.preloader-caption-content.is-incoming {
+  animation: caption-enter 300ms cubic-bezier(.22,.61,.36,1) both;
+}
+
+.preloader-caption-content.is-outgoing {
+  animation: caption-exit 300ms cubic-bezier(.22,.61,.36,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader-page::before,
+  .preloader-page::after,
+  .preloader-symbol,
+  .preloader-morph,
+  .preloader-caption { transition: none; }
+  .preloader-status { animation: none; transform: translateX(-50%); }
+  .preloader-status.is-exiting { visibility: hidden; }
+  .preloader-caption-content { animation: none; }
+  .preloader-caption-content.is-outgoing { display: none; }
+}

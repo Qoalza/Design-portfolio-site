@@ -19,6 +19,7 @@ import design from '../public/assets/design.svg?raw';
 import code from '../public/assets/code.svg?raw';
 import check from '../public/assets/check.svg?raw';
 import launch from '../public/assets/launch.svg?raw';
+import preloaderRefresh from '../public/figma/preloader-refresh.svg?raw';
 
 function asControlColor(svg){
  return svg.replaceAll('#E2E2EC','currentColor');
@@ -47,6 +48,7 @@ const icons={
  'hero-tools':code,
  'hero-check':check,
  'hero-launch':launch,
+ 'preloader-refresh':preloaderRefresh,
 };
 
 export function inlineIconSvg(name){
