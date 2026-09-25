@@ -12,7 +12,7 @@
 .statistics-actions .export-icon { background: #5e6260; display: block; flex: 0 0 20px; height: 20px; mask: url("../assets/statistics/export.svg") center / 20px 20px no-repeat; width: 20px; }
 .statistics-actions i { background: #ebebeb; height: 48px; width: 1px; }
 .statistics .table-wrap { border-radius: 24px; height: 636px; margin-top: 12px; overflow: hidden; }
-.statistics .table-wrap > table { border-collapse: separate; border-spacing: 0; margin: 0 16px; min-width: 1391px; table-layout: fixed; width: 1391px; }
+.statistics .table-wrap > table { border-collapse: separate; border-spacing: 0; margin: 0 16px; min-width: 2926px; table-layout: fixed; width: 2926px; }
 .statistics .col-affiliate { width: 200px; }
 .statistics .col-clicks { width: 132px; }
 .statistics .col-unique { width: 135px; }
@@ -21,7 +21,16 @@
 .statistics .col-reg-ftd { width: 120px; }
 .statistics .col-click-reg { width: 160px; }
 .statistics .col-click-ftd { width: 180px; }
-.statistics .col-repeat { width: 200px; }
+.statistics .col-repeat-count { width: 200px; }
+.statistics .col-repeat-users { width: 196px; }
+.statistics .col-repeat-sum { width: 201px; }
+.statistics .col-deposits-sum { width: 156px; }
+.statistics .col-withdrawal { width: 196px; }
+.statistics .col-turnover { width: 180px; }
+.statistics .col-ggr { width: 160px; }
+.statistics .col-revshare { width: 106px; }
+.statistics .col-cpa { width: 180px; }
+.statistics .col-fixed-payment { width: 160px; }
 .statistics th, .statistics td { border-bottom: 1px solid #f2f2f2; padding: 0 24px; text-align: left; }
 .statistics th { color: #777c79; font-size: 14px; font-weight: 450; height: 48px; letter-spacing: -.1px; line-height: 16px; white-space: nowrap; }
 .statistics td { color: #3b3d3c; font-size: 16px; height: 64px; letter-spacing: -.2px; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -46,7 +55,7 @@
   .statistics-actions button { font-size: 14px; height: 48px; padding: 0 12px; }
   .statistics-actions i { height: 48px; }
   .statistics .table-wrap { border-radius: 20px; height: 792px; margin-top: 16px; width: 100%; }
-  .statistics .table-wrap > table { margin: 0 16px; min-width: 0; width: 1221px; }
+  .statistics .table-wrap > table { margin: 0 16px; min-width: 0; width: 2551px; }
   .statistics .col-affiliate { width: 160px; }
   .statistics .col-clicks { width: 116px; }
   .statistics .col-unique { width: 119px; }
@@ -55,7 +64,16 @@
   .statistics .col-reg-ftd { width: 106px; }
   .statistics .col-click-reg { width: 156px; }
   .statistics .col-click-ftd { width: 156px; }
-  .statistics .col-repeat { width: 176px; }
+  .statistics .col-repeat-count { width: 176px; }
+  .statistics .col-repeat-users { width: 173px; }
+  .statistics .col-repeat-sum { width: 177px; }
+  .statistics .col-deposits-sum { width: 132px; }
+  .statistics .col-withdrawal { width: 170px; }
+  .statistics .col-turnover { width: 156px; }
+  .statistics .col-ggr { width: 136px; }
+  .statistics .col-revshare { width: 94px; }
+  .statistics .col-cpa { width: 156px; }
+  .statistics .col-fixed-payment { width: 136px; }
   .statistics th, .statistics td { padding: 0 22px; }
   .statistics th { font-size: 12px; height: 40px; }
   .statistics td { font-size: 14px; height: 56px; }
@@ -78,7 +96,7 @@
   .statistics-actions button img { height: 20px; width: 20px; }
   .statistics-actions i { height: 40px; width: 1px; }
   .statistics .table-wrap { border: 1px solid #f2f2f2; border-radius: 18px; height: 546px; margin-top: 12px; width: 100%; }
-  .statistics .table-wrap > table { display: table; margin: 0; min-width: 0; table-layout: fixed; width: 994px; }
+  .statistics .table-wrap > table { display: table; margin: 0; min-width: 0; table-layout: fixed; width: 2091px; }
   .statistics .col-affiliate { width: 120px; }
   .statistics .col-clicks { width: 96px; }
   .statistics .col-unique { width: 95px; }
@@ -87,7 +105,16 @@
   .statistics .col-reg-ftd { width: 84px; }
   .statistics .col-click-reg { width: 116px; }
   .statistics .col-click-ftd { width: 136px; }
-  .statistics .col-repeat { width: 142px; }
+  .statistics .col-repeat-count { width: 142px; }
+  .statistics .col-repeat-users { width: 140px; }
+  .statistics .col-repeat-sum { width: 143px; }
+  .statistics .col-deposits-sum { width: 106px; }
+  .statistics .col-withdrawal { width: 138px; }
+  .statistics .col-turnover { width: 136px; }
+  .statistics .col-ggr { width: 116px; }
+  .statistics .col-revshare { width: 74px; }
+  .statistics .col-cpa { width: 136px; }
+  .statistics .col-fixed-payment { width: 116px; }
   .statistics th, .statistics td { padding: 0 16px; }
   .statistics th { font-size: 10px; height: 32px; line-height: 12px; }
   .statistics td { font-size: 12px; height: 48px; line-height: 16px; }
