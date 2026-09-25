@@ -47,8 +47,9 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
  assert.match(component,/activeScene\.id === 'authorization' \? styles\.productViewportDark/);
  // The outer animated surface must remain opaque when the source scene is
  // temporarily shorter than the frame (Desktop -> Tablet). Product CSS is separate.
- assert.match(css,/\.productViewport\s*\{[^}]*border-radius:\s*8px 0 0 8px/);
+ assert.doesNotMatch(css,/\.productViewport\s*\{[^}]*border-radius:/);
  assert.match(css,/\.productViewport\s*\{[^}]*clip-path:\s*inset\(0 round 8px 0 0 8px\)/);
+ assert.match(css,/\.productViewport\s*\{[^}]*mask-image:\s*linear-gradient\(#000, #000\)/);
  assert.doesNotMatch(css,/\.productViewport\s*\{[^}]*overflow:\s*hidden/);
  assert.match(css,/\.productViewportDark\s*\{[^}]*background:\s*#242625/);
  assert.doesNotMatch(css,/\.productViewportDark\s*\{[^}]*border-radius:/);

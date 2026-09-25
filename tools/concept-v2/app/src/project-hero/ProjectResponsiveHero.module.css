@@ -258,8 +258,9 @@
 .productViewport {
   position: relative;
   z-index: 4;
-  border-radius: 8px 0 0 8px;
   clip-path: inset(0 round 8px 0 0 8px);
+  /* Composite the iframe with its backing before clipping (Gecko edge halo). */
+  mask-image: linear-gradient(#000, #000);
   background: #fff;
 }
 

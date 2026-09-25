@@ -12,6 +12,22 @@
 
 ## Checkpoint
 
+- Актуальная проверка: native Zen снова управляется после foreground пользователем.
+  Удаление дублирующего border-radius само по себе не убрало кайму; opaque
+  `mask-image: linear-gradient(#000, #000)` на внешнем productViewport убрало
+  её в наблюдаемых кадрах Zen, сохранив левую форму через clip-path 8px.
+  Scope: только внешний CSS и regression assertion; внутренний Corvo не менялся.
+- Resize остаётся OPEN. Пользователь уточнил: дефект возникает при drag за
+  ручку, не при выборе presets. В живых Chromium drag-кадрах через Desktop/Tablet
+  видна переходная полоса снизу/обрезка формы. Эксперимент запуска height spring
+  от rendered width вместо pointer target не устранил дефект и полностью откатан.
+  Не подменять drag-проверку endpoint/preset smoke и не просить запись пользователя.
+  Следующая проверка: синхронизация iframe paint, source-height clip и animated
+  wrapper во время удержания указателя. Motion и product source сохраняются.
+  CDP captureBeyondViewport при emulated viewport больше реального окна давал
+  ложный вертикальный seam: использовать настоящий viewport override и visible
+  screenshot. Старая просьба записи ниже больше не актуальна.
+
 - OPEN, актуальная обратная связь: пользователь подтверждает оставшуюся
   светлую кайму в Zen и артефакты resize во всех браузерах. Предыдущие
   численные проверки не доказывают устранение этих визуальных дефектов.
