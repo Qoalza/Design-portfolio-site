@@ -207,6 +207,8 @@ export function Experience({cv}){
     }
     const paintTask=createFrameTask({
       read:payload=>{
+        // The image viewer fixes body and temporarily reports scrollY=0.
+        if(document.body.style.position==='fixed'){positionDirty=true;return {documentLocked:true};}
         const nextDesktop=window.innerWidth>=1280;
         const preserve=payload?.preserve===true&&desktop&&nextDesktop&&progress>0&&progress<1;
         desktop=nextDesktop;

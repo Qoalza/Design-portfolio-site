@@ -60,6 +60,12 @@ test('Experience keeps one geometry when it enters the sticky range',()=>{
   assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:128});
 });
 
+test('About photo viewer keeps the completed Experience geometry while body scroll is locked',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
+  const readPhase=source.split('read:payload=>{')[1]?.split('write:(')[0];
+  assert.match(readPhase,/if\(document\.body\.style\.position==='fixed'\)\{positionDirty=true;return \{documentLocked:true\};\}/);
+});
+
 test('large Experience reduces the exposed lower field instead of extending the scene',()=>{
   const layout=experienceLayout(1318);
   assert.equal(EXPERIENCE_HEADER_RESERVE,80);
