@@ -72,6 +72,10 @@
   radial gradient with current `#181C1F` stops, avoiding the old SVG resource;
   the hover gradient ends at the same color. The audit ledger records the
   source instance and visual check at the user's `1346px` CSS viewport.
+- The project-card separator formerly ended `48px` above the card bottoms.
+  The Figma-mapped desktop section/grid heights are now `1173/757px`, so the
+  `661px` separator reaches the card bottom. Local browser checks passed at
+  `1346/1280/1279/900px`; user visual acceptance remains open.
 
 
 ## READY_FOR_REVIEW — Concept V2 «Обо мне», accepted Plan 3.0 scope

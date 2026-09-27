@@ -26,8 +26,8 @@ test('project cards map the current Figma configurations and states',async()=>{
   assert.match(css,/\.project-categories\{[^}]*gap:12px/);
   assert.match(css,/\.project-content\{[^}]*height:212px/);
   assert.match(css,/\.project-tag\{[^}]*background:#ffc31f/);
-  assert.match(css,/\.projects-section\{height:auto;min-height:1125px;padding:120px 0 80px;gap:80px;overflow:visible\}/);
-  assert.match(css,/\.projects-grid\{height:709px;padding-top:96px;background:transparent;overflow:visible\}/);
+  assert.match(css,/\.projects-section\{height:auto;min-height:1173px;padding:120px 0 80px;gap:80px;overflow:visible\}/);
+  assert.match(css,/\.projects-grid\{height:757px;padding-top:96px;background:transparent;overflow:visible\}/);
   assert.match(css,/\.projects-grid\{[^}]*position:relative/);
   assert.match(css,/\.projects-grid::after\{[^}]*left:50%;[^}]*width:1px;[^}]*background:var\(--border\);[^}]*z-index:8/);
   assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.projects-grid::after\{top:96px\}/);

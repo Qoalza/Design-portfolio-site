@@ -53,11 +53,11 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 /* Exact desktop geometry from the current Concept V2 component tree. */
 .projects-status{margin:0;color:var(--cv2-text-neutral-muted);font:400 16px/20px "Source Code Pro",monospace;letter-spacing:-.6px}
 @media(min-width:1280px){
- .projects-section{height:auto;min-height:1125px;padding:120px 0 80px;gap:80px;overflow:visible}
+ .projects-section{height:auto;min-height:1173px;padding:120px 0 80px;gap:80px;overflow:visible}
  .projects-heading{height:136px;padding:0 56px;flex-direction:row;gap:24px;align-items:flex-end}
  .projects-heading .section-title{width:496px;flex:0 0 496px}
  .projects-heading>.projects-status{margin-left:auto}
- .projects-grid{height:709px;padding-top:96px;background:transparent;overflow:visible}
+ .projects-grid{height:757px;padding-top:96px;background:transparent;overflow:visible}
 }
 
 .experience-path.line-128{left:192px}
