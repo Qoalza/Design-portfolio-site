@@ -67,6 +67,11 @@
   lint, production build and live visual checks passed. User visual acceptance
   of this corrected state remains open. The same ledger records exact colors,
   source mapping and the explicit Projects exception to the older Figma button.
+- A second user screenshot showed that the first project shade fix did not
+  remove a visible `#1D1E1F` strip in Zen. The preview shade is now a CSS
+  radial gradient with current `#181C1F` stops, avoiding the old SVG resource;
+  the hover gradient ends at the same color. The audit ledger records the
+  source instance and visual check at the user's `1346px` CSS viewport.
 
 
 ## READY_FOR_REVIEW — Concept V2 «Обо мне», accepted Plan 3.0 scope
