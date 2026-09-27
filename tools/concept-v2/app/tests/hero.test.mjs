@@ -9,12 +9,12 @@ import {dotFieldMaskRect,paintDotField} from '../src/hero-dot-field.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
 import {measurePulseRoutes,pulseRoutes,scalePulseRoutes,screenScale} from '../src/pulse-routes.mjs';
 
-test('Hero selects the large composition only when its authored width and height fit',()=>{
+test('Hero keeps the approved horizontal composition at every viewport size',()=>{
   assert.equal(getHeroVariant({width:1440,height:1600}),'small');
   assert.equal(getHeroVariant({width:2312,height:2400}),'small');
   assert.equal(getHeroVariant({width:2968,height:955}),'small');
-  assert.equal(getHeroVariant({width:2313,height:1299}),'small');
-  assert.equal(getHeroVariant({width:2313,height:1300}),'large');
+  assert.equal(getHeroVariant({width:2313,height:1300}),'small');
+  assert.equal(getHeroVariant({width:2567,height:1690}),'small');
 });
 
 test('Hero preserves the two authored component structures and the accepted map interaction',async()=>{

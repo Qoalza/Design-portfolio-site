@@ -1,9 +1,9 @@
 import {nodes,position} from './network-data.mjs';
 
-export function getHeroVariant({width=0,height=0}={}){
-  // Large is a vertical 1014px composition. It needs both the authored canvas
-  // width and enough viewport height; width alone leaves the graph clipped.
-  return width>=2313&&height>=1300?'large':'small';
+export function getHeroVariant(){
+  // The accepted runtime keeps its horizontal Hero composition at every
+  // viewport size. The Figma Large frame is illustrative, not a breakpoint.
+  return 'small';
 }
 
 export function captionForPoint(point){
