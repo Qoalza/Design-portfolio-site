@@ -78,6 +78,12 @@
   The Figma-mapped desktop section/grid heights are now `1173/757px`, so the
   `661px` separator reaches the card bottom. Local browser checks passed at
   `1346/1280/1279/900px`; user visual acceptance remains open.
+- По новой пользовательской проверке верхняя панель Hero приведена к
+  `General header` `3114:66048` (группы `191/711/378` px, шрифт логотипа и
+  рабочий возврат наверх из pinned state). Боковая штриховка AI теперь берётся
+  из точных Figma exports `3960:274765/766`, со сплошной границей синей
+  полосы. Runtime просмотрен при `1574/1728` px; пользовательская приёмка
+  этого состояния остаётся открытой.
 
 
 ## READY_FOR_REVIEW — Concept V2 «Обо мне», accepted Plan 3.0 scope

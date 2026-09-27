@@ -45,6 +45,8 @@ test('header pins only after its original area leaves the viewport and uses Bord
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
  assert.match(app,/className=\{`site-header-shell\$\{pinned\?' is-pinned':''\}`\}/);
+ assert.match(app,/<div id="top" ref=\{shell\} className=\{`site-header-shell/);
+ assert.doesNotMatch(app,/<header[^>]+id="top"/);
  assert.match(app,/const paintTask=createFrameTask\(\{read:\(\)=>window\.scrollY>threshold,write:paint\}\)/);
  assert.match(app,/const thresholdTask=createFrameTask\(\{read:\(\)=>shell\.current\?\.offsetHeight\?\?80/);
  assert.match(app,/const observer=new ResizeObserver\(invalidateThreshold\)/);

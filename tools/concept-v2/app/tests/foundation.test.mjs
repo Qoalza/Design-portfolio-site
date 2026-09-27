@@ -47,6 +47,20 @@ test('AI desktop panel is the current 1280 by 335 Figma strip',async()=>{
  assert.match(css,/\.ai-banner img\{[^}]*width:28px[^}]*height:28px/);
 });
 
+test('AI side fields use the exact exported Figma hatch frames',async()=>{
+ const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
+ for(const [name,width,height] of [['top',147,241],['bottom',147,94]]){
+  const file=await readFile(path.join(appRoot,`public/figma/ai-hatch-${name}-frame.png`));
+  assert.equal(file.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  assert.equal(file.readUInt32BE(16),width);
+  assert.equal(file.readUInt32BE(20),height);
+  assert.match(css,new RegExp(`background-image:url\\('/figma/ai-hatch-${name}-frame\\.png'\\)`));
+ }
+ assert.match(css,/\.ai-side-right::before,\.ai-side-right::after\{background-position:left top\}/);
+ assert.match(css,/\.ai-side::before\{[^}]*border-top:1px solid var\(--cv2-border-neutral-surface\)/);
+ assert.match(css,/\.ai-side::after\{[^}]*border-top:1px solid #0462af/);
+});
+
 test('AI strip removes the former tools list and retains exact source copy and assets',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
  const responsive=await readFile(path.join(appRoot,'src/responsive.css'),'utf8');
