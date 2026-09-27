@@ -59,7 +59,7 @@ test('Process keeps its approved 300ms motion while using the current text and b
 
 test('desktop Process uses one upper divider and decorative hatches use the Figma stroke',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
- assert.match(css,/:root\{--cv2-decoration-hatch:#222629\}/);
+ assert.match(css,/:root\{--cv2-decoration-hatch:#1d2124\}/);
  assert.match(css,/\.steps\{[^}]*background:var\(--border\)[^}]*border-top:0[^}]*border-bottom:0/);
  assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
  assert.match(css,/\.ai-side\{background:repeating-linear-gradient\(135deg,transparent 0 14px,var\(--cv2-decoration-hatch\) 14px 15px\)\}/);

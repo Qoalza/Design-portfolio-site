@@ -1,12 +1,13 @@
 # HANDOFF
 
-Обновлено: 2026-09-26.
+Обновлено: 2026-09-27.
 
 ## Текущий checkout
 
 - Ветка: `codex/redesign-portfolio`.
 - Worktree: `/Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site`.
-- Полный контракт: `docs/exec-plans/redesign-portfolio-consolidation.md`.
+- Базовый контракт: `docs/exec-plans/redesign-portfolio-consolidation.md`.
+- Активное обновление главной: `docs/exec-plans/concept-v2-mainpage-library-refresh.md`.
 
 ## Checkpoint
 
@@ -26,6 +27,9 @@
   сообщает console errors при проверке собранной линии.
 - Текущий checkpoint: сборка готова к пользовательской приёмке. До отдельной
   задачи очистки старые worktree и ветки не менять.
+- Первая группа current Main/Library refresh завершена: semantic palette и
+  control states сверены с Figma. 151 tests, lint, build и smoke прошли;
+  Projects, AI и остальные секции ещё не изменялись.
 
 ## Stop-lines
 

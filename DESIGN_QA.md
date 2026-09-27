@@ -41,6 +41,15 @@
 - Final automated verification passed: 61 tests, lint, production build, browser smoke and whitespace check. Firefox/WebKit visual passes remain unverified; user visual review is the remaining acceptance gate.
 - Full ledger, node mapping and commit sequence: `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
 
+## IN_PROGRESS — Concept V2 main page and Library V2 refresh
+
+- Source: Main `3960:274722`, Projects/Process `3960:274725`, AI
+  `3960:274763`, Library typography `2172:2780`.
+- Current group updates the shared semantic palette and control states;
+  the Hero viewport-height behavior remains an explicit invariant.
+- The separate working ledger is
+  `docs/audits/concept-v2-mainpage-library-delta-2026-09-27.md`.
+
 
 ## READY_FOR_REVIEW — Concept V2 «Обо мне», accepted Plan 3.0 scope
 
