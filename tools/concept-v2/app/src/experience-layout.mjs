@@ -63,6 +63,16 @@ export function scrollProgress({scrollY,sectionTop,verticalTravel}){
   return Math.max(0,Math.min(1,(scrollY-sectionTop)/verticalTravel));
 }
 
+export function experienceCompletionTransition({completed,scrollY,sectionTop,viewportHeight,verticalTravel}){
+  if(completed){
+    return {completed:scrollY+viewportHeight<sectionTop?false:true};
+  }
+  if(scrollY>sectionTop+verticalTravel){
+    return {completed:true,scrollY:scrollY-verticalTravel};
+  }
+  return {completed:false};
+}
+
 export function experienceShouldPaint({scrollY,viewportHeight,sectionTop,sectionHeight,marginViewports=2}){
   const margin=viewportHeight*marginViewports;
   return scrollY>=sectionTop-margin&&scrollY<=sectionTop+sectionHeight+margin;

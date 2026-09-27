@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,EXPERIENCE_HEADER_RESERVE,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,EXPERIENCE_HEADER_RESERVE,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceCompletionTransition,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -120,7 +120,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/section\.classList\.toggle\('is-complete',complete\)/);
   assert.match(source,/sectionTop=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
   assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
-  assert.match(source,/const height=desktop\?`\$\{window\.innerHeight\+VERTICAL_TRAVEL\}px`:'auto'/);
+  assert.match(source,/const height=desktop\?`\$\{window\.innerHeight\+\(completed\?0:VERTICAL_TRAVEL\)\}px`:'auto'/);
   assert.match(source,/const patterns=experiencePatternVisible\(layout\.bottomOuter\)/);
   assert.match(source,/sticky\.current\.classList\.toggle\('has-pattern-fields',patterns\)/);
   assert.match(source,/section\.classList\.toggle\('is-compact',layout\.compact\)/);
@@ -144,6 +144,16 @@ test('one normalized document progress drives the full horizontal travel',()=>{
   assert.equal(scrollProgress({scrollY:1000,sectionTop:1000,verticalTravel:900}),0);
   assert.equal(scrollProgress({scrollY:1450,sectionTop:1000,verticalTravel:900}),.5);
   assert.equal(scrollProgress({scrollY:1900,sectionTop:1000,verticalTravel:900}),1);
+});
+
+test('a completed Experience keeps its final scene on reverse scroll and rearms only below the viewport',()=>{
+ const sectionTop=3000,viewportHeight=900,verticalTravel=1000;
+ const input={sectionTop,viewportHeight,verticalTravel};
+ assert.deepEqual(experienceCompletionTransition({...input,completed:false,scrollY:4000}),{completed:false});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:false,scrollY:4001}),{completed:true,scrollY:3001});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:3000}),{completed:true});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2100}),{completed:true});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099}),{completed:false});
 });
 
 test('Experience does heavy scroll work only within two viewports of its section',()=>{

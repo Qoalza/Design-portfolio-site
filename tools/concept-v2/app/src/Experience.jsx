@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceCompletionTransition,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
@@ -55,6 +55,7 @@ export function Experience({cv}){
   useEffect(()=>{
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let progress=0;
+    let completed=false;
     let previousX=0;
     let previousTime=performance.now();
     let previousScrollY=window.scrollY;
@@ -91,7 +92,7 @@ export function Experience({cv}){
     });
     function applyLayout(){
       const layout=experienceLayout(window.innerHeight);
-      const height=desktop?`${window.innerHeight+VERTICAL_TRAVEL}px`:'auto';
+      const height=desktop?`${window.innerHeight+(completed?0:VERTICAL_TRAVEL)}px`:'auto';
       if(layoutStates.height!==height){layoutStates.height=height;section.style.height=height;}
       setStickyStyle('--experience-top-outer',`${layout.topOuter}px`);
       setStickyStyle('--experience-bottom-outer',`${layout.bottomOuter}px`);
@@ -125,6 +126,7 @@ export function Experience({cv}){
       if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
       entryGate.reset();
       progress=0;
+      completed=false;
       previousX=0;
       previousTime=performance.now();
       previousScrollY=window.scrollY;
@@ -149,6 +151,20 @@ export function Experience({cv}){
     function paint(){
       let currentScrollY=window.scrollY;
       if(!desktop){resetStatic();return;}
+      const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,verticalTravel:VERTICAL_TRAVEL});
+      if(transition.completed!==completed){
+        completed=transition.completed;
+        const height=window.innerHeight+(completed?0:VERTICAL_TRAVEL);
+        layoutStates.height=`${height}px`;
+        section.style.height=layoutStates.height;
+        sectionHeight=height;
+        lenis?.resize();
+        if(transition.scrollY!==undefined){
+          currentScrollY=transition.scrollY;
+          if(lenis)lenis.scrollTo(currentScrollY,{immediate:true,force:true});
+          else window.scrollTo({top:currentScrollY,behavior:'instant'});
+        }
+      }
       syncGate(currentScrollY);
       if(!experienceShouldPaint({scrollY:currentScrollY,viewportHeight:window.innerHeight,sectionTop,sectionHeight})){
         clearBlur();
@@ -164,7 +180,7 @@ export function Experience({cv}){
         lenis.stop();
         currentScrollY=sectionTop;
       }
-      progress=scrollProgress({scrollY:currentScrollY,sectionTop,verticalTravel:VERTICAL_TRAVEL});
+      progress=completed?1:scrollProgress({scrollY:currentScrollY,sectionTop,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;
       const now=performance.now();
       const speed=Math.abs(x-previousX)/Math.max(1,now-previousTime)*1000;
