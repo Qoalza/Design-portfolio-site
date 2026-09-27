@@ -35,7 +35,6 @@ test('interactive controls use exported Medium icon assets',async()=>{
  assert.match(app,/icon="imgColor"/);
  assert.match(app,/iconRight="imgColor2"/);
  assert.match(app,/iconRight="file05">CV/);
- assert.match(app,/iconRight="imgColor6"/);
  assert.match(app,/iconRight="imgColor7"/);
  assert.match(await readFile(path.join(root,'src/icon-vectors.js'),'utf8'),/import projectFigma from '\.\.\/public\/figma\/project-figma\.svg\?raw'/);
  assert.match(await readFile(path.join(root,'src/icon-vectors.js'),'utf8'),/import file05 from '\.\.\/public\/figma\/file-05\.svg\?raw'/);
@@ -74,6 +73,8 @@ test('desktop custom cursor remains a full-frame vector layer with actionable st
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
  assert.match(app,/function CustomCursor\(\)/);
+ assert.match(app,/window\.matchMedia\('\(pointer:fine\)'\)/);
+ assert.match(css,/@media \(pointer:fine\)\{[\s\S]*?\.custom-cursor\{/);
  assert.match(app,/bibata-original-classic-pointer\.svg/);
  assert.match(app,/bibata-original-classic-hand\.svg/);
  assert.match(app,/closest\('a\[href\],button:not\(:disabled\),\[role="button"\]'\)/);

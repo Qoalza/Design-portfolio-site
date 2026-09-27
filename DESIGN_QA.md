@@ -53,14 +53,20 @@
   The Сараффан mark follows the existing main-page asset per direct user
   instruction; the working ledger records that source exception.
 - AI now has the current `1280×335` source panel with the `241px` content
-  field, `94px` blue strip, local hatch/icon exports and exact source copy.
+  field, `94px` blue strip and exact source copy. The follow-up below records
+  the corrected side hatches.
   Previous tool cards and chip are absent. Process, Experience, About and
   Footer preserve their accepted geometry and interaction mechanics.
-- Final verification: focused checks, `152/152` tests, lint, production build,
-  built-runtime smoke and AX-check of the current local preview. Remaining
-  acceptance is the user's visual review.
+- Initial verification before user visual feedback: `152/152` tests, lint,
+  production build, built-runtime smoke and AX-check of the local preview.
 - The separate working ledger is
   `docs/audits/concept-v2-mainpage-library-delta-2026-09-27.md`.
+- User review found follow-up deltas in the Projects status, image shade,
+  AI side fields/hatching, fine-pointer activation and Process icon fills.
+  These are corrected in the current Redesign checkout; `153/153` tests,
+  lint, production build and live visual checks passed. User visual acceptance
+  of this corrected state remains open. The same ledger records exact colors,
+  source mapping and the explicit Projects exception to the older Figma button.
 
 
 ## READY_FOR_REVIEW — Concept V2 «Обо мне», accepted Plan 3.0 scope

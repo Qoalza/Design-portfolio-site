@@ -64,11 +64,15 @@ test('Projects render distinct Corvo and Sarafan.Radio Figma content without inv
  assert.match(css,/\.project-actions-static\{cursor:default\}/);
 });
 
-test('Projects action uses the source label, exact Medium chevron, and fixed 218px frame',async()=>{
+test('Projects publication note follows the user-approved homepage copy',async()=>{
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
- assert.match(app,/className="projects-all-action"[^>]*iconRight="imgColor6">Посмотреть все проекты/);
- assert.match(css,/\.projects-all-action\{width:218px/);
+ assert.match(app,/<p className="projects-status">\/\/ остальные проекты в процессе публикации<\/p>/);
+ assert.doesNotMatch(app,/className="projects-all-action"/);
+ assert.match(css,/\.projects-status\{[^}]*"Source Code Pro"/);
+ const shade=await readFile(path.join(root,'public/figma/project-shade-preview.svg'),'utf8');
+ assert.match(shade,/stop-color="#181C1F"/);
+ assert.doesNotMatch(shade,/stop-color="#1D1E1F"/);
 });
 
 test('project previews select Retina-safe AVIF sources and retain the PNG fallback',async()=>{

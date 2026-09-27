@@ -27,13 +27,15 @@
   сообщает console errors при проверке собранной линии.
 - Текущий checkpoint: сборка готова к пользовательской приёмке. До отдельной
   задачи очистки старые worktree и ветки не менять.
-- Current Main/Library refresh готов к пользовательской приёмке: semantic
-  palette/control states, самостоятельная «Сараффан.Радио» и AI source panel
-  `1280×335` реализованы. В AI нет прежнего tool list/chip; Process,
-  Experience, About и Footer сохранены после точечной сверки без изменения
-  scroll/viewer/hover-механик. Hero продолжает использовать высоту окна.
-  Тесты `152/152`, lint, build, smoke и AX browser check current local preview
-  прошли. Рабочий ledger: `docs/audits/concept-v2-mainpage-library-delta-2026-09-27.md`.
+- Current Main/Library refresh включает semantic palette/control states,
+  отдельную «Сараффан.Радио» и AI panel `1280×335`. Hero продолжает
+  использовать высоту окна. После пользовательской визуальной проверки
+  уточнены Projects status,
+  подложка фотографий, боковые поля и штриховка AI, цвета трёх иконок Process
+  и включение указателя для мыши на узком окне. Текущий runtime просмотрен
+  при `1574/900/720/375px`; `153/153` tests, lint и build прошли. Ожидается
+  визуальная приёмка исправленного состояния; подробности в
+  `docs/audits/concept-v2-mainpage-library-delta-2026-09-27.md`.
 
 ## Stop-lines
 

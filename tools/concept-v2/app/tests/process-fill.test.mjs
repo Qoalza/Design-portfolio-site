@@ -48,6 +48,14 @@ test('process card hover and focus share the exact Figma visual state',async()=>
   assert.match(app,/className="step-dots"[^>]*--dots-mask/);
 });
 
+test('all three process icons use the current Figma fill and stroke palette',async()=>{
+ for(const name of ['imgFrame26086399.svg','imgFrame26086400.svg','imgFrame26086401.svg']){
+  const svg=await readFile(path.resolve(import.meta.dirname,'../public/figma',name),'utf8');
+  for(const color of ['#2D3438','#1D2124','#475157','#747F87'])assert.ok(svg.includes(color),`${name} lacks ${color}`);
+  assert.doesNotMatch(svg,/#202122|#676E73|#ADB3B8|#2E3133/);
+ }
+});
+
 test('Process keeps its approved 300ms motion while using the current text and border roles',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.match(css,/\.step-number span\{[^}]*color:var\(--cv2-text-neutral-muted\)/);
@@ -62,7 +70,7 @@ test('desktop Process uses one upper divider and decorative hatches use the Figm
  assert.match(css,/:root\{--cv2-decoration-hatch:#1d2124\}/);
  assert.match(css,/\.steps\{[^}]*background:var\(--border\)[^}]*border-top:0[^}]*border-bottom:0/);
  assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
- assert.match(css,/\.ai-side\{background:repeating-linear-gradient\(135deg,transparent 0 14px,var\(--cv2-decoration-hatch\) 14px 15px\)\}/);
+ assert.match(css,/\.ai-side::after\{[^}]*background-color:var\(--cv2-container-neutral-bg-main\);background-image:repeating-linear-gradient\(126\.826deg,#00345e 0 1px,transparent 1px 15px\)/);
  assert.match(css,/\.about-hatch\{background:repeating-linear-gradient\(126\.826deg,var\(--cv2-decoration-hatch\) 0 1px,transparent 1px 15px\)\}/);
  assert.match(css,/\.about-dash-horizontal::before\{background:repeating-linear-gradient\(to right,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)\}/);
  assert.match(css,/\.about-divider\{background:repeating-linear-gradient\(to bottom,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)\}/);

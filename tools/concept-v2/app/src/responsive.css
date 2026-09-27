@@ -164,6 +164,10 @@
  .ai-banner{height:auto;min-height:94px;padding:32px}
 }
 
+@media(max-width:760px){
+ .ai-banner p{white-space:normal}
+}
+
 @media(max-width:599px){
  .ai-main{padding:32px 24px}
  .ai-banner{align-items:flex-start;height:auto;padding:24px;gap:16px}

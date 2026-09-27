@@ -30,7 +30,7 @@ const steps=[
 function CustomCursor(){
  const cursor=useRef(null),mode=useRef('pointer'),visible=useRef(false);
  useEffect(()=>{
-  const desktop=window.matchMedia('(min-width:1280px) and (pointer:fine)');
+  const desktop=window.matchMedia('(pointer:fine)');
   const task=createFrameTask({write:({x,y,nextMode})=>{
    if(!desktop.matches)return;
    if(nextMode!==mode.current){mode.current=nextMode;cursor.current?.setAttribute('data-mode',nextMode);}
@@ -184,7 +184,7 @@ function Projects(){
   if(sectionRef.current)observer.observe(sectionRef.current);
   return()=>{observer.disconnect();preparer.dispose();if(imagePreparer.current===preparer)imagePreparer.current=null};
  },[]);
- return <section ref={sectionRef} className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton className="projects-all-action" variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Посмотреть все проекты</ControlButton></div><div className="projects-grid">{projectCards.map(project=><ProjectCard key={project.id} project={project} imageRef={collectImage} onImageLoad={prepareLoadedImage}/>)}</div></section>;
+ return <section ref={sectionRef} className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><p className="projects-status">// остальные проекты в процессе публикации</p></div><div className="projects-grid">{projectCards.map(project=><ProjectCard key={project.id} project={project} imageRef={collectImage} onImageLoad={prepareLoadedImage}/>)}</div></section>;
 }
 function ProcessStep({step,index}){
  const [active,setActive]=useState(false);
