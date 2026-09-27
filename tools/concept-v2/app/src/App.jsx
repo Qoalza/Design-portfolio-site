@@ -40,7 +40,7 @@ function CustomCursor(){
   const disable=()=>{task.cancel();visible.current=false;document.documentElement.dataset.customCursor='off'};
   const move=event=>{
    if(!desktop.matches)return disable();
-   const next=event.target instanceof Element&&event.target.closest('a[href],button:not(:disabled),[role="button"]')?'hand':'pointer';
+   const next=event.target instanceof Element&&event.target.closest('a[href],button:not(:disabled),[role="button"],[data-cursor="hand"]')?'hand':'pointer';
    task.schedule({x:event.clientX,y:event.clientY,nextMode:next});
   };
   const leave=event=>{if(!event.relatedTarget)disable()};
@@ -150,7 +150,7 @@ function RadioSymbol(){
 }
 function ProjectActions({project}){
  if(project.actions)return <div className="project-actions"><ControlButton href={project.actions.details.href} external>Подробнее</ControlButton><ControlButton variant="ghost" href={project.actions.figma.href} external iconRight="imgColor7">Figma</ControlButton></div>;
- return <div className="project-actions project-actions-static" aria-label="Материалы проекта пока недоступны"><span className="control neutral" aria-disabled="true"><span className="control-label">Подробнее</span></span><span className="control ghost" aria-disabled="true"><span className="control-label">Figma</span><span className="project-static-figma-icon" aria-hidden="true"/></span></div>;
+ return <div className="project-actions project-actions-static" aria-label="Материалы проекта пока недоступны"><span className="control neutral" aria-disabled="true" data-cursor="hand"><span className="control-label">Подробнее</span></span><span className="control ghost" aria-disabled="true" data-cursor="hand"><span className="control-label">Figma</span><span className="project-static-figma-icon" aria-hidden="true"/></span></div>;
 }
 function ProjectCard({project,imageRef,onImageLoad}){
  return <article className={`project project-${project.id}`}>

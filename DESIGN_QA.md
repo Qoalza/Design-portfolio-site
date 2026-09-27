@@ -50,6 +50,8 @@
 - Separate Corvo and «Сараффан.Радио» cards now use
   `661px` desktop geometry, local Figma media, current copy/categories and
   the visible static actions required before destination URLs are decided.
+  По уточнению пользователя обе статичные controls Сараффан теперь меняют
+  указатель на hand при наведении, оставаясь без перехода.
   The Сараффан mark follows the existing main-page asset per direct user
   instruction; the working ledger records that source exception.
 - AI now has the current `1280×335` source panel with the `241px` content

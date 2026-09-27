@@ -77,7 +77,7 @@ test('desktop custom cursor remains a full-frame vector layer with actionable st
  assert.match(css,/@media \(pointer:fine\)\{[\s\S]*?\.custom-cursor\{/);
  assert.match(app,/bibata-original-classic-pointer\.svg/);
  assert.match(app,/bibata-original-classic-hand\.svg/);
- assert.match(app,/closest\('a\[href\],button:not\(:disabled\),\[role="button"\]'\)/);
+ assert.match(app,/closest\('a\[href\],button:not\(:disabled\),\[role="button"\],\[data-cursor="hand"\]'\)/);
  assert.match(css,/\.custom-cursor\{[^}]*width:22px;height:22px;pointer-events:none/);
  assert.match(css,/html\[data-custom-cursor="on"\],html\[data-custom-cursor="on"\] \*\{cursor:none!important\}/);
  assert.match(css,/\.custom-cursor\[data-mode="hand"\]\{margin-left:-4px;margin-top:-11px\}/);

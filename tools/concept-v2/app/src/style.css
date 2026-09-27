@@ -97,7 +97,7 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .project-tag-icon{width:16px;height:16px;flex:0 0 16px;background:#825f00;-webkit-mask:url('/figma/sarafan-tag-flag.svg') center/16px 16px no-repeat;mask:url('/figma/sarafan-tag-flag.svg') center/16px 16px no-repeat}
 .radio-symbol{position:relative;display:inline-block;width:28px;height:28px;flex:0 0 28px;overflow:hidden}
 .radio-symbol>span{position:absolute}.radio-symbol img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill}.radio-logo-a{inset:30.84% 47.43% 30.86% -.13%}.radio-logo-b{inset:16.52% 68.22% 16.52% 16.14%}.radio-logo-c{inset:30.84% .21% 30.86% 47.09%}.radio-logo-d{inset:16.52% 16.48% 16.52% 67.88%}
-.project-actions-static{cursor:default}.project-actions-static .control{cursor:default}.project-static-figma-icon{display:block;width:16px;height:16px;flex:0 0 16px;background:var(--cv2-text-neutral-tertiary);-webkit-mask:url('/figma/sarafan-figma.svg') center/16px 16px no-repeat;mask:url('/figma/sarafan-figma.svg') center/16px 16px no-repeat}
+.project-actions-static{cursor:default}.project-actions-static .control{cursor:pointer}.project-static-figma-icon{display:block;width:16px;height:16px;flex:0 0 16px;background:var(--cv2-text-neutral-tertiary);-webkit-mask:url('/figma/sarafan-figma.svg') center/16px 16px no-repeat;mask:url('/figma/sarafan-figma.svg') center/16px 16px no-repeat}
 .projects-grid{position:relative}
 .projects-grid::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);z-index:8;pointer-events:none}
 @media(min-width:1280px){.projects-grid::after{top:96px}}

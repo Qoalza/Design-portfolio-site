@@ -60,9 +60,10 @@ test('Projects render distinct Corvo and Sarafan.Radio Figma content without inv
  assert.match(app,/categories:\['B2B2С','EVENT'\]/);
  assert.match(app,/Тестовое задание/);
  assert.match(app,/project-actions-static/);
+ assert.equal((app.match(/aria-disabled="true" data-cursor="hand"/g)||[]).length,2);
  assert.doesNotMatch(app,/href="https:\/\/art-des\.ru\/projects\/sarafan/);
  assert.match(app,/radio-logo-vector-\$\{layer\}\.svg/);
- assert.match(css,/\.project-actions-static\{cursor:default\}/);
+ assert.match(css,/\.project-actions-static \.control\{cursor:pointer\}/);
 });
 
 test('Projects publication note follows the user-approved homepage copy',async()=>{
