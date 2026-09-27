@@ -1,9 +1,9 @@
 import {nodes,position} from './network-data.mjs';
 
-export function getHeroVariant({width=0}={}){
-  // The authored compositions have different structural layouts. Keep Small
-  // until the viewport can show the Large source at its 2313 px canvas width.
-  return width>=2313?'large':'small';
+export function getHeroVariant({width=0,height=0}={}){
+  // Large is a vertical 1014px composition. It needs both the authored canvas
+  // width and enough viewport height; width alone leaves the graph clipped.
+  return width>=2313&&height>=1300?'large':'small';
 }
 
 export function captionForPoint(point){

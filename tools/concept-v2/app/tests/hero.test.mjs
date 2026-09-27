@@ -9,10 +9,12 @@ import {dotFieldMaskRect,paintDotField} from '../src/hero-dot-field.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
 import {measurePulseRoutes,pulseRoutes,scalePulseRoutes,screenScale} from '../src/pulse-routes.mjs';
 
-test('Hero selects the matching Figma composition only at its authored Large width',()=>{
+test('Hero selects the large composition only when its authored width and height fit',()=>{
   assert.equal(getHeroVariant({width:1440,height:1600}),'small');
   assert.equal(getHeroVariant({width:2312,height:2400}),'small');
-  assert.equal(getHeroVariant({width:2313,height:900}),'large');
+  assert.equal(getHeroVariant({width:2968,height:955}),'small');
+  assert.equal(getHeroVariant({width:2313,height:1299}),'small');
+  assert.equal(getHeroVariant({width:2313,height:1300}),'large');
 });
 
 test('Hero preserves the two authored component structures and the accepted map interaction',async()=>{
