@@ -1,6 +1,6 @@
 # Redesign portfolio — сохранение и сборка до очистки
 
-Статус: `IN_PROGRESS`. Дата актуализации: 2026-09-26.
+Статус: `READY_FOR_REVIEW`. Дата актуализации: 2026-09-27.
 
 ## Outcome
 
@@ -14,11 +14,12 @@ worktree `Redesign portfolio` с последними принятыми час�
 ## Границы и источники
 
 В scope: история и незакоммиченные варианты Concept V2, готовые 404,
-прелоадер, Hero главной, изолированный Hero проекта и четыре сцены Corvo.
+прелоадер, Hero главной, изолированный Hero проекта, четыре сцены Corvo и
+локальная страница проекта Corvo в общем Concept runtime.
 
 Не входят: Admin, Shared contract, `USERSPACE/**`, `main`, production,
-deploy, Figma write, подключение Hero проекта к публичной странице, новые
-изменения главной и удаление старых worktree/веток.
+deploy, Figma write, подключение Hero проекта к опубликованному Next.js сайту,
+новые визуальные изменения главной и удаление старых worktree/веток.
 
 Основа сборки — `4a8f1c6` (`codex/concept-v2-responsive-hero`). Последние
 исправления 404 — `f4b63e0` и `9e4660d`. Прелоадер —
@@ -89,9 +90,20 @@ Verification: результаты тестов, lint, build, browser smoke и �
 прелоадера, 404 и переключение всех четырёх сцен Corvo. Реестр вариантов
 ведётся в `docs/exec-plans/redesign-portfolio-variant-registry.md`.
 
+## Этап 4 — общая навигация Concept V2
+
+Target → локальный runtime на `codex/redesign-portfolio` и готовая страница
+Corvo из `codex/redesign-project-page` (`44bafef`). Change → добавить страницу
+по `/projects/corvo`, направить на неё карточку главной, включить обратный
+переход и прелоадер для прямого входа на страницу. Expected result → главная,
+Corvo, 404 и прелоадер доступны в одном runtime; прежний Hero preview сохранён.
+Verification → 159 tests, lint, Vite build и браузерные переходы
+главная → Corvo → главная, прямой вход на Corvo, 404 и переключение сцены
+Statistics прошли. Следующий шаг — пользовательская визуальная приёмка.
+
 ## Stop-lines
 
 Остановиться до любого изменения Admin/Shared contract, `main`, production,
-Figma, публичного монтирования Hero, удаления исходных веток/worktree или
+Figma, монтирования Hero в опубликованный Next.js Portfolio, удаления исходных веток/worktree или
 обнаружения нового неучтённого состояния. Такое состояние сначала добавить в
 страховочную копию и реестр.

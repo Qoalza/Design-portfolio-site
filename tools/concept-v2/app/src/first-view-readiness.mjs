@@ -44,7 +44,7 @@ function loadImage(image,signal,retryNumber){
 
 export async function prepareFirstView(root,signal,retryNumber=0){
   await nextPaint(signal);
-  const visibleImages=[...root.querySelectorAll('.site-header img,.hero img')]
+  const visibleImages=[...root.querySelectorAll('.site-header img,.hero img,[data-first-view] img')]
     .filter(image=>image.loading!=='lazy'&&image.getBoundingClientRect().top<innerHeight);
   const fonts=[
     document.fonts.load('400 16px Onest','Артур'),

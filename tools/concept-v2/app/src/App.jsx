@@ -19,7 +19,7 @@ const corvoDescription='B2B SaaS-платформа для управления 
 const sarafanDescription='Сарафан.Радио — B2B2C-платформа для организации мероприятий. Она соединяет пользователей, которые готовят событие, со специалистами и поставщиками товаров и услуг.';
 const radioLogoLayers=['a','b','c','d'];
 const projectCards=[
- {id:'corvo',title:'Corvo',categories:['B2B','SAAS','PARTNER PLATFORM'],description:corvoDescription,logo:'corvo',preview:{back:projectBackImage,front:projectFrontImage,ariaLabel:'Интерфейс Corvo',frontAlt:'Corvo — управление партнёрской программой, таблица компаний'},actions:{details:{href:'https://art-des.ru/projects/corvo'},figma:{href:corvoFigma}}},
+ {id:'corvo',title:'Corvo',categories:['B2B','SAAS','PARTNER PLATFORM'],description:corvoDescription,logo:'corvo',preview:{back:projectBackImage,front:projectFrontImage,ariaLabel:'Интерфейс Corvo',frontAlt:'Corvo — управление партнёрской программой, таблица компаний'},actions:{details:{href:`${import.meta.env.BASE_URL}projects/corvo`},figma:{href:corvoFigma}}},
  {id:'sarafan-radio',title:'Сараффан.Радио',categories:['B2B2С','EVENT'],description:sarafanDescription,logo:'radio',tag:'Тестовое задание',preview:{back:sarafanBackImage,front:sarafanFrontImage,ariaLabel:'Интерфейс Сараффан.Радио',frontAlt:'Сараффан.Радио — оформление заказа для мероприятия'},actions:null}
 ];
 const steps=[
@@ -27,7 +27,7 @@ const steps=[
  {title:'Собираю решение в систему',description:'Проектирую сценарии, интерфейсы и логику. Проектирую дизайн систему, описываю гайдлайны. Согласовываю с разработкой.',image:'imgFrame26086400',dots:'imgFrame26086413',width:16},
  {title:'Довожу до продакшена',description:'Согласовываю решения, передаю в разработку и остаюсь на связи до релиза и поддерживаю после него.',image:'imgFrame26086401',dots:'imgFrame26086414',width:27}
 ];
-function CustomCursor(){
+export function CustomCursor(){
  const cursor=useRef(null),mode=useRef('pointer'),visible=useRef(false);
  useEffect(()=>{
   const desktop=window.matchMedia('(pointer:fine)');
@@ -149,7 +149,7 @@ function RadioSymbol(){
  return <span className="radio-symbol" aria-hidden="true">{radioLogoLayers.map(layer=><span key={layer} className={`radio-logo-${layer}`}><img src={`/figma/radio-logo-vector-${layer}.svg`} alt=""/>{layer!=='d'&&<img src={`/figma/radio-logo-mask-${layer}.svg`} alt=""/>}</span>)}</span>;
 }
 function ProjectActions({project}){
- if(project.actions)return <div className="project-actions"><ControlButton href={project.actions.details.href} external>Подробнее</ControlButton><ControlButton variant="ghost" href={project.actions.figma.href} external iconRight="imgColor7">Figma</ControlButton></div>;
+ if(project.actions)return <div className="project-actions"><ControlButton href={project.actions.details.href}>Подробнее</ControlButton><ControlButton variant="ghost" href={project.actions.figma.href} external iconRight="imgColor7">Figma</ControlButton></div>;
  return <div className="project-actions project-actions-static" aria-label="Материалы проекта пока недоступны"><span className="control neutral" aria-disabled="true" data-cursor="hand"><span className="control-label">Подробнее</span></span><span className="control ghost" aria-disabled="true" data-cursor="hand"><span className="control-label">Figma</span><span className="project-static-figma-icon" aria-hidden="true"/></span></div>;
 }
 function ProjectCard({project,imageRef,onImageLoad}){
