@@ -47,6 +47,11 @@
   `3960:274763`, Library typography `2172:2780`.
 - Current group updates the shared semantic palette and control states;
   the Hero viewport-height behavior remains an explicit invariant.
+- Projects group complete: separate Corvo and «Сараффан.Радио» cards now use
+  `661px` desktop geometry, local Figma media, current copy/categories and
+  the visible static actions required before destination URLs are decided.
+  The Сараффан mark follows the existing main-page asset per direct user
+  instruction; the working ledger records that source exception.
 - The separate working ledger is
   `docs/audits/concept-v2-mainpage-library-delta-2026-09-27.md`.
 

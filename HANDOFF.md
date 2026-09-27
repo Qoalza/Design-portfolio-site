@@ -27,9 +27,13 @@
   сообщает console errors при проверке собранной линии.
 - Текущий checkpoint: сборка готова к пользовательской приёмке. До отдельной
   задачи очистки старые worktree и ветки не менять.
-- Первая группа current Main/Library refresh завершена: semantic palette и
-  control states сверены с Figma. 151 tests, lint, build и smoke прошли;
-  Projects, AI и остальные секции ещё не изменялись.
+- Первая и вторая группы current Main/Library refresh завершены: semantic
+  palette/control states и Projects. В Projects дублирование Corvo заменено
+  «Сараффан.Радио» с локальными Figma media и статичными actions без ссылок.
+  Знак взят из уже реализованной главной по прямому указанию пользователя.
+  152 tests, lint, build, smoke и AX browser check прошли. Следующая группа:
+  AI и только подтверждённые локальные детали Process, Experience, About и
+  Footer.
 
 ## Stop-lines
 

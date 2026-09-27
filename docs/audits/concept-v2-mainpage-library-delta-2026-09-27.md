@@ -33,3 +33,25 @@
 instance-specific. Library states теперь сохраняют отдельный disabled color
 для label и icon таба. Проверки: targeted RED→GREEN, полный набор из 151
 tests, lint, Vite production build и built-runtime smoke.
+
+## Группа 2 — выполнено
+
+- `ProjectCard` получает самостоятельную конфигурацию каждого проекта, поэтому
+  Corvo больше не дублируется во второй колонке.
+- Обе карточки используют текущую component geometry: Preview `329px`, Main
+  `332px`, общая высота `661px`; categories идут отдельной строкой в
+  `Source Code Pro 14/16`, а content field имеет `212px`.
+- «Сараффан.Радио»: `B2B2С · EVENT`, жёлтая метка «Тестовое задание»,
+  актуальный текст Figma и два локальных Figma PNG с вариантами AVIF
+  `640w/1080w`. AVIF производные не содержат неподдерживаемых `clap`/`clli`
+  metadata boxes.
+- Прямое пользовательское уточнение для знака: использован уже реализованный
+  многослойный пурпурный знак главной (`radio-logo-*`), а не зелёный вектор,
+  возвращённый current Figma export. Это локальная копия только в Concept V2;
+  public homepage, canonical data и её assets не менялись.
+- Элементы «Подробнее» и «Figma» для Сараффан сохранены как видимые статичные
+  controls с `aria-disabled`, без `href`, фокуса и вымышленных переходов.
+- Проверки итогового состояния: focused project tests, полный набор `152/152`,
+  lint, Vite production build, built-runtime smoke. В локальном браузере
+  подтверждены обе distinct cards, title/categories/tag и отсутствие активных
+  ссылок у Сараффан.

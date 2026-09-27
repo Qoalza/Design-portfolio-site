@@ -25,8 +25,13 @@ out-of-scope runtime-механики.
 1. **Основа и Library — COMPLETE.** Semantic palette и states controls;
    evidence: 151 tests, lint, production build, built-runtime smoke и локальная
    проверка main. Commit фиксирует этот checkpoint.
-2. **Projects — PLANNED.** Один Corvo и один Сарафан.Радио, asset mapping,
-   исходное/hover/focus состояния и responsive geometry.
+2. **Projects — COMPLETE.** Один Corvo и один «Сараффан.Радио» с
+   подтверждённой геометрией `638.5×661`, Preview `329` и Main `332` px.
+   Для Сараффан добавлены исходные Figma PNG, локальные `640/1080` AVIF,
+   категории, жёлтая метка и статические действия без вымышленных переходов.
+   Многослойный пурпурный знак взят из уже реализованной главной по прямому
+   указанию пользователя; исходники публичной главной не менялись. Evidence:
+   152 tests, lint, Vite production build, built-runtime smoke и AX-проверка.
 3. **AI и остальные секции — PLANNED.** Панель `1280×335`, затем точечная
    сверка Process, Experience, About и Footer без изменения их механики.
 

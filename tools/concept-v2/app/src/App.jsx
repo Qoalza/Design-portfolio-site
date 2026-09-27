@@ -9,13 +9,19 @@ import {About} from './About';
 import {randomEdgePoint} from './process-fill.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {ResponsivePicture} from './media/ResponsivePicture';
-import {projectBackImage,projectFrontImage} from './media/image-sources.mjs';
+import {projectBackImage,projectFrontImage,sarafanBackImage,sarafanFrontImage} from './media/image-sources.mjs';
 import {createImagePreparer} from './media/image-preparation.mjs';
 import {bindScrollHoverGate} from './smooth-scroll-runtime.mjs';
 
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
-const description='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику';
+const corvoDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику';
+const sarafanDescription='Сарафан.Радио — B2B2C-платформа для организации мероприятий. Она соединяет пользователей, которые готовят событие, со специалистами и поставщиками товаров и услуг.';
+const radioLogoLayers=['a','b','c','d'];
+const projectCards=[
+ {id:'corvo',title:'Corvo',categories:['B2B','SAAS','PARTNER PLATFORM'],description:corvoDescription,logo:'corvo',preview:{back:projectBackImage,front:projectFrontImage,ariaLabel:'Интерфейс Corvo',frontAlt:'Corvo — управление партнёрской программой, таблица компаний'},actions:{details:{href:'https://art-des.ru/projects/corvo'},figma:{href:corvoFigma}}},
+ {id:'sarafan-radio',title:'Сараффан.Радио',categories:['B2B2С','EVENT'],description:sarafanDescription,logo:'radio',tag:'Тестовое задание',preview:{back:sarafanBackImage,front:sarafanFrontImage,ariaLabel:'Интерфейс Сараффан.Радио',frontAlt:'Сараффан.Радио — оформление заказа для мероприятия'},actions:null}
+];
 const steps=[
  {title:'Погружаюсь в данные',description:'Разбираюсь в контексте, пользователях и бизнес-целях. Формулирую проблему/цель и нахожу главное.',image:'imgFrame26086399',dots:'imgFrame26086412',width:5},
  {title:'Собираю решение в систему',description:'Проектирую сценарии, интерфейсы и логику. Проектирую дизайн систему, описываю гайдлайны. Согласовываю с разработкой.',image:'imgFrame26086400',dots:'imgFrame26086413',width:16},
@@ -139,15 +145,23 @@ function Hero(){
 function SectionTitle({eyebrow,title,children,className='',id}){
  return <div className={`section-title ${className}`}><p className="eyebrow">{eyebrow}</p><h2 id={id}>{title}</h2><div className="section-description">{children}</div></div>;
 }
-function ProjectCard({imageRef,onImageLoad}){
- return <article className="project">
-  <div className="project-preview" aria-label="Интерфейс Corvo">
+function RadioSymbol(){
+ return <span className="radio-symbol" aria-hidden="true">{radioLogoLayers.map(layer=><span key={layer} className={`radio-logo-${layer}`}><img src={`/figma/radio-logo-vector-${layer}.svg`} alt=""/>{layer!=='d'&&<img src={`/figma/radio-logo-mask-${layer}.svg`} alt=""/>}</span>)}</span>;
+}
+function ProjectActions({project}){
+ if(project.actions)return <div className="project-actions"><ControlButton href={project.actions.details.href} external>Подробнее</ControlButton><ControlButton variant="ghost" href={project.actions.figma.href} external iconRight="imgColor7">Figma</ControlButton></div>;
+ return <div className="project-actions project-actions-static" aria-label="Материалы проекта пока недоступны"><span className="control neutral" aria-disabled="true"><span className="control-label">Подробнее</span></span><span className="control ghost" aria-disabled="true"><span className="control-label">Figma</span><span className="project-static-figma-icon" aria-hidden="true"/></span></div>;
+}
+function ProjectCard({project,imageRef,onImageLoad}){
+ return <article className={`project project-${project.id}`}>
+  <div className="project-preview" aria-label={project.preview.ariaLabel}>
    <div className="project-divider"/><div className="project-glow"/>
-   <div className="project-back-layer"><ResponsivePicture source={projectBackImage} ref={imageRef} className="project-back" alt="" sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
+   <div className="project-back-layer"><ResponsivePicture source={project.preview.back} ref={imageRef} className="project-back" alt="" sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
    <div className="project-shade"/>
-   <div className="project-front-layer"><ResponsivePicture source={projectFrontImage} ref={imageRef} className="project-front" alt="Corvo — управление партнёрской программой, таблица компаний" sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
+   <div className="project-front-layer"><ResponsivePicture source={project.preview.front} ref={imageRef} className="project-front" alt={project.preview.frontAlt} sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
+   {project.tag&&<div className="project-tag"><span className="project-tag-icon" aria-hidden="true"/><span>{project.tag}</span></div>}
   </div>
-  <div className="project-main"><div className="project-info"><h3>Corvo<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/></h3><p>{description}</p></div><div className="project-actions"><ControlButton href="https://art-des.ru/projects/corvo" external>Подробнее</ControlButton><ControlButton variant="ghost" href={corvoFigma} external iconRight="imgColor7">Figma</ControlButton></div></div>
+  <div className="project-main"><div className="project-categories">{project.categories.map((category,index)=><span className="project-category" key={category}><span>{category}</span>{index<project.categories.length-1&&<img src="/figma/sarafan-project-dot.svg" width="4" height="4" alt=""/>}</span>)}</div><div className="project-content"><div className="project-info"><h3>{project.logo==='corvo'?<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/>:<RadioSymbol/>}{project.title}</h3><p>{project.description}</p></div><ProjectActions project={project}/></div></div>
  </article>;
 }
 function Projects(){
@@ -170,7 +184,7 @@ function Projects(){
   if(sectionRef.current)observer.observe(sectionRef.current);
   return()=>{observer.disconnect();preparer.dispose();if(imagePreparer.current===preparer)imagePreparer.current=null};
  },[]);
- return <section ref={sectionRef} className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton className="projects-all-action" variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Посмотреть все проекты</ControlButton></div><div className="projects-grid"><ProjectCard imageRef={collectImage} onImageLoad={prepareLoadedImage}/><ProjectCard imageRef={collectImage} onImageLoad={prepareLoadedImage}/></div></section>;
+ return <section ref={sectionRef} className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><ControlButton className="projects-all-action" variant="light" href="https://art-des.ru/projects" external iconRight="imgColor6">Посмотреть все проекты</ControlButton></div><div className="projects-grid">{projectCards.map(project=><ProjectCard key={project.id} project={project} imageRef={collectImage} onImageLoad={prepareLoadedImage}/>)}</div></section>;
 }
 function ProcessStep({step,index}){
  const [active,setActive]=useState(false);
