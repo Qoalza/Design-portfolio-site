@@ -53,7 +53,7 @@ test('AI side fields use continuous Figma hatching without tiled frame seams',as
  assert.match(css,/\.ai-side::after\{[^}]*background-image:repeating-linear-gradient\(126\.826deg,#00345e 0 1px,transparent 1px 15px\)/);
  assert.doesNotMatch(css,/ai-hatch-(?:top|bottom)-frame\.png/);
  assert.match(css,/\.ai-side::before\{[^}]*border-top:1px solid var\(--cv2-border-neutral-surface\)/);
- assert.match(css,/\.ai-side::after\{[^}]*border-top:1px solid #0462af/);
+ assert.match(css,/\.ai-side::after\{[^}]*border-top:1px solid #0462af[^}]*border-bottom:1px solid #0462af/);
 });
 
 test('AI strip removes the former tools list and retains exact source copy and assets',async()=>{
