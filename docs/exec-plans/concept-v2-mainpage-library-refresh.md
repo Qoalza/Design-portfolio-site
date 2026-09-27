@@ -1,6 +1,6 @@
 # Concept V2 — обновление главной и Library V2
 
-**Статус:** `IN_PROGRESS`. **Ветка:** `codex/redesign-portfolio`.
+**Статус:** `READY_FOR_REVIEW`. **Ветка:** `codex/redesign-portfolio`.
 **Базовый commit:** `eca46ce13c15fb44885a3955ef256aa3e8ffca61`.
 
 ## Outcome
@@ -32,9 +32,17 @@ out-of-scope runtime-механики.
    Многослойный пурпурный знак взят из уже реализованной главной по прямому
    указанию пользователя; исходники публичной главной не менялись. Evidence:
    152 tests, lint, Vite production build, built-runtime smoke и AX-проверка.
-3. **AI и остальные секции — PLANNED.** Панель `1280×335`, затем точечная
-   сверка Process, Experience, About и Footer без изменения их механики.
+3. **AI и остальные секции — COMPLETE.** AI теперь повторяет current source:
+   центральная панель `1280×335`, content field `241px`, синяя полоса `94px`,
+   локальные source assets hatch/Codex и точная copy. Удалены прежние
+   ChatGPT/Codex cards и chip. Process сверен с `3960:274725`; Experience,
+   About и Footer оставлены без визуальных правок, поскольку current semantic
+   roles и их принятая геометрия уже соответствуют подтверждённой части scope.
+   Scroll, viewer и hover-механики не менялись. Evidence: focused tests,
+   полный набор `152/152`, lint, Vite production build, built-runtime smoke и
+   AX-проверка локальной главной на отдельном текущем preview.
 
-После каждой группы: focused checks, diff review, отдельный commit и показ
-результата пользователю. После последней группы: fidelity/completeness review,
-затем regression/scope review и полная проверка runtime.
+После последней группы проведены две проверки: fidelity/completeness подтвердила
+все прямые children AI source и отсутствие старого списка; regression/scope
+подтвердила, что затронуты только Concept V2 runtime, tests, source assets и
+evidence-документы. Hero сохраняет viewport-height behavior.

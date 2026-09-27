@@ -218,10 +218,7 @@ function Process(){
  </section>;
 }
 function AISection(){
- return <section className="ai-section" aria-labelledby="ai-title"><div className="ai-side ai-side-left" aria-hidden="true"/><div className="ai-panel"><SectionTitle className="ai-title" id="ai-title" eyebrow="ИНСТРУМЕНТЫ" title="AI в рабочем процессе"><p>Использую AI, как рабочий инструмент, для ускорения исследований, прототипирования, проверки решений/гипотез и разработки.</p></SectionTitle><div className="ai-tools"><div className="tools-list">
-   <div className="tool"><div className="tool-icon"><img src="/figma/imgIcon.svg" width="32" height="32" alt=""/></div><div><h3>ChatGPT</h3><p>Анализ, проверка идей, составление планов</p></div></div>
-   <div className="tool"><div className="tool-icon"><img src="/figma/imgIcon1.svg" width="32" height="32" alt=""/></div><div><h3>Codex</h3><p>Прототипы и рабочие инструменты</p></div></div>
-  </div><span className="ai-other-chip">и множество других</span><p className="tech-note">// итоговые решения всегда остаются за мной</p></div></div><div className="ai-side ai-side-right" aria-hidden="true"/></section>;
+ return <section className="ai-section" aria-labelledby="ai-title"><div className="ai-side ai-side-left" aria-hidden="true"/><div className="ai-panel"><div className="ai-main"><SectionTitle className="ai-title" id="ai-title" eyebrow="ИНСТРУМЕНТЫ" title="AI в рабочем процессе"><p>Использую AI, как рабочий инструмент, для ускорения исследований, прототипирования, проверки решений/гипотез и разработки.</p></SectionTitle><p className="tech-note">// итоговые решения всегда остаются за мной</p></div><div className="ai-banner"><img src="/figma/ai-codex-icon.svg" width="28" height="28" alt=""/><p>Данный сайт был разработан с 0 в codex, а дизайн в Figma. Без шаблонов.</p></div></div><div className="ai-side ai-side-right" aria-hidden="true"/></section>;
 }
 export default function App(){
  return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><Projects/><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;

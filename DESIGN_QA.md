@@ -1,6 +1,6 @@
 # DESIGN QA
 
-Обновлено: 2026-09-16.
+Обновлено: 2026-09-27.
 
 ## Назначение
 
@@ -41,17 +41,24 @@
 - Final automated verification passed: 61 tests, lint, production build, browser smoke and whitespace check. Firefox/WebKit visual passes remain unverified; user visual review is the remaining acceptance gate.
 - Full ledger, node mapping and commit sequence: `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
 
-## IN_PROGRESS — Concept V2 main page and Library V2 refresh
+## READY_FOR_REVIEW — Concept V2 main page and Library V2 refresh
 
 - Source: Main `3960:274722`, Projects/Process `3960:274725`, AI
   `3960:274763`, Library typography `2172:2780`.
-- Current group updates the shared semantic palette and control states;
-  the Hero viewport-height behavior remains an explicit invariant.
-- Projects group complete: separate Corvo and «Сараффан.Радио» cards now use
+- Shared semantic palette and control states have been updated; the Hero
+  viewport-height behavior remains an explicit invariant.
+- Separate Corvo and «Сараффан.Радио» cards now use
   `661px` desktop geometry, local Figma media, current copy/categories and
   the visible static actions required before destination URLs are decided.
   The Сараффан mark follows the existing main-page asset per direct user
   instruction; the working ledger records that source exception.
+- AI now has the current `1280×335` source panel with the `241px` content
+  field, `94px` blue strip, local hatch/icon exports and exact source copy.
+  Previous tool cards and chip are absent. Process, Experience, About and
+  Footer preserve their accepted geometry and interaction mechanics.
+- Final verification: focused checks, `152/152` tests, lint, production build,
+  built-runtime smoke and AX-check of the current local preview. Remaining
+  acceptance is the user's visual review.
 - The separate working ledger is
   `docs/audits/concept-v2-mainpage-library-delta-2026-09-27.md`.
 

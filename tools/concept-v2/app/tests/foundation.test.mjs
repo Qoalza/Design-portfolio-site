@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {readFile} from 'node:fs/promises';
+import {access,readFile} from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 
@@ -38,19 +38,25 @@ test('Library V2 foundation is isolated under its own namespace',async()=>{
   assert.doesNotMatch(controls,/className={`control /);
 });
 
-test('AI desktop panel retains its source 272px height and 577px left column',async()=>{
+test('AI desktop panel is the current 1280 by 335 Figma strip',async()=>{
  const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
- assert.match(css,/\.ai-panel\{[^}]*min-height:272px[^}]*grid-template-columns:577px minmax\(0,1fr\)/);
- assert.match(css,/\.ai-panel>\.section-title\{padding:40px 56px/);
- assert.match(css,/\.ai-panel \.ai-tools\{[^}]*padding:40px 56px/);
+ assert.match(css,/\.ai-section\{[^}]*height:335px/);
+ assert.match(css,/\.ai-panel\{[^}]*width:min\(1280px,100%\)[^}]*height:335px/);
+ assert.match(css,/\.ai-main\{[^}]*height:241px[^}]*padding:40px 56px[^}]*gap:20px/);
+ assert.match(css,/\.ai-banner\{[^}]*height:94px[^}]*padding:32px 56px[^}]*border:1px solid #0462af[^}]*background:rgba\(3,120,214,\.35\)/);
+ assert.match(css,/\.ai-banner img\{[^}]*width:28px[^}]*height:28px/);
 });
 
-test('AI other-tools chip is a static semantic text element with current source styling',async()=>{
+test('AI strip removes the former tools list and retains exact source copy and assets',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
- const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
- assert.match(app,/<span className="ai-other-chip">и множество других<\/span>/);
- assert.doesNotMatch(app,/ai-other-chip[^>]*(?:onClick|tabIndex|href)/);
- assert.match(css,/\.ai-other-chip\{[^}]*padding:8px 12px[^}]*border-radius:8px[^}]*font:400 16px\/20px "Source Code Pro"/);
+ const responsive=await readFile(path.join(appRoot,'src/responsive.css'),'utf8');
+ assert.match(app,/className="ai-main"/);
+ assert.match(app,/className="ai-banner"/);
+ assert.match(app,/src="\/figma\/ai-codex-icon\.svg" width="28" height="28"/);
+ assert.match(app,/Данный сайт был разработан с 0 в codex, а дизайн в Figma\. Без шаблонов\./);
+ assert.doesNotMatch(app,/ChatGPT|ai-other-chip|tools-list|className="tool"/);
+ assert.doesNotMatch(responsive,/ai-tools|tools-list|\.tool(?:\{|\s)/);
+ for(const asset of ['ai-hatch-top.svg','ai-hatch-bottom.svg','ai-codex-icon.svg'])await access(path.join(appRoot,'public/figma',asset));
 });
 
 test('footer retains its Figma spacing and uses current semantic color roles',async()=>{

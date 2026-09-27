@@ -51,13 +51,6 @@
  .step+.step::before{display:none}
  .step-number{justify-self:center}
  .step-text{max-width:620px}
- .ai-section{grid-template-columns:1fr}
- .ai-section>.section-title{padding:40px 32px;max-width:760px}
- .ai-section h2{max-width:none}
- .ai-tools{border-left:0;border-top:1px solid var(--border);padding:32px}
- .tools-list{display:grid;grid-template-columns:1fr 1fr;gap:24px}
- .tool{align-items:flex-start}
- .tool p{max-width:none}
 }
 
 @media(max-width:899px){
@@ -130,12 +123,6 @@
  .step-number span{font-size:36px;line-height:48px}
  .step-text{grid-column:1/-1;gap:12px}
  .step-text h3{font-size:24px;line-height:32px}
- .ai-section{margin-top:-36px}
- .ai-section>.section-title,.ai-tools{padding:32px 24px}
- .tools-list{grid-template-columns:1fr;gap:24px}
- .tool{gap:16px}
- .tool>div:last-child{min-width:0}
- .ai-tools .tech-note{font-size:14px;line-height:22px}
  .experience{padding:0}
  .experience-composition{padding:48px 0}
  .experience-heading{width:100%;padding-inline:24px;align-items:flex-start}
@@ -170,22 +157,18 @@
 }
 
 @media(max-width:1279px){
- .ai-section{display:block;min-height:0;background:var(--surface)}
+ .ai-section{display:block;height:auto;min-height:0;margin:0;background:var(--surface)}
  .ai-side{display:none}
- .ai-panel{width:100%;min-height:0;grid-template-columns:1fr;box-shadow:inset 0 1px var(--border),inset 0 -1px var(--border)}
- .ai-panel>.section-title{padding:40px 32px;max-width:760px}
- .ai-panel .ai-tools{min-height:0;box-shadow:inset 0 1px var(--border);padding:32px}
- .ai-panel .tools-list{display:grid;grid-template-columns:1fr 1fr;gap:24px}
- .ai-panel .tool{align-items:flex-start}
- .ai-panel .tool p{max-width:none}
+ .ai-panel{width:100%;height:auto;min-height:0;display:block}
+ .ai-main{height:auto;min-height:241px;padding:40px 32px}
+ .ai-banner{height:auto;min-height:94px;padding:32px}
 }
 
 @media(max-width:599px){
- .ai-panel>.section-title,.ai-panel .ai-tools{padding:32px 24px}
- .ai-panel .tools-list{grid-template-columns:1fr;gap:24px}
- .ai-panel .tool{gap:16px}
- .ai-panel .tool>div:last-child{min-width:0}
- .ai-panel .tech-note{font-size:14px;line-height:22px}
+ .ai-main{padding:32px 24px}
+ .ai-banner{align-items:flex-start;height:auto;padding:24px;gap:16px}
+ .ai-banner p{white-space:normal}
+ .ai-main .tech-note{font-size:14px;line-height:22px}
 }
 
 @media(pointer:coarse){

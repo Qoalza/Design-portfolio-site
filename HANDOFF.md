@@ -27,13 +27,13 @@
   сообщает console errors при проверке собранной линии.
 - Текущий checkpoint: сборка готова к пользовательской приёмке. До отдельной
   задачи очистки старые worktree и ветки не менять.
-- Первая и вторая группы current Main/Library refresh завершены: semantic
-  palette/control states и Projects. В Projects дублирование Corvo заменено
-  «Сараффан.Радио» с локальными Figma media и статичными actions без ссылок.
-  Знак взят из уже реализованной главной по прямому указанию пользователя.
-  152 tests, lint, build, smoke и AX browser check прошли. Следующая группа:
-  AI и только подтверждённые локальные детали Process, Experience, About и
-  Footer.
+- Current Main/Library refresh готов к пользовательской приёмке: semantic
+  palette/control states, самостоятельная «Сараффан.Радио» и AI source panel
+  `1280×335` реализованы. В AI нет прежнего tool list/chip; Process,
+  Experience, About и Footer сохранены после точечной сверки без изменения
+  scroll/viewer/hover-механик. Hero продолжает использовать высоту окна.
+  Тесты `152/152`, lint, build, smoke и AX browser check current local preview
+  прошли. Рабочий ledger: `docs/audits/concept-v2-mainpage-library-delta-2026-09-27.md`.
 
 ## Stop-lines
 

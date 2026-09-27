@@ -1,6 +1,6 @@
 # Concept V2 main page / Library V2 — current delta
 
-**Статус:** `IN_PROGRESS`. **Дата:** 2026-09-27.
+**Статус:** `READY_FOR_REVIEW`. **Дата:** 2026-09-27.
 **Runtime source:** `codex/redesign-portfolio` at `eca46ce` before this work.
 
 ## Figma → runtime mapping
@@ -55,3 +55,21 @@ tests, lint, Vite production build и built-runtime smoke.
   lint, Vite production build, built-runtime smoke. В локальном браузере
   подтверждены обе distinct cards, title/categories/tag и отсутствие активных
   ссылок у Сараффан.
+
+## Группа 3 — выполнено
+
+- `AISection` mapped to Figma `3960:274763`: panel `1280×335`, content field
+  `241px` with `40×56px` padding, blue information strip `94px` with
+  `32×56px` padding and `28px` Codex icon. Exact hatch and icon exports are
+  local in `public/figma` and used by the runtime.
+- Текст нижней полосы совпадает с source: «Данный сайт был разработан с 0 в
+  codex, а дизайн в Figma. Без шаблонов.» Предыдущие ChatGPT/Codex cards,
+  tool list и chip удалены из DOM и styles.
+- Process повторно сверена с `3960:274725`: current desktop heading/cards,
+  colors и 300 ms interaction остаются в утверждённом состоянии. Experience,
+  About и Footer имеют current semantic palette и не получили неподтверждённых
+  визуальных изменений; scroll/timeline, viewer/deck и footer layout сохранены.
+- Итоговое evidence: focused AI tests, `152/152` tests, lint, production build,
+  built-runtime smoke и AX-проверка current local preview. В AX-tree есть
+  одна AI panel с eyebrow, heading, intro, tech note и новой source copy;
+  ChatGPT/Codex tool cards отсутствуют.
