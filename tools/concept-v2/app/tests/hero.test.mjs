@@ -21,8 +21,8 @@ test('Hero preserves the two authored component structures and the accepted map 
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.match(app,/<SvgLens\/>/);
- assert.match(css,/\.hero\[data-layout="small"\] \.hero-copy\{[^}]*flex:0 0 408px;[^}]*height:412px/);
- assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:492px;[^}]*padding-inline:24px/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-copy\{[^}]*flex:0 0 488px;[^}]*height:412px/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1280px;[^}]*height:492px;[^}]*padding-inline:24px/);
  assert.match(css,/\.hero\[data-layout="small"\] \.name\{display:none\}/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:1014px;[^}]*padding-inline:24px/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-main\{[^}]*height:100%;[^}]*flex:1 1 auto;[^}]*padding-bottom:56px/);
