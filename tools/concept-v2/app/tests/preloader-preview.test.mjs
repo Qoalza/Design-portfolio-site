@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+
+const main=readFileSync(new URL('../src/main.jsx',import.meta.url),'utf8');
+const preview=readFileSync(new URL('../src/PreloaderPreview.jsx',import.meta.url),'utf8');
+
+test('the preloader preview has a dedicated route and renders the production preloader',()=>{
+  assert.match(main,/normalizedPath==='\/preloader-preview'/);
+  assert.match(main,/<PreloaderPreview\/>/);
+  assert.match(preview,/import \{Preloader\} from '.\/Preloader';/);
+  assert.match(preview,/<Preloader state=\{mode\} onRetry=\{\(\)=>setMode\('normal'\)\}/);
+});
+
+test('the preview offers normal, slow-loading, and connection states',()=>{
+  for(const state of ['normal','slow','connection'])assert.match(preview,new RegExp(`id:'${state}'`));
+});
