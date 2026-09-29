@@ -108,12 +108,22 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
 });
 
 test('scenario tabs select ready Corvo scenes while adaptive tabs retain preset controls',async()=>{
- const component=await read('src/project-hero/ProjectResponsiveHero.jsx');
+ const [component,tabCss,heroCss]=await Promise.all([
+  read('src/project-hero/ProjectResponsiveHero.jsx'),
+  read('src/v2/hero-tabs.css'),
+  read('src/project-hero/ProjectResponsiveHero.module.css')
+ ]);
  assert.match(component,/const \[activeSceneId, setActiveSceneId\] = useState\(initialScene\.id\)/);
  assert.match(component,/onClick=\{\(\) => selectScene\(scene\.id\)\}/);
  assert.match(component,/src=\{activeScene\?\.src\}/);
  assert.match(component,/onSelect=\{\(\) => selectAdaptive\(layout\.id\)\}/);
  assert.doesNotMatch(component,/interactive=\{false\}/);
+ assert.match(component,/activeLineLeft = definition\.scenes[\s\S]*?scene\.tabWidth \+ SCENARIO_TAB_GAP/);
+ assert.match(component,/--v2-scenario-active-line-opacity': 0/);
+ assert.match(component,/<motion\.span[\s\S]*?className=\{styles\.scenarioActiveLine\}[\s\S]*?animate=\{\{left: activeLineLeft, width: activeScene\.tabWidth\}\}/);
+ assert.match(component,/transition=\{prefersReducedMotion \? \{duration: 0\} : \{type: 'tween', duration: \.35/);
+ assert.match(tabCss,/opacity: var\(--v2-scenario-active-line-opacity, 1\)/);
+ assert.match(heroCss,/\.scenarioActiveLine\s*\{[^}]*bottom:\s*0;[^}]*height:\s*1px/);
 });
 
 test('Concept V2 motion keeps the accepted resize and perceptible inertia contract',async()=>{

@@ -87,7 +87,15 @@
   display: flex;
   width: 526px;
   height: 40px;
-  gap: 24px;
+}
+
+.scenarioActiveLine {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  height: 1px;
+  background: #1d90eb;
+  pointer-events: none;
 }
 
 .heroHint {

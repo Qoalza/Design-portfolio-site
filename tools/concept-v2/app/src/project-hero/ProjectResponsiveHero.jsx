@@ -35,6 +35,7 @@ const ADAPTIVE_LAYOUTS = [
   { id: "desktop", label: "Desktop", value: "1280x1599", segmentWidth: 188, icon: "size-desktop" },
   { id: "max", label: "max-width", value: "1600+", segmentWidth: 200, icon: "size-max" },
 ] ;
+const SCENARIO_TAB_GAP = 24;
 
 function ExactAsset({
   src,
@@ -144,6 +145,10 @@ export function ProjectResponsiveHero({definition}) {
     ? selectedPreset
     : getExactAdaptivePreset(geometry.displayWidth);
   const activeScene = definition.scenes.find(({ id }) => id === activeSceneId) ?? initialScene;
+  const activeSceneIndex = definition.scenes.findIndex(({ id }) => id === activeScene.id);
+  const activeLineLeft = definition.scenes
+    .slice(0, activeSceneIndex)
+    .reduce((offset, scene) => offset + scene.tabWidth + SCENARIO_TAB_GAP, 0);
   const hint = "Выберите сценарий и настройте ширину просмотра";
 
   function stopAnimations() {
@@ -302,7 +307,11 @@ export function ProjectResponsiveHero({definition}) {
           <span className={`${styles.topbarSide} ${styles.topbarSideLeft}`} aria-hidden="true">
             <ExactAsset src={`${assetRoot}/topbar-separation.svg`} width={1} height={52} />
           </span>
-          <div className={styles.scenarioTabs} aria-label="Сценарии проекта">
+          <div
+            className={styles.scenarioTabs}
+            aria-label="Сценарии проекта"
+            style={{gap: SCENARIO_TAB_GAP, '--v2-scenario-active-line-opacity': 0}}
+          >
             {definition.scenes.map((scene) => {
               const active = scene.id === activeScene.id;
               return (
@@ -316,6 +325,13 @@ export function ProjectResponsiveHero({definition}) {
                 />
               );
             })}
+            <motion.span
+              className={styles.scenarioActiveLine}
+              aria-hidden="true"
+              initial={false}
+              animate={{left: activeLineLeft, width: activeScene.tabWidth}}
+              transition={prefersReducedMotion ? {duration: 0} : {type: 'tween', duration: .35, ease: [.65, 0, .35, 1]}}
+            />
           </div>
           <p className={styles.heroHint}>{hint}</p>
           <span className={`${styles.topbarSide} ${styles.topbarSideRight}`} aria-hidden="true">
