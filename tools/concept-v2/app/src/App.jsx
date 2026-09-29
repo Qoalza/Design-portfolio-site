@@ -217,7 +217,7 @@ function Process(){
   <div className="steps">{steps.map((step,index)=><ProcessStep key={step.title} step={step} index={index}/>)}</div>
  </section>;
 }
-function AISide(){return <div className="ai-side" aria-hidden="true"><div className="ai-side-upper"><img src="/figma/ai-hatch-top.svg" alt=""/></div><div className="ai-side-lower"><img src="/figma/ai-hatch-bottom.svg" alt=""/></div></div>}
+function AISide(){return <div className="ai-side" aria-hidden="true"><div className="ai-side-upper"/><div className="ai-side-lower"/></div>}
 function AISection(){
  return <section className="ai-section" aria-labelledby="ai-title"><AISide/><div className="ai-panel"><div className="ai-main"><SectionTitle className="ai-title" id="ai-title" eyebrow="ИНСТРУМЕНТЫ" title="AI в рабочем процессе"><p>Использую AI, как рабочий инструмент, для ускорения исследований, прототипирования, проверки решений/гипотез и разработки.</p></SectionTitle><p className="tech-note">// итоговые решения всегда остаются за мной</p></div><div className="ai-banner"><img src="/figma/ai-codex-icon.svg" width="28" height="28" alt=""/><p>Данный сайт был разработан с 0 в codex, а дизайн в Figma. Без шаблонов.</p></div></div><AISide/></section>;
 }

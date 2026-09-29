@@ -47,18 +47,21 @@ test('AI desktop panel is the current 1280 by 335 Figma strip',async()=>{
  assert.match(css,/\.ai-banner img\{[^}]*width:28px[^}]*height:28px/);
 });
 
-test('AI side fields use their exact Figma vector layers without synthetic borders',async()=>{
+test('AI side fields keep the source colors and fixed-width hatching without image stretch',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
  const top=await readFile(path.join(appRoot,'public/figma/ai-hatch-top.svg'));
  const bottom=await readFile(path.join(appRoot,'public/figma/ai-hatch-bottom.svg'));
- assert.match(app,/ai-hatch-top\.svg/);
- assert.match(app,/ai-hatch-bottom\.svg/);
+ assert.match(app,/className="ai-side-upper"/);
+ assert.match(app,/className="ai-side-lower"/);
  assert.equal(createHash('sha256').update(top).digest('hex'),'a279263ea3356ca6106b57e934608ec88349e1b693c6740c114447fbb2c94144');
  assert.equal(createHash('sha256').update(bottom).digest('hex'),'939c626ff9b3179d5e34ca1f5ed57bba54d012215a2343172149e0b1d695bd0d');
  assert.match(css,/\.ai-side-upper\{[^}]*flex:1 0 0/);
  assert.match(css,/\.ai-side-lower\{[^}]*height:94px/);
- assert.match(css,/\.ai-side img\{[^}]*width:100%;[^}]*height:100%;[^}]*max-width:none/);
+ assert.match(css,/\.ai-side-upper\{[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 12\.8px\)/);
+ assert.match(css,/\.ai-side-lower\{[^}]*background:repeating-linear-gradient\(126\.826deg,#00345e 0 1px,transparent 1px 12\.8px\)/);
+ assert.match(css,/\.ai-side-lower::before,\.ai-side-lower::after\{[^}]*#004d8a 0 14\.7px,transparent 14\.7px 29\.4px/);
+ assert.doesNotMatch(css,/\.ai-side img\{[^}]*width:100%/);
  assert.doesNotMatch(css,/\.ai-side::(?:before|after)/);
 });
 

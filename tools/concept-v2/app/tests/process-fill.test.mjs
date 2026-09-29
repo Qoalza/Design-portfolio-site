@@ -71,7 +71,8 @@ test('desktop Process uses one upper divider and decorative hatches use the Figm
  assert.match(css,/\.steps\{[^}]*background:var\(--border\)[^}]*border-top:0[^}]*border-bottom:0/);
  assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
  assert.match(css,/\.ai-side-lower\{[^}]*height:94px/);
- assert.match(css,/\.ai-side img\{[^}]*width:100%;[^}]*height:100%;[^}]*max-width:none/);
+ assert.match(css,/\.ai-side-upper\{[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 12\.8px\)/);
+ assert.match(css,/\.ai-side-lower\{[^}]*background:repeating-linear-gradient\(126\.826deg,#00345e 0 1px,transparent 1px 12\.8px\)/);
  assert.match(css,/\.about-hatch\{background:repeating-linear-gradient\(126\.826deg,var\(--cv2-decoration-hatch\) 0 1px,transparent 1px 15px\)\}/);
  assert.match(css,/\.about-dash-horizontal::before\{background:repeating-linear-gradient\(to right,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)\}/);
  assert.match(css,/\.about-divider\{background:repeating-linear-gradient\(to bottom,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)\}/);
