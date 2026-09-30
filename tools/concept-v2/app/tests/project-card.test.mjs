@@ -44,8 +44,8 @@ test('project cards map the current Figma configurations and states',async()=>{
   assert.match(responsive,/@media\(max-width:1279px\)[\s\S]*?\.project\{[^}]*height:auto/);
   assert.match(responsive,/@media\(max-width:1279px\)[\s\S]*?\.project-main\{[^}]*height:auto;min-height:284px/);
   assert.match(css,/transition:[^}]*150ms ease-in/);
-  assert.match(css,/\.projects-section:not\(\[data-scroll-active\]\) \.project:hover/);
-  assert.match(css,/\.projects-section\[data-scroll-active\] \.project:hover [^{]+\{transition:none\}/);
+  assert.match(css,/\.project:hover \.project-front-layer/);
+  assert.doesNotMatch(css,/\.projects-section\[data-scroll-active\]/);
   assert.match(css,/\.project-back\{[^}]*box-shadow:0 4px 50px -10px rgba\(163,213,253,.5\)/);
   assert.match(css,/\.project-front\{[^}]*box-shadow:0 4px 100px -20px rgba\(29,30,31,.4\)/);
   assert.match(css,/\.project-back,\.project-front,\.project p\{transition:none\}/);

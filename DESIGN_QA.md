@@ -57,6 +57,15 @@
   at `1574×1506px`; its 21 focused tests and lint passed. User visual
   acceptance remains open.
 
+## READY_FOR_REVIEW — Concept V2 project card hover during scroll
+
+- User requested continuous pointer response regardless of scrolling. The
+  projects-only scroll gate and its transition override are removed; both
+  project cards retain their existing 150 ms hover motion and focus behavior.
+- Browser check: Corvo and Сараффан.Радио remained hovered with active
+  transitions while wheel scrolling moved the page. `161/161` tests and lint
+  passed; user visual acceptance remains open.
+
 ## READY_FOR_REVIEW — Concept V2 main page and Library V2 refresh
 
 - Source: Main `3960:274722`, Projects/Process `3960:274725`, AI

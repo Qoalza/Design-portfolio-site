@@ -28,35 +28,3 @@ export function subscribeScrollActivity(subscriber){
   subscriber(scrollActive);
   return()=>scrollActivitySubscribers.delete(subscriber);
 }
-
-export function bindScrollHoverGate(element,pointerTarget=window){
-  let scrolling=false;
-  let waitingForPointer=false;
-  const block=()=>{element.dataset.scrollActive='true'};
-  const release=()=>{delete element.dataset.scrollActive};
-  const onPointerMove=()=>{
-    pointerTarget.removeEventListener('pointermove',onPointerMove);
-    if(scrolling)return;
-    waitingForPointer=false;
-    release();
-  };
-  const unsubscribe=subscribeScrollActivity(active=>{
-    scrolling=active;
-    pointerTarget.removeEventListener('pointermove',onPointerMove);
-    if(active){
-      waitingForPointer=true;
-      block();
-      return;
-    }
-    if(waitingForPointer){
-      pointerTarget.addEventListener('pointermove',onPointerMove,{passive:true,once:true});
-      return;
-    }
-    release();
-  });
-  return()=>{
-    unsubscribe();
-    pointerTarget.removeEventListener('pointermove',onPointerMove);
-    release();
-  };
-}
