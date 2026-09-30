@@ -109,20 +109,28 @@ test('rapid retargets stay inside the embedded stage for every 120fps frame',()=
  }
 });
 
-test('about structure maps the complete Figma block with native patterns and component controls',async()=>{
+test('About uses the revised 968px desktop composition while preserving card controls',async()=>{
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
  assert.match(app,/import \{About\} from '.\/About'/);
  assert.match(app,/<About\/>/);
- assert.match(about,/data-figma-node="3214:124474"/);
- assert.match(about,/data-figma-node="3215:124481"/);
+ assert.match(about,/data-figma-node="4150:809024"/);
+ assert.match(about,/data-figma-node="4150:809027"/);
  assert.match(about,/ControlButton/);
  assert.match(about,/Это я ездил с Урала на Юг\.<br\/>Проехал 2500км за 3 дня\./);
  assert.match(about,/Это мои сладкие дети,<br\/>Тима и Алиса :3/);
- assert.match(css,/\.about-pattern\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
- assert.doesNotMatch(css,/\.about-pattern\{[^}]*radial-gradient/);
- assert.match(css,/\.about-dash-horizontal/);
+ assert.doesNotMatch(about,/about-(hatch|pattern|divider|dash-horizontal|dash-vertical|tech-note)/);
+ assert.doesNotMatch(css,/\.about-(hatch|pattern|divider|dash-horizontal|dash-vertical)/);
+ assert.match(css,/\.about-section\{[^}]*min-height:968px/);
+ assert.match(css,/\.about-heading-shell\{[^}]*height:288px/);
+ assert.match(css,/\.about-heading\{[^}]*width:1280px[^}]*height:288px[^}]*padding:120px 8px 56px/);
+ assert.match(css,/\.about-content\{[^}]*width:1280px[^}]*height:600px[^}]*grid-template-columns:684px 596px/);
+ assert.match(css,/\.about-copy\{[^}]*height:600px[^}]*padding:0 56px 48px 8px/);
+ assert.match(css,/\.about-carousel\{[^}]*height:600px/);
+ assert.match(css,/\.about-carousel-heading\{[^}]*top:0/);
+ assert.match(css,/\.about-deck\{[^}]*top:72px/);
+ assert.match(css,/\.about-carousel-controls\{[^}]*bottom:24px/);
  assert.match(css,/\.about-card-content\{[^}]*width:320px[^}]*height:420px/);
  assert.match(css,/\.about-card-frame\{[^}]*overflow:hidden/);
  assert.match(css,/\.about-card-image\{[^}]*object-fit:cover/);
@@ -164,11 +172,10 @@ test('card treatment keeps the sharp border outside geometry and viewer uses one
 test('About adopts the current palette without changing deck or viewer mechanics',async()=>{
  const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
- assert.match(css,/\.about-heading\{[^}]*border-inline:1px solid var\(--cv2-border-neutral-surface\)/);
  assert.match(css,/\.about-heading-shell\{[^}]*background:var\(--cv2-container-neutral-bg-main\)/);
  assert.match(css,/\.about-heading h2\{[^}]*font:500 36px\/48px "Google Sans"[^}]*color:var\(--cv2-text-neutral-primary\)/);
  assert.match(css,/\.about-heading-copy>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
- assert.match(css,/\.about-copy\{[^}]*background:var\(--cv2-container-neutral-bg-main\)[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
+ assert.match(css,/\.about-copy\{[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
  assert.match(css,/\.about-viewer-content p\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
  assert.match(about,/aboutTransitionFrames/);
  assert.match(about,/interpolateDeckFrames/);
