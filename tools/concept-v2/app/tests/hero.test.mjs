@@ -34,8 +34,12 @@ test('Hero preserves the two authored component structures and the accepted map 
 test('Hero lower field uses a native dot treatment over the exact Bg-main surface',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
  const waveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask.svg'),'utf8');
  assert.match(app,/29 лет · Екатеринбург · Middle\+ \/ Senior/);
+ assert.match(app,/hero-fact-chip-mobile[^>]*>29 лет · Екатеринбург · Senior/);
+ assert.match(css,/\.hero-fact-chip-mobile\{display:none\}/);
+ assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.hero-fact-chip-desktop\{display:none\}[\s\S]*?\.hero-fact-chip-mobile\{display:inline\}/);
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);

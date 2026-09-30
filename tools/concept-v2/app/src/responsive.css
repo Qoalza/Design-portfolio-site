@@ -170,10 +170,15 @@
 }
 
 @media(max-width:599px){
- .ai-main{padding:32px 24px}
+ .ai-mobile-main .ai-main{padding:32px 24px}
  .ai-banner{align-items:flex-start;height:auto;padding:24px;gap:16px}
  .ai-banner p{white-space:normal}
  .ai-main .tech-note{font-size:14px;line-height:22px}
+}
+
+@media(max-width:1279px){
+ .hero-fact-chip-desktop{display:none}
+ .hero-fact-chip-mobile{display:inline}
 }
 
 @media(pointer:coarse){

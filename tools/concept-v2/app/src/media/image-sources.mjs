@@ -11,5 +11,5 @@ const projectAvif=fallback=>[{type:'image/avif',srcSet:`${fallback.replace('.png
 
 export const projectBackImage={fallback:'/figma/imgDesktop3.png',sources:projectAvif('/figma/imgDesktop3.png')};
 export const projectFrontImage={fallback:'/figma/imgDesktop4.png',sources:projectAvif('/figma/imgDesktop4.png')};
-export const sarafanBackImage={fallback:'/figma/sarafan-desktop-3.png',sources:projectAvif('/figma/sarafan-desktop-3.png')};
-export const sarafanFrontImage={fallback:'/figma/sarafan-desktop-4.png',sources:projectAvif('/figma/sarafan-desktop-4.png')};
+export const sarafanBackImage={fallback:'/figma/sarafan-desktop-3.png',sources:[]};
+export const sarafanFrontImage={fallback:'/figma/sarafan-desktop-4.png',sources:[]};

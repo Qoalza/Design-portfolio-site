@@ -77,6 +77,8 @@ test('desktop Process gives every card its own outlined surface and preserves ex
  assert.match(css,/\.step-grid\{[^}]*background-image:linear-gradient\(to right,rgba\(39,45,48,\.5\) 0 1px,transparent 1px 36px\),linear-gradient\(to bottom,rgba\(39,45,48,\.5\) 0 1px,transparent 1px 36px\)[^}]*background-position:-1px -1px,-1px -1px/);
  assert.match(css,/\.step-grid::after\{[^}]*inset:-1px 0 0 -1px[^}]*background:url\('\/figma\/process-grid-fade\.svg'\) center\/100% 100% no-repeat/);
  assert.doesNotMatch(css,/\.step::after\{/);
+ assert.doesNotMatch(css,/\.step>\*\{position:relative;z-index:1\}/);
+ assert.match(css,/\.step-top,\.step-text\{position:relative;z-index:1\}/);
  assert.match(fade,/gradientTransform="matrix\(19\.012 17\.858 -19\.624 17\.183 -28\.866 -28\.355\)"/);
  assert.match(app,/className="step-grid" aria-hidden="true"/);
  assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);

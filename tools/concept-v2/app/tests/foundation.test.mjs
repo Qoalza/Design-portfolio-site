@@ -67,6 +67,7 @@ test('AI keeps the desktop hatches and leaves the existing mobile panel intact',
  assert.match(css,/\.ai-desktop-side\{[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 15px\)/);
  assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.ai-desktop-panel,\.ai-desktop-side\{display:none\}/);
  assert.match(responsive,/\.ai-mobile-panel\{display:block/);
+ assert.match(responsive,/@media\(max-width:599px\)\{[\s\S]*?\.ai-mobile-main \.ai-main\{padding:32px 24px\}/);
 });
 
 test('AI static code panel retains source copy and has no active controls or clock',async()=>{

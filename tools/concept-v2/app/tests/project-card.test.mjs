@@ -34,9 +34,12 @@ test('project cards map the current Figma configurations and states',async()=>{
   assert.match(css,/\.project-main\{overflow:hidden\}/);
   assert.match(css,/\.project-glow\{z-index:0\}/);
   assert.match(css,/\.project-divider\{z-index:6;left:-1px;right:-1px;top:-2px;bottom:auto;height:1px\}/);
-  assert.match(css,/\.project-back-layer\{z-index:2;left:calc\(50% \+ 79\.05px\);bottom:43\.27px\}/);
-  assert.match(css,/\.project-shade\{z-index:3;inset:0 0 -1px 0;width:auto;height:auto;transform:none;border-radius:11px 11px 0 0;background:url\('\/figma\/project-shade-preview\.svg'\) center\/100% 100% no-repeat\}/);
-  assert.match(css,/\.project-front-layer\{z-index:4;left:calc\(50% - 19\.5px\);bottom:19\.9px\}/);
+  assert.match(css,/\.project-back-layer\{z-index:2\}/);
+  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-back-layer\{left:calc\(50% \+ 79\.05px\);bottom:43\.27px\}/);
+  assert.match(css,/\.project-shade\{z-index:3;left:50%;top:1px;width:638px;height:328px/);
+  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-shade\{inset:0 0 -1px 0;width:auto;height:auto;transform:none;border-radius:11px 11px 0 0;background:url\('\/figma\/project-shade-preview\.svg'\) center\/100% 100% no-repeat\}/);
+  assert.match(css,/\.project-front-layer\{z-index:4\}/);
+  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-front-layer\{left:calc\(50% - 19\.5px\);bottom:19\.9px\}/);
   assert.match(css,/\.project-glow\{[^}]*#181c1f 69\.36%/);
   assert.doesNotMatch(css,/\.project-shade\{[^}]*height:417px/);
   assert.match(css,/\.project-preview\{[^}]*border:1px solid var\(--border\)[^}]*border-radius:12px 12px 0 0/);
@@ -77,14 +80,19 @@ test('Projects publication note follows the user-approved homepage copy',async()
  assert.doesNotMatch(shade,/stop-color="#1D1E1F"/);
 });
 
-test('project previews select Retina-safe AVIF sources and retain the PNG fallback',async()=>{
+test('project previews use verified image sources and retain the PNG fallback',async()=>{
  const {projectBackImage,projectFrontImage,sarafanBackImage,sarafanFrontImage}=await import('../src/media/image-sources.mjs');
- for(const source of [projectBackImage,projectFrontImage,sarafanBackImage,sarafanFrontImage]){
+ for(const source of [projectBackImage,projectFrontImage]){
   assert.match(source.fallback,/\.png$/);
   assert.deepEqual(source.sources,[{type:'image/avif',srcSet:source.fallback.replace(/\.png$/,'-640.avif')+' 640w, '+source.fallback.replace(/\.png$/,'-1080.avif')+' 1080w'}]);
   for(const candidate of source.sources){
    for(const entry of candidate.srcSet.split(', '))await access(path.join(root,'public',entry.split(' ')[0]));
   }
+ }
+ for(const source of [sarafanBackImage,sarafanFrontImage]){
+  assert.match(source.fallback,/sarafan-desktop-[34]\.png$/);
+  assert.deepEqual(source.sources,[]);
+  await access(path.join(root,'public',source.fallback));
  }
 });
 
