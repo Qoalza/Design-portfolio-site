@@ -107,6 +107,21 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(definition,/tabWidth:119/);
 });
 
+test('Corvo Hero owns the Figma workspace grid without a second preview grid',async()=>{
+ const [heroCss,previewCss]=await Promise.all([
+  read('src/project-hero/ProjectResponsiveHero.module.css'),
+  read('src/project-hero/ResponsiveHeroPreview.module.css')
+ ]);
+ assert.match(heroCss,/\.heroWorkspace\s*\{[\s\S]*?position:\s*relative/);
+ assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?opacity:\s*\.6/);
+ assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?background-size:\s*320px 320px,\s*320px 320px,\s*20px 20px,\s*20px 20px/);
+ assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?background-position:\s*-80px 0,\s*-80px 0,\s*0 0,\s*0 0/);
+ assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?#191e21[\s\S]*?#16191c/);
+ assert.match(heroCss,/\.workspaceContent\s*\{[\s\S]*?z-index:\s*1/);
+ assert.doesNotMatch(previewCss,/background-image/);
+ assert.doesNotMatch(previewCss,/background-size/);
+});
+
 test('scenario tabs select ready Corvo scenes while adaptive tabs retain preset controls',async()=>{
  const [component,tabCss,heroCss]=await Promise.all([
   read('src/project-hero/ProjectResponsiveHero.jsx'),
