@@ -54,11 +54,12 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 /* Exact desktop geometry from the current Concept V2 component tree. */
 .projects-status{margin:0;color:var(--cv2-text-neutral-muted);font:400 16px/20px "Source Code Pro",monospace;letter-spacing:-.6px}
 @media(min-width:1280px){
- .projects-section{height:auto;min-height:1173px;padding:120px 0 80px;gap:80px;overflow:visible}
- .projects-heading{height:136px;padding:0 56px;flex-direction:row;gap:24px;align-items:flex-end}
+ .projects-section{height:auto;min-height:1216px;padding:120px 0 80px;gap:80px;overflow:visible}
+ .body-container{border-inline:0}
+ .projects-heading{height:136px;padding:0 8px;flex-direction:row;gap:24px;align-items:flex-end}
  .projects-heading .section-title{width:496px;flex:0 0 496px}
  .projects-heading>.projects-status{margin-left:auto}
- .projects-grid{height:757px;padding-top:96px;background:transparent;overflow:visible}
+ .projects-grid{height:800px;align-items:end;gap:16px;background:transparent;overflow:visible}
 }
 
 .experience-path.line-128{left:192px}
@@ -85,32 +86,32 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .project-glow{z-index:0}
 .project-divider{z-index:1}
 .project-back-layer{z-index:2}
-.project-shade{z-index:3;left:50%;top:1px;width:638px;height:328px;inset:1px auto auto 50%;transform:translateX(-50%);background:radial-gradient(ellipse 46.227% 89.917% at 88.636% .762%,rgba(24,28,31,0) 10.3446%,#181c1f 97.2643%)}
+.project-shade{z-index:3;left:50%;top:1px;width:632px;height:260px;inset:1px auto auto 50%;transform:translateX(-50%);background:radial-gradient(ellipse 46.227% 89.917% at 88.636% .762%,rgba(24,28,31,0) 10.3446%,#181c1f 97.2643%)}
 .project-front-layer{z-index:4}
-.project{height:661px}
-.project-main{height:332px}
+.project{height:592px}
+.project-preview{height:260px;border:1px solid var(--border);border-bottom:0;border-radius:12px 12px 0 0}
+.project-main{height:332px;padding:24px 40px 40px;border:1px solid var(--border);border-top:0;border-radius:0 0 12px 12px}
 .project-categories{display:flex;align-items:center;gap:12px;width:100%;padding-left:4px;font:400 14px/16px "Source Code Pro",monospace;letter-spacing:-.5px;color:var(--cv2-text-neutral-muted);font-feature-settings:"ss02" 1,"cv01" 1,"cv12" 1,"cv14" 1,"cv17" 1}
 .project-category{display:inline-flex;align-items:center;gap:12px}
 .project-categories img{display:block;width:4px;height:4px;flex:0 0 4px}
 .project-content{height:212px;width:100%;display:flex;flex-direction:column;gap:32px;flex:0 0 212px}
 .project-content .project-info{min-height:0;flex:1 0 0;padding-left:4px}
-.project-tag{position:absolute;z-index:5;left:56px;bottom:24px;display:flex;align-items:flex-start;gap:8px;overflow:hidden;padding:8px 12px 8px 8px;border:1px solid #ffedbc;border-radius:8px;background:#ffc31f;box-shadow:0 5px 20px -10px rgba(255,227,150,.55),0 2px 40px -10px rgba(197,144,0,.97);color:#302300;font:400 14px/16px Onest,sans-serif;letter-spacing:-.1px;white-space:nowrap}
+.project-tag{position:absolute;z-index:5;left:55px;bottom:23px;display:flex;align-items:flex-start;gap:8px;overflow:hidden;padding:8px 12px 8px 8px;border:1px solid #ffedbc;border-radius:8px;background:#ffc31f;box-shadow:0 5px 20px -10px rgba(255,227,150,.55),0 2px 40px -10px rgba(197,144,0,.97);color:#302300;font:400 14px/16px Onest,sans-serif;letter-spacing:-.1px;white-space:nowrap}
 .project-tag-icon{width:16px;height:16px;flex:0 0 16px;background:#825f00;-webkit-mask:url('/figma/sarafan-tag-flag.svg') center/16px 16px no-repeat;mask:url('/figma/sarafan-tag-flag.svg') center/16px 16px no-repeat}
 .radio-symbol{position:relative;display:inline-block;width:28px;height:28px;flex:0 0 28px;overflow:hidden}
 .radio-symbol>span{position:absolute}.radio-symbol img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill}.radio-logo-a{inset:30.84% 47.43% 30.86% -.13%}.radio-logo-b{inset:16.52% 68.22% 16.52% 16.14%}.radio-logo-c{inset:30.84% .21% 30.86% 47.09%}.radio-logo-d{inset:16.52% 16.48% 16.52% 67.88%}
 .project-actions-static{cursor:default}.project-actions-static .control{cursor:pointer}.project-static-figma-icon{display:block;width:16px;height:16px;flex:0 0 16px;background:var(--cv2-text-neutral-tertiary);-webkit-mask:url('/figma/sarafan-figma.svg') center/16px 16px no-repeat;mask:url('/figma/sarafan-figma.svg') center/16px 16px no-repeat}
-.projects-grid{position:relative}
-.projects-grid::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);z-index:8;pointer-events:none}
-@media(min-width:1280px){.projects-grid::after{top:96px}}
-
-/* Process section: exact desktop geometry from Concept V2 node 3075:60247. */
+/* Process section: current desktop card geometry. */
 @media(min-width:1280px){
  .process-section{padding-top:48px;gap:80px}
- .process-heading{height:136px;padding-inline:56px;align-items:flex-end;gap:24px}
+ .process-heading{height:136px;padding-inline:8px;align-items:flex-end;gap:24px}
  .process-heading .section-title{width:622px;max-width:none;flex:0 0 622px}
- .steps{grid-template-columns:minmax(365px,415fr) minmax(446px,446fr) minmax(383px,415fr);gap:1px;background:var(--border);border-top:0;border-bottom:0}
- .step{min-width:0;height:364px;padding:56px;gap:48px;background:var(--page)}
+ .steps{grid-template-columns:minmax(0,401fr) minmax(0,446fr) minmax(0,401fr);gap:16px;background:transparent;border:0}
+ .step{min-width:0;height:301px;padding:36px;gap:48px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden}
  .step+.step::before{display:none}
+ .step::after{content:"";position:absolute;z-index:0;left:0;top:0;width:214px;height:194px;border-radius:12px 0 0 0;opacity:.5;pointer-events:none;background-image:radial-gradient(ellipse 125% 115% at 0 0,transparent 30%,var(--surface) 100%),linear-gradient(to right,#272d30 0 1px,transparent 1px 36px),linear-gradient(to bottom,#272d30 0 1px,transparent 1px 36px);background-size:100% 100%,36px 36px,36px 36px;background-position:0 0,-1px -1px,-1px -1px}
+ .step>*{position:relative;z-index:1}
+ .step-divider{left:12px;right:12px}
  .step-top{height:64px;display:flex;align-items:flex-start;justify-content:space-between;gap:40px}
  .step-number{height:57px;align-items:center;justify-content:center;gap:12px;align-self:flex-start}
  .step-number span{font:400 36px/40px "Source Code Pro",monospace;letter-spacing:-.5px;color:var(--cv2-text-neutral-muted)}

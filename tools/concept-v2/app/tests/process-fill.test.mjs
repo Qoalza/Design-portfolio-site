@@ -65,16 +65,12 @@ test('Process keeps its approved 300ms motion while using the current text and b
   assert.match(css,/\.step-divider::after\{[^}]*transition:transform 300ms ease-in/);
 });
 
-test('desktop Process uses one upper divider and decorative hatches use the Figma stroke',async()=>{
+test('desktop Process gives every card its own outlined surface and preserves existing motion',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  assert.match(css,/:root\{--cv2-decoration-hatch:#1d2124\}/);
- assert.match(css,/\.steps\{[^}]*background:var\(--border\)[^}]*border-top:0[^}]*border-bottom:0/);
+ assert.match(css,/\.steps\{[^}]*grid-template-columns:minmax\(0,401fr\) minmax\(0,446fr\) minmax\(0,401fr\)[^}]*gap:16px[^}]*background:transparent[^}]*border:0/);
+ assert.match(css,/\.step\{[^}]*height:301px[^}]*padding:36px[^}]*border:1px solid var\(--border\)[^}]*border-radius:12px[^}]*background:var\(--surface\)/);
+ assert.match(css,/\.step::after\{[^}]*width:214px[^}]*height:194px[^}]*opacity:\.5/);
  assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
- assert.match(css,/\.ai-side-lower\{[^}]*height:94px/);
- assert.match(css,/\.ai-side-upper\{[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 12\.8px\)/);
- assert.match(css,/\.ai-side-lower\{[^}]*background:repeating-linear-gradient\(126\.826deg,#00345e 0 1px,transparent 1px 12\.8px\)/);
- assert.match(css,/\.about-hatch\{background:repeating-linear-gradient\(126\.826deg,var\(--cv2-decoration-hatch\) 0 1px,transparent 1px 15px\)\}/);
- assert.match(css,/\.about-dash-horizontal::before\{background:repeating-linear-gradient\(to right,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)\}/);
- assert.match(css,/\.about-divider\{background:repeating-linear-gradient\(to bottom,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)\}/);
- assert.match(css,/\.experience-pattern-grid::before,\.experience-pattern-grid::after\{background:repeating-linear-gradient\(to bottom,var\(--cv2-decoration-hatch\) 0 16px,transparent 16px 32px\)\}/);
+ assert.match(css,/\.step-divider\{left:12px;right:12px\}/);
 });
