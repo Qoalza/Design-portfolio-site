@@ -158,10 +158,11 @@
 
 @media(max-width:1279px){
  .ai-section{display:block;height:auto;min-height:0;margin:0;background:var(--surface)}
- .ai-side{display:none}
- .ai-panel{width:100%;height:auto;min-height:0;display:block}
- .ai-main{height:auto;min-height:241px;padding:40px 32px}
- .ai-banner{height:auto;min-height:94px;padding:32px}
+ .ai-desktop-panel,.ai-desktop-side{display:none}
+ .ai-mobile-panel{display:block;width:100%;height:auto;min-height:0}
+ .ai-mobile-main{height:auto;min-height:0;display:flex;flex-direction:column;background:var(--cv2-container-neutral-thin)}
+ .ai-mobile-main .ai-main{width:748px;max-width:100%;height:auto;min-height:241px;padding:40px 32px;border:1px solid var(--cv2-border-neutral-surface);border-bottom:0;display:flex;flex-direction:column;gap:20px}.ai-mobile-main .ai-main .section-title{width:748px;max-width:100%;gap:12px}.ai-mobile-main .ai-main .tech-note{padding:0;color:var(--cv2-text-neutral-muted)}
+ .ai-banner{height:auto;min-height:94px;padding:32px;border:1px solid #0462af;background:rgba(3,120,214,.35);display:flex;align-items:center;gap:24px}.ai-banner img{width:28px;height:28px;flex:0 0 28px}.ai-banner p{margin:0;font:400 16px/20px "Source Code Pro",monospace;letter-spacing:-.6px;color:var(--cv2-text-neutral-secondary);font-feature-settings:"ss02" 1,"cv01" 1,"cv12" 1,"cv14" 1,"cv17" 1,"zero" 1,"calt" 0;white-space:nowrap}
 }
 
 @media(max-width:760px){

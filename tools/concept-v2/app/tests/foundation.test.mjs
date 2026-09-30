@@ -38,43 +38,49 @@ test('Library V2 foundation is isolated under its own namespace',async()=>{
   assert.doesNotMatch(controls,/className={`control /);
 });
 
-test('AI desktop panel is the current 1280 by 335 Figma strip',async()=>{
- const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
- assert.match(css,/\.ai-section\{[^}]*height:335px/);
- assert.match(css,/\.ai-panel\{[^}]*width:min\(1280px,100%\)[^}]*height:335px/);
- assert.match(css,/\.ai-main\{[^}]*height:241px[^}]*padding:40px 56px[^}]*gap:20px/);
- assert.match(css,/\.ai-banner\{[^}]*height:94px[^}]*padding:32px 56px[^}]*border:1px solid #0462af[^}]*background:rgba\(3,120,214,\.35\)/);
- assert.match(css,/\.ai-banner img\{[^}]*width:28px[^}]*height:28px/);
-});
-
-test('AI side fields keep the source colors and fixed-width hatching without image stretch',async()=>{
+test('AI desktop panel is the static two-column 1280 by 283 Figma composition',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
- const top=await readFile(path.join(appRoot,'public/figma/ai-hatch-top.svg'));
- const bottom=await readFile(path.join(appRoot,'public/figma/ai-hatch-bottom.svg'));
- assert.match(app,/className="ai-side-upper"/);
- assert.match(app,/className="ai-side-lower"/);
- assert.equal(createHash('sha256').update(top).digest('hex'),'a279263ea3356ca6106b57e934608ec88349e1b693c6740c114447fbb2c94144');
- assert.equal(createHash('sha256').update(bottom).digest('hex'),'939c626ff9b3179d5e34ca1f5ed57bba54d012215a2343172149e0b1d695bd0d');
- assert.match(css,/\.ai-side-upper\{[^}]*flex:1 0 0/);
- assert.match(css,/\.ai-side-lower\{[^}]*height:94px/);
- assert.match(css,/\.ai-side-upper\{[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 12\.8px\)/);
- assert.match(css,/\.ai-side-lower\{[^}]*background:repeating-linear-gradient\(126\.826deg,#00345e 0 1px,transparent 1px 12\.8px\)/);
- assert.match(css,/\.ai-side-lower::before,\.ai-side-lower::after\{[^}]*#004d8a 0 14\.7px,transparent 14\.7px 29\.4px/);
- assert.doesNotMatch(css,/\.ai-side img\{[^}]*width:100%/);
- assert.doesNotMatch(css,/\.ai-side::(?:before|after)/);
+ assert.match(app,/className="ai-desktop-panel"/);
+ assert.match(app,/className="ai-code-panel"/);
+ assert.match(app,/className="ai-static-code"/);
+ assert.doesNotMatch(app,/ai-code-action|className="ai-copy"|className="ai-view"/);
+ assert.match(css,/\.ai-section\{[^}]*height:363px[^}]*padding-top:80px/);
+ assert.match(css,/\.ai-desktop-panel\{[^}]*width:1280px[^}]*height:283px[^}]*grid-template-columns:640px 640px/);
+ assert.match(css,/\.ai-desktop-copy\{[^}]*height:283px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(css,/\.ai-copy-content\{[^}]*padding:32px 40px/);
+ assert.match(css,/\.ai-copy-banner\{[^}]*padding:24px 40px[^}]*border-top:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(css,/\.ai-code-panel\{[^}]*border:1px solid var\(--cv2-border-neutral-thin\)[^}]*border-left:0/);
+ assert.match(css,/\.ai-code-header\{[^}]*height:48px[^}]*padding:0 16px 0 32px/);
+ assert.match(css,/\.ai-code-body\{[^}]*padding:24px 32px[^}]*background:var\(--page\)/);
+ assert.match(css,/\.ai-code-body::after\{[^}]*height:142px/);
 });
 
-test('AI strip removes the former tools list and retains exact source copy and assets',async()=>{
+test('AI keeps the desktop hatches and leaves the existing mobile panel intact',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
+ const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
  const responsive=await readFile(path.join(appRoot,'src/responsive.css'),'utf8');
- assert.match(app,/className="ai-main"/);
- assert.match(app,/className="ai-banner"/);
+ const top=await readFile(path.join(appRoot,'public/figma/ai-hatch-top.svg'));
+ assert.match(app,/className="ai-desktop-side"/);
+ assert.match(app,/className="ai-mobile-panel"/);
+ assert.equal(createHash('sha256').update(top).digest('hex'),'a279263ea3356ca6106b57e934608ec88349e1b693c6740c114447fbb2c94144');
+ assert.match(css,/\.ai-desktop-side\{[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 15px\)/);
+ assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.ai-desktop-panel,\.ai-desktop-side\{display:none\}/);
+ assert.match(responsive,/\.ai-mobile-panel\{display:block/);
+});
+
+test('AI static code panel retains source copy and has no active controls or clock',async()=>{
+ const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
+ assert.match(app,/contentClass=desktop\?'ai-copy-content':'ai-main'/);
+ assert.match(app,/bannerClass=desktop\?'ai-copy-banner':'ai-banner'/);
  assert.match(app,/src="\/figma\/ai-codex-icon\.svg" width="28" height="28"/);
  assert.match(app,/Данный сайт был разработан с 0 в codex, а дизайн в Figma\. Без шаблонов\./);
+ assert.match(app,/HTML \+ JavaScript/);
+ assert.match(app,/className="code-tag"/);
+ assert.match(app,/className="code-keyword"/);
+ assert.doesNotMatch(app,/<time|setInterval\(/);
  assert.doesNotMatch(app,/ChatGPT|ai-other-chip|tools-list|className="tool"/);
- assert.doesNotMatch(responsive,/ai-tools|tools-list|\.tool(?:\{|\s)/);
- for(const asset of ['ai-hatch-top.svg','ai-hatch-bottom.svg','ai-codex-icon.svg'])await access(path.join(appRoot,'public/figma',asset));
+ for(const asset of ['ai-hatch-top.svg','ai-codex-icon.svg'])await access(path.join(appRoot,'public/figma',asset));
 });
 
 test('footer retains its Figma spacing and uses current semantic color roles',async()=>{
