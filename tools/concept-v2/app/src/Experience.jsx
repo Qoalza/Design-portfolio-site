@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {activeExperienceIndex,experienceCompletionTransition,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
+import {activeExperienceIndex,experienceCompletionTransition,experienceLayout,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
 import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
@@ -72,7 +72,7 @@ export function Experience({cv}){
     const paths=[...section.querySelectorAll('.experience-path-progress')];
     const styles=new Map();
     const stickyStyles=new Map();
-    const layoutStates={height:'',compact:null,patterns:null};
+    const layoutStates={height:'',compact:null};
     const states={progress:'',activeIndex:'',started:null,complete:null,reached:jobs.map(()=>null),segments:paths.map(()=>null)};
     const setStyle=(name,value)=>{if(styles.get(name)===value)return;styles.set(name,value);section.style.setProperty(name,value);};
     const setStickyStyle=(name,value)=>{if(stickyStyles.get(name)===value)return;stickyStyles.set(name,value);sticky.current.style.setProperty(name,value);};
@@ -95,7 +95,6 @@ export function Experience({cv}){
       const height=desktop?`${window.innerHeight+(completed?0:VERTICAL_TRAVEL)}px`:'auto';
       if(layoutStates.height!==height){layoutStates.height=height;section.style.height=height;}
       setStickyStyle('--experience-top-outer',`${layout.topOuter}px`);
-      setStickyStyle('--experience-bottom-outer',`${layout.bottomOuter}px`);
       setStickyStyle('--experience-center',`${layout.center}px`);
       setStickyStyle('--experience-free',`${layout.free}px`);
       setStickyStyle('--experience-heading-gap',`${layout.headingGap}px`);
@@ -104,8 +103,6 @@ export function Experience({cv}){
       setStickyStyle('--experience-bottom',`${layout.bottom}px`);
       setStickyStyle('--experience-scale',String(layout.scale));
       setStickyStyle('--experience-compact-offset',`${layout.compactOffset}px`);
-      const patterns=experiencePatternVisible(layout.bottomOuter);
-      if(layoutStates.patterns!==patterns){layoutStates.patterns=patterns;sticky.current.classList.toggle('has-pattern-fields',patterns);}
       if(layoutStates.compact!==layout.compact){layoutStates.compact=layout.compact;section.classList.toggle('is-compact',layout.compact);}
       layoutDirty=false;
       positionDirty=true;
@@ -255,11 +252,10 @@ export function Experience({cv}){
   return <section ref={root} className="experience" aria-labelledby="experience-title">
     <div ref={sticky} className="experience-sticky">
       <div className="experience-pattern pattern-top"><div className="experience-pattern-grid"/></div>
-      <div className="experience-center"><div className="experience-composition">
+      <div className="experience-center"><div className="experience-grid" aria-hidden="true"/><div className="experience-composition">
         <div className="experience-heading"><div><p className="eyebrow">ОПЫТ</p><h2 id="experience-title">Где я работал</h2><p>Большую часть опыта проработал продуктовым дизайнером</p></div><ControlButton className="experience-resume" variant="light" href={cv} external iconRight="file05">Резюме</ControlButton></div>
         <div className="experience-scroll"><div className="experience-window"><div className="experience-track">{paths.map((path,index)=><ExperiencePath key={path.className} path={path} index={index}/>)}{jobs.map(job=><ExperienceJob key={job.className} job={job}/>)}</div><div className="experience-fade experience-fade-left"/><div className="experience-fade experience-fade-right"/></div><div className="experience-progress"><span className="experience-progress-fill"/><span className="experience-progress-glow"/></div></div>
       </div></div>
-      <div className="experience-pattern pattern-bottom"><div className="experience-pattern-grid"/></div>
     </div>
   </section>;
 }

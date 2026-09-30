@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {activeExperienceIndex,EXPERIENCE_HEADER_RESERVE,EXPERIENCE_PATTERN_MIN_HEIGHT,experienceCompletionTransition,experienceLayout,experiencePatternVisible,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
+import {activeExperienceIndex,experienceCompletionTransition,experienceLayout,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
 import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
 test('experience height adaptation follows the contracted priority order',()=>{
-  assert.deepEqual(experienceLayout(1644),{outer:240,topOuter:240,bottomOuter:160,center:1244,free:169,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1600),{outer:240,topOuter:240,bottomOuter:160,center:1200,free:147,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1440),{outer:207,topOuter:207,bottomOuter:127,center:1106,free:100,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1280),{outer:127,topOuter:127,bottomOuter:47,center:1106,free:100,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1080),{outer:27,topOuter:27,bottomOuter:0,center:1053,free:73.5,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1644),{outer:240,topOuter:240,bottomOuter:0,center:1404,free:249,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1600),{outer:240,topOuter:240,bottomOuter:0,center:1360,free:227,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1440),{outer:240,topOuter:240,bottomOuter:0,center:1200,free:147,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1280),{outer:116,topOuter:116,bottomOuter:0,center:1164,free:129,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1080),{outer:0,topOuter:0,bottomOuter:0,center:1080,free:87,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
   assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:128});
   const compact=experienceLayout(720);
   assert.equal(compact.outer,0);
@@ -50,12 +50,6 @@ test('experience activation follows each node through the viewport center',()=>{
   assert.equal(experienceSegmentProgress(stops[2],2),0);
 });
 
-test('experience hides both pattern fields below the 48px visual threshold',()=>{
-  assert.equal(EXPERIENCE_PATTERN_MIN_HEIGHT,48);
-  assert.equal(experiencePatternVisible(47.999),false);
-  assert.equal(experiencePatternVisible(48),true);
-});
-
 test('Experience keeps one geometry when it enters the sticky range',()=>{
   assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:128});
 });
@@ -66,12 +60,10 @@ test('About photo viewer keeps the completed Experience geometry while body scro
   assert.match(readPhase,/if\(document\.body\.style\.position==='fixed'\)\{positionDirty=true;return \{documentLocked:true\};\}/);
 });
 
-test('large Experience reduces the exposed lower field instead of extending the scene',()=>{
+test('large Experience keeps its upper field while the lower field is removed',()=>{
   const layout=experienceLayout(1318);
-  assert.equal(EXPERIENCE_HEADER_RESERVE,80);
-  assert.equal(layout.topOuter,146);
-  assert.equal(layout.bottomOuter,66);
-  assert.equal(layout.topOuter-EXPERIENCE_HEADER_RESERVE,layout.bottomOuter);
+  assert.equal(layout.topOuter,154);
+  assert.equal(layout.bottomOuter,0);
   assert.equal(layout.topOuter+layout.center+layout.bottomOuter,1318);
 });
 
@@ -98,9 +90,9 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.doesNotMatch(css,/\.experience-pattern::before,\.experience-pattern::after/);
   assert.doesNotMatch(css,/experience-pattern-(?:top|bottom)\.png/);
   assert.match(source,/className="experience-pattern-grid"/);
+  assert.match(source,/className="experience-grid" aria-hidden="true"/);
+  assert.doesNotMatch(source,/pattern-bottom/);
   assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
-  assert.match(css,/\.experience-sticky:not\(\.has-pattern-fields\) \.experience-pattern\{visibility:hidden\}/);
-  assert.match(source,/const patterns=experiencePatternVisible\(layout\.bottomOuter\)/);
   assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*transform:translateX\(-50%\)/);
   assert.match(css,/\.experience-pattern-grid\{border-inline:0\}/);
   assert.match(css,/\.experience-pattern-grid::before,\.experience-pattern-grid::after\{[^}]*width:1px;[^}]*background:repeating-linear-gradient\(to bottom,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)/);
@@ -109,7 +101,6 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
   assert.doesNotMatch(css,/\.experience-pattern-grid\{[^}]*radial-gradient/);
   assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*border-bottom:1px solid var\(--cv2-border-neutral-surface\)/);
-  assert.match(css,/\.experience-pattern\.pattern-bottom\{[^}]*border-top:1px solid var\(--cv2-border-neutral-surface\)/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
   assert.match(source,/className="experience-fade experience-fade-right"/);
   assert.match(css,/\.experience-window\{width:min\(1280px,100%\)\}/);
@@ -127,14 +118,12 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/sectionTop=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
   assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
   assert.match(source,/const height=desktop\?`\$\{window\.innerHeight\+\(completed\?0:VERTICAL_TRAVEL\)\}px`:'auto'/);
-  assert.match(source,/const patterns=experiencePatternVisible\(layout\.bottomOuter\)/);
-  assert.match(source,/sticky\.current\.classList\.toggle\('has-pattern-fields',patterns\)/);
   assert.match(source,/section\.classList\.toggle\('is-compact',layout\.compact\)/);
   assert.match(source,/createExperienceEntryGate/);
   assert.match(source,/scrollTo\(sectionTop,\{immediate:true,force:true\}\)/);
   assert.match(source,/lenis\.stop\(\)/);
   assert.match(css,/\.experience-sticky\{position:sticky;top:0;height:100svh/);
-  assert.match(css,/grid-template-rows:var\(--experience-top-outer\) var\(--experience-center\) var\(--experience-bottom-outer\)/);
+  assert.match(css,/grid-template-rows:var\(--experience-top-outer\) var\(--experience-center\)/);
   assert.doesNotMatch(source,/is-header-offset|HEADER_RESERVE|experienceStickyHeaderOffset|experienceCompactPinnedSpacing/);
   assert.doesNotMatch(css,/\.experience\.is-header-offset|--experience-heading-offset/);
   assert.match(css,/\.experience\.is-compact \.experience-center\{align-items:flex-start\}/);
@@ -268,14 +257,12 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
   assert.equal(horizontalSpeedBlur(1800),.6);
 });
 
-test('desktop Experience keeps the dark Figma center while masks retain timeline edge fades',async()=>{
+test('desktop Experience uses the current 20px grid on 320px tiles while masks retain timeline edge fades',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
-  assert.match(css,/\.experience-center\{position:relative;background-color:var\(--cv2-container-neutral-faint\);background-image:linear-gradient\(to bottom,#191e21 0 2px,transparent 2px\)/);
-  assert.match(css,/\.experience-center::before\{content:"";position:absolute;inset:0 0 auto;height:2px;pointer-events:none;background-color:var\(--cv2-container-neutral-faint\);background-image:linear-gradient\(to right,#191e21 0 2px,transparent 2px\)/);
-  assert.match(css,/linear-gradient\(to right,#16191c 0 2px,transparent 2px\)/);
-  assert.match(css,/background-size:272px 272px,272px 272px,16px 16px,16px 16px/);
-  assert.match(css,/background-position:calc\(50% \+ 135px\) 0,calc\(50% \+ 135px\) 0,calc\(50% \+ 7px\) 0,calc\(50% \+ 7px\) 0/);
-  assert.doesNotMatch(css,/background-size:96px 96px/);
+  assert.match(css,/\.experience-center\{position:relative;background:var\(--cv2-container-neutral-faint\)\}/);
+  assert.match(css,/\.experience-grid\{[^}]*opacity:\.6[^}]*background-image:linear-gradient\(to right,#191e21 0 1px,transparent 1px 320px\),linear-gradient\(to bottom,#191e21 0 1px,transparent 1px 320px\),linear-gradient\(to right,#16191c 0 1px,transparent 1px 20px\),linear-gradient\(to bottom,#16191c 0 1px,transparent 1px 20px\)/);
+  assert.match(css,/\.experience-grid\{[^}]*background-size:320px 320px,320px 320px,20px 20px,20px 20px/);
+  assert.match(css,/\.experience-grid\{[^}]*background-position:calc\(50% - 800px\) 0,calc\(50% - 800px\) 0,calc\(50% - 800px\) 0,calc\(50% - 800px\) 0/);
   assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
@@ -286,7 +273,7 @@ test('desktop Experience keeps the dark Figma center while masks retain timeline
 test('Experience heading keeps scroll orchestration while Resume remains its full Figma control',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
- assert.match(css,/\.experience-heading\{[^}]*padding-inline:56px/);
+ assert.match(css,/\.experience-heading\{[^}]*padding-inline:8px/);
  assert.match(css,/\.experience-heading>div>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
  assert.match(source,/export function Experience\(\{cv\}\)/);
  assert.match(source,/className="experience-resume" variant="light" href=\{cv\} external iconRight="file05">Резюме<\/ControlButton>/);
@@ -302,7 +289,7 @@ test('decorative dot fields use the exact 3px Figma tile without changing functi
   const tile=await readFile(path.resolve(import.meta.dirname,'../public/figma/dot-tile.svg'),'utf8');
   assert.equal(tile,'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="1.5" fill="#232526"/></svg>\n');
   assert.match(css,/\.about-pattern\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
-  assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
+  assert.doesNotMatch(css,/\.experience-grid\{[^}]*dot-tile\.svg/);
   assert.match(css,/\.about-dots button::before\{content:"";width:6px;height:6px/);
   assert.match(css,/\.experience-node\{[^}]*width:32px;height:32px/);
 });

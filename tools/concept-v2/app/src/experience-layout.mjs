@@ -1,5 +1,6 @@
 const BASE_INNER=906;
 const MIN_COMPOSITION=694;
+const DESKTOP_CENTER_MIN=1164;
 const EXPERIENCE_NODE_ANCHORS=[164,538,923,1326,1745,2211];
 const HORIZONTAL_TRAVEL=EXPERIENCE_NODE_ANCHORS.at(-1)-EXPERIENCE_NODE_ANCHORS[0];
 const VERTICAL_TRAVEL=9690/1.1;
@@ -16,22 +17,9 @@ export function experienceStops(){
 }
 
 export function experienceLayout(viewportHeight){
-  let topOuter;
-  let bottomOuter;
-  let center;
-  if(viewportHeight>=1506){
-    topOuter=240;
-    bottomOuter=topOuter-EXPERIENCE_HEADER_RESERVE;
-    center=viewportHeight-topOuter-bottomOuter;
-  }else if(viewportHeight>=1026){
-    topOuter=(viewportHeight-1026)/2;
-    bottomOuter=Math.max(0,topOuter-EXPERIENCE_HEADER_RESERVE);
-    center=viewportHeight-topOuter-bottomOuter;
-  }else{
-    topOuter=0;
-    bottomOuter=0;
-    center=viewportHeight;
-  }
+  const topOuter=Math.min(240,Math.max(0,viewportHeight-DESKTOP_CENTER_MIN));
+  const bottomOuter=0;
+  const center=viewportHeight-topOuter;
 
   const free=Math.max(0,(center-BASE_INNER)/2);
   let deficit=Math.max(0,BASE_INNER-center);
