@@ -284,11 +284,11 @@ test('Experience heading keeps scroll orchestration while Resume remains its ful
  assert.match(source,/subscribeSmoothScroll/);
 });
 
-test('decorative dot fields use the exact 3px Figma tile without changing functional markers',async()=>{
+test('decorative upper field keeps the exact 3px Figma tile without changing functional markers',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const tile=await readFile(path.resolve(import.meta.dirname,'../public/figma/dot-tile.svg'),'utf8');
   assert.equal(tile,'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="1.5" fill="#232526"/></svg>\n');
-  assert.match(css,/\.about-pattern\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
+  assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
   assert.doesNotMatch(css,/\.experience-grid\{[^}]*dot-tile\.svg/);
   assert.match(css,/\.about-dots button::before\{content:"";width:6px;height:6px/);
   assert.match(css,/\.experience-node\{[^}]*width:32px;height:32px/);
