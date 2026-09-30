@@ -1,6 +1,6 @@
 # DESIGN QA
 
-Обновлено: 2026-09-27.
+Обновлено: 2026-09-30.
 
 ## Назначение
 
@@ -40,6 +40,17 @@
 - Preserved: About deck/viewer/cursor mechanics, Experience entry gateway and timeline, Hero caption motion, Process 300 ms behavior and all out-of-scope products.
 - Final automated verification passed: 61 tests, lint, production build, browser smoke and whitespace check. Firefox/WebKit visual passes remain unverified; user visual review is the remaining acceptance gate.
 - Full ledger, node mapping and commit sequence: `docs/audits/concept-v2-current-figma-delta-2026-09-16.md`.
+
+## READY_FOR_REVIEW — Concept V2 Experience grid pattern
+
+- Exact Figma source: `4142:763335`; the desktop center uses `16×16px` cells
+  with `#16191C` borders inside centered `272×272px` frames with `#191E21`
+  borders. Adjacent 1px borders form the visible 2px grid lines.
+- Replaced the former `96px` translucent grid in `.experience-center`; the
+  Experience timeline, edge masks and narrow-screen layout retain their
+  existing behavior.
+- Verified in the local browser at `1574`, `1280` and `1279px` widths;
+  `162/162` tests and lint passed. User visual acceptance remains open.
 
 ## READY_FOR_REVIEW — Concept V2 main page and Library V2 refresh
 

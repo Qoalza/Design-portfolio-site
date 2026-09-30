@@ -149,10 +149,10 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .experience-fade-left{opacity:0}
 .experience.is-started .experience-fade-left{opacity:1}
 
-/* Desktop experience grid: a quiet layer in the central composition only. */
+/* Figma 4142:763335: 16px cells inside centered 272px frames. */
 @media(min-width:1280px){
  .experience-pattern{background:var(--cv2-container-neutral-faint)}
- .experience-center{background-color:var(--cv2-container-neutral-faint);background-image:linear-gradient(rgba(42,47,51,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(42,47,51,.16) 1px,transparent 1px);background-size:96px 96px;background-position:center center}
+ .experience-center{background-color:var(--cv2-container-neutral-faint);background-image:linear-gradient(to bottom,#191e21 0 2px,transparent 2px),linear-gradient(to right,#191e21 0 2px,transparent 2px),linear-gradient(to bottom,#16191c 0 2px,transparent 2px),linear-gradient(to right,#16191c 0 2px,transparent 2px);background-size:272px 272px,272px 272px,16px 16px,16px 16px;background-position:calc(50% + 135px) 0,calc(50% + 135px) 0,calc(50% + 7px) 0,calc(50% + 7px) 0}
  .experience-window{-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 240px),transparent 100%);mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 240px),transparent 100%)}
 .experience.is-started .experience-window{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 240px,#000 calc(100% - 240px),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 240px,#000 calc(100% - 240px),transparent 100%)}
  .experience-fade{display:none}
