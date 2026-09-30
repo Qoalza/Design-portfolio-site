@@ -1,48 +1,71 @@
-# Concept V2 — обновление главной и Library V2
+# Concept V2 — актуализация главной по текущему Worktree Redesign
 
-**Статус:** `READY_FOR_REVIEW`. **Ветка:** `codex/redesign-portfolio`.
-**Базовый commit:** `eca46ce13c15fb44885a3955ef256aa3e8ffca61`.
+**Статус:** `ACTIVE`. **Ветка:** `codex/redesign-portfolio`.
+**Базовый commit:** `9099a8759d7e463690c31229da9d82d28e7f3e95`.
 
 ## Outcome
 
-Сверить и точечно обновить главную Concept V2 по current source Figma и
-Library V2, сохранив утверждённое поведение Hero по высоте окна и все
-out-of-scope runtime-механики.
+Довести текущую desktop-реализацию главной Concept V2 до визуального
+соответствия текущему Figma-фрейму, сравнивая Figma с фактически собранным
+runtime, а не с предыдущей версией макета или кода.
 
-## Источники и границы
+## Source of truth и границы
 
-- Main page: `3960:274722`, Sections/Projects+Process: `3960:274725`, AI:
-  `3960:274763` в `sgKtUASp0aYzdkeH8kcXrL`.
-- Library typography: `2172:2780` в `nrqHGuE0qOo4Dwj59I9wEc`.
-- В scope: Concept V2 runtime, его тесты и долговечные evidence-документы.
-- Не входят: Admin, Shared contract, public portfolio, preloader, 404,
-  isolated project Hero, Corvo scenes, Figma write, merge и deploy.
-- Адреса действий «Сарафан.Радио» отложены: в runtime не добавляются
-  вымышленные переходы.
+- Figma: файл `sgKtUASp0aYzdkeH8kcXrL`, главная `4150:804068`.
+- Разделы: Projects `4150:804072`, Process `4150:804089`, AI
+  `4150:804109`, Experience `4150:804133`, About `4150:809005`.
+- Runtime: текущая сборка `tools/concept-v2/app` из этой ветки.
+- В scope: desktop Concept V2, его локальные компоненты, CSS, focused tests,
+  build и evidence текущей визуальной приёмки.
+- Не входят: mobile/tablet, Admin, Shared contract, опубликованный Portfolio,
+  Figma write, merge и deploy.
 
-## Группы и доказательства
+## Зафиксированные пользовательские исключения
 
-1. **Основа и Library — COMPLETE.** Semantic palette и states controls;
-   evidence: 151 tests, lint, production build, built-runtime smoke и локальная
-   проверка main. Commit фиксирует этот checkpoint.
-2. **Projects — COMPLETE.** Один Corvo и один «Сараффан.Радио» с
-   подтверждённой геометрией `638.5×661`, Preview `329` и Main `332` px.
-   Для Сараффан добавлены исходные Figma PNG, локальные `640/1080` AVIF,
-   категории, жёлтая метка и статические действия без вымышленных переходов.
-   Многослойный пурпурный знак взят из уже реализованной главной по прямому
-   указанию пользователя; исходники публичной главной не менялись. Evidence:
-   152 tests, lint, Vite production build, built-runtime smoke и AX-проверка.
-3. **AI и остальные секции — COMPLETE.** AI теперь повторяет current source:
-   центральная панель `1280×335`, content field `241px`, синяя полоса `94px`,
-   локальные source assets hatch/Codex и точная copy. Удалены прежние
-   ChatGPT/Codex cards и chip. Process сверен с `3960:274725`; Experience,
-   About и Footer оставлены без визуальных правок, поскольку current semantic
-   roles и их принятая геометрия уже соответствуют подтверждённой части scope.
-   Scroll, viewer и hover-механики не менялись. Evidence: focused tests,
-   полный набор `152/152`, lint, Vite production build, built-runtime smoke и
-   AX-проверка локальной главной на отдельном текущем preview.
+- Сохранить горизонтальный Hero из разработки; вертикальный Hero в Figma —
+  шаблон.
+- Не добавлять Copy, View и время Екатеринбурга.
+- Не менять поведение и длительность анимаций Projects и Process.
+- Заголовок Experience остаётся с inset `8px`.
+- Подложка Experience использует новую сетку с opacity `60%`.
 
-После последней группы проведены две проверки: fidelity/completeness подтвердила
-все прямые children AI source и отсутствие старого списка; regression/scope
-подтвердила, что затронуты только Concept V2 runtime, tests, source assets и
-evidence-документы. Hero сохраняет viewport-height behavior.
+## Подтверждённые расхождения
+
+1. Служебные подписи Projects и Process в runtime используют muted
+   `#949ea6`, в текущем Figma — neutral thin `#475157`.
+2. В About текущий Figma-инстанс Preview имеет `320×436`, задние карточки
+   `256×336` центрированы по высоте на `y=50`. Runtime всё ещё показывает
+   прежний embedded front `320×420` и задние карточки на `y=42`.
+3. Общая геометрия Projects, Process, AI, Experience, About и Footer уже
+   совпадает с измерениями текущего desktop-фрейма; исключения выше не считать
+   дефектами.
+
+## Этапы
+
+1. **Аудит — COMPLETE.** Сопоставить exact Figma children, размеры, цвета,
+   слои и эффекты с текущим runtime; зафиксировать только подтверждённые
+   расхождения.
+2. **Служебные подписи.** Target: Projects/Process desktop. Change: применить
+   neutral thin. Expected: обе подписи имеют цвет `#475157`, адаптивные стили
+   не меняются. Verification: focused source test и runtime screenshot.
+3. **About Preview.** Target: embedded carousel. Change: растянуть только
+   front до `436px`, центрировать rear на `y=50`, сохранить viewer `420px`,
+   траектории, длительность и управление. Expected: точная геометрия
+   `4150:809030` без регрессии viewer. Verification: endpoint/transition tests
+   и runtime screenshot.
+4. **Полная проверка.** Собрать текущий runtime и пройти Hero, Projects,
+   Process, AI, Experience, About, Footer. Затем выполнить два review:
+   fidelity/completeness и regression/scope/risk; исправить найденное.
+5. **Закрытие.** Обновить evidence и `HANDOFF.md`, создать отдельные commits
+   для плана и завершённой реализации.
+
+## Acceptance
+
+- На desktop текущий runtime соответствует `4150:804068` по всем секциям с
+  учётом пяти пользовательских исключений.
+- Верхние эффекты карточек Projects и Process сохранены и визуально проверены.
+- About embedded Preview имеет `320×436`; rear cards — `256×336`, `y=50`.
+- Viewer остаётся `480×630` после прежнего масштаба `1.5×`; анимации остаются
+  `500ms` и используют прежние траектории.
+- Focused tests, lint, tests и production build Concept V2 проходят на
+  итоговом состоянии.
