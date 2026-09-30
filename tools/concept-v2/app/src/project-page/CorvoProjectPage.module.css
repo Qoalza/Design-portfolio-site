@@ -533,8 +533,12 @@
 }
 
 .copyColumn h3 {
-  margin: -12px 0;
+  margin: 0;
   font: 400 20px/28px "Google Sans", sans-serif;
+}
+
+.copyColumn h3 + p {
+  margin-top: -12px;
 }
 
 .contextSection {
@@ -554,7 +558,7 @@
   width: 1280px;
   height: 220px;
   margin: 0 auto;
-  padding: 56px;
+  padding: 8px 56px 0;
 }
 
 .scenarioShowcaseHeader > div {
@@ -570,7 +574,7 @@
 }
 
 .scenarioShowcaseHeader h2 {
-  margin: 0 0 12px;
+  margin: 0 0 24px;
   font: 500 36px/48px "Google Sans", sans-serif;
   letter-spacing: -.1px;
 }
@@ -634,7 +638,7 @@
 
 .designSection .notice {
   width: 1000px;
-  margin-top: 40px;
+  margin-top: 16px;
   margin-left: -4px;
 }
 

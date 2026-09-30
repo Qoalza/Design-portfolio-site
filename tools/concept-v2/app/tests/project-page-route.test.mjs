@@ -120,11 +120,16 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(css,/\.longForm\s*\{[^}]*height:\s*1042px/s);
  assert.match(css,/\.scenarioTextSection\s*\{[^}]*height:\s*481px/s);
  assert.match(css,/\.scenarioShowcase\s*\{[^}]*height:\s*1236px/s);
+ assert.match(css,/\.scenarioShowcaseHeader\s*\{[^}]*padding:\s*8px 56px 0/s);
+ assert.match(css,/\.scenarioShowcaseHeader h2\s*\{[^}]*margin:\s*0 0 24px/s);
  assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*left:\s*79\.5px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*background-size:\s*20px 20px, 20px 20px, 320px 320px, 320px 320px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*opacity:\s*\.6/s);
  assert.match(css,/\.designWrap\s*\{[^}]*height:\s*887px/s);
  assert.match(css,/\.designSection\s*\{[^}]*height:\s*774px/s);
+ assert.match(css,/\.copyColumn h3\s*\{[^}]*margin:\s*0/s);
+ assert.match(css,/\.copyColumn h3 \+ p\s*\{[^}]*margin-top:\s*-12px/s);
+ assert.match(css,/\.designSection \.notice\s*\{[^}]*margin-top:\s*16px/s);
  assert.match(css,/\.result\s*\{[^}]*height:\s*500px/s);
  assert.match(css,/\.resultWrap\s*\{[^}]*height:\s*541px/s);
  assert.match(css,/\.resultWrap\s*\{[^}]*background:\s*#121517/s);
