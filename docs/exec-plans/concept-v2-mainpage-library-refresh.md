@@ -1,6 +1,6 @@
 # Concept V2 — актуализация главной по текущему Worktree Redesign
 
-**Статус:** `ACTIVE`. **Ветка:** `codex/redesign-portfolio`.
+**Статус:** `COMPLETE`. **Ветка:** `codex/redesign-portfolio`.
 **Базовый commit:** `9099a8759d7e463690c31229da9d82d28e7f3e95`.
 
 ## Outcome
@@ -29,13 +29,13 @@ runtime, а не с предыдущей версией макета или ко
 - Заголовок Experience остаётся с inset `8px`.
 - Подложка Experience использует новую сетку с opacity `60%`.
 
-## Подтверждённые расхождения
+## Исправленные расхождения
 
-1. Служебные подписи Projects и Process в runtime используют muted
-   `#949ea6`, в текущем Figma — neutral thin `#475157`.
+1. Служебные подписи Projects и Process переведены с muted `#949ea6` на
+   Figma neutral thin `#475157` только в desktop-композиции.
 2. В About текущий Figma-инстанс Preview имеет `320×436`, задние карточки
-   `256×336` центрированы по высоте на `y=50`. Runtime всё ещё показывает
-   прежний embedded front `320×420` и задние карточки на `y=42`.
+   `256×336` центрированы по высоте на `y=50`. Embedded runtime обновлён до
+   этих размеров; viewer сохранил прежнюю каноническую геометрию.
 3. Общая геометрия Projects, Process, AI, Experience, About и Footer уже
    совпадает с измерениями текущего desktop-фрейма; исключения выше не считать
    дефектами.
@@ -45,18 +45,18 @@ runtime, а не с предыдущей версией макета или ко
 1. **Аудит — COMPLETE.** Сопоставить exact Figma children, размеры, цвета,
    слои и эффекты с текущим runtime; зафиксировать только подтверждённые
    расхождения.
-2. **Служебные подписи.** Target: Projects/Process desktop. Change: применить
+2. **Служебные подписи — COMPLETE.** Target: Projects/Process desktop. Change: применить
    neutral thin. Expected: обе подписи имеют цвет `#475157`, адаптивные стили
    не меняются. Verification: focused source test и runtime screenshot.
-3. **About Preview.** Target: embedded carousel. Change: растянуть только
+3. **About Preview — COMPLETE.** Target: embedded carousel. Change: растянуть только
    front до `436px`, центрировать rear на `y=50`, сохранить viewer `420px`,
    траектории, длительность и управление. Expected: точная геометрия
    `4150:809030` без регрессии viewer. Verification: endpoint/transition tests
    и runtime screenshot.
-4. **Полная проверка.** Собрать текущий runtime и пройти Hero, Projects,
+4. **Полная проверка — COMPLETE.** Собрать текущий runtime и пройти Hero, Projects,
    Process, AI, Experience, About, Footer. Затем выполнить два review:
    fidelity/completeness и regression/scope/risk; исправить найденное.
-5. **Закрытие.** Обновить evidence и `HANDOFF.md`, создать отдельные commits
+5. **Закрытие — COMPLETE.** Обновить evidence и `HANDOFF.md`, создать отдельные commits
    для плана и завершённой реализации.
 
 ## Acceptance
@@ -69,3 +69,13 @@ runtime, а не с предыдущей версией макета или ко
   `500ms` и используют прежние траектории.
 - Focused tests, lint, tests и production build Concept V2 проходят на
   итоговом состоянии.
+
+## Evidence
+
+- В живом runtime просмотрены Projects, Process, AI, Experience, About и
+  Footer; отдельно подтверждены верхние слои Projects и Process и итоговая
+  высота About Preview.
+- Fidelity/completeness review и последующий regression/scope/risk review не
+  нашли оставшихся дефектов после исправления устаревшего комментария.
+- Итоговый `npm run check`: lint, `161/161` tests и production build.
+- План: `796ee61`; реализация: `594bbd8`.
