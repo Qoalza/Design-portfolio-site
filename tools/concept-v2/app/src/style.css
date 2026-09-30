@@ -84,10 +84,10 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
 .project,.project-preview{overflow:visible}
 .project-main{overflow:hidden}
 .project-glow{z-index:0}
-.project-divider{z-index:1}
-.project-back-layer{z-index:2}
-.project-shade{z-index:3;left:50%;top:1px;width:632px;height:260px;inset:1px auto auto 50%;transform:translateX(-50%);background:radial-gradient(ellipse 46.227% 89.917% at 88.636% .762%,rgba(24,28,31,0) 10.3446%,#181c1f 97.2643%)}
-.project-front-layer{z-index:4}
+.project-divider{z-index:6;left:-1px;right:-1px;top:-2px;bottom:auto;height:1px}
+.project-back-layer{z-index:2;left:calc(50% + 79.05px);bottom:43.27px}
+.project-shade{z-index:3;inset:0 0 -1px 0;width:auto;height:auto;transform:none;border-radius:11px 11px 0 0;background:url('/figma/project-shade-preview.svg') center/100% 100% no-repeat}
+.project-front-layer{z-index:4;left:calc(50% - 19.5px);bottom:19.9px}
 .project{height:592px}
 .project-preview{height:260px;border:1px solid var(--border);border-bottom:0;border-radius:12px 12px 0 0}
 .project-main{height:332px;padding:24px 40px 40px;border:1px solid var(--border);border-top:0;border-radius:0 0 12px 12px}
@@ -109,7 +109,8 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
  .steps{grid-template-columns:minmax(0,401fr) minmax(0,446fr) minmax(0,401fr);gap:16px;background:transparent;border:0}
  .step{min-width:0;height:301px;padding:36px;gap:48px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden}
  .step+.step::before{display:none}
- .step::after{content:"";position:absolute;z-index:0;left:0;top:0;width:214px;height:194px;border-radius:12px 0 0 0;opacity:.5;pointer-events:none;background-image:radial-gradient(ellipse 125% 115% at 0 0,transparent 30%,var(--surface) 100%),linear-gradient(to right,#272d30 0 1px,transparent 1px 36px),linear-gradient(to bottom,#272d30 0 1px,transparent 1px 36px);background-size:100% 100%,36px 36px,36px 36px;background-position:0 0,-1px -1px,-1px -1px}
+ .step-grid{position:absolute;z-index:0;left:0;top:0;width:214px;height:194px;overflow:hidden;border-radius:12px 0 0 0;pointer-events:none;background-image:linear-gradient(to right,rgba(39,45,48,.5) 0 1px,transparent 1px 36px),linear-gradient(to bottom,rgba(39,45,48,.5) 0 1px,transparent 1px 36px);background-size:36px 36px,36px 36px;background-position:-1px -1px,-1px -1px}
+ .step-grid::after{content:"";position:absolute;inset:-1px 0 0 -1px;background:url('/figma/process-grid-fade.svg') center/100% 100% no-repeat}
  .step>*{position:relative;z-index:1}
  .step-divider{left:12px;right:12px}
  .step-top{height:64px;display:flex;align-items:flex-start;justify-content:space-between;gap:40px}
