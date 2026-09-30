@@ -270,7 +270,8 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
 
 test('desktop Experience keeps the dark Figma center while masks retain timeline edge fades',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
-  assert.match(css,/\.experience-center\{background-color:var\(--cv2-container-neutral-faint\);background-image:linear-gradient\(to bottom,#191e21 0 2px,transparent 2px\)/);
+  assert.match(css,/\.experience-center\{position:relative;background-color:var\(--cv2-container-neutral-faint\);background-image:linear-gradient\(to bottom,#191e21 0 2px,transparent 2px\)/);
+  assert.match(css,/\.experience-center::before\{content:"";position:absolute;inset:0 0 auto;height:2px;pointer-events:none;background-color:var\(--cv2-container-neutral-faint\);background-image:linear-gradient\(to right,#191e21 0 2px,transparent 2px\)/);
   assert.match(css,/linear-gradient\(to right,#16191c 0 2px,transparent 2px\)/);
   assert.match(css,/background-size:272px 272px,272px 272px,16px 16px,16px 16px/);
   assert.match(css,/background-position:calc\(50% \+ 135px\) 0,calc\(50% \+ 135px\) 0,calc\(50% \+ 7px\) 0,calc\(50% \+ 7px\) 0/);

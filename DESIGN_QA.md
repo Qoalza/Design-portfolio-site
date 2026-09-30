@@ -49,8 +49,13 @@
 - Replaced the former `96px` translucent grid in `.experience-center`; the
   Experience timeline, edge masks and narrow-screen layout retain their
   existing behavior.
-- Verified in the local browser at `1574`, `1280` and `1279px` widths;
-  `162/162` tests and lint passed. User visual acceptance remains open.
+- User screenshot follow-up: the center grid's first horizontal stroke
+  doubled the lighter top-field border. The top 2px of that stroke are now
+  covered while its vertical grid lines and the existing light border remain.
+- Initial grid verified in the local browser at `1574`, `1280` and `1279px`
+  widths with `162/162` tests and lint. The top-border follow-up was checked
+  at `1574×1506px`; its 21 focused tests and lint passed. User visual
+  acceptance remains open.
 
 ## READY_FOR_REVIEW — Concept V2 main page and Library V2 refresh
 
