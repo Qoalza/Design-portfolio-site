@@ -414,6 +414,7 @@
 .metricWide {
   position: relative;
   height: 226px;
+  margin-top: 12px;
   padding: 0;
   display: grid;
   width: 1176px;
@@ -468,7 +469,6 @@
 
 .metricRow {
   height: 294px;
-  margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(3, 384px);
   gap: 12px;
@@ -617,7 +617,7 @@
   position: absolute;
   z-index: 1;
   top: 50px;
-  left: 79px;
+  left: 79.5px;
   width: 1015px;
   height: 902px;
 }

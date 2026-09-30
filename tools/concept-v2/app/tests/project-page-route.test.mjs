@@ -96,6 +96,7 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(page,/className=\{styles\.summaryInner\}/);
  assert.match(page,/className=\{styles\.summaryContent\}/);
  assert.match(page,/Макеты собраны в одном файле: основные сценарии, состояния и их адаптация под три размера экрана/);
+ assert.ok(page.indexOf('className={styles.metricRow}') < page.indexOf('className={`${styles.metric} ${styles.metricWide}`}'), 'Figma places the three compact metric cards before the wide card');
  assert.match(page,/className=\{styles\.contextSection\}/);
  assert.match(page,/className=\{styles\.scenarioTextSection\}/);
  assert.match(page,/className=\{styles\.scenarioShowcase\}/);
@@ -119,6 +120,7 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(css,/\.longForm\s*\{[^}]*height:\s*1042px/s);
  assert.match(css,/\.scenarioTextSection\s*\{[^}]*height:\s*481px/s);
  assert.match(css,/\.scenarioShowcase\s*\{[^}]*height:\s*1236px/s);
+ assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*left:\s*79\.5px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*background-size:\s*20px 20px, 20px 20px, 320px 320px, 320px 320px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*opacity:\s*\.6/s);
  assert.match(css,/\.designWrap\s*\{[^}]*height:\s*887px/s);
