@@ -75,6 +75,8 @@ test('Projects publication note follows the user-approved homepage copy',async()
  assert.match(app,/<p className="projects-status">\/\/ остальные проекты в процессе публикации<\/p>/);
  assert.doesNotMatch(app,/className="projects-all-action"/);
  assert.match(css,/\.projects-status\{[^}]*"Source Code Pro"/);
+ assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.projects-heading>\.projects-status\{[^}]*color:var\(--cv2-text-neutral-thin\)/);
+ assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.process-heading>\.tech-note\{[^}]*color:var\(--cv2-text-neutral-thin\)/);
  const shade=await readFile(path.join(root,'public/figma/project-shade-preview.svg'),'utf8');
  assert.match(shade,/stop-color="#181C1F"/);
  assert.doesNotMatch(shade,/stop-color="#1D1E1F"/);

@@ -1,5 +1,6 @@
 export const ABOUT_CARD_ANIMATION_MS=500;
 export const ABOUT_CARD_FRAME={width:480,height:420,frontWidth:320,frontHeight:420,backWidth:256,backHeight:336};
+export const ABOUT_EMBEDDED_FRAME={height:436,frontHeight:436,backY:50};
 export const ABOUT_VIEWER_SCALE=1.5;
 export const ABOUT_VIEWER_STAGE={width:720,height:630,scale:ABOUT_VIEWER_SCALE};
 
@@ -58,6 +59,17 @@ export function aboutDeckFrames(active,count=3){
 
 export function scaleAboutFrame(frame,scale=ABOUT_VIEWER_SCALE){
  return {...frame,x:frame.x*scale,y:frame.y*scale,width:frame.width*scale,height:frame.height*scale,contentScale:Number((frame.contentScale*scale).toFixed(6))};
+}
+
+export function aboutEmbeddedFrame(frame){
+ const frontness=clamp(frame.frontness);
+ return {
+  ...frame,
+  y:frame.y+8*(1-frontness),
+  height:frame.height+16*frontness,
+  contentHeight:420+16*frontness,
+  depthHeight:372+14*frontness,
+ };
 }
 
 export function aboutTransitionFrames({active,direction=1,progress=0,count=3}){

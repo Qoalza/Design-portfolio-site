@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
-import {ABOUT_CARD_ANIMATION_MS,ABOUT_CARD_FRAME,ABOUT_VIEWER_SCALE,ABOUT_VIEWER_STAGE,aboutCardSlots,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames,scaleAboutFrame} from '../src/about-motion.mjs';
+import {ABOUT_CARD_ANIMATION_MS,ABOUT_CARD_FRAME,ABOUT_EMBEDDED_FRAME,ABOUT_VIEWER_SCALE,ABOUT_VIEWER_STAGE,aboutCardSlots,aboutDeckFrames,aboutEmbeddedFrame,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames,scaleAboutFrame} from '../src/about-motion.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 
-test('embedded deck preserves the current Figma 0.8× rear-card geometry',()=>{
+test('canonical deck preserves the accepted viewer geometry',()=>{
  assert.equal(ABOUT_CARD_ANIMATION_MS,500);
  assert.deepEqual(ABOUT_CARD_FRAME,{width:480,height:420,frontWidth:320,frontHeight:420,backWidth:256,backHeight:336});
  assert.deepEqual(aboutCardSlots(0),{front:0,left:2,right:1});
@@ -19,7 +19,7 @@ test('embedded deck preserves the current Figma 0.8× rear-card geometry',()=>{
  assert.equal(aboutNextCard(0,-1),2);
 });
 
-test('viewer is a direct 1.5× scale of the accepted embedded card component',()=>{
+test('viewer is a direct 1.5× scale of the canonical card component',()=>{
  assert.equal(ABOUT_VIEWER_SCALE,1.5);
  assert.deepEqual(ABOUT_VIEWER_STAGE,{width:720,height:630,scale:1.5});
  const frames=aboutDeckFrames(0);
@@ -31,6 +31,21 @@ test('viewer is a direct 1.5× scale of the accepted embedded card component',()
  assert.equal(rear.x-(leftRear.x+leftRear.width),-120);
 });
 
+test('homepage instance stretches only its front card to the current Figma height',()=>{
+ assert.deepEqual(ABOUT_EMBEDDED_FRAME,{height:436,frontHeight:436,backY:50});
+ const [front,rightRear,leftRear]=aboutDeckFrames(0).map(aboutEmbeddedFrame);
+ assert.deepEqual({x:front.x,y:front.y,width:front.width,height:front.height,contentHeight:front.contentHeight},{x:80,y:0,width:320,height:436,contentHeight:436});
+ for(const rear of [rightRear,leftRear]){
+  assert.equal(rear.y,50);
+  assert.equal(rear.width,256);
+  assert.equal(rear.height,336);
+  assert.equal(rear.contentHeight*rear.contentScale,336);
+ }
+ const viewer=aboutDeckFrames(0)[0];
+ assert.equal(viewer.height,420);
+ assert.equal(viewer.contentHeight,undefined);
+});
+
 test('embedded motion uses one shared continuous path inside the 480px stage',()=>{
  for(const direction of [-1,1]){
   for(let step=0;step<=120;step++){
@@ -39,6 +54,9 @@ test('embedded motion uses one shared continuous path inside the 480px stage',()
     assert.ok(frame.x>=0,`left bound at ${step}`);
     assert.ok(frame.x+frame.width<=480,`right bound at ${step}`);
     assert.ok(frame.contentScale>0&&frame.contentScale<=1);
+    const embedded=aboutEmbeddedFrame(frame);
+    assert.ok(embedded.y>=0,`embedded top bound at ${step}`);
+    assert.ok(embedded.y+embedded.height<=ABOUT_EMBEDDED_FRAME.height,`embedded bottom bound at ${step}`);
    }
   }
  }
@@ -129,9 +147,9 @@ test('About uses the revised 968px desktop composition while preserving card con
  assert.match(css,/\.about-copy\{[^}]*height:600px[^}]*padding:0 56px 48px 8px/);
  assert.match(css,/\.about-carousel\{[^}]*height:600px/);
  assert.match(css,/\.about-carousel-heading\{[^}]*top:0/);
- assert.match(css,/\.about-deck\{[^}]*top:72px/);
+ assert.match(css,/\.about-deck\{[^}]*top:72px[^}]*height:436px/);
  assert.match(css,/\.about-carousel-controls\{[^}]*bottom:24px/);
- assert.match(css,/\.about-card-content\{[^}]*width:320px[^}]*height:420px/);
+ assert.match(css,/\.about-card-content\{[^}]*width:320px[^}]*height:var\(--card-content-height\)/);
  assert.match(css,/\.about-card-frame\{[^}]*overflow:hidden/);
  assert.match(css,/\.about-card-image\{[^}]*object-fit:cover/);
  assert.match(about,/function useDeckController/);

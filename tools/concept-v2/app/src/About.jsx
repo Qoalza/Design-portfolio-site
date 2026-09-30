@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {ControlButton,Icon} from './Controls';
-import {ABOUT_CARD_ANIMATION_MS,aboutDeckFrames,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames,wrapAboutCard} from './about-motion.mjs';
+import {ABOUT_CARD_ANIMATION_MS,aboutDeckFrames,aboutEmbeddedFrame,aboutNextCard,aboutTransitionFrames,interpolateDeckFrames,wrapAboutCard} from './about-motion.mjs';
 import {notifyLayoutInvalidated} from './runtime/layout-invalidation.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {createViewActivity} from './runtime/view-activity.mjs';
@@ -18,10 +18,14 @@ function AboutPicture({card,className,alt,imageRef,onImageLoad,slotSize}){
  return <ResponsivePicture ref={imageRef} source={card.source} className={className} alt={alt} sizes={`${Math.round(slotSize)}px`} loading="lazy" decoding="async" onLoad={onImageLoad}/>;
 }
 
-const frameStyle=frame=>({
+const frameStyle=(sourceFrame,embedded=false)=>{
+ const frame=embedded?aboutEmbeddedFrame(sourceFrame):sourceFrame;
+ return {
  '--card-x':`${frame.x}px`,'--card-y':`${frame.y}px`,'--card-width':`${frame.width}px`,'--card-height':`${frame.height}px`,
+ '--card-content-height':`${frame.contentHeight??420}px`,'--card-depth-height':`${frame.depthHeight??372}px`,
  '--card-content-scale':frame.contentScale,'--card-frontness':frame.frontness,'--card-rear-strength':frame.rearStrength,zIndex:frame.zIndex,
-});
+ };
+};
 const cardDirection=(from,to)=>wrapAboutCard(to-from,cards.length)===1?1:-1;
 
 function useDeckController(initialIndex){
@@ -77,10 +81,10 @@ function useDeckController(initialIndex){
  return {active,frames,isMoving,go,move};
 }
 
-function AboutCard({card,frame,onOpen,moving,interactive=true,hovered=false,cardTargetRef,imageRef,onImageLoad,slotSize}){
+function AboutCard({card,frame,onOpen,moving,interactive=true,embedded=false,hovered=false,cardTargetRef,imageRef,onImageLoad,slotSize}){
  const front=frame.frontness>.5;
  const enabled=interactive&&front&&!moving;
- return <article className="about-card-motion" data-slot={front?'front':'back'} data-hovered={enabled&&hovered||undefined} style={frameStyle(frame)} aria-label={card.alt}>
+ return <article className="about-card-motion" data-slot={front?'front':'back'} data-hovered={enabled&&hovered||undefined} style={frameStyle(frame,embedded)} aria-label={card.alt}>
   <div className="about-card-depth" aria-hidden="true"/>
   <div className="about-card-halo" aria-hidden="true"><AboutPicture card={card} alt="" imageRef={imageRef} onImageLoad={onImageLoad} slotSize={slotSize}/></div>
   <div ref={enabled?cardTargetRef:null} className="about-card-frame" role={enabled?'button':undefined} tabIndex={enabled?0:undefined} onClick={enabled?onOpen:undefined} onKeyDown={event=>{if(enabled&&(event.key==='Enter'||event.key===' ')){event.preventDefault();onOpen(event)}}}>
@@ -93,7 +97,7 @@ function AboutCard({card,frame,onOpen,moving,interactive=true,hovered=false,card
 
 function Deck({controller,onOpen,viewer=false,hovered=false,cardTargetRef,imageRef,onImageLoad,slotSize}){
  return <div className={viewer?'about-viewer-deck':'about-deck'} aria-live="polite">
-  {controller.frames.map((frame,index)=><AboutCard key={cards[index].id} card={cards[index]} frame={frame} moving={controller.isMoving} interactive={!viewer} hovered={hovered} cardTargetRef={cardTargetRef} imageRef={imageRef} onImageLoad={onImageLoad} slotSize={slotSize} onOpen={event=>onOpen(index,event)}/>)}</div>;
+  {controller.frames.map((frame,index)=><AboutCard key={cards[index].id} card={cards[index]} frame={frame} moving={controller.isMoving} interactive={!viewer} embedded={!viewer} hovered={hovered} cardTargetRef={cardTargetRef} imageRef={imageRef} onImageLoad={onImageLoad} slotSize={slotSize} onOpen={event=>onOpen(index,event)}/>)}</div>;
 }
 
 function ImageViewer({initialIndex,onClose,restoreFocus}){
