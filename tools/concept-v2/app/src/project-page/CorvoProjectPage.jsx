@@ -5,7 +5,7 @@ import {ControlButton} from '../Controls';
 import {V2Button} from '../v2/Controls';
 import {GridPattern} from '../GridPattern';
 import {StrokeMorphIcon} from '../morph-icon/StrokeMorphIcon';
-import {checkIcon,link02Icon} from '../morph-icon/icons.mjs';
+import {checkMorphIcon,link02Icon} from '../morph-icon/icons.mjs';
 import {restartFeedbackTimer} from '../morph-icon/copy-feedback.mjs';
 import styles from './CorvoProjectPage.module.css';
 
@@ -38,7 +38,7 @@ function CopyLinkAction(){
  }
 
  return <ProjectAction
-  iconRightNode={<StrokeMorphIcon icon={copied?checkIcon:link02Icon}/>}
+  iconRightNode={<StrokeMorphIcon icon={copied?checkMorphIcon:link02Icon}/>}
   onClick={copyProjectLink}
   aria-label={copied?'Скопировано':'Копировать ссылку'}
   aria-live="polite"

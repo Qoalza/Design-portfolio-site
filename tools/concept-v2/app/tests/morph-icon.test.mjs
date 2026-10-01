@@ -43,6 +43,8 @@ test('stroke morphing is reusable, smooth, and preserves the icon-system contrac
  assert.match(css,/stroke-linecap:\s*butt/);
  assert.match(icons,/export const link02Icon=/);
  assert.match(icons,/export const checkIcon=/);
+ assert.match(icons,/export const checkMorphIcon=/);
+ assert.match(icons,/M4 12L9 17M9 17L14\.5 11\.5M14\.5 11\.5L20 6/);
  assert.match(checkAsset,/M20 6L9 17L4 12/);
  assert.match(designSystem,/### Stroke morphing/);
 });
@@ -54,7 +56,7 @@ test('Corvo copy action morphs only after a successful copy and returns automati
  assert.match(page,/await navigator\.clipboard\.writeText\(window\.location\.href\)/);
  assert.match(page,/setCopied\(true\)/);
  assert.match(page,/restartFeedbackTimer/);
- assert.match(page,/<StrokeMorphIcon icon=\{copied\?checkIcon:link02Icon\}/);
+ assert.match(page,/<StrokeMorphIcon icon=\{copied\?checkMorphIcon:link02Icon\}/);
  assert.match(page,/\{copied\?'Скопировано':'Копировать ссылку'\}/);
  assert.match(page,/useEffect\(\(\)=>\(\)=>clearTimeout/);
 });

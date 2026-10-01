@@ -252,8 +252,9 @@
 }
 
 .projectActions {
-  width: 297px;
+  width: max-content;
   height: 52px;
+  margin-left: auto;
   padding: 8px;
   display: flex;
   gap: 8px;
@@ -272,7 +273,8 @@
 }
 
 .projectActions .action:first-child {
-  width: 182px;
+  width: auto;
+  justify-content: flex-end;
 }
 
 .projectActions .action:last-child {

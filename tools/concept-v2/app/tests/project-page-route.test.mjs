@@ -49,9 +49,9 @@ test('Corvo project actions use enabled design-system controls',async()=>{
  assert.match(page,/variant="neutral"[^>]*iconRight="figma"[^>]*>\{metrics\[0\]\.action\}/);
  assert.match(page,/metrics\.slice\(1\).*<ProjectAction iconLeft=\{metric\.icon\} iconRight="arrow">\{metric\.action\}<\/ProjectAction>/s);
  assert.match(css,/\.projectActions\s*\{[^}]*border:\s*0/s);
- assert.match(css,/\.projectActions\s*\{[^}]*box-shadow:\s*inset 0 0 0 1px #1f2224/s);
+ assert.match(css,/\.projectActions\s*\{[^}]*width:\s*max-content[^}]*margin-left:\s*auto[^}]*box-shadow:\s*inset 0 0 0 1px #1f2224/s);
  assert.match(css,/\.projectActions \.action\s*\{[^}]*border:\s*0/s);
- assert.match(css,/\.projectActions \.action:first-child\s*\{[^}]*width:\s*182px/s);
+ assert.match(css,/\.projectActions \.action:first-child\s*\{[^}]*width:\s*auto[^}]*justify-content:\s*flex-end/s);
  assert.match(css,/\.projectActions \.action:last-child\s*\{[^}]*width:\s*91px/s);
  assert.match(linkIcon,/width="16" height="16"/);
  assert.match(linkIcon,/Medium \/ General \/ Link-02/);
