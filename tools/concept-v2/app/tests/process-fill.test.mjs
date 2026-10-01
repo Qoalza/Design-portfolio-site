@@ -73,18 +73,18 @@ test('Process keeps its approved 300ms motion while using the current text and b
   assert.match(css,/\.step-divider::after\{[^}]*transition:transform 300ms ease-in/);
 });
 
-test('desktop Process gives every card its own outlined surface and preserves existing motion',async()=>{
+test('desktop Process matches the current 4150:804103 card geometry and preserves existing motion',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const fade=await readFile(path.resolve(import.meta.dirname,'../public/figma/process-grid-fade.svg'),'utf8');
  assert.match(css,/:root\{--cv2-decoration-hatch:#1d2124\}/);
  assert.match(css,/\.steps\{[^}]*grid-template-columns:minmax\(0,401fr\) minmax\(0,446fr\) minmax\(0,401fr\)[^}]*gap:16px[^}]*background:transparent[^}]*border:0/);
- assert.match(css,/\.step\{[^}]*height:301px[^}]*padding:0[^}]*border:1px solid var\(--cv2-border-neutral-thin\)[^}]*border-radius:12px[^}]*background:var\(--surface\)/);
- assert.match(css,/\.step-body\{[^}]*display:flex[^}]*gap:48px[^}]*padding:36px/);
+ assert.match(css,/\.step\{[^}]*height:297px[^}]*padding:0[^}]*border:1px solid var\(--cv2-border-neutral-thin\)[^}]*border-radius:12px[^}]*background:var\(--surface\)/);
+ assert.match(css,/\.step-body\{[^}]*position:absolute[^}]*left:-1px[^}]*right:-1px[^}]*top:0[^}]*height:296px[^}]*display:flex[^}]*gap:48px[^}]*padding:36px/);
  assert.match(css,/\.step-grid\{[^}]*width:214px[^}]*height:194px[^}]*overflow:hidden[^}]*border-radius:12px 0 0 0/);
- assert.match(css,/\.step-grid\{[^}]*background-image:linear-gradient\(to right,rgba\(39,45,48,\.5\) 0 1px,transparent 1px 36px\),linear-gradient\(to bottom,rgba\(39,45,48,\.5\) 0 1px,transparent 1px 36px\)[^}]*background-position:-1px -1px,-1px -1px/);
+ assert.match(css,/\.step-grid\{[^}]*background-image:linear-gradient\(to right,#272d30 0 1px,transparent 1px 36px\),linear-gradient\(to bottom,#272d30 0 1px,transparent 1px 36px\)[^}]*background-position:-1px -1px,-1px -1px/);
  assert.match(css,/\.step-grid::after\{[^}]*inset:-1px 0 0 -1px[^}]*background:url\('\/figma\/process-grid-fade\.svg'\) center\/100% 100% no-repeat/);
- assert.match(css,/\.step-grid::before\{[^}]*rgba\(23,57,84,\.5\)[^}]*opacity:0[^}]*300ms ease-in/);
+ assert.match(css,/\.step-grid::before\{[^}]*#173954[^}]*opacity:0[^}]*300ms ease-in/);
  assert.match(css,/\.step\.is-fill-active \.step-grid::before\{opacity:1\}/);
  assert.doesNotMatch(css,/\.step::after\{/);
  assert.doesNotMatch(css,/\.step>\*\{position:relative;z-index:1\}/);
@@ -92,7 +92,9 @@ test('desktop Process gives every card its own outlined surface and preserves ex
  assert.match(fade,/gradientTransform="matrix\(19\.012 17\.858 -19\.624 17\.183 -28\.866 -28\.355\)"/);
  assert.match(app,/className="step-grid" aria-hidden="true"/);
  assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
- assert.match(css,/\.step-divider\{position:relative;z-index:1;inset:auto;width:auto;height:1px;margin-inline:12px[^}]*background:transparent/);
+ assert.match(css,/\.step-divider\{position:absolute;z-index:2;left:11px;right:11px;top:-1px;width:auto;height:1px;margin:0[^}]*background:transparent/);
+ assert.match(css,/\.step-text h3\{[^}]*font:400 20px\/28px "Google Sans"[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
+ assert.match(css,/\.step-dots\{color:var\(--cv2-text-neutral-muted\)/);
  assert.match(css,/\.step-icon-base,\.step-icon-background,\.step-icon-fill\{display:none\}/);
  assert.match(css,/\.step-icon-desktop-base,\.step-icon-hover\{display:block/);
  assert.match(app,/className="step-icon-desktop-base" src=\{`\/figma\/\$\{step\.image\}-desktop\.svg`\}/);

@@ -101,3 +101,14 @@ runtime, а не с предыдущей версией макета или ко
   #16191C` и общий opacity `70%`. Runtime использует один SVG asset и placement
   `calc(50% - 640px) 0`, без независимых background-слоёв.
 - Итоговый `npm run check`: lint, `162/162` tests и production build.
+
+## Post-completion update — current Process cards and AI attribution
+
+- Source `4150:804103` заменил прежнюю карточную геометрию: `1280×297px`, gap
+  `16px`, columns `401/446/401px`, content padding `36px`, copy `20/28 + 16/24`,
+  grid `36px` с `#272D30` и hover `#173954`.
+- Source `4151:854664` обновил нижний левый AI frame до `638×89px`; parent
+  `4150:804109` теперь `355px`, центральная панель `1280×275px`. Использован
+  exact exported gear `24×24px` и технический текст `16/20 #B7C0C7`.
+- Сохранены пользовательские исключения: Process motion `300ms`, отсутствие
+  Copy/View/часов и прежняя mobile/tablet ветка.

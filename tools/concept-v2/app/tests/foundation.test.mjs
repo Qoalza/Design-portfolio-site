@@ -38,18 +38,20 @@ test('Library V2 foundation is isolated under its own namespace',async()=>{
   assert.doesNotMatch(controls,/className={`control /);
 });
 
-test('AI desktop panel is the static two-column 1280 by 283 Figma composition',async()=>{
+test('AI desktop panel matches the current 4150:804109 two-column composition',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
  assert.match(app,/className="ai-desktop-panel"/);
  assert.match(app,/className="ai-code-panel"/);
  assert.match(app,/className="ai-static-code"/);
  assert.doesNotMatch(app,/ai-code-action|className="ai-copy"|className="ai-view"/);
- assert.match(css,/\.ai-section\{[^}]*height:363px[^}]*padding-top:80px/);
- assert.match(css,/\.ai-desktop-panel\{[^}]*width:1280px[^}]*height:283px[^}]*grid-template-columns:640px 640px/);
- assert.match(css,/\.ai-desktop-copy\{[^}]*height:283px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(css,/\.ai-section\{[^}]*height:355px[^}]*padding-top:80px/);
+ assert.match(css,/\.ai-desktop-panel\{[^}]*width:1280px[^}]*height:275px[^}]*grid-template-columns:640px 640px/);
+ assert.match(css,/\.ai-desktop-copy\{[^}]*height:275px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
  assert.match(css,/\.ai-copy-content\{[^}]*padding:32px 40px/);
- assert.match(css,/\.ai-copy-banner\{[^}]*padding:24px 40px[^}]*border-top:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(css,/\.ai-copy-banner\{[^}]*height:89px[^}]*padding:24px 36px 24px 40px[^}]*border-top:1px solid var\(--cv2-border-neutral-thin\)[^}]*gap:24px[^}]*background:var\(--page\)/);
+ assert.match(css,/\.ai-copy-banner img\{width:24px;height:24px;flex:0 0 24px\}/);
+ assert.match(css,/\.ai-copy-banner p\{[^}]*font:400 16px\/20px "Source Code Pro"[^}]*letter-spacing:-\.6px[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
  assert.match(css,/\.ai-code-panel\{[^}]*border:1px solid var\(--cv2-border-neutral-thin\)[^}]*border-left:0/);
  assert.match(css,/\.ai-code-header\{[^}]*height:48px[^}]*padding:0 16px 0 32px/);
  assert.match(css,/\.ai-code-body\{[^}]*padding:24px 32px[^}]*background:var\(--page\)/);
@@ -74,14 +76,14 @@ test('AI static code panel retains source copy and has no active controls or clo
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
  assert.match(app,/contentClass=desktop\?'ai-copy-content':'ai-main'/);
  assert.match(app,/bannerClass=desktop\?'ai-copy-banner':'ai-banner'/);
- assert.match(app,/src="\/figma\/ai-codex-icon\.svg" width="28" height="28"/);
- assert.match(app,/Данный сайт был разработан с 0 в codex, а дизайн в Figma\. Без шаблонов\./);
+ assert.match(app,/desktop\?'\/figma\/ai-gear\.svg':'\/figma\/ai-codex-icon\.svg'/);
+ assert.match(app,/desktop\?<><span>Данный сайт был разработан с 0 в codex, а дизайн в Figma\.<\/span><span>Без шаблонов\.<\/span><\/?>/);
  assert.match(app,/HTML \+ JavaScript/);
  assert.match(app,/className="code-tag"/);
  assert.match(app,/className="code-keyword"/);
  assert.doesNotMatch(app,/<time|setInterval\(/);
  assert.doesNotMatch(app,/ChatGPT|ai-other-chip|tools-list|className="tool"/);
- for(const asset of ['ai-hatch-top.svg','ai-codex-icon.svg'])await access(path.join(appRoot,'public/figma',asset));
+ for(const asset of ['ai-hatch-top.svg','ai-codex-icon.svg','ai-gear.svg'])await access(path.join(appRoot,'public/figma',asset));
 });
 
 test('footer retains its Figma spacing and uses current semantic color roles',async()=>{

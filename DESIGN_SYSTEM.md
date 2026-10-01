@@ -129,6 +129,36 @@ Code не обязан повторять `Master → Skin` двумя React com
   вставить `<GridPattern/>` в positioned-контейнер; переопределять сетку в
   consumer CSS нельзя.
 
+## Concept V2 process cards
+
+- Текущий exact source ряда — `4150:804103`; три desktop instances образуют
+  frame `1280×297px` с gap `16px` и ширинами `401 / 446 / 401px`.
+- Каждая карточка имеет фон `#181C1F`, внутренний stroke `1px #1D2124`, radius
+  `12px` и clipped overflow. Декоративное поле занимает `214×194px` от
+  левого верхнего угла; шаг клетки `36px`, default stroke `#272D30`, hover
+  stroke `#173954`. Поверх поля лежит один radial fade из
+  `process-grid-fade.svg`.
+- Верхний animated separator находится на верхней границе с inset `12px`.
+  Контент начинается на `y=1`, имеет padding `36px` и gap `48px`: иконка
+  `64×64px`, номер Source Code Pro `36/40`, gap до dots `12px`; copy использует
+  Google Sans Regular `20/28` и Onest `350 16/24` с gap `12px`.
+- Default роли: number/dots/body `#949EA6`, heading `#B7C0C7`. Hover роли:
+  number/heading `#D3DBE0`, dots `#43A2EE`, body `#B7C0C7`; icon, grid и верхняя
+  линия используют текущие hover assets/colors. Ранее утверждённая runtime
+  механика и длительность `300ms Ease In` сохраняются.
+
+## Concept V2 AI attribution frame
+
+- Текущий exact source — `4151:854664` внутри AI `4150:804109`.
+- Desktop frame имеет размер `638×89px`, фон `#14181B`, только верхний stroke
+  `1px #1D2124`, padding `24px 36px 24px 40px` и gap `24px`.
+- Gear использует exact полный frame `24×24px`. Текст занимает `514×40px`,
+  Source Code Pro Regular `16/20`, tracking `-0.6px`, цвет `#B7C0C7`; строка
+  «Без шаблонов.» фиксируется второй строкой.
+- Весь desktop AI section имеет `1574×355px` в source: верхний отступ `80px`,
+  центральная панель `1280×275px`, две колонки по `640px`. Copy/View и часы
+  остаются исключёнными по прямому указанию пользователя.
+
 ## Соответствие code
 
 - Master hard-parameter change распространяется на конструктивную основу всех затронутых variants.
