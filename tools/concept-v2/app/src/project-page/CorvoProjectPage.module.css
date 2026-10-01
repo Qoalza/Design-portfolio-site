@@ -631,18 +631,6 @@
   background: #121517;
 }
 
-.scenarioGrid {
-  --v2-grid-minor-position: 40px 0;
-  --v2-grid-major-position: 40px 0;
-
-  z-index: 0;
-  top: 0;
-  left: calc(50% - 1px);
-  width: 1360px;
-  height: 1014px;
-  transform: translateX(-50%);
-}
-
 .scenarioCanvas > img {
   position: absolute;
   z-index: 1;

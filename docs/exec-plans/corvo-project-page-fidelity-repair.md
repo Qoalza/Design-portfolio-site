@@ -2,8 +2,8 @@
 
 ## Status
 
-`COMPLETE` — дополнительная сверка общих GridPattern и системных breadcrumbs
-завершена в изолированной ветке `codex/corvo-fidelity-repair`.
+`COMPLETE` — ошибочно созданная локальная имитация сетки удалена; Hero и блок
+сценария используют готовый общий `GridPattern` из линии редизайна.
 
 ## Outcome
 
@@ -107,7 +107,8 @@ deploy, or interaction with the neighbouring worktree.
 - Runtime at 1920 px: scenario canvas remains centered at `x=372`, both side
   hatches stretch symmetrically to 372 px, and the summary/Hero 1280 px guide
   frames both begin at `x=320`.
-- Hero workspace grid remains 20/320 px, opacity `.6`, major phase `-80px`.
+- Hero workspace grid uses the existing shared fixed `GridPattern`: a 320 px
+  SVG tile with 20 px cells, opacity `.7`, and centered 1280 px phase.
 - `node --test tests/project-page-route.test.mjs`: 4/4 passing.
 - `npm test`: 162/162 passing; `npm run lint`: passing.
 - Production build passed with Vite config runner into
@@ -115,10 +116,11 @@ deploy, or interaction with the neighbouring worktree.
   check passed. The repository browser-check script could not bind a new local
   port in the sandbox, so runtime verification used the already isolated local
   server plus direct browser geometry checks at 1440 and 1920 px.
-- Follow-up 2026-10-01: Hero and scenario canvas now render the same
-  `GridPattern` component. Browser computed styles confirm 20/320 px steps and
-  opacity `.6`; Hero keeps phases `0/-80`, while the 1360×1014 scenario frame
-  uses the internal 40 px phase and sits 94 px left of the inner canvas.
+- Follow-up 2026-10-01: removed the newly invented configurable grid and reused
+  the existing fixed `src/GridPattern.jsx` contract from redesign commit
+  `20380a3`, including its exact SVG tile and global style. Hero and scenario
+  now use `<GridPattern/>` directly, without consumer-specific phases or local
+  grid classes.
 - Hero topbar runtime confirms a solid 1 px Thin center line and `[16,16]`
   Thin dashes on both side regions. Breadcrumb runtime confirms 16×16 Home
   and 67×16 Corvo Library V2 ghost controls; Home navigation reaches `/`.
@@ -127,3 +129,8 @@ deploy, or interaction with the neighbouring worktree.
   Vite config runner, browser runtime inspection and navigation smoke all pass.
 - Final independent review found no fidelity, completeness, regression or
   scope issues.
+- Grid reuse correction verification: focused route/Hero tests 15/15, full
+  Concept V2 suite 164/164, lint 66 source files, and production build via the
+  Vite config runner pass. Browser runtime inspection confirms exactly two
+  `.surface-grid-pattern` consumers, both loading the shared 320 px SVG tile at
+  opacity `.7`; no local Hero or scenario grid class remains.

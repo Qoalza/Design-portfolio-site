@@ -26,7 +26,7 @@ import {
   MIN_LOGICAL_WIDTH,
 } from './width.mjs';
 import {AdaptiveSizeTab,ScenarioTab} from '../v2/HeroTabs.jsx';
-import {GridPattern} from '../v2/GridPattern.jsx';
+import {GridPattern} from '../GridPattern.jsx';
 import styles from './ProjectResponsiveHero.module.css';
 
 const ADAPTIVE_LAYOUTS = [
@@ -342,7 +342,7 @@ export function ProjectResponsiveHero({definition}) {
       </header>
 
       <div className={styles.heroWorkspace}>
-        <GridPattern className={styles.heroGrid}/>
+        <GridPattern/>
         <div className={styles.heroInner}>
           <div className={styles.workspaceContent}>
             <div className={styles.adaptiveRuler} aria-label="Диапазоны адаптивности">

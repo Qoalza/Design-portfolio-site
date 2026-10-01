@@ -112,20 +112,29 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(definition,/tabWidth:119/);
 });
 
-test('Corvo Hero owns the Figma workspace grid without a second preview grid',async()=>{
- const [component,heroCss,previewCss]=await Promise.all([
+test('Corvo Hero reuses the fixed shared grid without a second preview grid',async()=>{
+ const [component,heroCss,previewCss,gridComponent,globalCss,gridAsset]=await Promise.all([
   read('src/project-hero/ProjectResponsiveHero.jsx'),
   read('src/project-hero/ProjectResponsiveHero.module.css'),
-  read('src/project-hero/ResponsiveHeroPreview.module.css')
+  read('src/project-hero/ResponsiveHeroPreview.module.css'),
+  read('src/GridPattern.jsx'),
+  read('src/style.css'),
+  read('public/figma/surface-grid-tile-16191c-191e21.svg')
  ]);
  assert.match(heroCss,/\.heroWorkspace\s*\{[\s\S]*?position:\s*relative/);
- assert.match(component,/import \{GridPattern\} from '\.\.\/v2\/GridPattern\.jsx'/);
- assert.match(component,/<GridPattern className=\{styles\.heroGrid\}\/>/);
+ assert.match(component,/import \{GridPattern\} from '\.\.\/GridPattern\.jsx'/);
+ assert.match(component,/<GridPattern\/>/);
  assert.doesNotMatch(heroCss,/\.heroWorkspace::before\s*\{/);
- assert.match(heroCss,/\.heroGrid\s*\{[^}]*--v2-grid-minor-position:\s*0 0;[^}]*--v2-grid-major-position:\s*-80px 0;[^}]*inset:\s*0;[^}]*z-index:\s*0/s);
+ assert.doesNotMatch(heroCss,/\.heroGrid\s*\{/);
  assert.match(heroCss,/\.workspaceContent\s*\{[\s\S]*?z-index:\s*1/);
  assert.doesNotMatch(previewCss,/background-image/);
  assert.doesNotMatch(previewCss,/background-size/);
+ assert.match(gridComponent,/export function GridPattern\(\)/);
+ assert.match(gridComponent,/className="surface-grid-pattern"/);
+ assert.match(globalCss,/\.surface-grid-pattern\{position:absolute;inset:0;pointer-events:none;opacity:\.7;background-image:url\('\/figma\/surface-grid-tile-16191c-191e21\.svg'\);background-size:320px 320px;background-position:calc\(50% - 640px\) 0;background-repeat:repeat\}/);
+ assert.match(gridAsset,/width="320" height="320"/);
+ assert.match(gridAsset,/fill="#16191c"/);
+ assert.match(gridAsset,/fill="#191e21"/);
 });
 
 test('scenario tabs select ready Corvo scenes while adaptive tabs retain preset controls',async()=>{

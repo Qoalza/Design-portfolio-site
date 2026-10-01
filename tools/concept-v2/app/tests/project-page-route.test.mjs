@@ -171,10 +171,10 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(css,/\.scenarioHatch\s*\{[^}]*border-top:\s*1px solid #1d2124[^}]*border-bottom:\s*1px solid #1d2124[^}]*border-left:\s*0[^}]*border-right:\s*0/s);
  assert.match(css,/\.scenarioCanvas\s*\{[^}]*border:\s*1px solid #1d2124/s);
  assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*top:\s*50px[^}]*left:\s*79\.5px[^}]*width:\s*1015px[^}]*height:\s*902px/s);
- assert.match(page,/import \{GridPattern\} from '\.\.\/v2\/GridPattern'/);
- assert.match(page,/<GridPattern className=\{styles\.scenarioGrid\}\/>/);
+ assert.match(page,/import \{GridPattern\} from '\.\.\/GridPattern'/);
+ assert.match(page,/<GridPattern\/>/);
  assert.doesNotMatch(css,/\.scenarioCanvas::before/);
- assert.match(css,/\.scenarioGrid\s*\{[^}]*--v2-grid-minor-position:\s*40px 0[^}]*--v2-grid-major-position:\s*40px 0[^}]*width:\s*1360px[^}]*height:\s*1014px/s);
+ assert.doesNotMatch(css,/\.scenarioGrid\s*\{/);
  assert.equal(scenarioImage.readUInt32BE(16),2030);
  assert.equal(scenarioImage.readUInt32BE(20),1804);
  assert.equal(createHash('sha256').update(scenarioImage).digest('hex'),'616e72ac8ea6ba76199bfd0e6e561ab9e10af5f8492fd93dae9775c6bbb71bfe');

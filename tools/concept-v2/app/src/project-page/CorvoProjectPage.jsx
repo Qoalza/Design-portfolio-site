@@ -2,7 +2,7 @@ import {ProjectResponsiveHero} from '../project-hero/ProjectResponsiveHero';
 import {corvoResponsiveHero} from '../project-hero/definition.mjs';
 import {ControlButton} from '../Controls';
 import {V2Button} from '../v2/Controls';
-import {GridPattern} from '../v2/GridPattern';
+import {GridPattern} from '../GridPattern';
 import styles from './CorvoProjectPage.module.css';
 
 const projectDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
@@ -63,7 +63,7 @@ function ScenarioShowcase(){
   <div className={styles.scenarioShowcaseHeader}><div><p className={styles.scenarioEyebrow}>Один из сценариев</p><h2 id="scenario-showcase-title">Как создать медиа компанию?</h2><p>При создании медиакомпании пользователь выбирает её видимость, указывает название, ссылку и географию размещения, затем подключает план вознаграждения. Если готовые планы не подходят, новый можно настроить прямо в этом сценарии: задать долю выручки, CPA, условия достижения целей и параметры выплат.</p></div></div>
   <div className={styles.scenarioMedia}>
    <div className={styles.scenarioHatch} aria-hidden="true"/>
-   <div className={styles.scenarioCanvas}><GridPattern className={styles.scenarioGrid}/><img src="/figma/project-corvo/media-campaign-creation.png" width="1015" height="902" alt="Интерфейс создания медиа компании"/></div>
+   <div className={styles.scenarioCanvas}><GridPattern/><img src="/figma/project-corvo/media-campaign-creation.png" width="1015" height="902" alt="Интерфейс создания медиа компании"/></div>
    <div className={styles.scenarioHatch} aria-hidden="true"/>
   </div>
  </section>;
