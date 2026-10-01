@@ -1,7 +1,9 @@
 import {MorphIcon} from 'morphicons/react';
 import './stroke-morph-icon.css';
 
-export function StrokeMorphIcon({icon,size=16,spring='snappy',className=''}){
+export const STROKE_MORPH_SPRING=Object.freeze({stiffness:2000,damping:65});
+
+export function StrokeMorphIcon({icon,size=16,spring=STROKE_MORPH_SPRING,className=''}){
  return <span aria-hidden="true" className={`strokeMorphIcon ${className}`} style={{width:size,height:size}}>
   <MorphIcon
    icon={icon}

@@ -22,7 +22,7 @@ test('copy feedback restarts one two-second reset window',()=>{
  assert.deepEqual(scheduled.map(item=>item.delay),[2000,2000]);
 });
 
-test('stroke morphing is reusable, snappy, and preserves the icon-system contract',async()=>{
+test('stroke morphing is reusable, settles near 200ms, and preserves the icon-system contract',async()=>{
  const [component,icons,checkAsset,css,packageJson,designSystem]=await Promise.all([
   readFile(path.join(root,'src/morph-icon/StrokeMorphIcon.jsx'),'utf8'),
   readFile(path.join(root,'src/morph-icon/icons.mjs'),'utf8'),
@@ -35,7 +35,8 @@ test('stroke morphing is reusable, snappy, and preserves the icon-system contrac
  assert.equal(JSON.parse(packageJson).dependencies.morphicons,'1.7.1');
  assert.match(component,/from 'morphicons\/react'/);
  assert.match(component,/reducedMotion="user"/);
- assert.match(component,/spring='snappy'/);
+ assert.match(component,/STROKE_MORPH_SPRING=Object\.freeze\(\{stiffness:2000,damping:65\}\)/);
+ assert.match(component,/spring=STROKE_MORPH_SPRING/);
  assert.match(component,/spring=\{spring\}/);
  assert.match(component,/strokeWidth=\{1\.3\}/);
  assert.match(css,/\.strokeMorphIcon path\s*\{[^}]*fill:\s*none[^}]*stroke:\s*currentColor[^}]*stroke-width:\s*1\.3[^}]*vector-effect:\s*non-scaling-stroke/s);
