@@ -193,7 +193,7 @@ test('About adopts the current palette without changing deck or viewer mechanics
  assert.match(css,/\.about-heading-shell\{[^}]*background:var\(--cv2-container-neutral-bg-main\)/);
  assert.match(css,/\.about-heading h2\{[^}]*font:500 36px\/48px "Google Sans"[^}]*color:var\(--cv2-text-neutral-primary\)/);
  assert.match(css,/\.about-heading-copy>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
- assert.match(css,/\.about-copy\{[^}]*color:var\(--cv2-text-neutral-muted\)/);
+ assert.match(css,/\.about-copy\{[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
  assert.match(css,/\.about-viewer-content p\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
  assert.match(about,/aboutTransitionFrames/);
  assert.match(about,/interpolateDeckFrames/);

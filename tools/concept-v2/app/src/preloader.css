@@ -4,7 +4,7 @@
   display: grid;
   place-items: center;
   isolation: isolate;
-  background: radial-gradient(circle 923px at 50% 52.1875%, var(--cv2-container-neutral-faint) 0%, var(--cv2-container-neutral-inverse) 100%);
+  background: radial-gradient(circle 923px at 50% 52.1875%, #121517 0%, #0e1012 100%);
 }
 
 .preloader-page.is-overlay {
@@ -32,11 +32,11 @@
 }
 
 .preloader-page::before {
-  background: radial-gradient(circle 923px at 50% 52.1875%, #171512 0%, var(--cv2-container-neutral-inverse) 100%);
+  background: radial-gradient(circle 923px at 50% 52.1875%, #171512 0%, #0e1012 100%);
 }
 
 .preloader-page::after {
-  background: radial-gradient(circle 923px at 50% 52.1875%, #171312 0%, var(--cv2-container-neutral-inverse) 100%);
+  background: radial-gradient(circle 923px at 50% 52.1875%, #171312 0%, #0e1012 100%);
 }
 
 .preloader-page[data-state='slow']::before,
@@ -48,11 +48,8 @@
   flex-direction: column;
   align-items: center;
   gap: 32px;
-  height: 152px;
   max-width: calc(100vw - 32px);
 }
-.preloader-page[data-state='slow'] .preloader-content,
-.preloader-page[data-state='connection'] .preloader-content { height: 280px; }
 
 .preloader-symbol-slot {
   position: relative;
@@ -67,7 +64,7 @@
   height: 96px;
   flex: none;
   overflow: visible;
-  color: var(--cv2-text-neutral-primary);
+  color: #f2f4f5;
   transition: color var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1), opacity 90ms ease;
 }
 
@@ -87,12 +84,12 @@
 .preloader-symbol-slot:has(.preloader-morph.is-active) .preloader-symbol { opacity: 0; }
 
 .preloader-caption {
-  height: 24px;
+  height: 20px;
   display: grid;
   place-items: center;
   margin: 0;
-  color: var(--cv2-text-neutral-muted);
-  font: 400 16px/24px Onest, sans-serif;
+  color: #949ea6;
+  font: 400 16px/20px Onest, sans-serif;
   letter-spacing: -.2px;
   text-align: center;
   transition: opacity var(--preloader-state-duration) cubic-bezier(.22,.61,.36,1);
@@ -131,12 +128,12 @@
 }
 
 .preloader-status-copy h1 {
-  color: var(--cv2-text-neutral-primary);
+  color: #e9eef2;
   font: 400 20px/28px "Google Sans", sans-serif;
 }
 
 .preloader-status-copy p {
-  color: var(--cv2-text-neutral-muted);
+  color: #949ea6;
   font: 350 16px/24px Onest, sans-serif;
   white-space: nowrap;
 }

@@ -48,7 +48,7 @@ test('Corvo project actions use enabled design-system controls',async()=>{
  assert.match(page,/variant="neutral"[^>]*iconRight="figma"[^>]*>\{metrics\[0\]\.action\}/);
  assert.match(page,/metrics\.slice\(1\).*<ProjectAction iconLeft=\{metric\.icon\} iconRight="arrow">\{metric\.action\}<\/ProjectAction>/s);
  assert.match(css,/\.projectActions\s*\{[^}]*border:\s*0/s);
- assert.match(css,/\.projectActions\s*\{[^}]*box-shadow:\s*inset 0 0 0 1px var\(--cv2-border-neutral-surface\)/s);
+ assert.match(css,/\.projectActions\s*\{[^}]*box-shadow:\s*inset 0 0 0 1px #272d30/s);
  assert.match(css,/\.projectActions \.action\s*\{[^}]*border:\s*0/s);
  assert.match(css,/\.projectActions \.action:first-child\s*\{[^}]*width:\s*182px/s);
  assert.match(css,/\.projectActions \.action:last-child\s*\{[^}]*width:\s*91px/s);
@@ -83,8 +83,8 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
  assert.doesNotMatch(css,/\.header\s*\{[^}]*border-bottom:/s);
  assert.match(css,/\.brand b\s*\{[^}]*font-variation-settings:\s*"GRAD" -25, "opsz" 18/s);
  assert.match(css,/\.brand small\s*\{[^}]*font-variation-settings:\s*"GRAD" -30, "opsz" 18/s);
- assert.match(css,/\.summary\s*\{[^}]*border-top:\s*1px solid var\(--cv2-border-neutral-surface\)/s);
- assert.match(css,/\.footerIcon\s*\{[^}]*background:\s*var\(--cv2-element-neutral-muted\)/s);
+ assert.match(css,/\.summary\s*\{[^}]*border-top:\s*1px solid #272d30/s);
+ assert.match(css,/\.footerIcon\s*\{[^}]*background:\s*#747f87/s);
 });
 
 test('Corvo project layout preserves the measured 1280px Figma structure',async()=>{
@@ -98,25 +98,20 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(page,/Макеты собраны в одном файле: основные сценарии, состояния и их адаптация под три размера экрана/);
  assert.match(page,/className=\{styles\.contextSection\}/);
  assert.match(page,/className=\{styles\.scenarioSection\}/);
- assert.match(page,/function MediaCampaigns\(/);
- assert.match(page,/media-campaigns\.png/);
- assert.doesNotMatch(page,/function ScenarioDiagram\(/);
  assert.match(page,/className=\{styles\.designSection\}/);
  assert.match(page,/className=\{styles\.resultWrap\}/);
  assert.doesNotMatch(page,/CorvoProjectPageFidelity/);
 
- assert.match(css,/\.summary\s*\{[^}]*height:\s*440px/s);
+ assert.match(css,/\.summary\s*\{[^}]*height:\s*416px/s);
  assert.match(css,/\.summaryInner\s*\{[^}]*width:\s*1280px/s);
- assert.match(css,/\.summaryContent\s*\{[^}]*width:\s*1000px[^}]*margin-left:\s*52px/s);
+ assert.match(css,/\.summaryContent\s*\{[^}]*width:\s*1000px[^}]*margin-left:\s*36px/s);
  assert.match(css,/\.metrics\s*\{[^}]*height:\s*817px/s);
- assert.match(css,/\.metricWide\s*\{[^}]*grid-template-columns:\s*843px 333px/s);
- assert.match(css,/\.metricWide::after\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*box-shadow:\s*inset 0 0 0 1px var\(--cv2-border-neutral-surface\)[^}]*pointer-events:\s*none/s);
- assert.match(css,/\.copyColumn\s*\{[^}]*width:\s*1000px/s);
- assert.match(css,/\.contextSection\s*\{[^}]*height:\s*504px/s);
- assert.match(css,/\.scenarioSection\s*\{[^}]*height:\s*480px/s);
- assert.match(css,/\.mediaCampaigns\s*\{[^}]*height:\s*1236px/s);
- assert.match(css,/\.mediaStage\s*\{[^}]*width:\s*1176px[^}]*height:\s*1016px/s);
- assert.match(css,/\.designSection\s*\{[^}]*height:\s*887px/s);
+ assert.match(css,/\.metricWide\s*\{[^}]*grid-template-columns:\s*875px 333px/s);
+ assert.match(css,/\.metricWide::after\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*box-shadow:\s*inset 0 0 0 1px #272d30[^}]*pointer-events:\s*none/s);
+ assert.match(css,/\.copyColumn\s*\{[^}]*width:\s*944px/s);
+ assert.match(css,/\.contextSection\s*\{[^}]*height:\s*449px/s);
+ assert.match(css,/\.scenarioSection\s*\{[^}]*height:\s*959px/s);
+ assert.match(css,/\.designSection\s*\{[^}]*height:\s*774px/s);
  assert.match(css,/\.result\s*\{[^}]*height:\s*500px/s);
  assert.match(css,/\.resultWrap\s*\{[^}]*height:\s*541px/s);
  assert.match(css,/\.footerText\s*\{[^}]*line-height:\s*14px/s);

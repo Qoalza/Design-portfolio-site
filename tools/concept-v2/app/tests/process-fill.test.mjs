@@ -72,7 +72,7 @@ test('desktop Process gives every card its own outlined surface and preserves ex
  const fade=await readFile(path.resolve(import.meta.dirname,'../public/figma/process-grid-fade.svg'),'utf8');
  assert.match(css,/:root\{--cv2-decoration-hatch:#1d2124\}/);
  assert.match(css,/\.steps\{[^}]*grid-template-columns:minmax\(0,401fr\) minmax\(0,446fr\) minmax\(0,401fr\)[^}]*gap:16px[^}]*background:transparent[^}]*border:0/);
- assert.match(css,/\.step\{[^}]*height:297px[^}]*padding:36px[^}]*border:1px solid var\(--border\)[^}]*border-radius:12px[^}]*background:var\(--surface\)/);
+ assert.match(css,/\.step\{[^}]*height:301px[^}]*padding:36px[^}]*border:1px solid var\(--border\)[^}]*border-radius:12px[^}]*background:var\(--surface\)/);
  assert.match(css,/\.step-grid\{[^}]*width:214px[^}]*height:194px[^}]*overflow:hidden[^}]*border-radius:12px 0 0 0/);
  assert.match(css,/\.step-grid\{[^}]*background-image:linear-gradient\(to right,rgba\(39,45,48,\.5\) 0 1px,transparent 1px 36px\),linear-gradient\(to bottom,rgba\(39,45,48,\.5\) 0 1px,transparent 1px 36px\)[^}]*background-position:-1px -1px,-1px -1px/);
  assert.match(css,/\.step-grid::after\{[^}]*inset:-1px 0 0 -1px[^}]*background:url\('\/figma\/process-grid-fade\.svg'\) center\/100% 100% no-repeat/);

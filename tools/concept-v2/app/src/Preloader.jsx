@@ -164,7 +164,7 @@ export function Preloader({state,captionSet,onRetry,showReadyMessage=false,overl
       </p>
       {statusMode&&<div key={statusMode} className={`preloader-status ${statusMode} ${mode==='normal'?'is-exiting':''}`} role={mode==='normal'?undefined:statusMode==='connection'?'alert':'status'} aria-hidden={mode==='normal'}>
         <div className="preloader-status-copy">
-          <h1>{statusMode==='slow'?'Долгая загрузка':'Проблема с соединением'}</h1>
+          <h1>{statusMode==='slow'?'Долгая загрузка':'Проблема соединения'}</h1>
           <p>{statusMode==='slow'
             ?<>Страница открывается дольше обычного.<br/>Подождите или повторите попытку.</>
             :<>Не удалось открыть страницу.<br/>Проверьте соединение и попробуйте ещё раз.</>}</p>
