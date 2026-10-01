@@ -2,8 +2,8 @@
 <rect width="215" height="195" fill="url(#process-grid-fade)"/>
 <defs>
 <radialGradient id="process-grid-fade" cx="0" cy="0" r="10" gradientUnits="userSpaceOnUse" gradientTransform="matrix(19.012 17.858 -19.624 17.183 -28.866 -28.355)">
-<stop stop-color="#181C1F" stop-opacity="0"/>
-<stop offset="1" stop-color="#181C1F"/>
+<stop stop-color="#1a1d1f" stop-opacity="0"/>
+<stop offset="1" stop-color="#1a1d1f"/>
 </radialGradient>
 </defs>
 </svg>

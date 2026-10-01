@@ -88,7 +88,7 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(tabComponent,/name==='size-mobile'[^\n]*fill="currentColor" fillOpacity="\.2"/);
  assert.match(tabCss,/\.v2-scenario-tab\s*\{[\s\S]*?height:\s*40px/);
  assert.match(tabCss,/\.v2-size-tab\s*\{[\s\S]*?height:\s*48px/);
- assert.match(tabCss,/--v2-scenario-icon-enable:\s*#747f87/);
+ assert.match(tabCss,/--v2-scenario-icon-enable:\s*#788087/);
  assert.match(tabCss,/--v2-size-subtitle-active:\s*#43a2ee/);
  assert.match(tabCss,/\.v2-scenario-tab\s*\{[^}]*overflow:\s*hidden/);
  assert.match(tabCss,/\.v2-scenario-tab-line\s*\{[^}]*height:\s*1px;[^}]*overflow:\s*hidden/);
@@ -102,10 +102,10 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(heroCss,/height:\s*980px/);
  assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
  assert.match(heroCss,/\.adaptiveRuler\s*\{[\s\S]*?height:\s*64px/);
- assert.match(heroCss,/\.heroTopbarInner::after\s*\{[^}]*background:\s*#1d2124/s);
- assert.match(heroCss,/\.topbarSide::after\s*\{[^}]*linear-gradient\(90deg, #1d2124 0 16px, transparent 16px 32px\)/s);
- assert.match(heroCss,/\.adaptiveTrack\s*\{[^}]*border-top:\s*1px solid #272d30/s);
- assert.match(topbarSeparation,/stroke="#1D2124"/);
+ assert.match(heroCss,/\.heroTopbarInner::after\s*\{[^}]*background:\s*#1f2224/s);
+ assert.match(heroCss,/\.topbarSide::after\s*\{[^}]*linear-gradient\(90deg, #1f2224 0 16px, transparent 16px 32px\)/s);
+ assert.match(heroCss,/\.adaptiveTrack\s*\{[^}]*border-top:\s*1px solid #272b2e/s);
+ assert.match(topbarSeparation,/stroke="#1F2224"/);
  assert.match(definition,/tabWidth:146/);
  assert.match(definition,/tabWidth:92/);
  assert.match(definition,/tabWidth:97/);

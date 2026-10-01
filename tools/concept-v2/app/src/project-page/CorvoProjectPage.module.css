@@ -1,7 +1,7 @@
 .page {
   min-width: 1280px;
-  background: #14181b;
-  color: #e9eef2;
+  background: #16191a;
+  color: #eceff2;
   font-family: Onest, sans-serif;
 }
 
@@ -19,7 +19,7 @@
 
 .header {
   height: 80px;
-  background: #14181b;
+  background: #16191a;
 }
 
 .headerInner {
@@ -93,7 +93,7 @@
 }
 
 .navigation button:disabled .headerIcon {
-  color: #363d42;
+  color: #3d4347;
 }
 
 .navigation a:nth-child(1) {
@@ -127,7 +127,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #b7c0c7;
+  color: #bbc2c7;
   font: 400 14px/16px Onest, sans-serif;
   letter-spacing: -.1px;
   white-space: nowrap;
@@ -139,7 +139,7 @@
 
 .crumbRow {
   height: 65px;
-  border-bottom: 1px solid #1d2124;
+  border-bottom: 1px solid #1f2224;
 }
 
 .crumb {
@@ -148,7 +148,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #949ea6;
+  color: #99a1a6;
   font: 400 14px/16px Onest, sans-serif;
 }
 
@@ -157,7 +157,7 @@
   min-width: 67px;
   height: 16px;
   padding: 0;
-  color: #b7c0c7;
+  color: #bbc2c7;
   border-radius: 4px;
 }
 
@@ -166,14 +166,14 @@
   min-width: 16px;
   height: 16px;
   padding: 0;
-  color: #b7c0c7;
+  color: #bbc2c7;
   border-radius: 4px;
 }
 
 .projectIntro {
   height: 216px;
-  border-bottom: 1px solid #1d2124;
-  background: #121517;
+  border-bottom: 1px solid #1f2224;
+  background: #141617;
 }
 
 .projectIntro .workArea {
@@ -186,7 +186,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #949ea6;
+  color: #99a1a6;
   font: 400 14px/16px "Source Code Pro", monospace;
   letter-spacing: -.5px;
 }
@@ -195,13 +195,13 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #747f87;
+  background: #788087;
 }
 
 .tags b {
   width: 1px;
   height: 16px;
-  background: #2d3438;
+  background: #323639;
 }
 
 .projectHeading {
@@ -247,7 +247,7 @@
 .projectIdentity > p {
   margin: 0;
   padding-left: 68px;
-  color: #d3dbe0;
+  color: #d6dce0;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -259,8 +259,8 @@
   gap: 8px;
   border: 0;
   border-radius: 12px;
-  background: #181c1f;
-  box-shadow: inset 0 0 0 1px #1d2124;
+  background: #1a1d1f;
+  box-shadow: inset 0 0 0 1px #1f2224;
 }
 
 .action {
@@ -315,10 +315,10 @@
 }
 
 .summary {
-  height: 416px;
-  border-top: 1px solid #1d2124;
-  border-bottom: 1px solid #1d2124;
-  background: #121517;
+  height: 440px;
+  border-top: 1px solid #1f2224;
+  border-bottom: 1px solid #1f2224;
+  background: #141617;
 }
 
 .summaryInner {
@@ -334,7 +334,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: repeating-linear-gradient(to bottom, #1d2124 0 16px, transparent 16px 32px);
+  background: repeating-linear-gradient(to bottom, #1f2224 0 16px, transparent 16px 32px);
 }
 
 .summaryInner::before { left: 0; }
@@ -342,14 +342,14 @@
 
 .summaryContent {
   width: 1000px;
-  margin-left: 36px;
+  margin-left: 52px;
   padding-top: 48px;
 }
 
 .summaryContent > p {
   width: 992px;
   margin: 0 0 24px 4px;
-  color: #b7c0c7;
+  color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -362,10 +362,10 @@
   padding: 20px;
   display: flex;
   gap: 12px;
-  border: 1px solid #1d2124;
+  border: 1px solid #1f2224;
   border-radius: 12px;
-  background: #181c1f;
-  color: #d3dbe0;
+  background: #1a1d1f;
+  color: #d6dce0;
 }
 
 .noticeIcon {
@@ -383,13 +383,13 @@
 .notice small {
   margin-top: 8px;
   display: block;
-  color: #949ea6;
+  color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
 
 .metrics {
   height: 817px;
-  border-bottom: 1px solid #1d2124;
+  border-bottom: 1px solid #1f2224;
 }
 
 .metricsHeading {
@@ -410,7 +410,7 @@
 
 .metricsHeading p {
   margin: 0;
-  color: #d3dbe0;
+  color: #d6dce0;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -423,9 +423,9 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  border: 1px solid #1d2124;
+  border: 1px solid #1f2224;
   border-radius: 12px;
-  background: #181c1f;
+  background: #1a1d1f;
 }
 
 .metricWide {
@@ -437,7 +437,7 @@
   grid-template-columns: 843px 331px;
   gap: 0;
   overflow: hidden;
-  border: 1px solid #1d2124;
+  border: 1px solid #1f2224;
   border-radius: 12px;
 }
 
@@ -445,13 +445,13 @@
   padding: 24px 24px 24px 28px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #1d2124;
+  border-right: 1px solid #1f2224;
 }
 
 .metricWideMain > p {
   width: 791px;
   margin: auto 0 0;
-  color: #d3dbe0;
+  color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -459,13 +459,13 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  background: #121517 url('/figma/dot-tile.svg') repeat;
+  background: #141617 url('/figma/dot-tile.svg') repeat;
 }
 
 .metricWideAside > p {
   width: 283px;
   margin: 0 0 0 2px;
-  color: #d3dbe0;
+  color: #bbc2c7;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -503,7 +503,7 @@
 
 .metricHeading > p {
   margin: 0 0 8px;
-  color: #949ea6;
+  color: #99a1a6;
   font: 400 16px/20px Onest, sans-serif;
 }
 
@@ -515,13 +515,13 @@
 
 .metric h3 em {
   margin-left: 8px;
-  color: #475157;
+  color: #565c61;
   font-style: normal;
 }
 
 .metric > p {
   margin: 0 0 0 4px;
-  color: #d3dbe0;
+  color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -539,7 +539,7 @@
 
 .contentSection {
   padding: 64px 56px;
-  border-bottom: 1px solid #1d2124;
+  border-bottom: 1px solid #1f2224;
 }
 
 .copyColumn {
@@ -551,7 +551,7 @@
 
 .copyColumn p {
   margin: 0;
-  color: #b7c0c7;
+  color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -589,7 +589,7 @@
 
 .scenarioEyebrow {
   margin: 0 0 12px;
-  color: #949ea6;
+  color: #99a1a6;
   font: 500 14px/16px Onest, sans-serif;
   letter-spacing: -.1px;
   text-transform: uppercase;
@@ -603,7 +603,7 @@
 
 .scenarioShowcaseHeader p:last-child {
   width: 944px;
-  color: #b7c0c7;
+  color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -611,24 +611,24 @@
   height: 1016px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 1176px minmax(0, 1fr);
-  background: #121517;
+  background: #141617;
 }
 
 .scenarioHatch {
-  border-top: 1px solid #1d2124;
-  border-bottom: 1px solid #1d2124;
+  border-top: 1px solid #1f2224;
+  border-bottom: 1px solid #1f2224;
   border-left: 0;
   border-right: 0;
-  background-color: #121517;
-  background-image: repeating-linear-gradient(126.87deg, transparent 0 10px, #1d2124 10px 11px, transparent 11px 15px);
+  background-color: #141617;
+  background-image: repeating-linear-gradient(126.87deg, transparent 0 10px, #1f2224 10px 11px, transparent 11px 15px);
 }
 
 .scenarioCanvas {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid #1d2124;
-  background: #121517;
+  border: 1px solid #1f2224;
+  background: #141617;
 }
 
 .scenarioCanvas > img {
@@ -669,7 +669,7 @@
   flex-direction: column;
   gap: 4px;
   list-style: none;
-  color: #b7c0c7;
+  color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
 
@@ -699,8 +699,8 @@
 
 .resultWrap {
   height: 541px;
-  border-top: 1px solid #1d2124;
-  background: #121517;
+  border-top: 1px solid #1f2224;
+  background: #141617;
 }
 
 .result {
@@ -729,8 +729,8 @@
 
 .footer {
   height: 61px;
-  border-top: 1px solid #1d2124;
-  background: #121517;
+  border-top: 1px solid #1f2224;
+  background: #141617;
 }
 
 .footerText {
@@ -738,7 +738,7 @@
   padding: 20px 48px 24px;
   display: flex;
   justify-content: space-between;
-  color: #747f87;
+  color: #788087;
   font-family: "Source Code Pro", monospace;
   font-size: 12px;
   font-weight: 400;
@@ -757,7 +757,7 @@
   height: 16px;
   display: block;
   flex: 0 0 16px;
-  background: #747f87;
+  background: #788087;
   -webkit-mask: url('/figma/project-corvo/footer-corrupted.svg') center/16px 16px no-repeat;
   mask: url('/figma/project-corvo/footer-corrupted.svg') center/16px 16px no-repeat;
 }

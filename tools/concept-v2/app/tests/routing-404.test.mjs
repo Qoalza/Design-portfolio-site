@@ -1,7 +1,15 @@
 import test from 'node:test'; import assert from 'node:assert/strict'; import {chooseRoutes,drop,dropResult,fixedNodeVisual,routeProgress,status} from '../src/routing-404.mjs';
 import {readFileSync} from 'node:fs';
 import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from '../src/routing-404-pulse.mjs';
+const routingCss=readFileSync(new URL('../src/routing-404.css',import.meta.url),'utf8');
 const slots={research:{x:0,y:0},concept:{x:100,y:0},delivery:{x:200,y:0},gitBranch:{x:300,y:0},connector:{x:400,y:0}};
+test('404 outer shell follows the current palette while the deferred graph stays isolated',()=>{
+ assert.match(routingCss,/\.routing404\s*\{[^}]*var\(--cv2-container-neutral-faint\)[^}]*var\(--cv2-container-neutral-inverse\)[^}]*color:var\(--cv2-text-neutral-primary\)/s);
+ assert.match(routingCss,/\.routing404-header p\s*\{[^}]*color:var\(--cv2-text-neutral-muted\)/s);
+ assert.match(routingCss,/\.routing404-home\.control\.light:hover\s*\{[^}]*--control-border:var\(--cv2-border-neutral-surface\)/s);
+ assert.match(routingCss,/\.routing404-home\.control\.light:active\s*\{[^}]*--control-border:var\(--cv2-border-neutral-muted\)/s);
+ assert.match(routingCss,/\.routing404-hint\s*\{[^}]*color:var\(--cv2-text-neutral-thin\)[^}]*font:400 12px\/14px/s);
+});
 test('free drop retains no slot',()=>assert.deepEqual(drop({},'research',{x:900,y:900,slots}),{}));
 test('nearest free slot snaps only inside radius',()=>assert.deepEqual(drop({},'research',{x:5,y:0,slots}),{research:'research'}));
 test('wrong slot remains and reports mismatch',()=>assert.equal(status(drop({},'research',{x:100,y:0,slots})).wrong.length,1));

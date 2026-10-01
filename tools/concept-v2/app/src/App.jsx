@@ -138,7 +138,7 @@ function Hero(){
    <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens/></div>
   </div></div>
-  <div className="hero-bottom"><HeroDotField layout={layout}/><div className="hero-bottom-inner"><p className="hero-fact-chip"><span className="hero-fact-chip-desktop">29 лет · Екатеринбург · Middle+ / Senior</span><span className="hero-fact-chip-mobile">29 лет · Екатеринбург · Senior</span></p></div></div>
+  <div className="hero-bottom"><HeroDotField layout={layout}/><div className="hero-bottom-inner"><p className="hero-fact-chip"><span>29 лет</span><i aria-hidden="true"/><span>Екатеринбург</span><i aria-hidden="true"/><span className="hero-fact-chip-desktop">Middle+ / Senior</span><span className="hero-fact-chip-mobile">Senior</span></p></div></div>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){

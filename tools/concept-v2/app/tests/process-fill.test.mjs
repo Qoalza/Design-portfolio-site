@@ -53,10 +53,10 @@ test('process card hover and focus share the exact Figma visual state',async()=>
 test('desktop Process uses clean exact Figma assets while retaining the existing responsive icons',async()=>{
  for(const name of ['imgFrame26086399.svg','imgFrame26086400.svg','imgFrame26086401.svg']){
   const svg=await readFile(path.resolve(import.meta.dirname,'../public/figma',name),'utf8');
-  assert.match(svg,/Rectangle (?:11|12|13|14)|#2D3438/);
+  assert.match(svg,/Rectangle (?:11|12|13|14)|#323639/);
   const desktop=await readFile(path.resolve(import.meta.dirname,`../public/figma/${name.replace('.svg','-desktop.svg')}`),'utf8');
-  for(const color of ['#1D2124','#475157','#747F87'])assert.ok(desktop.includes(color),`${name} desktop lacks ${color}`);
-  assert.doesNotMatch(desktop,/Rectangle (?:11|12|13|14)|#2D3438/);
+  for(const color of ['#1f2224','#565c61','#788087'])assert.ok(desktop.includes(color),`${name} desktop lacks ${color}`);
+  assert.doesNotMatch(desktop,/Rectangle (?:11|12|13|14)|#323639/);
   assert.doesNotMatch(desktop,/#202122|#676E73|#ADB3B8|#2E3133/);
   const hover=await readFile(path.resolve(import.meta.dirname,`../public/figma/${name.replace('.svg','-hover.svg')}`),'utf8');
   for(const color of ['#141617','#43A2EE','#1D90EB','#62B8FC'])assert.ok(hover.includes(color),`${name} hover lacks ${color}`);
@@ -77,12 +77,12 @@ test('desktop Process matches the current 4150:804103 card geometry and preserve
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const fade=await readFile(path.resolve(import.meta.dirname,'../public/figma/process-grid-fade.svg'),'utf8');
- assert.match(css,/:root\{--cv2-decoration-hatch:#1d2124\}/);
+ assert.match(css,/:root\{--cv2-decoration-hatch:var\(--cv2-border-neutral-thin\)\}/);
  assert.match(css,/\.steps\{[^}]*grid-template-columns:minmax\(0,401fr\) minmax\(0,446fr\) minmax\(0,401fr\)[^}]*gap:16px[^}]*background:transparent[^}]*border:0/);
  assert.match(css,/\.step\{[^}]*height:297px[^}]*padding:0[^}]*border:1px solid var\(--cv2-border-neutral-thin\)[^}]*border-radius:12px[^}]*background:var\(--surface\)/);
  assert.match(css,/\.step-body\{[^}]*position:absolute[^}]*left:-1px[^}]*right:-1px[^}]*top:0[^}]*height:296px[^}]*display:flex[^}]*gap:48px[^}]*padding:36px/);
  assert.match(css,/\.step-grid\{[^}]*width:214px[^}]*height:194px[^}]*overflow:hidden[^}]*border-radius:12px 0 0 0/);
- assert.match(css,/\.step-grid\{[^}]*background-image:linear-gradient\(to right,#272d30 0 1px,transparent 1px 36px\),linear-gradient\(to bottom,#272d30 0 1px,transparent 1px 36px\)[^}]*background-position:-1px -1px,-1px -1px/);
+ assert.match(css,/\.step-grid\{[^}]*background-image:linear-gradient\(to right,#272b2e 0 1px,transparent 1px 36px\),linear-gradient\(to bottom,#272b2e 0 1px,transparent 1px 36px\)[^}]*background-position:-1px -1px,-1px -1px/);
  assert.match(css,/\.step-grid::after\{[^}]*inset:-1px 0 0 -1px[^}]*background:url\('\/figma\/process-grid-fade\.svg'\) center\/100% 100% no-repeat/);
  assert.match(css,/\.step-grid::before\{[^}]*#173954[^}]*opacity:0[^}]*300ms ease-in/);
  assert.match(css,/\.step\.is-fill-active \.step-grid::before\{opacity:1\}/);

@@ -1,28 +1,28 @@
 :root {
-  --v2-scenario-icon-enable: #747f87;
-  --v2-scenario-label-enable: #b7c0c7;
-  --v2-scenario-icon-hover: #b7c0c7;
-  --v2-scenario-label-hover: #e9eef2;
-  --v2-scenario-line-hover: #475157;
+  --v2-scenario-icon-enable: #788087;
+  --v2-scenario-label-enable: #bbc2c7;
+  --v2-scenario-icon-hover: #bbc2c7;
+  --v2-scenario-label-hover: #eceff2;
+  --v2-scenario-line-hover: #565c61;
   --v2-scenario-icon-active: #43a2ee;
-  --v2-scenario-label-active: #e9eef2;
+  --v2-scenario-label-active: #eceff2;
   --v2-scenario-line-active: #1d90eb;
-  --v2-scenario-icon-disabled: #363d42;
-  --v2-scenario-label-disabled: #475157;
-  --v2-size-subtitle-enable: #475157;
-  --v2-size-value-enable: #949ea6;
-  --v2-size-icon-enable: #b7c0c7;
-  --v2-size-subtitle-hover: #949ea6;
-  --v2-size-value-hover: #d3dbe0;
-  --v2-size-icon-hover: #d3dbe0;
-  --v2-size-container-hover: #181c1f;
+  --v2-scenario-icon-disabled: #3d4347;
+  --v2-scenario-label-disabled: #565c61;
+  --v2-size-subtitle-enable: #565c61;
+  --v2-size-value-enable: #99a1a6;
+  --v2-size-icon-enable: #bbc2c7;
+  --v2-size-subtitle-hover: #99a1a6;
+  --v2-size-value-hover: #d6dce0;
+  --v2-size-icon-hover: #d6dce0;
+  --v2-size-container-hover: #1a1d1f;
   --v2-size-subtitle-active: #43a2ee;
-  --v2-size-value-active: #d3dbe0;
+  --v2-size-value-active: #d6dce0;
   --v2-size-icon-active: #43a2ee;
-  --v2-size-container-active: #1d2124;
-  --v2-size-subtitle-disabled: #475157;
-  --v2-size-value-disabled: #475157;
-  --v2-size-icon-disabled: #363d42;
+  --v2-size-container-active: #1f2224;
+  --v2-size-subtitle-disabled: #565c61;
+  --v2-size-value-disabled: #565c61;
+  --v2-size-icon-disabled: #3d4347;
 }
 
 .v2-hero-tab-icon {

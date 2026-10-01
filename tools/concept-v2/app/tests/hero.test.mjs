@@ -37,8 +37,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
  const waveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask.svg'),'utf8');
- assert.match(app,/29 лет · Екатеринбург · Middle\+ \/ Senior/);
- assert.match(app,/hero-fact-chip-mobile[^>]*>29 лет · Екатеринбург · Senior/);
+ assert.match(app,/className="hero-fact-chip"><span>29 лет<\/span><i aria-hidden="true"\/><span>Екатеринбург<\/span><i aria-hidden="true"\/><span className="hero-fact-chip-desktop">Middle\+ \/ Senior<\/span><span className="hero-fact-chip-mobile">Senior<\/span>/);
  assert.match(css,/\.hero-fact-chip-mobile\{display:none\}/);
  assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.hero-fact-chip-desktop\{display:none\}[\s\S]*?\.hero-fact-chip-mobile\{display:inline\}/);
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
@@ -56,7 +55,8 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots\{[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*mask-image:none/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots::after\{[^}]*radial-gradient\(ellipse 48% 100% at 50% 0,rgb\(20 24 27 \/ \.98\)[^}]*linear-gradient\(to bottom,var\(--cv2-container-neutral-bg-main\) 0%[^}]*44%[^}]*52%/);
  assert.doesNotMatch(css,/hero-bottom-wave-mask-large/);
- assert.match(css,/\.hero-fact-chip\{[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px/);
+ assert.match(css,/\.hero-fact-chip\{[^}]*gap:12px[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(css,/\.hero-fact-chip i\{[^}]*width:4px[^}]*height:4px[^}]*background:var\(--cv2-element-neutral-thin\)/);
 });
 
 test('desktop Hero wave leaves the source map and mobile Hero untouched',async()=>{

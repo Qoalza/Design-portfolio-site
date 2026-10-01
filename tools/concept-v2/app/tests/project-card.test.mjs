@@ -44,7 +44,7 @@ test('project cards map the current Figma configurations and states',async()=>{
   assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-shade\{inset:0 0 -1px 0;width:auto;height:auto;transform:none;border-radius:11px 11px 0 0;background:url\('\/figma\/project-shade-preview\.svg'\) center\/100% 100% no-repeat\}/);
   assert.match(css,/\.project-front-layer\{z-index:4\}/);
   assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-front-layer\{left:calc\(50% - 19\.5px\);bottom:19\.9px\}/);
-  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-glow\{[^}]*border-radius:11px 11px 0 0[^}]*rgba\(45,95,135,\.6\)[^}]*rgba\(35,62,83,\.8\)[^}]*rgba\(29,45,57,\.9\)[^}]*#181c1f 69\.36%/);
+  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-glow\{[^}]*border-radius:11px 11px 0 0[^}]*rgba\(45,95,135,\.6\)[^}]*rgba\(35,62,83,\.8\)[^}]*rgba\(29,45,57,\.9\)[^}]*#1a1d1f 69\.36%/);
   assert.match(css,/\.project:hover \.project-back-layer,\.project:focus-within \.project-back-layer\{left:calc\(50% \+ 79\.96px\);bottom:87\.15px/);
   assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project:hover \.project-back-layer,\.project:focus-within \.project-back-layer\{left:calc\(50% \+ 80\.21px\);bottom:87\.15px/);
   assert.doesNotMatch(css,/\.project-shade\{[^}]*height:417px/);
@@ -85,7 +85,7 @@ test('Projects publication note follows the user-approved homepage copy',async()
  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.projects-heading>\.projects-status\{[^}]*color:var\(--cv2-text-neutral-thin\)/);
  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.process-heading>\.tech-note\{[^}]*color:var\(--cv2-text-neutral-thin\)/);
  const shade=await readFile(path.join(root,'public/figma/project-shade-preview.svg'),'utf8');
- assert.match(shade,/stop-color="#181C1F"/);
+ assert.match(shade,/stop-color="#1a1d1f"/);
  assert.doesNotMatch(shade,/stop-color="#1D1E1F"/);
 });
 
