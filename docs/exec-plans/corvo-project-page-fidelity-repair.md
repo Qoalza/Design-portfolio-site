@@ -2,7 +2,8 @@
 
 ## Status
 
-`COMPLETE` — implementation is isolated on `codex/corvo-fidelity-repair`.
+`COMPLETE` — повторный аудит, исправления и итоговая проверка завершены в
+изолированной ветке `codex/corvo-fidelity-repair`.
 
 ## Outcome
 
@@ -26,28 +27,30 @@ and every working part outside the confirmed visual defects.
 1. The runtime and Figma have the same section boundaries: header 145 px,
    intro 216 px, Hero 980 px, summary 416 px, metrics 817 px, long form
    1042 px, scenario 1236 px, design 887 px, result 541 px, footer 61 px.
-2. The three compact metric cards, wide metric card, Hero workspace grid and
-   scenario canvas have matching measured dimensions and grid phases.
-3. **Confirmed defect:** the scenario header used a generic 56 px top padding.
-   In Figma its eyebrow starts at `x=136,y=3624`, title at `y=3652`, and copy
-   at `y=3724`; the runtime placed them 48/48/36 px too low. The media canvas
-   itself starts at the correct `y=3836`, so only this header is repaired.
+2. **Confirmed metrics defects:** the wide adaptive card must precede the
+   compact row; the compact cards must remain 384×294; the wide card is
+   1176×226 with 843/331 px inner columns and a tiled right background.
+3. **Confirmed summary defects:** the 1280 px dashed guide area is 414 px high
+   inside the 416 px bordered section; the text-to-notice gap is 40 px.
+4. **Confirmed scenario defects:** the 1176 px canvas stays centered while the
+   side hatches consume the remaining width, hatch/canvas seams are one pixel,
+   and the eyebrow uses Onest Medium 14/16 rather than Source Code Pro.
+5. Hero interaction and scene internals remain outside this repair. Its guide
+   width is the reference for the summary guides.
 
 ## Execution slices
 
 1. **Source audit — complete.** Read the exact Figma hierarchy and visual
    renders for the page, metrics, scenario, long form, design and result;
    collect browser geometry at a 1440 px viewport.
-2. **Scenario header repair — complete.** Set the exact
-   `8px 56px 0` header padding and the 24 px title-to-copy gap. Add a focused
-   regression assertion for both values.
-3. **Fidelity and scope review — complete.** Rechecked the Hero grid,
-   scenario background, lower content blocks, and final diff. Remove or amend
-   any finding before finalizing; do not alter components without evidence.
-4. **Verification and close-out — complete.** Focused route checks, full app
-   tests (162 passing), lint, production build and browser smoke passed from
-   this worktree. Commit only this isolated repair; do not merge it into the
-   neighbour branch.
+2. **Geometry and styling repair — complete.** Restore metrics order and
+   exact internals, correct summary guides/rhythm/background, and center the
+   scenario canvas with stretchable side hatches and a single seam.
+3. **Fidelity and scope review — complete.** Recheck the exact 1440 px runtime
+   plus a wider viewport, then review fidelity/completeness and regression/scope.
+4. **Verification and close-out — complete.** Repeat focused tests, full tests,
+   lint, build and browser smoke on the final state; commit only this isolated
+   repair and do not merge it into the neighbour branch.
 
 ## Acceptance criteria
 
@@ -67,10 +70,21 @@ deploy, or interaction with the neighbouring worktree.
 
 ## Final evidence
 
-- Runtime at 1440 px: scenario eyebrow `(136,3624)`, title `(136,3652)`,
-  copy `(136,3724)`; the scenario canvas stays at `y=3836`.
-- Runtime at 1440 px: the design notice remains `(132,5500,1000×118)` after
-  restoring the Figma text rhythm.
+- Runtime at 1440 px: summary is `1440×416` on `#121517`; its inner guide
+  frame is `(80,1342,1280×414)`, text blocks are 992 px wide, and the notice
+  begins at `y=1598` after the exact 40 px gap.
+- Runtime at 1440 px: wide metric card is `(132,1961,1176×226)` with inner
+  columns `843/331`; compact cards are `384×294` at `y=2199`.
+- Runtime at 1440 px: scenario eyebrow is Onest Medium 14/16 at
+  `(136,3624)`; the media strip is `132/1176/132` with one-pixel seams.
+- Runtime at 1920 px: scenario canvas remains centered at `x=372`, both side
+  hatches stretch symmetrically to 372 px, and the summary/Hero 1280 px guide
+  frames both begin at `x=320`.
+- Hero workspace grid remains 20/320 px, opacity `.6`, major phase `-80px`.
 - `node --test tests/project-page-route.test.mjs`: 4/4 passing.
-- `npm test`: 162/162 passing; `npm run lint`: passing; `npm run build`:
-  passing; `npm run check:browser`: passing.
+- `npm test`: 162/162 passing; `npm run lint`: passing.
+- Production build passed with Vite config runner into
+  `/private/tmp/corvo-fidelity-build`; its HTML, CSS and JS artifact smoke
+  check passed. The repository browser-check script could not bind a new local
+  port in the sandbox, so runtime verification used the already isolated local
+  server plus direct browser geometry checks at 1440 and 1920 px.

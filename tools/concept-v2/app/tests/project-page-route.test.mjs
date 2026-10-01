@@ -96,7 +96,7 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(page,/className=\{styles\.summaryInner\}/);
  assert.match(page,/className=\{styles\.summaryContent\}/);
  assert.match(page,/Макеты собраны в одном файле: основные сценарии, состояния и их адаптация под три размера экрана/);
- assert.ok(page.indexOf('className={styles.metricRow}') < page.indexOf('className={`${styles.metric} ${styles.metricWide}`}'), 'Figma places the three compact metric cards before the wide card');
+ assert.ok(page.indexOf('className={`${styles.metric} ${styles.metricWide}`}') < page.indexOf('className={styles.metricRow}'), 'Figma places the wide adaptive card before the compact metric row');
  assert.match(page,/className=\{styles\.contextSection\}/);
  assert.match(page,/className=\{styles\.scenarioTextSection\}/);
  assert.match(page,/className=\{styles\.scenarioShowcase\}/);
@@ -108,13 +108,23 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.doesNotMatch(page,/CorvoProjectPageFidelity/);
 
  assert.match(css,/\.summary\s*\{[^}]*height:\s*416px/s);
+ assert.match(css,/\.summary\s*\{[^}]*background:\s*#121517/s);
  assert.match(css,/\.summaryInner\s*\{[^}]*width:\s*1280px/s);
+ assert.match(css,/\.summaryInner\s*\{[^}]*height:\s*100%/s);
  assert.match(css,/\.summaryContent\s*\{[^}]*width:\s*1000px[^}]*margin-left:\s*36px/s);
+ assert.match(css,/\.summaryContent > p\s*\{[^}]*width:\s*992px/s);
+ assert.match(css,/\.summaryContent > p:last-of-type\s*\{[^}]*margin-bottom:\s*40px/s);
  assert.match(css,/\.metrics\s*\{[^}]*height:\s*817px/s);
  assert.match(css,/\.metricsContent\s*\{[^}]*padding:\s*0 52px/s);
- assert.match(css,/\.metricWide\s*\{[^}]*grid-template-columns:\s*843px 333px/s);
+ assert.match(css,/\.metricWide\s*\{[^}]*grid-template-columns:\s*843px 331px/s);
+ assert.match(css,/\.metricWide\s*\{[^}]*border:\s*1px solid #1d2124/s);
+ assert.match(css,/\.metricWideMain\s*\{[^}]*border-right:\s*1px solid #1d2124/s);
+ assert.match(css,/\.metricWideAside\s*\{[^}]*background:\s*#121517 url\('\/figma\/dot-tile\.svg'\) repeat/s);
  assert.match(css,/\.metricRow\s*\{[^}]*grid-template-columns:\s*repeat\(3, 384px\)/s);
- assert.match(css,/\.metricWide::after\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*box-shadow:\s*inset 0 0 0 1px #1d2124[^}]*pointer-events:\s*none/s);
+ assert.match(css,/\.metricRow\s*\{[^}]*margin-top:\s*12px/s);
+ assert.match(css,/\.metricRow \.metric\s*\{[^}]*height:\s*294px[^}]*gap:\s*0/s);
+ assert.match(css,/\.metricRow \.metric > p\s*\{[^}]*height:\s*72px[^}]*margin:\s*20px 0 0 4px[^}]*overflow:\s*hidden/s);
+ assert.match(css,/\.metricRow \.metric > \.action\s*\{[^}]*margin-top:\s*32px/s);
  assert.match(css,/\.copyColumn\s*\{[^}]*width:\s*944px/s);
  assert.match(css,/\.contextSection\s*\{[^}]*height:\s*449px/s);
  assert.match(css,/\.longForm\s*\{[^}]*height:\s*1042px/s);
@@ -122,6 +132,10 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(css,/\.scenarioShowcase\s*\{[^}]*height:\s*1236px/s);
  assert.match(css,/\.scenarioShowcaseHeader\s*\{[^}]*padding:\s*8px 56px 0/s);
  assert.match(css,/\.scenarioShowcaseHeader h2\s*\{[^}]*margin:\s*0 0 24px/s);
+ assert.match(css,/\.scenarioEyebrow\s*\{[^}]*font:\s*500 14px\/16px Onest/s);
+ assert.match(css,/\.scenarioEyebrow\s*\{[^}]*letter-spacing:\s*-\.1px/s);
+ assert.match(css,/\.scenarioMedia\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 1176px minmax\(0, 1fr\)/s);
+ assert.match(css,/\.scenarioHatch\s*\{[^}]*border-top:\s*1px solid #272d30[^}]*border-bottom:\s*1px solid #272d30[^}]*border-left:\s*0[^}]*border-right:\s*0/s);
  assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*left:\s*79\.5px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*background-size:\s*20px 20px, 20px 20px, 320px 320px, 320px 320px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*opacity:\s*\.6/s);
