@@ -36,8 +36,8 @@ test('project cards map the current Figma configurations and states',async()=>{
   assert.match(css,/\.project\{background:transparent\}/);
   assert.match(css,/\.project-divider\{position:absolute;z-index:6;inset:0 0 auto;height:1px;background:var\(--border\)/);
   assert.match(css,/\.project-divider\{z-index:1;left:12px;right:12px;top:0;bottom:auto;height:1px;background:transparent\}/);
-  assert.match(css,/\.project-divider::after\{[^}]*opacity:0[^}]*scaleX\(\.0162866\)[^}]*transform-origin:center/);
-  assert.match(css,/\.project:hover \.project-divider::after,\.project:focus-within \.project-divider::after\{opacity:1;transform:scaleX\(1\)\}/);
+  assert.match(css,/\.project-divider::after\{[^}]*scaleX\(0\)[^}]*transform-origin:center[^}]*transition:transform 300ms ease-in/);
+  assert.match(css,/\.project:hover \.project-divider::after,\.project:focus-within \.project-divider::after\{transform:scaleX\(1\)\}/);
   assert.match(css,/\.project-back-layer\{z-index:2\}/);
   assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.project-back-layer\{left:calc\(50% \+ 79\.05px\);bottom:43\.27px\}/);
   assert.match(css,/\.project-shade\{z-index:3;left:50%;top:1px;width:638px;height:328px/);
