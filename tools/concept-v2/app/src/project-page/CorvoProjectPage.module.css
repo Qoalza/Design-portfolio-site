@@ -563,7 +563,6 @@
 
 .scenarioShowcase {
   height: 1236px;
-  border-bottom: 1px solid #272d30;
 }
 
 .scenarioShowcaseHeader {
@@ -605,8 +604,8 @@
 }
 
 .scenarioHatch {
-  border-top: 1px solid #272d30;
-  border-bottom: 1px solid #272d30;
+  border-top: 1px solid #1d2124;
+  border-bottom: 1px solid #1d2124;
   border-left: 0;
   border-right: 0;
   background-color: #121517;
@@ -617,7 +616,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid #272d30;
+  border: 1px solid #1d2124;
   background: #121517;
 }
 

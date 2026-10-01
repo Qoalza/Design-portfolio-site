@@ -70,6 +70,13 @@ deploy, or interaction with the neighbouring worktree.
 
 ## Final evidence
 
+- Follow-up source read for updated node `4140:534347`: hatch top/bottom
+  strokes and the complete center-frame stroke now resolve to `#1d2124`;
+  the scenario parent has no stroke of its own.
+- Replaced the flattened opaque 1015×902 export with the exact transparent
+  Figma source at 2030×1804, rendered at 1015×902 as authored. The source is
+  77.09% fully transparent, so the native canvas grid remains visible between
+  diagram elements. Runtime reports natural size 2030×1804 and no CSS upscale.
 - Runtime at 1440 px: summary is `1440×416` on `#121517`; its inner guide
   frame is `(80,1342,1280×414)`, text blocks are 992 px wide, and the notice
   begins at `y=1598` after the exact 40 px gap.

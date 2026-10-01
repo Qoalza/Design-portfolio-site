@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -88,9 +89,10 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
 });
 
 test('Corvo project layout preserves the measured 1280px Figma structure',async()=>{
- const [page,css]=await Promise.all([
+ const [page,css,scenarioImage]=await Promise.all([
   readFile(path.join(root,'src/project-page/CorvoProjectPage.jsx'),'utf8'),
   readFile(path.join(root,'src/project-page/CorvoProjectPage.module.css'),'utf8'),
+  readFile(path.join(root,'public/figma/project-corvo/media-campaign-creation.png')),
  ]);
 
  assert.match(page,/className=\{styles\.summaryInner\}/);
@@ -130,15 +132,20 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(css,/\.longForm\s*\{[^}]*height:\s*1042px/s);
  assert.match(css,/\.scenarioTextSection\s*\{[^}]*height:\s*481px/s);
  assert.match(css,/\.scenarioShowcase\s*\{[^}]*height:\s*1236px/s);
+ assert.doesNotMatch(css,/\.scenarioShowcase\s*\{[^}]*border-bottom:/s);
  assert.match(css,/\.scenarioShowcaseHeader\s*\{[^}]*padding:\s*8px 56px 0/s);
  assert.match(css,/\.scenarioShowcaseHeader h2\s*\{[^}]*margin:\s*0 0 24px/s);
  assert.match(css,/\.scenarioEyebrow\s*\{[^}]*font:\s*500 14px\/16px Onest/s);
  assert.match(css,/\.scenarioEyebrow\s*\{[^}]*letter-spacing:\s*-\.1px/s);
  assert.match(css,/\.scenarioMedia\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 1176px minmax\(0, 1fr\)/s);
- assert.match(css,/\.scenarioHatch\s*\{[^}]*border-top:\s*1px solid #272d30[^}]*border-bottom:\s*1px solid #272d30[^}]*border-left:\s*0[^}]*border-right:\s*0/s);
- assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*left:\s*79\.5px/s);
+ assert.match(css,/\.scenarioHatch\s*\{[^}]*border-top:\s*1px solid #1d2124[^}]*border-bottom:\s*1px solid #1d2124[^}]*border-left:\s*0[^}]*border-right:\s*0/s);
+ assert.match(css,/\.scenarioCanvas\s*\{[^}]*border:\s*1px solid #1d2124/s);
+ assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*top:\s*50px[^}]*left:\s*79\.5px[^}]*width:\s*1015px[^}]*height:\s*902px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*background-size:\s*20px 20px, 20px 20px, 320px 320px, 320px 320px/s);
  assert.match(css,/\.scenarioCanvas::before\s*\{[^}]*opacity:\s*\.6/s);
+ assert.equal(scenarioImage.readUInt32BE(16),2030);
+ assert.equal(scenarioImage.readUInt32BE(20),1804);
+ assert.equal(createHash('sha256').update(scenarioImage).digest('hex'),'616e72ac8ea6ba76199bfd0e6e561ab9e10af5f8492fd93dae9775c6bbb71bfe');
  assert.match(css,/\.designWrap\s*\{[^}]*height:\s*887px/s);
  assert.match(css,/\.designSection\s*\{[^}]*height:\s*774px/s);
  assert.match(css,/\.copyColumn h3\s*\{[^}]*margin:\s*0/s);
