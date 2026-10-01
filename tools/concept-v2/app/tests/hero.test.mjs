@@ -36,7 +36,8 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
  const waveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask.svg'),'utf8');
- assert.match(app,/29 лет · Екатеринбург · Middle\+ \/ Senior/);
+ assert.match(app,/<span>29 лет<\/span><i aria-hidden="true">·<\/i><span>Екатеринбург<\/span><i aria-hidden="true">·<\/i><span>Middle\+ \/ Senior<\/span>/);
+ assert.match(css,/\.hero-fact-chip-desktop\{display:inline-flex[^}]*gap:12px/);
  assert.match(app,/hero-fact-chip-mobile[^>]*>29 лет · Екатеринбург · Senior/);
  assert.match(css,/\.hero-fact-chip-mobile\{display:none\}/);
  assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.hero-fact-chip-desktop\{display:none\}[\s\S]*?\.hero-fact-chip-mobile\{display:inline\}/);

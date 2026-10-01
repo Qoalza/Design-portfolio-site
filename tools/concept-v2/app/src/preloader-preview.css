@@ -13,7 +13,7 @@
   border-radius: 12px;
   background: #1b1e20e6;
   box-shadow: 0 12px 32px #0006;
-  color: #949ea6;
+  color: var(--cv2-text-neutral-muted);
   font: 400 13px/20px Onest, sans-serif;
 }
 

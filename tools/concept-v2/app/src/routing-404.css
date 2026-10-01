@@ -3,8 +3,8 @@
   min-width:1280px;
   min-height:max(100vh, 960px);
   overflow:hidden;
-  background:radial-gradient(1746.221px 1196.5px at 50% max(0px,calc((100vh - 960px)/2)),#121517 0,#0e1012 100%);
-  color:#e9eef2;
+  background:radial-gradient(1746.221px 1196.5px at 50% max(0px,calc((100vh - 960px)/2)),var(--cv2-container-neutral-faint) 0,var(--cv2-container-neutral-inverse) 100%);
+  color:var(--cv2-text-neutral-primary);
   font-family:Onest,sans-serif;
 }
 .routing404-stage {
@@ -30,14 +30,14 @@
 }
 .routing404-header h1 {
   margin:0;
-  color:#e9eef2;
+  color:var(--cv2-text-neutral-primary);
   font:500 44px/56px 'Google Sans',sans-serif;
   letter-spacing:-.1px;
   font-variation-settings:'GRAD' 0;
 }
 .routing404-header p {
   margin:8px 0 40px;
-  color:#949ea6;
+  color:var(--cv2-text-neutral-muted);
   font:350 20px/28px Onest,sans-serif;
 }
 .routing404-stage.is-launched .routing404-header h1,
@@ -51,13 +51,9 @@
 }
 .routing404-stage.is-launched .routing404-home.control {animation:routing404-button-arrive 500ms ease-out both}
 @keyframes routing404-button-arrive {0% {box-shadow:0 0 0 0 #43a2ee00} 45% {box-shadow:0 0 0 5px #43a2ee30} 100% {box-shadow:0 0 0 0 #43a2ee00}}
-.routing404-home.control.light {
-  --control-bg:#1d2124;
-  --control-fg:#b7c0c7;
-  --control-border:transparent;
-}
-.routing404-home.control.light:hover {--control-bg:#222629;--control-fg:#e9eef2}
-.routing404-home.control.light:active {--control-bg:#2d3438;--control-fg:#fff;--control-border:var(--cv2-text-neutral-thin)}
+.routing404-home.control.light {--control-bg:var(--cv2-container-neutral-soft);--control-fg:var(--cv2-text-neutral-tertiary);--control-border:transparent}
+.routing404-home.control.light:hover {--control-bg:var(--cv2-container-neutral-soft);--control-fg:var(--cv2-text-neutral-primary);--control-border:var(--cv2-border-neutral-surface)}
+.routing404-home.control.light:active {--control-bg:var(--cv2-container-neutral-thin);--control-fg:var(--cv2-text-neutral-strong);--control-border:var(--cv2-border-neutral-muted)}
 .routing404-corner {
   position:fixed;
   z-index:6;
@@ -283,9 +279,9 @@
   top:-11px;
   left:1039px;
   width:111px;
-  color:#747f87;
+  color:var(--cv2-text-neutral-thin);
   text-align:right;
-  font:400 10px/16px 'Source Code Pro',monospace;
+  font:400 12px/14px 'Source Code Pro',monospace;
   letter-spacing:-.3px;
 }
 .routing404-arrow {position:absolute;z-index:4;top:5.308px;left:1160.402px;pointer-events:none}

@@ -1,28 +1,28 @@
 :root {
-  --v2-scenario-icon-enable: #747f87;
-  --v2-scenario-label-enable: #b7c0c7;
-  --v2-scenario-icon-hover: #b7c0c7;
-  --v2-scenario-label-hover: #e9eef2;
-  --v2-scenario-line-hover: #475157;
+  --v2-scenario-icon-enable: var(--cv2-element-neutral-muted);
+  --v2-scenario-label-enable: var(--cv2-text-neutral-tertiary);
+  --v2-scenario-icon-hover: var(--cv2-element-neutral-tertiary);
+  --v2-scenario-label-hover: var(--cv2-text-neutral-primary);
+  --v2-scenario-line-hover: var(--cv2-border-neutral-secondary);
   --v2-scenario-icon-active: #43a2ee;
-  --v2-scenario-label-active: #e9eef2;
+  --v2-scenario-label-active: var(--cv2-text-neutral-primary);
   --v2-scenario-line-active: #1d90eb;
-  --v2-scenario-icon-disabled: #363d42;
-  --v2-scenario-label-disabled: #475157;
-  --v2-size-subtitle-enable: #475157;
-  --v2-size-value-enable: #949ea6;
-  --v2-size-icon-enable: #b7c0c7;
-  --v2-size-subtitle-hover: #949ea6;
-  --v2-size-value-hover: #d3dbe0;
-  --v2-size-icon-hover: #d3dbe0;
-  --v2-size-container-hover: #181c1f;
+  --v2-scenario-icon-disabled: var(--cv2-element-neutral-disabled);
+  --v2-scenario-label-disabled: var(--cv2-text-neutral-thin);
+  --v2-size-subtitle-enable: var(--cv2-text-neutral-thin);
+  --v2-size-value-enable: var(--cv2-text-neutral-muted);
+  --v2-size-icon-enable: var(--cv2-element-neutral-tertiary);
+  --v2-size-subtitle-hover: var(--cv2-text-neutral-muted);
+  --v2-size-value-hover: var(--cv2-text-neutral-secondary);
+  --v2-size-icon-hover: var(--cv2-element-neutral-secondary);
+  --v2-size-container-hover: var(--cv2-container-neutral-thin);
   --v2-size-subtitle-active: #43a2ee;
-  --v2-size-value-active: #d3dbe0;
+  --v2-size-value-active: var(--cv2-text-neutral-secondary);
   --v2-size-icon-active: #43a2ee;
-  --v2-size-container-active: #1d2124;
-  --v2-size-subtitle-disabled: #475157;
-  --v2-size-value-disabled: #475157;
-  --v2-size-icon-disabled: #363d42;
+  --v2-size-container-active: var(--cv2-container-neutral-soft);
+  --v2-size-subtitle-disabled: var(--cv2-text-neutral-thin);
+  --v2-size-value-disabled: var(--cv2-text-neutral-thin);
+  --v2-size-icon-disabled: var(--cv2-element-neutral-disabled);
 }
 
 .v2-hero-tab-icon {
