@@ -92,7 +92,7 @@ test('desktop Process matches the current 4150:804103 card geometry and preserve
  assert.match(fade,/gradientTransform="matrix\(19\.012 17\.858 -19\.624 17\.183 -28\.866 -28\.355\)"/);
  assert.match(app,/className="step-grid" aria-hidden="true"/);
  assert.match(css,/\.step-divider\{[^}]*height:1px[^}]*background:var\(--border\)/);
- assert.match(css,/\.step-divider\{position:absolute;z-index:2;left:11px;right:11px;top:-1px;width:auto;height:1px;margin:0[^}]*background:transparent/);
+ assert.match(css,/\.step-divider\{position:absolute;z-index:2;left:11px;right:11px;top:0;width:auto;height:1px;margin:0[^}]*background:transparent/);
  assert.match(css,/\.step-text h3\{[^}]*font:400 20px\/28px "Google Sans"[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
  assert.match(css,/\.step-dots\{color:var\(--cv2-text-neutral-muted\)/);
  assert.match(css,/\.step-icon-base,\.step-icon-background,\.step-icon-fill\{display:none\}/);

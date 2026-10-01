@@ -132,7 +132,7 @@ body::-webkit-scrollbar{display:none;width:0;height:0}
  .step.is-fill-active .step-grid::before{opacity:1}
  .step-grid::after{content:"";position:absolute;inset:-1px 0 0 -1px;background:url('/figma/process-grid-fade.svg') center/100% 100% no-repeat}
  .step-top,.step-text{position:relative;z-index:1}
- .step-divider{position:absolute;z-index:2;left:11px;right:11px;top:-1px;width:auto;height:1px;margin:0;background:transparent}
+ .step-divider{position:absolute;z-index:2;left:11px;right:11px;top:0;width:auto;height:1px;margin:0;background:transparent}
  .step-body{position:absolute;z-index:1;left:-1px;right:-1px;top:0;height:296px;display:flex;min-height:0;flex-direction:column;gap:48px;padding:36px}
  .step-top{height:64px;display:flex;align-items:flex-start;justify-content:space-between;gap:40px}
  .step-number{height:57px;align-items:center;justify-content:center;gap:12px;align-self:flex-start}
