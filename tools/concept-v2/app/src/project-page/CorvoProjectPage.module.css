@@ -323,7 +323,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: repeating-linear-gradient(to bottom, #1d2124 0 8px, transparent 8px 16px);
+  background: repeating-linear-gradient(to bottom, #1d2124 0 16px, transparent 16px 32px);
 }
 
 .summaryInner::before { left: 0; }

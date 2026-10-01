@@ -95,7 +95,7 @@ test('Corvo structural separators use the current Figma Thin token',async()=>{
  assert.match(css,/\.crumbRow\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
  assert.match(css,/\.projectIntro\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
  assert.match(css,/\.tags b\s*\{[^}]*background:\s*#2d3438/s);
- assert.match(css,/\.summaryInner::before,[\s\S]*?\.summaryInner::after\s*\{[^}]*#1d2124/s);
+ assert.match(css,/\.summaryInner::before,[\s\S]*?\.summaryInner::after\s*\{[^}]*repeating-linear-gradient\(to bottom, #1d2124 0 16px, transparent 16px 32px\)/s);
  assert.match(css,/\.metrics\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
  assert.match(css,/\.contentSection\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
  assert.match(css,/\.resultWrap\s*\{[^}]*border-top:\s*1px solid #1d2124/s);

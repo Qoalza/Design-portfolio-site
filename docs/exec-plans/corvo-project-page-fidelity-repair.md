@@ -81,6 +81,8 @@ deploy, or interaction with the neighbouring worktree.
 - Browser computed styles on `/projects/corvo` and the shared
   `/preview/project-responsive-hero` consumer confirm Thin as
   `rgb(29, 33, 36)` while the ruler remains `rgb(39, 45, 48)`.
+- Summary side rails reproduce Figma's exact `[16,16]` dash pattern: 16 px
+  Thin stroke followed by a 16 px transparent gap.
 - Token follow-up verification: focused route/Hero tests 14/14 passing; full
   Concept V2 suite 163/163 passing.
 
