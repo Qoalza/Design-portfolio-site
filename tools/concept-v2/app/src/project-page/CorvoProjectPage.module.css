@@ -139,7 +139,7 @@
 
 .crumbRow {
   height: 65px;
-  border-bottom: 1px solid #272d30;
+  border-bottom: 1px solid #1d2124;
 }
 
 .crumb {
@@ -161,7 +161,7 @@
 
 .projectIntro {
   height: 216px;
-  border-bottom: 1px solid #272d30;
+  border-bottom: 1px solid #1d2124;
   background: #121517;
 }
 
@@ -190,7 +190,7 @@
 .tags b {
   width: 1px;
   height: 16px;
-  background: #272d30;
+  background: #2d3438;
 }
 
 .projectHeading {
@@ -249,7 +249,7 @@
   border: 0;
   border-radius: 12px;
   background: #181c1f;
-  box-shadow: inset 0 0 0 1px #272d30;
+  box-shadow: inset 0 0 0 1px #1d2124;
 }
 
 .action {
@@ -305,8 +305,8 @@
 
 .summary {
   height: 416px;
-  border-top: 1px solid #272d30;
-  border-bottom: 1px solid #272d30;
+  border-top: 1px solid #1d2124;
+  border-bottom: 1px solid #1d2124;
   background: #121517;
 }
 
@@ -323,7 +323,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: repeating-linear-gradient(to bottom, #272d30 0 8px, transparent 8px 16px);
+  background: repeating-linear-gradient(to bottom, #1d2124 0 8px, transparent 8px 16px);
 }
 
 .summaryInner::before { left: 0; }
@@ -378,7 +378,7 @@
 
 .metrics {
   height: 817px;
-  border-bottom: 1px solid #272d30;
+  border-bottom: 1px solid #1d2124;
 }
 
 .metricsHeading {
@@ -528,7 +528,7 @@
 
 .contentSection {
   padding: 64px 56px;
-  border-bottom: 1px solid #272d30;
+  border-bottom: 1px solid #1d2124;
 }
 
 .copyColumn {
@@ -699,7 +699,7 @@
 
 .resultWrap {
   height: 541px;
-  border-top: 1px solid #272d30;
+  border-top: 1px solid #1d2124;
   background: #121517;
 }
 
@@ -729,7 +729,7 @@
 
 .footer {
   height: 61px;
-  border-top: 1px solid #272d30;
+  border-top: 1px solid #1d2124;
   background: #121517;
 }
 

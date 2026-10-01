@@ -66,12 +66,13 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
 });
 
 test('responsive Hero uses the current Library V2 tab contracts',async()=>{
- const [component,tabComponent,tabCss,heroCss,definition]=await Promise.all([
+ const [component,tabComponent,tabCss,heroCss,definition,topbarSeparation]=await Promise.all([
   read('src/project-hero/ProjectResponsiveHero.jsx'),
   read('src/v2/HeroTabs.jsx'),
   read('src/v2/hero-tabs.css'),
   read('src/project-hero/ProjectResponsiveHero.module.css'),
-  read('src/project-hero/definition.mjs')
+  read('src/project-hero/definition.mjs'),
+  read('public/assets/projects/corvo/responsive-hero/topbar-separation.svg')
  ]);
 
  assert.match(component,/ScenarioTab/);
@@ -101,6 +102,9 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(heroCss,/height:\s*980px/);
  assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
  assert.match(heroCss,/\.adaptiveRuler\s*\{[\s\S]*?height:\s*64px/);
+ assert.match(heroCss,/\.heroTopbarInner::after,[\s\S]*?\.topbarSide::after\s*\{[^}]*#1d2124/s);
+ assert.match(heroCss,/\.adaptiveTrack\s*\{[^}]*border-top:\s*1px solid #272d30/s);
+ assert.match(topbarSeparation,/stroke="#1D2124"/);
  assert.match(definition,/tabWidth:146/);
  assert.match(definition,/tabWidth:92/);
  assert.match(definition,/tabWidth:97/);

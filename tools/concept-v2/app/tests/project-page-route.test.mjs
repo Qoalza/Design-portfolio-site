@@ -49,7 +49,7 @@ test('Corvo project actions use enabled design-system controls',async()=>{
  assert.match(page,/variant="neutral"[^>]*iconRight="figma"[^>]*>\{metrics\[0\]\.action\}/);
  assert.match(page,/metrics\.slice\(1\).*<ProjectAction iconLeft=\{metric\.icon\} iconRight="arrow">\{metric\.action\}<\/ProjectAction>/s);
  assert.match(css,/\.projectActions\s*\{[^}]*border:\s*0/s);
- assert.match(css,/\.projectActions\s*\{[^}]*box-shadow:\s*inset 0 0 0 1px #272d30/s);
+ assert.match(css,/\.projectActions\s*\{[^}]*box-shadow:\s*inset 0 0 0 1px #1d2124/s);
  assert.match(css,/\.projectActions \.action\s*\{[^}]*border:\s*0/s);
  assert.match(css,/\.projectActions \.action:first-child\s*\{[^}]*width:\s*182px/s);
  assert.match(css,/\.projectActions \.action:last-child\s*\{[^}]*width:\s*91px/s);
@@ -84,8 +84,22 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
  assert.doesNotMatch(css,/\.header\s*\{[^}]*border-bottom:/s);
  assert.match(css,/\.brand b\s*\{[^}]*font-variation-settings:\s*"GRAD" -25, "opsz" 18/s);
  assert.match(css,/\.brand small\s*\{[^}]*font-variation-settings:\s*"GRAD" -30, "opsz" 18/s);
- assert.match(css,/\.summary\s*\{[^}]*border-top:\s*1px solid #272d30/s);
+ assert.match(css,/\.summary\s*\{[^}]*border-top:\s*1px solid #1d2124[^}]*border-bottom:\s*1px solid #1d2124/s);
  assert.match(css,/\.footerIcon\s*\{[^}]*background:\s*#747f87/s);
+});
+
+test('Corvo structural separators use the current Figma Thin token',async()=>{
+ const css=await readFile(path.join(root,'src/project-page/CorvoProjectPage.module.css'),'utf8');
+
+ assert.doesNotMatch(css,/#272d30/i);
+ assert.match(css,/\.crumbRow\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
+ assert.match(css,/\.projectIntro\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
+ assert.match(css,/\.tags b\s*\{[^}]*background:\s*#2d3438/s);
+ assert.match(css,/\.summaryInner::before,[\s\S]*?\.summaryInner::after\s*\{[^}]*#1d2124/s);
+ assert.match(css,/\.metrics\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
+ assert.match(css,/\.contentSection\s*\{[^}]*border-bottom:\s*1px solid #1d2124/s);
+ assert.match(css,/\.resultWrap\s*\{[^}]*border-top:\s*1px solid #1d2124/s);
+ assert.match(css,/\.footer\s*\{[^}]*border-top:\s*1px solid #1d2124/s);
 });
 
 test('Corvo project layout preserves the measured 1280px Figma structure',async()=>{

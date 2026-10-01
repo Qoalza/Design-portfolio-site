@@ -70,6 +70,20 @@ deploy, or interaction with the neighbouring worktree.
 
 ## Final evidence
 
+- Follow-up token audit against the current `3530:154730` source mapped every
+  page section rule individually. Header band, intro, action wrapper, Hero
+  outer separators, summary rails, metrics, content dividers, result and
+  footer now use `Border/Neutral/Thin` (`#1d2124`). The intro metadata divider
+  retains its distinct current `#2d3438` role.
+- The Hero adaptive ruler remains `#272d30`: its current Figma descendants are
+  still bound to the separate `Color/Border/Neutral/Default` variable. Only the
+  outer Hero dashed baseline and vertical separation asset changed to Thin.
+- Browser computed styles on `/projects/corvo` and the shared
+  `/preview/project-responsive-hero` consumer confirm Thin as
+  `rgb(29, 33, 36)` while the ruler remains `rgb(39, 45, 48)`.
+- Token follow-up verification: focused route/Hero tests 14/14 passing; full
+  Concept V2 suite 163/163 passing.
+
 - Follow-up source read for updated node `4140:534347`: hatch top/bottom
   strokes and the complete center-frame stroke now resolve to `#1d2124`;
   the scenario parent has no stroke of its own.
