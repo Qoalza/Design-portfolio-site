@@ -35,7 +35,7 @@ test('project cards map the current Figma configurations and states',async()=>{
   assert.match(css,/\.project-glow\{z-index:0\}/);
   assert.match(css,/\.project\{background:transparent\}/);
   assert.match(css,/\.project-divider\{position:absolute;z-index:6;inset:0 0 auto;height:1px;background:var\(--border\)/);
-  assert.match(css,/\.project-divider\{z-index:1;left:12px;right:12px;top:0;bottom:auto;height:1px;background:transparent\}/);
+  assert.match(css,/\.project-divider\{z-index:6;left:12px;right:12px;top:0;bottom:auto;height:1px;background:transparent\}/);
   assert.match(css,/\.project-divider::after\{[^}]*scaleX\(0\)[^}]*transform-origin:center[^}]*transition:transform 300ms ease-in/);
   assert.match(css,/\.project:hover \.project-divider::after,\.project:focus-within \.project-divider::after\{transform:scaleX\(1\)\}/);
   assert.match(css,/\.project-back-layer\{z-index:2\}/);
