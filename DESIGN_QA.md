@@ -62,6 +62,8 @@
   unchanged.
 - The pattern owns the upper Experience boundary. The former bottom border on
   the decorative field was removed so the boundary renders as one rule.
+- The primitive is locked: `GridPattern` accepts no visual props and its base
+  class owns fill geometry, opacity, asset, tile size, repeat and origin.
 
 ## READY_FOR_REVIEW — Concept V2 project card hover during scroll
 

@@ -1,3 +1,3 @@
-export function GridPattern({className=''}){
-  return <div className={`surface-grid-pattern ${className}`.trim()} aria-hidden="true"/>;
+export function GridPattern(){
+  return <div className="surface-grid-pattern" aria-hidden="true"/>;
 }

@@ -90,7 +90,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.doesNotMatch(css,/\.experience-pattern::before,\.experience-pattern::after/);
   assert.doesNotMatch(css,/experience-pattern-(?:top|bottom)\.png/);
   assert.match(source,/className="experience-pattern-grid"/);
-  assert.match(source,/<GridPattern className="experience-grid"\/>/);
+  assert.match(source,/<GridPattern\/>/);
   assert.doesNotMatch(source,/pattern-bottom/);
   assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
   assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*transform:translateX\(-50%\)/);
@@ -264,9 +264,10 @@ test('desktop Experience uses the current 20px grid on 320px tiles while masks r
   const tile=await readFile(path.resolve(import.meta.dirname,'../public/figma/surface-grid-tile-16191c-191e21.svg'),'utf8');
   const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
   assert.match(css,/\.experience-center\{position:relative;[^}]*background:var\(--cv2-container-neutral-faint\)\}/);
-  assert.match(pattern,/export function GridPattern/);
-  assert.match(pattern,/surface-grid-pattern/);
-  assert.match(source,/<GridPattern className="experience-grid"\/>/);
+  assert.match(pattern,/export function GridPattern\(\)/);
+  assert.match(pattern,/className="surface-grid-pattern"/);
+  assert.doesNotMatch(pattern,/className=''/);
+  assert.match(source,/<GridPattern\/>/);
   assert.match(tile,/<svg[^>]*width="320"[^>]*height="320"[^>]*viewBox="0 0 320 320"/);
   assert.match(tile,/<g fill="#16191c">/);
   assert.match(tile,/<g fill="#191e21">/);
@@ -275,9 +276,10 @@ test('desktop Experience uses the current 20px grid on 320px tiles while masks r
   assert.match(tile,/<rect x="0" y="0" width="1" height="320"\/>/);
   assert.match(tile,/<rect x="0" y="0" width="320" height="1"\/>/);
   assert.doesNotMatch(tile,/x="320"|y="320"/);
-  assert.match(css,/\.surface-grid-pattern\{[^}]*--surface-grid-opacity:\.7;[^}]*opacity:var\(--surface-grid-opacity\);[^}]*background-image:url\('\/figma\/surface-grid-tile-16191c-191e21\.svg'\);[^}]*background-size:320px 320px;[^}]*background-position:var\(--surface-grid-x\) var\(--surface-grid-y\);[^}]*background-repeat:repeat/);
+  assert.match(css,/\.surface-grid-pattern\{[^}]*position:absolute;[^}]*inset:0;[^}]*pointer-events:none;[^}]*opacity:\.7;[^}]*background-image:url\('\/figma\/surface-grid-tile-16191c-191e21\.svg'\);[^}]*background-size:320px 320px;[^}]*background-position:calc\(50% - 640px\) 0;[^}]*background-repeat:repeat/);
   assert.doesNotMatch(css,/\.surface-grid-pattern\{[^}]*linear-gradient/);
-  assert.match(css,/\.experience-grid\{[^}]*--surface-grid-x:calc\(50% - 640px\);--surface-grid-y:0px/);
+  assert.match(css,/\.experience-center>\.surface-grid-pattern\{display:none\}/);
+  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.experience-center>\.surface-grid-pattern\{[^}]*z-index:0;[^}]*display:block/);
   assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
