@@ -52,7 +52,8 @@
   the `320px` and `20px` layers resolve against different available spaces,
   leaving the layers `150px` out of phase and making major separators change
   color.
-- `GridPattern` now repeats one `surface-grid-tile.svg`: minor rules exist
+- `GridPattern` now repeats one versioned
+  `surface-grid-tile-16191c-191e21.svg`: minor rules exist
   only at `20…300px`, while each repeated tile owns one top and one left major
   rule. No minor rule crosses a tile seam and no adjacent border is doubled.
 - Runtime computed styles confirm the single asset, `320px` repeat, opacity

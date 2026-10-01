@@ -8,7 +8,7 @@ html{scrollbar-width:none;-ms-overflow-style:none}
 
 /* Figma component 3084:63631: shared decorative hatch stroke. */
 :root{--cv2-decoration-hatch:#1d2124}
-.surface-grid-pattern{--surface-grid-opacity:.7;--surface-grid-x:0px;--surface-grid-y:0px;opacity:var(--surface-grid-opacity);background-image:url('/figma/surface-grid-tile.svg');background-size:320px 320px;background-position:var(--surface-grid-x) var(--surface-grid-y);background-repeat:repeat}
+.surface-grid-pattern{--surface-grid-opacity:.7;--surface-grid-x:0px;--surface-grid-y:0px;opacity:var(--surface-grid-opacity);background-image:url('/figma/surface-grid-tile-16191c-191e21.svg');background-size:320px 320px;background-position:var(--surface-grid-x) var(--surface-grid-y);background-repeat:repeat}
 html::-webkit-scrollbar{display:none;width:0;height:0}
 body::-webkit-scrollbar{display:none;width:0;height:0}
 .icon{display:inline-block;flex-shrink:0;background:currentColor;mask-repeat:no-repeat;mask-position:center;mask-size:100% 100%}

@@ -261,7 +261,7 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
 test('desktop Experience uses the current 20px grid on 320px tiles while masks retain timeline edge fades',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const pattern=await readFile(path.resolve(import.meta.dirname,'../src/GridPattern.jsx'),'utf8');
-  const tile=await readFile(path.resolve(import.meta.dirname,'../public/figma/surface-grid-tile.svg'),'utf8');
+  const tile=await readFile(path.resolve(import.meta.dirname,'../public/figma/surface-grid-tile-16191c-191e21.svg'),'utf8');
   const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
   assert.match(css,/\.experience-center\{position:relative;[^}]*background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(pattern,/export function GridPattern/);
@@ -275,7 +275,7 @@ test('desktop Experience uses the current 20px grid on 320px tiles while masks r
   assert.match(tile,/<rect x="0" y="0" width="1" height="320"\/>/);
   assert.match(tile,/<rect x="0" y="0" width="320" height="1"\/>/);
   assert.doesNotMatch(tile,/x="320"|y="320"/);
-  assert.match(css,/\.surface-grid-pattern\{[^}]*--surface-grid-opacity:\.7;[^}]*opacity:var\(--surface-grid-opacity\);[^}]*background-image:url\('\/figma\/surface-grid-tile\.svg'\);[^}]*background-size:320px 320px;[^}]*background-position:var\(--surface-grid-x\) var\(--surface-grid-y\);[^}]*background-repeat:repeat/);
+  assert.match(css,/\.surface-grid-pattern\{[^}]*--surface-grid-opacity:\.7;[^}]*opacity:var\(--surface-grid-opacity\);[^}]*background-image:url\('\/figma\/surface-grid-tile-16191c-191e21\.svg'\);[^}]*background-size:320px 320px;[^}]*background-position:var\(--surface-grid-x\) var\(--surface-grid-y\);[^}]*background-repeat:repeat/);
   assert.doesNotMatch(css,/\.surface-grid-pattern\{[^}]*linear-gradient/);
   assert.match(css,/\.experience-grid\{[^}]*--surface-grid-x:calc\(50% - 640px\);--surface-grid-y:0px/);
   assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
