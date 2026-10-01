@@ -152,11 +152,22 @@
   font: 400 14px/16px Onest, sans-serif;
 }
 
-.crumbProject {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.crumb .crumbProject {
+  width: 67px;
+  min-width: 67px;
+  height: 16px;
+  padding: 0;
   color: #b7c0c7;
+  border-radius: 4px;
+}
+
+.crumb .crumbHome {
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0;
+  color: #b7c0c7;
+  border-radius: 4px;
 }
 
 .projectIntro {
@@ -620,15 +631,16 @@
   background: #121517;
 }
 
-.scenarioCanvas::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  opacity: .6;
-  background-image: linear-gradient(#16191c 1px, transparent 1px), linear-gradient(90deg, #16191c 1px, transparent 1px), linear-gradient(#191e21 1px, transparent 1px), linear-gradient(90deg, #191e21 1px, transparent 1px);
-  background-position: 6px 0, 6px 0, -54px 0, -54px 0;
-  background-size: 20px 20px, 20px 20px, 320px 320px, 320px 320px;
+.scenarioGrid {
+  --v2-grid-minor-position: 40px 0;
+  --v2-grid-major-position: 40px 0;
+
+  z-index: 0;
+  top: 0;
+  left: calc(50% - 1px);
+  width: 1360px;
+  height: 1014px;
+  transform: translateX(-50%);
 }
 
 .scenarioCanvas > img {

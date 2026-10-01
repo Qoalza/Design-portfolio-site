@@ -102,7 +102,8 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(heroCss,/height:\s*980px/);
  assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
  assert.match(heroCss,/\.adaptiveRuler\s*\{[\s\S]*?height:\s*64px/);
- assert.match(heroCss,/\.heroTopbarInner::after,[\s\S]*?\.topbarSide::after\s*\{[^}]*#1d2124/s);
+ assert.match(heroCss,/\.heroTopbarInner::after\s*\{[^}]*background:\s*#1d2124/s);
+ assert.match(heroCss,/\.topbarSide::after\s*\{[^}]*linear-gradient\(90deg, #1d2124 0 16px, transparent 16px 32px\)/s);
  assert.match(heroCss,/\.adaptiveTrack\s*\{[^}]*border-top:\s*1px solid #272d30/s);
  assert.match(topbarSeparation,/stroke="#1D2124"/);
  assert.match(definition,/tabWidth:146/);
@@ -112,15 +113,16 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
 });
 
 test('Corvo Hero owns the Figma workspace grid without a second preview grid',async()=>{
- const [heroCss,previewCss]=await Promise.all([
+ const [component,heroCss,previewCss]=await Promise.all([
+  read('src/project-hero/ProjectResponsiveHero.jsx'),
   read('src/project-hero/ProjectResponsiveHero.module.css'),
   read('src/project-hero/ResponsiveHeroPreview.module.css')
  ]);
  assert.match(heroCss,/\.heroWorkspace\s*\{[\s\S]*?position:\s*relative/);
- assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?opacity:\s*\.6/);
- assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?background-size:\s*320px 320px,\s*320px 320px,\s*20px 20px,\s*20px 20px/);
- assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?background-position:\s*-80px 0,\s*-80px 0,\s*0 0,\s*0 0/);
- assert.match(heroCss,/\.heroWorkspace::before\s*\{[\s\S]*?#191e21[\s\S]*?#16191c/);
+ assert.match(component,/import \{GridPattern\} from '\.\.\/v2\/GridPattern\.jsx'/);
+ assert.match(component,/<GridPattern className=\{styles\.heroGrid\}\/>/);
+ assert.doesNotMatch(heroCss,/\.heroWorkspace::before\s*\{/);
+ assert.match(heroCss,/\.heroGrid\s*\{[^}]*--v2-grid-minor-position:\s*0 0;[^}]*--v2-grid-major-position:\s*-80px 0;[^}]*inset:\s*0;[^}]*z-index:\s*0/s);
  assert.match(heroCss,/\.workspaceContent\s*\{[\s\S]*?z-index:\s*1/);
  assert.doesNotMatch(previewCss,/background-image/);
  assert.doesNotMatch(previewCss,/background-size/);

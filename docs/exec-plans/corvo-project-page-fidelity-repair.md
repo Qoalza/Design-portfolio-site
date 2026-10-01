@@ -2,8 +2,8 @@
 
 ## Status
 
-`COMPLETE` — повторный аудит, исправления и итоговая проверка завершены в
-изолированной ветке `codex/corvo-fidelity-repair`.
+`COMPLETE` — дополнительная сверка общих GridPattern и системных breadcrumbs
+завершена в изолированной ветке `codex/corvo-fidelity-repair`.
 
 ## Outcome
 
@@ -37,6 +37,10 @@ and every working part outside the confirmed visual defects.
    and the eyebrow uses Onest Medium 14/16 rather than Source Code Pro.
 5. Hero interaction and scene internals remain outside this repair. Its guide
    width is the reference for the summary guides.
+6. **Follow-up 2026-10-01:** Hero topbar center uses a solid Thin line, its
+   sides retain the Figma `[16,16]` dash pattern; both Hero workspace and the
+   scenario canvas must render the shared `GridPattern` component. Breadcrumb
+   controls are compact Library V2 ghost buttons; Home navigates to `/`.
 
 ## Execution slices
 
@@ -111,3 +115,15 @@ deploy, or interaction with the neighbouring worktree.
   check passed. The repository browser-check script could not bind a new local
   port in the sandbox, so runtime verification used the already isolated local
   server plus direct browser geometry checks at 1440 and 1920 px.
+- Follow-up 2026-10-01: Hero and scenario canvas now render the same
+  `GridPattern` component. Browser computed styles confirm 20/320 px steps and
+  opacity `.6`; Hero keeps phases `0/-80`, while the 1360×1014 scenario frame
+  uses the internal 40 px phase and sits 94 px left of the inner canvas.
+- Hero topbar runtime confirms a solid 1 px Thin center line and `[16,16]`
+  Thin dashes on both side regions. Breadcrumb runtime confirms 16×16 Home
+  and 67×16 Corvo Library V2 ghost controls; Home navigation reaches `/`.
+- Final verification after these changes: focused route/Hero tests 15/15,
+  full Concept V2 suite 164/164, lint 67 source files, production build via
+  Vite config runner, browser runtime inspection and navigation smoke all pass.
+- Final independent review found no fidelity, completeness, regression or
+  scope issues.

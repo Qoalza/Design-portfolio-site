@@ -1,6 +1,8 @@
 import {ProjectResponsiveHero} from '../project-hero/ProjectResponsiveHero';
 import {corvoResponsiveHero} from '../project-hero/definition.mjs';
 import {ControlButton} from '../Controls';
+import {V2Button} from '../v2/Controls';
+import {GridPattern} from '../v2/GridPattern';
 import styles from './CorvoProjectPage.module.css';
 
 const projectDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
@@ -23,7 +25,7 @@ function SiteHeader(){
     <div className={styles.headerRight}><span className={styles.availability}><img src="/figma/project-corvo/header/header-indicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ProjectAction variant="accent" className={styles.headerContact} iconRight="telegram" href="https://t.me/Coco_soul" external>Связаться</ProjectAction></div>
    </div>
   </header>
-  <div className={styles.crumbRow}><div className={styles.crumb}><img src="/figma/imgColor.svg" width="16" height="16" alt=""/><span>/</span><span className={styles.crumbProject}><img src="/figma/imgProjectCorvo.svg" width="16" height="16" alt=""/>Corvo</span></div></div>
+  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><V2Button variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><V2Button variant="ghost" iconLeft="imgProjectCorvo" className={styles.crumbProject} aria-current="page">Corvo</V2Button></nav></div>
  </>;
 }
 
@@ -61,7 +63,7 @@ function ScenarioShowcase(){
   <div className={styles.scenarioShowcaseHeader}><div><p className={styles.scenarioEyebrow}>Один из сценариев</p><h2 id="scenario-showcase-title">Как создать медиа компанию?</h2><p>При создании медиакомпании пользователь выбирает её видимость, указывает название, ссылку и географию размещения, затем подключает план вознаграждения. Если готовые планы не подходят, новый можно настроить прямо в этом сценарии: задать долю выручки, CPA, условия достижения целей и параметры выплат.</p></div></div>
   <div className={styles.scenarioMedia}>
    <div className={styles.scenarioHatch} aria-hidden="true"/>
-   <div className={styles.scenarioCanvas}><img src="/figma/project-corvo/media-campaign-creation.png" width="1015" height="902" alt="Интерфейс создания медиа компании"/></div>
+   <div className={styles.scenarioCanvas}><GridPattern className={styles.scenarioGrid}/><img src="/figma/project-corvo/media-campaign-creation.png" width="1015" height="902" alt="Интерфейс создания медиа компании"/></div>
    <div className={styles.scenarioHatch} aria-hidden="true"/>
   </div>
  </section>;
