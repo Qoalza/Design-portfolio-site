@@ -89,8 +89,9 @@ Code не обязан повторять `Master → Skin` двумя React com
   exact `stroke-width`, `linecap`, `linejoin` и `vector-effect` задаются нашим
   компонентом. CSS mask, outlined fill и покадровая подмена SVG запрещены.
 - Morphicons используется только как geometry/spring engine. Политика
-  reduced motion задаётся `reducedMotion="user"`; смена цели во время
-  анимации должна продолжаться из текущей промежуточной формы без скачка.
+  reduced motion задаётся `reducedMotion="user"`, стандартный spring —
+  `snappy`; смена цели во время анимации должна продолжаться из текущей
+  промежуточной формы без скачка.
 - Для новой пары добавить exact SVG-источники в локальный asset registry,
   создать module-scope данные через `svgToIcon` и переключать только `icon`.
 
