@@ -43,10 +43,11 @@
 
 ## READY_FOR_REVIEW — Concept V2 Experience grid pattern
 
-- Current exact Figma source: pattern frame `4198:875236`; it wraps six sample
-  instances of tile component `4100:309337` with zero gap. Direct Plugin API
-  inspection confirms `320×320px / 1px #475157` tiles, `20×20px / 1px
-  #2D3438` cells and parent opacity `70%`.
+- Current structural Figma source: pattern frame `4198:875236`; it wraps six
+  sample instances of tile component `4100:309337` with zero gap. The current
+  user-approved colors supersede the inspected sample values: `320×320px /
+  1px #191E21` dividers, `20×20px / 1px #16191C` cells and whole-layer
+  opacity `70%`.
 - The rejected CSS used four independent gradients. Percentage positions for
   the `320px` and `20px` layers resolve against different available spaces,
   leaving the layers `150px` out of phase and making major separators change
@@ -54,9 +55,8 @@
 - `GridPattern` now repeats one `surface-grid-tile.svg`: minor rules exist
   only at `20…300px`, while each repeated tile owns one top and one left major
   rule. No minor rule crosses a tile seam and no adjacent border is doubled.
-- A procedural raster of this model matched the exported `961×641px` Figma
-  screenshot with `0` pixel mismatches. Runtime computed styles confirm the
-  single asset, `320px` repeat, opacity `.7` and Experience placement
+- Runtime computed styles confirm the single asset, `320px` repeat, opacity
+  `.7` and Experience placement
   `calc(50% - 640px) 0`. Timeline, masks and narrow-screen behavior remain
   unchanged.
 

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" shape-rendering="crispEdges">
-  <g fill="#2d3438">
+  <g fill="#16191c">
     <rect x="20" y="0" width="1" height="320"/>
     <rect x="40" y="0" width="1" height="320"/>
     <rect x="60" y="0" width="1" height="320"/>
@@ -31,7 +31,7 @@
     <rect x="0" y="280" width="320" height="1"/>
     <rect x="0" y="300" width="320" height="1"/>
   </g>
-  <g fill="#475157">
+  <g fill="#191e21">
     <rect x="0" y="0" width="1" height="320"/>
     <rect x="0" y="0" width="320" height="1"/>
   </g>

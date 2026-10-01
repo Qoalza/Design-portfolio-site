@@ -268,8 +268,8 @@ test('desktop Experience uses the current 20px grid on 320px tiles while masks r
   assert.match(pattern,/surface-grid-pattern/);
   assert.match(source,/<GridPattern className="experience-grid"\/>/);
   assert.match(tile,/<svg[^>]*width="320"[^>]*height="320"[^>]*viewBox="0 0 320 320"/);
-  assert.match(tile,/<g fill="#2d3438">/);
-  assert.match(tile,/<g fill="#475157">/);
+  assert.match(tile,/<g fill="#16191c">/);
+  assert.match(tile,/<g fill="#191e21">/);
   assert.match(tile,/<rect x="20" y="0" width="1" height="320"\/>/);
   assert.match(tile,/<rect x="0" y="20" width="320" height="1"\/>/);
   assert.match(tile,/<rect x="0" y="0" width="1" height="320"\/>/);
