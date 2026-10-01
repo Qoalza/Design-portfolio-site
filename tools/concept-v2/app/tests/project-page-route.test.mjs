@@ -31,21 +31,28 @@ test('Corvo project route uses the dedicated page and the approved responsive He
  }
 });
 
-test('Corvo project actions use enabled design-system controls',async()=>{
- const [page,css,linkIcon,figmaIcon]=await Promise.all([
+test('Corvo project actions use enabled design-system controls with smooth right-anchored resizing',async()=>{
+ const [page,css,controls,linkIcon,figmaIcon]=await Promise.all([
   readFile(path.join(root,'src/project-page/CorvoProjectPage.jsx'),'utf8'),
   readFile(path.join(root,'src/project-page/CorvoProjectPage.module.css'),'utf8'),
+  readFile(path.join(root,'src/Controls.jsx'),'utf8'),
   readFile(path.join(root,'public/figma/project-corvo/action-link.svg'),'utf8'),
   readFile(path.join(root,'public/figma/project-corvo/action-figma.svg'),'utf8'),
  ]);
 
  assert.match(page,/import \{ControlButton\} from '\.\.\/Controls'/);
+ assert.match(page,/import \{motion,useReducedMotion\} from 'motion\/react'/);
  assert.match(page,/function ProjectAction\(/);
  assert.match(page,/return <ControlButton variant=\{variant\}/);
+ assert.match(page,/<motion\.div layout layoutDependency=\{copied\} transition=\{layoutTransition\}/);
+ assert.match(page,/<CopyLinkAction copied=\{copied\} onCopy=\{copyProjectLink\} layoutTransition=\{layoutTransition\}/);
+ assert.match(page,/motionLayout="position"/);
+ assert.match(controls,/import \{motion\} from 'motion\/react'/);
+ assert.match(controls,/motionLayout/);
+ assert.match(controls,/layout:\s*motionLayout/);
  assert.doesNotMatch(page,/StaticAction|aria-disabled="true"/);
  assert.match(page,/<ProjectAction variant="accent"[^>]*>Связаться/);
- assert.match(page,/<CopyLinkAction\/>/);
- assert.match(page,/<ProjectAction variant="neutral" iconRight="figma" href=\{corvoFigma\} external>Figma<\/ProjectAction>/);
+ assert.match(page,/<ProjectAction motionLayout="position"[^>]*variant="neutral"[^>]*iconRight="figma"[^>]*href=\{corvoFigma\}[^>]*>Figma<\/ProjectAction>/);
  assert.match(page,/variant="neutral"[^>]*iconRight="figma"[^>]*>\{metrics\[0\]\.action\}/);
  assert.match(page,/metrics\.slice\(1\).*<ProjectAction iconLeft=\{metric\.icon\} iconRight="arrow">\{metric\.action\}<\/ProjectAction>/s);
  assert.match(css,/\.projectActions\s*\{[^}]*border:\s*0/s);

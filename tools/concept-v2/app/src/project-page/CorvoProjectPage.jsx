@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
+import {motion,useReducedMotion} from 'motion/react';
 import {ProjectResponsiveHero} from '../project-hero/ProjectResponsiveHero';
 import {corvoResponsiveHero} from '../project-hero/definition.mjs';
 import {ControlButton} from '../Controls';
@@ -11,12 +12,13 @@ import styles from './CorvoProjectPage.module.css';
 
 const projectDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
 const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
+const projectActionLayoutTransition={layout:{type:'spring',stiffness:420,damping:38,mass:.8}};
 
-function ProjectAction({children,variant='ghost',iconLeft,iconRight,iconRightNode,className='',href,onClick,external,...props}){
- return <ControlButton variant={variant} className={`${styles.action} ${className}`} data-icon-left={iconLeft} data-icon-right={iconRightNode?undefined:iconRight} iconRightNode={iconRightNode} href={href} onClick={onClick} external={external} {...props}>{children}</ControlButton>;
+function ProjectAction({children,variant='ghost',iconLeft,iconRight,iconRightNode,motionLayout,layoutTransition,className='',href,onClick,external,...props}){
+ return <ControlButton variant={variant} className={`${styles.action} ${className}`} data-icon-left={iconLeft} data-icon-right={iconRightNode?undefined:iconRight} iconRightNode={iconRightNode} motionLayout={motionLayout} layoutTransition={layoutTransition} href={href} onClick={onClick} external={external} {...props}>{children}</ControlButton>;
 }
 
-function CopyLinkAction(){
+function useCopyLinkFeedback(){
  const [copied,setCopied]=useState(false);
  const resetTimerRef=useRef(null);
 
@@ -37,9 +39,15 @@ function CopyLinkAction(){
   }
  }
 
+ return {copied,copyProjectLink};
+}
+
+function CopyLinkAction({copied,onCopy,layoutTransition}){
  return <ProjectAction
+  motionLayout
+  layoutTransition={layoutTransition}
   iconRightNode={<StrokeMorphIcon icon={copied?checkMorphIcon:link02Icon}/>}
-  onClick={copyProjectLink}
+  onClick={onCopy}
   aria-label={copied?'Скопировано':'Копировать ссылку'}
   aria-live="polite"
  >{copied?'Скопировано':'Копировать ссылку'}</ProjectAction>;
@@ -59,12 +67,16 @@ function SiteHeader(){
 }
 
 function ProjectIntro(){
+ const reduceMotion=useReducedMotion();
+ const layoutTransition=reduceMotion?{layout:{duration:0}}:projectActionLayoutTransition;
+ const {copied,copyProjectLink}=useCopyLinkFeedback();
+
  return <section className={styles.projectIntro} data-first-view>
   <div className={styles.workArea}>
    <div className={styles.tags}><span>B2B</span><i/><span>SAAS</span><i/><span>PARTNER PLATFORM</span><b/><span>2026</span></div>
    <div className={styles.projectHeading}>
     <div className={styles.projectIdentity}><div className={styles.projectName}><img src="/figma/imgProjectCorvo.svg" width="44" height="44" alt=""/><div className={styles.projectNameLabel}><h1>Corvo</h1><span>В процессе подготовки</span></div></div><p>Система для управления партнёрской программой</p></div>
-    <div className={styles.projectActions}><CopyLinkAction/><ProjectAction variant="neutral" iconRight="figma" href={corvoFigma} external>Figma</ProjectAction></div>
+    <motion.div layout layoutDependency={copied} transition={layoutTransition} className={styles.projectActions}><CopyLinkAction copied={copied} onCopy={copyProjectLink} layoutTransition={layoutTransition}/><ProjectAction motionLayout="position" layoutTransition={layoutTransition} variant="neutral" iconRight="figma" href={corvoFigma} external>Figma</ProjectAction></motion.div>
    </div>
   </div>
  </section>;
