@@ -146,7 +146,7 @@ test('About uses the revised 968px desktop composition while preserving card con
  assert.match(css,/\.about-content\{[^}]*width:1280px[^}]*height:600px[^}]*grid-template-columns:684px 596px/);
  assert.match(css,/\.about-copy\{[^}]*height:600px[^}]*padding:0 56px 48px 8px/);
  assert.match(css,/\.about-copy p\{[^}]*max-width:572px/);
- assert.match(css,/\.about-carousel\{[^}]*height:600px/);
+ assert.match(css,/\.about-carousel\{[^}]*height:600px[^}]*overflow:visible/);
  assert.match(css,/\.about-carousel-heading\{[^}]*top:0/);
  assert.match(css,/\.about-deck\{[^}]*top:72px[^}]*height:436px/);
  assert.match(css,/\.about-carousel-controls\{[^}]*bottom:24px/);
