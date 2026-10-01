@@ -184,6 +184,10 @@ Production, VPS, DNS, SSL, firewall, secrets/access, real data, migrations и п
 - При подтверждённом конфликте WCAG с утверждённой Figma реализовать Figma, записать актуальное исключение в `ACCESSIBILITY_EXCEPTIONS.md` и не заявлять полное WCAG compliance.
 - Старый Figma node/screenshot не доказывает current exception без повторной проверки.
 - Icon contract `Line/Duotone/Solid/Color`, full frame и настоящий stroke описан в `DESIGN_SYSTEM.md`.
+- Запросы «морф», «морф иконки» и «сделай морф иконки X в Y» означают
+  применение существующего `StrokeMorphIcon` и полного контракта раздела
+  «Морф иконки» в `DESIGN_SYSTEM.md`; не создавать для них отдельный эффект
+  или новую библиотеку.
 
 # Проверки
 

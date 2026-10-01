@@ -23,13 +23,14 @@ test('copy feedback restarts one two-second reset window',()=>{
 });
 
 test('stroke morphing is reusable, 20% faster than snappy, and preserves the icon-system contract',async()=>{
- const [component,icons,checkAsset,css,packageJson,designSystem]=await Promise.all([
+ const [component,icons,checkAsset,css,packageJson,designSystem,agentRules]=await Promise.all([
   readFile(path.join(root,'src/morph-icon/StrokeMorphIcon.jsx'),'utf8'),
   readFile(path.join(root,'src/morph-icon/icons.mjs'),'utf8'),
   readFile(path.join(root,'public/figma/project-corvo/action-check.svg'),'utf8'),
   readFile(path.join(root,'src/morph-icon/stroke-morph-icon.css'),'utf8'),
   readFile(path.join(root,'package.json'),'utf8'),
   readFile(path.resolve(root,'../../../DESIGN_SYSTEM.md'),'utf8'),
+  readFile(path.resolve(root,'../../../AGENTS.md'),'utf8'),
  ]);
 
  assert.equal(JSON.parse(packageJson).dependencies.morphicons,'1.7.1');
@@ -47,7 +48,10 @@ test('stroke morphing is reusable, 20% faster than snappy, and preserves the ico
  assert.match(icons,/export const checkMorphIcon=/);
  assert.match(icons,/M4 12L9 17M9 17L14\.5 11\.5M14\.5 11\.5L20 6/);
  assert.match(checkAsset,/M20 6L9 17L4 12/);
- assert.match(designSystem,/### Stroke morphing/);
+ assert.match(designSystem,/### Морф иконки/);
+ assert.match(designSystem,/«морф»|«морф иконки»/);
+ assert.match(agentRules,/«морф»|«морф иконки»/);
+ assert.match(agentRules,/StrokeMorphIcon/);
 });
 
 test('Corvo copy action morphs only after a successful copy and returns automatically',async()=>{
