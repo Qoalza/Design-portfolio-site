@@ -66,13 +66,14 @@ test('responsive Hero preserves direct Corvo scale and inert iframe',async()=>{
 });
 
 test('responsive Hero uses the current Library V2 tab contracts',async()=>{
- const [component,tabComponent,tabCss,heroCss,definition,topbarSeparation]=await Promise.all([
+ const [component,tabComponent,tabCss,heroCss,definition,topbarSeparation,topbarHatch]=await Promise.all([
   read('src/project-hero/ProjectResponsiveHero.jsx'),
   read('src/v2/HeroTabs.jsx'),
   read('src/v2/hero-tabs.css'),
   read('src/project-hero/ProjectResponsiveHero.module.css'),
   read('src/project-hero/definition.mjs'),
-  read('public/assets/projects/corvo/responsive-hero/topbar-separation.svg')
+  read('public/assets/projects/corvo/responsive-hero/topbar-separation.svg'),
+  read('public/assets/projects/corvo/responsive-hero/topbar-hatch.svg')
  ]);
 
  assert.match(component,/ScenarioTab/);
@@ -103,9 +104,15 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
  assert.match(heroCss,/\.adaptiveRuler\s*\{[\s\S]*?height:\s*64px/);
  assert.match(heroCss,/\.heroTopbarInner::after\s*\{[^}]*background:\s*#1f2224/s);
- assert.match(heroCss,/\.topbarSide::after\s*\{[^}]*linear-gradient\(90deg, #1f2224 0 16px, transparent 16px 32px\)/s);
+ assert.match(component,/topbar-hatch\.svg/);
+ assert.match(component,/className=\{styles\.topbarHatch\}/);
+ assert.match(heroCss,/\.topbarHatch\s*\{[^}]*width:\s*79px[^}]*height:\s*52px/s);
+ assert.match(heroCss,/\.topbarSideLeft::after\s*\{[^}]*right:\s*80px/s);
+ assert.match(heroCss,/\.topbarSideRight::after\s*\{[^}]*left:\s*80px/s);
  assert.match(heroCss,/\.adaptiveTrack\s*\{[^}]*border-top:\s*1px solid #272b2e/s);
  assert.match(topbarSeparation,/stroke="#1F2224"/);
+ assert.match(topbarHatch,/<svg width="79" height="52" viewBox="0 0 79 52"/);
+ assert.match(topbarHatch,/M0 52V52\.5H9\.875/);
  assert.match(definition,/tabWidth:146/);
  assert.match(definition,/tabWidth:92/);
  assert.match(definition,/tabWidth:97/);

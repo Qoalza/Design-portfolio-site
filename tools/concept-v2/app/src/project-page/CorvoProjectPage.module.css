@@ -298,10 +298,6 @@
 .action[data-icon-right="figma"] { --project-action-icon-right: url('/figma/project-corvo/action-figma.svg'); }
 .action[data-icon-right="arrow"] { --project-action-icon-right: url('/figma/project-corvo/metric-arrow.svg'); }
 .action[data-icon-right="telegram"] { --project-action-icon-right: url('/figma/project-corvo/header/header-telegram.svg'); }
-.action[data-icon-right="telegram"]::after {
-  -webkit-mask-size: 24px 100%;
-  mask-size: 24px 100%;
-}
 .action[data-icon-left]::before { --project-action-icon: var(--project-action-icon-left); }
 .action[data-icon-right]::after { --project-action-icon: var(--project-action-icon-right); }
 

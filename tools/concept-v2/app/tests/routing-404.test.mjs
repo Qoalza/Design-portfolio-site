@@ -1,14 +1,26 @@
 import test from 'node:test'; import assert from 'node:assert/strict'; import {chooseRoutes,drop,dropResult,fixedNodeVisual,routeProgress,status} from '../src/routing-404.mjs';
-import {readFileSync} from 'node:fs';
+import {readFileSync,readdirSync} from 'node:fs';
 import {pulseDuration,pulsePaths,pulseSpeed,pulseTracks} from '../src/routing-404-pulse.mjs';
 const routingCss=readFileSync(new URL('../src/routing-404.css',import.meta.url),'utf8');
+const routingAssets=new URL('../public/figma/routing404/',import.meta.url);
+const readSvgTree=dir=>readdirSync(dir,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?readSvgTree(new URL(`${entry.name}/`,dir)):entry.name.endsWith('.svg')?[readFileSync(new URL(entry.name,dir),'utf8')]:[]);
 const slots={research:{x:0,y:0},concept:{x:100,y:0},delivery:{x:200,y:0},gitBranch:{x:300,y:0},connector:{x:400,y:0}};
-test('404 outer shell follows the current palette while the deferred graph stays isolated',()=>{
+test('404 outer shell follows the current palette without changing graph behavior',()=>{
  assert.match(routingCss,/\.routing404\s*\{[^}]*var\(--cv2-container-neutral-faint\)[^}]*var\(--cv2-container-neutral-inverse\)[^}]*color:var\(--cv2-text-neutral-primary\)/s);
  assert.match(routingCss,/\.routing404-header p\s*\{[^}]*color:var\(--cv2-text-neutral-muted\)/s);
  assert.match(routingCss,/\.routing404-home\.control\.light:hover\s*\{[^}]*--control-border:var\(--cv2-border-neutral-surface\)/s);
  assert.match(routingCss,/\.routing404-home\.control\.light:active\s*\{[^}]*--control-border:var\(--cv2-border-neutral-muted\)/s);
  assert.match(routingCss,/\.routing404-hint\s*\{[^}]*color:var\(--cv2-text-neutral-thin\)[^}]*font:400 12px\/14px/s);
+});
+test('404 graph uses the current neutral palette in CSS and every exported state',()=>{
+ const source=[routingCss,...readSvgTree(routingAssets)].join('\n');
+ assert.doesNotMatch(source,/#(?:14181b|0e1012|1d2124|272d30|2d3438|414a4f|475157|747f87|949ea6|b7c0c7|d3dbe0|e9eef2|f2f4f5)\b/i);
+ for(const value of ['#16191a','#101112','#1f2224','#272b2e','#323639','#565c61','#788087','#99a1a6','#bbc2c7','#d6dce0','#eceff2']){
+  assert.match(source,new RegExp(value,'i'));
+ }
+ assert.match(source,/#E2E2EC/);
+ assert.match(source,/#FF635E/);
+ assert.match(source,/#1D90EB/);
 });
 test('free drop retains no slot',()=>assert.deepEqual(drop({},'research',{x:900,y:900,slots}),{}));
 test('nearest free slot snaps only inside radius',()=>assert.deepEqual(drop({},'research',{x:5,y:0,slots}),{research:'research'}));

@@ -51,6 +51,7 @@
 }
 
 .topbarSideRight::after {
+  left: 80px;
   background-position-x: -4px;
 }
 
@@ -65,11 +66,18 @@
   background-image: repeating-linear-gradient(126.87deg, #1f2224 0 1px, transparent 1px 12px);
 }
 
-.topbarSide img {
+.topbarHatch {
   display: block;
-  flex: 0 0 auto;
+  width: 79px;
+  height: 52px;
+  flex: 0 0 79px;
+}
+
+.topbarSeparation {
+  display: block;
   width: 1px;
   height: 52px;
+  flex: 0 0 1px;
 }
 
 .topbarSideLeft {
@@ -78,6 +86,7 @@
 }
 
 .topbarSideLeft::after {
+  right: 80px;
   background-position-x: calc(100% + 12px);
 }
 

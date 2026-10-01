@@ -7,7 +7,7 @@
 - Ветка: `codex/redesign-portfolio`.
 - Worktree:
   `/Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site`.
-- Реализация: `ed14e24` (`fix(concept-v2): sync current Figma palette`).
+- Реализация: текущий HEAD содержит follow-up синхронизацию поверх `ed14e24`.
 - Рабочий план:
   `docs/exec-plans/concept-v2-current-baseline-recovery.md` (`COMPLETE`).
 
@@ -22,15 +22,21 @@
   отдельных цветовых «кусков».
 - Corvo сохраняет исправленные сетку, сцены и прозрачный media-ассет; размеры
   и текстовые роли синхронизированы с узлом `4232:620792`.
-- Прелоадер и однозначная внешняя оболочка 404 обновлены. Внутренний граф 404
-  сознательно не менялся и остаётся отдельной задачей.
-- Итоговые проверки реализации: `167/167` tests, lint 66 source files,
-  production build и `git diff --check`. Два последовательных review закрыты.
+- Внутренний граф 404 теперь использует актуальные нейтральные значения во
+  всех состояниях; логика перетаскивания и маршрутизации не менялась.
+- В Corvo исправлены 16×16 Telegram-иконка и точный переход штриховки Hero в
+  центральную панель по актуальным Figma-инстансам.
+- В Concept V2 перенесена production-механика тултипов и применён актуальный
+  визуал компонента `222:1906`; конкретные триггеры и данные пока не заданы.
+- Итоговые проверки текущей Git-группы: `170/170` tests, lint 69 source
+  files, production build и `git diff --check`. Fidelity/completeness и
+  regression/scope review закрыты; предупреждение Vite о размере основного
+  чанка существовало до этой локальной группы и не блокирует сборку.
 - Актуальный локальный просмотр: `http://127.0.0.1:4189/`; вкладка оставлена
-  на главной в секции Projects.
+  на странице Corvo.
 
 ## Stop-lines
 
-Не менять Figma, внутренний граф 404, Admin, Shared contract, `USERSPACE/**`,
-`main`, production и опубликованный Next.js Portfolio. Merge, push и deploy
-не входят в завершённую цель.
+Не менять Figma, поведение внутреннего графа 404, Admin, Shared contract,
+`USERSPACE/**`, `main`, production и опубликованный Next.js Portfolio. Merge,
+push и deploy не входят в текущую Git-группу.

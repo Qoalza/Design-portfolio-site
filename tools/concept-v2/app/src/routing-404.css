@@ -133,9 +133,9 @@
   left:8px;
   width:16px;
   height:16px;
-  border:1px solid #272d30;
+  border:1px solid #272b2e;
   border-radius:4px;
-  background:#14181b;
+  background:#16191a;
 }
 .routing404-node-label {
   position:absolute;
@@ -146,9 +146,9 @@
   gap:4px;
   white-space:nowrap;
 }
-.routing404-node-label strong {color:#b7c0c7;font-weight:400}
-.routing404-node-label span {color:#949ea6}
-.routing404-node.is-other .routing404-node-marker {border-color:#747f87}
+.routing404-node-label strong {color:#bbc2c7;font-weight:400}
+.routing404-node-label span {color:#99a1a6}
+.routing404-node.is-other .routing404-node-marker {border-color:#788087}
 .routing404-node.is-other .routing404-node-marker::after,
 .routing404-node.is-active .routing404-node-marker::after,
 .routing404-node.is-error .routing404-node-marker::after {
@@ -160,24 +160,24 @@
   border-radius:2px;
   content:'';
 }
-.routing404-node.is-other .routing404-node-marker::after {background:#b7c0c7}
+.routing404-node.is-other .routing404-node-marker::after {background:#bbc2c7}
 .routing404-node.is-active .routing404-node-marker {border-color:#0462af;background:#00355f}
 .routing404-node.is-active .routing404-node-marker::after {background:#0378d6}
-.routing404-node.is-error .routing404-node-marker {border-color:#ff635e;background:#14181b}
+.routing404-node.is-error .routing404-node-marker {border-color:#ff635e;background:#16191a}
 .routing404-node.is-error .routing404-node-marker::after {background:#dd4743}
 .routing404-node.is-other .routing404-node-label strong,
 .routing404-node.is-active .routing404-node-label strong,
-.routing404-node.is-error .routing404-node-label strong {color:#d3dbe0}
+.routing404-node.is-error .routing404-node-label strong {color:#d6dce0}
 .routing404-node.is-other .routing404-node-label span,
 .routing404-node.is-active .routing404-node-label span,
-.routing404-node.is-error .routing404-node-label span {color:#b7c0c7}
+.routing404-node.is-error .routing404-node-label span {color:#bbc2c7}
 .routing404-slot {
   position:absolute;
   z-index:3;
   display:flex;
   flex-direction:column;
   align-items:center;
-  color:#414a4f;
+  color:#565c61;
   text-align:center;
   font:400 12px/16px 'Source Code Pro',monospace;
   letter-spacing:-.3px;
@@ -189,25 +189,25 @@
   width:32px;
   height:32px;
   place-items:center;
-  border:1px solid #2d3438;
+  border:1px solid #323639;
   border-radius:8px;
-  background:#0e1012;
-  color:#949ea6;
+  background:#101112;
+  color:#99a1a6;
 }
-.routing404-slot.has-icon .routing404-empty-packet {border:0;color:#747f87}
-.routing404-empty-outline {position:absolute;top:-.5px;left:-.5px;width:33px;height:33px;fill:none;stroke:#2d3438;stroke-width:1}
+.routing404-slot.has-icon .routing404-empty-packet {border:0;color:#788087}
+.routing404-empty-outline {position:absolute;top:-.5px;left:-.5px;width:33px;height:33px;fill:none;stroke:#323639;stroke-width:1}
 .routing404-slot.has-icon .routing404-icon-frame {z-index:1}
 .routing404-slot.is-proximity .routing404-empty-packet {border-color:#43a2ee}
 .routing404-slot.is-proximity .routing404-empty-outline {stroke:#43a2ee}
 .routing404-slot-label {display:block;margin-top:8px;white-space:nowrap}
-.routing404-slot.is-occupied .routing404-slot-label {color:#d3dbe0}
-.routing404-slot.is-wrong .routing404-slot-label {color:#d3dbe0}
+.routing404-slot.is-occupied .routing404-slot-label {color:#d6dce0}
+.routing404-slot.is-wrong .routing404-slot-label {color:#d6dce0}
 .routing404-error-lead {
   position:absolute;
   top:-24px;
   left:50%;
   transform:translateX(-50%);
-  color:#414a4f;
+  color:#565c61;
   white-space:nowrap;
 }
 .routing404-packet {
@@ -219,14 +219,14 @@
   padding:0;
   border:0;
   background:transparent;
-  color:#e9eef2;
+  color:#eceff2;
   cursor:grab;
   touch-action:none;
 }
 .routing404-packet.is-free {
   width:40px;
   height:40px;
-  border:1px solid #272d30;
+  border:1px solid #272b2e;
   border-radius:12px;
 }
 .routing404-packet.is-dragging {cursor:grabbing}
@@ -247,16 +247,16 @@
   font-feature-settings:'cv01' 1,'cv02' 1,'cv12' 1;
 }
 .routing404-packet.is-free .routing404-packet-inner {top:3px;left:3px}
-.routing404-packet.has-icon .routing404-packet-inner {border-color:#1d90eb;background:#14181b;color:#b7c0c7}
+.routing404-packet.has-icon .routing404-packet-inner {border-color:#1d90eb;background:#16191a;color:#bbc2c7}
 .routing404-packet.is-placed.has-icon .routing404-packet-inner {background:#02233d;color:#43a2ee}
 .routing404-packet.is-wrong.has-icon .routing404-packet-inner {border-color:#ff635e;background:#4e1e1d;color:#ff635e}
-.routing404-packet.is-wrong.has-number .routing404-packet-inner {border-color:#ff635e;background:#dd4743;color:#e9eef2}
-.routing404-packet.has-number:not(.is-wrong):hover .routing404-packet-inner {border-color:#0378d6;background:#0462af;color:#f2f4f5}
+.routing404-packet.is-wrong.has-number .routing404-packet-inner {border-color:#ff635e;background:#dd4743;color:#eceff2}
+.routing404-packet.has-number:not(.is-wrong):hover .routing404-packet-inner {border-color:#0378d6;background:#0462af;color:#f8fafc}
 .routing404-packet.has-number:not(.is-wrong):active .routing404-packet-inner,
 .routing404-packet.has-number:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#004c88;color:#fff}
-.routing404-packet.has-icon:not(.is-wrong):hover .routing404-packet-inner {border-color:#43a2ee;background:#14181b;color:#e9eef2}
+.routing404-packet.has-icon:not(.is-wrong):hover .routing404-packet-inner {border-color:#43a2ee;background:#16191a;color:#eceff2}
 .routing404-packet.has-icon:not(.is-wrong):active .routing404-packet-inner,
-.routing404-packet.has-icon:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#14181b;color:#fff}
+.routing404-packet.has-icon:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#16191a;color:#fff}
 .routing404-icon-frame {
   position:relative;
   display:block;

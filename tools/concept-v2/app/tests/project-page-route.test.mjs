@@ -76,9 +76,10 @@ test('Corvo breadcrumbs use compact system buttons and home navigation',async()=
 });
 
 test('Corvo project header and footer use their current Figma assets',async()=>{
- const [page,css]=await Promise.all([
+ const [page,css,telegram]=await Promise.all([
   readFile(path.join(root,'src/project-page/CorvoProjectPage.jsx'),'utf8'),
   readFile(path.join(root,'src/project-page/CorvoProjectPage.module.css'),'utf8'),
+  readFile(path.join(root,'public/figma/project-corvo/header/header-telegram.svg'),'utf8'),
  ]);
 
  assert.match(page,/data-header-icon="home"/);
@@ -96,7 +97,8 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
  assert.match(css,/\.headerRight\s*\{[^}]*width:\s*378px/s);
  assert.match(css,/\.availability\s*\{[^}]*width:\s*213px/s);
  assert.match(css,/\.headerContact\s*\{[^}]*width:\s*121px/s);
- assert.match(css,/\.action\[data-icon-right="telegram"\]::after\s*\{[^}]*mask-size:\s*24px 100%/s);
+ assert.doesNotMatch(css,/\.action\[data-icon-right="telegram"\]::after\s*\{/s);
+ assert.match(telegram,/<svg width="16" height="16" viewBox="0 0 16 16"/);
  assert.doesNotMatch(css,/\.header\s*\{[^}]*border-bottom:/s);
  assert.match(css,/\.brand b\s*\{[^}]*font-variation-settings:\s*"GRAD" -25, "opsz" 18/s);
  assert.match(css,/\.brand small\s*\{[^}]*font-variation-settings:\s*"GRAD" -30, "opsz" 18/s);
