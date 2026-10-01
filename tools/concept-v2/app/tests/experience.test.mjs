@@ -261,15 +261,23 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
 test('desktop Experience uses the current 20px grid on 320px tiles while masks retain timeline edge fades',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const pattern=await readFile(path.resolve(import.meta.dirname,'../src/GridPattern.jsx'),'utf8');
+  const tile=await readFile(path.resolve(import.meta.dirname,'../public/figma/surface-grid-tile.svg'),'utf8');
   const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
   assert.match(css,/\.experience-center\{position:relative;[^}]*background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(pattern,/export function GridPattern/);
   assert.match(pattern,/surface-grid-pattern/);
   assert.match(source,/<GridPattern className="experience-grid"\/>/);
-  assert.match(css,/\.surface-grid-pattern\{[^}]*--surface-grid-major:#191e21;[^}]*--surface-grid-minor:#16191c;[^}]*--surface-grid-opacity:\.6/);
-  assert.match(css,/\.surface-grid-pattern\{[^}]*opacity:var\(--surface-grid-opacity\)[^}]*background-image:linear-gradient\(to right,var\(--surface-grid-major\) 0 1px,transparent 1px var\(--surface-grid-tile\)\),linear-gradient\(to bottom,var\(--surface-grid-major\) 0 1px,transparent 1px var\(--surface-grid-tile\)\),linear-gradient\(to right,var\(--surface-grid-minor\) 0 1px,transparent 1px var\(--surface-grid-cell\)\),linear-gradient\(to bottom,var\(--surface-grid-minor\) 0 1px,transparent 1px var\(--surface-grid-cell\)\)/);
-  assert.match(css,/\.surface-grid-pattern\{[^}]*background-position:var\(--surface-grid-x\) var\(--surface-grid-y\),var\(--surface-grid-x\) var\(--surface-grid-y\),var\(--surface-grid-x\) var\(--surface-grid-y\),var\(--surface-grid-x\) var\(--surface-grid-y\)/);
-  assert.match(css,/\.experience-grid\{[^}]*--surface-grid-x:calc\(50% - 800px\);--surface-grid-y:0px/);
+  assert.match(tile,/<svg[^>]*width="320"[^>]*height="320"[^>]*viewBox="0 0 320 320"/);
+  assert.match(tile,/<g fill="#2d3438">/);
+  assert.match(tile,/<g fill="#475157">/);
+  assert.match(tile,/<rect x="20" y="0" width="1" height="320"\/>/);
+  assert.match(tile,/<rect x="0" y="20" width="320" height="1"\/>/);
+  assert.match(tile,/<rect x="0" y="0" width="1" height="320"\/>/);
+  assert.match(tile,/<rect x="0" y="0" width="320" height="1"\/>/);
+  assert.doesNotMatch(tile,/x="320"|y="320"/);
+  assert.match(css,/\.surface-grid-pattern\{[^}]*--surface-grid-opacity:\.7;[^}]*opacity:var\(--surface-grid-opacity\);[^}]*background-image:url\('\/figma\/surface-grid-tile\.svg'\);[^}]*background-size:320px 320px;[^}]*background-position:var\(--surface-grid-x\) var\(--surface-grid-y\);[^}]*background-repeat:repeat/);
+  assert.doesNotMatch(css,/\.surface-grid-pattern\{[^}]*linear-gradient/);
+  assert.match(css,/\.experience-grid\{[^}]*--surface-grid-x:calc\(50% - 640px\);--surface-grid-y:0px/);
   assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);

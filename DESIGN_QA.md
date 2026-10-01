@@ -43,18 +43,22 @@
 
 ## READY_FOR_REVIEW — Concept V2 Experience grid pattern
 
-- Current exact Figma source: container `4150:806538`, tile instance
-  `4150:806539`. Direct Plugin API inspection confirmed all 49 tile strokes
-  are `1px #191E21`, all 23,716 cell strokes are `1px #16191C`, tiles are
-  `320×320px`, cells are `20×20px`, and container opacity is `60%`.
-- The previous CSS used different origins for the `320px` and `20px` layers.
-  Some intended tile separators therefore rendered with the cell color.
-- The shared `GridPattern` / `.surface-grid-pattern` primitive now owns the
-  two colors, sizes, opacity and one common phase. Experience uses the Figma
-  placement `calc(50% - 800px) 0`.
-- Runtime computed styles at `1574px` confirm four identical background
-  positions, exact source colors and sizes, and opacity `.6`. The Experience
-  timeline, masks and narrow-screen behavior remain unchanged.
+- Current exact Figma source: pattern frame `4198:875236`; it wraps six sample
+  instances of tile component `4100:309337` with zero gap. Direct Plugin API
+  inspection confirms `320×320px / 1px #475157` tiles, `20×20px / 1px
+  #2D3438` cells and parent opacity `70%`.
+- The rejected CSS used four independent gradients. Percentage positions for
+  the `320px` and `20px` layers resolve against different available spaces,
+  leaving the layers `150px` out of phase and making major separators change
+  color.
+- `GridPattern` now repeats one `surface-grid-tile.svg`: minor rules exist
+  only at `20…300px`, while each repeated tile owns one top and one left major
+  rule. No minor rule crosses a tile seam and no adjacent border is doubled.
+- A procedural raster of this model matched the exported `961×641px` Figma
+  screenshot with `0` pixel mismatches. Runtime computed styles confirm the
+  single asset, `320px` repeat, opacity `.7` and Experience placement
+  `calc(50% - 640px) 0`. Timeline, masks and narrow-screen behavior remain
+  unchanged.
 
 ## READY_FOR_REVIEW — Concept V2 project card hover during scroll
 
@@ -119,7 +123,7 @@
   предыдущей версии. Исправлены desktop-цвета заметок Projects/Process
   (`#475157`) и новый About Preview `320×436` с rear `256×336` на `y=50`.
   В текущем runtime подтверждены верхние маски/свечение Projects, сетки и
-  декоративные слои Process, Experience с opacity `60%`, About и Footer.
+  декоративные слои Process, Experience, About и Footer.
   Viewer и утверждённые тайминги не менялись. Итог: lint, `161/161` tests,
   production build и два последовательных review без открытых находок;
   пользовательская визуальная приёмка остаётся открытой.
