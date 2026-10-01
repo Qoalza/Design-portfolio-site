@@ -25,7 +25,7 @@ function SiteHeader(){
     <div className={styles.headerRight}><span className={styles.availability}><img src="/figma/project-corvo/header/header-indicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ProjectAction variant="accent" className={styles.headerContact} iconRight="telegram" href="https://t.me/Coco_soul" external>Связаться</ProjectAction></div>
    </div>
   </header>
-  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><V2Button variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><V2Button variant="ghost" iconLeft="imgProjectCorvo" className={styles.crumbProject} aria-current="page">Corvo</V2Button></nav></div>
+  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><V2Button variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><V2Button variant="ghost" iconLeft="imgProjectCorvo" iconLeftMode="color" className={styles.crumbProject} aria-current="page">Corvo</V2Button></nav></div>
  </>;
 }
 

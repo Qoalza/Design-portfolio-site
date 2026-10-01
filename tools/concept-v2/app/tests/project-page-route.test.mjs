@@ -59,18 +59,27 @@ test('Corvo project actions use enabled design-system controls',async()=>{
  assert.match(figmaIcon,/Medium \/ Social logo \/ Figma/);
 });
 
-test('Corvo breadcrumbs use compact system buttons and home navigation',async()=>{
- const [page,css,controls]=await Promise.all([
+test('Corvo breadcrumbs use compact system buttons and preserve the color logo',async()=>{
+ const [page,css,controls,controlCss,corvoLogo]=await Promise.all([
   readFile(path.join(root,'src/project-page/CorvoProjectPage.jsx'),'utf8'),
   readFile(path.join(root,'src/project-page/CorvoProjectPage.module.css'),'utf8'),
   readFile(path.join(root,'src/v2/Controls.jsx'),'utf8'),
+  readFile(path.join(root,'src/v2/controls.css'),'utf8'),
+  readFile(path.join(root,'public/figma/imgProjectCorvo.svg'),'utf8'),
  ]);
 
  assert.match(page,/import \{V2Button\} from '\.\.\/v2\/Controls'/);
  assert.match(page,/<V2Button variant="ghost" iconLeft="imgColor" iconOnly href=\{import\.meta\.env\.BASE_URL\}[^>]*aria-label="На главную"/);
- assert.match(page,/<V2Button variant="ghost" iconLeft="imgProjectCorvo"[^>]*aria-current="page">Corvo<\/V2Button>/);
+ assert.match(page,/<V2Button variant="ghost" iconLeft="imgProjectCorvo" iconLeftMode="color"[^>]*aria-current="page">Corvo<\/V2Button>/);
  assert.match(controls,/iconOnly=false/);
  assert.match(controls,/iconOnly\?null:<span className="v2-control-label">\{children\}<\/span>/);
+ assert.match(controls,/mode==='color'/);
+ assert.match(controls,/className=\{`v2-icon v2-icon-color/);
+ assert.match(controls,/iconLeftMode='default'/);
+ assert.match(controls,/<V2Icon name=\{iconLeft\} mode=\{iconLeftMode\}/);
+ assert.match(controlCss,/\.v2-icon-color\s*\{[^}]*background:transparent[^}]*mask:none/s);
+ assert.match(corvoLogo,/fill="#2A6E52"/);
+ assert.match(corvoLogo,/fill="#43A27A"/);
  assert.match(css,/\.crumb \.crumbHome\s*\{[^}]*width:\s*16px[^}]*height:\s*16px[^}]*padding:\s*0/s);
  assert.match(css,/\.crumb \.crumbProject\s*\{[^}]*width:\s*67px[^}]*height:\s*16px[^}]*padding:\s*0/s);
 });
