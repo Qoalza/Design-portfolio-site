@@ -259,15 +259,21 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
 
 test('desktop Experience uses the current 20px grid on 320px tiles while masks retain timeline edge fades',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
-  assert.match(css,/\.experience-center\{position:relative;background:var\(--cv2-container-neutral-faint\)\}/);
+  assert.match(css,/\.experience-center\{position:relative;[^}]*background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-grid\{[^}]*opacity:\.6[^}]*background-image:linear-gradient\(to right,#191e21 0 1px,transparent 1px 320px\),linear-gradient\(to bottom,#191e21 0 1px,transparent 1px 320px\),linear-gradient\(to right,#16191c 0 1px,transparent 1px 20px\),linear-gradient\(to bottom,#16191c 0 1px,transparent 1px 20px\)/);
   assert.match(css,/\.experience-grid\{[^}]*background-size:320px 320px,320px 320px,20px 20px,20px 20px/);
-  assert.match(css,/\.experience-grid\{[^}]*background-position:calc\(50% - 800px\) 0,calc\(50% - 800px\) 0,calc\(50% - 800px\) 0,calc\(50% - 800px\) 0/);
+  assert.match(css,/\.experience-grid\{[^}]*background-position:calc\(50% - 640px\) 0,calc\(50% - 640px\) 0,calc\(50% - 790px\) 0,calc\(50% - 790px\) 0/);
   assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
   assert.doesNotMatch(css,/\.experience\.is-started:not\(\.is-complete\) \.experience-window/);
   assert.match(css,/\.experience-fade\{display:none\}/);
+});
+
+test('desktop Experience owns the full-width separator before About',async()=>{
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.experience-center\{[^}]*box-sizing:border-box[^}]*border-bottom:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.doesNotMatch(css,/\.about-section\{[^}]*border-top/);
 });
 
 test('Experience heading keeps scroll orchestration while Resume remains its full Figma control',async()=>{

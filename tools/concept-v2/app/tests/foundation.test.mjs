@@ -64,7 +64,7 @@ test('AI keeps the desktop hatches and leaves the existing mobile panel intact',
  assert.match(app,/className="ai-desktop-side"/);
  assert.match(app,/className="ai-mobile-panel"/);
  assert.equal(createHash('sha256').update(top).digest('hex'),'a279263ea3356ca6106b57e934608ec88349e1b693c6740c114447fbb2c94144');
- assert.match(css,/\.ai-desktop-side\{[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 15px\)/);
+ assert.match(css,/\.ai-desktop-side\{[^}]*border-block:1px solid var\(--cv2-border-neutral-thin\)[^}]*background:repeating-linear-gradient\(126\.826deg,#1d2124 0 1px,transparent 1px 15px\)/);
  assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.ai-desktop-panel,\.ai-desktop-side\{display:none\}/);
  assert.match(responsive,/\.ai-mobile-panel\{display:block/);
  assert.match(responsive,/@media\(max-width:599px\)\{[\s\S]*?\.ai-mobile-main \.ai-main\{padding:32px 24px\}/);

@@ -4,44 +4,34 @@
 
 ## Текущий checkout
 
-- Ветка: `codex/redesign-portfolio`.
-- Worktree: `/Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site`.
-- Контракт и история сборки: `docs/exec-plans/redesign-portfolio-consolidation.md`.
+- Ветка: `codex/redesign-main-fidelity`.
+- Worktree: `/private/tmp/design-portfolio-redesign-main-fidelity`.
+- Базовый commit: `5df17c7b7c9dc3bad6470d990eb2f2ca07c00339`.
+- Рабочий план: `docs/exec-plans/concept-v2-mainpage-library-refresh.md`.
 
 ## Checkpoint
 
-- Локальный Concept V2 объединяет главную, страницу Corvo, 404, прелоадер,
-  изолированный Hero preview и четыре сцены Corvo.
-- Страница Corvo перенесена из `codex/redesign-project-page` (`44bafef`):
-  карточка главной открывает `/projects/corvo`, ссылка «Главная» возвращает
-  обратно, прямой вход на проект проходит через прелоадер.
-- Ранее пройдены Vite build и браузерные маршруты главная → Corvo → главная,
-  прямой вход на Corvo, 404 и сцена Statistics.
-- Исправлен скачок из «Обо мне» в незавершённый путь опыта после закрытия фото:
-  блок опыта сохраняет геометрию при временной блокировке прокрутки. В браузере
-  проверены открытие/закрытие фото и сохранение позиции секции.
-- Desktop-главная обновлена по Figma `4150:804068`: геометрия и верхние
-  эффекты Projects и Process, статичная двухколоночная AI-композиция,
-  подложка Experience `20px` внутри плиток `320px` с `60%` opacity и без
-  нижнего поля, упрощённый About и Hero-chip `Middle+ / Senior`.
-- Горизонтальный Hero, поведение и длительности анимаций карточек сохранены.
-  Copy/View и часы из шаблона Figma не добавлены. Изменения ограничены
-  desktop; прежние tablet/mobile правила и текст Hero-chip сохранены.
-- В финальной проверке исправлены каскад Process, который возвращал декор в
-  flex-flow, и пустые Sarafan AVIF: карточка использует проверенный PNG.
-  В браузере подтверждены обе верхние сцены Projects и три карточки Process.
-- Повторный аудит текущего runtime против Figma `4150:804068` исправил цвет
-  служебных подписей Projects/Process на neutral thin `#475157` и новую
-  embedded-геометрию About Preview: front `320×436`, rear `256×336` на
-  `y=50`. Viewer `420px`, траектории и длительности анимаций сохранены.
-- Итоговый `npm run check` прошёл: lint, `161/161` tests и production build.
-  План: `796ee61`; реализация: `594bbd8`. Два последовательных review не
-  нашли оставшихся fidelity или regression проблем. Пользовательская
-  визуальная приёмка открыта.
-  Актуальный локальный просмотр: `http://127.0.0.1:4189/`.
+- Desktop-главная Concept V2 повторно сверена с Figma Main `4150:804068` по
+  фактическому runtime.
+- Projects: верхний separator находится за изображениями и раскрывается внутри
+  inset `12px`; рамки, glow, корень и hover-геометрия приведены к компоненту.
+- Process: grid принадлежит карточке, меняет цвет на hover; desktop использует
+  чистые default/hover SVG, старые adaptive SVG и маски сохранены для `<1280px`.
+- AI: боковая штриховка имеет верхний и нижний stroke.
+- Experience: сетка `20px` внутри плиток `320px` совмещена по фазе, opacity
+  `60%`; нижний полноширинный stroke `1px #1d2124` отделяет About.
+- About: heading frame прозрачен; неактивные точки `#363d42`, активная
+  `#43a2ee`.
+- Горизонтальный Hero, Copy/View, часы, tablet/mobile и утверждённые длительности
+  анимаций не менялись.
+- Итоговый `npm run check` прошёл: lint, `162/162` tests и production build.
+  Два последовательных review закрыты; второй не нашёл замечаний.
+- Актуальный локальный просмотр: `http://127.0.0.1:4190/`.
 
 ## Stop-lines
 
-Не трогать Admin, Shared contract, `USERSPACE/**`, `main`, production,
-Figma, опубликованный Next.js Portfolio и старые worktree/ветки. Очистка и
+Не трогать соседний worktree
+`/Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site`,
+ветку `codex/redesign-portfolio`, Admin, Shared contract, `USERSPACE/**`,
+`main`, production, Figma и опубликованный Next.js Portfolio. Merge, push и
 deploy не входят в эту цель.

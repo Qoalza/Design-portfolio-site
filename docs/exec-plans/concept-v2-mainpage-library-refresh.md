@@ -1,7 +1,8 @@
 # Concept V2 — актуализация главной по текущему Worktree Redesign
 
-**Статус:** `COMPLETE`. **Ветка:** `codex/redesign-portfolio`.
-**Базовый commit:** `9099a8759d7e463690c31229da9d82d28e7f3e95`.
+**Статус:** `COMPLETE`. **Ветка:** `codex/redesign-main-fidelity`.
+**Worktree:** `/private/tmp/design-portfolio-redesign-main-fidelity`.
+**Базовый commit:** `5df17c7b7c9dc3bad6470d990eb2f2ca07c00339`.
 
 ## Outcome
 
@@ -29,35 +30,36 @@ runtime, а не с предыдущей версией макета или ко
 - Заголовок Experience остаётся с inset `8px`.
 - Подложка Experience использует новую сетку с opacity `60%`.
 
-## Исправленные расхождения
+## Текущий пакет исправлений после пользовательской приёмки
 
-1. Служебные подписи Projects и Process переведены с muted `#949ea6` на
-   Figma neutral thin `#475157` только в desktop-композиции.
-2. В About текущий Figma-инстанс Preview имеет `320×436`, задние карточки
-   `256×336` центрированы по высоте на `y=50`. Embedded runtime обновлён до
-   этих размеров; viewer сохранил прежнюю каноническую геометрию.
-3. Общая геометрия Projects, Process, AI, Experience, About и Footer уже
-   совпадает с измерениями текущего desktop-фрейма; исключения выше не считать
-   дефектами.
+1. Projects: вернуть разделитель за изображения, сделать его невидимым в
+   покое и раскрывать только в пределах inset `12px`; исправить тонкую рамку,
+   квадратную заливку корня, скругление glow и точную hover-геометрию.
+2. Process: убрать старую сетку из SVG-иконок, использовать точные default и
+   hover-иконки, добавить hover-цвет сетки карточки, убрать постоянную верхнюю
+   линию и восстановить структуру divider + padded body.
+3. AI: восстановить верхнюю и нижнюю строки рамки у боковой штриховки.
+4. Experience: совместить физические начала сеток `320px` и `20px`, чтобы
+   сильная линия заменяла каждую шестнадцатую мелкую границу; вернуть нижний
+   полноширинный stroke перед About.
+5. About: убрать заливку title frame и применить точные цвета точек
+   `#363d42` / `#43a2ee`.
 
 ## Этапы
 
 1. **Аудит — COMPLETE.** Сопоставить exact Figma children, размеры, цвета,
    слои и эффекты с текущим runtime; зафиксировать только подтверждённые
    расхождения.
-2. **Служебные подписи — COMPLETE.** Target: Projects/Process desktop. Change: применить
-   neutral thin. Expected: обе подписи имеют цвет `#475157`, адаптивные стили
-   не меняются. Verification: focused source test и runtime screenshot.
-3. **About Preview — COMPLETE.** Target: embedded carousel. Change: растянуть только
-   front до `436px`, центрировать rear на `y=50`, сохранить viewer `420px`,
-   траектории, длительность и управление. Expected: точная геометрия
-   `4150:809030` без регрессии viewer. Verification: endpoint/transition tests
-   и runtime screenshot.
-4. **Полная проверка — COMPLETE.** Собрать текущий runtime и пройти Hero, Projects,
-   Process, AI, Experience, About, Footer. Затем выполнить два review:
-   fidelity/completeness и regression/scope/risk; исправить найденное.
-5. **Закрытие — COMPLETE.** Обновить evidence и `HANDOFF.md`, создать отдельные commits
-   для плана и завершённой реализации.
+2. **Projects / Process / AI — COMPLETE.** Исправить структуру слоёв,
+   рамки, иконки, сетку и боковую штриховку без изменения утверждённых
+   длительностей и поведения.
+3. **Experience / About — COMPLETE.** Исправить фазу сетки, нижний разделитель,
+   фон heading и цвета carousel dots.
+4. **Полная проверка — COMPLETE.** Запустить отдельный runtime на порту `4190`,
+   пройти exact desktop states и затем выполнить два последовательных review.
+5. **Закрытие — COMPLETE.** Обновить evidence и `HANDOFF.md`, создать отдельный
+   commit в изолированной ветке и оставить результат для пользовательской
+   приёмки без merge/push.
 
 ## Acceptance
 
@@ -75,7 +77,11 @@ runtime, а не с предыдущей версией макета или ко
 - В живом runtime просмотрены Projects, Process, AI, Experience, About и
   Footer; отдельно подтверждены верхние слои Projects и Process и итоговая
   высота About Preview.
-- Fidelity/completeness review и последующий regression/scope/risk review не
-  нашли оставшихся дефектов после исправления устаревшего комментария.
-- Итоговый `npm run check`: lint, `161/161` tests и production build.
-- План: `796ee61`; реализация: `594bbd8`.
+- Первый fidelity/completeness review обнаружил утечку desktop-ассетов и
+  стилей в `<1280px`; после исправления проверены прежние состояния на
+  `1024px` и `760px`.
+- Последующий regression/scope/risk review не нашёл оставшихся дефектов и
+  подтвердил изоляцию worktree и breakpoint.
+- В runtime `1574px` проверены Projects, default/hover Process, AI, Experience,
+  нижний разделитель Experience и About.
+- Итоговый `npm run check`: lint, `162/162` tests и production build.

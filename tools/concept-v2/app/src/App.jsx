@@ -201,9 +201,9 @@ function ProcessStep({step,index}){
  return <article className={`step step-${index+1} ${active?'is-fill-active':''}`} tabIndex={0} aria-label={step.title} onPointerEnter={()=>begin('pointer')} onPointerLeave={()=>end('pointer')} onFocus={()=>begin('focus')} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))end('focus')}}>
   <div className="step-grid" aria-hidden="true"/>
   <div className="step-divider" aria-hidden="true"/>
-  <div className="step-top"><span className="step-icon" aria-hidden="true" style={{'--fill-x':`${origin.x}px`,'--fill-y':`${origin.y}px`,'--icon-mask':`url('/figma/process-mask-${index+1}.svg')`,'--background-mask':`url('/figma/process-background-mask-${index+1}.svg')`}}><img className="step-icon-base" src={`/figma/${step.image}.svg`} width="64" height="64" alt=""/><i className="step-icon-background"/><i className="step-icon-fill"/></span>
+  <div className="step-body"><div className="step-top"><span className="step-icon" aria-hidden="true" style={{'--fill-x':`${origin.x}px`,'--fill-y':`${origin.y}px`,'--icon-mask':`url('/figma/process-mask-${index+1}.svg')`,'--background-mask':`url('/figma/process-background-mask-${index+1}.svg')`}}><img className="step-icon-base" src={`/figma/${step.image}.svg`} width="64" height="64" alt=""/><i className="step-icon-background"/><i className="step-icon-fill"/><img className="step-icon-desktop-base" src={`/figma/${step.image}-desktop.svg`} width="64" height="64" alt=""/><img className="step-icon-hover" src={`/figma/${step.image}-hover.svg`} width="64" height="64" alt=""/></span>
    <div className="step-number"><span>0{index+1}</span><i className="step-dots" aria-hidden="true" style={{width:step.width,'--dots-mask':`url('/figma/${step.dots}.svg')`}}/></div></div>
-  <div className="step-text"><h3>{step.title}</h3><p>{step.description}</p></div>
+  <div className="step-text"><h3>{step.title}</h3><p>{step.description}</p></div></div>
  </article>;
 }
 function Process(){

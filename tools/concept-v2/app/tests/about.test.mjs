@@ -190,7 +190,9 @@ test('card treatment keeps the sharp border outside geometry and viewer uses one
 test('About adopts the current palette without changing deck or viewer mechanics',async()=>{
  const about=await readFile(path.join(root,'src/About.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
- assert.match(css,/\.about-heading-shell\{[^}]*background:var\(--cv2-container-neutral-bg-main\)/);
+ assert.match(css,/\.about-heading-shell\{[^}]*background:transparent/);
+ assert.match(css,/\.about-dots button::before\{[^}]*background:#363d42/);
+ assert.match(css,/\.about-dots button\.is-active::before\{[^}]*background:#43a2ee/);
  assert.match(css,/\.about-heading h2\{[^}]*font:500 36px\/48px "Google Sans"[^}]*color:var\(--cv2-text-neutral-primary\)/);
  assert.match(css,/\.about-heading-copy>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
  assert.match(css,/\.about-copy\{[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
