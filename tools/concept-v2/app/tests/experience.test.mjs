@@ -90,7 +90,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.doesNotMatch(css,/\.experience-pattern::before,\.experience-pattern::after/);
   assert.doesNotMatch(css,/experience-pattern-(?:top|bottom)\.png/);
   assert.match(source,/className="experience-pattern-grid"/);
-  assert.match(source,/className="experience-grid" aria-hidden="true"/);
+  assert.match(source,/<GridPattern className="experience-grid"\/>/);
   assert.doesNotMatch(source,/pattern-bottom/);
   assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
   assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*transform:translateX\(-50%\)/);
@@ -260,10 +260,16 @@ test('tape blur is zero through 100px/s and reaches .6px at 1800px/s',()=>{
 
 test('desktop Experience uses the current 20px grid on 320px tiles while masks retain timeline edge fades',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+  const pattern=await readFile(path.resolve(import.meta.dirname,'../src/GridPattern.jsx'),'utf8');
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
   assert.match(css,/\.experience-center\{position:relative;[^}]*background:var\(--cv2-container-neutral-faint\)\}/);
-  assert.match(css,/\.experience-grid\{[^}]*opacity:\.6[^}]*background-image:linear-gradient\(to right,#191e21 0 1px,transparent 1px 320px\),linear-gradient\(to bottom,#191e21 0 1px,transparent 1px 320px\),linear-gradient\(to right,#16191c 0 1px,transparent 1px 20px\),linear-gradient\(to bottom,#16191c 0 1px,transparent 1px 20px\)/);
-  assert.match(css,/\.experience-grid\{[^}]*background-size:320px 320px,320px 320px,20px 20px,20px 20px/);
-  assert.match(css,/\.experience-grid\{[^}]*background-position:calc\(50% - 640px\) 0,calc\(50% - 640px\) 0,calc\(50% - 790px\) 0,calc\(50% - 790px\) 0/);
+  assert.match(pattern,/export function GridPattern/);
+  assert.match(pattern,/surface-grid-pattern/);
+  assert.match(source,/<GridPattern className="experience-grid"\/>/);
+  assert.match(css,/\.surface-grid-pattern\{[^}]*--surface-grid-major:#191e21;[^}]*--surface-grid-minor:#16191c;[^}]*--surface-grid-opacity:\.6/);
+  assert.match(css,/\.surface-grid-pattern\{[^}]*opacity:var\(--surface-grid-opacity\)[^}]*background-image:linear-gradient\(to right,var\(--surface-grid-major\) 0 1px,transparent 1px var\(--surface-grid-tile\)\),linear-gradient\(to bottom,var\(--surface-grid-major\) 0 1px,transparent 1px var\(--surface-grid-tile\)\),linear-gradient\(to right,var\(--surface-grid-minor\) 0 1px,transparent 1px var\(--surface-grid-cell\)\),linear-gradient\(to bottom,var\(--surface-grid-minor\) 0 1px,transparent 1px var\(--surface-grid-cell\)\)/);
+  assert.match(css,/\.surface-grid-pattern\{[^}]*background-position:var\(--surface-grid-x\) var\(--surface-grid-y\),var\(--surface-grid-x\) var\(--surface-grid-y\),var\(--surface-grid-x\) var\(--surface-grid-y\),var\(--surface-grid-x\) var\(--surface-grid-y\)/);
+  assert.match(css,/\.experience-grid\{[^}]*--surface-grid-x:calc\(50% - 800px\);--surface-grid-y:0px/);
   assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);

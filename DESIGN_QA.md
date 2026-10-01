@@ -43,19 +43,18 @@
 
 ## READY_FOR_REVIEW — Concept V2 Experience grid pattern
 
-- Exact Figma source: `4142:763335`; the desktop center uses `16×16px` cells
-  with `#16191C` borders inside centered `272×272px` frames with `#191E21`
-  borders. Adjacent 1px borders form the visible 2px grid lines.
-- Replaced the former `96px` translucent grid in `.experience-center`; the
-  Experience timeline, edge masks and narrow-screen layout retain their
-  existing behavior.
-- User screenshot follow-up: the center grid's first horizontal stroke
-  doubled the lighter top-field border. The top 2px of that stroke are now
-  covered while its vertical grid lines and the existing light border remain.
-- Initial grid verified in the local browser at `1574`, `1280` and `1279px`
-  widths with `162/162` tests and lint. The top-border follow-up was checked
-  at `1574×1506px`; its 21 focused tests and lint passed. User visual
-  acceptance remains open.
+- Current exact Figma source: container `4150:806538`, tile instance
+  `4150:806539`. Direct Plugin API inspection confirmed all 49 tile strokes
+  are `1px #191E21`, all 23,716 cell strokes are `1px #16191C`, tiles are
+  `320×320px`, cells are `20×20px`, and container opacity is `60%`.
+- The previous CSS used different origins for the `320px` and `20px` layers.
+  Some intended tile separators therefore rendered with the cell color.
+- The shared `GridPattern` / `.surface-grid-pattern` primitive now owns the
+  two colors, sizes, opacity and one common phase. Experience uses the Figma
+  placement `calc(50% - 800px) 0`.
+- Runtime computed styles at `1574px` confirm four identical background
+  positions, exact source colors and sizes, and opacity `.6`. The Experience
+  timeline, masks and narrow-screen behavior remain unchanged.
 
 ## READY_FOR_REVIEW — Concept V2 project card hover during scroll
 

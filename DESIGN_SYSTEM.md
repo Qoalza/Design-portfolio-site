@@ -110,6 +110,21 @@ Code не обязан повторять `Master → Skin` двумя React com
 - При переносе в code сохранять semantic separation CSS/component tokens.
 - Уникальный binding exact instance может переопределить общий default; такое отклонение должно быть подтверждено source mapping.
 
+## Surface grid pattern
+
+- Переиспользуемая сетка Concept V2 реализуется компонентом `GridPattern` и
+  CSS-примитивом `.surface-grid-pattern`.
+- Текущий exact source Experience: контейнер `4150:806538`, плитка
+  `4150:806539`. Плитка имеет размер `320×320px` и stroke `1px #191E21`;
+  каждая ячейка — `20×20px` со stroke `1px #16191C`; opacity общего
+  контейнера — `60%`.
+- Все четыре background-слоя используют единое начало координат. Крупная
+  линия перекрывает соответствующую каждую шестнадцатую малую линию, поэтому
+  границы плиток не получают смешанный цвет.
+- Consumer меняет только `--surface-grid-x` и `--surface-grid-y`, когда этого
+  требует placement. Experience центрирует плитку по viewport через
+  `--surface-grid-x: calc(50% - 800px)` и начинает паттерн от верхней границы.
+
 ## Соответствие code
 
 - Master hard-parameter change распространяется на конструктивную основу всех затронутых variants.
