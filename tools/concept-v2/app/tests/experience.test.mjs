@@ -100,7 +100,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience-pattern-grid::after\{right:0\}/);
   assert.match(css,/\.experience-pattern-grid\{background-image:url\('\/figma\/dot-tile\.svg'\);background-size:16px 16px;background-position:0 0\}/);
   assert.doesNotMatch(css,/\.experience-pattern-grid\{[^}]*radial-gradient/);
-  assert.match(css,/\.experience-pattern\.pattern-top\{[^}]*border-bottom:1px solid var\(--cv2-border-neutral-surface\)/);
+  assert.doesNotMatch(css,/\.experience-pattern\.pattern-top\{[^}]*border-bottom/);
   assert.doesNotMatch(css,/\.experience-sticky:not\(\.has-pattern-fields\) \.experience-pattern\{visibility:hidden\}/);
   assert.match(source,/className="experience-fade experience-fade-left"/);
   assert.match(source,/className="experience-fade experience-fade-right"/);

@@ -60,6 +60,8 @@
   `.7` and Experience placement
   `calc(50% - 640px) 0`. Timeline, masks and narrow-screen behavior remain
   unchanged.
+- The pattern owns the upper Experience boundary. The former bottom border on
+  the decorative field was removed so the boundary renders as one rule.
 
 ## READY_FOR_REVIEW — Concept V2 project card hover during scroll
 
