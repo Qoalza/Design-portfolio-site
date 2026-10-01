@@ -44,7 +44,7 @@ test('Corvo project actions use enabled design-system controls',async()=>{
  assert.match(page,/return <ControlButton variant=\{variant\}/);
  assert.doesNotMatch(page,/StaticAction|aria-disabled="true"/);
  assert.match(page,/<ProjectAction variant="accent"[^>]*>Связаться/);
- assert.match(page,/<ProjectAction iconRight="link" onClick=\{copyProjectLink\}>Копировать ссылку<\/ProjectAction>/);
+ assert.match(page,/<CopyLinkAction\/>/);
  assert.match(page,/<ProjectAction variant="neutral" iconRight="figma" href=\{corvoFigma\} external>Figma<\/ProjectAction>/);
  assert.match(page,/variant="neutral"[^>]*iconRight="figma"[^>]*>\{metrics\[0\]\.action\}/);
  assert.match(page,/metrics\.slice\(1\).*<ProjectAction iconLeft=\{metric\.icon\} iconRight="arrow">\{metric\.action\}<\/ProjectAction>/s);

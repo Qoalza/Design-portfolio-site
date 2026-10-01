@@ -75,6 +75,22 @@ Code не обязан повторять `Master → Skin` двумя React com
 - `Color` icons сохраняют fixed colors и не перекрашиваются mask.
 - Совпадающий текущий цвет текста/icon не объединяет их variables/roles.
 
+### Stroke morphing
+
+- Переиспользуемый runtime-компонент — `StrokeMorphIcon`; его `icon` prop
+  принимает подготовленные stroke-данные, а смена значения запускает morph.
+- Источники берутся из exact Figma SVG целиком. Разные `viewBox` нормализуются
+  через `svgToIcon` на общей сетке; вручную перерисовывать промежуточные формы
+  и подгонять path-пары запрещено.
+- В DOM сохраняется `frame > svg > path`: `fill:none`, `stroke:currentColor`,
+  exact `stroke-width`, `linecap`, `linejoin` и `vector-effect` задаются нашим
+  компонентом. CSS mask, outlined fill и покадровая подмена SVG запрещены.
+- Morphicons используется только как geometry/spring engine. Политика
+  reduced motion задаётся `reducedMotion="user"`; смена цели во время
+  анимации должна продолжаться из текущей промежуточной формы без скачка.
+- Для новой пары добавить exact SVG-источники в локальный asset registry,
+  создать module-scope данные через `svgToIcon` и переключать только `icon`.
+
 ### Size и export
 
 - Размер layout-frame задаётся consumer context; вложенный полный SVG занимает frame без crop по path bounds. При leaf-only export frame занимает consumer, а неизменённый SVG занимает его exact source bounds внутри восстановленного component canvas.
