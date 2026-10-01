@@ -1,9 +1,9 @@
 import {nodes,position} from './network-data.mjs';
 
-export function getHeroVariant(){
-  // The accepted runtime keeps its horizontal Hero composition at every
-  // viewport size. The Figma Large frame is illustrative, not a breakpoint.
-  return 'small';
+export function getHeroVariant({width=0,height=0}={}){
+  // Preserve the established adaptive runtime: the authored Large composition
+  // is enabled only when both its 2313px canvas and 1300px height fit.
+  return width>=2313&&height>=1300?'large':'small';
 }
 
 export function captionForPoint(point){
