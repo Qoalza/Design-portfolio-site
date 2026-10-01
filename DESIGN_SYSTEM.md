@@ -89,9 +89,9 @@ Code не обязан повторять `Master → Skin` двумя React com
   exact `stroke-width`, `linecap`, `linejoin` и `vector-effect` задаются нашим
   компонентом. CSS mask, outlined fill и покадровая подмена SVG запрещены.
 - Morphicons используется только как geometry/spring engine. Политика
-  reduced motion задаётся `reducedMotion="user"`. Стандартная настройка
-  сохраняет характер `snappy`, но ускорена до settle около 200 ms при 60 fps:
-  `stiffness:2000`, `damping:65`. Смена цели во время анимации должна
+  reduced motion задаётся `reducedMotion="user"`. Стандартная настройка на
+  20% быстрее preset `snappy`, сохраняя его damping ratio:
+  `stiffness:605`, `damping:36`. Смена цели во время анимации должна
   продолжаться из текущей промежуточной формы без скачка.
 - Для новой пары добавить exact SVG-источники в локальный asset registry,
   создать module-scope данные через `svgToIcon` и переключать только `icon`.
