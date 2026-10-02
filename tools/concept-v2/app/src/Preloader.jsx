@@ -92,6 +92,9 @@ export function Preloader({state,captionSet,onRetry,showReadyMessage=false,overl
   const [frame,setFrame]=useState({current:0,outgoing:null,revision:0});
   const [demoMessages,setDemoMessages]=useState(DEFAULT_MESSAGES);
   const messages=captionSet??demoMessages;
+  useEffect(()=>{
+    setFrame({current:0,outgoing:null,revision:0});
+  },[captionSet]);
   const [lastStatus,setLastStatus]=useState(mode==='normal'?null:mode);
   const [logoRunning,setLogoRunning]=useState(mode!=='connection');
   const retryCounts=useRef({slow:0,connection:0});

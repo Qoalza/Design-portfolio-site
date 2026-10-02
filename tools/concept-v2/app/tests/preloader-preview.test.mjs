@@ -10,19 +10,31 @@ const css=readFileSync(new URL('../src/preloader.css',import.meta.url),'utf8');
 test('the preloader preview has a dedicated route and renders the production preloader',()=>{
   assert.match(main,/normalizedPath==='\/preloader-preview'/);
   assert.match(main,/<PreloaderPreview\/>/);
-  assert.match(preview,/import \{Preloader, RETRY_MESSAGES\} from '.\/Preloader';/);
-  assert.match(preview,/<Preloader state=\{mode\} captionSet=\{captionSet\} onRetry=\{handleRetry\}\/>/);
+  assert.match(preview,/import \{useEffect, useState\} from 'react';/);
+  assert.match(preview,/import \{Preloader, INITIAL_MESSAGES, RETRY_MESSAGES\} from '.\/Preloader';/);
+  assert.match(preview,/import \{LONG_LOADING_MS\} from '.\/preloader-gate\.mjs';/);
+  assert.match(preview,/<Preloader state=\{step\.mode\} captionSet=\{captions\} onRetry=\{advanceCycle\}\/>/);
 });
 
-test('the preview offers normal, slow-loading, and connection states',()=>{
-  for(const state of ['normal','slow','connection'])assert.match(preview,new RegExp(`id:'${state}'`));
+test('the preview exposes one automatic cycle instead of manual state selectors',()=>{
+  assert.match(preview,/const CYCLE_STEPS=/);
+  assert.match(preview,/advance:'timer'/);
+  assert.match(preview,/advance:'timer-or-retry'/);
+  assert.match(preview,/>Цикл<\/button>/);
+  assert.doesNotMatch(preview,/Долгая загрузка'.*Нет соединения/s);
 });
 
-test('the preview exposes both retry-copy sequences through the production retry action',()=>{
-  assert.match(preview,/retryCounts/);
-  assert.match(preview,/RETRY_MESSAGES\[reason\]\[Math\.min\(retryNumber,1\)\]/);
-  assert.match(preview,/setCaptionSet\(RETRY_MESSAGES\[reason\]\[Math\.min\(retryNumber,1\)\]\)/);
-  assert.match(preview,/setMode\('normal'\)/);
+test('the automatic cycle covers every approved retry-copy sequence',()=>{
+  assert.match(preview,/reason:'slow',retryNumber:1/);
+  assert.match(preview,/reason:'slow',retryNumber:2/);
+  assert.match(preview,/reason:'connection',retryNumber:1/);
+  assert.match(preview,/reason:'connection',retryNumber:2/);
+  assert.match(preview,/RETRY_MESSAGES\[step\.reason\]\[step\.retryNumber-1\]/);
+  assert.match(preview,/setTimeout\(advanceCycle,LONG_LOADING_MS\)/);
+});
+
+test('a retry starts its replacement caption set from the first phrase',()=>{
+  assert.match(preloader,/useEffect\(\(\)=>\{\s*setFrame\(\{current:0,outgoing:null,revision:0\}\);\s*\},\[captionSet\]\);/s);
 });
 
 test('the preloader matches the current Figma state frames and copy',()=>{

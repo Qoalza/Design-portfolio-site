@@ -1,36 +1,37 @@
-import {useState} from 'react';
-import {Preloader, RETRY_MESSAGES} from './Preloader';
+import {useEffect, useState} from 'react';
+import {Preloader, INITIAL_MESSAGES, RETRY_MESSAGES} from './Preloader';
+import {LONG_LOADING_MS} from './preloader-gate.mjs';
 import './preloader-preview.css';
 
-const states=[
-  {id:'normal',label:'Загрузка'},
-  {id:'slow',label:'Долгая загрузка'},
-  {id:'connection',label:'Нет соединения'},
+const CYCLE_STEPS=[
+  {mode:'normal',advance:'timer'},
+  {mode:'slow',advance:'retry'},
+  {mode:'normal',reason:'slow',retryNumber:1,advance:'timer'},
+  {mode:'connection',advance:'retry'},
+  {mode:'normal',reason:'connection',retryNumber:1,advance:'timer'},
+  {mode:'slow',advance:'retry'},
+  {mode:'normal',reason:'slow',retryNumber:2,advance:'timer'},
+  {mode:'connection',advance:'timer-or-retry'},
+  {mode:'normal',reason:'connection',retryNumber:2,advance:'timer'},
 ];
 
 export function PreloaderPreview(){
-  const [mode,setMode]=useState('normal');
-  const [captionSet,setCaptionSet]=useState();
-  const [retryCounts,setRetryCounts]=useState({slow:0,connection:0});
-  const [retryCopy,setRetryCopy]=useState();
-  const selectState=nextMode=>{
-    setMode(nextMode);
-    setCaptionSet(undefined);
-    setRetryCopy(undefined);
-  };
-  const handleRetry=reason=>{
-    const retryNumber=retryCounts[reason];
-    setRetryCounts({...retryCounts,[reason]:retryNumber+1});
-    setCaptionSet(RETRY_MESSAGES[reason][Math.min(retryNumber,1)]);
-    setRetryCopy({reason,number:Math.min(retryNumber+1,2)});
-    setMode('normal');
-  };
+  const [stepIndex,setStepIndex]=useState(0);
+  const step=CYCLE_STEPS[stepIndex];
+  const advanceCycle=()=>setStepIndex(index=>(index+1)%CYCLE_STEPS.length);
+  useEffect(()=>{
+    if(!step.advance.includes('timer'))return undefined;
+    const timer=setTimeout(advanceCycle,LONG_LOADING_MS);
+    return()=>clearTimeout(timer);
+  },[stepIndex]);
+  const captions=step.reason
+    ?RETRY_MESSAGES[step.reason][step.retryNumber-1]
+    :INITIAL_MESSAGES;
   return <div className="preloader-preview">
-    <Preloader state={mode} captionSet={captionSet} onRetry={handleRetry}/>
+    <Preloader state={step.mode} captionSet={captions} onRetry={advanceCycle}/>
     <nav className="preloader-preview-controls" aria-label="Состояние прелоадера">
-      <span>{retryCopy?`Повтор ${retryCopy.number}: ${retryCopy.reason==='slow'?'долгая загрузка':'нет соединения'}`:'Состояние'}</span>
       <div className="preloader-preview-options">
-        {states.map(state=><button key={state.id} type="button" aria-pressed={mode===state.id} onClick={()=>selectState(state.id)}>{state.label}</button>)}
+        <button type="button" onClick={()=>setStepIndex(0)}>Цикл</button>
       </div>
     </nav>
   </div>;
