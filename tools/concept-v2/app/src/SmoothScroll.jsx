@@ -1,6 +1,7 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
 import {publishScrollActivity,publishSmoothScroll} from './smooth-scroll-runtime.mjs';
+import {createWheelInputProfile} from './wheel-input-profile.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -12,6 +13,7 @@ export function SmoothScroll(){
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let lenis;
     let frame;
+    const wheelInput=createWheelInputProfile();
     let removeScrollActivity=()=>{};
     function destroy(){
       cancelAnimationFrame(frame);
@@ -21,7 +23,9 @@ export function SmoothScroll(){
       publishSmoothScroll(undefined);
       lenis?.destroy();
       lenis=undefined;
+      wheelInput.reset();
       delete document.documentElement.dataset.lenisEnabled;
+      delete document.documentElement.dataset.scrollInput;
     }
     function update(){
       destroy();
@@ -29,6 +33,14 @@ export function SmoothScroll(){
       lenis=new Lenis({
         autoRaf:false,smoothWheel:true,syncTouch:false,
         lerp:.1,wheelMultiplier:1,stopInertiaOnNavigate:true,
+        virtualScroll:({event})=>{
+          if(!event.type.includes('wheel'))return;
+          const input=wheelInput.observe(event);
+          document.documentElement.dataset.scrollInput=input;
+          // Lenis reads this option later in the same event: mouse stays
+          // smoothed, while continuous trackpad input remains browser-native.
+          lenis.options.smoothWheel=input==='mouse';
+        },
       });
       publishSmoothScroll(lenis);
       const removeVirtualScroll=lenis.on('virtual-scroll',()=>publishScrollActivity(true));

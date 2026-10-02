@@ -8,6 +8,9 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
   assert.equal(source.match(/new Lenis\(/g)?.length,1);
   assert.match(source,/autoRaf:false,smoothWheel:true,syncTouch:false,/);
   assert.match(source,/lerp:\.1,wheelMultiplier:1,stopInertiaOnNavigate:true/);
+  assert.match(source,/createWheelInputProfile\(\)/);
+  assert.match(source,/virtualScroll:\(\{event\}\)=>/);
+  assert.match(source,/lenis\.options\.smoothWheel=input==='mouse'/);
   assert.doesNotMatch(source,/addEventListener\(['"]wheel/);
   assert.match(source,/publishSmoothScroll\(lenis\)/);
   assert.match(source,/publishSmoothScroll\(undefined\)/);
