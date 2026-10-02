@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {createWheelInputProfile} from '../src/wheel-input-profile.mjs';
+import {createWheelInputProfile,resolveWheelHandling} from '../src/wheel-input-profile.mjs';
 
 test('discrete mouse wheels retain Lenis smoothing',()=>{
   const profile=createWheelInputProfile();
@@ -25,8 +25,9 @@ test('small pixel deltas identify Windows precision touchpads',()=>{
 test('the profile adapts when the input device changes after a gesture pause',()=>{
   const profile=createWheelInputProfile({gestureIdleMs:160});
   assert.equal(profile.observe({deltaMode:0,deltaY:4,timeStamp:0}),'trackpad');
-  assert.equal(profile.observe({deltaMode:1,deltaY:3,timeStamp:220}),'mouse');
-  assert.equal(profile.observe({deltaMode:0,deltaY:3.5,timeStamp:440}),'trackpad');
+  assert.equal(profile.observe({deltaMode:0,deltaY:64,timeStamp:220}),'trackpad','an ambiguous first impulse must not re-enable smoothing');
+  assert.equal(profile.observe({deltaMode:1,deltaY:3,timeStamp:440}),'mouse');
+  assert.equal(profile.observe({deltaMode:0,deltaY:3.5,timeStamp:660}),'trackpad');
 });
 
 test('an ambiguous inertial tail keeps the current gesture profile',()=>{
@@ -34,4 +35,10 @@ test('an ambiguous inertial tail keeps the current gesture profile',()=>{
   assert.equal(profile.observe({deltaMode:0,deltaY:6,timeStamp:0}),'trackpad');
   assert.equal(profile.observe({deltaMode:0,deltaY:58,timeStamp:16}),'trackpad');
   assert.equal(profile.observe({deltaMode:0,deltaY:92,wheelDeltaY:-120,timeStamp:32}),'trackpad');
+});
+
+test('trackpad bypasses Lenis only outside the visible Experience region',()=>{
+  assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:false}),'native');
+  assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:true}),'smooth');
+  assert.equal(resolveWheelHandling({input:'mouse',protectedRegionVisible:false}),'smooth');
 });

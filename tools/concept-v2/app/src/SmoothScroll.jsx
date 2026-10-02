@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
 import {publishScrollActivity,publishSmoothScroll} from './smooth-scroll-runtime.mjs';
-import {createWheelInputProfile} from './wheel-input-profile.mjs';
+import {createWheelInputProfile,resolveWheelHandling} from './wheel-input-profile.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -13,19 +13,27 @@ export function SmoothScroll(){
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let lenis;
     let frame;
+    let wheelHandling='smooth';
+    let experienceVisible=false;
+    let experienceObserver;
     const wheelInput=createWheelInputProfile();
     let removeScrollActivity=()=>{};
     function destroy(){
       cancelAnimationFrame(frame);
       removeScrollActivity();
       removeScrollActivity=()=>{};
+      experienceObserver?.disconnect();
+      experienceObserver=undefined;
+      experienceVisible=false;
       publishScrollActivity(false);
       publishSmoothScroll(undefined);
       lenis?.destroy();
       lenis=undefined;
       wheelInput.reset();
+      wheelHandling='smooth';
       delete document.documentElement.dataset.lenisEnabled;
       delete document.documentElement.dataset.scrollInput;
+      delete document.documentElement.dataset.scrollHandling;
     }
     function update(){
       destroy();
@@ -37,11 +45,23 @@ export function SmoothScroll(){
           if(!event.type.includes('wheel'))return;
           const input=wheelInput.observe(event);
           document.documentElement.dataset.scrollInput=input;
-          // Lenis reads this option later in the same event: mouse stays
-          // smoothed, while continuous trackpad input remains browser-native.
-          lenis.options.smoothWheel=input==='mouse';
+          const nextHandling=resolveWheelHandling({input,protectedRegionVisible:experienceVisible});
+          document.documentElement.dataset.scrollHandling=nextHandling;
+          if(nextHandling!==wheelHandling){
+            lenis.reset();
+            wheelHandling=nextHandling;
+          }
+          if(nextHandling==='native'){
+            publishScrollActivity(true);
+            return false;
+          }
         },
       });
+      const experience=document.querySelector('.experience');
+      if(experience){
+        experienceObserver=new IntersectionObserver(([entry])=>{experienceVisible=entry.isIntersecting});
+        experienceObserver.observe(experience);
+      }
       publishSmoothScroll(lenis);
       const removeVirtualScroll=lenis.on('virtual-scroll',()=>publishScrollActivity(true));
       const removeScroll=lenis.on('scroll',instance=>publishScrollActivity(instance.isScrolling));

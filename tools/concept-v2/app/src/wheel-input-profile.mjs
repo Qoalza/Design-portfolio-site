@@ -1,5 +1,9 @@
 export const WHEEL_GESTURE_IDLE_MS=160;
 
+export function resolveWheelHandling({input,protectedRegionVisible=false}={}){
+  return input==='trackpad'&&!protectedRegionVisible?'native':'smooth';
+}
+
 export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}){
   let input='mouse';
   let previousTime;
@@ -10,7 +14,6 @@ export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}
       const inputTime=Number.isFinite(eventTime)?eventTime:performance.now();
       const gap=previousTime===undefined?Infinity:inputTime-previousTime;
       const sameGesture=gap>=0&&gap<=gestureIdleMs;
-      if(!sameGesture)input='mouse';
 
       const deltaMode=Number(event.deltaMode) || 0;
       const deltaX=Number(event.deltaX) || 0;

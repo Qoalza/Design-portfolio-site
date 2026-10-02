@@ -10,7 +10,7 @@ This contract applies only to `tools/concept-v2/app`. It does not share the publ
 - `src/runtime/view-activity.mjs` combines target intersection with document visibility. A consumer must release pending work on inactivity instead of hiding it with opacity.
 - `src/runtime/layout-invalidation.mjs` is a narrow position-invalidating signal. It is not a scroll controller.
 - Hero pulses own their timer and only run for the visible map SVG. Active scroll cancels them synchronously; their immediate return is deferred through one finite frame task so it cannot overlap the final scroll event. Experience owns its paint task; the existing Lenis root RAF remains the sole intentional permanent scroll loop.
-- The root wheel owner classifies each gesture from its event pattern instead of the operating system: discrete mouse-wheel input keeps Lenis smoothing, while continuous precision-trackpad input uses native scrolling. A 160 ms idle gap starts a fresh classification so users can switch between a trackpad and mouse during one session.
+- The root wheel owner classifies input from its event pattern instead of the operating system: discrete mouse-wheel input keeps Lenis smoothing, while continuous precision-trackpad input uses native scrolling on ordinary page sections. Ambiguous impulses retain the last proven input type so a trackpad gesture cannot alternate between native and smoothed movement. While Experience is visible, its wheel stream always stays on the original Lenis path so its entry gate, travel and blur behavior remain isolated from this adaptation.
 - The Lenis owner publishes only scroll activity transitions for consumers that need them. Project card hover follows pointer position during and after scroll; its visual state, transitions and keyboard `:focus-within` behavior are independent of scroll activity.
 - The Hero lens consumes that same activity signal. Active scroll cancels pending pointer work, settles the lens and caption without transition work, and requires new pointer movement before pointer interaction resumes; its approved radius, mask/filter and rest-state transition remain unchanged.
 - About deck motion remains a finite 500 ms RAF animation. Its generation is invalidated before reduced-motion settlement.
@@ -19,7 +19,7 @@ This contract applies only to `tools/concept-v2/app`. It does not share the publ
 
 - Pointer and scroll handlers retain only the newest primitive values; layout reads and DOM writes happen inside the owning frame task.
 - Header threshold comes from its shell's measured height. Experience caches document geometry and refreshes it only after targeted invalidation, resize or font completion.
-- Experience must reset its gate before any offscreen early return when the viewport is above the section. Its travel, blur curve, masks and entry gate are unchanged; the root input classifier owns the mouse-versus-trackpad choice.
+- Experience must reset its gate before any offscreen early return when the viewport is above the section. Its travel, blur curve, masks, entry gate and Lenis wheel path are unchanged.
 - While About viewer fixes `body`, Experience retains a dirty position cache. Viewer cleanup restores scroll first and then notifies invalidation.
 
 ## Media
