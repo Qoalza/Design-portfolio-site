@@ -1,6 +1,6 @@
 # Исправление страниц проектов Concept V2
 
-Статус: IN_PROGRESS. Дата: 2026-10-04.
+Статус: COMPLETE. Дата: 2026-10-04.
 База до исправлений: `37c64cf6afffaf36d0d98f15062fbc2eb6f11c76`.
 Область: PORTFOLIO / Concept V2; LARGE, ELEVATED, FULL.
 Единственный writer: текущий чат; единственный worktree — redesign-portfolio.
@@ -56,3 +56,8 @@ Figma: Concept V.2 `sgKtUASp0aYzdkeH8kcXrL`, только страница «О�
 - Сараффан: внешняя верстка и пропущенные элементы восстановлены; computed geometry1440 совпала с исходником: intro216, Hero928, summary488, flow392, media1016, receiving817, hatch88, result465, footer61; общий конец4616. Фон summary прозрачный, result #141617. Source asset `84e38.svg` оказался Telegram-placeholder: исключение по прямому требованию пользователя — сохранен исходный цветной RadioSymbol, размер44 и16.
 - Оба проекта используют ProjectHeaderShell с измеренным threshold и совместным floating header+crumbs. На Сараффане после scroll1450: header top0, crumbs top80, slot145. Screenshot: `design-reference/project-repair-2026-10-04/sarafan-pinned.jpg`.
 - Проверки:210/210 tests, lint90, build прошел до последнего восстановления RadioSymbol; повторить итоговый build после review. Еще НЕ завершены: два итоговых review, полная визуальная приемка всех блоков обеих страниц, повторный scroll-return на обоих проектах, сохранение итоговых screenshots. Цель IN_PROGRESS.
+
+## Итоговая приемка
+
+Все пункты Check: `design-reference/project-repair-2026-10-04/final/ACCEPTANCE.md`.
+Выполнены оба review, повторный scroll-return обоих проектов, итоговые tests210/lint90/build и screenshots. Точная привязка root Сараффана проверена read-only в Figma и локально исправлена на#17191a; общий фон других страниц не менялся. Основные invariants подтверждены пустым diff относительно37c64cf и runtime главной.

@@ -4,21 +4,20 @@
 
 Checkout: `codex/redesign-portfolio`, только
 `/Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site`.
-Цель активна. План: `docs/exec-plans/concept-v2-project-page-repair.md`.
+Исправление страниц проектов завершено. План:
+`docs/exec-plans/concept-v2-project-page-repair.md` (COMPLETE).
 
-Исправлены белая Figma в метриках Corvo и двойная граница под hatch.
-Восстановлена внешняя страница Сараффана по текущим Figma секциям;
-тестовая image/grid Hero-сцена сохранена. Добавлен ProjectHeaderShell,
-выезжающий вместе с breadcrumbs на обоих проектах.
+Corvo: белая Figma в метриках и одна Thin линия под hatch.
+Сараффан: внешняя страница восстановлена по Figma; цветной logo в крошках и
+intro сохранен; тестовая image/grid Hero сцена не менялась. Хедер и крошки
+обоих проектов выезжают вместе, без изменения высоты документа.
 
-Последние проверки:210 tests, lint90. Сараффан1440: все высоты секций
-совпали с макетом, общий конец4616; header0/crumb80/slot145 после прокрутки.
-Evidence: `design-reference/project-repair-2026-10-04/sarafan-pinned.jpg`.
+Итоговая приемка и screenshots:
+`design-reference/project-repair-2026-10-04/final/ACCEPTANCE.md`.
+Проверки:210/210 tests, lint90, build; оба review; реальный runtime1440,
+scroll down/up и no jump обоих проектов. Сараффан4616px, Corvo6357px.
+Локальный просмотр:4193/projects/sarafan-radio и4193/projects/corvo.
 
-Следующее: два review (fidelity, затем regression), полная визуальная приемка
-обеих страниц, scroll-return и no jump, итоговые tests/lint/build/screenshots.
-До этого не завершать Goal.
-
-Не трогать соседний чат/ветки/worktree. Experience, главную Hero, глобальный
-скролл, прелоадер, принятый morph/copy/contact сохранять. Production, merge,
-push, deploy и Figma write вне задачи.
+Следующее действие: пользовательская визуальная приемка. Открытый blocker
+отсутствует. Соседний чат/ветки/worktree не затрагивались. Production, merge,
+push, deploy и Figma write не выполнялись и не разрешены этим checkpoint.
