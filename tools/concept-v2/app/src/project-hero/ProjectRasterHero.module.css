@@ -79,27 +79,24 @@
   outline-offset: -3px;
 }
 
-.cardShade {
+.carouselShade {
   position: absolute;
-  z-index: 1;
-  inset: 0;
+  z-index: 4;
+  top: 233px;
+  width: 170px;
+  height: 462px;
   pointer-events: none;
 }
 
-.cardShadeLeft {
-  background: linear-gradient(90deg, transparent 5%, #141617 35% 100%);
+/* Original side-card gradient stops: 5% and 35% of its 640px width. */
+.carouselShadeLeft {
+  left: 0;
+  background: linear-gradient(90deg, transparent 32px, #141617 224px);
 }
 
-.cardShadeRight {
-  background: linear-gradient(90deg, #141617 0% 65%, transparent 95%);
-}
-
-.cardFive .cardShadeLeft {
-  background: linear-gradient(90deg, #1416174d 0%, #141617 35% 100%);
-}
-
-.cardFive .cardShadeRight {
-  background: linear-gradient(90deg, #141617 0% 65%, #1416174d 100%);
+.carouselShadeRight {
+  right: 0;
+  background: linear-gradient(270deg, transparent 32px, #141617 224px);
 }
 
 .controls {
