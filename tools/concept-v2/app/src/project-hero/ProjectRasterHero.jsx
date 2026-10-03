@@ -8,31 +8,33 @@ import shellStyles from './ProjectResponsiveHero.module.css';
 import styles from './ProjectRasterHero.module.css';
 
 const SIDE_SCALE = 640 / 940;
+const OUTER_SCALE = .55;
 const SPRING = {type: 'spring', stiffness: 260, damping: 34, mass: 1};
 
-function slotVisual(slot) {
+function slotVisual(slot, showFive) {
   const distance = Math.abs(slot);
   return {
-    x: slot === 0 ? 0 : Math.sign(slot) * (distance === 1 ? 320 : 650),
+    x: slot === 0 ? 0 : Math.sign(slot) * (distance === 1 ? (showFive ? 260 : 320) : (showFive ? 382 : 650)),
     y: slot === 0 ? 0 : -20,
-    scale: distance === 0 ? 1 : distance === 1 ? SIDE_SCALE : .5,
-    opacity: distance <= 1 ? 1 : 0,
+    scale: distance === 0 ? 1 : distance === 1 ? SIDE_SCALE : (showFive ? OUTER_SCALE : .5),
+    opacity: distance <= 1 || showFive ? 1 : 0,
   };
 }
 
-function RasterCard({card, reduceMotion, onSelect}) {
+function RasterCard({card, showFive, reduceMotion, onSelect}) {
   const {slide, slot} = card;
-  const x = useMotionValue(slotVisual(slot).x);
-  const layer = useTransform(x, value => Math.abs(value) < 160 ? 3 : Math.abs(value) < 480 ? 1 : 0);
-  const leftShade = useTransform(x, value => Math.max(0, Math.min(1, -value / 320)));
-  const rightShade = useTransform(x, value => Math.max(0, Math.min(1, value / 320)));
+  const x = useMotionValue(slotVisual(slot, showFive).x);
+  const layer = useTransform(x, value => Math.abs(value) < 160 ? 3 : showFive && Math.abs(value) < 320 ? 2 : Math.abs(value) < 480 ? 1 : 0);
+  const shadeDistance = showFive ? 260 : 320;
+  const leftShade = useTransform(x, value => Math.max(0, Math.min(1, -value / shadeDistance)));
+  const rightShade = useTransform(x, value => Math.max(0, Math.min(1, value / shadeDistance)));
   return (
     <motion.div
       className={styles.card}
       data-slot={slot}
       data-slide-id={slide.id}
-      initial={{...slotVisual(slot), opacity: 0}}
-      animate={slotVisual(slot)}
+      initial={{...slotVisual(slot, showFive), opacity: 0}}
+      animate={slotVisual(slot, showFive)}
       exit={{opacity: 0}}
       transition={reduceMotion ? {duration: 0} : {...SPRING, opacity: {duration: .22}}}
       style={{x, zIndex: layer}}
@@ -40,7 +42,7 @@ function RasterCard({card, reduceMotion, onSelect}) {
       <img src={slide.src} width="1880" height="1358" alt={slot === 0 ? slide.title : ''} draggable={false} decoding="async" />
       <motion.span className={`${styles.cardShade} ${styles.cardShadeLeft}`} aria-hidden="true" style={{opacity: leftShade}} />
       <motion.span className={`${styles.cardShade} ${styles.cardShadeRight}`} aria-hidden="true" style={{opacity: rightShade}} />
-      {Math.abs(slot) === 1 ? <button type="button" className={styles.sideHitArea} onClick={() => onSelect(slot)} aria-label={`Показать: ${slide.title}`} /> : null}
+      {slot !== 0 && Math.abs(slot) <= (showFive ? 2 : 1) ? <button type="button" className={styles.sideHitArea} onClick={() => onSelect(slot)} aria-label={`Показать: ${slide.title}`} /> : null}
     </motion.div>
   );
 }
@@ -50,6 +52,7 @@ export function ProjectRasterHero({definition}) {
   const [contextId, setContextId] = useState(firstContext.id);
   const context = definition.contexts.find(item => item.id === contextId) ?? firstContext;
   const slides = context.slides;
+  const showFive = slides.length >= 5;
   const initialStep = Math.max(0, slides.findIndex(slide => slide.id === context.initialSlideId));
   const [step, setStep] = useState(initialStep);
   const activeIndex = wrapSlideIndex(step, slides.length);
@@ -108,7 +111,7 @@ export function ProjectRasterHero({definition}) {
           onPointerCancel={() => {swipeStart.current = null;}}
         >
           <AnimatePresence initial={false}>
-            {carouselCards(slides, step).map(card => <RasterCard key={`${context.id}:${card.key}`} card={card} reduceMotion={reduceMotion} onSelect={selectSide} />)}
+            {carouselCards(slides, step).map(card => <RasterCard key={`${context.id}:${card.key}`} card={card} showFive={showFive} reduceMotion={reduceMotion} onSelect={selectSide} />)}
           </AnimatePresence>
         </div>
 
