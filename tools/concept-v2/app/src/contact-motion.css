@@ -1,5 +1,8 @@
 /* Opt-in contact motion: decoration never participates in button layout. */
-.control.contact-motion{position:relative;overflow:hidden}
+.control.contact-motion{position:relative;overflow:hidden;box-shadow:0 0 12px 0 rgb(29 144 235 / 0),0 5px 28px -4px rgb(3 120 214 / 0);transition:box-shadow 240ms ease,background-color 150ms ease,color 150ms ease,border-color 150ms ease}
+@media(hover:hover){
+  .control.contact-motion:hover{box-shadow:0 0 12px 0 rgb(29 144 235 / .22),0 5px 28px -4px rgb(3 120 214 / .38)}
+}
 .contact-orbit{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);overflow:visible;pointer-events:none;fill:none;opacity:0;transition:opacity 160ms ease;filter:blur(.35px) drop-shadow(0 0 2.5px var(--cv2-border-accent-muted))}
 .contact-orbit rect{width:calc(100% - 2px);height:calc(100% - 2px);fill:none;stroke:#62b8fc;stroke-width:1.7px;stroke-linecap:butt;stroke-dasharray:.35 99.65;stroke-dashoffset:var(--trail-start)}
 @keyframes contact-border-orbit{from{stroke-dashoffset:var(--trail-start)}to{stroke-dashoffset:calc(var(--trail-start) - 100px)}}
@@ -16,4 +19,5 @@
 }
 @media(prefers-reduced-motion:reduce){
   .contact-orbit{display:none}
+  .control.contact-motion{transition:none}
 }
