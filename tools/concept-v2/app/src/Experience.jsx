@@ -1,6 +1,6 @@
 import {useEffect,useRef} from 'react';
 import {activeExperienceIndex,experienceCompletionTransition,experienceLayout,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
-import {createExperienceEntryGate} from './experience-entry-gate.mjs';
+import {createExperienceEntryGate,shouldCaptureExperienceEntry} from './experience-entry-gate.mjs';
 import {subscribeScrollActivity,subscribeSmoothScroll,subscribeWheelActivity} from './smooth-scroll-runtime.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {subscribeLayoutInvalidation} from './runtime/layout-invalidation.mjs';
@@ -64,6 +64,7 @@ export function Experience({cv}){
     let allowRearm=false;
     let scrollActive=false;
     let wheelActive=false;
+    let boundaryCapturePending=false;
     let sectionTop=0;
     let sectionHeight=0;
     let layoutDirty=true;
@@ -91,6 +92,15 @@ export function Experience({cv}){
       entryGate.reset();
       lenis=instance;
       if(lenis)removeVirtualScroll=lenis.on('virtual-scroll',event=>{
+        if(desktop&&shouldCaptureExperienceEntry({state:entryGate.state,scrollY:window.scrollY,deltaY:event.deltaY,sectionTop})){
+          boundaryCapturePending=true;
+          if(completed)resetVisualProgress();
+          entryGate.capture();
+          lenis.scrollTo(sectionTop,{immediate:true,force:true});
+          lenis.stop();
+          schedulePaint({});
+          return;
+        }
         if(entryGate.onVirtualScroll(event))lenis.start();
       });
     });
@@ -142,6 +152,7 @@ export function Experience({cv}){
       previousX=0;
       previousTime=performance.now();
       previousScrollY=window.scrollY;
+      boundaryCapturePending=false;
       clearRearm();
       clearBlur();
       if(desktop===false)resetVisualProgress();
@@ -155,6 +166,8 @@ export function Experience({cv}){
     function paint(){
       let currentScrollY=window.scrollY;
       if(!desktop){resetStatic();return;}
+      const boundaryCapture=boundaryCapturePending&&currentScrollY>=sectionTop;
+      if(boundaryCapture)boundaryCapturePending=false;
       const enteredFromAbove=previousScrollY<sectionTop&&currentScrollY>=sectionTop;
       const captureEntry=enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth';
       if(captureEntry){
@@ -163,7 +176,7 @@ export function Experience({cv}){
         lenis.stop();
         currentScrollY=sectionTop;
       }
-      const reenteringFromAbove=completed&&captureEntry;
+      const reenteringFromAbove=completed&&(captureEntry||boundaryCapture);
       const rearmPending=completed&&currentScrollY+window.innerHeight<sectionTop;
       if(rearmPending)allowRearm=!wheelActive&&!scrollActive;
       else if(allowRearm)clearRearm();

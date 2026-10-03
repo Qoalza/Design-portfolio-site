@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {activeExperienceIndex,experienceCompletionTransition,experienceLayout,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceStops,experienceTravel,horizontalSpeedBlur,scrollProgress} from '../src/experience-layout.mjs';
-import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS} from '../src/experience-entry-gate.mjs';
+import {createExperienceEntryGate,ENTRY_GESTURE_IDLE_MS,shouldCaptureExperienceEntry} from '../src/experience-entry-gate.mjs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -159,7 +159,9 @@ test('Experience defers its offscreen re-expansion until the active wheel stream
  assert.match(source,/subscribeWheelActivity/);
  assert.match(source,/subscribeScrollActivity/);
  assert.match(source,/allowRearm=!wheelActive&&!scrollActive/);
- assert.match(source,/const reenteringFromAbove=completed&&captureEntry/);
+ assert.match(source,/const reenteringFromAbove=completed&&\(captureEntry\|\|boundaryCapture\)/);
+ assert.match(source,/shouldCaptureExperienceEntry\(\{state:entryGate\.state,scrollY:window\.scrollY,deltaY:event\.deltaY,sectionTop\}\)/);
+ assert.match(source,/if\(completed\)resetVisualProgress\(\)/);
  assert.match(source,/allowRearm,reenteringFromAbove,verticalTravel:VERTICAL_TRAVEL/);
  assert.match(source,/function resetVisualProgress\(\)/);
  assert.match(source,/if\(!completed\)\{[^}]*resetVisualProgress\(\);\}/);
@@ -224,6 +226,14 @@ test('Experience entry consumes the incoming gesture and releases only the next 
   gate.capture();
   assert.equal(gate.onVirtualScroll({deltaY:-20}),true,'reversing before release leaves the section normally');
   assert.equal(gate.state,'idle');
+});
+
+test('Experience captures the boundary wheel before Lenis can paint past the stopper',()=>{
+  const input={state:'idle',sectionTop:3032};
+  assert.equal(shouldCaptureExperienceEntry({...input,scrollY:2902,deltaY:300.5}),true);
+  assert.equal(shouldCaptureExperienceEntry({...input,scrollY:2902,deltaY:120}),false);
+  assert.equal(shouldCaptureExperienceEntry({...input,scrollY:3100,deltaY:-300}),false);
+  assert.equal(shouldCaptureExperienceEntry({...input,state:'holding',scrollY:2902,deltaY:300.5}),false);
 });
 
 test('a renewed wheel impulse releases Experience before the inertial tail fully idles',()=>{

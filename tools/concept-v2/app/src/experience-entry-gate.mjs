@@ -3,6 +3,13 @@ export const ENTRY_GESTURE_GAP_MS=48;
 export const ENTRY_GESTURE_RESTART_RATIO=1.5;
 export const ENTRY_GESTURE_RESTART_STEP=2;
 
+export function shouldCaptureExperienceEntry({state='idle',scrollY=0,deltaY=0,sectionTop=Infinity}={}){
+  const current=Number(scrollY) || 0;
+  const delta=Number(deltaY) || 0;
+  const top=Number(sectionTop);
+  return state==='idle'&&Number.isFinite(top)&&delta>0&&current<top&&current+delta>=top;
+}
+
 export function createExperienceEntryGate({
   schedule=setTimeout,
   cancel=clearTimeout,
