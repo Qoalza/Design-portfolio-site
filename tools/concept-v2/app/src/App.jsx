@@ -86,7 +86,7 @@ function Header(){
  return <div id="top" ref={shell} className={`site-header-shell${pinned?' is-pinned':''}`}><header className={`site-header${pinned?' is-pinned':''}${leaving?' is-unpinning':''}`}><div className="header-row">
   <a className="brand" href="#top" aria-label="Артур — на главную"><img src="/figma/imgSymbol.svg" width="44" height="44" alt=""/><span><strong>ARTUR</strong><small>Product Designer</small></span></a>
   <nav aria-label="Основная навигация"><NavigationTab icon="imgColor" active>Главная</NavigationTab><NavigationTab icon="imgColor1" disabled>Блог</NavigationTab><NavigationTab icon="imgColor1" disabled>Лаборатория</NavigationTab></nav>
-  <div className="header-actions"><MobileNavigation/><span className="availability"><img src="/figma/imgIndicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ControlButton variant="accent" href="https://t.me/Coco_soul" external iconRight="imgColor2">Связаться</ControlButton></div>
+  <div className="header-actions"><MobileNavigation/><span className="availability"><img src="/figma/imgIndicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ControlButton contactMotion variant="accent" href="https://t.me/Coco_soul" external iconRight="imgColor2">Связаться</ControlButton></div>
  </div></header></div>;
 }
 function HeroDotField({layout}){
