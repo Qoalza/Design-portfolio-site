@@ -6,6 +6,11 @@
 .contact-orbit{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);overflow:visible;pointer-events:none;fill:none;opacity:0;transition:opacity 160ms ease;filter:blur(.35px) drop-shadow(0 0 2.5px var(--cv2-border-accent-muted))}
 .contact-orbit rect{width:calc(100% - 2px);height:calc(100% - 2px);fill:none;stroke:#62b8fc;stroke-width:1.7px;stroke-linecap:butt;stroke-dasharray:.35 99.65;stroke-dashoffset:var(--trail-start)}
 @keyframes contact-border-orbit{from{stroke-dashoffset:var(--trail-start)}to{stroke-dashoffset:calc(var(--trail-start) - 100px)}}
+@keyframes contact-plane-glide{
+  0%,100%{transform:perspective(90px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(0)}
+  25%{transform:perspective(90px) rotateX(10deg) rotateY(-12deg) rotateZ(-3deg) translateY(-.4px)}
+  75%{transform:perspective(90px) rotateX(-8deg) rotateY(12deg) rotateZ(3deg) translateY(.4px)}
+}
 @keyframes contact-plane-flight{
   0%{transform:translate(0,0);opacity:1}
   34%{transform:translate(26px,-26px);opacity:0}
@@ -15,7 +20,8 @@
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
   .contact-motion:hover .contact-orbit{opacity:1}
   .contact-motion:hover .contact-orbit rect{animation:contact-border-orbit 2200ms linear infinite}
-  .contact-motion:hover .contact-plane>svg{animation:contact-plane-flight 760ms cubic-bezier(.22,.61,.36,1) both}
+  .contact-motion:hover .contact-plane{animation:contact-plane-glide 2400ms ease-in-out infinite}
+  .contact-motion:hover .contact-plane>svg{animation:contact-plane-flight 760ms cubic-bezier(.22,.61,.36,1) 650ms both}
 }
 @media(prefers-reduced-motion:reduce){
   .contact-orbit{display:none}

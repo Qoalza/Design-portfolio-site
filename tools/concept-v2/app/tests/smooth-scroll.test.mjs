@@ -66,7 +66,7 @@ test('native scrollbar never changes the layout viewport while Lenis stops',asyn
   assert.match(css,/html::-webkit-scrollbar\{[^}]*display:none;[^}]*width:0;[^}]*height:0/);
 });
 
-test('header pins only after its original area leaves the viewport and uses Border/Surface below',async()=>{
+test('header pins only after its original area leaves the viewport and uses the approved Border/Thin below',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
@@ -81,7 +81,7 @@ test('header pins only after its original area leaves the viewport and uses Bord
  assert.match(app,/paintTask\.dispose\(\);thresholdTask\.dispose\(\);observer\.disconnect\(\)/);
  assert.match(app,/setLeaving\(true\)/);
  assert.match(app,/exitTimer=setTimeout\(\(\)=>\{pinnedRef\.current=false;leavingRef\.current=false;setPinned\(false\);setLeaving\(false\)\},150\)/);
- assert.match(css,/\.site-header\.is-pinned\{position:fixed;z-index:20;inset:0 0 auto;background:var\(--page\);box-shadow:inset 0 -1px var\(--border\);will-change:transform;animation:header-enter 150ms ease-out both\}/);
+ assert.match(css,/\.site-header\.is-pinned\{position:fixed;z-index:20;inset:0 0 auto;background:var\(--page\);box-shadow:inset 0 -1px var\(--cv2-border-neutral-thin\);will-change:transform;animation:header-enter 150ms ease-out both\}/);
  assert.match(css,/\.site-header\.is-unpinning\{animation:header-exit 150ms ease-in both\}/);
  assert.match(css,/\.site-header-shell\.is-pinned\{z-index:20\}/);
  assert.match(css,/@keyframes header-enter\{from\{transform:translateY\(-100%\)\}to\{transform:translateY\(0\)\}\}/);
