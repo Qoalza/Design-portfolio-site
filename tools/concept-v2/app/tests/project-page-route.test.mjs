@@ -150,7 +150,7 @@ test('Corvo structural separators use the current Figma Thin token',async()=>{
  assert.match(css,/\.summaryInner::before,[\s\S]*?\.summaryInner::after\s*\{[^}]*repeating-linear-gradient\(to bottom, #1f2224 0 16px, transparent 16px 32px\)/s);
  assert.match(css,/\.metrics\s*\{[^}]*border-bottom:\s*1px solid #1f2224/s);
  assert.match(css,/\.contentSection\s*\{[^}]*border-bottom:\s*1px solid #1f2224/s);
- assert.match(css,/\.resultWrap\s*\{[^}]*border-top:\s*1px solid #1f2224/s);
+ assert.match(css,/\.resultWrap\s*\{[^}]*border-top:\s*1px solid var\(--cv2-border-neutral-thin\)/s);
  assert.match(css,/\.footer\s*\{[^}]*border-top:\s*1px solid #1f2224/s);
 });
 
@@ -223,4 +223,14 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(css,/\.resultWrap\s*\{[^}]*height:\s*525px/s);
  assert.match(css,/\.resultWrap\s*\{[^}]*background:\s*#141617/s);
  assert.match(css,/\.footerText\s*\{[^}]*line-height:\s*14px/s);
+});
+
+
+test("Corvo metrics use filled neutral Figma and one Thin boundary after hatch",async()=>{
+ const page=await readFile(path.join(root,"src/project-page/CorvoProjectPage.jsx"),"utf8");
+ const css=await readFile(path.join(root,"src/project-page/CorvoProjectPage.module.css"),"utf8");
+ assert.match(page,/variant="neutral" icon=\{metrics\[0\]\.icon\}/);
+ const hatch=css.match(/\.caseHatch\s*\{([^}]+)\}/)?.[1];
+ assert.match(hatch,/border-top: 1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.doesNotMatch(hatch,/border-block|border-bottom/);
 });

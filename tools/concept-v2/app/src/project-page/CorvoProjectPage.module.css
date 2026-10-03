@@ -662,7 +662,7 @@
 
 .resultWrap {
   height: 525px;
-  border-top: 1px solid #1f2224;
+  border-top: 1px solid var(--cv2-border-neutral-thin);
   background: #141617;
 }
 
@@ -674,7 +674,7 @@
 
 .caseHatch {
   height: 88px;
-  border-block: 1px solid #1f2224;
+  border-top: 1px solid var(--cv2-border-neutral-thin);
   background-color: #141617;
   background-image: repeating-linear-gradient(126.87deg, transparent 0 10px, #1f2224 10px 11px, transparent 11px 15px);
 }
