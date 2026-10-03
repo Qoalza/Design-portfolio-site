@@ -163,12 +163,12 @@ test('Experience defers its offscreen re-expansion until the active wheel stream
  assert.match(source,/function onScroll\(\)\{\s*if\(rearmTimer!==undefined\|\|allowRearm\)clearRearm\(\);\s*schedulePaint\(\{\}\);\s*\}/);
 });
 
-test('Experience does heavy scroll work only within two viewports of its section',()=>{
+test('Experience does heavy scroll work only inside its actual scroll range',()=>{
   const input={viewportHeight:900,sectionTop:3000,sectionHeight:9700};
-  assert.equal(experienceShouldPaint({...input,scrollY:1199}),false);
-  assert.equal(experienceShouldPaint({...input,scrollY:1200}),true);
+  assert.equal(experienceShouldPaint({...input,scrollY:2999}),false);
+  assert.equal(experienceShouldPaint({...input,scrollY:3000}),true);
   assert.equal(experienceShouldPaint({...input,scrollY:12700}),true);
-  assert.equal(experienceShouldPaint({...input,scrollY:14501}),false);
+  assert.equal(experienceShouldPaint({...input,scrollY:12701}),false);
 });
 
 test('Experience caches geometry and DOM targets and batches scroll work to one frame',async()=>{

@@ -61,7 +61,7 @@ export function experienceCompletionTransition({completed,scrollY,sectionTop,vie
   return {completed:false};
 }
 
-export function experienceShouldPaint({scrollY,viewportHeight,sectionTop,sectionHeight,marginViewports=2}){
+export function experienceShouldPaint({scrollY,viewportHeight,sectionTop,sectionHeight,marginViewports=0}){
   const margin=viewportHeight*marginViewports;
   return scrollY>=sectionTop-margin&&scrollY<=sectionTop+sectionHeight+margin;
 }
