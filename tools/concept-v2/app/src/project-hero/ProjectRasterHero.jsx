@@ -3,27 +3,15 @@ import {AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform}
 import {ControlButton} from '../Controls.jsx';
 import {GridPattern} from '../GridPattern.jsx';
 import {ScenarioTab} from '../v2/HeroTabs.jsx';
-import {carouselCards, carouselDotItems, nearestCarouselStep, wrapSlideIndex} from './raster-carousel.mjs';
+import {carouselCards, carouselDotItems, carouselSlotVisual, nearestCarouselStep, wrapSlideIndex} from './raster-carousel.mjs';
 import shellStyles from './ProjectResponsiveHero.module.css';
 import styles from './ProjectRasterHero.module.css';
 
-const SIDE_SCALE = 640 / 940;
-const OUTER_SCALE = .55;
 const SPRING = {type: 'spring', stiffness: 260, damping: 34, mass: 1};
-
-function slotVisual(slot, showFive) {
-  const distance = Math.abs(slot);
-  return {
-    x: slot === 0 ? 0 : Math.sign(slot) * (distance === 1 ? (showFive ? 260 : 320) : (showFive ? 382 : 650)),
-    y: slot === 0 ? 0 : -20,
-    scale: distance === 0 ? 1 : distance === 1 ? SIDE_SCALE : (showFive ? OUTER_SCALE : .5),
-    opacity: distance <= 1 || showFive ? 1 : 0,
-  };
-}
 
 function RasterCard({card, showFive, reduceMotion, onSelect}) {
   const {slide, slot} = card;
-  const x = useMotionValue(slotVisual(slot, showFive).x);
+  const x = useMotionValue(carouselSlotVisual(slot, showFive).x);
   const layer = useTransform(x, value => Math.abs(value) < 160 ? 3 : showFive && Math.abs(value) < 320 ? 2 : Math.abs(value) < 480 ? 1 : 0);
   const shadeDistance = showFive ? 260 : 320;
   const leftShade = useTransform(x, value => Math.max(0, Math.min(1, -value / shadeDistance)));
@@ -33,9 +21,9 @@ function RasterCard({card, showFive, reduceMotion, onSelect}) {
       className={`${styles.card} ${showFive ? styles.cardFive : ''}`}
       data-slot={slot}
       data-slide-id={slide.id}
-      initial={{...slotVisual(slot, showFive), opacity: 0}}
-      animate={slotVisual(slot, showFive)}
-      exit={{opacity: 0}}
+      initial={{...carouselSlotVisual(slot, showFive), opacity: 0}}
+      animate={carouselSlotVisual(slot, showFive)}
+      exit={showFive && Math.abs(slot) === 2 ? carouselSlotVisual(Math.sign(slot) * 3, true) : {opacity: 0}}
       transition={reduceMotion ? {duration: 0} : {...SPRING, opacity: {duration: .22}}}
       style={{x, zIndex: layer}}
     >

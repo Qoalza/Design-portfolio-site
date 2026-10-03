@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {sarafanRasterHero} from '../src/project-hero/raster-definition.mjs';
 import {rasterPreviewVariants, rasterVariantDefinition} from '../src/project-hero/raster-variants.mjs';
-import {carouselCards, visibleDotIndexes} from '../src/project-hero/raster-carousel.mjs';
+import {carouselCards, carouselSlotVisual, visibleDotIndexes} from '../src/project-hero/raster-carousel.mjs';
 
 test('variant space exposes 2, 3, 4 and 5+ image states', () => {
   assert.deepEqual(rasterPreviewVariants.map(variant => [variant.id, variant.count]),
@@ -18,7 +18,7 @@ test('each variant keeps one distinct slide per position and the original home i
     assert.equal(slides.find(slide => slide.id === definition.contexts[0].initialSlideId)?.src,
       sarafanRasterHero.contexts[0].slides[1].src);
     assert.equal(visibleDotIndexes(0, slides.length).length, Math.min(variant.count, 5));
-    assert.ok(carouselCards(slides, 6).length <= 5);
+    assert.ok(carouselCards(slides, 6).filter(card => carouselSlotVisual(card.slot, slides.length >= 5).opacity).length <= 5);
   }
 });
 
