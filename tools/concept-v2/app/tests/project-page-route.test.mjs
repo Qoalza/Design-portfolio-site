@@ -71,29 +71,43 @@ test('Corvo project actions use enabled design-system controls with smooth right
  assert.match(figmaIcon,/Medium \/ Social logo \/ Figma/);
 });
 
-test('Corvo breadcrumbs use compact system buttons and preserve the color logo',async()=>{
- const [page,css,controls,controlCss,corvoLogo]=await Promise.all([
+test('Corvo breadcrumbs use true SVG system icons and preserve the color logo',async()=>{
+ const [page,css,controls,corvoLogo]=await Promise.all([
   readFile(path.join(root,'src/project-page/CorvoProjectPage.jsx'),'utf8'),
   readFile(path.join(root,'src/project-page/CorvoProjectPage.module.css'),'utf8'),
-  readFile(path.join(root,'src/v2/Controls.jsx'),'utf8'),
-  readFile(path.join(root,'src/v2/controls.css'),'utf8'),
+  readFile(path.join(root,'src/Controls.jsx'),'utf8'),
   readFile(path.join(root,'public/figma/imgProjectCorvo.svg'),'utf8'),
  ]);
-
- assert.match(page,/import \{V2Button\} from '\.\.\/v2\/Controls'/);
- assert.match(page,/<V2Button variant="ghost" iconLeft="imgColor" iconOnly href=\{import\.meta\.env\.BASE_URL\}[^>]*aria-label="На главную"/);
- assert.match(page,/<V2Button variant="ghost" iconLeft="imgProjectCorvo" iconLeftMode="color"[^>]*aria-current="page">Corvo<\/V2Button>/);
- assert.match(controls,/iconOnly=false/);
- assert.match(controls,/iconOnly\?null:<span className="v2-control-label">\{children\}<\/span>/);
- assert.match(controls,/mode==='color'/);
- assert.match(controls,/className=\{`v2-icon v2-icon-color/);
- assert.match(controls,/iconLeftMode='default'/);
- assert.match(controls,/<V2Icon name=\{iconLeft\} mode=\{iconLeftMode\}/);
- assert.match(controlCss,/\.v2-icon-color\s*\{[^}]*background:transparent[^}]*mask:none/s);
+ assert.match(page,/<ControlButton variant="ghost" iconLeft="imgColor" iconOnly/);
+ assert.match(page,/iconLeftNode=\{<img src="\/figma\/imgProjectCorvo\.svg"/);
+ assert.match(controls,/dangerouslySetInnerHTML:svg/);
+ assert.doesNotMatch(page,/V2Button|v2\/Controls/);
  assert.match(corvoLogo,/fill="#2A6E52"/);
  assert.match(corvoLogo,/fill="#43A27A"/);
  assert.match(css,/\.crumb \.crumbHome\s*\{[^}]*width:\s*16px[^}]*height:\s*16px[^}]*padding:\s*0/s);
  assert.match(css,/\.crumb \.crumbProject\s*\{[^}]*width:\s*67px[^}]*height:\s*16px[^}]*padding:\s*0/s);
+});
+
+test('Sarafan project content mirrors the current non-Hero Figma sequence',async()=>{
+ const [page,css,image]=await Promise.all([
+  readFile(path.join(root,'src/project-page/SarafanProjectPage.jsx'),'utf8'),
+  readFile(path.join(root,'src/project-page/SarafanProjectPage.module.css'),'utf8'),
+  readFile(path.join(root,'public/figma/project-sarafan-scenario-01.png')),
+ ]);
+ assert.match(page,/<ProjectRasterHero definition=\{sarafanRasterHero\}\/>/);
+ assert.match(page,/<ScenarioFlow\/>/);
+ assert.match(page,/Сценарий оформления/);
+ assert.doesNotMatch(page,/title="То, над чем"/);
+ assert.match(page,/<ControlButton variant="light" iconRight="hero-flow" href=\{projectLinks\.sarafanFlow\}/);
+ assert.doesNotMatch(page,/HoverMorphAction variant="light" icon=\{figmaIcon\} href=\{projectLinks\.sarafanFlow\}/);
+ assert.match(page,/project-sarafan-scenario-01\.png" width="1047" height="860"/);
+ assert.match(page,/<GridPattern\/>/);
+ assert.match(css,/\.flowInner\{[^}]*width:1280px[^}]*padding:8px 52px 40px 64px/s);
+ assert.match(css,/\.flowCopy\{[^}]*width:936px[^}]*padding-right:40px/s);
+ assert.match(css,/\.scenarioMedia\{[^}]*height:1016px[^}]*grid-template-columns:minmax\(0,1fr\) 1176px minmax\(0,1fr\)/s);
+ assert.match(css,/\.scenarioCanvas>img\{[^}]*top:70px[^}]*left:62px[^}]*width:1047px[^}]*height:860px/s);
+ assert.equal(image.readUInt32BE(16),2014);
+ assert.equal(image.readUInt32BE(20),1656);
 });
 
 test('Corvo project header and footer use their current Figma assets',async()=>{
@@ -116,6 +130,8 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
  assert.match(css,/\.availability\s*\{[^}]*width:\s*213px/s);
  assert.match(css,/\.headerContact\s*\{[^}]*width:\s*121px/s);
  assert.match(page,/iconRight="corvo-telegram"/);
+ assert.match(page,/<ControlButton[^>]*iconLeft=\{iconLeft\}[^>]*iconRight=\{iconRight\}[^>]*iconRightNode=\{iconRightNode\}/);
+ assert.doesNotMatch(page,/data-icon-right=/);
  assert.match(telegram,/<svg width="16" height="16" viewBox="0 0 16 16"/);
  assert.doesNotMatch(css,/\.header\s*\{[^}]*border-bottom:/s);
  assert.match(css,/\.brand b\s*\{[^}]*font-variation-settings:\s*"GRAD" -25, "opsz" 18/s);

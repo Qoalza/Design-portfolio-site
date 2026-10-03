@@ -159,7 +159,7 @@ function ProjectCard({project,imageRef,onImageLoad}){
    <div className="project-back-layer"><ResponsivePicture source={project.preview.back} ref={imageRef} className="project-back" alt="" sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
    <div className="project-shade"/>
    <div className="project-front-layer"><ResponsivePicture source={project.preview.front} ref={imageRef} className="project-front" alt={project.preview.frontAlt} sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
-   {project.tag&&<div className="project-tag"><span className="project-tag-icon" aria-hidden="true"/><span>{project.tag}</span></div>}
+   {project.tag&&<div className="project-tag"><Icon name="sarafan-flag"/><span>{project.tag}</span></div>}
   </div>
   <div className="project-main"><div className="project-categories">{project.categories.map((category,index)=><span className="project-category" key={category}><span>{category}</span>{index<project.categories.length-1&&<img src="/figma/sarafan-project-dot.svg" width="4" height="4" alt=""/>}</span>)}</div><div className="project-content"><div className="project-info"><h3>{project.logo==='corvo'?<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/>:<RadioSymbol/>}{project.title}</h3><p>{project.description}</p></div><ProjectActions project={project}/></div></div>
  </article>;

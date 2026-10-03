@@ -37,6 +37,12 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.equal(short.compactOffset,128);
 });
 
+test('Experience keeps the approved Inktech content without changing its scene class',async()=>{
+ const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
+ assert.match(source,/className:'eyeconweb',from:'Август 2021',to:'Май 2026',role:'Product Designer',company:'Inktech'/);
+ assert.doesNotMatch(source,/company:'Eyeconweb'/);
+});
+
 test('experience runs center-to-center and is ten percent faster',()=>{
   assert.deepEqual(experienceTravel(),{horizontal:2047,vertical:9690/1.1});
   assert.deepEqual(experienceStops(),[0,374/2047,759/2047,1162/2047,1581/2047,1]);

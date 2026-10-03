@@ -11,7 +11,7 @@ const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel()
 
 const jobs=[
   {className:'current',from:'Май 2026',to:'Настоящее время',role:'',company:'Открыт к предложениям',description:'Готов к новым задачам — как в рамках отдельных проектов, так и на полной занятости.'},
-  {className:'eyeconweb',from:'Август 2021',to:'Май 2026',role:'Product Designer',company:'Eyeconweb',description:'B2B/B2E, SaaS, сложная бизнес логика, дизайн-системы и взаимодействие с разработкой'},
+  {className:'eyeconweb',from:'Август 2021',to:'Май 2026',role:'Product Designer',company:'Inktech',description:'B2B/B2E, SaaS, сложная бизнес логика, дизайн-системы и взаимодействие с разработкой'},
   {className:'freelance',from:'Ноябрь 2019',to:'Декабрь 2023',role:'Product Designer',company:'Фриланс',description:'Веб и мобильные продукты, сценарии, прототипы'},
   {className:'vexel',from:'Декабрь 2020',to:'Июль 2021',role:'Product Designer',company:'Vexel',description:'Экосистема криптовалютного банка и внутренние системы'},
   {className:'agima',from:'Август 2020',to:'Октябрь 2020',role:'UX Designer',company:'Agima',description:'Экосистема криптовалютного банка и внутренние системы'},

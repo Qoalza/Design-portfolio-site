@@ -3,7 +3,6 @@ import {motion,useReducedMotion} from 'motion/react';
 import {ProjectResponsiveHero} from '../project-hero/ProjectResponsiveHero';
 import {corvoResponsiveHero} from '../project-hero/definition.mjs';
 import {ControlButton,Icon} from '../Controls';
-import {V2Button} from '../v2/Controls';
 import {GridPattern} from '../GridPattern';
 import {StrokeMorphIcon} from '../morph-icon/StrokeMorphIcon';
 import {checkMorphIcon,link02Icon} from '../morph-icon/icons.mjs';
@@ -17,7 +16,7 @@ const projectDescription='B2B SaaS-платформа для управлени�
 const projectActionLayoutTransition={layout:{type:'spring',stiffness:420,damping:38,mass:.8}};
 
 function ProjectAction({children,variant='ghost',iconLeft,iconRight,iconRightNode,motionLayout,layoutTransition,className='',href,onClick,external,...props}){
- return <ControlButton variant={variant} className={`${styles.action} ${className}`} data-icon-left={iconLeft} data-icon-right={iconRightNode?undefined:iconRight} iconRightNode={iconRightNode} motionLayout={motionLayout} layoutTransition={layoutTransition} href={href} onClick={onClick} external={external} {...props}>{children}</ControlButton>;
+ return <ControlButton variant={variant} className={`${styles.action} ${className}`} iconLeft={iconLeft} iconRight={iconRight} iconRightNode={iconRightNode} motionLayout={motionLayout} layoutTransition={layoutTransition} href={href} onClick={onClick} external={external} {...props}>{children}</ControlButton>;
 }
 
 function useCopyLinkFeedback(){
@@ -64,7 +63,7 @@ function SiteHeader(){
     <div className={styles.headerRight}><span className={styles.availability}><img src="/figma/project-corvo/header/header-indicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ProjectAction variant="accent" className={styles.headerContact} iconRight="corvo-telegram" href="https://t.me/Coco_soul" external>Связаться</ProjectAction></div>
    </div>
   </header>
-  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><V2Button variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><V2Button variant="ghost" iconLeft="imgProjectCorvo" iconLeftMode="color" className={styles.crumbProject} aria-current="page">Corvo</V2Button></nav></div>
+  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={<img src="/figma/imgProjectCorvo.svg" width="16" height="16" alt="" aria-hidden="true"/>} className={styles.crumbProject} aria-current="page">Corvo</ControlButton></nav></div>
  </>;
 }
 

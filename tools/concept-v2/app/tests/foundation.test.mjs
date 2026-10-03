@@ -86,10 +86,10 @@ test('AI static code panel retains source copy and has no active controls or clo
  for(const asset of ['ai-hatch-top.svg','ai-codex-icon.svg','ai-gear.svg'])await access(path.join(appRoot,'public/figma',asset));
 });
 
-test('footer retains its Figma spacing and uses current semantic color roles',async()=>{
+test('footer retains the current Figma spacing and muted role',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
  assert.match(app,/<footer className="site-footer"><div className="site-footer-inner">/);
  assert.match(css,/\.site-footer\{[^}]*height:61px[^}]*background:var\(--cv2-container-neutral-faint\)[^}]*border-top:1px solid var\(--cv2-border-neutral-surface\)/);
- assert.match(css,/\.site-footer-inner\{[^}]*padding:20px 48px 24px[^}]*font:400 12px\/16px "Source Code Pro"[^}]*color:var\(--cv2-text-neutral-muted\)/);
+ assert.match(css,/\.site-footer-inner\{[^}]*padding:20px 48px 24px[^}]*font:400 12px\/14px "Source Code Pro"[^}]*color:#788087/);
 });
