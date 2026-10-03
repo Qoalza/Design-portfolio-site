@@ -17,7 +17,7 @@ test('Corvo project route uses the dedicated page and the approved responsive He
  assert.match(main,/isCorvoProject=normalizedPath==='\/projects\/corvo'/);
  assert.match(main,/document\.title=isCorvoProject\?'Corvo — Product Designer'/);
  assert.match(main,/import App,\{CustomCursor\} from '\.\/App';/);
- assert.match(main,/\{isCorvoProject\?<FirstVisit><SmoothScroll\/><CustomCursor\/><CorvoProjectPage\/><\/FirstVisit>/);
+ assert.match(main,/\{isCorvoProject\?<FirstVisit><CustomCursor\/><CorvoProjectPage\/><\/FirstVisit>/);
  assert.match(main,/<CorvoProjectPage\/>/);
  assert.match(page,/<ProjectResponsiveHero definition=\{corvoResponsiveHero\}\/>/);
  assert.match(page,/className=\{styles\.page\}/);

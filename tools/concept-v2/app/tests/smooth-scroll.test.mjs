@@ -31,11 +31,18 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
   assert.match(source,/lenis\?\.destroy\(\)/);
 });
 
+test('the mouse-versus-trackpad policy is mounted once above every Concept V2 route',async()=>{
+  const main=await readFile(path.resolve(import.meta.dirname,'../src/main.jsx'),'utf8');
+  assert.equal(main.match(/<SmoothScroll\/>/g)?.length,1);
+  assert.match(main,/createRoot\(document\.getElementById\('root'\)\)\.render\(<React\.StrictMode>\s*<SmoothScroll\/>/);
+  assert.doesNotMatch(main,/<FirstVisit><SmoothScroll\/>/);
+});
+
 test('scroll, resize, visibility, and pulse work is removed on unmount',async()=>{
   const experience=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
   const pulse=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
   assert.match(experience,/clearTimeout\(blurTimer\)/);
-  assert.match(experience,/removeEventListener\('scroll',schedulePaint\)/);
+  assert.match(experience,/removeEventListener\('scroll',onScroll\)/);
   assert.match(experience,/paintTask\.dispose\(\)/);
   assert.match(experience,/resizeObserver\.disconnect\(\)/);
   assert.match(experience,/unsubscribeLayoutInvalidation\(\)/);

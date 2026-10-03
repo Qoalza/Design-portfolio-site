@@ -45,7 +45,8 @@ document.title=isCorvoProject?'Corvo — Product Designer'
         :'Артур — Product Designer · Concept V.2';
 
 createRoot(document.getElementById('root')).render(<React.StrictMode>
-  {isCorvoProject?<FirstVisit><SmoothScroll/><CustomCursor/><CorvoProjectPage/></FirstVisit>
+  <SmoothScroll/>
+  {isCorvoProject?<FirstVisit><CustomCursor/><CorvoProjectPage/></FirstVisit>
     :isResponsiveHero?<ResponsiveHeroPreview/>
     :isRasterHero?<RasterHeroPreview/>
     :isRasterHeroVariants?<RasterHeroVariantsPreview/>
@@ -53,5 +54,5 @@ createRoot(document.getElementById('root')).render(<React.StrictMode>
       :isPreloaderPreview?<PreloaderPreview/>
       :isPreloader?<Preloader/>
         :isNavigationLab?<NavigationLab/>
-          :<FirstVisit><SmoothScroll/><App/></FirstVisit>}
+          :<FirstVisit><App/></FirstVisit>}
 </React.StrictMode>);

@@ -149,7 +149,18 @@ test('a completed Experience keeps its final scene on reverse scroll and rearms 
  assert.deepEqual(experienceCompletionTransition({...input,completed:false,scrollY:4001}),{completed:true,scrollY:3001});
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:3000}),{completed:true});
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2100}),{completed:true});
- assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099}),{completed:false});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099,allowRearm:false}),{completed:true});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099,allowRearm:true}),{completed:false});
+});
+
+test('Experience defers its offscreen re-expansion until the active wheel stream is idle',async()=>{
+ const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
+ assert.match(source,/const EXPERIENCE_REARM_IDLE_MS=160/);
+ assert.match(source,/function scheduleRearm\(\)/);
+ assert.match(source,/rearmTimer=setTimeout\(\(\)=>\{rearmTimer=undefined;allowRearm=true;schedulePaint\(\{\}\);\},EXPERIENCE_REARM_IDLE_MS\)/);
+ assert.match(source,/allowRearm,verticalTravel:VERTICAL_TRAVEL/);
+ assert.match(source,/clearTimeout\(rearmTimer\)/);
+ assert.match(source,/function onScroll\(\)\{\s*if\(rearmTimer!==undefined\|\|allowRearm\)clearRearm\(\);\s*schedulePaint\(\{\}\);\s*\}/);
 });
 
 test('Experience does heavy scroll work only within two viewports of its section',()=>{

@@ -8,6 +8,7 @@ import {ControlButton} from './Controls';
 import {GridPattern} from './GridPattern';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
+const EXPERIENCE_REARM_IDLE_MS=160;
 
 const jobs=[
   {className:'current',from:'Май 2026',to:'Настоящее время',role:'',company:'Открыт к предложениям',description:'Готов к новым задачам — как в рамках отдельных проектов, так и на полной занятости.'},
@@ -61,6 +62,8 @@ export function Experience({cv}){
     let previousTime=performance.now();
     let previousScrollY=window.scrollY;
     let blurTimer;
+    let rearmTimer;
+    let allowRearm=false;
     let sectionTop=0;
     let sectionHeight=0;
     let layoutDirty=true;
@@ -120,6 +123,15 @@ export function Experience({cv}){
       blurTimer=undefined;
       setStyle('--experience-blur','0px');
     }
+    function clearRearm(){
+      clearTimeout(rearmTimer);
+      rearmTimer=undefined;
+      allowRearm=false;
+    }
+    function scheduleRearm(){
+      clearTimeout(rearmTimer);
+      rearmTimer=setTimeout(()=>{rearmTimer=undefined;allowRearm=true;schedulePaint({});},EXPERIENCE_REARM_IDLE_MS);
+    }
     function resetStatic(){
       if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
       entryGate.reset();
@@ -128,6 +140,7 @@ export function Experience({cv}){
       previousX=0;
       previousTime=performance.now();
       previousScrollY=window.scrollY;
+      clearRearm();
       clearBlur();
       if(desktop===false){
         setStyle('--experience-progress','0');
@@ -149,9 +162,13 @@ export function Experience({cv}){
     function paint(){
       let currentScrollY=window.scrollY;
       if(!desktop){resetStatic();return;}
-      const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,verticalTravel:VERTICAL_TRAVEL});
+      const rearmPending=completed&&currentScrollY+window.innerHeight<sectionTop;
+      if(rearmPending){if(!allowRearm)scheduleRearm();}
+      else if(rearmTimer!==undefined||allowRearm)clearRearm();
+      const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,allowRearm,verticalTravel:VERTICAL_TRAVEL});
       if(transition.completed!==completed){
         completed=transition.completed;
+        clearRearm();
         const height=window.innerHeight+(completed?0:VERTICAL_TRAVEL);
         layoutStates.height=`${height}px`;
         section.style.height=layoutStates.height;
@@ -226,6 +243,10 @@ export function Experience({cv}){
       },
     });
     function schedulePaint(payload){paintTask.schedule(payload);}
+    function onScroll(){
+      if(rearmTimer!==undefined||allowRearm)clearRearm();
+      schedulePaint({});
+    }
     function invalidatePosition(){positionDirty=true;schedulePaint({});}
     function onResize(){layoutDirty=true;positionDirty=true;schedulePaint({preserve:true});}
     function onVisibilityChange(){
@@ -243,11 +264,11 @@ export function Experience({cv}){
     const unsubscribeLayoutInvalidation=subscribeLayoutInvalidation(invalidatePosition);
     const onMotionChange=()=>schedulePaint({});
     schedulePaint({});
-    window.addEventListener('scroll',schedulePaint,{passive:true});
+    window.addEventListener('scroll',onScroll,{passive:true});
     window.addEventListener('resize',onResize);
     document.addEventListener('visibilitychange',onVisibilityChange);
     reduced.addEventListener('change',onMotionChange);
-    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();unsubscribeLayoutInvalidation();paintTask.dispose();clearBlur();resizeObserver.disconnect();fontsDisposed=true;document.fonts?.removeEventListener?.('loadingdone',onFonts);window.removeEventListener('scroll',schedulePaint);window.removeEventListener('resize',onResize);document.removeEventListener('visibilitychange',onVisibilityChange);reduced.removeEventListener('change',onMotionChange);};
+    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();unsubscribeLayoutInvalidation();paintTask.dispose();clearRearm();clearBlur();resizeObserver.disconnect();fontsDisposed=true;document.fonts?.removeEventListener?.('loadingdone',onFonts);window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',onResize);document.removeEventListener('visibilitychange',onVisibilityChange);reduced.removeEventListener('change',onMotionChange);};
   },[]);
 
   return <section ref={root} className="experience" aria-labelledby="experience-title">

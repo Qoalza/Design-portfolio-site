@@ -51,9 +51,9 @@ export function scrollProgress({scrollY,sectionTop,verticalTravel}){
   return Math.max(0,Math.min(1,(scrollY-sectionTop)/verticalTravel));
 }
 
-export function experienceCompletionTransition({completed,scrollY,sectionTop,viewportHeight,verticalTravel}){
+export function experienceCompletionTransition({completed,scrollY,sectionTop,viewportHeight,allowRearm=true,verticalTravel}){
   if(completed){
-    return {completed:scrollY+viewportHeight<sectionTop?false:true};
+    return {completed:allowRearm&&scrollY+viewportHeight<sectionTop?false:true};
   }
   if(scrollY>sectionTop+verticalTravel){
     return {completed:true,scrollY:scrollY-verticalTravel};
