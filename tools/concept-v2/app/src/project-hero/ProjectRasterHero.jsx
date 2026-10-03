@@ -25,9 +25,12 @@ function RasterCard({card, showFive, reduceMotion, onSelect}) {
   const {slide, slot} = card;
   const x = useMotionValue(slotVisual(slot, showFive).x);
   const layer = useTransform(x, value => Math.abs(value) < 160 ? 3 : showFive && Math.abs(value) < 320 ? 2 : Math.abs(value) < 480 ? 1 : 0);
+  const shadeDistance = showFive ? 260 : 320;
+  const leftShade = useTransform(x, value => Math.max(0, Math.min(1, -value / shadeDistance)));
+  const rightShade = useTransform(x, value => Math.max(0, Math.min(1, value / shadeDistance)));
   return (
     <motion.div
-      className={styles.card}
+      className={`${styles.card} ${showFive ? styles.cardFive : ''}`}
       data-slot={slot}
       data-slide-id={slide.id}
       initial={{...slotVisual(slot, showFive), opacity: 0}}
@@ -37,6 +40,8 @@ function RasterCard({card, showFive, reduceMotion, onSelect}) {
       style={{x, zIndex: layer}}
     >
       <img src={slide.src} width="1880" height="1358" alt={slot === 0 ? slide.title : ''} draggable={false} decoding="async" />
+      <motion.span className={`${styles.cardShade} ${styles.cardShadeLeft}`} aria-hidden="true" style={{opacity: leftShade}} />
+      <motion.span className={`${styles.cardShade} ${styles.cardShadeRight}`} aria-hidden="true" style={{opacity: rightShade}} />
       {slot !== 0 && Math.abs(slot) <= (showFive ? 2 : 1) ? <button type="button" className={styles.sideHitArea} onClick={() => onSelect(slot)} aria-label={`Показать: ${slide.title}`} /> : null}
     </motion.div>
   );
@@ -99,7 +104,7 @@ export function ProjectRasterHero({definition}) {
         </div>
 
         <div
-          className={`${styles.carousel} ${showFive ? styles.carouselFive : ''}`}
+          className={styles.carousel}
           aria-label="Экраны проекта"
           onPointerDown={event => {if (event.button === 0) swipeStart.current = {pointerId: event.pointerId, x: event.clientX};}}
           onPointerUp={finishSwipe}
@@ -108,12 +113,6 @@ export function ProjectRasterHero({definition}) {
           <AnimatePresence initial={false}>
             {carouselCards(slides, step).map(card => <RasterCard key={`${context.id}:${card.key}`} card={card} showFive={showFive} reduceMotion={reduceMotion} onSelect={selectSide} />)}
           </AnimatePresence>
-          <span className={`${styles.carouselShade} ${styles.carouselShadeLeft}`} aria-hidden="true" />
-          <span className={`${styles.carouselShade} ${styles.carouselShadeRight}`} aria-hidden="true" />
-          {showFive ? <>
-            <span className={`${styles.carouselShade} ${styles.carouselShadeFarLeft}`} aria-hidden="true" />
-            <span className={`${styles.carouselShade} ${styles.carouselShadeFarRight}`} aria-hidden="true" />
-          </> : null}
         </div>
 
         {slides.length > 1 ? <div className={styles.controls} aria-label="Переключить экран">

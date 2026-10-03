@@ -79,52 +79,28 @@
   outline-offset: -3px;
 }
 
-.carouselShade {
+.cardShade {
   position: absolute;
-  z-index: 4;
-  top: 233px;
-  width: 170px;
-  height: 462px;
+  z-index: 1;
+  inset: 0;
   pointer-events: none;
 }
 
-/* Original side-card gradient stops: 5% and 35% of its 640px width. */
-.carouselShadeLeft {
-  left: 0;
-  background: linear-gradient(90deg, transparent 32px, #141617 224px);
+.cardShadeLeft {
+  background: linear-gradient(90deg, transparent 5%, #141617 35% 100%);
 }
 
-.carouselShadeRight {
-  right: 0;
-  background: linear-gradient(270deg, transparent 32px, #141617 224px);
+.cardShadeRight {
+  background: linear-gradient(90deg, #141617 0% 65%, transparent 95%);
 }
 
-/* In 5+, the same visible gradient segment is fitted to each exposed card. */
-.carouselFive .carouselShadeLeft {
-  left: 60px;
-  width: 110px;
-  background: linear-gradient(90deg, transparent -28px, #141617 164px);
+/* The nearest 5+ card exposes x=60..170; these are the original stops in its local 940px frame. */
+.cardFive .cardShadeLeft {
+  background: linear-gradient(90deg, transparent -41px, #141617 241px);
 }
 
-.carouselFive .carouselShadeRight {
-  right: 60px;
-  width: 110px;
-  background: linear-gradient(270deg, transparent -28px, #141617 164px);
-}
-
-.carouselShadeFarLeft,
-.carouselShadeFarRight {
-  width: 60px;
-}
-
-.carouselShadeFarLeft {
-  left: 0;
-  background: linear-gradient(90deg, transparent -15px, #141617 89px);
-}
-
-.carouselShadeFarRight {
-  right: 0;
-  background: linear-gradient(270deg, transparent -15px, #141617 89px);
+.cardFive .cardShadeRight {
+  background: linear-gradient(270deg, transparent -41px, #141617 241px);
 }
 
 .controls {
