@@ -20,9 +20,13 @@ import code from '../public/assets/code.svg?raw';
 import check from '../public/assets/check.svg?raw';
 import launch from '../public/assets/launch.svg?raw';
 import preloaderRefresh from '../public/figma/preloader-refresh.svg?raw';
+import corvoHome from '../public/figma/project-corvo/header/header-home.svg?raw';
+import corvoLock from '../public/figma/project-corvo/header/header-lock.svg?raw';
+import corvoTelegram from '../public/figma/project-corvo/header/header-telegram.svg?raw';
+import corvoFooter from '../public/figma/project-corvo/footer-corrupted.svg?raw';
 
 function asControlColor(svg){
- return svg.replaceAll('#E2E2EC','currentColor');
+ return svg.replaceAll('#E2E2EC','currentColor').replaceAll('white','currentColor');
 }
 
 const icons={
@@ -49,6 +53,10 @@ const icons={
  'hero-check':check,
  'hero-launch':launch,
  'preloader-refresh':preloaderRefresh,
+ 'corvo-home':corvoHome,
+ 'corvo-lock':corvoLock,
+ 'corvo-telegram':corvoTelegram,
+ 'corvo-footer':corvoFooter,
 };
 
 export function inlineIconSvg(name){

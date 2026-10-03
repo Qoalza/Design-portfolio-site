@@ -8,6 +8,7 @@ const slots={research:{x:0,y:0},concept:{x:100,y:0},delivery:{x:200,y:0},gitBran
 test('404 outer shell follows the current palette without changing graph behavior',()=>{
  assert.match(routingCss,/\.routing404\s*\{[^}]*var\(--cv2-container-neutral-faint\)[^}]*var\(--cv2-container-neutral-inverse\)[^}]*color:var\(--cv2-text-neutral-primary\)/s);
  assert.match(routingCss,/\.routing404-header p\s*\{[^}]*color:var\(--cv2-text-neutral-muted\)/s);
+ assert.match(routingCss,/\.routing404-header p\s*\{[^}]*font:350 16px\/24px Onest/s);
  assert.match(routingCss,/\.routing404-home\.control\.light:hover\s*\{[^}]*--control-border:var\(--cv2-border-neutral-surface\)/s);
  assert.match(routingCss,/\.routing404-home\.control\.light:active\s*\{[^}]*--control-border:var\(--cv2-border-neutral-muted\)/s);
  assert.match(routingCss,/\.routing404-hint\s*\{[^}]*color:var\(--cv2-text-neutral-thin\)[^}]*font:400 12px\/14px/s);

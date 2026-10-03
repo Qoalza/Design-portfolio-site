@@ -71,21 +71,7 @@
 }
 
 .headerIcon {
-  width: 16px;
-  height: 16px;
-  display: block;
-  flex: 0 0 16px;
-  background: currentColor;
-  -webkit-mask: var(--header-icon) center/16px 16px no-repeat;
-  mask: var(--header-icon) center/16px 16px no-repeat;
-}
-
-.headerIcon[data-header-icon="home"] {
-  --header-icon: url('/figma/project-corvo/header/header-home.svg');
-}
-
-.headerIcon[data-header-icon="lock"] {
-  --header-icon: url('/figma/project-corvo/header/header-lock.svg');
+  color: currentColor;
 }
 
 .headerNavActive .headerIcon {
@@ -281,28 +267,6 @@
   width: 91px;
 }
 
-.action[data-icon-left]::before,
-.action[data-icon-right]::after {
-  content: '';
-  width: 16px;
-  height: 16px;
-  display: block;
-  flex: 0 0 16px;
-  background: currentColor;
-  -webkit-mask: var(--project-action-icon) center/contain no-repeat;
-  mask: var(--project-action-icon) center/contain no-repeat;
-}
-
-.action[data-icon-left="component"] { --project-action-icon-left: url('/figma/project-corvo/metric-component.svg'); }
-.action[data-icon-left="stack"] { --project-action-icon-left: url('/figma/project-corvo/metric-stak.svg'); }
-.action[data-icon-left="icon"] { --project-action-icon-left: url('/figma/project-corvo/metric-icon.svg'); }
-.action[data-icon-right="link"] { --project-action-icon-right: url('/figma/project-corvo/action-link.svg'); }
-.action[data-icon-right="figma"] { --project-action-icon-right: url('/figma/project-corvo/action-figma.svg'); }
-.action[data-icon-right="arrow"] { --project-action-icon-right: url('/figma/project-corvo/metric-arrow.svg'); }
-.action[data-icon-right="telegram"] { --project-action-icon-right: url('/figma/project-corvo/header/header-telegram.svg'); }
-.action[data-icon-left]::before { --project-action-icon: var(--project-action-icon-left); }
-.action[data-icon-right]::after { --project-action-icon: var(--project-action-icon-right); }
-
 .hero {
   height: 980px;
   overflow: hidden;
@@ -386,19 +350,19 @@
 }
 
 .metrics {
-  height: 817px;
+  height: 801px;
   border-bottom: 1px solid #1f2224;
 }
 
 .metricsHeading {
-  height: 204px;
-  padding: 80px 56px 40px;
+  height: 188px;
+  padding: 80px 40px 40px 64px;
 }
 
 .metricsHeading h2,
 .contentSection h2 {
   margin: 0;
-  font: 500 36px/48px "Google Sans", sans-serif;
+  font: 500 24px/32px "Google Sans", sans-serif;
   letter-spacing: -.1px;
 }
 
@@ -530,18 +494,18 @@
 
 .longForm {
   width: 1280px;
-  height: 1042px;
+  height: 1010px;
   margin: 0 auto;
   padding: 56px 0;
 }
 
 .contentSection {
-  padding: 64px 56px;
+  padding: 64px;
   border-bottom: 1px solid #1f2224;
 }
 
 .copyColumn {
-  width: 944px;
+  width: 936px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -563,26 +527,26 @@
 }
 
 .contextSection {
-  height: 449px;
+  height: 432px;
 }
 
 .scenarioTextSection {
-  height: 481px;
+  height: 464px;
 }
 
 .scenarioShowcase {
-  height: 1236px;
+  height: 1220px;
 }
 
 .scenarioShowcaseHeader {
   width: 1280px;
-  height: 220px;
+  height: 204px;
   margin: 0 auto;
-  padding: 8px 56px 0;
+  padding: 8px 64px 0;
 }
 
 .scenarioShowcaseHeader > div {
-  width: 944px;
+  width: 936px;
 }
 
 .scenarioEyebrow {
@@ -595,12 +559,12 @@
 
 .scenarioShowcaseHeader h2 {
   margin: 0 0 24px;
-  font: 500 36px/48px "Google Sans", sans-serif;
+  font: 500 24px/32px "Google Sans", sans-serif;
   letter-spacing: -.1px;
 }
 
 .scenarioShowcaseHeader p:last-child {
-  width: 944px;
+  width: 936px;
   color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
@@ -639,12 +603,12 @@
 }
 
 .designWrap {
-  height: 887px;
+  height: 871px;
   padding: 56px 0;
 }
 
 .designSection {
-  height: 774px;
+  height: 758px;
   border-bottom: 0;
 }
 
@@ -696,15 +660,22 @@
 }
 
 .resultWrap {
-  height: 541px;
+  height: 525px;
   border-top: 1px solid #1f2224;
   background: #141617;
 }
 
 .result {
-  height: 500px;
-  padding: 64px 56px;
+  height: 484px;
+  padding: 64px;
   border-bottom: 0;
+}
+
+.caseHatch {
+  height: 88px;
+  border-block: 1px solid #1f2224;
+  background-color: #141617;
+  background-image: repeating-linear-gradient(126.87deg, transparent 0 10px, #1f2224 10px 11px, transparent 11px 15px);
 }
 
 .checkList li {
@@ -713,17 +684,7 @@
   gap: 8px;
 }
 
-.checkList li::before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  margin-top: 4px;
-  display: block;
-  flex: 0 0 16px;
-  background: #43a2ee;
-  -webkit-mask: url('/assets/check.svg') center/contain no-repeat;
-  mask: url('/assets/check.svg') center/contain no-repeat;
-}
+.checkIcon { margin-top: 4px; color: #43a2ee; flex: 0 0 16px; }
 
 .footer {
   height: 61px;
@@ -751,11 +712,6 @@
 }
 
 .footerIcon {
-  width: 16px;
-  height: 16px;
-  display: block;
+  color: #788087;
   flex: 0 0 16px;
-  background: #788087;
-  -webkit-mask: url('/figma/project-corvo/footer-corrupted.svg') center/16px 16px no-repeat;
-  mask: url('/figma/project-corvo/footer-corrupted.svg') center/16px 16px no-repeat;
 }

@@ -41,7 +41,8 @@ test('the preloader matches the current Figma state frames and copy',()=>{
   assert.doesNotMatch(css,/\.preloader-content\s*\{[^}]*height:/s);
   assert.doesNotMatch(css,/\[data-state='(?:slow|connection)'\] \.preloader-content/);
   assert.match(css,/\.preloader-content\s*\{[^}]*transform:\s*translateY\(-100px\)/s);
-  assert.match(css,/\.preloader-caption\s*\{[^}]*height:\s*24px[^}]*font:\s*400 16px\/24px Onest/s);
+  assert.match(css,/\.preloader-symbol\s*\{[^}]*color:\s*var\(--cv2-text-neutral-secondary\)/s);
+  assert.match(css,/\.preloader-caption\s*\{[^}]*height:\s*24px[^}]*font:\s*350 16px\/24px Onest/s);
   assert.match(css,/var\(--cv2-container-neutral-faint\).*var\(--cv2-container-neutral-inverse\)/s);
   assert.match(preloader,/Проблема с соединением/);
 });

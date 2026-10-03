@@ -35,9 +35,13 @@ test('interactive controls use exported Medium icon assets',async()=>{
  assert.match(app,/icon="imgColor"/);
  assert.match(app,/iconRight="imgColor2"/);
  assert.match(app,/iconRight="file05">CV/);
- assert.match(app,/iconRight="imgColor7"/);
+ assert.match(app,/HoverMorphAction/);
+ assert.match(app,/icon=\{figmaIcon\}/);
  assert.match(await readFile(path.join(root,'src/icon-vectors.js'),'utf8'),/import projectFigma from '\.\.\/public\/figma\/project-figma\.svg\?raw'/);
  assert.match(await readFile(path.join(root,'src/icon-vectors.js'),'utf8'),/import file05 from '\.\.\/public\/figma\/file-05\.svg\?raw'/);
+ const arrow=await readFile(figma('arrow-angle-top-right.svg'),'utf8');
+ assert.match(arrow,/viewBox="0 0 24 24"/);
+ assert.match(arrow,/stroke-width="1\.3"/);
  const projectFigma=await readFile(figma('project-figma.svg'),'utf8');
  assert.match(projectFigma,/width="15\.3" height="21\.3" viewBox="0 0 15\.3 21\.3"/);
  assert.match(projectFigma,/stroke="white" stroke-width="1\.3"/);

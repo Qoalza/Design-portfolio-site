@@ -6,6 +6,7 @@ import {ResponsiveHeroPreview} from './project-hero/ResponsiveHeroPreview';
 import {RasterHeroPreview} from './project-hero/RasterHeroPreview';
 import {RasterHeroVariantsPreview} from './project-hero/RasterHeroVariantsPreview';
 import {CorvoProjectPage} from './project-page/CorvoProjectPage';
+import {SarafanProjectPage} from './project-page/SarafanProjectPage';
 import {Preloader} from './Preloader';
 import {PreloaderPreview} from './PreloaderPreview';
 import {FirstVisit} from './FirstVisit';
@@ -25,7 +26,8 @@ const isResponsiveHero=normalizedPath==='/preview/project-responsive-hero';
 const isRasterHero=normalizedPath==='/preview/project-raster-hero';
 const isRasterHeroVariants=normalizedPath==='/preview/project-raster-hero-variants';
 const isCorvoProject=normalizedPath==='/projects/corvo';
-const is404=!isPreloader&&!isPreloaderPreview&&!isNavigationLab&&!isResponsiveHero&&!isRasterHero&&!isRasterHeroVariants&&!isCorvoProject&&(normalizedPath==='/404'||normalizedPath!=='');
+const isSarafanProject=normalizedPath==='/projects/sarafan-radio';
+const is404=!isPreloader&&!isPreloaderPreview&&!isNavigationLab&&!isResponsiveHero&&!isRasterHero&&!isRasterHeroVariants&&!isCorvoProject&&!isSarafanProject&&(normalizedPath==='/404'||normalizedPath!=='');
 
 if(!isPreloader&&!isNavigationLab){
   // A reload is a fresh visit to Hero, not restoration of a previous section.
@@ -35,6 +37,7 @@ if(!isPreloader&&!isNavigationLab){
 }
 
 document.title=isCorvoProject?'Corvo — Product Designer'
+  :isSarafanProject?'Сараффан.Радио — Product Designer'
   :isResponsiveHero?'Corvo Responsive Hero · Concept V.2'
   :isRasterHero?'Сараффан.Радио Raster Hero · Concept V.2'
   :isRasterHeroVariants?'Варианты Raster Hero · Concept V.2'
@@ -47,6 +50,7 @@ document.title=isCorvoProject?'Corvo — Product Designer'
 createRoot(document.getElementById('root')).render(<React.StrictMode>
   <SmoothScroll/>
   {isCorvoProject?<FirstVisit><CustomCursor/><CorvoProjectPage/></FirstVisit>
+    :isSarafanProject?<FirstVisit><CustomCursor/><SarafanProjectPage/></FirstVisit>
     :isResponsiveHero?<ResponsiveHeroPreview/>
     :isRasterHero?<RasterHeroPreview/>
     :isRasterHeroVariants?<RasterHeroVariantsPreview/>

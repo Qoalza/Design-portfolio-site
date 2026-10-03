@@ -2,16 +2,18 @@ import {useEffect,useRef,useState} from 'react';
 import {motion,useReducedMotion} from 'motion/react';
 import {ProjectResponsiveHero} from '../project-hero/ProjectResponsiveHero';
 import {corvoResponsiveHero} from '../project-hero/definition.mjs';
-import {ControlButton} from '../Controls';
+import {ControlButton,Icon} from '../Controls';
 import {V2Button} from '../v2/Controls';
 import {GridPattern} from '../GridPattern';
 import {StrokeMorphIcon} from '../morph-icon/StrokeMorphIcon';
 import {checkMorphIcon,link02Icon} from '../morph-icon/icons.mjs';
 import {restartFeedbackTimer} from '../morph-icon/copy-feedback.mjs';
+import {HoverMorphAction} from '../morph-icon/HoverMorphAction';
+import {componentIcon,figmaIcon,metricIcon,stackIcon} from '../morph-icon/icons.mjs';
+import {projectLinks} from '../project-links.mjs';
 import styles from './CorvoProjectPage.module.css';
 
 const projectDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
-const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
 const projectActionLayoutTransition={layout:{type:'spring',stiffness:420,damping:38,mass:.8}};
 
 function ProjectAction({children,variant='ghost',iconLeft,iconRight,iconRightNode,motionLayout,layoutTransition,className='',href,onClick,external,...props}){
@@ -58,8 +60,8 @@ function SiteHeader(){
   <header className={styles.header} data-first-view>
    <div className={styles.headerInner}>
     <div className={styles.brand}><img src="/figma/project-corvo/header/header-symbol.svg" width="44" height="44" alt=""/><span><b>ARTUR</b><small>Product Designer</small></span></div>
-    <nav className={styles.navigation} aria-label="Основная навигация"><a href={import.meta.env.BASE_URL} className={`nav-tab selected ${styles.headerNavActive}`}><span className={styles.headerIcon} data-header-icon="home" aria-hidden="true"/><span className="control-label">Главная</span></a><button type="button" className="nav-tab" disabled><span className={styles.headerIcon} data-header-icon="lock" aria-hidden="true"/><span className="control-label">Блог</span></button><button type="button" className="nav-tab" disabled><span className={styles.headerIcon} data-header-icon="lock" aria-hidden="true"/><span className="control-label">Лаборатория</span></button></nav>
-    <div className={styles.headerRight}><span className={styles.availability}><img src="/figma/project-corvo/header/header-indicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ProjectAction variant="accent" className={styles.headerContact} iconRight="telegram" href="https://t.me/Coco_soul" external>Связаться</ProjectAction></div>
+    <nav className={styles.navigation} aria-label="Основная навигация"><a href={import.meta.env.BASE_URL} className={`nav-tab selected ${styles.headerNavActive}`}><Icon name="corvo-home" className={styles.headerIcon}/><span className="control-label">Главная</span></a><button type="button" className="nav-tab" disabled><Icon name="corvo-lock" className={styles.headerIcon}/><span className="control-label">Блог</span></button><button type="button" className="nav-tab" disabled><Icon name="corvo-lock" className={styles.headerIcon}/><span className="control-label">Лаборатория</span></button></nav>
+    <div className={styles.headerRight}><span className={styles.availability}><img src="/figma/project-corvo/header/header-indicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ProjectAction variant="accent" className={styles.headerContact} iconRight="corvo-telegram" href="https://t.me/Coco_soul" external>Связаться</ProjectAction></div>
    </div>
   </header>
   <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><V2Button variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><V2Button variant="ghost" iconLeft="imgProjectCorvo" iconLeftMode="color" className={styles.crumbProject} aria-current="page">Corvo</V2Button></nav></div>
@@ -76,7 +78,7 @@ function ProjectIntro(){
    <div className={styles.tags}><span>B2B</span><i/><span>SAAS</span><i/><span>PARTNER PLATFORM</span><b/><span>2026</span></div>
    <div className={styles.projectHeading}>
     <div className={styles.projectIdentity}><div className={styles.projectName}><img src="/figma/imgProjectCorvo.svg" width="44" height="44" alt=""/><div className={styles.projectNameLabel}><h1>Corvo</h1><span>В процессе подготовки</span></div></div><p>Система для управления партнёрской программой</p></div>
-    <motion.div layout layoutDependency={copied} transition={layoutTransition} className={styles.projectActions}><CopyLinkAction copied={copied} onCopy={copyProjectLink} layoutTransition={layoutTransition}/><ProjectAction motionLayout="position" layoutTransition={layoutTransition} variant="neutral" iconRight="figma" href={corvoFigma} external>Figma</ProjectAction></motion.div>
+    <motion.div layout layoutDependency={copied} transition={layoutTransition} className={styles.projectActions}><CopyLinkAction copied={copied} onCopy={copyProjectLink} layoutTransition={layoutTransition}/><HoverMorphAction motionLayout="position" layoutTransition={layoutTransition} className={styles.action} variant="neutral" icon={figmaIcon} href={projectLinks.corvoFigma} external>Figma</HoverMorphAction></motion.div>
    </div>
   </div>
  </section>;
@@ -87,14 +89,14 @@ function Notice({children,icon}){
 }
 
 const metrics=[
- {label:'Адаптивные версии',value:'3',copy:<>Desktop, Tablet и Mobile.<br/>Они есть во всех пяти рабочих страницах макетов: авторизация, кампании, статистика, My space и контакты.</>,wide:true,action:'Figma'},
- {label:'Групп компонентов',value:'26',copy:'10 групп в BASE и 16 в SYSTEM: кнопки, поля ввода, переключатели, таблицы, фильтры, модальные окна и другие',action:'Библиотека',icon:'component'},
- {label:'Токенов',value:'1 056',copy:'151 переменная в Base, 315 в Global и 590 в Component. Это количество переменных, а не факт их использований в макетах.',action:'Variable',icon:'stack'},
- {label:'Уникальных иконок / всех иконок',value:<><strong>129</strong><em>/ 262</em></>,copy:'Множество различных иконок для навигации, статусов, пользователей, данных и других сценариев',action:'Иконки',icon:'icon'},
+ {label:'Адаптивные версии',value:'3',copy:<>Desktop, Tablet и Mobile.<br/>Они есть во всех пяти рабочих страницах макетов: авторизация, кампании, статистика, My space и контакты.</>,wide:true,action:'Figma',href:projectLinks.corvoFigma,icon:figmaIcon},
+ {label:'Групп компонентов',value:'26',copy:'10 групп в BASE и 16 в SYSTEM: кнопки, поля ввода, переключатели, таблицы, фильтры, модальные окна и другие',action:'Библиотека',href:projectLinks.corvoComponents,icon:componentIcon},
+ {label:'Токенов',value:'1 056',copy:'151 переменная в Base, 315 в Global и 590 в Component. Это количество переменных, а не факт их использования.',action:'Variable',href:projectLinks.corvoVariables,icon:stackIcon},
+ {label:'Уникальных иконок / всех иконок',value:<><strong>129</strong><em>/ 262</em></>,copy:'Множество различных иконок для навигации, статусов, пользователей, данных и других сценариев',action:'Иконки',href:projectLinks.corvoIcons,icon:metricIcon},
 ];
 
 function Metrics(){
- return <section className={styles.metrics} aria-labelledby="metrics-title"><div className={styles.metricsHeading}><h2 id="metrics-title">В цифрах</h2><p>Общие данные по структуре проекта</p></div><div className={styles.metricsContent}><article className={`${styles.metric} ${styles.metricWide}`}><div className={styles.metricWideMain}><div className={styles.metricHeading}><p>{metrics[0].label}</p><h3>{metrics[0].value}</h3></div><p>{metrics[0].copy}</p></div><aside className={styles.metricWideAside}><p>Макеты собраны в одном файле: основные сценарии, состояния и их адаптация под три размера экрана</p><ProjectAction variant="neutral" iconRight="figma">{metrics[0].action}</ProjectAction></aside></article><div className={styles.metricRow}>{metrics.slice(1).map(metric=><article className={styles.metric} key={metric.label}><div className={styles.metricHeading}><p>{metric.label}</p><h3 className={styles.metricValue}>{metric.value}</h3></div><p>{metric.copy}</p><ProjectAction iconLeft={metric.icon} iconRight="arrow">{metric.action}</ProjectAction></article>)}</div></div></section>;
+ return <section className={styles.metrics} aria-labelledby="metrics-title"><div className={styles.metricsHeading}><h2 id="metrics-title">В цифрах</h2><p>Общие данные по структуре проекта</p></div><div className={styles.metricsContent}><article className={`${styles.metric} ${styles.metricWide}`}><div className={styles.metricWideMain}><div className={styles.metricHeading}><p>{metrics[0].label}</p><h3>{metrics[0].value}</h3></div><p>{metrics[0].copy}</p></div><aside className={styles.metricWideAside}><p>Макеты собраны в одном файле: основные сценарии, состояния и их адаптация под три размера экрана</p><HoverMorphAction className={styles.action} variant="light" icon={metrics[0].icon} href={metrics[0].href} external>{metrics[0].action}</HoverMorphAction></aside></article><div className={styles.metricRow}>{metrics.slice(1).map(metric=><article className={styles.metric} key={metric.label}><div className={styles.metricHeading}><p>{metric.label}</p><h3 className={styles.metricValue}>{metric.value}</h3></div><p>{metric.copy}</p><HoverMorphAction className={styles.action} variant="light" icon={metric.icon} href={metric.href} external>{metric.action}</HoverMorphAction></article>)}</div></div></section>;
 }
 
 function Section({title,children,className=''}){return <section className={`${styles.contentSection} ${className}`}><div className={styles.copyColumn}><h2>{title}</h2>{children}</div></section>;}
@@ -122,10 +124,11 @@ function Content(){
   <div className={styles.designWrap}>
    <Section title="Дизайн-система" className={styles.designSection}><p>Параллельно с интерфейсами я выстраивал дизайн-систему: определял структуру компонентов, состояния и семантику токенов.</p><h3>Требования</h3><p>Система должна была стать не отдельной библиотекой, а рабочей основой продукта: новые разделы должны проектироваться по единым правилам и не расходиться с уже принятыми решениями. При этом библиотека должна была оставаться достаточно гибкой, чтобы в дальнейшем её можно было развивать в самостоятельный B2B-продукт.</p><h3>Процесс работы</h3><p>Я задавал структуру системы и проводил ревью компонентов, которые собирал младший дизайнер. Позже он подключался к макетам: сначала к отдельным частям разделов, затем — к самостоятельной работе с моим ревью.</p><p>Отдельно согласовывали дизайн-систему с разработкой. Для адаптивного поведения уже готовых компонентов мы совместно нашли локальное решение: добавили дополнительный слой Behavior поверх существующей библиотеки. Он позволил разработке сохранить единую механику компонентов в коде, а дизайну — не пересобирать всю систему с нуля. Это не универсальный паттерн, а решение, принятое для конкретной архитектуры проекта.</p><Notice icon="/figma/project-corvo/notice-design.svg"><p>Продемонстрирована частично</p><small>Детальная документация по дизайн-системе и правилам использования готовится к публикации. В публичном кейсе будут показаны её применение в продукте и ключевые принципы.</small></Notice></Section>
   </div>
-  <div className={styles.resultWrap}><Section title="Результат работы" className={styles.result}><p>В рамках проекта спроектированы интерфейсы основных процессов партнёрской программы:</p><ul className={styles.checkList}><li>подключение и ведение аффилиатов;</li><li>управление кампаниями и условиями;</li><li>создание рекламных материалов;</li><li>работа со статистикой.</li></ul><p>При этом работа не ограничилась отдельными экранами. Параллельно была собрана дизайн-система, зафиксированы общие правила для компонентов и состояний и выстроен процесс взаимодействия дизайна с разработкой.</p><p>В результате получился не просто набор макетов, а единая интерфейсная база: с общей логикой, компонентами и правилами, на которую команда могла опираться при дальнейшем развитии продукта.</p></Section></div>
+  <div className={styles.caseHatch} aria-hidden="true"/>
+  <div className={styles.resultWrap}><Section title="Результат работы" className={styles.result}><p>В рамках проекта спроектированы интерфейсы основных процессов партнёрской программы:</p><ul className={styles.checkList}><li><Icon name="hero-check" className={styles.checkIcon}/>подключение и ведение аффилиатов;</li><li><Icon name="hero-check" className={styles.checkIcon}/>управление кампаниями и условиями;</li><li><Icon name="hero-check" className={styles.checkIcon}/>создание рекламных материалов;</li><li><Icon name="hero-check" className={styles.checkIcon}/>работа со статистикой.</li></ul><p>При этом работа не ограничилась отдельными экранами. Параллельно была собрана дизайн-система, зафиксированы общие правила для компонентов и состояний и выстроен процесс взаимодействия дизайна с разработкой.</p><p>В результате получился не просто набор макетов, а единая интерфейсная база: с общей логикой, компонентами и правилами, на которую команда могла опираться при дальнейшем развитии продукта.</p></Section></div>
  </main>;
 }
 
-function Footer(){return <footer className={styles.footer}><div className={styles.footerText}><span className={styles.footerMain}><span className={styles.footerIcon} aria-hidden="true"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer>;}
+function Footer(){return <footer className={styles.footer}><div className={styles.footerText}><span className={styles.footerMain}><Icon name="corvo-footer" className={styles.footerIcon}/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer>;}
 
 export function CorvoProjectPage(){return <div className={styles.page}><SiteHeader/><ProjectIntro/><div className={styles.hero} data-first-view><ProjectResponsiveHero definition={corvoResponsiveHero}/></div><Content/><Footer/></div>;}

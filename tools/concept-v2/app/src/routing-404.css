@@ -38,7 +38,7 @@
 .routing404-header p {
   margin:8px 0 40px;
   color:var(--cv2-text-neutral-muted);
-  font:350 20px/28px Onest,sans-serif;
+  font:350 16px/24px Onest,sans-serif;
 }
 .routing404-stage.is-launched .routing404-header h1,
 .routing404-stage.is-launched .routing404-header p {animation:routing404-copy-enter 450ms cubic-bezier(.22,.61,.36,1) both}

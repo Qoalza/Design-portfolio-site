@@ -61,7 +61,7 @@ test('project cards map the current Figma configurations and states',async()=>{
   assert.match(css,/\.project-back,\.project-front,\.project p\{transition:none\}/);
 });
 
-test('Projects render distinct Corvo and Sarafan.Radio Figma content without invented links',async()=>{
+test('Projects render distinct Corvo and Sarafan.Radio Figma content with their published routes',async()=>{
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
  assert.match(app,/id:'corvo'/);
@@ -69,11 +69,13 @@ test('Projects render distinct Corvo and Sarafan.Radio Figma content without inv
  assert.match(app,/title:'Сараффан\.Радио'/);
  assert.match(app,/categories:\['B2B2С','EVENT'\]/);
  assert.match(app,/Тестовое задание/);
- assert.match(app,/project-actions-static/);
- assert.equal((app.match(/aria-disabled="true" data-cursor="hand"/g)||[]).length,2);
+ assert.match(app,/projects\/sarafan-radio/);
+ assert.match(app,/projectLinks\.sarafanFigma/);
+ assert.match(app,/<HoverMorphAction variant="ghost" href=\{project\.actions\.figma\.href\}/);
+ assert.doesNotMatch(app,/aria-disabled="true" data-cursor="hand"/);
  assert.doesNotMatch(app,/href="https:\/\/art-des\.ru\/projects\/sarafan/);
  assert.match(app,/radio-logo-vector-\$\{layer\}\.svg/);
- assert.match(css,/\.project-actions-static \.control\{cursor:pointer\}/);
+ assert.match(css,/\.project-actions\{[^}]*display:flex/);
 });
 
 test('Projects publication note follows the user-approved homepage copy',async()=>{

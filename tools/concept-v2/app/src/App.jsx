@@ -11,15 +11,17 @@ import {createFrameTask} from './runtime/frame-task.mjs';
 import {ResponsivePicture} from './media/ResponsivePicture';
 import {projectBackImage,projectFrontImage,sarafanBackImage,sarafanFrontImage} from './media/image-sources.mjs';
 import {createImagePreparer} from './media/image-preparation.mjs';
+import {projectLinks} from './project-links.mjs';
+import {HoverMorphAction} from './morph-icon/HoverMorphAction';
+import {figmaIcon} from './morph-icon/icons.mjs';
 
-const corvoFigma='https://www.figma.com/design/5vYeOVxLE28VNXEMOnopno/Corvo---Readme?node-id=0-1';
-const cv='https://disk.yandex.ru/i/iZ1UWgbO1LAOPw';
-const corvoDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику';
+const cv=projectLinks.cv;
+const corvoDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
 const sarafanDescription='Сарафан.Радио — B2B2C-платформа для организации мероприятий. Она соединяет пользователей, которые готовят событие, со специалистами и поставщиками товаров и услуг.';
 const radioLogoLayers=['a','b','c','d'];
 const projectCards=[
- {id:'corvo',title:'Corvo',categories:['B2B','SAAS','PARTNER PLATFORM'],description:corvoDescription,logo:'corvo',preview:{back:projectBackImage,front:projectFrontImage,ariaLabel:'Интерфейс Corvo',frontAlt:'Corvo — управление партнёрской программой, таблица компаний'},actions:{details:{href:`${import.meta.env.BASE_URL}projects/corvo`},figma:{href:corvoFigma}}},
- {id:'sarafan-radio',title:'Сараффан.Радио',categories:['B2B2С','EVENT'],description:sarafanDescription,logo:'radio',tag:'Тестовое задание',preview:{back:sarafanBackImage,front:sarafanFrontImage,ariaLabel:'Интерфейс Сараффан.Радио',frontAlt:'Сараффан.Радио — оформление заказа для мероприятия'},actions:null}
+ {id:'corvo',title:'Corvo',categories:['B2B','SAAS','PARTNER PLATFORM'],description:corvoDescription,logo:'corvo',preview:{back:projectBackImage,front:projectFrontImage,ariaLabel:'Интерфейс Corvo',frontAlt:'Corvo — управление партнёрской программой, таблица компаний'},actions:{details:{href:`${import.meta.env.BASE_URL}projects/corvo`},figma:{href:projectLinks.corvoFigma}}},
+ {id:'sarafan-radio',title:'Сараффан.Радио',categories:['B2B2С','EVENT'],description:sarafanDescription,logo:'radio',tag:'Тестовое задание',preview:{back:sarafanBackImage,front:sarafanFrontImage,ariaLabel:'Интерфейс Сараффан.Радио',frontAlt:'Сараффан.Радио — оформление заказа для мероприятия'},actions:{details:{href:`${import.meta.env.BASE_URL}projects/sarafan-radio`},figma:{href:projectLinks.sarafanFigma}}}
 ];
 const steps=[
  {title:'Погружаюсь в данные',description:'Разбираюсь в контексте, пользователях и бизнес-целях. Формулирую проблему/цель и нахожу главное.',image:'imgFrame26086399',dots:'imgFrame26086412',width:5},
@@ -148,8 +150,7 @@ function RadioSymbol(){
  return <span className="radio-symbol" aria-hidden="true">{radioLogoLayers.map(layer=><span key={layer} className={`radio-logo-${layer}`}><img src={`/figma/radio-logo-vector-${layer}.svg`} alt=""/>{layer!=='d'&&<img src={`/figma/radio-logo-mask-${layer}.svg`} alt=""/>}</span>)}</span>;
 }
 function ProjectActions({project}){
- if(project.actions)return <div className="project-actions"><ControlButton href={project.actions.details.href}>Подробнее</ControlButton><ControlButton variant="ghost" href={project.actions.figma.href} external iconRight="imgColor7">Figma</ControlButton></div>;
- return <div className="project-actions project-actions-static" aria-label="Материалы проекта пока недоступны"><span className="control neutral" aria-disabled="true" data-cursor="hand"><span className="control-label">Подробнее</span></span><span className="control ghost" aria-disabled="true" data-cursor="hand"><span className="control-label">Figma</span><span className="project-static-figma-icon" aria-hidden="true"/></span></div>;
+ return <div className="project-actions"><ControlButton href={project.actions.details.href}>Подробнее</ControlButton><HoverMorphAction variant="ghost" href={project.actions.figma.href} external icon={figmaIcon}>Figma</HoverMorphAction></div>;
 }
 function ProjectCard({project,imageRef,onImageLoad}){
  return <article className={`project project-${project.id}`}>
