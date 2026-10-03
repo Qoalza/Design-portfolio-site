@@ -99,6 +99,34 @@
   background: linear-gradient(270deg, transparent 32px, #141617 224px);
 }
 
+/* In 5+, the same visible gradient segment is fitted to each exposed card. */
+.carouselFive .carouselShadeLeft {
+  left: 60px;
+  width: 110px;
+  background: linear-gradient(90deg, transparent -28px, #141617 164px);
+}
+
+.carouselFive .carouselShadeRight {
+  right: 60px;
+  width: 110px;
+  background: linear-gradient(270deg, transparent -28px, #141617 164px);
+}
+
+.carouselShadeFarLeft,
+.carouselShadeFarRight {
+  width: 60px;
+}
+
+.carouselShadeFarLeft {
+  left: 0;
+  background: linear-gradient(90deg, transparent -15px, #141617 89px);
+}
+
+.carouselShadeFarRight {
+  right: 0;
+  background: linear-gradient(270deg, transparent -15px, #141617 89px);
+}
+
 .controls {
   position: absolute;
   z-index: 5;

@@ -99,7 +99,7 @@ export function ProjectRasterHero({definition}) {
         </div>
 
         <div
-          className={styles.carousel}
+          className={`${styles.carousel} ${showFive ? styles.carouselFive : ''}`}
           aria-label="Экраны проекта"
           onPointerDown={event => {if (event.button === 0) swipeStart.current = {pointerId: event.pointerId, x: event.clientX};}}
           onPointerUp={finishSwipe}
@@ -110,6 +110,10 @@ export function ProjectRasterHero({definition}) {
           </AnimatePresence>
           <span className={`${styles.carouselShade} ${styles.carouselShadeLeft}`} aria-hidden="true" />
           <span className={`${styles.carouselShade} ${styles.carouselShadeRight}`} aria-hidden="true" />
+          {showFive ? <>
+            <span className={`${styles.carouselShade} ${styles.carouselShadeFarLeft}`} aria-hidden="true" />
+            <span className={`${styles.carouselShade} ${styles.carouselShadeFarRight}`} aria-hidden="true" />
+          </> : null}
         </div>
 
         {slides.length > 1 ? <div className={styles.controls} aria-label="Переключить экран">
