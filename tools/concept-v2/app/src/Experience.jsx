@@ -154,10 +154,19 @@ export function Experience({cv}){
     function paint(){
       let currentScrollY=window.scrollY;
       if(!desktop){resetStatic();return;}
+      const enteredFromAbove=previousScrollY<sectionTop&&currentScrollY>=sectionTop;
+      const captureEntry=enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth';
+      if(captureEntry){
+        entryGate.capture();
+        lenis.scrollTo(sectionTop,{immediate:true,force:true});
+        lenis.stop();
+        currentScrollY=sectionTop;
+      }
+      const reenteringFromAbove=completed&&captureEntry;
       const rearmPending=completed&&currentScrollY+window.innerHeight<sectionTop;
       if(rearmPending)allowRearm=!wheelActive&&!scrollActive;
       else if(allowRearm)clearRearm();
-      const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,allowRearm,verticalTravel:VERTICAL_TRAVEL});
+      const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,allowRearm,reenteringFromAbove,verticalTravel:VERTICAL_TRAVEL});
       if(transition.completed!==completed){
         completed=transition.completed;
         clearRearm();
@@ -179,13 +188,6 @@ export function Experience({cv}){
         previousTime=performance.now();
         previousScrollY=currentScrollY;
         return;
-      }
-      const enteredFromAbove=previousScrollY<sectionTop&&currentScrollY>=sectionTop;
-      if(enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth'){
-        entryGate.capture();
-        lenis.scrollTo(sectionTop,{immediate:true,force:true});
-        lenis.stop();
-        currentScrollY=sectionTop;
       }
       progress=completed?1:scrollProgress({scrollY:currentScrollY,sectionTop,verticalTravel:VERTICAL_TRAVEL});
       const x=progress*HORIZONTAL_TRAVEL;

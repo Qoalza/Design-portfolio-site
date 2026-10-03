@@ -151,6 +151,7 @@ test('a completed Experience keeps its final scene on reverse scroll and rearms 
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2100}),{completed:true});
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099,allowRearm:false}),{completed:true});
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099,allowRearm:true}),{completed:false});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:3000,reenteringFromAbove:true}),{completed:false});
 });
 
 test('Experience defers its offscreen re-expansion until the active wheel stream is idle',async()=>{
@@ -158,7 +159,8 @@ test('Experience defers its offscreen re-expansion until the active wheel stream
  assert.match(source,/subscribeWheelActivity/);
  assert.match(source,/subscribeScrollActivity/);
  assert.match(source,/allowRearm=!wheelActive&&!scrollActive/);
- assert.match(source,/allowRearm,verticalTravel:VERTICAL_TRAVEL/);
+ assert.match(source,/const reenteringFromAbove=completed&&captureEntry/);
+ assert.match(source,/allowRearm,reenteringFromAbove,verticalTravel:VERTICAL_TRAVEL/);
  assert.match(source,/unsubscribeWheelActivity\(\)/);
  assert.match(source,/unsubscribeScrollActivity\(\)/);
 });
