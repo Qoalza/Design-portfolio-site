@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {carouselCards, carouselDotItems, carouselSlotVisual, nearestCarouselStep, visibleDotIndexes, wrapSlideIndex} from '../src/project-hero/raster-carousel.mjs';
+import {carouselCardLayer, carouselCards, carouselClipPath, carouselDotItems, carouselIncomingClip, carouselOutgoingClip, carouselShadeStops, carouselSlotVisual, nearestCarouselStep, nextCarouselStep, visibleDotIndexes, wrapSlideIndex} from '../src/project-hero/raster-carousel.mjs';
 
 test('two images trade center and side without rendering a duplicate', () => {
   const slides = [{id: 'delivery'}, {id: 'home'}];
@@ -48,6 +48,62 @@ test('five-plus outer card moves into a hidden buffer before it is removed', () 
   assert.equal(after.find(card => card.slot === 3)?.slide.id, slides[4].id);
   const jump = carouselCards(slides, 2);
   assert.deepEqual(before.filter(card => Math.abs(card.slot) <= 2 && !jump.some(next => next.key === card.key)).map(card => card.slot), [-2]);
+});
+
+test('five-plus outer shade matches the nearest shade across its exposed width', () => {
+  const near = carouselShadeStops(260);
+  const far = carouselShadeStops(382);
+  const nearScale = 640 / 940;
+  const farScale = .55;
+  const darkness = (position, stops, scale) => (position / scale - stops.start) / (stops.end - stops.start);
+  for (const fraction of [0, .5, 1]) {
+    const nearDarkness = darkness(110 * fraction, near, nearScale);
+    const farDarkness = darkness(60 * fraction, far, farScale);
+    assert.ok(Math.abs(nearDarkness - farDarkness) < .001);
+  }
+  const middle = carouselShadeStops(321);
+  assert.ok(middle.start > near.start && middle.start < far.start);
+  assert.ok(middle.end < near.end && middle.end > far.end);
+});
+
+test('outgoing center reveals the incoming card continuously while moving aside', () => {
+  for (const [showFive, distance, exposed] of [[false, 320, 170], [true, 260, 110]]) {
+    const inset = 100 * (1 - exposed / 640);
+    assert.deepEqual(carouselOutgoingClip(-distance, showFive), {left: 0, right: inset});
+    assert.deepEqual(carouselOutgoingClip(distance, showFive), {left: inset, right: 0});
+    assert.equal(carouselClipPath({left: 0, right: inset}), `inset(0 ${inset}% 0 0% round 16px)`);
+    assert.equal(carouselClipPath({left: inset, right: 0}), `inset(0 0% 0 ${inset}% round 16px)`);
+    const halfInset = 100 * (1 - ((940 + exposed) / 2) / 790);
+    assert.deepEqual(carouselOutgoingClip(-distance / 2, showFive), {left: 0, right: halfInset});
+    assert.deepEqual(carouselOutgoingClip(0, showFive), {left: 0, right: 0});
+    for (const progress of [0, .25, .5, .75, 1]) {
+      const outgoingWidth = 940 - 300 * progress;
+      const incomingWidth = 640 + 300 * progress;
+      const outgoingX = -distance * progress;
+      const incomingX = distance * (1 - progress);
+      const outgoing = carouselOutgoingClip(outgoingX, showFive);
+      const incoming = carouselIncomingClip(incomingX, showFive);
+      const outgoingEdge = outgoingX - outgoingWidth / 2 + outgoingWidth * (1 - outgoing.right / 100);
+      const incomingEdge = incomingX - incomingWidth / 2 + incomingWidth * incoming.left / 100;
+      assert.ok(Math.abs(outgoingEdge - incomingEdge) < .001);
+    }
+    assert.equal(carouselCardLayer(-1, showFive, true), 4);
+    assert.equal(carouselCardLayer(0, showFive), 3);
+    assert.equal(carouselCardLayer(1, showFive), 2);
+    assert.equal(carouselCardLayer(2, showFive), showFive ? 1 : 0);
+  }
+});
+
+test('distant dot targets advance through visible adjacent cards', () => {
+  assert.equal(nextCarouselStep(0, 2), 1);
+  assert.equal(nextCarouselStep(1, 2), 2);
+  assert.equal(nextCarouselStep(2, -1), 1);
+  for (const count of [2, 3, 4, 8]) {
+    const slides = Array.from({length: count}, (_, index) => ({id: String(index)}));
+    const before = carouselCards(slides, 0);
+    const incoming = carouselCards(slides, 1).find(card => card.slot === 0);
+    assert.equal(before.find(card => card.key === incoming.key)?.slot, 1);
+  }
 });
 
 test('dot window shows every image up to five and stays capped beyond five', () => {
