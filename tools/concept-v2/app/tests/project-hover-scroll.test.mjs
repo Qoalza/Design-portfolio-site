@@ -28,6 +28,7 @@ test('the sole Lenis owner publishes immediate input activity and settled scroll
   const source=await readFile(path.resolve(import.meta.dirname,'../src/SmoothScroll.jsx'),'utf8');
   assert.match(source,/lenis\.on\('virtual-scroll',\(\)=>publishScrollActivity\(true\)\)/);
   assert.match(source,/lenis\.on\('scroll',instance=>publishScrollActivity\(instance\.isScrolling\)\)/);
+  assert.match(source,/if\(wheelHandling==='native'\)publishScrollActivity\(false\)/);
   assert.match(source,/publishScrollActivity\(false\)/);
 });
 

@@ -53,7 +53,10 @@ export function SmoothScroll(){
           if(!event.type.includes('wheel'))return;
           publishWheelActivity(true);
           clearTimeout(wheelIdleTimer);
-          wheelIdleTimer=setTimeout(()=>publishWheelActivity(false),WHEEL_GESTURE_IDLE_MS);
+          wheelIdleTimer=setTimeout(()=>{
+            publishWheelActivity(false);
+            if(wheelHandling==='native')publishScrollActivity(false);
+          },WHEEL_GESTURE_IDLE_MS);
           const input=wheelInput.observe(event);
           document.documentElement.dataset.scrollInput=input;
           const protectedRegionVisible=isProtectedWheelRegion({scrollY:window.scrollY,deltaY:event.deltaY,...experienceBounds,viewportHeight:window.innerHeight});
