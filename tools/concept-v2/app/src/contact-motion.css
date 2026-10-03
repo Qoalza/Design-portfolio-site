@@ -11,7 +11,7 @@
 }
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
   .contact-motion:hover .contact-orbit{opacity:1}
-  .contact-motion:hover .contact-orbit rect{animation:contact-border-orbit 2800ms linear infinite}
+  .contact-motion:hover .contact-orbit rect{animation:contact-border-orbit 2200ms linear infinite}
   .contact-motion:hover .contact-plane>svg{animation:contact-plane-flight 760ms cubic-bezier(.22,.61,.36,1) both}
 }
 @media(prefers-reduced-motion:reduce){
