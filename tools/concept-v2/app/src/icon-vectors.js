@@ -24,6 +24,7 @@ import corvoHome from '../public/figma/project-corvo/header/header-home.svg?raw'
 import corvoLock from '../public/figma/project-corvo/header/header-lock.svg?raw';
 import corvoTelegram from '../public/figma/project-corvo/header/header-telegram.svg?raw';
 import corvoFooter from '../public/figma/project-corvo/footer-corrupted.svg?raw';
+import sarafanInfo from '../public/figma/project-sarafan-info.svg?raw';
 import sarafanFlag from '../public/figma/sarafan-tag-flag.svg?raw';
 
 function asControlColor(svg){
@@ -59,6 +60,7 @@ const icons={
  'corvo-telegram':corvoTelegram,
  'corvo-footer':corvoFooter,
  'sarafan-flag':sarafanFlag,
+ 'sarafan-info':sarafanInfo,
 };
 
 export function inlineIconSvg(name){

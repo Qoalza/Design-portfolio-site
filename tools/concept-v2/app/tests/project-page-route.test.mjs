@@ -234,3 +234,21 @@ test("Corvo metrics use filled neutral Figma and one Thin boundary after hatch",
  assert.match(hatch,/border-top: 1px solid var\(--cv2-border-neutral-thin\)/);
  assert.doesNotMatch(hatch,/border-block|border-bottom/);
 });
+
+test('both project pages keep header and breadcrumbs in the same measured floating shell',async()=>{
+ const [corvo,sarafan,shell]=await Promise.all(['CorvoProjectPage.jsx','SarafanProjectPage.jsx','ProjectHeaderShell.jsx'].map(name=>readFile(path.join(root,'src/project-page',name),'utf8')));
+ for(const page of [corvo,sarafan])assert.match(page,/<ProjectHeaderShell>/);
+ assert.match(shell,/shell\.current\?\.offsetHeight/);
+ assert.match(shell,/paintTask\.dispose\(\);thresholdTask\.dispose\(\);observer\.disconnect\(\)/);
+ assert.match(shell,/\{children\}<\/div><\/div>/);
+});
+
+test('Sarafan preserves the approved raster Hero while restoring its colored project identity',async()=>{
+ const page=await readFile(path.join(root,'src/project-page/SarafanProjectPage.jsx'),'utf8');
+ const css=await readFile(path.join(root,'src/project-page/SarafanProjectPage.module.css'),'utf8');
+ assert.match(page,/<RadioSymbol size=\{16\}\/>/);
+ assert.match(page,/name="sarafan-flag"/);
+ assert.match(page,/name="sarafan-info" size=\{20\}/);
+ assert.match(page,/<ProjectRasterHero definition=\{sarafanRasterHero\}\/>/);
+ assert.doesNotMatch(css,/#14181b/);
+});

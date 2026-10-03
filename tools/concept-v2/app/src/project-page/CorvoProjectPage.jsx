@@ -10,6 +10,7 @@ import {restartFeedbackTimer} from '../morph-icon/copy-feedback.mjs';
 import {HoverMorphAction} from '../morph-icon/HoverMorphAction';
 import {componentIcon,figmaIcon,metricIcon,stackIcon} from '../morph-icon/icons.mjs';
 import {projectLinks} from '../project-links.mjs';
+import {ProjectHeaderShell} from './ProjectHeaderShell';
 import styles from './CorvoProjectPage.module.css';
 
 const projectDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
@@ -55,7 +56,7 @@ function CopyLinkAction({copied,onCopy,layoutTransition}){
 }
 
 function SiteHeader(){
- return <>
+ return <ProjectHeaderShell>
   <header className={styles.header} data-first-view>
    <div className={styles.headerInner}>
     <div className={styles.brand}><img src="/figma/project-corvo/header/header-symbol.svg" width="44" height="44" alt=""/><span><b>ARTUR</b><small>Product Designer</small></span></div>
@@ -64,7 +65,7 @@ function SiteHeader(){
    </div>
   </header>
   <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={<img src="/figma/imgProjectCorvo.svg" width="16" height="16" alt="" aria-hidden="true"/>} className={styles.crumbProject} aria-current="page">Corvo</ControlButton></nav></div>
- </>;
+ </ProjectHeaderShell>;
 }
 
 function ProjectIntro(){
