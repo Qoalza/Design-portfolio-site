@@ -178,7 +178,10 @@ export function Experience({cv}){
       }
       const reenteringFromAbove=completed&&(captureEntry||boundaryCapture);
       const rearmPending=completed&&currentScrollY+window.innerHeight<sectionTop;
-      if(rearmPending)allowRearm=!wheelActive&&!scrollActive;
+      if(rearmPending){
+        resetVisualProgress();
+        allowRearm=!wheelActive&&!scrollActive;
+      }
       else if(allowRearm)clearRearm();
       const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,allowRearm,reenteringFromAbove,verticalTravel:VERTICAL_TRAVEL});
       if(transition.completed!==completed){

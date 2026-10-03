@@ -159,6 +159,7 @@ test('Experience defers its offscreen re-expansion until the active wheel stream
  assert.match(source,/subscribeWheelActivity/);
  assert.match(source,/subscribeScrollActivity/);
  assert.match(source,/allowRearm=!wheelActive&&!scrollActive/);
+ assert.match(source,/if\(rearmPending\)\{\s*resetVisualProgress\(\);\s*allowRearm=!wheelActive&&!scrollActive;/);
  assert.match(source,/const reenteringFromAbove=completed&&\(captureEntry\|\|boundaryCapture\)/);
  assert.match(source,/shouldCaptureExperienceEntry\(\{state:entryGate\.state,scrollY:window\.scrollY,deltaY:event\.deltaY,sectionTop\}\)/);
  assert.match(source,/if\(completed\)resetVisualProgress\(\)/);
