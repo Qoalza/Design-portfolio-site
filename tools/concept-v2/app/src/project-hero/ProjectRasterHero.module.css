@@ -94,6 +94,14 @@
   background: linear-gradient(90deg, #141617 0% 65%, transparent 95%);
 }
 
+.cardFive .cardShadeLeft {
+  background: linear-gradient(90deg, #1416174d 0%, #141617 35% 100%);
+}
+
+.cardFive .cardShadeRight {
+  background: linear-gradient(90deg, #141617 0% 65%, #1416174d 100%);
+}
+
 .controls {
   position: absolute;
   z-index: 5;

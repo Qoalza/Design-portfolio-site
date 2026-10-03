@@ -30,7 +30,7 @@ function RasterCard({card, showFive, reduceMotion, onSelect}) {
   const rightShade = useTransform(x, value => Math.max(0, Math.min(1, value / shadeDistance)));
   return (
     <motion.div
-      className={styles.card}
+      className={`${styles.card} ${showFive ? styles.cardFive : ''}`}
       data-slot={slot}
       data-slide-id={slide.id}
       initial={{...slotVisual(slot, showFive), opacity: 0}}
