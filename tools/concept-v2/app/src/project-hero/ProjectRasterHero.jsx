@@ -1,5 +1,5 @@
 import {useRef, useState} from 'react';
-import {AnimatePresence, motion, useReducedMotion} from 'motion/react';
+import {AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform} from 'motion/react';
 import {ControlButton} from '../Controls.jsx';
 import {GridPattern} from '../GridPattern.jsx';
 import {ScenarioTab} from '../v2/HeroTabs.jsx';
@@ -22,6 +22,10 @@ function slotVisual(slot) {
 
 function RasterCard({card, reduceMotion, onSelect}) {
   const {slide, slot} = card;
+  const x = useMotionValue(slotVisual(slot).x);
+  const layer = useTransform(x, value => Math.abs(value) < 160 ? 3 : Math.abs(value) < 480 ? 1 : 0);
+  const leftShade = useTransform(x, value => Math.max(0, Math.min(1, -value / 320)));
+  const rightShade = useTransform(x, value => Math.max(0, Math.min(1, value / 320)));
   return (
     <motion.div
       className={styles.card}
@@ -31,23 +35,11 @@ function RasterCard({card, reduceMotion, onSelect}) {
       animate={slotVisual(slot)}
       exit={{opacity: 0}}
       transition={reduceMotion ? {duration: 0} : {...SPRING, opacity: {duration: .22}}}
-      style={{zIndex: slot === 0 ? 3 : Math.abs(slot) === 1 ? 1 : 0}}
+      style={{x, zIndex: layer}}
     >
       <img src={slide.src} width="1880" height="1358" alt={slot === 0 ? slide.title : ''} draggable={false} decoding="async" />
-      <motion.span
-        className={`${styles.cardShade} ${styles.cardShadeLeft}`}
-        aria-hidden="true"
-        initial={false}
-        animate={{opacity: slot < 0 ? 1 : 0}}
-        transition={reduceMotion ? {duration: 0} : {duration: .28, ease: [.22, 1, .36, 1]}}
-      />
-      <motion.span
-        className={`${styles.cardShade} ${styles.cardShadeRight}`}
-        aria-hidden="true"
-        initial={false}
-        animate={{opacity: slot > 0 ? 1 : 0}}
-        transition={reduceMotion ? {duration: 0} : {duration: .28, ease: [.22, 1, .36, 1]}}
-      />
+      <motion.span className={`${styles.cardShade} ${styles.cardShadeLeft}`} aria-hidden="true" style={{opacity: leftShade}} />
+      <motion.span className={`${styles.cardShade} ${styles.cardShadeRight}`} aria-hidden="true" style={{opacity: rightShade}} />
       {Math.abs(slot) === 1 ? <button type="button" className={styles.sideHitArea} onClick={() => onSelect(slot)} aria-label={`Показать: ${slide.title}`} /> : null}
     </motion.div>
   );

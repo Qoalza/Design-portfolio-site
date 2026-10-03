@@ -88,11 +88,11 @@
 }
 
 .cardShadeLeft {
-  background: linear-gradient(90deg, transparent 34.6875%, #141617 69.375% 100%);
+  background: linear-gradient(90deg, transparent 5%, #141617 35% 100%);
 }
 
 .cardShadeRight {
-  background: linear-gradient(90deg, #141617 0% 65.3125%, transparent 100%);
+  background: linear-gradient(90deg, #141617 0% 65%, transparent 95%);
 }
 
 .controls {
