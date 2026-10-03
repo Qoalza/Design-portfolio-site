@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
-import {publishScrollActivity,publishSmoothScroll} from './smooth-scroll-runtime.mjs';
-import {createWheelHandlingProfile,createWheelInputProfile,isProtectedWheelRegion,shouldResetSmoothScroll} from './wheel-input-profile.mjs';
+import {publishScrollActivity,publishSmoothScroll,publishWheelActivity} from './smooth-scroll-runtime.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile,isProtectedWheelRegion,shouldResetSmoothScroll,WHEEL_GESTURE_IDLE_MS} from './wheel-input-profile.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -13,6 +13,7 @@ export function SmoothScroll(){
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let lenis;
     let frame;
+    let wheelIdleTimer;
     let wheelHandling='smooth';
     let experience;
     let experienceBounds={sectionTop:Infinity,sectionHeight:0};
@@ -22,6 +23,8 @@ export function SmoothScroll(){
     let removeScrollActivity=()=>{};
     function destroy(){
       cancelAnimationFrame(frame);
+      clearTimeout(wheelIdleTimer);
+      wheelIdleTimer=undefined;
       removeScrollActivity();
       removeScrollActivity=()=>{};
       experienceObserver?.disconnect();
@@ -29,6 +32,7 @@ export function SmoothScroll(){
       experience=undefined;
       experienceBounds={sectionTop:Infinity,sectionHeight:0};
       publishScrollActivity(false);
+      publishWheelActivity(false);
       publishSmoothScroll(undefined);
       lenis?.destroy();
       lenis=undefined;
@@ -47,6 +51,9 @@ export function SmoothScroll(){
         lerp:.1,wheelMultiplier:1,stopInertiaOnNavigate:true,
         virtualScroll:({event})=>{
           if(!event.type.includes('wheel'))return;
+          publishWheelActivity(true);
+          clearTimeout(wheelIdleTimer);
+          wheelIdleTimer=setTimeout(()=>publishWheelActivity(false),WHEEL_GESTURE_IDLE_MS);
           const input=wheelInput.observe(event);
           document.documentElement.dataset.scrollInput=input;
           const protectedRegionVisible=isProtectedWheelRegion({scrollY:window.scrollY,deltaY:event.deltaY,...experienceBounds,viewportHeight:window.innerHeight});

@@ -2,6 +2,8 @@ let currentSmoothScroll;
 const subscribers=new Set();
 let scrollActive=false;
 const scrollActivitySubscribers=new Set();
+let wheelActive=false;
+const wheelActivitySubscribers=new Set();
 
 export function publishSmoothScroll(instance){
   currentSmoothScroll=instance;
@@ -27,4 +29,17 @@ export function subscribeScrollActivity(subscriber){
   scrollActivitySubscribers.add(subscriber);
   subscriber(scrollActive);
   return()=>scrollActivitySubscribers.delete(subscriber);
+}
+
+export function publishWheelActivity(next){
+  const active=Boolean(next);
+  if(wheelActive===active)return;
+  wheelActive=active;
+  wheelActivitySubscribers.forEach(subscriber=>subscriber(active));
+}
+
+export function subscribeWheelActivity(subscriber){
+  wheelActivitySubscribers.add(subscriber);
+  subscriber(wheelActive);
+  return()=>wheelActivitySubscribers.delete(subscriber);
 }

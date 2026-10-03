@@ -10,6 +10,8 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
   assert.match(source,/lerp:\.1,wheelMultiplier:1,stopInertiaOnNavigate:true/);
   assert.match(source,/createWheelInputProfile\(\)/);
   assert.match(source,/createWheelHandlingProfile\(\)/);
+  assert.match(source,/publishWheelActivity\(true\)/);
+  assert.match(source,/wheelIdleTimer=setTimeout\(\(\)=>publishWheelActivity\(false\),WHEEL_GESTURE_IDLE_MS\)/);
   assert.match(source,/virtualScroll:\(\{event\}\)=>/);
   assert.doesNotMatch(source,/lenis\.options\.smoothWheel=/);
   assert.match(source,/document\.querySelector\('\.experience'\)/);
@@ -27,6 +29,7 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
   assert.doesNotMatch(source,/addEventListener\(['"]wheel/);
   assert.match(source,/publishSmoothScroll\(lenis\)/);
   assert.match(source,/publishSmoothScroll\(undefined\)/);
+  assert.match(source,/publishWheelActivity\(false\)/);
   assert.match(source,/cancelAnimationFrame\(frame\)/);
   assert.match(source,/lenis\?\.destroy\(\)/);
 });

@@ -1,14 +1,13 @@
 import {useEffect,useRef} from 'react';
 import {activeExperienceIndex,experienceCompletionTransition,experienceLayout,experienceReachedIndexes,experienceSegmentProgress,experienceShouldPaint,experienceTravel,horizontalSpeedBlur,scrollProgress} from './experience-layout.mjs';
 import {createExperienceEntryGate} from './experience-entry-gate.mjs';
-import {subscribeSmoothScroll} from './smooth-scroll-runtime.mjs';
+import {subscribeScrollActivity,subscribeSmoothScroll,subscribeWheelActivity} from './smooth-scroll-runtime.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {subscribeLayoutInvalidation} from './runtime/layout-invalidation.mjs';
 import {ControlButton} from './Controls';
 import {GridPattern} from './GridPattern';
 
 const {horizontal:HORIZONTAL_TRAVEL,vertical:VERTICAL_TRAVEL}=experienceTravel();
-const EXPERIENCE_REARM_IDLE_MS=160;
 
 const jobs=[
   {className:'current',from:'Май 2026',to:'Настоящее время',role:'',company:'Открыт к предложениям',description:'Готов к новым задачам — как в рамках отдельных проектов, так и на полной занятости.'},
@@ -62,8 +61,9 @@ export function Experience({cv}){
     let previousTime=performance.now();
     let previousScrollY=window.scrollY;
     let blurTimer;
-    let rearmTimer;
     let allowRearm=false;
+    let scrollActive=false;
+    let wheelActive=false;
     let sectionTop=0;
     let sectionHeight=0;
     let layoutDirty=true;
@@ -123,15 +123,7 @@ export function Experience({cv}){
       blurTimer=undefined;
       setStyle('--experience-blur','0px');
     }
-    function clearRearm(){
-      clearTimeout(rearmTimer);
-      rearmTimer=undefined;
-      allowRearm=false;
-    }
-    function scheduleRearm(){
-      clearTimeout(rearmTimer);
-      rearmTimer=setTimeout(()=>{rearmTimer=undefined;allowRearm=true;schedulePaint({});},EXPERIENCE_REARM_IDLE_MS);
-    }
+    function clearRearm(){allowRearm=false;}
     function resetStatic(){
       if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
       entryGate.reset();
@@ -163,8 +155,8 @@ export function Experience({cv}){
       let currentScrollY=window.scrollY;
       if(!desktop){resetStatic();return;}
       const rearmPending=completed&&currentScrollY+window.innerHeight<sectionTop;
-      if(rearmPending){if(!allowRearm)scheduleRearm();}
-      else if(rearmTimer!==undefined||allowRearm)clearRearm();
+      if(rearmPending)allowRearm=!wheelActive&&!scrollActive;
+      else if(allowRearm)clearRearm();
       const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,allowRearm,verticalTravel:VERTICAL_TRAVEL});
       if(transition.completed!==completed){
         completed=transition.completed;
@@ -243,10 +235,7 @@ export function Experience({cv}){
       },
     });
     function schedulePaint(payload){paintTask.schedule(payload);}
-    function onScroll(){
-      if(rearmTimer!==undefined||allowRearm)clearRearm();
-      schedulePaint({});
-    }
+    function onScroll(){schedulePaint({});}
     function invalidatePosition(){positionDirty=true;schedulePaint({});}
     function onResize(){layoutDirty=true;positionDirty=true;schedulePaint({preserve:true});}
     function onVisibilityChange(){
@@ -262,13 +251,15 @@ export function Experience({cv}){
     document.fonts?.ready?.then(()=>{if(!fontsDisposed)invalidatePosition();});
     document.fonts?.addEventListener?.('loadingdone',onFonts);
     const unsubscribeLayoutInvalidation=subscribeLayoutInvalidation(invalidatePosition);
+    const unsubscribeScrollActivity=subscribeScrollActivity(active=>{scrollActive=active;if(active)clearRearm();schedulePaint({});});
+    const unsubscribeWheelActivity=subscribeWheelActivity(active=>{wheelActive=active;if(active)clearRearm();schedulePaint({});});
     const onMotionChange=()=>schedulePaint({});
     schedulePaint({});
     window.addEventListener('scroll',onScroll,{passive:true});
     window.addEventListener('resize',onResize);
     document.addEventListener('visibilitychange',onVisibilityChange);
     reduced.addEventListener('change',onMotionChange);
-    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();unsubscribeLayoutInvalidation();paintTask.dispose();clearRearm();clearBlur();resizeObserver.disconnect();fontsDisposed=true;document.fonts?.removeEventListener?.('loadingdone',onFonts);window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',onResize);document.removeEventListener('visibilitychange',onVisibilityChange);reduced.removeEventListener('change',onMotionChange);};
+    return()=>{if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();entryGate.dispose();removeVirtualScroll();unsubscribeSmoothScroll();unsubscribeLayoutInvalidation();unsubscribeScrollActivity();unsubscribeWheelActivity();paintTask.dispose();clearRearm();clearBlur();resizeObserver.disconnect();fontsDisposed=true;document.fonts?.removeEventListener?.('loadingdone',onFonts);window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',onResize);document.removeEventListener('visibilitychange',onVisibilityChange);reduced.removeEventListener('change',onMotionChange);};
   },[]);
 
   return <section ref={root} className="experience" aria-labelledby="experience-title">

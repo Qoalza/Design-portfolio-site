@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
-import {publishScrollActivity,subscribeScrollActivity} from '../src/smooth-scroll-runtime.mjs';
+import {publishScrollActivity,publishWheelActivity,subscribeScrollActivity,subscribeWheelActivity} from '../src/smooth-scroll-runtime.mjs';
 
 test('scroll activity synchronously exposes only state transitions and initializes late subscribers',()=>{
   const received=[];
@@ -10,6 +10,16 @@ test('scroll activity synchronously exposes only state transitions and initializ
   publishScrollActivity(true);
   publishScrollActivity(true);
   publishScrollActivity(false);
+  assert.deepEqual(received,[false,true,false]);
+  unsubscribe();
+});
+
+test('wheel activity exposes the actual input stream independently from document movement',()=>{
+  const received=[];
+  const unsubscribe=subscribeWheelActivity(active=>received.push(active));
+  publishWheelActivity(true);
+  publishWheelActivity(true);
+  publishWheelActivity(false);
   assert.deepEqual(received,[false,true,false]);
   unsubscribe();
 });
