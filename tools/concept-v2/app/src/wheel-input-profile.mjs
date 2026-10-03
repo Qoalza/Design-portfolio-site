@@ -15,9 +15,13 @@ export function createWheelHandlingProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}
       const inputTime=Number.isFinite(eventTime)?eventTime:performance.now();
       const gap=previousTime===undefined?Infinity:inputTime-previousTime;
       const newGesture=gap<0||gap>gestureIdleMs;
+      const deltaY=Number(event.deltaY) || 0;
       if(newGesture){
         protectedAtStart=protectedRegionVisible;
         handling=resolveWheelHandling({input,protectedRegionVisible});
+      }else if(handling==='native'&&protectedRegionVisible&&deltaY>0){
+        protectedAtStart=true;
+        handling='smooth';
       }else if(!protectedAtStart&&handling==='smooth'&&input==='trackpad'){
         handling='native';
       }

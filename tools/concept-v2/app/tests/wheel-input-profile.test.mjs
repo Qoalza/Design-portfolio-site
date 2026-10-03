@@ -45,9 +45,16 @@ test('trackpad bypasses Lenis only outside the visible Experience region',()=>{
 
 test('a rapid trackpad swipe keeps one handling mode while crossing Experience',()=>{
   const handling=createWheelHandlingProfile({gestureIdleMs:160});
-  assert.equal(handling.observe({event:{timeStamp:0},input:'trackpad',protectedRegionVisible:false}),'native');
-  assert.equal(handling.observe({event:{timeStamp:16},input:'trackpad',protectedRegionVisible:true}),'native');
-  assert.equal(handling.observe({event:{timeStamp:32},input:'trackpad',protectedRegionVisible:true}),'native');
-  assert.equal(handling.observe({event:{timeStamp:240},input:'trackpad',protectedRegionVisible:true}),'smooth');
-  assert.equal(handling.observe({event:{timeStamp:256},input:'trackpad',protectedRegionVisible:false}),'smooth');
+  assert.equal(handling.observe({event:{deltaY:-8,timeStamp:0},input:'trackpad',protectedRegionVisible:false}),'native');
+  assert.equal(handling.observe({event:{deltaY:-8,timeStamp:16},input:'trackpad',protectedRegionVisible:true}),'native');
+  assert.equal(handling.observe({event:{deltaY:-8,timeStamp:32},input:'trackpad',protectedRegionVisible:true}),'native');
+  assert.equal(handling.observe({event:{deltaY:-8,timeStamp:240},input:'trackpad',protectedRegionVisible:true}),'smooth');
+  assert.equal(handling.observe({event:{deltaY:-8,timeStamp:256},input:'trackpad',protectedRegionVisible:false}),'smooth');
+});
+
+test('a downward trackpad gesture hands back to Lenis when it reaches Experience',()=>{
+  const handling=createWheelHandlingProfile({gestureIdleMs:160});
+  assert.equal(handling.observe({event:{deltaY:8,timeStamp:0},input:'trackpad',protectedRegionVisible:false}),'native');
+  assert.equal(handling.observe({event:{deltaY:8,timeStamp:16},input:'trackpad',protectedRegionVisible:true}),'smooth');
+  assert.equal(handling.observe({event:{deltaY:8,timeStamp:32},input:'trackpad',protectedRegionVisible:true}),'smooth');
 });
