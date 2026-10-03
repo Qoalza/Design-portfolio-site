@@ -161,6 +161,8 @@ test('Experience defers its offscreen re-expansion until the active wheel stream
  assert.match(source,/allowRearm=!wheelActive&&!scrollActive/);
  assert.match(source,/const reenteringFromAbove=completed&&captureEntry/);
  assert.match(source,/allowRearm,reenteringFromAbove,verticalTravel:VERTICAL_TRAVEL/);
+ assert.match(source,/function resetVisualProgress\(\)/);
+ assert.match(source,/if\(!completed\)\{[^}]*resetVisualProgress\(\);\}/);
  assert.match(source,/unsubscribeWheelActivity\(\)/);
  assert.match(source,/unsubscribeScrollActivity\(\)/);
 });

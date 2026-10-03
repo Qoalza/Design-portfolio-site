@@ -124,6 +124,16 @@ export function Experience({cv}){
       setStyle('--experience-blur','0px');
     }
     function clearRearm(){allowRearm=false;}
+    function resetVisualProgress(){
+      setStyle('--experience-progress','0');
+      setStyle('--experience-shift','0px');
+      setDataset('progress','0.0000');
+      setDataset('activeIndex','0');
+      if(states.started!==false){states.started=false;section.classList.remove('is-started');}
+      if(states.complete!==false){states.complete=false;section.classList.remove('is-complete');}
+      jobs.forEach((job,index)=>{if(states.reached[index]!==false){states.reached[index]=false;job.classList.remove('is-reached');}});
+      paths.forEach((path,index)=>{if(states.segments[index]!==1){states.segments[index]=1;path.style.setProperty('stroke-dashoffset','1');}});
+    }
     function resetStatic(){
       if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
       entryGate.reset();
@@ -134,16 +144,7 @@ export function Experience({cv}){
       previousScrollY=window.scrollY;
       clearRearm();
       clearBlur();
-      if(desktop===false){
-        setStyle('--experience-progress','0');
-        setStyle('--experience-shift','0px');
-        setDataset('progress','0.0000');
-        setDataset('activeIndex','0');
-        if(states.started!==false){states.started=false;section.classList.remove('is-started');}
-        if(states.complete!==false){states.complete=false;section.classList.remove('is-complete');}
-        jobs.forEach((job,index)=>{if(states.reached[index]!==false){states.reached[index]=false;job.classList.remove('is-reached');}});
-        paths.forEach((path,index)=>{if(states.segments[index]!==1){states.segments[index]=1;path.style.setProperty('stroke-dashoffset','1');}});
-      }
+      if(desktop===false)resetVisualProgress();
     }
     function syncGate(currentScrollY){
       if(currentScrollY<sectionTop&&entryGate.state!=='idle'){
@@ -175,6 +176,7 @@ export function Experience({cv}){
         section.style.height=layoutStates.height;
         sectionHeight=height;
         lenis?.resize();
+        if(!completed){progress=0;previousX=0;previousTime=performance.now();clearBlur();resetVisualProgress();}
         if(transition.scrollY!==undefined){
           currentScrollY=transition.scrollY;
           if(lenis)lenis.scrollTo(currentScrollY,{immediate:true,force:true});
