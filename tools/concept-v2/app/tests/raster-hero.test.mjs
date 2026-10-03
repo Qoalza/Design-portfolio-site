@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {carouselCards, nearestCarouselStep, visibleDotIndexes, wrapSlideIndex} from '../src/project-hero/raster-carousel.mjs';
+import {carouselCards, carouselDotItems, nearestCarouselStep, visibleDotIndexes, wrapSlideIndex} from '../src/project-hero/raster-carousel.mjs';
 
 test('two images trade center and side without rendering a duplicate', () => {
   const slides = [{id: 'delivery'}, {id: 'home'}];
@@ -40,6 +40,19 @@ test('dot window shows every image up to five and stays capped beyond five', () 
   assert.deepEqual(visibleDotIndexes(0, 8), [6, 7, 0, 1, 2]);
   assert.deepEqual(visibleDotIndexes(6, 8), [4, 5, 6, 7, 0]);
   assert.equal(visibleDotIndexes(7, 8).length, 5);
+});
+
+test('five-dot window retains dot identities while moving and shrinks its ends', () => {
+  const slides = Array.from({length: 8}, (_, index) => ({id: String(index)}));
+  const before = carouselDotItems(slides, 0);
+  const after = carouselDotItems(slides, 1);
+  assert.equal(before.filter(dot => dot.visible).length, 5);
+  assert.deepEqual(before.filter(dot => dot.visible).map(dot => dot.index), [6, 7, 0, 1, 2]);
+  assert.deepEqual(after.filter(dot => dot.visible).map(dot => dot.index), [7, 0, 1, 2, 3]);
+  assert.deepEqual(before.filter(dot => dot.visible && dot.compact).map(dot => dot.slot), [-2, 2]);
+  assert.equal(before.find(dot => dot.key === 0).slot, 0);
+  assert.equal(after.find(dot => dot.key === 0).slot, -1);
+  assert.equal(carouselDotItems(slides.slice(0, 5), 2).filter(dot => dot.compact).length, 2);
 });
 
 test('sixth and later images remain reachable while only five cards are mounted', () => {

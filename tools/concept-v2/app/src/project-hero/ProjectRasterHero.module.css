@@ -74,8 +74,7 @@
 }
 
 .sideHitArea:focus-visible,
-.dot:focus-visible,
-.dotActive:focus-visible {
+.dot:focus-visible {
   outline: 2px solid #43a2ee;
   outline-offset: -3px;
 }
@@ -104,23 +103,32 @@
   width: 413px;
   height: 36px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   transform: translateX(-50%);
 }
 
-.arrow { flex: 0 0 36px; }
-
-.dots {
-  display: flex;
-  min-height: 36px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+.controls .arrow {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
 }
 
-.dots > button {
+.dots {
+  position: relative;
+  flex: 0 0 auto;
+  height: 36px;
+  overflow: hidden;
+}
+
+.dot {
+  position: absolute;
+  top: 6px;
+  left: calc(50% - 4px);
   display: grid;
-  width: 16px;
+  width: 8px;
   height: 24px;
   place-items: center;
   padding: 0;
@@ -129,16 +137,9 @@
   cursor: pointer;
 }
 
-.dots > button::after {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #565c61;
-  content: "";
-}
-
-.dots > .dotActive::after {
+.dotMark {
+  display: block;
   width: 8px;
   height: 8px;
-  background: #eceff2;
+  border-radius: 50%;
 }

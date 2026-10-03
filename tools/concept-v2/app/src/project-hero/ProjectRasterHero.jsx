@@ -3,7 +3,7 @@ import {AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform}
 import {ControlButton} from '../Controls.jsx';
 import {GridPattern} from '../GridPattern.jsx';
 import {ScenarioTab} from '../v2/HeroTabs.jsx';
-import {carouselCards, nearestCarouselStep, visibleDotIndexes, wrapSlideIndex} from './raster-carousel.mjs';
+import {carouselCards, carouselDotItems, nearestCarouselStep, wrapSlideIndex} from './raster-carousel.mjs';
 import shellStyles from './ProjectResponsiveHero.module.css';
 import styles from './ProjectRasterHero.module.css';
 
@@ -54,6 +54,7 @@ export function ProjectRasterHero({definition}) {
   const [step, setStep] = useState(initialStep);
   const activeIndex = wrapSlideIndex(step, slides.length);
   const activeSlide = slides[activeIndex];
+  const dotItems = carouselDotItems(slides, step);
   const reduceMotion = useReducedMotion();
   const swipeStart = useRef(null);
   const swipeConsumed = useRef(false);
@@ -113,11 +114,34 @@ export function ProjectRasterHero({definition}) {
 
         {slides.length > 1 ? <div className={styles.controls} aria-label="Переключить экран">
           <ControlButton variant="ghost" iconLeft="about-chevron-left" iconOnly className={styles.arrow} onClick={() => move(-1)} aria-label="Предыдущий экран" />
-          <div className={styles.dots} aria-label="Экраны">
-            {visibleDotIndexes(activeIndex, slides.length).map(index => {
-              const slide = slides[index];
-              return <button key={slide.id} type="button" className={index === activeIndex ? styles.dotActive : ''} aria-current={index === activeIndex ? 'true' : undefined} aria-label={`Показать: ${slide.title}`} onClick={() => selectSlide(index)} />;
-            })}
+          <div className={styles.dots} aria-label="Экраны" style={{width: `${10 + (Math.min(slides.length, 5) - 1) * 19}px`}}>
+            <AnimatePresence initial={false}>
+              {dotItems.map(({key, index, slot, visible, compact}) => {
+                const slide = slides[index];
+                const active = index === activeIndex;
+                return <motion.button
+                  key={`${context.id}:${key}`}
+                  type="button"
+                  className={styles.dot}
+                  initial={false}
+                  animate={{x: slot * 19, opacity: visible ? 1 : 0}}
+                  exit={{opacity: 0}}
+                  transition={reduceMotion ? {duration: 0} : {...SPRING, opacity: {duration: .18}}}
+                  aria-hidden={visible ? undefined : true}
+                  tabIndex={visible ? undefined : -1}
+                  aria-current={active && visible ? 'true' : undefined}
+                  aria-label={`Показать: ${slide.title}`}
+                  onClick={() => selectSlide(index)}
+                >
+                  <motion.span
+                    className={styles.dotMark}
+                    initial={false}
+                    animate={{scale: active ? 1 : compact ? .5 : .75, backgroundColor: active ? '#43a2ee' : '#3d4347'}}
+                    transition={reduceMotion ? {duration: 0} : {duration: .22}}
+                  />
+                </motion.button>;
+              })}
+            </AnimatePresence>
           </div>
           <ControlButton variant="ghost" iconRight="about-chevron-right" iconOnly className={styles.arrow} onClick={() => move(1)} aria-label="Следующий экран" />
         </div> : null}
