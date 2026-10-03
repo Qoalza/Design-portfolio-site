@@ -1,8 +1,10 @@
 /* Opt-in contact motion: decoration never participates in button layout. */
-.control.contact-motion{position:relative;overflow:hidden}
-.contact-orbit{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);pointer-events:none;fill:none;opacity:0;transition:opacity 160ms ease}
-.contact-orbit rect{width:calc(100% - 1px);height:calc(100% - 1px);fill:none;stroke:var(--cv2-text-neutral-primary);stroke-width:1.5px;stroke-linecap:round;stroke-dasharray:18 82;filter:drop-shadow(0 0 3px var(--cv2-text-neutral-secondary))}
-@keyframes contact-border-orbit{to{stroke-dashoffset:-100}}
+.control.contact-motion{position:relative;overflow:visible}
+.contact-orbit{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);overflow:visible;pointer-events:none;fill:none;opacity:0;transition:opacity 160ms ease;filter:drop-shadow(0 0 2px var(--cv2-border-accent-muted))}
+.contact-orbit rect{width:calc(100% - 2px);height:calc(100% - 2px);fill:none;stroke:var(--cv2-border-accent-muted);stroke-width:1.5px;stroke-linecap:round;stroke-dasharray:.8 99.2;stroke-dashoffset:var(--trail-start)}
+.contact-orbit rect:nth-last-child(-n+5){stroke:#62b8fc}
+.contact-orbit rect:last-child{stroke-width:2px}
+@keyframes contact-border-orbit{from{stroke-dashoffset:var(--trail-start)}to{stroke-dashoffset:calc(var(--trail-start) - 100px)}}
 @keyframes contact-plane-flight{
   0%{transform:translate(0,0);opacity:1}
   34%{transform:translate(26px,-26px);opacity:0}
