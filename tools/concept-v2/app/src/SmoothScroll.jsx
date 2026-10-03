@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
 import {publishScrollActivity,publishSmoothScroll} from './smooth-scroll-runtime.mjs';
-import {createWheelHandlingProfile,createWheelInputProfile,shouldResetSmoothScroll} from './wheel-input-profile.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile,isProtectedWheelRegion,shouldResetSmoothScroll} from './wheel-input-profile.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -14,7 +14,8 @@ export function SmoothScroll(){
     let lenis;
     let frame;
     let wheelHandling='smooth';
-    let experienceVisible=false;
+    let experience;
+    let experienceBounds={sectionTop:Infinity,sectionHeight:0};
     let experienceObserver;
     const wheelInput=createWheelInputProfile();
     const wheelHandlingProfile=createWheelHandlingProfile();
@@ -25,7 +26,8 @@ export function SmoothScroll(){
       removeScrollActivity=()=>{};
       experienceObserver?.disconnect();
       experienceObserver=undefined;
-      experienceVisible=false;
+      experience=undefined;
+      experienceBounds={sectionTop:Infinity,sectionHeight:0};
       publishScrollActivity(false);
       publishSmoothScroll(undefined);
       lenis?.destroy();
@@ -47,7 +49,8 @@ export function SmoothScroll(){
           if(!event.type.includes('wheel'))return;
           const input=wheelInput.observe(event);
           document.documentElement.dataset.scrollInput=input;
-          const nextHandling=wheelHandlingProfile.observe({event,input,protectedRegionVisible:experienceVisible});
+          const protectedRegionVisible=isProtectedWheelRegion({scrollY:window.scrollY,deltaY:event.deltaY,...experienceBounds,viewportHeight:window.innerHeight});
+          const nextHandling=wheelHandlingProfile.observe({event,input,protectedRegionVisible});
           document.documentElement.dataset.scrollHandling=nextHandling;
           if(nextHandling!==wheelHandling){
             const reset=shouldResetSmoothScroll({previousHandling:wheelHandling,nextHandling,isScrolling:lenis.isScrolling});
@@ -60,10 +63,15 @@ export function SmoothScroll(){
           }
         },
       });
-      const experience=document.querySelector('.experience');
+      experience=document.querySelector('.experience');
       if(experience){
-        experienceObserver=new IntersectionObserver(([entry])=>{experienceVisible=entry.isIntersecting});
-        experienceObserver.observe(experience);
+        const measureExperience=()=>{
+          const rect=experience.getBoundingClientRect();
+          experienceBounds={sectionTop:rect.top+window.scrollY,sectionHeight:experience.offsetHeight};
+        };
+        experienceObserver=new ResizeObserver(measureExperience);
+        [experience,document.querySelector('.body-sections'),document.querySelector('.ai-section')].filter(Boolean).forEach(owner=>experienceObserver.observe(owner));
+        measureExperience();
       }
       publishSmoothScroll(lenis);
       const removeVirtualScroll=lenis.on('virtual-scroll',()=>publishScrollActivity(true));

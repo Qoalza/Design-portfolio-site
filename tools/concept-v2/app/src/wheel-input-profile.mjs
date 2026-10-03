@@ -8,6 +8,18 @@ export function shouldResetSmoothScroll({previousHandling,nextHandling,isScrolli
   return previousHandling==='smooth'&&nextHandling==='native'&&isScrolling==='smooth';
 }
 
+export function isProtectedWheelRegion({scrollY=0,deltaY=0,sectionTop=Infinity,sectionHeight=0,viewportHeight=0}={}){
+  const top=Number(sectionTop);
+  const height=Number(sectionHeight);
+  const viewport=Number(viewportHeight);
+  if(!Number.isFinite(top)||height<=0||viewport<=0)return false;
+  const current=Number(scrollY) || 0;
+  const delta=Number(deltaY) || 0;
+  const finalScrollTop=top+Math.max(0,height-viewport);
+  if(current>=top&&current<=finalScrollTop)return true;
+  return delta>0&&current<top&&current+delta>=top;
+}
+
 export function createWheelHandlingProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}){
   let handling='smooth';
   let previousTime;

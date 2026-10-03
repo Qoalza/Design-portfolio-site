@@ -13,10 +13,11 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
   assert.match(source,/virtualScroll:\(\{event\}\)=>/);
   assert.doesNotMatch(source,/lenis\.options\.smoothWheel=/);
   assert.match(source,/document\.querySelector\('\.experience'\)/);
-  assert.match(source,/experienceObserver=new IntersectionObserver/);
-  assert.match(source,/protectedRegionVisible:experienceVisible/);
-  assert.match(source,/wheelHandlingProfile\.observe\(\{event,input,protectedRegionVisible:experienceVisible\}\)/);
+  assert.match(source,/experienceObserver=new ResizeObserver\(measureExperience\)/);
+  assert.match(source,/isProtectedWheelRegion\(\{scrollY:window\.scrollY,deltaY:event\.deltaY,\.\.\.experienceBounds,viewportHeight:window\.innerHeight\}\)/);
+  assert.match(source,/wheelHandlingProfile\.observe\(\{event,input,protectedRegionVisible\}\)/);
   assert.match(source,/experienceObserver\?\.disconnect\(\)/);
+  assert.doesNotMatch(source,/new IntersectionObserver/);
   assert.doesNotMatch(source,/getBoundingClientRect\(\)[\s\S]{0,300}resolveWheelHandling/);
   assert.match(source,/dataset\.scrollHandling=nextHandling/);
   assert.match(source,/if\(nextHandling==='native'\)/);

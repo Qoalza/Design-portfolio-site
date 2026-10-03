@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {createWheelHandlingProfile,createWheelInputProfile,resolveWheelHandling,shouldResetSmoothScroll} from '../src/wheel-input-profile.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile,isProtectedWheelRegion,resolveWheelHandling,shouldResetSmoothScroll} from '../src/wheel-input-profile.mjs';
 
 test('discrete mouse wheels retain Lenis smoothing',()=>{
   const profile=createWheelInputProfile();
@@ -51,7 +51,7 @@ test('an actual mouse can still take ownership after a trackpad gesture',()=>{
   assert.equal(profile.observe({deltaMode:0,deltaY:100,wheelDeltaY:-120,timeStamp:276}),'mouse');
 });
 
-test('trackpad bypasses Lenis only outside the visible Experience region',()=>{
+test('trackpad bypasses Lenis only outside the protected Experience region',()=>{
   assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:false}),'native');
   assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:true}),'smooth');
   assert.equal(resolveWheelHandling({input:'mouse',protectedRegionVisible:false}),'smooth');
@@ -78,4 +78,13 @@ test('changing scroll ownership never cancels native trackpad momentum',()=>{
   assert.equal(shouldResetSmoothScroll({previousHandling:'native',nextHandling:'smooth',isScrolling:false}),false);
   assert.equal(shouldResetSmoothScroll({previousHandling:'smooth',nextHandling:'native',isScrolling:'smooth'}),true);
   assert.equal(shouldResetSmoothScroll({previousHandling:'smooth',nextHandling:'native',isScrolling:false}),false);
+});
+
+test('Experience handling begins at its real scroll boundary instead of one viewport early',()=>{
+  const bounds={sectionTop:4500,sectionHeight:9800,viewportHeight:1000};
+  assert.equal(isProtectedWheelRegion({...bounds,scrollY:3400,deltaY:80}),false,'merely seeing Experience at the viewport edge must stay native');
+  assert.equal(isProtectedWheelRegion({...bounds,scrollY:4400,deltaY:80}),false,'a gesture that has not reached the boundary must stay native');
+  assert.equal(isProtectedWheelRegion({...bounds,scrollY:4400,deltaY:120}),true,'the crossing event must hand off to the entry stopper');
+  assert.equal(isProtectedWheelRegion({...bounds,scrollY:5200,deltaY:80}),true,'gestures that start inside Experience keep its original path');
+  assert.equal(isProtectedWheelRegion({...bounds,scrollY:13400,deltaY:-120}),false,'an upward gesture from below Experience remains native');
 });
