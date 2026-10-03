@@ -3,7 +3,7 @@ import {AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform}
 import {ControlButton} from '../Controls.jsx';
 import {GridPattern} from '../GridPattern.jsx';
 import {ScenarioTab} from '../v2/HeroTabs.jsx';
-import {carouselCards, nearestCarouselStep, wrapSlideIndex} from './raster-carousel.mjs';
+import {carouselCards, nearestCarouselStep, visibleDotIndexes, wrapSlideIndex} from './raster-carousel.mjs';
 import shellStyles from './ProjectResponsiveHero.module.css';
 import styles from './ProjectRasterHero.module.css';
 
@@ -113,9 +113,12 @@ export function ProjectRasterHero({definition}) {
 
         {slides.length > 1 ? <div className={styles.controls} aria-label="Переключить экран">
           <ControlButton variant="ghost" iconLeft="about-chevron-left" iconOnly className={styles.arrow} onClick={() => move(-1)} aria-label="Предыдущий экран" />
-          {slides.length <= 7 ? <div className={styles.dots} aria-label="Экраны">
-            {slides.map((slide, index) => <button key={slide.id} type="button" className={index === activeIndex ? styles.dotActive : ''} aria-current={index === activeIndex ? 'true' : undefined} aria-label={`Показать: ${slide.title}`} onClick={() => selectSlide(index)} />)}
-          </div> : <span className={styles.counter} aria-live="polite">{activeIndex + 1} / {slides.length}</span>}
+          <div className={styles.dots} aria-label="Экраны">
+            {visibleDotIndexes(activeIndex, slides.length).map(index => {
+              const slide = slides[index];
+              return <button key={slide.id} type="button" className={index === activeIndex ? styles.dotActive : ''} aria-current={index === activeIndex ? 'true' : undefined} aria-label={`Показать: ${slide.title}`} onClick={() => selectSlide(index)} />;
+            })}
+          </div>
           <ControlButton variant="ghost" iconRight="about-chevron-right" iconOnly className={styles.arrow} onClick={() => move(1)} aria-label="Следующий экран" />
         </div> : null}
       </div>
