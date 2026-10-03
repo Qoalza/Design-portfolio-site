@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {createWheelInputProfile,resolveWheelHandling} from '../src/wheel-input-profile.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile,resolveWheelHandling} from '../src/wheel-input-profile.mjs';
 
 test('discrete mouse wheels retain Lenis smoothing',()=>{
   const profile=createWheelInputProfile();
@@ -41,4 +41,13 @@ test('trackpad bypasses Lenis only outside the visible Experience region',()=>{
   assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:false}),'native');
   assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:true}),'smooth');
   assert.equal(resolveWheelHandling({input:'mouse',protectedRegionVisible:false}),'smooth');
+});
+
+test('a rapid trackpad swipe keeps one handling mode while crossing Experience',()=>{
+  const handling=createWheelHandlingProfile({gestureIdleMs:160});
+  assert.equal(handling.observe({event:{timeStamp:0},input:'trackpad',protectedRegionVisible:false}),'native');
+  assert.equal(handling.observe({event:{timeStamp:16},input:'trackpad',protectedRegionVisible:true}),'native');
+  assert.equal(handling.observe({event:{timeStamp:32},input:'trackpad',protectedRegionVisible:true}),'native');
+  assert.equal(handling.observe({event:{timeStamp:240},input:'trackpad',protectedRegionVisible:true}),'smooth');
+  assert.equal(handling.observe({event:{timeStamp:256},input:'trackpad',protectedRegionVisible:false}),'smooth');
 });

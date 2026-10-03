@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
 import {publishScrollActivity,publishSmoothScroll} from './smooth-scroll-runtime.mjs';
-import {createWheelInputProfile,resolveWheelHandling} from './wheel-input-profile.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile} from './wheel-input-profile.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -17,6 +17,7 @@ export function SmoothScroll(){
     let experienceVisible=false;
     let experienceObserver;
     const wheelInput=createWheelInputProfile();
+    const wheelHandlingProfile=createWheelHandlingProfile();
     let removeScrollActivity=()=>{};
     function destroy(){
       cancelAnimationFrame(frame);
@@ -30,6 +31,7 @@ export function SmoothScroll(){
       lenis?.destroy();
       lenis=undefined;
       wheelInput.reset();
+      wheelHandlingProfile.reset();
       wheelHandling='smooth';
       delete document.documentElement.dataset.lenisEnabled;
       delete document.documentElement.dataset.scrollInput;
@@ -45,7 +47,7 @@ export function SmoothScroll(){
           if(!event.type.includes('wheel'))return;
           const input=wheelInput.observe(event);
           document.documentElement.dataset.scrollInput=input;
-          const nextHandling=resolveWheelHandling({input,protectedRegionVisible:experienceVisible});
+          const nextHandling=wheelHandlingProfile.observe({event,input,protectedRegionVisible:experienceVisible});
           document.documentElement.dataset.scrollHandling=nextHandling;
           if(nextHandling!==wheelHandling){
             lenis.reset();

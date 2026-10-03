@@ -4,6 +4,30 @@ export function resolveWheelHandling({input,protectedRegionVisible=false}={}){
   return input==='trackpad'&&!protectedRegionVisible?'native':'smooth';
 }
 
+export function createWheelHandlingProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}){
+  let handling='smooth';
+  let previousTime;
+  let protectedAtStart=false;
+  return{
+    get current(){return handling;},
+    observe({event={},input='mouse',protectedRegionVisible=false}={}){
+      const eventTime=Number(event.timeStamp);
+      const inputTime=Number.isFinite(eventTime)?eventTime:performance.now();
+      const gap=previousTime===undefined?Infinity:inputTime-previousTime;
+      const newGesture=gap<0||gap>gestureIdleMs;
+      if(newGesture){
+        protectedAtStart=protectedRegionVisible;
+        handling=resolveWheelHandling({input,protectedRegionVisible});
+      }else if(!protectedAtStart&&handling==='smooth'&&input==='trackpad'){
+        handling='native';
+      }
+      previousTime=inputTime;
+      return handling;
+    },
+    reset(){handling='smooth';previousTime=undefined;protectedAtStart=false;},
+  };
+}
+
 export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}){
   let input='mouse';
   let previousTime;
