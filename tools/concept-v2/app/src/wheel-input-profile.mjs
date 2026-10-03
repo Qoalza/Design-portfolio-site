@@ -4,6 +4,10 @@ export function resolveWheelHandling({input,protectedRegionVisible=false}={}){
   return input==='trackpad'&&!protectedRegionVisible?'native':'smooth';
 }
 
+export function shouldResetSmoothScroll({previousHandling,nextHandling,isScrolling}={}){
+  return previousHandling==='smooth'&&nextHandling==='native'&&isScrolling==='smooth';
+}
+
 export function createWheelHandlingProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}){
   let handling='smooth';
   let previousTime;
@@ -35,6 +39,7 @@ export function createWheelHandlingProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}
 export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}){
   let input='mouse';
   let previousTime;
+  let pendingLegacyMouse=false;
   return{
     get current(){return input;},
     observe(event={}){
@@ -42,6 +47,7 @@ export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}
       const inputTime=Number.isFinite(eventTime)?eventTime:performance.now();
       const gap=previousTime===undefined?Infinity:inputTime-previousTime;
       const sameGesture=gap>=0&&gap<=gestureIdleMs;
+      const newGesture=!sameGesture;
 
       const deltaMode=Number(event.deltaMode) || 0;
       const deltaX=Number(event.deltaX) || 0;
@@ -58,12 +64,29 @@ export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}
         continuingTrackpad
       );
 
-      if(continuingTrackpad)input='trackpad';
-      else if(discreteUnits||legacyWheelNotch)input='mouse';
-      else if(continuousPixels)input='trackpad';
+      if(discreteUnits){
+        input='mouse';
+        pendingLegacyMouse=false;
+      }else if(legacyWheelNotch&&input==='trackpad'&&newGesture){
+        pendingLegacyMouse=true;
+      }else if(legacyWheelNotch&&pendingLegacyMouse){
+        input='mouse';
+        pendingLegacyMouse=false;
+      }else if(continuingTrackpad){
+        input='trackpad';
+        pendingLegacyMouse=false;
+      }else if(legacyWheelNotch){
+        input='mouse';
+        pendingLegacyMouse=false;
+      }else if(continuousPixels){
+        input='trackpad';
+        pendingLegacyMouse=false;
+      }else if(newGesture){
+        pendingLegacyMouse=false;
+      }
       previousTime=inputTime;
       return input;
     },
-    reset(){input='mouse';previousTime=undefined;},
+    reset(){input='mouse';previousTime=undefined;pendingLegacyMouse=false;},
   };
 }

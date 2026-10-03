@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {createWheelHandlingProfile,createWheelInputProfile,resolveWheelHandling} from '../src/wheel-input-profile.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile,resolveWheelHandling,shouldResetSmoothScroll} from '../src/wheel-input-profile.mjs';
 
 test('discrete mouse wheels retain Lenis smoothing',()=>{
   const profile=createWheelInputProfile();
@@ -37,6 +37,20 @@ test('an ambiguous inertial tail keeps the current gesture profile',()=>{
   assert.equal(profile.observe({deltaMode:0,deltaY:92,wheelDeltaY:-120,timeStamp:32}),'trackpad');
 });
 
+test('one strong first trackpad impulse does not briefly enable mouse smoothing',()=>{
+  const profile=createWheelInputProfile({gestureIdleMs:160});
+  assert.equal(profile.observe({deltaMode:0,deltaY:6,timeStamp:0}),'trackpad');
+  assert.equal(profile.observe({deltaMode:0,deltaY:-100,wheelDeltaY:120,timeStamp:260}),'trackpad');
+  assert.equal(profile.observe({deltaMode:0,deltaY:-31.5,wheelDeltaY:38,timeStamp:276}),'trackpad');
+});
+
+test('an actual mouse can still take ownership after a trackpad gesture',()=>{
+  const profile=createWheelInputProfile({gestureIdleMs:160});
+  assert.equal(profile.observe({deltaMode:0,deltaY:6,timeStamp:0}),'trackpad');
+  assert.equal(profile.observe({deltaMode:0,deltaY:100,wheelDeltaY:-120,timeStamp:260}),'trackpad');
+  assert.equal(profile.observe({deltaMode:0,deltaY:100,wheelDeltaY:-120,timeStamp:276}),'mouse');
+});
+
 test('trackpad bypasses Lenis only outside the visible Experience region',()=>{
   assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:false}),'native');
   assert.equal(resolveWheelHandling({input:'trackpad',protectedRegionVisible:true}),'smooth');
@@ -57,4 +71,11 @@ test('a downward trackpad gesture hands back to Lenis when it reaches Experience
   assert.equal(handling.observe({event:{deltaY:8,timeStamp:0},input:'trackpad',protectedRegionVisible:false}),'native');
   assert.equal(handling.observe({event:{deltaY:8,timeStamp:16},input:'trackpad',protectedRegionVisible:true}),'smooth');
   assert.equal(handling.observe({event:{deltaY:8,timeStamp:32},input:'trackpad',protectedRegionVisible:true}),'smooth');
+});
+
+test('changing scroll ownership never cancels native trackpad momentum',()=>{
+  assert.equal(shouldResetSmoothScroll({previousHandling:'native',nextHandling:'smooth',isScrolling:'native'}),false);
+  assert.equal(shouldResetSmoothScroll({previousHandling:'native',nextHandling:'smooth',isScrolling:false}),false);
+  assert.equal(shouldResetSmoothScroll({previousHandling:'smooth',nextHandling:'native',isScrolling:'smooth'}),true);
+  assert.equal(shouldResetSmoothScroll({previousHandling:'smooth',nextHandling:'native',isScrolling:false}),false);
 });

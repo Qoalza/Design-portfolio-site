@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
 import {publishScrollActivity,publishSmoothScroll} from './smooth-scroll-runtime.mjs';
-import {createWheelHandlingProfile,createWheelInputProfile} from './wheel-input-profile.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile,shouldResetSmoothScroll} from './wheel-input-profile.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -50,8 +50,9 @@ export function SmoothScroll(){
           const nextHandling=wheelHandlingProfile.observe({event,input,protectedRegionVisible:experienceVisible});
           document.documentElement.dataset.scrollHandling=nextHandling;
           if(nextHandling!==wheelHandling){
-            lenis.reset();
+            const reset=shouldResetSmoothScroll({previousHandling:wheelHandling,nextHandling,isScrolling:lenis.isScrolling});
             wheelHandling=nextHandling;
+            if(reset)lenis.reset();
           }
           if(nextHandling==='native'){
             publishScrollActivity(true);

@@ -20,7 +20,8 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
   assert.doesNotMatch(source,/getBoundingClientRect\(\)[\s\S]{0,300}resolveWheelHandling/);
   assert.match(source,/dataset\.scrollHandling=nextHandling/);
   assert.match(source,/if\(nextHandling==='native'\)/);
-  assert.match(source,/if\(nextHandling!==wheelHandling\)\{\s*lenis\.reset\(\)/);
+  assert.match(source,/shouldResetSmoothScroll\(\{previousHandling:wheelHandling,nextHandling,isScrolling:lenis\.isScrolling\}\)/);
+  assert.doesNotMatch(source,/if\(nextHandling!==wheelHandling\)\{\s*lenis\.reset\(\)/);
   assert.match(source,/publishScrollActivity\(true\);\s*return false/);
   assert.doesNotMatch(source,/addEventListener\(['"]wheel/);
   assert.match(source,/publishSmoothScroll\(lenis\)/);
