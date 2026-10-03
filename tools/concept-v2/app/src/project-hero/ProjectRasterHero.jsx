@@ -1,0 +1,132 @@
+import {useRef, useState} from 'react';
+import {AnimatePresence, motion, useReducedMotion} from 'motion/react';
+import {ControlButton} from '../Controls.jsx';
+import {GridPattern} from '../GridPattern.jsx';
+import {ScenarioTab} from '../v2/HeroTabs.jsx';
+import {carouselCards, nearestCarouselStep, wrapSlideIndex} from './raster-carousel.mjs';
+import shellStyles from './ProjectResponsiveHero.module.css';
+import styles from './ProjectRasterHero.module.css';
+
+const SIDE_SCALE = 640 / 940;
+const SPRING = {type: 'spring', stiffness: 260, damping: 34, mass: 1};
+
+function slotVisual(slot) {
+  const distance = Math.abs(slot);
+  return {
+    x: slot === 0 ? 0 : Math.sign(slot) * (distance === 1 ? 320 : 650),
+    y: slot === 0 ? 0 : -20,
+    scale: distance === 0 ? 1 : distance === 1 ? SIDE_SCALE : .5,
+    opacity: distance <= 1 ? 1 : 0,
+  };
+}
+
+function RasterCard({card, reduceMotion, onSelect}) {
+  const {slide, slot} = card;
+  return (
+    <motion.div
+      className={styles.card}
+      data-slot={slot}
+      data-slide-id={slide.id}
+      initial={{...slotVisual(slot), opacity: 0}}
+      animate={slotVisual(slot)}
+      exit={{opacity: 0}}
+      transition={reduceMotion ? {duration: 0} : {...SPRING, opacity: {duration: .22}}}
+      style={{zIndex: slot === 0 ? 3 : Math.abs(slot) === 1 ? 1 : 0}}
+    >
+      <img src={slide.src} width="1880" height="1358" alt={slot === 0 ? slide.title : ''} draggable={false} decoding="async" />
+      <motion.span
+        className={`${styles.cardShade} ${styles.cardShadeLeft}`}
+        aria-hidden="true"
+        initial={false}
+        animate={{opacity: slot < 0 ? 1 : 0}}
+        transition={reduceMotion ? {duration: 0} : {duration: .28, ease: [.22, 1, .36, 1]}}
+      />
+      <motion.span
+        className={`${styles.cardShade} ${styles.cardShadeRight}`}
+        aria-hidden="true"
+        initial={false}
+        animate={{opacity: slot > 0 ? 1 : 0}}
+        transition={reduceMotion ? {duration: 0} : {duration: .28, ease: [.22, 1, .36, 1]}}
+      />
+      {Math.abs(slot) === 1 ? <button type="button" className={styles.sideHitArea} onClick={() => onSelect(slot)} aria-label={`Показать: ${slide.title}`} /> : null}
+    </motion.div>
+  );
+}
+
+export function ProjectRasterHero({definition}) {
+  const firstContext = definition.contexts.find(context => context.id === definition.initialContextId) ?? definition.contexts[0];
+  const [contextId, setContextId] = useState(firstContext.id);
+  const context = definition.contexts.find(item => item.id === contextId) ?? firstContext;
+  const slides = context.slides;
+  const initialStep = Math.max(0, slides.findIndex(slide => slide.id === context.initialSlideId));
+  const [step, setStep] = useState(initialStep);
+  const activeIndex = wrapSlideIndex(step, slides.length);
+  const activeSlide = slides[activeIndex];
+  const reduceMotion = useReducedMotion();
+  const swipeStart = useRef(null);
+  const swipeConsumed = useRef(false);
+
+  function selectContext(nextContext) {
+    if (!nextContext.slides.length || nextContext.id === contextId) return;
+    setContextId(nextContext.id);
+    setStep(Math.max(0, nextContext.slides.findIndex(slide => slide.id === nextContext.initialSlideId)));
+  }
+
+  function selectSlide(index) {
+    setStep(current => nearestCarouselStep(current, index, slides.length));
+  }
+
+  function move(direction) {
+    if (slides.length > 1) setStep(current => current + direction);
+  }
+
+  function finishSwipe(event) {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const distance = event.clientX - start.x;
+    if (Math.abs(distance) >= 60) {
+      swipeConsumed.current = true;
+      move(distance < 0 ? 1 : -1);
+      window.setTimeout(() => {swipeConsumed.current = false;}, 0);
+    }
+  }
+
+  function selectSide(direction) {
+    if (!swipeConsumed.current) move(direction);
+  }
+
+  return (
+    <section className={`${shellStyles.heroWorkspace} ${styles.hero}`} aria-label={`${definition.projectName}: просмотр экранов`} data-figma-node="4276:794436">
+      <GridPattern />
+      <div className={`${shellStyles.heroInner} ${styles.inner}`}>
+        <div className={styles.heading}>
+          <div className={styles.contextTabs} aria-label="Устройство">
+            {definition.contexts.map(item => <ScenarioTab key={item.id} icon={item.icon} label={item.label} active={item.id === contextId} disabled={!item.slides.length} onClick={() => selectContext(item)} />)}
+          </div>
+          <p className={styles.slideTitle} aria-live="polite">{activeSlide?.title}</p>
+        </div>
+
+        <div
+          className={styles.carousel}
+          aria-label="Экраны проекта"
+          onPointerDown={event => {if (event.button === 0) swipeStart.current = {pointerId: event.pointerId, x: event.clientX};}}
+          onPointerUp={finishSwipe}
+          onPointerCancel={() => {swipeStart.current = null;}}
+        >
+          <AnimatePresence initial={false}>
+            {carouselCards(slides, step).map(card => <RasterCard key={`${context.id}:${card.key}`} card={card} reduceMotion={reduceMotion} onSelect={selectSide} />)}
+          </AnimatePresence>
+        </div>
+
+        {slides.length > 1 ? <div className={styles.controls} aria-label="Переключить экран">
+          <ControlButton variant="ghost" iconLeft="about-chevron-left" iconOnly className={styles.arrow} onClick={() => move(-1)} aria-label="Предыдущий экран" />
+          {slides.length <= 7 ? <div className={styles.dots} aria-label="Экраны">
+            {slides.map((slide, index) => <button key={slide.id} type="button" className={index === activeIndex ? styles.dotActive : ''} aria-current={index === activeIndex ? 'true' : undefined} aria-label={`Показать: ${slide.title}`} onClick={() => selectSlide(index)} />)}
+          </div> : <span className={styles.counter} aria-live="polite">{activeIndex + 1} / {slides.length}</span>}
+          <ControlButton variant="ghost" iconRight="about-chevron-right" iconOnly className={styles.arrow} onClick={() => move(1)} aria-label="Следующий экран" />
+        </div> : null}
+      </div>
+    </section>
+  );
+}
