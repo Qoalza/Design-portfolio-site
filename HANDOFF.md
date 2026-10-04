@@ -1,6 +1,6 @@
 # HANDOFF
 
-2026-10-05. Checkout: codex/payload,
+2026-10-05. Checkout: codex/cms-integration,
 /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site.
 
 ## Checkpoint
