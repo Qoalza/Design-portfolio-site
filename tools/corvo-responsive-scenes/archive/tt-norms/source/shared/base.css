@@ -1,0 +1,7 @@
+@font-face { font-family: 'TT Norms Pro'; font-style: normal; font-weight: 450; src: url('../assets/fonts/TTNormsPro-Normal.ttf') format('truetype'); font-display: block; }
+@font-face { font-family: 'TT Norms Pro'; font-style: normal; font-weight: 500; src: url('../assets/fonts/TTNormsPro-Medium.ttf') format('truetype'); font-display: block; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-width: 360px; }
+body { background: #ffffff; }
+button, input, textarea { font: inherit; }
+button { border: 0; cursor: default; }

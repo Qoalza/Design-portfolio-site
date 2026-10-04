@@ -24,6 +24,16 @@ test("home and projects use the same MainProjectCard contract", () => {
   assert.match(projectsPage, /<MainProjectCard/);
 });
 
+test("Sarafan previews bypass the production image optimizer", () => {
+  for (const className of ["radioDashboard", "radioPlayer", "radioPayment"]) {
+    assert.match(homePage, new RegExp(`className=\\{styles\\.${className}\\}[^>]*unoptimized`));
+  }
+
+  for (const className of ["sarafanDashboard", "sarafanPlayer", "sarafanPayment"]) {
+    assert.match(projectsPage, new RegExp(`className=\\{styles\\.${className}\\}[^>]*unoptimized`));
+  }
+});
+
 test("update info keeps its own 40px Figma frame beside the separator", () => {
   assert.match(component, /className=\{styles\.actionDivider\}/);
   assert.match(component, /className=\{styles\.updated\}/);
