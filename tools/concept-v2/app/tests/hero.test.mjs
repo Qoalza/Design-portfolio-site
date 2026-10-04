@@ -1,0 +1,411 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {readFile} from 'node:fs/promises';
+import path from 'node:path';
+
+import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layout.mjs';
+import {createCaptionController,DEFAULT_CAPTION,resolveCaptionCandidate} from '../src/hero-caption.mjs';
+import {dotFieldMaskRect,paintDotField} from '../src/hero-dot-field.mjs';
+import {schedulePulses} from '../src/pulse.mjs';
+import {measurePulseRoutes,pulseRoutes,scalePulseRoutes,screenScale} from '../src/pulse-routes.mjs';
+
+test('Hero selects the large composition only when its authored width and height fit',()=>{
+  assert.equal(getHeroVariant({width:1440,height:1600}),'small');
+  assert.equal(getHeroVariant({width:2312,height:2400}),'small');
+  assert.equal(getHeroVariant({width:2968,height:955}),'small');
+  assert.equal(getHeroVariant({width:2313,height:1299}),'small');
+  assert.equal(getHeroVariant({width:2313,height:1300}),'large');
+  assert.equal(getHeroVariant({width:2567,height:1690}),'large');
+});
+
+test('Hero preserves the two authored component structures and the accepted map interaction',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(app,/<SvgLens\/>/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-copy\{[^}]*flex:0 0 488px;[^}]*height:412px/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1280px;[^}]*height:492px;[^}]*padding-inline:24px/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.name\{display:none\}/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:1014px;[^}]*padding-inline:24px/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-main\{[^}]*height:100%;[^}]*flex:1 1 auto;[^}]*padding-bottom:56px/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-copy\{[^}]*width:751px;[^}]*height:316px/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-graph\{[^}]*width:947px;[^}]*height:634px/);
+ assert.match(css,/\.hero-graph \.process-caption\{[^}]*height:16px;[^}]*font:400 14px\/16px/);
+});
+
+test('Hero lower field uses a native dot treatment over the exact Bg-main surface',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const waveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask.svg'),'utf8');
+ assert.match(app,/className="hero-fact-chip"><span>29 лет<\/span><i aria-hidden="true"\/><span>Екатеринбург<\/span><i aria-hidden="true"\/><span className="hero-fact-chip-desktop">Middle\+ \/ Senior<\/span>/);
+ assert.doesNotMatch(app,/hero-fact-chip-mobile/);
+ assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
+ assert.doesNotMatch(app,/className="disciplines"/);
+ assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
+ assert.match(css,/\.hero\[data-layout="large"\]\s+\.hero-bottom\{[^}]*height:560px;flex-basis:auto/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*background-color:var\(--cv2-container-neutral-bg-main\)[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
+ const desktopHero=css.slice(css.indexOf('/* The Hero is a single viewport'),css.indexOf('/* About'));
+ assert.match(desktopHero,/\.hero-bottom-dots\{[^}]*--hero-wave-mask-size:110% calc\(112% \+ 100px\)[^}]*--hero-wave-mask-position:calc\(50% \+ 8px\) -108px[^}]*display:block[^}]*inset:0[^}]*background-position:0 0[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask-2x\.png'\)[^}]*mask-size:var\(--hero-wave-mask-size\)[^}]*mask-position:var\(--hero-wave-mask-position\)/);
+ assert.doesNotMatch(app,/hero-bottom-field/);
+ assert.doesNotMatch(css,/hero-bottom-field/);
+ assert.match(waveMask,/<svg[^>]*viewBox="0 0 1440 320"/);
+ assert.match(waveMask,/<feGaussianBlur stdDeviation="75"/);
+ assert.match(waveMask,/M-183 220\.497L53\.0918 161\.831/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots\{[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*mask-image:none/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots::after\{[^}]*radial-gradient\(ellipse 48% 100% at 50% 0,color-mix\(in srgb,var\(--cv2-container-neutral-bg-main\) 98%,transparent\)[^}]*linear-gradient\(to bottom,var\(--cv2-container-neutral-bg-main\) 0%[^}]*44%[^}]*52%/);
+ assert.doesNotMatch(css,/hero-bottom-wave-mask-large/);
+ assert.match(css,/\.hero-fact-chip\{[^}]*gap:12px[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(css,/\.hero-fact-chip i\{[^}]*width:4px[^}]*height:4px[^}]*background:var\(--cv2-element-neutral-thin\)/);
+});
+
+test('desktop Hero wave preserves the source map without a mobile layout',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const network=await readFile(path.resolve(import.meta.dirname,'../src/SvgNetwork.jsx'),'utf8');
+ assert.doesNotMatch(app,/texture-(?:top|bottom)/);
+ assert.match(app,/className="hero-bottom-dots"/);
+ assert.doesNotMatch(app,/hero-bottom-field/);
+ assert.match(css,/\.hero-bottom\{z-index:0;isolation:auto;background:/);
+ assert.match(css,/\.hero-main\{z-index:1\}/);
+ assert.match(css,/\.hero-bottom-dots\{[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
+ assert.doesNotMatch(css,/\.hero-graph \.vector-network \.construction\{[^}]*mask-image/);
+ assert.match(network,/<g className="construction" mask=\{`url\(#\$\{id\}-grid\)`\}/);
+ assert.match(css,/@media\(max-height:719px\)\{\.hero-graph \.vector-network \.construction\{opacity:0\}\}/);
+ assert.doesNotMatch(css,/\.hero-graph \.vector-network \.routes[^}]*mask-image/);
+ assert.doesNotMatch(css,/\.hero-graph \.process-map\{[^}]*mask-image/);
+ assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
+ assert.match(css,/hero-bottom-wave-mask-2x\.png/);
+ assert.doesNotMatch(css,/@media\(max-width:(?:1279|760|380)px\)/);
+});
+
+test('desktop Hero occupies exactly one viewport and keeps the dotted field in its background',async()=>{
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const heroDesktop=css.slice(css.indexOf('/* The Hero is a single viewport'),css.indexOf('/* About'));
+ assert.match(heroDesktop,/\.hero-shell\{height:100svh;min-height:0\}/);
+ assert.match(heroDesktop,/\.hero\{height:calc\(100svh - 80px\);min-height:0\}/);
+ assert.match(heroDesktop,/\.hero-main\{height:100%;flex:1 1 auto\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="small"\] \.hero-main\{padding-bottom:120px;box-sizing:border-box\}/);
+ assert.match(heroDesktop,/\.hero-bottom\{position:absolute;inset:auto 0 0;height:320px;flex-basis:auto\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\]\{height:calc\(100svh - 80px\)\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-main\{height:100%;flex:1 1 auto;padding-bottom:56px\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-74\.5px\)\}/);
+ assert.match(heroDesktop,/\.hero\[data-layout="large"\] \.hero-bottom\{inset:auto 0 0;height:560px;flex-basis:auto\}/);
+ assert.doesNotMatch(heroDesktop,/\.hero\[data-layout="large"\] \.hero-layout\{transform:translateY\(-12px\) scale\(/);
+});
+
+test('desktop Hero uses a pre-rasterized wave alpha instead of a live blurred SVG mask',async()=>{
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ const mask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask-2x.png'));
+ assert.equal(mask.subarray(1,4).toString(),'PNG');
+ assert.match(css,/\.hero-bottom-dots\{[^}]*mask-image:url\('\/figma\/hero-bottom-wave-mask-2x\.png'\)/);
+ assert.doesNotMatch(css,/mask-image:url\('\/figma\/hero-bottom-wave-mask\.svg'\)/);
+});
+
+test('desktop Hero raster keeps the authored wave mask geometry at any DPR',()=>{
+ assert.deepEqual(dotFieldMaskRect({width:1438,height:320}),{
+  width:1581.8000000000002,
+  height:458.40000000000003,
+  x:-63.90000000000009,
+  y:-108,
+ });
+ assert.deepEqual(dotFieldMaskRect({width:2560,height:320}),{
+  width:2816,
+  height:458.40000000000003,
+  x:-120,
+  y:-108,
+ });
+});
+
+test('Hero dot raster paints the native 16px grid before applying the same alpha mask',()=>{
+ const operations=[];
+ const context={
+  save:()=>operations.push(['save']),
+  restore:()=>operations.push(['restore']),
+  setTransform:(...args)=>operations.push(['setTransform',...args]),
+  clearRect:(...args)=>operations.push(['clearRect',...args]),
+  fillRect:(...args)=>operations.push(['fillRect',...args]),
+  beginPath:()=>operations.push(['beginPath']),
+  arc:(...args)=>operations.push(['arc',...args]),
+  fill:()=>operations.push(['fill']),
+  drawImage:(...args)=>operations.push(['drawImage',...args]),
+  set fillStyle(value){operations.push(['fillStyle',value]);},
+  set globalCompositeOperation(value){operations.push(['composite',value]);},
+ };
+ const mask={id:'mask'};
+ paintDotField(context,{width:32,height:32,dpr:2,mask});
+ assert.deepEqual(operations.filter(([name])=>name==='arc'),[
+  ['arc',1.5,1.5,1.5,0,Math.PI*2],
+  ['arc',17.5,1.5,1.5,0,Math.PI*2],
+  ['arc',1.5,17.5,1.5,0,Math.PI*2],
+  ['arc',17.5,17.5,1.5,0,Math.PI*2],
+ ]);
+ assert.deepEqual(operations.find(([name])=>name==='setTransform'),['setTransform',2,0,0,2,0,0]);
+ assert.deepEqual(operations.find(([name])=>name==='composite'),['composite','destination-in']);
+ assert.deepEqual(operations.find(([name])=>name==='drawImage'),['drawImage',mask,6.399999999999999,-108,35.2,135.84]);
+});
+
+test('desktop Hero retires the live CSS mask only after its bitmap is ready',async()=>{
+ const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(app,/function HeroDotField/);
+ assert.match(app,/paintDotField\(context,\{width,height,dpr,mask,background\}\)/);
+ assert.match(app,/data-rasterized=\{ready\?'true':undefined\}/);
+ assert.match(app,/className=\{`hero-bottom-dots-bitmap\$\{ready\?' is-ready':''\}`\}/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-bottom-dots-bitmap\.is-ready\{opacity:1\}/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-bottom-dots\[data-rasterized="true"\]\{display:none\}/);
+});
+
+test('pointer coordinates account for SVG meet fields before magnification',()=>{
+  assert.deepEqual(clientPointToSvg({clientX:100,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:500,y:500});
+  assert.deepEqual(clientPointToSvg({clientX:0,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:0,y:500});
+  assert.deepEqual(clientPointToSvg({clientX:200,clientY:50,rect:{left:0,top:0,width:200,height:100},viewWidth:1000,viewHeight:1000}),{x:1000,y:500});
+});
+
+test('selected Hero node supplies both the matching label and icon',()=>{
+  assert.deepEqual(captionForPoint({x:495,y:314.667}),{label:'Проектирование',icon:'design',active:true});
+  assert.deepEqual(captionForPoint({x:0,y:0}),{label:'Исследуйте процесс',icon:'search',active:false});
+});
+
+function fakeClock(){
+ let now=0,id=0;
+ const timers=new Map();
+ return {
+  schedule(fn,delay){const token=++id;timers.set(token,{at:now+delay,fn});return token},
+  cancel(token){timers.delete(token)},
+  tick(ms){
+   const end=now+ms;
+   while(true){
+    const next=[...timers.entries()].filter(([,timer])=>timer.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];
+    if(!next)break;
+    timers.delete(next[0]);now=next[1].at;next[1].fn();
+   }
+   now=end;
+  },
+ };
+}
+
+test('caption resolver chooses the nearest node and retains it through the 80px exit radius',()=>{
+ const design={x:495,y:314.667};
+ const selected=resolveCaptionCandidate(design,'default');
+ assert.equal(selected.label,'Проектирование');
+ assert.equal(resolveCaptionCandidate({x:570,y:314.667},selected.key).label,'Проектирование');
+ assert.equal(resolveCaptionCandidate({x:576,y:314.667},selected.key),null);
+});
+
+test('caption target reacts immediately while default waits for 160ms without an empty state',()=>{
+ const clock=fakeClock();
+ const changes=[];
+ const controller=createCaptionController({onChange:value=>changes.push(value),schedule:clock.schedule,cancel:clock.cancel});
+ controller.update({x:495,y:314.667});
+ assert.equal(changes.at(-1).label,'Проектирование');
+ controller.update(null);
+ clock.tick(159);assert.equal(changes.at(-1).label,'Проектирование');
+ clock.tick(1);assert.deepEqual(changes.at(-1),DEFAULT_CAPTION);
+});
+
+test('latest caption candidate wins immediately and cancels a pending default',()=>{
+ const clock=fakeClock();
+ const changes=[];
+ const controller=createCaptionController({onChange:value=>changes.push(value),schedule:clock.schedule,cancel:clock.cancel});
+ controller.update({x:495,y:314.667});
+ controller.update({x:704,y:128.667});
+ assert.equal(changes.at(-1).label,'Передача в разработку');
+ controller.update(null);
+ clock.tick(80);
+ controller.update({x:495,y:314.667});
+ assert.equal(changes.at(-1).label,'Проектирование');
+ clock.tick(200);
+ assert.equal(changes.at(-1).label,'Проектирование');
+  controller.destroy();
+});
+
+test('caption controller can settle immediately without leaving delayed default work',()=>{
+ const clock=fakeClock();
+ const changes=[];
+ const controller=createCaptionController({onChange:value=>changes.push(value),schedule:clock.schedule,cancel:clock.cancel});
+ controller.update({x:495,y:314.667});
+ controller.update(null);
+ controller.reset();
+ assert.deepEqual(changes.at(-1),DEFAULT_CAPTION);
+ const settledCount=changes.length;
+ clock.tick(300);
+ assert.equal(changes.length,settledCount);
+ controller.destroy();
+});
+
+test('caption crossfade keeps one stable shell and one live-region value',async()=>{
+ const source=await readFile(path.resolve(import.meta.dirname,'../src/SvgLens.jsx'),'utf8');
+ const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
+ assert.match(source,/className="process-caption-shell" aria-hidden="true"/);
+ assert.match(source,/className="sr-only" aria-live="polite"/);
+ assert.match(source,/createCaptionController/);
+ assert.doesNotMatch(source,/key=\{`\$\{caption\.icon\}:\$\{caption\.label\}`\}/);
+ assert.match(css,/\.process-caption-shell\{height:16px;display:grid;place-items:center\}/);
+ assert.match(css,/\.process-caption-content\.is-incoming\{animation:caption-enter 300ms cubic-bezier\(\.22,\.61,\.36,1\) both\}/);
+ assert.match(css,/@keyframes caption-enter\{from\{opacity:0;transform:translateY\(6px\) scale\(\.985\)\}/);
+ assert.match(css,/@keyframes caption-exit\{from\{opacity:1;transform:translateY\(0\) scale\(1\)\}to\{opacity:0;transform:translateY\(-6px\) scale\(\.985\)\}\}/);
+ assert.match(css,/\.process-caption-content\{animation:none\}\.process-caption-content\.is-outgoing\{display:none\}/);
+});
+
+test('route pulses wait 2–3 seconds and arrive only at their direction terminal',()=>{
+  const scheduled=[];
+  const cancelled=[];
+  const pulses=[];
+  const arrivals=[];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  const stop=schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:pulse=>pulses.push(pulse),
+    arrive:event=>arrivals.push(event),
+    random:()=>0,
+    schedule,
+    cancel:id=>cancelled.push(id),
+  });
+
+  assert.equal(scheduled[0].delay,2000);
+  scheduled[0].callback();
+  assert.equal(pulses[0].reverse,true);
+  assert.equal(scheduled[1].delay,800);
+  scheduled[1].callback();
+  assert.equal(arrivals[0].node,'a');
+  assert.equal(scheduled[2].delay,2000);
+  stop();
+  assert.ok(cancelled.length>=1);
+});
+
+test('a returning Hero pulse starts immediately, then resumes the normal idle cadence',()=>{
+  const scheduled=[];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:()=>{},
+    initialDelay:0,
+    random:()=>0,
+    schedule,
+    cancel:()=>{},
+  });
+
+  assert.equal(scheduled[0].delay,0);
+  scheduled[0].callback();
+  assert.equal(scheduled[1].delay,800);
+  scheduled[1].callback();
+  assert.equal(scheduled[2].delay,2000);
+});
+
+test('pulse route lengths are measured once and reused when the screen scale changes',()=>{
+ const calls=[];
+ const measured=measurePulseRoutes(path=>{calls.push(path);return calls.length*10;});
+ assert.equal(calls.length,pulseRoutes.length);
+ const atOne=scalePulseRoutes(measured,1);
+ const atTwo=scalePulseRoutes(measured,2);
+ assert.deepEqual(atOne.map(route=>route.length),atTwo.map(route=>route.length));
+ assert.notDeepEqual(atOne.map(route=>route.duration),atTwo.map(route=>route.duration));
+});
+
+test('pulse scale rejects missing, zero and non-finite SVG matrices',()=>{
+ assert.equal(screenScale(null),null);
+ assert.equal(screenScale({a:0,b:0}),null);
+ assert.equal(screenScale({a:Infinity,b:0}),null);
+ assert.equal(screenScale({a:3,b:4}),5);
+});
+
+test('Hero pulse lifecycle follows the visible map instead of page visibility alone',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
+  assert.match(source,/createViewActivity/);
+  assert.match(source,/rootMargin:'8px 0px'/);
+  assert.match(source,/createFrameTask/);
+  assert.match(source,/target:svg/);
+  assert.match(source,/initialDelay:immediate\?0:undefined/);
+  assert.match(source,/measurePulseRoutes/);
+  assert.match(source,/scalePulseRoutes/);
+  assert.doesNotMatch(source,/opacity:\s*0/);
+});
+
+test('forward route arrival targets the opposite terminal',()=>{
+  const scheduled=[];
+  const arrivals=[];
+  const randomValues=[0,0,.75,0];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:()=>{},
+    arrive:event=>arrivals.push(event),
+    random:()=>randomValues.shift(),
+    schedule,
+    cancel:()=>{},
+  });
+
+  scheduled[0].callback();
+  scheduled[1].callback();
+  assert.equal(arrivals[0].node,'b');
+});
+
+test('cancelled pulse cannot emit a late arrival or schedule another route',()=>{
+  const scheduled=[];
+  const cancelled=[];
+  const arrivals=[];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  const stop=schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:()=>{},
+    arrive:event=>arrivals.push(event),
+    random:()=>0,
+    schedule,
+    cancel:id=>cancelled.push(id),
+  });
+
+  scheduled[0].callback();
+  stop();
+  assert.ok(cancelled.includes(scheduled[1].id));
+  scheduled[1].callback();
+  assert.deepEqual(arrivals,[]);
+  assert.equal(scheduled.length,2);
+});
+
+test('scroll pause cancels the visible pulse and terminal work, then resumes immediately',()=>{
+  const scheduled=[];
+  const cancelled=[];
+  const pulses=[];
+  const arrivals=[];
+  const schedule=(callback,delay)=>{const item={callback,delay,id:scheduled.length+1};scheduled.push(item);return item.id;};
+  const controller=schedulePulses({
+    routes:[{from:'a',to:'b',duration:800}],
+    emit:pulse=>pulses.push(pulse),
+    arrive:event=>arrivals.push(event),
+    initialDelay:0,
+    random:()=>0,
+    schedule,
+    cancel:id=>cancelled.push(id),
+  });
+
+  scheduled[0].callback();
+  controller.pause({cancelActive:true});
+  assert.ok(cancelled.includes(scheduled[1].id));
+  assert.equal(pulses.at(-1),null);
+  assert.equal(arrivals.at(-1),null);
+  scheduled[1].callback();
+  assert.equal(scheduled.length,2);
+  assert.equal(arrivals.filter(Boolean).length,0);
+
+  controller.resume({immediate:true});
+  assert.equal(scheduled[2].delay,0);
+  controller.stop();
+});
+
+test('Hero removes active pulse paths for scroll and defers the immediate restart past the final scroll frame',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/RoutePulse.jsx'),'utf8');
+  assert.match(source,/subscribeScrollActivity/);
+  assert.match(source,/controller\.pause\(\{cancelActive:true\}\)/);
+  assert.match(source,/const resumeTask=createFrameTask\(\{write:\(\)=>\{/);
+  assert.match(source,/if\(scrollActive\|\|!active\|\|!controller\)return;/);
+  assert.match(source,/controller\.resume\(\{immediate:true\}\)/);
+  assert.match(source,/resumeTask\.cancel\(\)/);
+  assert.match(source,/resumeTask\.schedule\(\{\}\)/);
+  assert.match(source,/resumeTask\.dispose\(\)/);
+  assert.doesNotMatch(source,/else controller\.resume\(\{immediate:true\}\)/);
+});
+
+test('terminal highlight uses 60ms reveal and 240ms fade',async()=>{
+  const css=await readFile(path.resolve(import.meta.dirname,'../src/svg-lens.css'),'utf8');
+  assert.match(css,/\.terminal-arrival\{[^}]*animation:terminal-arrival 300ms linear both/);
+  assert.match(css,/@keyframes terminal-arrival\{0%\{opacity:0\}20%\{opacity:1\}100%\{opacity:0\}\}/);
+});

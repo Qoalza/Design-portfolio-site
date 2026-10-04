@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Морфинг символа · Concept V.2</title>
+  <style>
+    @font-face{font-family:Onest;src:url('/fonts/onest-variable.woff2') format('woff2');font-weight:100 900;font-display:swap}
+    :root{font-family:Onest,Arial,sans-serif;color:#e9eef2;background:#0e1012}
+    *{box-sizing:border-box}
+    [hidden]{display:none!important}
+    body{min-width:320px;min-height:100svh;margin:0}
+    main{min-height:100svh;display:grid;place-items:center;padding:32px;background:radial-gradient(circle 923px at 50% 52.1875%,#121517 0%,#0e1012 100%)}
+    .preview{display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center}
+    svg{width:192px;height:192px;overflow:visible}
+    h1{margin:0;font-size:20px;font-weight:400;line-height:28px}
+    p{max-width:340px;margin:0;color:#949ea6;font-size:14px;line-height:20px}
+    button{min-width:152px;min-height:44px;padding:9px 18px;border:1px solid #1992ec;border-radius:10px;background:#0876d0;color:#fff;font:500 15px/24px Onest,Arial,sans-serif;cursor:pointer}
+    button:hover{background:#1789e4}
+    button:focus-visible{outline:2px solid #f2f4f5;outline-offset:3px}
+    .note{font-size:12px;color:#737d85}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="preview">
+      <svg id="mark" viewBox="0 0 96 96" role="img" aria-label="Буква А" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path id="body-source" d="M35.5346 39.9844C35.5892 40.1433 35.4175 40.2848 35.2719 40.2008L33.7419 39.3174C32.527 38.616 31.6065 37.4988 31.1504 36.1721L24 15.3709L19.947 27.1615H21.4708C23.2249 27.1615 24.7945 28.2234 25.4552 29.8303C25.5027 29.9456 25.4152 30.0686 25.2905 30.0686H18.9476L16.8496 36.1721C16.3936 37.4988 15.4732 38.616 14.2583 39.3174L12.7281 40.2008C12.5826 40.2848 12.4108 40.1433 12.4654 39.9844L21.987 12.284C22.0279 12.1651 22.1745 12.1225 22.2789 12.1926C22.7707 12.5234 23.3627 12.7166 24 12.7166C24.6372 12.7166 25.2292 12.5234 25.721 12.1926C25.8253 12.1225 25.972 12.165 26.0129 12.2839L35.5346 39.9844Z"/>
+          <path id="dot-source" d="M25.4536 9.62777C25.4536 10.4306 24.8028 11.0813 24 11.0813C23.1972 11.0813 22.5464 10.4306 22.5464 9.62777C22.5464 8.82498 23.1972 8.17419 24 8.17419C24.8028 8.17419 25.4536 8.82498 25.4536 9.62777Z"/>
+          <path id="plug-0" d="M53.506 51.3988C54.4857 50.4191 56.0733 50.4183 57.052 51.397L60.5963 54.9413C61.5751 55.9201 61.5743 57.5077 60.5946 58.4874C59.6149 59.467 58.0273 59.4678 57.0486 58.4891L53.5043 54.9448C52.5256 53.9661 52.5264 52.3785 53.506 51.3988Z"/>
+          <path id="plug-1" d="M29.9035 49.3051C30.3934 48.8152 31.1872 48.8149 31.6765 49.3042L46.7398 64.3675C47.2292 64.8569 47.2288 65.6507 46.7389 66.1405C46.4107 66.4688 45.946 66.577 45.5278 66.4655L39.9766 72.0167C37.8336 74.1598 34.3607 74.1615 32.2197 72.0205L29.8232 69.6241C29.7061 69.8558 29.5514 70.0736 29.3578 70.2673C26.9799 72.6453 25.7839 73.4531 24.5423 76.5858C24.3944 76.9591 24.2574 77.4419 24.089 78.1052C23.9329 78.7202 23.7447 79.5129 23.5187 80.2875C23.0622 81.8523 22.3437 83.7582 20.8641 85.3594C19.9238 86.3769 18.3374 86.4405 17.3208 85.5012C16.3042 84.5619 16.2424 82.9754 17.1827 81.9578C17.8737 81.21 18.3232 80.1946 18.7046 78.8874C18.8976 78.2262 19.0459 77.5949 19.2283 76.8763C19.3984 76.206 19.6019 75.4446 19.8804 74.7419C21.5851 70.4408 23.6735 68.8631 25.8135 66.723C26.0071 66.5294 26.2248 66.3745 26.4565 66.2574L24.0235 63.8243C21.8825 61.6834 21.8842 58.2105 24.0273 56.0674L29.5785 50.5162C29.4671 50.098 29.5753 49.6333 29.9035 49.3051Z"/>
+          <path id="plug-2" d="M56.6225 23.4722C58.7656 21.3291 62.2385 21.3274 64.3794 23.4684L66.6883 25.7773C68.8472 23.6479 69.9877 22.7727 71.1699 19.7901C71.3261 19.396 71.4683 18.8856 71.647 18.1767C71.8134 17.517 72.0125 16.6815 72.2633 15.8541C72.7682 14.1884 73.5858 12.1733 75.302 10.5583C76.311 9.60878 77.8977 9.65627 78.8462 10.6643C79.7947 11.6723 79.7457 13.2592 78.7367 14.2087C77.9659 14.9341 77.4713 15.9551 77.0624 17.3043C76.8563 17.9842 76.698 18.6512 76.5095 19.3987C76.3333 20.0973 76.1228 20.8998 75.8318 21.6339C74.216 25.7108 72.2559 27.3411 70.2334 29.3224L72.5756 31.6646C74.7166 33.8056 74.7149 37.2785 72.5718 39.4216L68.248 43.7454C67.5132 44.4801 66.3225 44.4807 65.5884 43.7467C61.118 37.8614 58.1642 34.9647 52.2973 30.4556C51.5633 29.7216 51.5639 28.5308 52.2986 27.7961L56.6225 23.4722Z"/>
+          <path id="plug-3" d="M49.0778 42.5358C50.0575 41.5562 51.6451 41.5554 52.6238 42.5341C53.6026 43.5128 53.6018 45.1005 52.6221 46.0801L48.1874 50.5149C47.2077 51.4945 45.6201 51.4953 44.6414 50.5166C43.6626 49.5379 43.6635 47.9503 44.6431 46.9706L49.0778 42.5358Z"/>
+          <path id="plug-4" d="M36.6706 34.5634C37.6503 33.5837 39.2379 33.5829 40.2166 34.5616L43.7609 38.1059C44.7397 39.0846 44.7389 40.6723 43.7592 41.6519C42.7795 42.6316 41.1919 42.6324 40.2132 41.6537L36.6689 38.1094C35.6901 37.1307 35.691 35.543 36.6706 34.5634Z"/>
+        </defs>
+        <g id="a-exact" fill="#f2f4f5">
+          <use href="#body-source" transform="scale(2)"/>
+          <use href="#dot-source" transform="scale(2)"/>
+        </g>
+        <g id="plug-left" fill="#c84828" hidden><use href="#plug-1"/></g>
+        <g id="plug-right" fill="#c84828" hidden><use href="#plug-2"/></g>
+        <g id="plug-fragments" fill="#c84828" hidden>
+          <use href="#plug-0"/><use href="#plug-3"/><use href="#plug-4"/>
+        </g>
+      </svg>
+      <h1>Проверка морфинга</h1>
+      <p>«А» превращается в разорванное соединение. Нажми ещё раз, чтобы увидеть обратный ход.</p>
+      <button id="toggle" type="button">Показать разрыв</button>
+      <p class="note">Отдельное превью · основной прелоадер не меняется</p>
+    </div>
+  </main>
+  <script>
+    const svg=document.querySelector('#mark');
+    const aExact=document.querySelector('#a-exact');
+    const plugLeft=document.querySelector('#plug-left');
+    const plugRight=document.querySelector('#plug-right');
+    const plugFragments=document.querySelector('#plug-fragments');
+    const button=document.querySelector('#toggle');
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const duration=370;
+    let progress=0;
+    let frame=0;
+
+    const smooth=(from,to,value)=>{
+      const t=Math.max(0,Math.min(1,(value-from)/(to-from)));
+      return t*t*(3-2*t);
+    };
+    function visible(node,opacity){
+      node.toggleAttribute('hidden',opacity<=0);
+      node.setAttribute('opacity',opacity.toFixed(3));
+    }
+
+    function draw(value){
+      progress=Math.max(0,Math.min(1,value));
+      const collapse=smooth(.12,.68,progress);
+      const aOpacity=1-smooth(.48,.70,progress);
+      const plugOpacity=1-aOpacity;
+      const fragmentOpacity=smooth(.45,.88,progress);
+      const color=[0,1,2].map((_,index)=>{
+        const start=[242,244,245][index],end=[200,72,40][index];
+        return Math.round(start+(end-start)*smooth(.16,.56,progress));
+      });
+      aExact.setAttribute('fill',`rgb(${color.join(',')})`);
+      const scale=(1-.08*collapse).toFixed(3);
+      aExact.setAttribute('transform',`translate(48 48) scale(${scale}) translate(-48 -48)`);
+      const spread=1-smooth(.30,.84,progress);
+      plugLeft.setAttribute('transform',`translate(${(8*spread).toFixed(2)} ${(-8*spread).toFixed(2)})`);
+      plugRight.setAttribute('transform',`translate(${(-8*spread).toFixed(2)} ${(8*spread).toFixed(2)})`);
+      visible(aExact,aOpacity);
+      visible(plugLeft,plugOpacity);
+      visible(plugRight,plugOpacity);
+      visible(plugFragments,fragmentOpacity);
+    }
+    function animate(to){
+      cancelAnimationFrame(frame);
+      if(reduced.matches){draw(to);return;}
+      const from=progress,start=performance.now();
+      const tick=now=>{
+        const fraction=Math.min(1,(now-start)/duration);
+        draw(from+(to-from)*fraction);
+        if(fraction<1)frame=requestAnimationFrame(tick);
+      };
+      frame=requestAnimationFrame(tick);
+    }
+    function updateLabel(){
+      const broken=progress>=.5;
+      button.textContent=broken?'Вернуть «А»':'Показать разрыв';
+      svg.setAttribute('aria-label',broken?'Разорванное соединение':'Буква А');
+    }
+    button.addEventListener('click',()=>{
+      const target=progress>=.5?0:1;
+      animate(target);
+      button.textContent=target?'Вернуть «А»':'Показать разрыв';
+      svg.setAttribute('aria-label',target?'Разорванное соединение':'Буква А');
+    });
+    const params=new URLSearchParams(location.search);
+    if(params.has('t')){
+      const reverse=params.has('reverse');
+      const seconds=Number(params.get('t'));
+      draw(reverse?1-Math.min(1,Math.max(0,seconds*1000/duration)):Math.min(1,Math.max(0,seconds*1000/duration)));
+      updateLabel();
+    }else draw(0);
+    window.__ready=true;
+  </script>
+</body>
+</html>

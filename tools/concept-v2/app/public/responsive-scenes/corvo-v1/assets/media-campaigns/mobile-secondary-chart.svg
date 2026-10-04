@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="365" height="68" viewBox="0 0 365 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Secondary" clip-path="url(#clip0_0_166)">
+<path id="Line" d="M0 68L4.7489 63.7237C19.0188 50.874 38.7776 46.0288 57.3732 50.8193L58.4253 51.0904C71.5449 54.4702 85.4533 52.8399 97.4357 46.5178L114.842 37.3341C126.193 31.3446 140.146 33.6582 148.957 42.9911C159.011 53.6409 175.49 54.9655 187.116 46.0583L187.503 45.762C196.965 38.5131 209.889 37.763 220.126 43.8686L225.664 47.1715C232.869 51.4686 241.276 53.3036 249.616 52.399L289.427 48.0808C294.58 47.5219 299.681 46.5606 304.684 45.2056C320.94 40.8028 338.049 40.6054 354.402 44.6319L365 47.2412" stroke="#909296" stroke-miterlimit="2.61313" stroke-linecap="round" stroke-dasharray="8 4"/>
+</g>
+<defs>
+<clipPath id="clip0_0_166">
+<rect width="365" height="68" fill="white"/>
+</clipPath>
+</defs>
+</svg>

@@ -1,0 +1,292 @@
+.routing404 {
+  position:relative;
+  min-width:1280px;
+  min-height:max(100vh, 960px);
+  overflow:hidden;
+  background:radial-gradient(1746.221px 1196.5px at 50% max(0px,calc((100vh - 960px)/2)),var(--cv2-container-neutral-faint) 0,var(--cv2-container-neutral-inverse) 100%);
+  color:var(--cv2-text-neutral-primary);
+  font-family:Onest,sans-serif;
+}
+.routing404-stage {
+  position:relative;
+  top:max(0px,calc((100vh - 960px)/2));
+  left:50%;
+  width:1440px;
+  height:960px;
+  transform:translateX(-50%);
+  overflow:hidden;
+  background:transparent;
+}
+.routing404-header {
+  position:absolute;
+  z-index:4;
+  top:80px;
+  left:80px;
+  display:flex;
+  width:1280px;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+.routing404-header h1 {
+  margin:0;
+  color:var(--cv2-text-neutral-primary);
+  font:500 44px/56px 'Google Sans',sans-serif;
+  letter-spacing:-.1px;
+  font-variation-settings:'GRAD' 0;
+}
+.routing404-header p {
+  margin:8px 0 40px;
+  color:var(--cv2-text-neutral-muted);
+  font:350 16px/24px Onest,sans-serif;
+}
+.routing404-stage.is-launched .routing404-header h1,
+.routing404-stage.is-launched .routing404-header p {animation:routing404-copy-enter 450ms cubic-bezier(.22,.61,.36,1) both}
+@keyframes routing404-copy-enter {from {opacity:0;transform:translateY(8px)} to {opacity:1;transform:translateY(0)}}
+.routing404-home.control {
+  width:118px;
+  height:40px;
+  padding:0 16px;
+  transition:background-color 320ms ease,color 320ms ease,border-color 320ms ease,box-shadow 320ms ease;
+}
+.routing404-stage.is-launched .routing404-home.control {animation:routing404-button-arrive 500ms ease-out both}
+@keyframes routing404-button-arrive {0% {box-shadow:0 0 0 0 #43a2ee00} 45% {box-shadow:0 0 0 5px #43a2ee30} 100% {box-shadow:0 0 0 0 #43a2ee00}}
+.routing404-home.control.light {--control-bg:var(--cv2-container-neutral-soft);--control-fg:var(--cv2-text-neutral-tertiary);--control-border:transparent}
+.routing404-home.control.light:hover {--control-bg:var(--cv2-container-neutral-soft);--control-fg:var(--cv2-text-neutral-primary);--control-border:var(--cv2-border-neutral-surface)}
+.routing404-home.control.light:active {--control-bg:var(--cv2-container-neutral-thin);--control-fg:var(--cv2-text-neutral-strong);--control-border:var(--cv2-border-neutral-muted)}
+.routing404-corner {
+  position:fixed;
+  z-index:6;
+  width:80px;
+  height:80px;
+  pointer-events:none;
+}
+.routing404-corner.corner-tl {top:0;left:0;transform:rotate(180deg)}
+.routing404-corner.corner-tr {top:0;right:0;transform:scaleY(-1)}
+.routing404-corner.corner-bl {bottom:0;left:0;transform:scaleY(-1)}
+.routing404-corner.corner-br {bottom:0;right:0}
+.routing404-map {
+  position:absolute;
+  top:344px;
+  left:80px;
+  width:1280px;
+  height:548px;
+}
+.routing404-number-art {
+  position:absolute;
+  top:74.5px;
+  left:687px;
+  width:324.745px;
+  height:116.76px;
+  pointer-events:none;
+}
+.routing404-number-art img {position:absolute;top:0;left:0}
+.routing404-number-initial,.routing404-number-final {position:absolute;inset:0}
+.routing404-number-final {opacity:0}
+.routing404-stage.is-launched .routing404-number-initial {opacity:0;transition:opacity 420ms ease-out}
+.routing404-stage.is-launched .routing404-number-final {opacity:1;animation:routing404-number-arrive 650ms cubic-bezier(.22,.61,.36,1) both}
+@keyframes routing404-number-arrive {
+  0% {opacity:0;filter:drop-shadow(0 0 0 #43a2ee00);transform:scale(.96)}
+  42% {opacity:1;filter:drop-shadow(0 0 24px #43a2ee70);transform:scale(1.02)}
+  100% {opacity:1;filter:drop-shadow(0 0 0 #43a2ee00);transform:scale(1)}
+}
+.routing404-routes {
+  --routing404-visible-inset:max(0px,calc((1440px - 100vw)/2));
+  position:absolute;
+  top:0;
+  left:-80px;
+  width:1440px;
+  height:548px;
+  pointer-events:none;
+  -webkit-mask-image:linear-gradient(to right,transparent var(--routing404-visible-inset),#000 calc(var(--routing404-visible-inset) + 160px),#000 calc(1280px - var(--routing404-visible-inset)),transparent calc(1440px - var(--routing404-visible-inset)));
+  mask-image:linear-gradient(to right,transparent var(--routing404-visible-inset),#000 calc(var(--routing404-visible-inset) + 160px),#000 calc(1280px - var(--routing404-visible-inset)),transparent calc(1440px - var(--routing404-visible-inset)));
+}
+.routing404-route-vector {position:absolute;max-width:none}
+.routing404-pulse-vector {position:absolute;overflow:visible}
+.routing404-pulse-vector path {
+  fill:none;
+  stroke:#d9f0ff;
+  stroke-width:2.5;
+  stroke-linecap:round;
+  stroke-dasharray:12 120;
+  filter:drop-shadow(0 0 4px #43a2ee);
+  opacity:0;
+  animation:routing404-pulse-travel var(--pulse-duration) linear var(--pulse-delay) both;
+}
+@keyframes routing404-pulse-travel {
+  0% {opacity:0;stroke-dashoffset:var(--pulse-from)}
+  8% {opacity:1}
+  92% {opacity:1}
+  100% {opacity:0;stroke-dashoffset:var(--pulse-to)}
+}
+.routing404-node {
+  position:absolute;
+  z-index:2;
+  height:76px;
+  font:400 12px/16px 'Source Code Pro',monospace;
+  letter-spacing:-.3px;
+  font-feature-settings:'cv01' 1,'cv02' 1,'cv12' 1;
+}
+.routing404-node-marker {
+  position:absolute;
+  top:8px;
+  left:8px;
+  width:16px;
+  height:16px;
+  border:1px solid #272b2e;
+  border-radius:4px;
+  background:#16191a;
+}
+.routing404-node-label {
+  position:absolute;
+  bottom:0;
+  left:8px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  white-space:nowrap;
+}
+.routing404-node-label strong {color:#bbc2c7;font-weight:400}
+.routing404-node-label span {color:#99a1a6}
+.routing404-node.is-other .routing404-node-marker {border-color:#788087}
+.routing404-node.is-other .routing404-node-marker::after,
+.routing404-node.is-active .routing404-node-marker::after,
+.routing404-node.is-error .routing404-node-marker::after {
+  position:absolute;
+  top:2px;
+  left:2px;
+  width:10px;
+  height:10px;
+  border-radius:2px;
+  content:'';
+}
+.routing404-node.is-other .routing404-node-marker::after {background:#bbc2c7}
+.routing404-node.is-active .routing404-node-marker {border-color:#0462af;background:#00355f}
+.routing404-node.is-active .routing404-node-marker::after {background:#0378d6}
+.routing404-node.is-error .routing404-node-marker {border-color:#ff635e;background:#16191a}
+.routing404-node.is-error .routing404-node-marker::after {background:#dd4743}
+.routing404-node.is-other .routing404-node-label strong,
+.routing404-node.is-active .routing404-node-label strong,
+.routing404-node.is-error .routing404-node-label strong {color:#d6dce0}
+.routing404-node.is-other .routing404-node-label span,
+.routing404-node.is-active .routing404-node-label span,
+.routing404-node.is-error .routing404-node-label span {color:#bbc2c7}
+.routing404-slot {
+  position:absolute;
+  z-index:3;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  color:#565c61;
+  text-align:center;
+  font:400 12px/16px 'Source Code Pro',monospace;
+  letter-spacing:-.3px;
+  font-feature-settings:'cv01' 1,'cv02' 1,'cv12' 1;
+}
+.routing404-empty-packet {
+  position:relative;
+  display:grid;
+  width:32px;
+  height:32px;
+  place-items:center;
+  border:1px solid #323639;
+  border-radius:8px;
+  background:#101112;
+  color:#99a1a6;
+}
+.routing404-slot.has-icon .routing404-empty-packet {border:0;color:#788087}
+.routing404-empty-outline {position:absolute;top:-.5px;left:-.5px;width:33px;height:33px;fill:none;stroke:#323639;stroke-width:1}
+.routing404-slot.has-icon .routing404-icon-frame {z-index:1}
+.routing404-slot.is-proximity .routing404-empty-packet {border-color:#43a2ee}
+.routing404-slot.is-proximity .routing404-empty-outline {stroke:#43a2ee}
+.routing404-slot-label {display:block;margin-top:8px;white-space:nowrap}
+.routing404-slot.is-occupied .routing404-slot-label {color:#d6dce0}
+.routing404-slot.is-wrong .routing404-slot-label {color:#d6dce0}
+.routing404-error-lead {
+  position:absolute;
+  top:-24px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#565c61;
+  white-space:nowrap;
+}
+.routing404-packet {
+  position:relative;
+  display:block;
+  flex:none;
+  width:32px;
+  height:32px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#eceff2;
+  cursor:grab;
+  touch-action:none;
+}
+.routing404-packet.is-free {
+  width:40px;
+  height:40px;
+  border:1px solid #272b2e;
+  border-radius:12px;
+}
+.routing404-packet.is-dragging {cursor:grabbing}
+.routing404-packet:focus-visible {outline:2px solid #43a2ee;outline-offset:4px}
+.routing404-packet-inner {
+  position:absolute;
+  top:0;
+  left:0;
+  display:grid;
+  width:32px;
+  height:32px;
+  place-items:center;
+  border:1px solid #43a2ee;
+  border-radius:8px;
+  background:#0378d6;
+  font:400 12px/16px 'Source Code Pro',monospace;
+  letter-spacing:-.3px;
+  font-feature-settings:'cv01' 1,'cv02' 1,'cv12' 1;
+}
+.routing404-packet.is-free .routing404-packet-inner {top:3px;left:3px}
+.routing404-packet.has-icon .routing404-packet-inner {border-color:#1d90eb;background:#16191a;color:#bbc2c7}
+.routing404-packet.is-placed.has-icon .routing404-packet-inner {background:#02233d;color:#43a2ee}
+.routing404-packet.is-wrong.has-icon .routing404-packet-inner {border-color:#ff635e;background:#4e1e1d;color:#ff635e}
+.routing404-packet.is-wrong.has-number .routing404-packet-inner {border-color:#ff635e;background:#dd4743;color:#eceff2}
+.routing404-packet.has-number:not(.is-wrong):hover .routing404-packet-inner {border-color:#0378d6;background:#0462af;color:#f8fafc}
+.routing404-packet.has-number:not(.is-wrong):active .routing404-packet-inner,
+.routing404-packet.has-number:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#004c88;color:#fff}
+.routing404-packet.has-icon:not(.is-wrong):hover .routing404-packet-inner {border-color:#43a2ee;background:#16191a;color:#eceff2}
+.routing404-packet.has-icon:not(.is-wrong):active .routing404-packet-inner,
+.routing404-packet.has-icon:not(.is-wrong).is-dragging .routing404-packet-inner {border-color:#0462af;background:#16191a;color:#fff}
+.routing404-icon-frame {
+  position:relative;
+  display:block;
+  width:16px;
+  height:16px;
+}
+.routing404-icon-frame svg {
+  position:absolute;
+  top:0;
+  left:0;
+  transform:scale(0.666666667);
+  transform-origin:top left;
+}
+.routing404-free-packet {position:absolute;z-index:4;width:40px;height:40px}
+.routing404-viewport-packet {position:fixed;z-index:20;width:40px;height:40px;pointer-events:none}
+.routing404-viewport-packet .routing404-packet {pointer-events:auto}
+.routing404-hint {
+  position:absolute;
+  z-index:4;
+  top:-11px;
+  left:1039px;
+  width:111px;
+  color:var(--cv2-text-neutral-thin);
+  text-align:right;
+  font:400 12px/14px 'Source Code Pro',monospace;
+  letter-spacing:-.3px;
+}
+.routing404-arrow {position:absolute;z-index:4;top:5.308px;left:1160.402px;pointer-events:none}
+.routing404-live {position:absolute;left:-9999px}
+@media (prefers-reduced-motion:reduce) {
+  .routing404 * {scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important}
+  .routing404-pulse-vector {display:none}
+}

@@ -1,0 +1,15 @@
+{
+  "testedRuntimeSha": "3ad9b55161d10efe35f7069141793036147032a7",
+  "baselineSha": "5955fde01e408a21e936e86af0805f45bc807313",
+  "mode": "vite-production-build",
+  "automatedChecks": {
+    "tests": 86,
+    "lintedSourceFiles": 35,
+    "builtModules": 82,
+    "browserSmoke": "passed",
+    "diffCheck": "passed"
+  },
+  "acceptanceGaps": [
+    "Manual Zen feel/performance pass was not available in this environment."
+  ]
+}

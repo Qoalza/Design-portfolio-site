@@ -5,6 +5,10 @@ const eslintConfig = [
   {
     ignores: [
       "public/concept-v2/**",
+      ".portfolio-release/**",
+      "USERSPACE/**",
+      "tools/payload-admin/**",
+      "tools/concept-v2/app/**",
       "tools/des-art-admin/public/admin.js",
       "dist/Des-art Admin.app/Contents/Resources/source/**",
       ".next-admin-preview/**",

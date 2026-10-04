@@ -34,6 +34,8 @@
     ".next-admin-preview-41732/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "tools/payload-admin",
+    "USERSPACE"
   ]
 }

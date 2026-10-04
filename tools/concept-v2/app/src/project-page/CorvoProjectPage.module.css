@@ -1,0 +1,502 @@
+.page {
+  min-width: 1280px;
+  background: #17191a;
+  color: #eceff2;
+  font-family: Onest, sans-serif;
+}
+
+.crumb,
+.metricsHeading,
+.metricsContent,
+.contentSection,
+.summaryInner,
+.footer > div {
+  width: 1280px;
+  margin: 0 auto;
+}
+
+.crumbRow {
+  height: 65px;
+  border-bottom: 1px solid #1f2224;
+}
+
+.crumb {
+  height: 48px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #99a1a6;
+  font: 400 14px/16px Onest, sans-serif;
+}
+
+.crumb .crumbProject {
+  width: 67px;
+  min-width: 67px;
+  height: 16px;
+  padding: 0;
+  color: #bbc2c7;
+  border-radius: 4px;
+}
+
+.crumb .crumbHome {
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0;
+  color: #bbc2c7;
+  border-radius: 4px;
+}
+
+.action {
+  position: relative;
+}
+
+.hero {
+  height: 980px;
+  overflow: hidden;
+}
+
+.hero :global(.projectHero) {
+  min-width: 1280px;
+}
+
+.summary {
+  height: 440px;
+  border-top: 1px solid #1f2224;
+  border-bottom: 1px solid #1f2224;
+  background: #141617;
+}
+
+.summaryInner {
+  position: relative;
+  width: 1280px;
+  height: 100%;
+}
+
+.summaryInner::before,
+.summaryInner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: repeating-linear-gradient(to bottom, #1f2224 0 16px, transparent 16px 32px);
+}
+
+.summaryInner::before { left: 0; }
+.summaryInner::after { right: 0; }
+
+.summaryContent {
+  width: 1000px;
+  margin-left: 52px;
+  padding-top: 48px;
+}
+
+.summaryContent > p {
+  width: 992px;
+  margin: 0 0 24px 4px;
+  color: #99a1a6;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.summaryContent > p:last-of-type {
+  margin-bottom: 40px;
+}
+
+.notice {
+  min-height: 68px;
+  padding: 20px;
+  display: flex;
+  gap: 12px;
+  border: 1px solid #1f2224;
+  border-radius: 12px;
+  background: #1a1d1f;
+  color: #d6dce0;
+}
+
+.noticeIcon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex: 0 0 20px;
+}
+
+.notice p {
+  margin: 0;
+  font: 400 16px/20px Onest, sans-serif;
+}
+
+.notice small {
+  margin-top: 8px;
+  display: block;
+  color: #99a1a6;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.metrics {
+  height: 801px;
+  border-bottom: 1px solid #1f2224;
+}
+
+.metricsHeading {
+  height: 188px;
+  padding: 80px 40px 40px 64px;
+}
+
+.metricsHeading h2,
+.contentSection h2 {
+  margin: 0;
+  font: 500 24px/32px "Google Sans", sans-serif;
+  letter-spacing: -.1px;
+}
+
+.metricsHeading h2 {
+  margin-bottom: 12px;
+}
+
+.metricsHeading p {
+  margin: 0;
+  color: #d6dce0;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.metricsContent {
+  padding: 0 52px;
+}
+
+.metric {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  border: 1px solid #1f2224;
+  border-radius: 12px;
+  background: #1a1d1f;
+}
+
+.metricWide {
+  position: relative;
+  height: 226px;
+  padding: 0;
+  display: grid;
+  width: 1176px;
+  grid-template-columns: 843px 331px;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid #1f2224;
+  border-radius: 12px;
+}
+
+.metricWideMain {
+  padding: 24px 24px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #1f2224;
+}
+
+.metricWideMain > p {
+  width: 791px;
+  margin: auto 0 0;
+  color: #99a1a6;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.metricWideAside {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  background: #141617 url('/figma/dot-tile.svg') repeat;
+}
+
+.metricWideAside > p {
+  width: 283px;
+  margin: 0 0 0 2px;
+  color: #bbc2c7;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.metricWideAside .action {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.metricRow {
+  height: 294px;
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 384px);
+  gap: 12px;
+}
+
+.metricRow .metric {
+  height: 294px;
+  gap: 0;
+}
+
+.metricRow .metric > p {
+  height: 72px;
+  margin: 20px 0 0 4px;
+  overflow: hidden;
+}
+
+.metricRow .metric > .action {
+  margin-top: 32px;
+}
+
+.metricHeading {
+  padding: 0 4px;
+}
+
+.metricHeading > p {
+  margin: 0 0 8px;
+  color: #99a1a6;
+  font: 400 16px/20px Onest, sans-serif;
+}
+
+.metric h3 {
+  margin: 0;
+  font: 500 44px/56px "Google Sans", sans-serif;
+  letter-spacing: -.2px;
+}
+
+.metric h3 em {
+  margin-left: 8px;
+  color: #565c61;
+  font-style: normal;
+}
+
+.metric > p {
+  margin: 0 0 0 4px;
+  color: #99a1a6;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.metric > .action {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.longForm {
+  width: 1280px;
+  height: 1010px;
+  margin: 0 auto;
+  padding: 56px 0;
+}
+
+.contentSection {
+  padding: 64px;
+  border-bottom: 1px solid #1f2224;
+}
+
+.copyColumn {
+  width: 936px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.copyColumn p {
+  margin: 0;
+  color: #99a1a6;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.copyColumn h3 {
+  margin: 0;
+  font: 400 20px/28px "Google Sans", sans-serif;
+}
+
+.copyColumn h3 + p {
+  margin-top: -12px;
+}
+
+.contextSection {
+  height: 432px;
+}
+
+.scenarioTextSection {
+  height: 464px;
+}
+
+.scenarioShowcase {
+  height: 1220px;
+}
+
+.scenarioShowcaseHeader {
+  width: 1280px;
+  height: 204px;
+  margin: 0 auto;
+  padding: 8px 64px 0;
+}
+
+.scenarioShowcaseHeader > div {
+  width: 936px;
+}
+
+.scenarioEyebrow {
+  margin: 0 0 12px;
+  color: #99a1a6;
+  font: 500 14px/16px Onest, sans-serif;
+  letter-spacing: -.1px;
+  text-transform: uppercase;
+}
+
+.scenarioShowcaseHeader h2 {
+  margin: 0 0 24px;
+  font: 500 24px/32px "Google Sans", sans-serif;
+  letter-spacing: -.1px;
+}
+
+.scenarioShowcaseHeader p:last-child {
+  width: 936px;
+  color: #99a1a6;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.scenarioMedia {
+  height: 1016px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1176px minmax(0, 1fr);
+  background: #141617;
+}
+
+.scenarioHatch {
+  border-top: 1px solid #1f2224;
+  border-bottom: 1px solid #1f2224;
+  border-left: 0;
+  border-right: 0;
+  background-color: #141617;
+  background-image: repeating-linear-gradient(126.87deg, transparent 0 10px, #1f2224 10px 11px, transparent 11px 15px);
+}
+
+.scenarioCanvas {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid #1f2224;
+  background: #141617;
+}
+
+.scenarioCanvas > img {
+  position: absolute;
+  z-index: 1;
+  top: 50px;
+  left: 79.5px;
+  width: 1015px;
+  height: 902px;
+}
+
+.designWrap {
+  height: 871px;
+  padding: 56px 0;
+}
+
+.designSection {
+  height: 758px;
+  border-bottom: 0;
+}
+
+.designSection .notice {
+  width: 1000px;
+  margin-top: 16px;
+  margin-left: -4px;
+}
+
+.copyColumn .notice p {
+  font: 400 16px/20px Onest, sans-serif;
+}
+
+.arrowList,
+.numberList,
+.checkList {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+  color: #99a1a6;
+  font: 350 16px/24px Onest, sans-serif;
+}
+
+.arrowList li::before {
+  content: '▸';
+  width: 16px;
+  display: inline-block;
+  color: #43a2ee;
+}
+
+.numberList {
+  counter-reset: item;
+  gap: 8px;
+}
+
+.numberList li {
+  counter-increment: item;
+}
+
+.numberList li::before {
+  content: counter(item) '.';
+  width: 24px;
+  padding-left: 4px;
+  display: inline-block;
+  color: #43a2ee;
+}
+
+.resultWrap {
+  height: 525px;
+  border-top: 1px solid var(--cv2-border-neutral-thin);
+  background: #141617;
+}
+
+.result {
+  height: 484px;
+  padding: 64px;
+  border-bottom: 0;
+}
+
+.caseHatch {
+  height: 88px;
+  border-top: 1px solid var(--cv2-border-neutral-thin);
+  background-color: #141617;
+  background-image: repeating-linear-gradient(126.87deg, transparent 0 10px, #1f2224 10px 11px, transparent 11px 15px);
+}
+
+.checkList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.checkIcon { margin-top: 4px; color: #43a2ee; flex: 0 0 16px; }
+
+.footer {
+  height: 61px;
+  border-top: 1px solid #1f2224;
+  background: #141617;
+}
+
+.footerText {
+  height: 60px;
+  padding: 20px 48px 24px;
+  display: flex;
+  justify-content: space-between;
+  color: #788087;
+  font-family: "Source Code Pro", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14px;
+  letter-spacing: -.3px;
+}
+
+.footerMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footerIcon {
+  color: #788087;
+  flex: 0 0 16px;
+}

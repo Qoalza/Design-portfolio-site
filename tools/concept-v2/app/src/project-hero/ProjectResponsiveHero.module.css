@@ -1,0 +1,389 @@
+.responsiveHero {
+  --responsive-hero-icon-stage: #3d4347;
+  --responsive-hero-icon-handle: #d6dce0;
+
+  width: 100vw;
+  height: 980px;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  background: #141617;
+  color: #f8fafc;
+  isolation: isolate;
+}
+
+.heroTopbar {
+  position: relative;
+  z-index: 5;
+  height: 52px;
+  background-color: #1a1d1f;
+}
+
+.heroTopbarInner,
+.heroInner {
+  position: relative;
+  width: 1280px;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.heroTopbarInner { z-index: 1; }
+
+.heroTopbarInner::after,
+.topbarSide::after {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  content: "";
+  pointer-events: none;
+}
+
+.heroTopbarInner::after {
+  background: #1f2224;
+}
+
+.topbarSide::after {
+  background-image: linear-gradient(90deg, #1f2224 0 16px, transparent 16px 32px);
+  background-repeat: repeat-x;
+  background-size: 32px 1px;
+}
+
+.topbarSideRight::after {
+  left: 80px;
+  background-position-x: -4px;
+}
+
+.topbarSide {
+  position: absolute;
+  top: 0;
+  display: flex;
+  width: max(0px, calc((100vw - 1280px) / 2));
+  height: 52px;
+  overflow: hidden;
+  background-color: #141617;
+  background-image: repeating-linear-gradient(126.87deg, #1f2224 0 1px, transparent 1px 12px);
+}
+
+.topbarHatch {
+  display: block;
+  width: 79px;
+  height: 52px;
+  flex: 0 0 79px;
+}
+
+.topbarSeparation {
+  display: block;
+  width: 1px;
+  height: 52px;
+  flex: 0 0 1px;
+}
+
+.topbarSideLeft {
+  right: 100%;
+  justify-content: flex-end;
+}
+
+.topbarSideLeft::after {
+  right: 80px;
+  background-position-x: calc(100% + 12px);
+}
+
+.topbarSideRight {
+  left: 100%;
+}
+
+.scenarioTabs {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  left: 40px;
+  display: flex;
+  width: 526px;
+  height: 40px;
+}
+
+.scenarioActiveLine {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  height: 1px;
+  background: #1d90eb;
+  pointer-events: none;
+}
+
+.heroHint {
+  position: absolute;
+  top: 12px;
+  left: 926px;
+  display: flex;
+  width: 318px;
+  height: 40px;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 0 8px;
+  margin: 0;
+  color: #99a1a6;
+  font-family: "Source Code Pro", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  font-feature-settings: "cv01" 1, "cv02" 1, "cv12" 1;
+  line-height: 16px;
+  letter-spacing: -.3px;
+  white-space: nowrap;
+}
+
+.heroWorkspace {
+  position: relative;
+  height: 928px;
+  overflow: hidden;
+  background-color: #141617;
+}
+
+.workspaceContent {
+  position: relative;
+  z-index: 1;
+  width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding-top: 48px;
+}
+
+.adaptiveRuler {
+  position: relative;
+  display: flex;
+  width: 1200px;
+  height: 64px;
+}
+
+.rulerPosition {
+  position: absolute;
+  z-index: 2;
+  top: 49px;
+  display: block;
+  width: 1px;
+  height: 15px;
+  background: #0462af;
+  pointer-events: none;
+}
+
+.adaptiveLayout {
+  display: flex;
+  height: 64px;
+  flex: 0 0 auto;
+  flex-direction: column;
+}
+
+.adaptiveMain {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  flex: 0 0 48px;
+  overflow: hidden;
+}
+
+.adaptiveMainBoundary {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 16px;
+}
+
+.adaptiveMainBoundary_min { left: 0; }
+.adaptiveMainBoundary_max { right: 0; }
+
+.adaptiveTrack {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 16px;
+  flex: 0 0 16px;
+  overflow: hidden;
+  border-top: 1px solid #272b2e;
+}
+
+.rulerStartHatch,
+.rulerEndHatch {
+  position: absolute;
+  top: 0;
+  display: block;
+  height: 15px;
+}
+
+.rulerStartHatch { left: 1px; width: 214px; }
+.rulerEndHatch { right: 1px; width: 39px; }
+
+.adaptiveTick,
+.rulerBoundary {
+  position: absolute;
+  top: 0;
+  display: block;
+  width: 1px;
+  height: 15px;
+}
+
+.adaptiveTick_min { left: 215px; }
+.adaptiveTick_mobile { left: 100px; }
+.adaptiveTick_tablet { left: 369.4px; }
+.adaptiveTick_desktop { left: 146.4px; }
+.adaptiveTick_max { left: 159px; }
+.rulerBoundary_min { left: 0; }
+.rulerBoundary_max { right: 0; }
+
+.stage {
+  position: relative;
+}
+
+.stageTop {
+  position: relative;
+  /* Guides move with the selected viewport; locks belong to the fixed ruler
+     canvas and must not travel as the viewport width changes. */
+  width: 1200px;
+  height: 60px;
+}
+
+.stageGuide {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 60px;
+  background: repeating-linear-gradient(#0462af 0 8px, transparent 8px 16px);
+}
+
+.stageLock {
+  position: absolute;
+  top: 8px;
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: var(--responsive-hero-icon-stage);
+  -webkit-mask-image: var(--lock-icon);
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 16px 16px;
+  mask-image: var(--lock-icon);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: 16px 16px;
+}
+
+.stageLockLeft { left: 8px; }
+.stageLockRight { right: 8px; }
+
+.stageSurface {
+  position: relative;
+  width: 100%;
+}
+
+.productViewport {
+  position: relative;
+  z-index: 4;
+  clip-path: inset(0 round 8px 0 0 8px);
+  /* Composite the iframe with its backing before clipping (Gecko edge halo). */
+  mask-image: linear-gradient(#000, #000);
+  background: #fff;
+}
+
+.productViewportDark {
+  /* Fill the animated frame while the scene retains its breakpoint height. */
+  background: #242625;
+}
+
+.logicalProduct {
+  overflow: clip;
+  transform: scale(.6);
+  transform-origin: top left;
+}
+
+.iframeCanvas {
+  width: 100%;
+}
+
+.productFrame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+}
+
+.resizeEdge {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  width: 56px;
+  background: #141617;
+}
+
+.resizeHatch {
+  position: absolute;
+  inset: 0 1px 0 0;
+  display: block;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 55px 100%;
+}
+
+.resizeSeparation {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  width: 1px;
+  height: 100%;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 1px 100%;
+}
+
+.resizeHandle {
+  position: absolute;
+  top: 62px;
+  left: 39.5px;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid #1d90eb;
+  border-radius: 8px;
+  background: #0378d6;
+  color: #d6dce0;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  appearance: none;
+}
+
+.resizeHandle:hover {
+  border-color: #0378d6;
+  background: #0462af;
+}
+
+.resizeHandle:active {
+  border-color: #0462af;
+  background: #004c88;
+}
+
+.resizeChevron {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask-image: var(--resize-icon);
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 16px 16px;
+  mask-image: var(--resize-icon);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: 16px 16px;
+}
+
+.resizeHandle:focus-visible {
+  outline: 2px solid #43a2ee;
+  outline-offset: 3px;
+}

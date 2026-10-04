@@ -1,0 +1,8 @@
+.shell{position:relative;height:145px;z-index:2}
+.pinned{z-index:20}
+.surface{min-width:1280px;background:#17191a}
+.floating{position:fixed;inset:0 0 auto;z-index:20;animation:enter 150ms ease-out both;will-change:transform}
+.leaving{animation:exit 150ms ease-in both}
+@keyframes enter{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+@keyframes exit{from{transform:translateY(0)}to{transform:translateY(-100%)}}
+@media(prefers-reduced-motion:reduce){.floating,.leaving{animation:none}}

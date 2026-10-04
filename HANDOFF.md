@@ -1,39 +1,31 @@
 # HANDOFF
 
-Обновлено: 2026-09-04.
+Обновлено: 2026-10-05.
+Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
 
-## Checkout
+## Checkpoint
 
-- Production работает на hardening merge `b499b7683f6f124b18cc790e46fe9b6e616f78cc` из PR #40; установленная Admin — на whole-Frame install-compat merge `728bcdcf5afb7b65253a56eda1e173e7d829bf1e` из PR #44.
-- Current follow-up branch: `codex/admin-preview-webpack`, isolated worktree `/private/tmp/design-portfolio-admin-deploy-rollout`.
-- Пользовательский checkout и `USERSPACE/**` не затронуты.
+Новая Goal активна: подготовить выпуск нового сайта с доказанным до выпуска подключением существующего Payload. Полный согласованный план version 3.1 в docs/exec-plans/redesign-production-release.md заменяет прежний Admin-first план. Target CMS — Payload. Пользователь прямо отменил правила/логику Des-art Admin для Payload; технические решения нового lifecycle исполнитель выбирает сам в рамках scope.
+Визуальный/content baseline: 258e95b2a7720499c7a74ec7602c8608b8c58200; desktop-only и исправленный fade сохранены. Hero/сцены не изменять.
+Группа 1 реализована: optional Shared redesign контракт, neutral export exact approved Git материалов и validated portable snapshot. Public renderer использует validated snapshot; настоящий Payload proof завершён. Локальный production кандидат 954c835a прошёл сборку, упаковку и приёмку; PR #54 открыт. Предыдущие полезные публичные checkpoints сохраняются в codex/redesign-admin-integration; незавершённые old Admin файлы не тронуты.
 
-## Current checkpoint
+## Следующее действие
 
-- Deploy v2 rollout завершён; production/public/Admin smoke зелёные, `/api/changes` возвращает `0`.
-- Whole-Frame import восстановлен и принят на реальном B.Off Frame: произвольное число raster-элементов, root fill, constraints и CSS shadows сохраняются.
-- Первый установленный current-runtime candidate `da85c876…` был откатан до приёмки: Next 16.2.10 Turbopack отклонил проверенный `node_modules`-симлинк за пределами preview checkout. Установленная Admin снова на рабочем `728bcdcf…`; production остаётся `b499b768…`; aggregate hash всех 68 защищённых live-файлов совпал до и после установки.
-- Current follow-up сохраняет отдельный preview checkout на installed Admin SHA и запускает только локальный preview через поддерживаемый Next webpack dev bundler. Это не дублирует зависимости и не расширяет filesystem root Turbopack на support-каталог с live-данными.
-
-## Verification
-
-- Failing-first regression доказал, что preview launch обязан явно выбирать `--webpack`.
-- Изолированный runtime proof с тем же внешним dependency symlink запустился за 259 ms и вернул HTTP 200 с title `B.Off — Artur Designer` для `/projects/boff`.
-- Focused preview/managed-repository/boundary tests: `38/38`; serial full repository suite: `360/360`; lint and production build pass. Первый параллельный full-test/build запуск дал один bundle-race failure; последовательный контрольный прогон полностью зелёный.
-- Live drafts/assets/jobs/snapshots/backups не изменены; failed app сохранён в `/private/tmp`, рабочий rollback Admin активен.
+Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Группа 3 реализована: root Next host/Vite release entry/approved resources/meta/routes/packaging со stamp completed build. Scratch build, root lint, Vite222/222 и focused guards прошли, два review с fixes. Exact 6252950 build/archive/unpack/validator/HTTP451 ресурсов прошли. Desktop threshold/fade, anchor, scenes, carousel и404 частично проверены. Fault QA выявила stuck font retry; исправление и browser recovery прошли (Vite224 tests). Новый a514243 build/package/assets451 и большинство edge QA прошли. Обнаружен reserved Next /404: исправлен beforeFiles rewrite, реальный HTTP guard подтверждает red→green. f28c461 clean exact build/package/unpack/HTTP451assets/browser404 прошли; локальная приёмка записана в docs/ops/REDESIGN_ACCEPTANCE.md. Следующая группа только evidence/docs: пересобрать её exactHEAD и показать кандидат; затем SSH server/backup preflight. SSH metadata подтверждена; пользователь разрешил дальнейшие публикацию/деплой и открыл административную SSH-сессию. VPS: Linux x86_64, Node 22.23.2, свободно около 22 GiB; current/service подтверждены на a44efab5830a8dda5a1fd1348f644358f047672c. Установленный deploy-v2 script совпадает с tracked source. Следующий шаг: проверить protected backup, завершить интеграцию main (единственный конфликт .gitignore), merge PR #54, собрать actual merged SHA и выпустить.
 
 ## Stop-lines
 
-- Не запускать publish/resume и не деплоить Portfolio.
-- Не изменять live drafts/assets/jobs/snapshots/archives и не выполнять bootstrap/reset/import/export.
-- Merge и установка нового exact Admin candidate требуют отдельного подтверждения exact SHA.
-
-## Next action
-
-Завершить tests/build и commit webpack follow-up, затем пройти exact-SHA push/PR/merge/install gates. После успешной установки открыть project-page preview B.Off и убедиться, что маршрут возвращает 200. Portfolio deploy автоматически не запускать.
+Пользователь явно разрешил последующие действия публикации/деплоя; exact build и проверенный rollback обязательны. Нет разрешения на Figma write, real data migration/bootstrap или cleanup. Личный Payload .local и USERSPACE не читать; sandbox не переносить в Git/canonical/production. Старый production архивировать только после подтверждения пользователя нового production.
 
 ## Pointers
 
-- ExecPlan: `docs/exec-plans/admin-deploy-pipeline-hardening.md`.
-- Figma importer: `tools/des-art-admin/figma-template-import.mjs`.
-- Preview window: `tools/des-art-admin/src/preview-window.mjs`.
+- docs/exec-plans/redesign-production-release.md
+- docs/shared/PROJECT_CONTENT.md
+- docs/exec-plans/redesign-portfolio-variant-registry.md
+- design-reference/desktop-only-2026-10-04/ACCEPTANCE.md
+- docs/requirements/admin-image-quality.md
+- tools/payload-admin — tracked foundation перенесён из d21f7a3; личные stores отсутствуют.
+
+- docs/ops/REDESIGN_RELEASE.md
+
+- docs/ops/REDESIGN_ACCEPTANCE.md — текущая таблица приёмки и открытые условия выпуска.

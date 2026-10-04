@@ -1,0 +1,45 @@
+{
+  "name": "des-art-payload-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "scripts": {
+    "dev": "node scripts/run.mjs dev",
+    "build": "node scripts/run.mjs build",
+    "start": "node scripts/run.mjs start",
+    "generate": "node scripts/run.mjs generate",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node scripts/test.mjs",
+    "storage": "node scripts/storage.mjs",
+    "db:prepare": "node scripts/database.mjs",
+    "test:smoke": "node scripts/smoke.mjs",
+    "account:recover": "node scripts/account.mjs"
+  },
+  "dependencies": {
+    "@payloadcms/db-sqlite": "3.89.0",
+    "@payloadcms/next": "3.89.0",
+    "@payloadcms/richtext-lexical": "3.89.0",
+    "@payloadcms/translations": "3.89.0",
+    "@payloadcms/ui": "3.89.0",
+    "@radix-ui/themes": "3.3.0",
+    "graphql": "16.11.0",
+    "next": "16.3.4",
+    "payload": "3.89.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sharp": "0.35.4"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.4",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3"
+  }
+}

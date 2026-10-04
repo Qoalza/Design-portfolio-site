@@ -1,0 +1,2 @@
+// Accepted Corvo imports Manrope from these two existing font hosts.
+export const layoutPackageCsp=["sandbox allow-scripts","default-src 'none'","script-src 'self' 'unsafe-inline'","style-src 'self' 'unsafe-inline' https://fonts.googleapis.com","font-src 'self' data: https://fonts.gstatic.com","img-src 'self' data:","media-src 'self' data:","connect-src 'none'","object-src 'none'","frame-src 'none'","base-uri 'none'","form-action 'none'"].join('; ');

@@ -1,0 +1,344 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "sarafan": {
+    "brokenImages": [],
+    "crumb": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "1px rgb(31, 34, 36)",
+      "shadow": "none"
+    },
+    "docHeight": 4616,
+    "header": {
+      "bg": "rgb(23, 25, 26)",
+      "border": "0px rgb(236, 239, 242)",
+      "shadow": "none"
+    },
+    "headerRects": [
+      {
+        "height": 80,
+        "text": "ARTUR\nProduct Designer",
+        "width": 191,
+        "x": 80,
+        "y": 0
+      },
+      {
+        "height": 80,
+        "text": "Главная\nБлог\nЛаборатория",
+        "width": 711,
+        "x": 271,
+        "y": 0
+      },
+      {
+        "height": 32,
+        "text": "Главная",
+        "width": 97,
+        "x": 319,
+        "y": 24
+      },
+      {
+        "height": 32,
+        "text": "Блог",
+        "width": 76,
+        "x": 428,
+        "y": 24
+      },
+      {
+        "height": 32,
+        "text": "Лаборатория",
+        "width": 133,
+        "x": 516,
+        "y": 24
+      },
+      {
+        "height": 36,
+        "text": "Связаться",
+        "width": 121,
+        "x": 1223,
+        "y": 22
+      }
+    ],
+    "icons": [
+      {
+        "frame": {
+          "height": 16,
+          "width": 16,
+          "x": 327.109375,
+          "y": 32
+        },
+        "masks": 0,
+        "name": "corvo-home",
+        "paths": [
+          {
+            "fill": "rgb(187, 194, 199)",
+            "stroke": "rgb(187, 194, 199)",
+            "vectorEffect": "non-scaling-stroke",
+            "width": "1px"
+          }
+        ]
+      },
+      {
+        "frame": {
+          "height": 16,
+          "width": 16,
+          "x": 436.3515625,
+          "y": 32
+        },
+        "masks": 0,
+        "name": "corvo-lock",
+        "paths": [
+          {
+            "fill": "rgb(61, 67, 71)",
+            "stroke": "none",
+            "vectorEffect": "none",
+            "width": "1px"
+          },
+          {
+            "fill": "none",
+            "stroke": "rgb(61, 67, 71)",
+            "vectorEffect": "non-scaling-stroke",
+            "width": "1px"
+          }
+        ]
+      },
+      {
+        "frame": {
+          "height": 16,
+          "width": 16,
+          "x": 524.5,
+          "y": 32
+        },
+        "masks": 0,
+        "name": "corvo-lock",
+        "paths": [
+          {
+            "fill": "rgb(61, 67, 71)",
+            "stroke": "none",
+            "vectorEffect": "none",
+            "width": "1px"
+          },
+          {
+            "fill": "none",
+            "stroke": "rgb(61, 67, 71)",
+            "vectorEffect": "non-scaling-stroke",
+            "width": "1px"
+          }
+        ]
+      },
+      {
+        "frame": {
+          "height": 16,
+          "width": 16,
+          "x": 1315.5,
+          "y": 32
+        },
+        "masks": 0,
+        "name": "corvo-telegram",
+        "paths": [
+          {
+            "fill": "none",
+            "stroke": "rgb(214, 220, 224)",
+            "vectorEffect": "non-scaling-stroke",
+            "width": "1px"
+          }
+        ]
+      }
+    ],
+    "intro": {
+      "bg": "rgb(20, 22, 23)",
+      "border": "1px rgb(31, 34, 36)",
+      "shadow": "none"
+    },
+    "selected": 0,
+    "summary": {
+      "bg": "rgb(20, 22, 23)",
+      "border": "1px rgb(31, 34, 36)",
+      "innerRect": {
+        "height": 486,
+        "width": 1280,
+        "x": 80,
+        "y": 1290
+      },
+      "pattern": "repeating-linear-gradient(rgb(31, 34, 36) 0px, rgb(31, 34, 36) 16px, rgba(0, 0, 0, 0) 16px, rgba(0, 0, 0, 0) 32px)",
+      "rect": {
+        "height": 488,
+        "width": 1440,
+        "x": 0,
+        "y": 1289
+      },
+      "shadow": "none"
+    },
+    "url": "http://127.0.0.1:4193/projects/sarafan-radio"
+  },
+  "corvo": {
+    "brokenImages": [],
+    "crumbRect": {
+      "height": 65,
+      "width": 1440,
+      "x": 0,
+      "y": 80
+    },
+    "docHeight": 6357,
+    "headerBorder": "0px",
+    "headerRects": [
+      {
+        "height": 80,
+        "text": "ARTUR\nProduct Designer",
+        "width": 191,
+        "x": 80,
+        "y": 0
+      },
+      {
+        "height": 80,
+        "text": "Главная\nБлог\nЛаборатория",
+        "width": 711,
+        "x": 271,
+        "y": 0
+      },
+      {
+        "height": 32,
+        "text": "Главная",
+        "width": 97,
+        "x": 319,
+        "y": 24
+      },
+      {
+        "height": 32,
+        "text": "Блог",
+        "width": 76,
+        "x": 428,
+        "y": 24
+      },
+      {
+        "height": 32,
+        "text": "Лаборатория",
+        "width": 133,
+        "x": 516,
+        "y": 24
+      },
+      {
+        "height": 36,
+        "text": "Связаться",
+        "width": 121,
+        "x": 1223,
+        "y": 22
+      }
+    ],
+    "headerShadow": "none",
+    "rootBg": "rgb(23, 25, 26)",
+    "selected": 0,
+    "url": "http://127.0.0.1:4193/projects/corvo"
+  },
+  "identicalHeader": true,
+  "identicalRects": true,
+  "pinnedCorvo": {
+    "crumbY": 80,
+    "docHeight": 6357,
+    "headerShadow": "none",
+    "headerY": 0,
+    "position": "fixed",
+    "scroll": 1500
+  },
+  "returnedCorvo": {
+    "docHeight": 6357,
+    "headerY": 0,
+    "position": "static"
+  },
+  "pinnedSarafan": {
+    "crumbY": 80,
+    "docHeight": 4616,
+    "headerShadow": "none",
+    "headerY": 0,
+    "position": "fixed",
+    "scroll": 1220
+  },
+  "returnedSarafan": {
+    "docHeight": 4616,
+    "headerY": 0,
+    "position": "static"
+  },
+  "sarafanAdjacent": [
+    {
+      "bg": "rgb(20, 22, 23)",
+      "bottomBorder": "1px",
+      "height": 216,
+      "name": "Сараффан.Радио",
+      "topBorder": "0px",
+      "y": 145
+    },
+    {
+      "bg": "rgb(20, 22, 23)",
+      "bottomBorder": "0px",
+      "height": 928,
+      "name": "Сараффан.Радио: просмотр экранов",
+      "topBorder": "0px",
+      "y": 361
+    },
+    {
+      "bg": "rgb(20, 22, 23)",
+      "bottomBorder": "1px",
+      "height": 488,
+      "name": "_summary_18szn_22",
+      "topBorder": "1px",
+      "y": 1289
+    },
+    {
+      "bg": "rgb(23, 25, 26)",
+      "bottomBorder": "0px",
+      "height": 392,
+      "name": "Сценарий оформления",
+      "topBorder": "0px",
+      "y": 1777
+    },
+    {
+      "bg": "rgb(20, 22, 23)",
+      "bottomBorder": "1px",
+      "height": 1016,
+      "name": "Сценарий оформления подарков",
+      "topBorder": "1px",
+      "y": 2169
+    },
+    {
+      "bg": "rgba(0, 0, 0, 0)",
+      "bottomBorder": "0px",
+      "height": 817,
+      "name": "Настройка получения",
+      "topBorder": "0px",
+      "y": 3185
+    },
+    {
+      "bg": "rgba(0, 0, 0, 0)",
+      "bottomBorder": "1px",
+      "height": 353,
+      "name": "Настройка получения",
+      "topBorder": "0px",
+      "y": 3241
+    },
+    {
+      "bg": "rgba(0, 0, 0, 0)",
+      "bottomBorder": "0px",
+      "height": 352,
+      "name": "Состояния заказа",
+      "topBorder": "0px",
+      "y": 3594
+    },
+    {
+      "bg": "rgb(20, 22, 23)",
+      "bottomBorder": "0px",
+      "height": 465,
+      "name": "Результат работы",
+      "topBorder": "1px",
+      "y": 4090
+    },
+    {
+      "bg": "rgb(20, 22, 23)",
+      "bottomBorder": "0px",
+      "height": 61,
+      "name": "_footer_18szn_51",
+      "topBorder": "1px",
+      "y": 4555
+    }
+  ]
+}

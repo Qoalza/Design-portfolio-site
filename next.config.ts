@@ -1,18 +1,13 @@
 import type { NextConfig } from "next";
-
-const previewPort = (process.env.DES_ART_PREVIEW_PORT ?? "41732").replace(/[^0-9]/g, "");
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Next reserves /404 before the catch-all route; keep it on the public release renderer.
   async rewrites() {
-    return [{ source: "/concept-v2", destination: "/concept-v2/index.html" }];
+    return {beforeFiles: [{source: "/404", destination: "/release-not-found"}], afterFiles: [], fallback: []};
   },
-  async headers() {
-    return [{
-      source: "/concept-v2/:path*",
-      headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
-    }];
-  },
-  ...(process.env.DES_ART_ADMIN_PREVIEW === "1" ? { distDir: `.next-admin-preview-${previewPort}` } : {}),
+  poweredByHeader: false,
+  images: { unoptimized: true },
+  outputFileTracingIncludes: { "/*": ["./.portfolio-release/site/**/*"] },
+  outputFileTracingExcludes: { "/*": ["./USERSPACE/**/*", "./tools/payload-admin/**/*", "./tools/des-art-admin/**/*", "./public/**/*", "./node_modules/@next/swc-*/**/*", "./node_modules/@img/**/*", "./node_modules/sharp/**/*"] },
 };
-
 export default nextConfig;

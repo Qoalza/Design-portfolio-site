@@ -64,3 +64,17 @@ canonical v3 JSON/assets
 - Figma source URL, adapter id and scaled source preview may exist in `admin.visualSources`; `compileAdminDraft` removes all `admin` metadata. Public `catalogFrame`/`heroFrame` retains only the validated local composition needed by Portfolio.
 
 Any new schema/version/ownership/serialization/placement or migration behavior remains a `SHARED` contract change with tests for both Admin and Portfolio.
+
+
+## Новый редизайн и Payload: согласованный release contract
+
+Для первого нового релиза источник — утверждённый code baseline `258e95b2a7720499c7a74ec7602c8608b8c58200`, не sandbox Admin. Экспорт `tools/concept-v2/export-approved-content.mjs` читает exact Git objects и возвращает проекты, bytes ресурсов и provenance в памяти. Он не публикует и не меняет canonical файлы.
+
+`ProjectDocument` schema-v3 дополнен optional `redesign.version: 1`: поля карточки, полная проектная страница и `hero.kind: layout | raster`. Структура и геометрия остаются code-owned; тексты/ссылки/images/metadata готовых Hero — editable. Старые v3 без `redesign` сохраняют прежнее поведение. `src/lib/project-redesign-contract.ts` валидирует строгие поля, named slots, нечётные raster наборы, initial slide, manifests и реальные adaptive ranges; публичный контракт не содержит CMS auth или DB.
+
+Переносимая граница `tools/portfolio-release/project-snapshot.mjs`: `version: 1`, валидированные опубликованные `projects`, `assets` с publicPath/SHA-256/size, и provenance. `createProjectSnapshot` проверяет bytes; `validateProjectSnapshot` проверяет документы/ссылки/manifest, не заменяет проверку фактических файлов при загрузке artifact. Отсутствующие или повреждённые ресурсы отклоняются до замены good snapshot. Старые fallback content/visuals остаются для совместимости, renderer нового редизайна использует `redesign` и logo.
+
+Целевая CMS — существующий Payload в `tools/payload-admin`. Экспорт Payload обязан выдавать тот же snapshot с опубликованными записями и самостоятельными файлами; private media URLs не используются публичным сайтом. Запланированная техническая совместимость ещё не доказана: требуется настоящий temp Payload save/reopen/export/render, отдельность drafts/published и работа после остановки CMS. Полный редактор после выпуска; этапы и gates в `docs/exec-plans/redesign-production-release.md`, version 3.1. Историческое описание Des-art Admin выше не является новым target.
+
+Ресурсная полнота snapshot относится к новому renderer (`redesign`, logo и готовые renditions). Legacy поля v3 сохраняются только для совместимости schema; старый renderer не является consumer нового snapshot. Пакет ресурсов старого дизайна не переносится. `createProjectSnapshot` с bytes проверяет также статические HTML/CSS dependencies; metadata-only validation не заменяет byte/runtime checks.
+По прямому уточнению пользователя (2026-10-05) правила и логика Des-art Admin не применяются к Payload. Его модель, draft/published/export/preview и user publishing проектируются по возможностям существующего Payload; исторические sections выше не являются требованиями к новой CMS.
