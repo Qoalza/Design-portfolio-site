@@ -14,14 +14,14 @@
 @keyframes contact-plane-flight{
   0%{transform:translate(0,0);opacity:1}
   34%{transform:translate(26px,-26px);opacity:0}
-  35%,48%{transform:translate(-22px,22px);opacity:0}
+  35%{transform:translate(-22px,22px);opacity:0}
   82%,100%{transform:translate(0,0);opacity:1}
 }
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
   .contact-motion:hover .contact-orbit{opacity:1}
   .contact-motion:hover .contact-orbit rect{animation:contact-border-orbit 2200ms linear infinite}
   .contact-motion:hover .contact-plane{animation:contact-plane-glide 2400ms ease-in-out infinite}
-  .contact-motion:hover .contact-plane>svg{animation:contact-plane-flight 760ms cubic-bezier(.22,.61,.36,1) 650ms both}
+  .contact-motion:hover .contact-plane>svg{animation:contact-plane-flight 420ms cubic-bezier(.22,.61,.36,1) 0ms both}
 }
 @media(prefers-reduced-motion:reduce){
   .contact-orbit{display:none}
