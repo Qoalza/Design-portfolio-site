@@ -163,3 +163,32 @@ Ready for execution локальных групп1–5; real transition посл
 Sources: текущие native код/типы/tests; docs/requirements/admin-image-quality.md;
 Payload custom field/useField: https://payloadcms.com/docs/fields/json,
 https://payloadcms.com/docs/admin/react-hooks. Точные API сверять с installed3.89.0.
+
+## Checkpoint 2026-10-05: native editor, первая проверенная часть группы1
+
+Реализован custom Field releaseContent: copy/links/metrics/sections существующих
+шаблонов, initial scene/slide, enabled layout adaptives, перестановка экранов,
+выбор оболочки. Legacy native fields скрыты для redesign records.
+Payload-only `_payloadEditor.version=1.heroes` хранит ранее выбранные Hero в том же
+JSON и native versions. Publish нормализует public contract и сохраняет этот cache;
+releaseProjectDocument удаляет metadata перед общей public validation. SQL schema
+и public ProjectDocument не изменены; native versions остаются единственным store.
+Новый вариант без ресурсов сохраняется как draft, publish отклоняется.
+
+Evidence: 6 authoring helper tests; native test suite (database/content/media/account/
+CLI/storage/persistence); native typecheck/lint/build PASS. Browser disposable DB:
+описание и initial=delivery сохранены/reloaded; raster→layout save/reload; публикация
+незаполненной URL-сцены вернула400 с понятной ошибкой; возврат восстановил3 экрана;
+перестановка delivery/home сохранила initial ID. Fresh process `editor-session.ts
+browser` подтвердил сохранение, неизменённый previous published, native publication
+с cache и public export без него, восстановил только disposable baseline.
+Build имеет существующее предупреждение о tracing dynamic PAYLOAD_LOCAL_ROOT;
+native local app не является production archive публичного сайта.
+
+Review1 completeness: исправлены лишние legacy JSON поля и legacy editor sections,
+ошибочный enum in-progress→in_progress, доступное имя Hero select. Ещё нужны upload/
+replace/remove image/package, rich-text add/remove и удобное редактирование optional
+полей; группа1 полностью не закрыта. Review2 regression/risk: native auth/drafts/
+versions/deletion/storage tests PASS; no public renderer/CSS or personal store edits.
+В группе2 выбирать closure только используемых public assets: прошлые материалы
+нужны native versions, но не должны экспортироваться автоматически из cache.

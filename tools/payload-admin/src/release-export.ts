@@ -4,12 +4,13 @@ import { createHash } from 'node:crypto'
 import type { Payload } from 'payload'
 import sharp from 'sharp'
 import type { User, Project } from './payload-types'
+import { withoutEditorState } from './authoring/hero'
 import { validateProjectDocument, type ProjectDocument } from '../../../src/lib/project-contract'
 import { createProjectSnapshot } from '../../portfolio-release/project-snapshot.mjs'
 
 export function releaseProjectDocument(record: Project): ProjectDocument {
  if (!record.releaseContent || typeof record.releaseContent !== 'object' || Array.isArray(record.releaseContent)) throw new Error('Project has no redesign content')
- return validateProjectDocument({ ...record.releaseContent, title: record.title, slug: record.slug, visibility: 'published' })
+ return validateProjectDocument({ ...withoutEditorState(record.releaseContent), title: record.title, slug: record.slug, visibility: 'published' })
 }
 // Preview and publication use this same mapping. Drafts are only returned to authenticated preview callers.
 export async function readReleaseProjects(payload: Payload, user: User | null, mode: 'draft' | 'published') {

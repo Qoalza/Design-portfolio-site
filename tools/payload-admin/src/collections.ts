@@ -78,17 +78,17 @@ export const Projects: CollectionConfig = {
         ? true : 'Используйте латинские буквы в нижнем регистре, цифры и дефис.',
     },
     {
-      name: 'hero', label: 'Херо', type: 'group',
+      name: 'hero', label: 'Херо', type: 'group', admin: { condition: (_, siblingData) => !siblingData?.releaseContent },
       fields: [{ name: 'image', label: 'Главное изображение', type: 'upload', relationTo: 'media', validate: (value: unknown, { data }: { data?: Record<string, unknown> }) => data?.releaseContent || value ? true : 'Выберите изображение.' }],
     },
     {
-      name: 'header', label: 'Заголовок кейса', type: 'group',
+      name: 'header', label: 'Заголовок кейса', type: 'group', admin: { condition: (_, siblingData) => !siblingData?.releaseContent },
       fields: [
         { name: 'heading', label: 'Заголовок', type: 'text', validate: (value: unknown, { data }: { data?: Record<string, unknown> }) => data?.releaseContent || value ? true : 'Укажите заголовок.' },
         { name: 'description', label: 'Краткое описание', type: 'textarea' },
       ],
     },
     ...releaseFields,
-    { name: 'blocks', label: 'Содержимое кейса', labels: { singular: 'Блок', plural: 'Блоки' }, type: 'blocks', blocks: [Section, Gallery] },
+    { name: 'blocks', label: 'Содержимое кейса', labels: { singular: 'Блок', plural: 'Блоки' }, type: 'blocks', admin: { condition: (_, siblingData) => !siblingData?.releaseContent }, blocks: [Section, Gallery] },
   ],
 }

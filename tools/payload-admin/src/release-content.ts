@@ -1,11 +1,12 @@
 import { APIError, type Field, type CollectionBeforeChangeHook, type CollectionBeforeDeleteHook, type CollectionBeforeOperationHook } from 'payload'
 import { validateProjectDocument } from '../../../src/lib/project-contract'
 import type { Project } from './payload-types'
+import { withoutEditorState, withEditorState } from './authoring/hero'
 
-// These are native Payload fields and versions. JSON is the stable content boundary;
-// dedicated authoring widgets are a later stage, not a second content store.
+// Native Payload fields and versions remain the single content store.
+// The custom field edits this JSON boundary without a SQL schema change.
 export const releaseFields: Field[] = [
- { name: 'releaseContent', label: 'Данные нового портфолио', type: 'json', admin: { description: 'Технические данные проекта. Удобное редактирование будет подключено после выпуска сайта.' } },
+ { name: 'releaseContent', label: 'Данные нового портфолио', type: 'json', admin: { components: { Field: '/components/ReleaseEditor#ReleaseEditor' } } },
  { name: 'releaseAssets', label: 'Ресурсы нового портфолио', type: 'array', fields: [
   { name: 'publicPath', label: 'Путь в сайте', type: 'text', required: true },
   { name: 'file', label: 'Файл', type: 'upload', relationTo: ['media', 'project-files'], required: true },
@@ -16,8 +17,9 @@ export const validateReleaseProject: CollectionBeforeChangeHook = ({ data, origi
  const effective = { ...originalDoc, ...data }
  if (effective._status !== 'published' || !effective.releaseContent) return data
  try {
-  const input = effective.releaseContent as Record<string, unknown>
-  data.releaseContent = validateProjectDocument({ ...input, title: effective.title, slug: effective.slug, visibility: 'published' })
+  const input = withoutEditorState(effective.releaseContent)
+  const normalized = validateProjectDocument({ ...input, title: effective.title, slug: effective.slug, visibility: 'published' })
+  data.releaseContent = withEditorState(normalized, effective.releaseContent)
  } catch { throw new APIError('Данные проекта не готовы к публикации. Исправьте поля и входные данные Hero.', 400) }
  return data
 }

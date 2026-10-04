@@ -204,9 +204,6 @@ export interface Project {
     heading?: string | null;
     description?: string | null;
   };
-  /**
-   * Технические данные проекта. Удобное редактирование будет подключено после выпуска сайта.
-   */
   releaseContent?:
     | {
         [k: string]: unknown;

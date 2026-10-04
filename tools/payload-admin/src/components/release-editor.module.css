@@ -1,0 +1,12 @@
+.editor { display: grid; gap: 12px; }
+.hint { color: var(--theme-elevation-600); margin: 0; }
+.group { border: 1px solid var(--theme-elevation-150); border-radius: 4px; margin: 8px 0; padding: 12px; }
+.group > summary { cursor: pointer; font-weight: 600; }
+.field { display: grid; gap: 6px; margin: 12px 0; }
+.field input, .field textarea, .field select { background: var(--theme-input-bg); border: 1px solid var(--theme-elevation-150); border-radius: 4px; color: var(--theme-text); font: inherit; padding: 10px; width: 100%; }
+.field textarea { resize: vertical; }
+.field input[type='checkbox'] { width: auto; }
+.item { border-top: 1px solid var(--theme-elevation-100); margin-top: 12px; padding-top: 8px; }
+.itemHeader { align-items: center; display: flex; justify-content: space-between; }
+.itemHeader button { cursor: pointer; margin-left: 6px; padding: 4px 10px; }
+.itemHeader button:disabled { cursor: default; opacity: .4; }

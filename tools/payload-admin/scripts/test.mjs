@@ -8,7 +8,7 @@ const root = await mkdtemp(path.join(os.tmpdir(), 'des-art-payload-test-'))
 try {
   const secret = randomBytes(48).toString('hex')
   await writeFile(path.join(root, 'secret'), secret, { mode: 0o600 })
-  for (const test of ['tests/database.test.mjs', 'tests/content.test.ts', 'tests/media.test.ts', 'tests/account.test.ts', 'tests/account-cli.test.ts', 'tests/storage.test.mjs', 'tests/persistence.test.ts']) {
+  for (const test of ['tests/authoring-model.test.ts', 'tests/database.test.mjs', 'tests/content.test.ts', 'tests/media.test.ts', 'tests/account.test.ts', 'tests/account-cli.test.ts', 'tests/storage.test.mjs', 'tests/persistence.test.ts']) {
     const child = spawn(process.execPath, ['--import', 'tsx', test], {
       stdio: 'inherit',
       env: { ...process.env, PAYLOAD_LOCAL_ROOT: root, PAYLOAD_SECRET: secret, PAYLOAD_TELEMETRY_DISABLED: '1' },
