@@ -48,6 +48,16 @@ native Mac modules и пути checkout исключены. Host работае�
 /#projects); /404, неизвестные/старые адреса (404), HEAD, robots/sitemap, metadata,
 все manifest-listed ресурсы, CSP и credential-free CORS layout packages.
 
+Обязательно проверить настоящий Next runtime (handler unit-test не покрывает
+зарезервированный Next адрес /404):
+
+```sh
+node tools/portfolio-release/verify-runtime.mjs http://127.0.0.1:<PORT> <EXACT_SHA>
+```
+
+/404 внутренне переписывается на release-not-found до маршрутизации Next,
+адрес посетителя остаётся /404, ответ — настоящий 404 с новым интерфейсом.
+
 Desktop и пограничные состояния проверяются по матрице active ExecPlan:
 ../../docs/exec-plans/redesign-production-release.md. Мобильную/планшетную версию
 портфолио не разрабатывать; внутренние adaptives проекта сохраняются.
