@@ -192,3 +192,29 @@ replace/remove image/package, rich-text add/remove и удобное редак�
 versions/deletion/storage tests PASS; no public renderer/CSS or personal store edits.
 В группе2 выбирать closure только используемых public assets: прошлые материалы
 нужны native versions, но не должны экспортироваться автоматически из cache.
+
+## Checkpoint: группа2, pure quality boundary
+
+`materials/image-quality.ts` принимает bounded bitmap и установленное назначение;
+возвращает immutable original/prepared selection и version1 quality report с
+форматом, разрешением, весом, hashes и причиной. Текущее оригинальное хранилище
+ещё не подключено к helper: это проверенная основа ingest, а не готовая upload UI.
+WebP уже подготовлен — не перекодируется; неизвестное назначение, animation,
+unsupported depth/orientation сохраняют исходник. Candidate: lossless WebP с
+metadata, полный decode, exact RGBA (sRGB) и ICC/orientation equivalence; только
+меньший подтверждённый кандидат заменяет selected bytes. Invalid original refused.
+
+6 focused real image tests PASS: transparency/pixels/dimensions, неизвестный context,
+encoding failure, larger result, lossy/resized/corrupt candidate, repeated WebP,
+ICC/oriented JPEG и malformed/oversized original. Native typecheck/lint PASS.
+RED был missing helper; первая реализация выявила безопасный false rejection:
+Sharp создаёт EXIF orientation1 там, где input orientation отсутствует. Исправлена
+нормализация identity orientation, не ослаблено pixel/profile сравнение.
+Review completeness: no resize/upscale/near-lossless; report включает обе версии.
+Review regression/scope: helper ещё не импортируется renderer/UI/server endpoint,
+no writes/SQL/dependency/new runtime changes; оригиналы не удаляются.
+Next: authenticated bounded ingest, immutable native original/prepared relations,
+quality report в native versions, safe slot mapping/upload UI/deletion guards;
+public asset closure исключает originals и unused cached materials.
+Official installed-compatible API sources: https://sharp.pixelplumbing.com/api-output/#keepmetadata,
+https://sharp.pixelplumbing.com/api-output/#webp, https://sharp.pixelplumbing.com/api-input/#metadata.

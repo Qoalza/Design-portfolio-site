@@ -17,7 +17,8 @@ publication operations и clean bootstrap ещё реализовать/пров
 Первая проверенная часть группы1: native custom Field, immutable authoring helpers,
 Hero choice с native-version cache, draft/public export mapping. Tests/lint/typecheck/
 build и browser save/reopen/failure PASS, подробности в ExecPlan checkpoint.
-Далее группа2: quality ingest, originals/prepared binding, image/package upload;
+Группа2: pure image quality helper и6 real image tests/typecheck/lint PASS.
+Далее authenticated ingest, originals/prepared binding, image/package upload;
 затем закончить отсутствующие authoring actions и same-renderer preview.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
 
