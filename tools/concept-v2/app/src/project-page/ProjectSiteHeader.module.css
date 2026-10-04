@@ -1,0 +1,15 @@
+.header{height:80px;background:#17191a}
+.headerInner{width:1280px;height:80px;margin:auto;display:flex;align-items:center}
+.brand{width:191px;height:80px;padding:0 16px;display:flex;flex:0 0 auto;align-items:center;gap:12px;overflow:clip;color:inherit;text-decoration:none}
+.brand span{display:flex;flex-direction:column;gap:2px}
+.brand b{color:#f0f1f2;font:550 16px/20px "Google Sans",sans-serif;font-variation-settings:"GRAD" -25,"opsz" 18;letter-spacing:.48px}
+.brand small{color:#909498;font:450 12px/12px "Google Sans",sans-serif;font-variation-settings:"GRAD" -30,"opsz" 18;letter-spacing:.36px}
+.navigation{min-width:388px;height:80px;padding:0 48px;display:flex;flex:1 0 0;align-items:center;gap:12px;overflow:clip}
+.headerIcon{color:currentColor}
+.navigation button:disabled .headerIcon{color:#3d4347}
+.navigation a:nth-child(1){width:97px}
+.navigation button:nth-child(2){width:76px}
+.navigation button:nth-child(3){width:133px}
+.headerRight{width:378px;height:80px;padding:0 16px;display:flex;flex-shrink:0;align-items:center;justify-content:flex-end;gap:12px;overflow:clip}
+.availability{width:213px;height:40px;padding:8px 16px;display:flex;align-items:center;gap:12px;color:#bbc2c7;font:400 14px/16px Onest,sans-serif;letter-spacing:-.1px;white-space:nowrap}
+.headerContact{width:121px}

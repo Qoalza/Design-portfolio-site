@@ -10,7 +10,7 @@ import {restartFeedbackTimer} from '../morph-icon/copy-feedback.mjs';
 import {HoverMorphAction} from '../morph-icon/HoverMorphAction';
 import {componentIcon,figmaIcon,metricIcon,stackIcon} from '../morph-icon/icons.mjs';
 import {projectLinks} from '../project-links.mjs';
-import {ProjectHeaderShell} from './ProjectHeaderShell';
+import {ProjectSiteHeader} from './ProjectSiteHeader';
 import styles from './CorvoProjectPage.module.css';
 
 const projectDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
@@ -56,16 +56,9 @@ function CopyLinkAction({copied,onCopy,layoutTransition}){
 }
 
 function SiteHeader(){
- return <ProjectHeaderShell>
-  <header className={styles.header} data-first-view>
-   <div className={styles.headerInner}>
-    <div className={styles.brand}><img src="/figma/project-corvo/header/header-symbol.svg" width="44" height="44" alt=""/><span><b>ARTUR</b><small>Product Designer</small></span></div>
-    <nav className={styles.navigation} aria-label="Основная навигация"><a href={import.meta.env.BASE_URL} className={`nav-tab selected ${styles.headerNavActive}`}><Icon name="corvo-home" className={styles.headerIcon}/><span className="control-label">Главная</span></a><button type="button" className="nav-tab" disabled><Icon name="corvo-lock" className={styles.headerIcon}/><span className="control-label">Блог</span></button><button type="button" className="nav-tab" disabled><Icon name="corvo-lock" className={styles.headerIcon}/><span className="control-label">Лаборатория</span></button></nav>
-    <div className={styles.headerRight}><span className={styles.availability}><img src="/figma/project-corvo/header/header-indicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ProjectAction variant="accent" contactMotion className={styles.headerContact} iconRight="corvo-telegram" href="https://t.me/Coco_soul" external>Связаться</ProjectAction></div>
-   </div>
-  </header>
+ return <ProjectSiteHeader>
   <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={<img src="/figma/imgProjectCorvo.svg" width="16" height="16" alt="" aria-hidden="true"/>} className={styles.crumbProject} aria-current="page">Corvo</ControlButton></nav></div>
- </ProjectHeaderShell>;
+ </ProjectSiteHeader>;
 }
 
 function ProjectIntro(){

@@ -1,23 +1,15 @@
 # HANDOFF
 
-Обновлено: 2026-10-04.
+Обновлено:2026-10-04.
+Checkout: codex/redesign-portfolio, только /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
 
-Checkout: `codex/redesign-portfolio`, только
-`/Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site`.
-Исправление страниц проектов завершено. План:
-`docs/exec-plans/concept-v2-project-page-repair.md` (COMPLETE).
+Единая оболочка проектов завершена; docs/exec-plans/concept-v2-project-shell-consistency.md (COMPLETE).
+Все5 требований Check: Faintintro/summarySarafan, sideDash16/16, no intermediateDivider, Mainunselected, идентичные headerDOM/rects/icons обеих страниц.
+Дополнительно: authenticLightSVGstroke1 для Lock/Telegram, CorvoRoot#17191a; Border/Thin в обычном хедере главной.
+Приемка: design-reference/project-shell-consistency-2026-10-04/ACCEPTANCE.md.
+Итоговые проверки:210/210tests, lint92, build; обаreview. Runtime1440×900: Sarafan4616,Corvo6357; pin/return без изменения высот.
 
-Corvo: белая Figma в метриках и одна Thin линия под hatch.
-Сараффан: внешняя страница восстановлена по Figma; цветной logo в крошках и
-intro сохранен; тестовая image/grid Hero сцена не менялась. Хедер и крошки
-обоих проектов выезжают вместе, без изменения высоты документа.
-
-Итоговая приемка и screenshots:
-`design-reference/project-repair-2026-10-04/final/ACCEPTANCE.md`.
-Проверки:210/210 tests, lint90, build; оба review; реальный runtime1440,
-scroll down/up и no jump обоих проектов. Сараффан4616px, Corvo6357px.
-Локальный просмотр:4193/projects/sarafan-radio и4193/projects/corvo.
-
-Следующее действие: пользовательская визуальная приемка. Открытый blocker
-отсутствует. Соседний чат/ветки/worktree не затрагивались. Production, merge,
-push, deploy и Figma write не выполнялись и не разрешены этим checkpoint.
+Просмотр: http://127.0.0.1:4193/projects/sarafan-radio и /projects/corvo.
+Следующее действие: пользовательская приемка. Blocker отсутствует.
+Сохранены Hero, Experience/Lenis/reset, preloader, morph/copy/contactmotion и ссылки.
+Соседний чат/ветки/worktree, USERSPACE, production, push, merge, deploy и Figmawrite не затрагивались.

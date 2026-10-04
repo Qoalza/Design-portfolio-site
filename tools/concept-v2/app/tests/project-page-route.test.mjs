@@ -23,7 +23,7 @@ test('Corvo project route uses the dedicated page and the approved responsive He
  assert.match(main,/<SarafanProjectPage\/>/);
  assert.match(page,/<ProjectResponsiveHero definition=\{corvoResponsiveHero\}\/>/);
  assert.match(page,/className=\{styles\.page\}/);
- assert.match(page,/<a href=\{import\.meta\.env\.BASE_URL\} className=\{`nav-tab selected/);
+ assert.match(page,/<ProjectSiteHeader>/);
  assert.match(home,/details:\{href:`\$\{import\.meta\.env\.BASE_URL\}projects\/corvo`\}/);
  assert.match(home,/<ControlButton href=\{project\.actions\.details\.href\}>Подробнее<\/ControlButton>/);
  assert.match(readiness,/\[data-first-view\] img/);
@@ -54,7 +54,7 @@ test('Corvo project actions use enabled design-system controls with smooth right
  assert.match(controls,/motionLayout/);
  assert.match(controls,/layout:\s*motionLayout/);
  assert.doesNotMatch(page,/StaticAction|aria-disabled="true"/);
- assert.match(page,/<ProjectAction variant="accent"[^>]*>Связаться/);
+ assert.match(await readFile(path.join(root,'src/project-page/ProjectSiteHeader.jsx'),'utf8'),/<ControlButton variant="accent"[^>]*>Связаться/);
  assert.match(page,/<HoverMorphAction motionLayout="position"[^>]*variant="neutral"[^>]*icon=\{figmaIcon\}[^>]*href=\{projectLinks\.corvoFigma\}[^>]*>Figma<\/HoverMorphAction>/);
  assert.match(page,/<HoverMorphAction[^>]*variant="light"[^>]*icon=\{metric\.icon\}[^>]*href=\{metric\.href\}/);
  assert.match(page,/projectLinks\.corvoComponents/);
@@ -117,25 +117,33 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
   readFile(path.join(root,'public/figma/project-corvo/header/header-telegram.svg'),'utf8'),
  ]);
 
- assert.match(page,/name="corvo-home" className=\{styles\.headerIcon\}/);
- assert.match(page,/name="corvo-lock" className=\{styles\.headerIcon\}/);
+ const header=await readFile(path.join(root,'src/project-page/ProjectSiteHeader.jsx'),'utf8');
+ const headerCss=await readFile(path.join(root,'src/project-page/ProjectSiteHeader.module.css'),'utf8');
+ assert.match(header,/name="corvo-home" className=\{styles\.headerIcon\}/);
+ assert.match(header,/name="corvo-lock" className=\{styles\.headerIcon\}/);
  assert.match(page,/name="corvo-footer" className=\{styles\.footerIcon\}/);
  assert.doesNotMatch(page,/src="\/figma\/imgColor8\.svg"/);
  assert.doesNotMatch(css,/header-home\.svg|header-lock\.svg|header-telegram\.svg|footer-corrupted\.svg/);
- assert.match(css,/\.brand\s*\{[^}]*width:\s*191px/s);
- assert.match(css,/\.navigation a:nth-child\(1\)\s*\{[^}]*width:\s*97px/s);
- assert.match(css,/\.navigation button:nth-child\(2\)\s*\{[^}]*width:\s*76px/s);
- assert.match(css,/\.navigation button:nth-child\(3\)\s*\{[^}]*width:\s*133px/s);
- assert.match(css,/\.headerRight\s*\{[^}]*width:\s*378px/s);
- assert.match(css,/\.availability\s*\{[^}]*width:\s*213px/s);
- assert.match(css,/\.headerContact\s*\{[^}]*width:\s*121px/s);
- assert.match(page,/iconRight="corvo-telegram"/);
+ assert.match(headerCss,/\.brand\s*\{[^}]*width:\s*191px/s);
+ assert.match(headerCss,/\.navigation a:nth-child\(1\)\s*\{[^}]*width:\s*97px/s);
+ assert.match(headerCss,/\.navigation button:nth-child\(2\)\s*\{[^}]*width:\s*76px/s);
+ assert.match(headerCss,/\.navigation button:nth-child\(3\)\s*\{[^}]*width:\s*133px/s);
+ assert.match(headerCss,/\.headerRight\s*\{[^}]*width:\s*378px/s);
+ assert.match(headerCss,/\.availability\s*\{[^}]*width:\s*213px/s);
+ assert.match(headerCss,/\.headerContact\s*\{[^}]*width:\s*121px/s);
+ assert.match(header,/iconRight="corvo-telegram"/);
  assert.match(page,/<ControlButton[^>]*iconLeft=\{iconLeft\}[^>]*iconRight=\{iconRight\}[^>]*iconRightNode=\{iconRightNode\}/);
  assert.doesNotMatch(page,/data-icon-right=/);
- assert.match(telegram,/<svg width="16" height="16" viewBox="0 0 16 16"/);
+ assert.match(telegram,/<svg[^>]*width="16" height="16" viewBox="0 0 16 16"/);
+ for(const name of ['header-lock.svg','header-telegram.svg']){
+  const icon=await readFile(path.join(root,'public/figma/project-corvo/header',name),'utf8');
+  assert.match(icon,/<path[^>]*fill="none" stroke="currentColor" stroke-width="1"[^>]*vector-effect="non-scaling-stroke"/);
+  assert.doesNotMatch(icon,/<mask|mask=/);
+ }
+ assert.doesNotMatch(headerCss,/\.header\s*\{[^}]*(border-bottom|box-shadow):/s);
  assert.doesNotMatch(css,/\.header\s*\{[^}]*border-bottom:/s);
- assert.match(css,/\.brand b\s*\{[^}]*font-variation-settings:\s*"GRAD" -25, "opsz" 18/s);
- assert.match(css,/\.brand small\s*\{[^}]*font-variation-settings:\s*"GRAD" -30, "opsz" 18/s);
+ assert.match(headerCss,/\.brand b\s*\{[^}]*font-variation-settings:\s*"GRAD" -25,\s*"opsz" 18/s);
+ assert.match(headerCss,/\.brand small\s*\{[^}]*font-variation-settings:\s*"GRAD" -30,\s*"opsz" 18/s);
  assert.match(css,/\.summary\s*\{[^}]*border-top:\s*1px solid #1f2224[^}]*border-bottom:\s*1px solid #1f2224/s);
  assert.match(css,/\.footerIcon\s*\{[^}]*color:\s*#788087/s);
 });
@@ -237,7 +245,10 @@ test("Corvo metrics use filled neutral Figma and one Thin boundary after hatch",
 
 test('both project pages keep header and breadcrumbs in the same measured floating shell',async()=>{
  const [corvo,sarafan,shell]=await Promise.all(['CorvoProjectPage.jsx','SarafanProjectPage.jsx','ProjectHeaderShell.jsx'].map(name=>readFile(path.join(root,'src/project-page',name),'utf8')));
- for(const page of [corvo,sarafan])assert.match(page,/<ProjectHeaderShell>/);
+ for(const page of [corvo,sarafan])assert.match(page,/<ProjectSiteHeader>/);
+ const header=await readFile(path.join(root,"src/project-page/ProjectSiteHeader.jsx"),"utf8");
+ assert.match(header,/<ProjectHeaderShell>/);
+ assert.doesNotMatch(header,/nav-tab selected/);
  assert.match(shell,/shell\.current\?\.offsetHeight/);
  assert.match(shell,/paintTask\.dispose\(\);thresholdTask\.dispose\(\);observer\.disconnect\(\)/);
  assert.match(shell,/\{children\}<\/div><\/div>/);
