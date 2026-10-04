@@ -2,7 +2,7 @@
 
 Версия 1.0, 2026-10-05. Статус: IN_PROGRESS — Ready for execution.
 Область ADMIN + SHARED + PORTFOLIO + OPS; LARGE / HIGH / FULL.
-Ветка codex/payload-site-integration; base b0ec4de4c50dd9fe5b557cd1de842cd55637c6f5.
+Ветка codex/payload; base b0ec4de4c50dd9fe5b557cd1de842cd55637c6f5.
 Production baseline b44946021d55fb1cc8a4430c3bafd62e342714c9, PR #54.
 Исполнение автономно по запросу пользователя «составь план ... и реализуй ... продолжай».
 
