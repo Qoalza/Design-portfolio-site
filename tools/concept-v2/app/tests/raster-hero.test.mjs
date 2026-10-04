@@ -1,3 +1,5 @@
+import {readFile} from 'node:fs/promises';
+import {sarafanRasterHero} from '../src/project-hero/raster-definition.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
@@ -50,4 +52,15 @@ test('navigation reaches the seventh image and wraps in the shortest direction',
   assert.equal(nearestCarouselStep(6, 0, 7), 7);
   assert.equal(wrapSlideIndex(7, 7), 0);
   assert.deepEqual(visibleDotIndexes(6, 7), [4, 5, 6, 0, 1]);
+});
+
+// Keep the original export pixels: no downsampled carousel intermediates.
+test('Sarafan hero uses original full-resolution PNG exports', async()=>{
+ for(const slide of sarafanRasterHero.contexts[0].slides){
+  assert.match(slide.src,/\.png$/);
+  const bytes=await readFile(new URL('../public'+slide.src,import.meta.url));
+  assert.equal(bytes.subarray(1,4).toString(),'PNG');
+  assert.equal(bytes.readUInt32BE(16),4096);
+  assert.equal(bytes.readUInt32BE(20),2958);
+ }
 });

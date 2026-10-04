@@ -35,7 +35,7 @@ function RasterCard({data, dataIndex, slideIndex}) {
       data-slot={slideIndex}
       data-slide-id={slide.id}
     >
-      <img src={slide.src} width="1880" height="1358" alt={slideIndex === 0 ? slide.title : ''} draggable={false} decoding="async" />
+      <img src={slide.src} width="4096" height="2958" alt={slideIndex === 0 ? slide.title : ''} draggable={false} decoding="async" />
       <span className={`${styles.cardShade} ${styles.cardShadeLeft} ${slideIndex < 0 ? styles.cardShadeVisible : ''}`} aria-hidden="true" />
       <span className={`${styles.cardShade} ${styles.cardShadeRight} ${slideIndex > 0 ? styles.cardShadeVisible : ''}`} aria-hidden="true" />
       {slideIndex !== 0 && distance <= 2 ? <button type="button" className={styles.sideHitArea} onClick={() => navigate(slideIndex)} aria-label={`Показать: ${slide.title}`} /> : null}

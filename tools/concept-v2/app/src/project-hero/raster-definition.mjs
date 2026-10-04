@@ -10,9 +10,9 @@ export const sarafanRasterHero = {
       icon: 'size-desktop',
       initialSlideId: 'home',
       slides: [
-        {id: 'delivery', title: 'Настройка доставки', src: `${assetRoot}/delivery.webp`},
-        {id: 'home', title: 'Главная страница', src: `${assetRoot}/main.webp`},
-        {id: 'variant', title: 'Настройка выбранного варианта', src: `${assetRoot}/variant.webp`},
+        {id: 'delivery', title: 'Настройка доставки', src: `${assetRoot}/delivery.png`},
+        {id: 'home', title: 'Главная страница', src: `${assetRoot}/main.png`},
+        {id: 'variant', title: 'Настройка выбранного варианта', src: `${assetRoot}/variant.png`},
       ],
     },
     {id: 'tablet', label: 'Tablet', icon: 'size-tablet', slides: []},

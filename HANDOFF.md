@@ -3,7 +3,9 @@
 Обновлено: 2026-10-04.
 Checkout: codex/redesign-portfolio, только /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
 
-Последний результат: подключена точная растровая оболочка Сараффана из f7db517, включая зависимости, варианты3/5/7 и обновлённый tooltip description12/16. Приёмка: design-reference/raster-hero-f7db517-2026-10-04/ACCEPTANCE.md. Проверки204/204tests,lint94,build; browser arrows/dots/side card/tooltip.
+Последний результат: Hero Сараффана использует неизменённые исходные PNG4096×2958 вместо уменьшенных WebP1880×1357. Все3 SHA256 совпадают с raw exports. Размер карточек и переключение сохранены. Focused raster tests5/5,lint95,browser decoded dimensions и Next verified.
+
+Предыдущий результат: подключена точная растровая оболочка Сараффана из f7db517, включая зависимости, варианты3/5/7 и обновлённый tooltip description12/16. Приёмка: design-reference/raster-hero-f7db517-2026-10-04/ACCEPTANCE.md. Проверки204/204tests,lint94,build; browser arrows/dots/side card/tooltip.
 
 Заголовочные блоки Corvo и Сараффан.Радио приведены к точным Figma instances 4332:726757 / 4332:731803. Общий ProjectTitleBlock использует библиотечные Ghost/Fill Medium, одинаковые отступы/геометрию и конкретные привязки цветов. Неподвижный правый край и плавное изменение ширины Copy сохранены.
 Приёмка: design-reference/project-title-fidelity-2026-10-04/ACCEPTANCE.md, screenshots и runtime.json.
