@@ -151,3 +151,13 @@ Review completeness: изменение только маршрута /404 и HT
 ## Итог локальной приёмки
 
 f28c461 cleanbuild/archive/validator/realHTTP451assets и исправленная404 в браузере прошли. docs/ops/REDESIGN_ACCEPTANCE.md фиксирует покрытие и пределы доказательств. Следующая Git-группа только evidence/docs; её exactHEAD пересобирается для показа. Все451publicasset hashes одинаковы с a514243. Серверная проверка и защищённый настоящийpreviousrelease остаются открытыми; production/action gates и postlaunchPayload не закрыты.
+
+## Production checkpoint 2026-10-05
+
+Пользователь разрешил дальнейшие публикацию/деплой. PR #54 merged; production
+SHA b44946021d55fb1cc8a4430c3bafd62e342714c9 выпущен после clean build/package
+и проверенного protected previous backup. VPS service active, public HTTPS guard
+и все451 assets hash/bytes прошли; desktop browser smoke прошёл.
+Подробности exact artifact/backup/операции: docs/ops/REDESIGN_ACCEPTANCE.md.
+Группы1–5 выполнены в части подготовки/выпуска. Приёмка пользователя и последующее
+архивирование previous ещё ожидаются; группа6 full Payload остаётся открытой.

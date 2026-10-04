@@ -1,11 +1,11 @@
 # Приёмка редизайна перед публикацией
 
-Дата: 2026-10-05. Линия: codex/redesign-portfolio. Production не изменён.
-Функциональный кандидат: f28c4614061c16b19a0719e231bdc83f7e4c4232.
-Архив этого SHA: 21 825 065 bytes, 1510 entries, SHA256
-6b98cd9c1f731e5f09526f5e77dd5631e343f44ed45947350fefc6d44f314b34.
-Следующий commit содержит только эту фиксацию evidence/docs; перед показом
-пересобрать его exact HEAD и проверить упакованный runtime.
+Дата: 2026-10-05. Линия: codex/redesign-portfolio.
+Production выпущен: b44946021d55fb1cc8a4430c3bafd62e342714c9 (PR #54).
+Архив: 21 825 133 bytes, 1510 entries, SHA256
+5915a2d18ff8aad42327bec3701d098c910e1e363d85b74ba9185887f2051bd5.
+Страницы и ресурсы побайтно совпадают с показанным кандидатом 954c835a;
+изменилась только привязка manifest к exact merged SHA.
 
 ## Проверенные условия
 
@@ -29,15 +29,30 @@ Evidence: design-reference/redesign-release-2026-10-05 содержит JSON pro
 Подробный журнал browser edge states: /private/tmp/redesign-release-verification-checkpoint-20261005.md.
 Группы1–3 и reviews: docs/exec-plans/redesign-production-release.md.
 
-## Открытые условия выпуска
+## Production проверен
 
-1. Получить SSH адрес/пользователя или профиль, без пароля/ключа в чате.
-2. Read-only: exact deployed SHA/current/process, platform, disk capacity, доступ к существующему механизму публикации. HTTP marker a44efab5830a8dda5a1fd1348f644358f047672c не заменяет SSH preflight.
-3. Перед разрешённым переключением сохранить и проверить настоящий предыдущий релиз вне rotation current+2: isolated rehearsal подтвердил, что oldest previous может удалиться при success. Production backup write требует разрешения.
-4. Показать exactcandidate; получить отдельное разрешение exactmerge и публикации; послеmerge пересобрать actualmergedSHA.
-5. После разрешённогоdeploy smoke и подтверждения пользователя архивировать старыйсайт внеpublicroutes.
-6. После выпуска закончить удобный Payload authoring на доказанном snapshot interface, с отдельными gates real bootstrap/migrations/publish.
+Пользователь явно разрешил дальнейшие действия публикации и деплоя и открыл
+административную SSH-сессию. Fresh VPS preflight: previous a44efab5830a8dda5a1fd1348f644358f047672c,
+Linux x86_64, Node 22.23.2, service active, около 22 GiB свободно.
+Установленные deploy-v2 script и validator совпали по SHA-256 с tracked sources.
+До переключения создан root-only backup вне releases:
+/var/backups/art-des/pre-redesign-a44efab5830a8dda5a1fd1348f644358f047672c/runtime.tar.gz.
+Tar compare с работающим release и checksum прошли; previous release и backup
+проверены снова после переключения, старый release остался на месте.
 
-Новыеmobile/tabletportfolio, измененияHero, старыеAdminданные, Figmawrite,
-удаление экспериментов и архивированиепрода до подтверждения исключены.
-Goal остаётся активной; production-ready и завершённыйPayload не заявляются.
+PR #54 merged в main; actual merged SHA clean build/poststamp/package/unpack/validator
+и HTTP guard прошли. Deploy operation b44946021d55fb1cc8a4430c3bafd62e342714c9-5915a2d18ff8aad4
+завершилась complete. Публичный HTTPS GET/HEAD/status/title/exactSHA/noindex/redirect
+прошёл; все 451 public assets совпали по bytes/SHA-256. Browser desktop 1440×900:
+главная/прелоадер/fonts, Corvo scene body и переключение Statistics,
+Сараффан.Радио carousel next, новая 404/возврат; broken images и console errors отсутствуют.
+HTTP resource report: /private/tmp/redesign-production-assets.json.
+
+## Остаётся
+
+1. Пользовательская приёмка нового production; только после неё архивировать
+   предыдущий сайт вне публичных маршрутов. До этого сохранять быстрый откат.
+2. Закончить удобный Payload authoring на доказанном snapshot interface,
+   с отдельными gates real bootstrap/migrations/publish.
+
+Goal активна: выпуск состоялся, полный Payload ещё не завершён.
