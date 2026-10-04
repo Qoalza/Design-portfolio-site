@@ -69,7 +69,6 @@ test('native scrollbar never changes the layout viewport while Lenis stops',asyn
 test('header pins only after its original area leaves the viewport and uses the approved Border/Thin below',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
- const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
  assert.match(app,/className=\{`site-header-shell\$\{pinned\?' is-pinned':''\}`\}/);
  assert.match(app,/<div id="top" ref=\{shell\} className=\{`site-header-shell/);
  assert.doesNotMatch(app,/<header[^>]+id="top"/);
@@ -81,12 +80,11 @@ test('header pins only after its original area leaves the viewport and uses the 
  assert.match(app,/paintTask\.dispose\(\);thresholdTask\.dispose\(\);observer\.disconnect\(\)/);
  assert.match(app,/setLeaving\(true\)/);
  assert.match(app,/exitTimer=setTimeout\(\(\)=>\{pinnedRef\.current=false;leavingRef\.current=false;setPinned\(false\);setLeaving\(false\)\},150\)/);
- assert.match(css,/\.site-header\.is-pinned\{position:fixed;z-index:20;inset:0 0 auto;background:var\(--page\);box-shadow:inset 0 -1px var\(--cv2-border-neutral-thin\);will-change:transform;animation:header-enter 150ms ease-out both\}/);
+ assert.match(css,/\.site-header\.is-pinned\{min-width:1280px;position:fixed;z-index:20;inset:0 0 auto;background:var\(--page\);box-shadow:inset 0 -1px var\(--cv2-border-neutral-thin\);will-change:transform;animation:header-enter 150ms ease-out both\}/);
  assert.match(css,/\.site-header\.is-unpinning\{animation:header-exit 150ms ease-in both\}/);
  assert.match(css,/\.site-header-shell\.is-pinned\{z-index:20\}/);
  assert.match(css,/@keyframes header-enter\{from\{transform:translateY\(-100%\)\}to\{transform:translateY\(0\)\}\}/);
  assert.match(css,/@keyframes header-exit\{from\{transform:translateY\(0\)\}to\{transform:translateY\(-100%\)\}\}/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{/);
  assert.match(css,/\.site-header\.is-pinned,\.process-caption-content\{animation:none\}/);
- assert.match(responsive,/\.site-header-shell,\.site-header,\.header-row,\.brand\{height:72px\}/);
 });

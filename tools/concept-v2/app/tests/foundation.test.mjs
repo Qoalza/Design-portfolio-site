@@ -59,26 +59,22 @@ test('AI desktop panel matches the current 4150:804109 two-column composition',a
  assert.match(css,/\.ai-code-body::after\{[^}]*height:142px/);
 });
 
-test('AI keeps the desktop hatches and leaves the existing mobile panel intact',async()=>{
+test('AI keeps the desktop hatches without a duplicate mobile panel',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
- const responsive=await readFile(path.join(appRoot,'src/responsive.css'),'utf8');
  const top=await readFile(path.join(appRoot,'public/figma/ai-hatch-top.svg'));
  assert.match(app,/className="ai-desktop-side"/);
- assert.match(app,/className="ai-mobile-panel"/);
+ assert.doesNotMatch(app,/ai-mobile-panel/);
  assert.equal(createHash('sha256').update(top).digest('hex'),'1268a6bc21177d982b352b410e4cfeac717ab30317c20163af147fd69089ebb7');
  assert.match(css,/\.ai-desktop-side\{[^}]*border-block:1px solid var\(--cv2-border-neutral-thin\)[^}]*background:repeating-linear-gradient\(126\.826deg,#1f2224 0 1px,transparent 1px 15px\)/);
- assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.ai-desktop-panel,\.ai-desktop-side\{display:none\}/);
- assert.match(responsive,/\.ai-mobile-panel\{display:block/);
- assert.match(responsive,/@media\(max-width:599px\)\{[\s\S]*?\.ai-mobile-main \.ai-main\{padding:32px 24px\}/);
 });
 
 test('AI static code panel retains source copy and has no active controls or clock',async()=>{
  const app=await readFile(path.join(appRoot,'src/App.jsx'),'utf8');
- assert.match(app,/contentClass=desktop\?'ai-copy-content':'ai-main'/);
- assert.match(app,/bannerClass=desktop\?'ai-copy-banner':'ai-banner'/);
- assert.match(app,/desktop\?'\/figma\/ai-gear\.svg':'\/figma\/ai-codex-icon\.svg'/);
- assert.match(app,/desktop\?<><span>Данный сайт был разработан с 0 в codex, а дизайн в Figma\.<\/span><span>Без шаблонов\.<\/span><\/?>/);
+ assert.match(app,/className="ai-copy-content"/);
+ assert.match(app,/className="ai-copy-banner"/);
+ assert.match(app,/src="\/figma\/ai-gear\.svg" width="24" height="24"/);
+ assert.match(app,/<span>Данный сайт был разработан с 0 в codex, а дизайн в Figma\.<\/span><span>Без шаблонов\.<\/span>/);
  assert.match(app,/HTML \+ JavaScript/);
  assert.match(app,/className="code-tag"/);
  assert.match(app,/className="code-keyword"/);

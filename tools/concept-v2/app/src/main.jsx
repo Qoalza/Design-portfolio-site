@@ -14,7 +14,6 @@ import {NavigationLab} from './NavigationLab';
 import './style.css';
 import './v2/tokens.css';
 import {SmoothScroll} from './SmoothScroll';
-import './responsive.css';
 
 const basePath=import.meta.env.BASE_URL.replace(/\/$/,'');
 const pagePath=location.pathname.startsWith(basePath)?location.pathname.slice(basePath.length)||'/':location.pathname;

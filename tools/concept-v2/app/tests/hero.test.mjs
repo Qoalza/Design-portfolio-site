@@ -35,11 +35,9 @@ test('Hero preserves the two authored component structures and the accepted map 
 test('Hero lower field uses a native dot treatment over the exact Bg-main surface',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
- const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
  const waveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask.svg'),'utf8');
- assert.match(app,/className="hero-fact-chip"><span>29 лет<\/span><i aria-hidden="true"\/><span>Екатеринбург<\/span><i aria-hidden="true"\/><span className="hero-fact-chip-desktop">Middle\+ \/ Senior<\/span><span className="hero-fact-chip-mobile">Senior<\/span>/);
- assert.match(css,/\.hero-fact-chip-mobile\{display:none\}/);
- assert.match(responsive,/@media\(max-width:1279px\)\{[\s\S]*?\.hero-fact-chip-desktop\{display:none\}[\s\S]*?\.hero-fact-chip-mobile\{display:inline\}/);
+ assert.match(app,/className="hero-fact-chip"><span>29 лет<\/span><i aria-hidden="true"\/><span>Екатеринбург<\/span><i aria-hidden="true"\/><span className="hero-fact-chip-desktop">Middle\+ \/ Senior<\/span>/);
+ assert.doesNotMatch(app,/hero-fact-chip-mobile/);
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
  assert.match(css,/\.hero-bottom\{height:320px;flex:0 0 320px/);
@@ -53,13 +51,13 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(waveMask,/<feGaussianBlur stdDeviation="75"/);
  assert.match(waveMask,/M-183 220\.497L53\.0918 161\.831/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots\{[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*mask-image:none/);
- assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots::after\{[^}]*radial-gradient\(ellipse 48% 100% at 50% 0,rgb\(20 24 27 \/ \.98\)[^}]*linear-gradient\(to bottom,var\(--cv2-container-neutral-bg-main\) 0%[^}]*44%[^}]*52%/);
+ assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots::after\{[^}]*radial-gradient\(ellipse 48% 100% at 50% 0,color-mix\(in srgb,var\(--cv2-container-neutral-bg-main\) 98%,transparent\)[^}]*linear-gradient\(to bottom,var\(--cv2-container-neutral-bg-main\) 0%[^}]*44%[^}]*52%/);
  assert.doesNotMatch(css,/hero-bottom-wave-mask-large/);
  assert.match(css,/\.hero-fact-chip\{[^}]*gap:12px[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
  assert.match(css,/\.hero-fact-chip i\{[^}]*width:4px[^}]*height:4px[^}]*background:var\(--cv2-element-neutral-thin\)/);
 });
 
-test('desktop Hero wave leaves the source map and mobile Hero untouched',async()=>{
+test('desktop Hero wave preserves the source map without a mobile layout',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const network=await readFile(path.resolve(import.meta.dirname,'../src/SvgNetwork.jsx'),'utf8');
@@ -69,19 +67,14 @@ test('desktop Hero wave leaves the source map and mobile Hero untouched',async()
  assert.match(css,/\.hero-bottom\{z-index:0;isolation:auto;background:/);
  assert.match(css,/\.hero-main\{z-index:1\}/);
  assert.match(css,/\.hero-bottom-dots\{[^}]*background-size:16px 16px[^}]*mask-image:linear-gradient/);
- const mobileConstructionMask=/@media\(max-width:1279px\)\{\.hero-graph \.vector-network \.construction\{[^}]*mask-image:radial-gradient[^}]*linear-gradient\(to bottom,#000 0,#000 50%,transparent 72%\)[^}]*mask-composite:intersect\}\}/;
- assert.match(css,mobileConstructionMask);
- assert.doesNotMatch(css.replace(mobileConstructionMask,''),/\.hero-graph \.vector-network \.construction\{[^}]*mask-image/);
+ assert.doesNotMatch(css,/\.hero-graph \.vector-network \.construction\{[^}]*mask-image/);
  assert.match(network,/<g className="construction" mask=\{`url\(#\$\{id\}-grid\)`\}/);
- assert.match(css,/@media\(min-width:1280px\) and \(max-height:719px\)\{\.hero-graph \.vector-network \.construction\{opacity:0\}\}/);
+ assert.match(css,/@media\(max-height:719px\)\{\.hero-graph \.vector-network \.construction\{opacity:0\}\}/);
  assert.doesNotMatch(css,/\.hero-graph \.vector-network \.routes[^}]*mask-image/);
  assert.doesNotMatch(css,/\.hero-graph \.process-map\{[^}]*mask-image/);
  assert.doesNotMatch(css,/\.hero-bottom\{[^}]*border-top/);
  assert.match(css,/hero-bottom-wave-mask-2x\.png/);
- const mobile=css.slice(css.indexOf('@media(max-width:760px)'),css.indexOf('@media(max-width:380px)'));
- assert.match(mobile,/\.hero-bottom\{height:auto;padding:0 20px 24px\}/);
- assert.doesNotMatch(mobile,/\.hero-bottom\{height:320px;flex:0 0 320px;padding:0\}/);
- assert.doesNotMatch(mobile,/hero-bottom-dots::after/);
+ assert.doesNotMatch(css,/@media\(max-width:(?:1279|760|380)px\)/);
 });
 
 test('desktop Hero occupies exactly one viewport and keeps the dotted field in its background',async()=>{

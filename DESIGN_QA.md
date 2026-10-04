@@ -171,3 +171,7 @@
 - preloaders/loading states без подтверждённого current Figma discrepancy;
 - старые `READY_FOR_USER_REVIEW` screenshots;
 - feature backlog, архитектурные планы и deploy tasks.
+
+## READY_FOR_REVIEW — desktop-only scope, 2026-10-04
+
+Удалена неутверждённая mobile/tablet адаптация портфолио. Обе desktop композиции главной и исправленный цвет fade сохранены; Project Hero/scenes не изменены. Evidence: design-reference/desktop-only-2026-10-04/ACCEPTANCE.md. Реализация проверена; пользовательская приёмка pending.

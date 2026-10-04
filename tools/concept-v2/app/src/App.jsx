@@ -2,7 +2,6 @@ import {NavigationTooltip} from './NavigationTooltip';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {ControlButton,NavigationTab,Icon} from './Controls';
 import {SvgLens} from './SvgLens';
-import {MobileNavigation} from './MobileNavigation';
 import {getHeroVariant} from './hero-layout.mjs';
 import {paintDotField} from './hero-dot-field.mjs';
 import {Experience} from './Experience';
@@ -87,21 +86,15 @@ function Header(){
  return <div id="top" ref={shell} className={`site-header-shell${pinned?' is-pinned':''}`}><header className={`site-header${pinned?' is-pinned':''}${leaving?' is-unpinning':''}`}><div className="header-row">
   <a className="brand" href="#top" aria-label="Артур — на главную"><img src="/figma/imgSymbol.svg" width="44" height="44" alt=""/><span><strong>ARTUR</strong><small>Product Designer</small></span></a>
   <nav aria-label="Основная навигация"><NavigationTab icon="imgColor" active>Главная</NavigationTab><NavigationTooltip section="blog"><NavigationTab icon="imgColor1" disabled>Блог</NavigationTab></NavigationTooltip><NavigationTooltip section="lab"><NavigationTab icon="imgColor1" disabled>Лаборатория</NavigationTab></NavigationTooltip></nav>
-  <div className="header-actions"><MobileNavigation/><span className="availability"><img src="/figma/imgIndicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ControlButton contactMotion variant="accent" href="https://t.me/Coco_soul" external iconRight="imgColor2">Связаться</ControlButton></div>
+  <div className="header-actions"><span className="availability"><img src="/figma/imgIndicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ControlButton contactMotion variant="accent" href="https://t.me/Coco_soul" external iconRight="imgColor2">Связаться</ControlButton></div>
  </div></header></div>;
 }
 function HeroDotField({layout}){
- const canvasRef=useRef(null),[ready,setReady]=useState(false),[desktop,setDesktop]=useState(()=>window.matchMedia('(min-width:1280px)').matches);
- useEffect(()=>{
-  const query=window.matchMedia('(min-width:1280px)');
-  const change=()=>setDesktop(query.matches);
-  query.addEventListener('change',change);
-  return()=>query.removeEventListener('change',change);
- },[]);
+ const canvasRef=useRef(null),[ready,setReady]=useState(false);
  useEffect(()=>{
   setReady(false);
   const canvas=canvasRef.current;
-  if(layout!=='small'||!desktop||!canvas){if(canvas){canvas.width=0;canvas.height=0;}return undefined;}
+  if(layout!=='small'||!canvas){if(canvas){canvas.width=0;canvas.height=0;}return undefined;}
   const host=canvas.parentElement;
   const context=canvas.getContext('2d');
   if(!host||!context)return undefined;
@@ -130,7 +123,7 @@ function HeroDotField({layout}){
   mask.src='/figma/hero-bottom-wave-mask-2x.png';
   if(mask.complete&&mask.naturalWidth>0)load();
   return()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',schedule);mask.onload=null;};
- },[desktop,layout]);
+ },[layout]);
  return <><span className="hero-bottom-dots" data-rasterized={ready?'true':undefined} aria-hidden="true"/><canvas ref={canvasRef} className={`hero-bottom-dots-bitmap${ready?' is-ready':''}`} aria-hidden="true"/></>;
 }
 function Hero(){
@@ -141,7 +134,7 @@ function Hero(){
    <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens/></div>
   </div></div>
-  <div className="hero-bottom"><HeroDotField layout={layout}/><div className="hero-bottom-inner"><p className="hero-fact-chip"><span>29 лет</span><i aria-hidden="true"/><span>Екатеринбург</span><i aria-hidden="true"/><span className="hero-fact-chip-desktop">Middle+ / Senior</span><span className="hero-fact-chip-mobile">Senior</span></p></div></div>
+  <div className="hero-bottom"><HeroDotField layout={layout}/><div className="hero-bottom-inner"><p className="hero-fact-chip"><span>29 лет</span><i aria-hidden="true"/><span>Екатеринбург</span><i aria-hidden="true"/><span className="hero-fact-chip-desktop">Middle+ / Senior</span></p></div></div>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){
@@ -214,16 +207,14 @@ function Process(){
   <div className="steps">{steps.map((step,index)=><ProcessStep key={step.title} step={step} index={index}/>)}</div>
  </section>;
 }
-function AICopy({desktop=false}){
- const mainClass=desktop?'ai-desktop-copy':'ai-mobile-main',contentClass=desktop?'ai-copy-content':'ai-main';
- const bannerClass=desktop?'ai-copy-banner':'ai-banner';
- return <div className={mainClass}><div className={contentClass}><SectionTitle className="ai-title" id={desktop?'ai-title':undefined} eyebrow="ИНСТРУМЕНТЫ" title="AI в рабочем процессе"><p>Использую AI, как рабочий инструмент, для ускорения исследований, прототипирования, проверки решений/гипотез и разработки.</p></SectionTitle>{!desktop&&<p className="tech-note">// итоговые решения всегда остаются за мной</p>}</div><div className={bannerClass}><img src={desktop?'/figma/ai-gear.svg':'/figma/ai-codex-icon.svg'} width={desktop?24:28} height={desktop?24:28} alt=""/><p>{desktop?<><span>Данный сайт был разработан с 0 в codex, а дизайн в Figma.</span><span>Без шаблонов.</span></>:'Данный сайт был разработан с 0 в codex, а дизайн в Figma. Без шаблонов.'}</p></div></div>;
+function AICopy(){
+ return <div className="ai-desktop-copy"><div className="ai-copy-content"><SectionTitle className="ai-title" id="ai-title" eyebrow="ИНСТРУМЕНТЫ" title="AI в рабочем процессе"><p>Использую AI, как рабочий инструмент, для ускорения исследований, прототипирования, проверки решений/гипотез и разработки.</p></SectionTitle></div><div className="ai-copy-banner"><img src="/figma/ai-gear.svg" width="24" height="24" alt=""/><p><span>Данный сайт был разработан с 0 в codex, а дизайн в Figma.</span><span>Без шаблонов.</span></p></div></div>;
 }
 function StaticCode(){
  return <div className="ai-code-panel" aria-label="Статичный пример кода"><div className="ai-code-header"><img className="ai-code-symbol" src="/assets/code.svg" alt=""/><p>HTML + JavaScript</p></div><div className="ai-code-body"><code className="ai-static-code"><span>&lt;</span><span className="code-tag">div</span><span> </span><span className="code-attribute">class</span><span>=</span><span className="code-string">&quot;availability&quot;</span><span>&gt;</span>{'\n'}<span>  &lt;</span><span className="code-tag">span</span><span> </span><span className="code-attribute">class</span><span>=</span><span className="code-string">&quot;dot&quot;</span><span>&gt;&lt;/</span><span className="code-tag">span</span><span>&gt;</span>{'\n'}<span>  &lt;</span><span className="code-tag">span</span><span>&gt;Открыт к предложениям&lt;/</span><span className="code-tag">span</span><span>&gt;</span>{'\n'}<span>&lt;/</span><span className="code-tag">div</span><span>&gt;</span>{'\n\n'}<span>&lt;</span><span className="code-tag">script</span><span>&gt;</span>{'\n'}<span>  </span><span className="code-keyword">const</span><span> availability = </span><span className="code-api">document.querySelector</span><span>(</span><span className="code-string">&quot;.availability&quot;</span><span>)</span><span className="code-punctuation">;</span>{'\n\n'}<span>  </span><span className="code-keyword">function</span><span>{' showAvailability() {'}</span>{'\n'}<span>    availability.classList.add(</span><span className="code-string">&quot;is-visible&quot;</span><span>)</span><span className="code-punctuation">;</span>{'\n'}<span>{'  }'}</span>{'\n'}<span>&lt;/</span><span className="code-tag">script</span><span>&gt;</span></code></div></div>;
 }
 function AISection(){
- return <section className="ai-section" aria-label="AI в рабочем процессе"><div className="ai-desktop-side" aria-hidden="true"/><div className="ai-desktop-panel"><AICopy desktop/><StaticCode/></div><div className="ai-desktop-side" aria-hidden="true"/><div className="ai-mobile-panel"><AICopy/></div></section>;
+ return <section className="ai-section" aria-label="AI в рабочем процессе"><div className="ai-desktop-side" aria-hidden="true"/><div className="ai-desktop-panel"><AICopy/><StaticCode/></div><div className="ai-desktop-side" aria-hidden="true"/></section>;
 }
 export default function App(){
  return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><Projects/><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;

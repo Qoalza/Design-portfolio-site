@@ -50,7 +50,7 @@ test('Header preserves its component brand tokens while using current 1280px fra
  assert.match(css,/\.brand small\{[^}]*color:#909498/);
  assert.match(css,/\.brand strong\{font:550 16px\/20px "Google Sans",sans-serif;font-variation-settings:"GRAD" -25,"opsz" 18/);
  assert.match(css,/\.brand small\{font:450 12px\/12px "Google Sans",sans-serif;font-variation-settings:"GRAD" -30,"opsz" 18/);
- assert.match(css,/@media\(min-width:1280px\)\{\.brand\{width:191px\}\.header-actions\{width:378px\}\}/);
+ assert.match(css,/@media all\{\.brand\{width:191px\}\.header-actions\{width:378px\}\}/);
  assert.match(css,/\.control\.accent\{--control-bg:var\(--cv2-container-accent-tertiary\);--control-fg:var\(--cv2-text-neutral-secondary\);--control-border:var\(--cv2-border-accent-muted\)/);
  assert.match(css,/\.control\.light:hover\{[^}]*--control-border:var\(--cv2-border-neutral-surface\)/);
  assert.match(css,/\.control\.light:active\{[^}]*--control-border:var\(--cv2-border-neutral-muted\)/);

@@ -14,15 +14,12 @@ export function SvgLens(){
   const [point,setPoint]=useState({x:WIDTH*.495,y:HEIGHT*.472});
   const [lensPosition,setLensPosition]=useState({x:0,y:0});
   const [active,setActive]=useState(false);
-  const [touchExplore,setTouchExplore]=useState(false);
   const [captionFrame,setCaptionFrame]=useState({current:DEFAULT_CAPTION,outgoing:null,revision:0});
   const captionCurrent=useRef(DEFAULT_CAPTION);
   const captionController=useRef(null);
   const captionTransitionTimer=useRef(null);
   const pointRef=useRef({x:WIDTH*.495,y:HEIGHT*.472});
   const activeRef=useRef(false);
-  const coarseRef=useRef(false);
-  const touchExploreRef=useRef(false);
   const pointerTaskRef=useRef(null);
   const scrollActiveRef=useRef(false);
   const closingUntil=useRef(0);
@@ -68,12 +65,6 @@ export function SvgLens(){
     return()=>{task.dispose();pointerTaskRef.current=null;};
   },[]);
   useEffect(()=>{
-    const query=window.matchMedia('(pointer: coarse)');
-    const update=()=>{coarseRef.current=query.matches;touchExploreRef.current=false;pointerTaskRef.current?.cancel();setTouchExplore(false);setLensActive(false);};
-    update();query.addEventListener('change',update);
-    return ()=>query.removeEventListener('change',update);
-  },[]);
-  useEffect(()=>{
     const unsubscribe=subscribeScrollActivity(next=>{
       scrollActiveRef.current=next;
       const host=area.current?.parentElement;
@@ -103,7 +94,7 @@ export function SvgLens(){
   },[]);
   function move(event){
     if(scrollActiveRef.current){pointerTaskRef.current?.cancel();setLensActive(false);return;}
-    if(event.pointerType==='touch'&&!touchExploreRef.current)return;
+    if(event.pointerType==='touch')return;
     pointerTaskRef.current?.schedule({kind:'move',clientX:event.clientX,clientY:event.clientY});
   }
   function key(event){
@@ -118,7 +109,7 @@ export function SvgLens(){
     setMapPoint(next,rect);
   }
   return <div className="process-demo vector-mode">
-    <div ref={area} className={`process-map ${active?'lens-active':''} ${touchExplore?'touch-exploring':''}`} tabIndex={0} role="group" aria-label="Исследуйте процесс. Перемещайте лупу указателем, пальцем или стрелками клавиатуры." onKeyDown={key} onFocus={()=>{if(!coarseRef.current||touchExploreRef.current)setLensActive(true)}} onBlur={()=>{if(!touchExploreRef.current){pointerTaskRef.current?.cancel();setLensActive(false)}}} onPointerEnter={move} onPointerLeave={leave} onPointerCancel={()=>{closingUntil.current=0;pointerTaskRef.current?.cancel();setLensActive(false)}} onPointerMove={move} onPointerDown={e=>{if(e.pointerType==='touch'&&touchExploreRef.current)e.currentTarget.setPointerCapture(e.pointerId);move(e)}} style={{'--lx':`${lensPosition.x}px`,'--ly':`${lensPosition.y}px`}}>
+    <div ref={area} className={`process-map ${active?'lens-active':''}`} tabIndex={0} role="group" aria-label="Исследуйте процесс. Перемещайте лупу указателем или стрелками клавиатуры." onKeyDown={key} onFocus={()=>setLensActive(true)} onBlur={()=>{pointerTaskRef.current?.cancel();setLensActive(false)}} onPointerEnter={move} onPointerLeave={leave} onPointerCancel={()=>{closingUntil.current=0;pointerTaskRef.current?.cancel();setLensActive(false)}} onPointerMove={move} onPointerDown={move} style={{'--lx':`${lensPosition.x}px`,'--ly':`${lensPosition.y}px`}}>
       <SvgNetwork idle={!active}/>
       <div className="lens-window" aria-hidden="true">
         <div className="lens-backing"/>
@@ -132,7 +123,6 @@ export function SvgLens(){
       {captionFrame.outgoing&&<span key={`out:${captionFrame.revision}`} className={`process-caption-content is-outgoing ${captionFrame.outgoing.active?'is-active':''}`}><Icon name={`hero-${captionFrame.outgoing.icon}`} className="caption-icon"/><span>{captionFrame.outgoing.label}</span></span>}
       <span key={`in:${captionFrame.revision}`} className={`process-caption-content is-incoming ${captionFrame.current.active?'is-active':''}`}><Icon name={`hero-${captionFrame.current.icon}`} className="caption-icon"/><span>{captionFrame.current.label}</span></span>
     </span><span className="sr-only" aria-live="polite">{captionFrame.current.label}</span></p>
-    <div className="touch-explore"><button type="button" aria-pressed={touchExplore} onClick={()=>{const next=!touchExploreRef.current;touchExploreRef.current=next;if(!next)pointerTaskRef.current?.cancel();setTouchExplore(next);setLensActive(next)}}>{touchExplore?'Завершить просмотр':'Исследовать схему'}</button></div>
     <span className="sr-only">Изучение задачи, анализ данных, пользовательские сценарии, проектирование, передача в разработку, проверка, запуск и развитие.</span>
   </div>;
 }

@@ -75,7 +75,6 @@ test('large Experience keeps its upper field while the lower field is removed',(
 
 test('experience keeps the Figma track geometry visible to the sticky viewport',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
-  const responsive=await readFile(path.resolve(import.meta.dirname,'../src/responsive.css'),'utf8');
   const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
   assert.match(css,/#root\{overflow:visible\}/);
   assert.match(css,/\.experience\{overflow:visible\}/);
@@ -124,7 +123,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/section\.classList\.toggle\('is-complete',complete\)/);
   assert.match(source,/sectionTop=section\.getBoundingClientRect\(\)\.top\+window\.scrollY/);
   assert.match(source,/const layout=experienceLayout\(window\.innerHeight\)/);
-  assert.match(source,/const height=desktop\?`\$\{window\.innerHeight\+\(completed\?0:VERTICAL_TRAVEL\)\}px`:'auto'/);
+  assert.match(source,/const height=`\$\{window\.innerHeight\+\(completed\?0:VERTICAL_TRAVEL\)\}px`/);
   assert.match(source,/section\.classList\.toggle\('is-compact',layout\.compact\)/);
   assert.match(source,/createExperienceEntryGate/);
   assert.match(source,/scrollTo\(sectionTop,\{immediate:true,force:true\}\)/);
@@ -137,9 +136,6 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(css,/\.experience\.is-compact \.experience-composition\{transform:translateY\(var\(--experience-compact-offset\)\) scale\(var\(--experience-scale\)\);transform-origin:top center\}/);
   assert.match(css,/\.experience\.is-compact \.experience-heading\{transform:translateY\(-16px\)\}/);
   assert.match(css,/\.experience\.is-compact \.experience-progress\{display:none\}/);
-  const tabletBlock=responsive.slice(responsive.indexOf('@media(max-width:1279px)'),responsive.indexOf('@media(min-width:1280px)'));
-  assert.match(tabletBlock,/\.experience-sticky\{position:relative;top:auto;height:auto;display:block;overflow:visible\}/);
-  assert.match(tabletBlock,/\.experience-track \.experience-job\{position:relative;left:auto;top:auto;width:auto/);
 });
 
 test('one normalized document progress drives the full horizontal travel',()=>{
@@ -197,7 +193,7 @@ test('Experience caches geometry and DOM targets and batches scroll work to one 
   assert.match(source,/if\(document\.body\.style\.position==='fixed'\)return false/);
   assert.match(source,/function syncGate\(currentScrollY\)/);
   assert.match(source,/syncGate\(currentScrollY\);\n\s*if\(!experienceShouldPaint/);
-  assert.match(source,/if\(!desktop\)\{resetStatic\(\);return;\}/);
+  assert.doesNotMatch(source,/resetStatic|window\.innerWidth>=1280/);
   assert.match(source,/if\(states\.started!==false\)\{states\.started=false;section\.classList\.remove\('is-started'\);\}/);
   assert.match(source,/if\(states\.complete!==false\)\{states\.complete=false;section\.classList\.remove\('is-complete'\);\}/);
   assert.match(source,/blurTimer=blur>0\?setTimeout/);
@@ -311,7 +307,7 @@ test('desktop Experience uses the current 20px grid on 320px tiles while masks r
   assert.match(css,/\.surface-grid-pattern\{[^}]*position:absolute;[^}]*inset:0;[^}]*pointer-events:none;[^}]*opacity:\.7;[^}]*background-image:url\('\/figma\/surface-grid-tile-16191c-191e21\.svg'\);[^}]*background-size:320px 320px;[^}]*background-position:calc\(50% - 640px\) 0;[^}]*background-repeat:repeat/);
   assert.doesNotMatch(css,/\.surface-grid-pattern\{[^}]*linear-gradient/);
   assert.match(css,/\.experience-center>\.surface-grid-pattern\{display:none\}/);
-  assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.experience-center>\.surface-grid-pattern\{[^}]*z-index:0;[^}]*display:block/);
+  assert.match(css,/@media all\{[\s\S]*?\.experience-center>\.surface-grid-pattern\{[^}]*z-index:0;[^}]*display:block/);
   assert.match(css,/\.experience-pattern\{background:var\(--cv2-container-neutral-faint\)\}/);
   assert.match(css,/\.experience-window\{-webkit-mask-image:linear-gradient\(to right,#000 0,#000 calc\(100% - 240px\),transparent 100%\)/);
   assert.match(css,/\.experience\.is-started \.experience-window\{-webkit-mask-image:linear-gradient\(to right,transparent 0,#000 240px/);
@@ -321,7 +317,7 @@ test('desktop Experience uses the current 20px grid on 320px tiles while masks r
 
 test('desktop Experience owns the full-width separator before About',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
- assert.match(css,/@media\(min-width:1280px\)\{[\s\S]*?\.experience-center\{[^}]*box-sizing:border-box[^}]*border-bottom:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(css,/@media all\{[\s\S]*?\.experience-center\{[^}]*box-sizing:border-box[^}]*border-bottom:1px solid var\(--cv2-border-neutral-thin\)/);
  assert.doesNotMatch(css,/\.about-section\{[^}]*border-top/);
 });
 

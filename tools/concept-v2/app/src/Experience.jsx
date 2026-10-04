@@ -69,7 +69,6 @@ export function Experience({cv}){
     let sectionHeight=0;
     let layoutDirty=true;
     let positionDirty=true;
-    let desktop=window.innerWidth>=1280;
     let lenis;
     let removeVirtualScroll=()=>{};
     const section=root.current;
@@ -92,7 +91,7 @@ export function Experience({cv}){
       entryGate.reset();
       lenis=instance;
       if(lenis)removeVirtualScroll=lenis.on('virtual-scroll',event=>{
-        if(desktop&&shouldCaptureExperienceEntry({state:entryGate.state,scrollY:window.scrollY,deltaY:event.deltaY,sectionTop})){
+        if(shouldCaptureExperienceEntry({state:entryGate.state,scrollY:window.scrollY,deltaY:event.deltaY,sectionTop})){
           boundaryCapturePending=true;
           if(completed)resetVisualProgress();
           entryGate.capture();
@@ -106,7 +105,7 @@ export function Experience({cv}){
     });
     function applyLayout(){
       const layout=experienceLayout(window.innerHeight);
-      const height=desktop?`${window.innerHeight+(completed?0:VERTICAL_TRAVEL)}px`:'auto';
+      const height=`${window.innerHeight+(completed?0:VERTICAL_TRAVEL)}px`;
       if(layoutStates.height!==height){layoutStates.height=height;section.style.height=height;}
       setStickyStyle('--experience-top-outer',`${layout.topOuter}px`);
       setStickyStyle('--experience-center',`${layout.center}px`);
@@ -144,19 +143,6 @@ export function Experience({cv}){
       jobs.forEach((job,index)=>{if(states.reached[index]!==false){states.reached[index]=false;job.classList.remove('is-reached');}});
       paths.forEach((path,index)=>{if(states.segments[index]!==1){states.segments[index]=1;path.style.setProperty('stroke-dashoffset','1');}});
     }
-    function resetStatic(){
-      if(lenis?.isStopped&&entryGate.state!=='idle')lenis.start();
-      entryGate.reset();
-      progress=0;
-      completed=false;
-      previousX=0;
-      previousTime=performance.now();
-      previousScrollY=window.scrollY;
-      boundaryCapturePending=false;
-      clearRearm();
-      clearBlur();
-      if(desktop===false)resetVisualProgress();
-    }
     function syncGate(currentScrollY){
       if(currentScrollY<sectionTop&&entryGate.state!=='idle'){
         if(lenis?.isStopped)lenis.start();
@@ -165,7 +151,6 @@ export function Experience({cv}){
     }
     function paint(){
       let currentScrollY=window.scrollY;
-      if(!desktop){resetStatic();return;}
       const boundaryCapture=boundaryCapturePending&&currentScrollY>=sectionTop;
       if(boundaryCapture)boundaryCapturePending=false;
       const enteredFromAbove=previousScrollY<sectionTop&&currentScrollY>=sectionTop;
@@ -236,9 +221,7 @@ export function Experience({cv}){
       read:payload=>{
         // The image viewer fixes body and temporarily reports scrollY=0.
         if(document.body.style.position==='fixed'){positionDirty=true;return {documentLocked:true};}
-        const nextDesktop=window.innerWidth>=1280;
-        const preserve=payload?.preserve===true&&desktop&&nextDesktop&&progress>0&&progress<1;
-        desktop=nextDesktop;
+        const preserve=payload?.preserve===true&&progress>0&&progress<1;
         if(layoutDirty)applyLayout();
         const documentLocked=positionDirty&&!refreshPosition();
         return {preserve,documentLocked};
