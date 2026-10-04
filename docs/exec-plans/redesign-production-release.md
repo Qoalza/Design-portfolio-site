@@ -1,136 +1,108 @@
-# Выпуск нового портфолио на art-des.ru
+# Выпустить новый сайт с заранее проверенным подключением Payload
 
-Version: 1.0, 2026-10-04. Status: IN_PROGRESS — Ready for execution; этап 2 содержит ограниченный Discovery.
-Области: PORTFOLIO / ADMIN / SHARED / OPS. LARGE / HIGH / FULL.
-Исходная линия: codex/redesign-portfolio; worktree: /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
-Baseline: e40f0b58eaff65dc6b5e479e10bbe37a486ec5f5.
-Пользователь разрешил реализацию всего плана и создание Goal. Автономный режим отдельно не запрошен: согласованные Git-группы выполняются с проверкой, commit и показом результата; далее действует ручной режим AGENTS.md.
+Version: 3.1, 2026-10-05. Status: IN_PROGRESS — Ready for execution.
+Области: PORTFOLIO / ADMIN (Payload) / SHARED / OPS. LARGE / HIGH / FULL.
+Рабочая линия: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
+Утверждённый визуальный и контентный baseline: 258e95b2a7720499c7a74ec7602c8608b8c58200.
+План заменяет прежнее требование закончить Admin до выпуска. Пользователь разрешил реализацию и новую Goal. Пользователь отдельно разрешил автономно пройти согласованные локальные группы до готовой сборки (2026-10-05); commit/checks сохраняются. Production, exact merge, real-data/secrets и cleanup gates действуют отдельно.
 
 ## Результат и источники истины
 
-На существующем домене art-des.ru и существующем сервере старое портфолио заменено утверждённой новой сборкой: главная, Corvo, Сараффан.Радио, новая 404. До выпуска работает редактирование контента проектов и входных данных двух готовых Hero через существующую Admin. Предыдущий релиз защищён для быстрого отката; старые страницы недоступны посетителям. Архивирование происходит только после пользовательской приёмки нового сайта на production.
+Подготовить и после отдельных разрешений заменить сайт на art-des.ru новым портфолио на том же сервере: главная, Corvo, Сараффан.Радио, новая 404. До выпуска доказать на настоящем существующем Payload, что опубликованные записи и файлы преобразуются в тот же интерфейс данных, который использует новый сайт. Полный удобный редактор Payload завершается после выпуска; публичный сайт работает из проверенного снимка без запущенной CMS.
 
-Актуальный исходник — tools/concept-v2/app, а public/concept-v2 — исторический снимок, не источник последней сборки. Новый runtime должен собираться из текущего исходника. Продакшен baseline определяется свежим read-only preflight по exact deployed SHA, не по предположению о main. Данные sandbox Admin не становятся canonical content, частью Git или production. Утверждённые новые материалы из code baseline имеют отдельную доказанную provenance и сохраняются при подключении данных.
+Актуальный интерфейс — tools/concept-v2/app. public/concept-v2 — исторический снимок, исключаемый из релиза. Первые production материалы берутся только из утверждённого Git baseline, с hashes источников и ресурсов. Временные записи Payload служат доказательством, никогда источником первого production. Реальный предыдущий релиз определяется свежим read-only preflight сервера по exact deployed SHA.
+
+Существующий Payload находится в tools/payload-admin линии codex/payload-local-foundation (d21f7a3ffa1e7fa11738f20e4a9e7ea4d664cc30; существенный checkpoint fd2e79d). Переносится его код, auth, SQLite, drafts/versions и защита media, без личного .local. Не создавать другую CMS. Предыдущая интеграция в codex/redesign-admin-integration, checkpoint c85c3065cadaad68064f1a1060972744c25c8c5c, сохраняется с незавершёнными файлами. Выборочно переиспользовать только проверенные публичный renderer, контракт, экспорт утверждённых материалов и адаптеры Hero. Старую Des-art Admin не продолжать и не включать в релиз; по прямому уточнению пользователя её правила, store/compiler/live bootstrap/undo/publish semantics и архитектуру не использовать как требования для Payload. Исполнитель самостоятельно выбирает подходящие Payload модели и lifecycle в рамках согласованного результата; существующий deploy-v2 — инфраструктурный инструмент, а не целевая CMS.
 
 ## Зафиксированные границы
 
-- /projects временно отвечает 307 на /#projects; после появления нового каталога переход заменяется без изменения ссылок. Старые адреса без новой замены отвечают настоящей новой 404. Старый дизайн недоступен также по прямым HTML/static URL.
-- Текущие тексты, изображения, имя, описание и превью приняты. Резюме, контакты, Figma проверяются без аккаунта перед выпуском; пользователь предоставляет замену только при конкретной проблеме.
-- Мобильную и планшетную адаптацию портфолио убрать; новую не разрабатывать и не принимать. Сохранить оба desktop Hero главной: small и large, порог large одновременно width >= 2313 и height >= 1300. В узком окне остаётся desktop canvas.
-- Проектные Hero и сцены, включая Corvo Mobile/Tablet, не переделывать: геометрия, масштаб, анимация, drag/inertia/presets и взаимодействие уже утверждены. Разрешён только необходимый адаптер входных данных для Admin.
-- Admin редактирует тексты, ссылки и согласованные изображения проектов. Управление всей главной, её секциями и размещением проектов не добавляется. Карточки главной используют согласованные значения того же проекта без расхождения.
-- Оболочка «Верстка»: заменить готовый HTML/пакет вёрстки либо поддерживаемый источник, выбрать реально доступные адаптивы; внутренняя вёрстка задаёт собственное поведение. Упаковку, ресурсы и технический формат определяет исполнитель по действующему коду.
-- Оболочка «Фикс адаптив»: desktop изображения, нечётные наборы 3, 5, 7 и больше; максимум пять видимых карточек и пять dots. Добавление, замена, удаление, порядок, подписи и начальный экран должны сохранять существующие формат/масштаб/движение Сараффана. Остальные адаптивы пока недоступны с действующими объяснениями.
-- Нет покупки хостинга/домена, изменений Figma, чтения USERSPACE, самостоятельного восстановления экспериментов или удаления старых папок до приёмки. Название concept-v2 не переименовывать без технической необходимости.
+- /projects временно 307 → /#projects; после появления нового каталога маршрут заменяется без изменения ссылок. Старые адреса без замены и неизвестные маршруты дают новую настоящую HTTP404. Старый дизайн недоступен по прямым HTML/static URL.
+- Материалы, имя, описание и превью приняты. CV, контакты и Figma проверяются без авторизации; замена нужна только при найденной проблеме.
+- Мобильную/планшетную адаптацию портфолио не разрабатывать и не принимать. Сохранить оба desktop варианта главной и совместный порог width >= 2313 && height >= 1300. Desktop canvas в узком окне.
+- Проектные Hero, Corvo сцены и внутренние Mobile/Tablet, геометрия, масштабы, presets, drag/inertia и анимации сохраняются. Разрешены только необходимые адаптеры данных, не переделка оболочек.
+- Payload редактирует проектные тексты, ссылки, изображения и входные данные двух оболочек. Главная и её структура не управляются CMS; карточки читают согласованные поля проекта.
+- «Верстка»: готовый файл/пакет либо поддерживаемый ссылочный источник, выбор доступных адаптивов, внутренняя верстка задаёт поведение. Файлы/entrypoint/manifest/scenes/ranges сохраняются. Сервер не исполняет загруженный HTML; iframe isolation сохраняется.
+- «Фикс адаптив»: только desktop, нечётные наборы 3/5/7/больше, максимум пять видимых карточек и dots; порядок/подписи/начальный экран. Формат, масштаб и движение как в Сараффане. Другие адаптивы позже.
+- Качество изображения по docs/requirements/admin-image-quality.md: сохранить оригинал; lossless PNG → WebP лишь при доказанных одинаковых pixels/dimensions/profile/orientation и меньшем весе, без resize/upscale/lossy/near-lossless. Подготовленные файлы не пережимать. Fallback и отчёт сохраняются; удобный UI после выпуска.
+- USERSPACE, личные CMS данные, неизвестные локальные файлы, чужие изменения и рабочие Hero вне изменения. Старые worktree/эксперименты не удалять и автоматически не вливать. Новый домен/хостинг не покупать. Figma read-only.
 
-## Уже выполнено
+## Подтверждённые результаты до нового плана
 
-- [x] Сверка worktree, переносов и единой линии; реестр docs/exec-plans/redesign-portfolio-variant-registry.md. Девять HANDOFF исправлены в собственных checkout. Шесть отсутствующих папок зарегистрированы как исторические записи, их ветки/коммиты сохранены.
-- [x] Названия двух оболочек перенесены в общий DESIGN_SYSTEM.md, commit 5391db5.
-- [x] Desktop fade главной привязан к --cv2-container-neutral-bg-main (RGB 22/25/26), commit e40f0b5; browser 1920×1080 и 2751×1500. Формы и opacity stops сохранены. Повторная проверка включена в итоговую приёмку.
-- [x] Adversarial review плана: уточнены planned Shared contract change, отдельная Admin-линия, изоляция HTML, исключение старого public snapshot из release artifact и сборка из актуального исходника вместо старого source.tar.gz.
+- Сверка worktree и переносов: docs/exec-plans/redesign-portfolio-variant-registry.md; девять HANDOFF исправлены. Шесть отсутствующих папок — исторические записи, ветки и коммиты сохранены; старые reflog состояния в страховочной копии.
+- Названия оболочек в общей DESIGN_SYSTEM.md, commit 5391db5.
+- Fade главной использует --cv2-container-neutral-bg-main (RGB 22/25/26), commit e40f0b5. Сохраняется и повторно проверяется в релизе.
+- Desktop-only портфолио, commit 258e95b; evidence design-reference/desktop-only-2026-10-04/ACCEPTANCE.md. Проектные Hero не изменены. Итоговая приёмка нужна на release candidate.
+- Старые интеграционные checkpoints не доказывают готовность Payload или production. Полезные части переносятся выборочно и проверяются на новой рабочей линии.
 
-## Этапы и Git-группы
+## Этапы и зависимости
 
-### 1. Desktop-only портфолио
+### 1. Общий снимок проектных данных и файлов
 
-Target → главный runtime tools/concept-v2/app и только адаптация самого портфолио.
-Change → установить provenance самовольно добавленных mobile/tablet правил, компонентов и runtime переключений; удалить их, сохранив точные desktop композиции, pointer/keyboard поведение и reduced-motion. Desktop fallback остаётся в узком окне; проектные Hero и их CSS/assets не изменяются.
-Expected result → нет мобильного меню, мобильных копий AI/фактов, скрытия About или статической мобильной замены Experience; desktop обычный и широкий выглядят как baseline.
-Verification → сравнение desktop computed geometry/снимков до и после, обычная/широкая композиции и обе стороны порога, fade, Projects, Process, Experience, About, header/navigation. Focused tests, lint; production build при изменении runtime. Проверка узкого viewport только доказывает отсутствие адаптивной подмены, не является мобильной приёмкой. Два последовательных review: completeness, затем regression/scope. Отдельный commit этапа.
+Target → Shared contract, approved Git exporter, neutral release boundary.
+Change → перенести проверенное optional redesign v1 расширение schema-v3 без изменения старых документов, извлечь полные Corvo/Сараффан из baseline, добавить проверяемый переносимый snapshot. Отделить экспорт от старой Admin. Карта всех текстов/ссылок/карточек/секций/images/двух Hero без потерь; hashes и полный package manifest.
+Expected result → единый вход публичного renderer и будущего Payload export. В пакете нет .local, секретов, private URLs, локальных путей или sandbox контента. Неверные документы/отсутствующие ресурсы/несовпадающие hashes отклоняются до замены последнего good snapshot.
+Verification → roundtrip, legacy compatibility, source literal mapping, полный manifest и ссылки HTML/CSS, byte parity четырёх сцен, размеры подготовленных images; missing/corrupt/duplicate/draft/path-negative tests. Два последовательных review. Эта группа сама по себе не доказывает Payload compatibility или готовность production.
 
-### 2. Discovery интеграции Admin и Shared
+### 2. Доказать настоящий путь Payload → snapshot → renderer до выпуска
 
-Target → отдельный worktree/ветка от актуального redesign checkpoint (например codex/redesign-admin-integration), действующие SPEC, PROJECT_CONTENT, типы, validators, compiler, preview/publish и новый runtime.
-Question → как сохранить все текущие материалы и подключить редактирование к обеим оболочкам без изменения их поведения и утечки sandbox данных?
-Change → составить точную таблицу JSX → ProjectDocument для Corvo и Сараффана: title/description/categories, summary, sections, links, images, Hero. Согласованный выбор оболочки — запланированное расширение старого контракта, прежний запрет на выбор template не отменяет пользовательский запрос. Определить serialization, ownership assets, defaults, версии/обратную совместимость и миграцию только если необходима.
-Investigation → проверить ближайшие producers/consumers/test; подготовить ограниченный spike HTML: standalone файл или пакет с entrypoint и относительными ресурсами, доступность ссылочного источника, isolation/origin/parent/scripts/network, ошибки загрузки. Сервер не исполняет произвольный HTML. Проверить, что безопасность нового импорта не ломает существующие сцены. Реальные доступные адаптивы и их диапазоны берутся из приложенного источника, а не выдумываются или копируются из Corvo.
-Expected result / exit → письменный исполнимый contract и карта всех полей без потерь; путь draft → compile → новый preview → локальный release доказан fixture. Установлено, как новый runtime входит в действующий Next standalone host. Неиспользуемый fixed snapshot builder не считается сборкой текущего исходника.
-Verification → один/два/три доступных адаптива, standalone HTML/пакет/ссылка в реально поддержанных формах и явные ошибки неподдерживаемых; dual-side contract proof. Неизвестные, способные изменить согласованные границы, фиксируются и требуют точечного решения; технический формат пользователь не обязан проектировать. Отдельный discovery checkpoint.
+Target → существующие tools/payload-admin, общий адаптер, выборочно перенесённый публичный renderer.
+Change → дополнить модель Payload всеми полями Corvo/Сараффана, карточками, секциями, обеими Hero и assets. Сохранить auth/private media/drafts/versions. HTML packages хранить через соответствующую границу файлов, не объявлять HTML изображением. Определить ссылки media в новых полях и расширить защиту удаления с учётом опубликованных записей и версий. Экспорт переносит bytes в публичный artifact; никаких запросов публичного сайта к localhost или закрытым CMS URL. Preview использует те же компоненты, меняется только источник данных.
+Expected result → реальная временная SQLite содержит полные проекты; опубликованный export и preview проходят тот же validator/renderer, что первый релиз. Публичный сайт работает при выключенном тестовом Payload. Полного authoring UI перед выпуском не требуется.
+Verification → отдельный временный PAYLOAD_LOCAL_ROOT (без чтения личного .local): сохранить два полных проекта и оба Hero; закрыть/reopen DB; получить опубликованные записи и отрендерить; изменить текст/ссылку/image/порядок raster/layout source metadata и увидеть правильное изменение без переписывания компонентов; новый draft не изменяет published snapshot; реальный media export и build, остановить Payload, открыть страницы/ресурсы. Invalid/missing сохраняют последний good snapshot. Модель и migrations проверять только на временной БД, включая существующие auth/media/draft tests. Рукописный JSON в обход Payload не считается доказательством. Focused tests, lint/typecheck/build по затронутой границе; два последовательных review.
 
-### 3. Интеграция Admin до выпуска
+### 3. Production host и релизный artifact
 
-3.1 Target → Shared contract и content adapter.
-Change → реализовать согласованную модель и единственный источник проектного контента; сохранить утверждённые code-origin материалы с доказанным происхождением. Не наполнять canonical sandbox черновиками.
-Result → Corvo и Сараффан отображаются без потерь, карточки и страницы не расходятся; старые документы совместимы согласно этапу 2.
-Verification → validators/serialization/compiler tests обеих сторон, сохранение/reopen, обратная совместимость и отсутствие случайных migrations. Отдельный commit.
+Target → existing Next standalone, актуальный Vite runtime, сборка/упаковка.
+Change → production build собирает новый Vite сайт и валидированный snapshot; standalone host отдаёт его на / и проектных маршрутах, без переписывания утверждённого дизайна в Next. Исключить обязательный old Admin build. Входной /#projects сохраняется (текущий main очищает hash — исправить); остальные reload/reset/history проверить. Корректные /, /projects/corvo, /projects/sarafan-radio (200), /projects (307), /404 и неизвестные/старые без замены (404). Удалить тестовые/lab/preview routes только из выпуска, необходимые scene resources сохраняются.
+Expected result → архив содержит именно новый сайт и ресурсы, без public/concept-v2, old Admin, Payload runtime/database, тестовых stores, секретов и Mac paths. Metadata title/description/canonical/OG/favicon/robots/sitemap соответствует реальным страницам, нет случайного noindex. Соблюдены target platform, deploy-v2 manifest/checksums, полная DEPLOY_SHA и лимит 75 MiB.
+Verification → build exact HEAD, unpack и запуск настоящего standalone вне CMS; статусы и все прямые URL, anchor/navigation/reload/history, byte hashes, ссылки и доступность ресурсов, artifact inventory allowlist. После merge build повторить на фактическом merged SHA. Два последовательных review: полнота, затем регрессии/риски. Не считать старый root Next build доказательством нового релиза.
 
-3.2 Target → Admin входные данные «Верстка» и адаптер готовой оболочки.
-Change → выбор оболочки, замена принятого источника/пакета, выбор доступных адаптивов; ошибки не заменяют последний корректный источник.
-Result → приложенная вёрстка управляет поведением, оболочка сохраняет presets/resize/drag/inertia/scale/scenes; отсутствует fallback на Corvo для чужого проекта.
-Verification → валидный источник, missing entrypoint/resources, отказ/недоступность ссылки, один/два/три адаптива; сравнение с текущим Corvo и все четыре сцены. Отдельный commit.
+### 4. Проверка всех согласованных состояний и быстрый откат
 
-3.3 Target → Admin входные данные «Фикс адаптив» и адаптер готовой карусели.
-Change → загрузка/замена/удаление/порядок/подписи/начальный экран, нечётная валидация и desktop-only availability.
-Result → наборы 3/5/7/больше работают с существующим форматированием и анимацией, максимум пять видимых карточек/dots.
-Verification → odd/even/empty invalid cases, arrows/dots/side clicks/wrap, быстрые и очередные переходы, reorder/remove/initial, unavailable Tablet/Mobile, reduced-motion. Отдельный commit.
+Target → окончательный production candidate и существующий сервер (до разрешения только read-only).
+Change → выполнить матрицу ниже, устранять подтверждённые дефекты отдельными coherent commits. Собрать свежие exact server SHA/process/routes/access/capacity. Защитить предыдущий exact release от rotation current+2; checksum backup и воспроизвести возврат в изолированной копии, не переключая production.
+Expected result → evidence относится к итоговому SHA; сборка и способ быстрого возврата проверены, пользователь видит именно кандидат для сервера.
+Verification → focused tests/контракт обеих сторон/lint/build и реальные desktop browser checks; два последовательных review с исправлениями и повтором затронутых checks после последнего изменения. Нет повторов уже успешных checks без новой причины.
 
-3.4 Target → ingestion изображений по docs/requirements/admin-image-quality.md.
-Change → сохранять оригиналы; для screen PNG применять lossless WebP только без resize/upscale/lossy/near-lossless и с сохранением decoded pixels, dimensions и профиля. Если качество или размер не выигрывает, сохранять исходный файл. Не применять этот режим вслепую к фото/SVG/неизвестным данным, не пережимать подготовленные assets.
-Result → UI сообщает исходный/итоговый формат, размеры, вес и причину fallback; текущие Сараффан PNG/WebP 4096×2958 сохранены.
-Verification → decode pixel/dimensions/profile сравнение и вес, transparent fixtures, prepared assets, fallback; локальные fixtures не попадают в canonical. Отдельный commit.
+Матрица приёмки:
+- Главная: ordinary/large desktop и порог с двух сторон, fade, cursor, graph/лупа, карточки/hover, Process, Experience entry/reentry/reset/pulses, About/lightbox, контакты/footer.
+- Проекты: direct entry, переходы, reload, back/forward, breadcrumbs/header, copy/link states и reset, все изображения и шрифты.
+- Corvo: четыре сцены, внутренние adaptives, presets/drag/inertia/cancellation, enabled ranges/source metadata, ошибки ресурсов без повреждения good state.
+- Raster: нечётные 3/5/7/больше, initial/order/captions, arrows/dots/sideclick/wrap, быстрые очередные переходы, reduced-motion, unavailable другие adaptives, качество assets.
+- Прелоадер: cold/hot cache, fast/slow >10 s, отказы font/image/network, retry 1/2/3+, восстановление и отмена stale callbacks. Контролируемые test harness не входят в release.
+- HTTP 200/307/404, /#projects, старые URL, отсутствие старого UI/labs/broken resources/localhost. CV/контакты/Figma без авторизации. Отсутствие ошибок console/runtime/hydration.
+- Rollback: предыдущий релиз сохранён и защищён, возврат проверен изолированно; без разрешения production не переключается.
 
-3.5 Target → реальный новый preview и существующий publish path.
-Change → связать draft overlay с новым renderer, сохранить Save/Undo/Redo/reset/publish semantics, packaged Admin parity. Обновить проверку /projects с учётом временного redirect.
-Result → Admin preview показывает тот же новый дизайн, а локальный release воспроизводит draft в изолированном fixture окружении.
-Verification → полный draft→compile→preview→локальный publish, reopen, invalid сохраняет good state. Для проверок отдельный temp store без нормального AppSupport/live credentials. Два последовательных review с исправлениями между ними. Merge отдельной Admin-линии только после подтверждения exact source/target пользователем.
+### 5. Приёмка, разрешённое переключение и архив
 
-### 4. Публичный релизный кандидат
+Target → конкретный кандидат, merge/upload/deploy, подтверждённый production.
+Change → показать кандидат и evidence пользователю. После приёмки получить отдельное разрешение exact source/target merge и публикации exact SHA. После merge собрать/упаковать фактический merged SHA, затем только разрешённые upload/activation. Проверить публичный DEPLOY_SHA, страницы, assets и ключевые состояния; откат готов.
+Expected result → старый сайт заменён утверждённой сборкой на том же домене/хостинге. Предыдущая версия остаётся готовой к возврату до подтверждения пользователя.
+Verification → fresh production smoke и пользователю реальный новый production. Только после его подтверждения «всё работает как нужно» архивировать старый сайт вне публичных маршрутов; исторические источники/эксперименты не удалять без отдельного разрешения.
 
-Target → routes/config/Next standalone host и build/package tooling.
-Change → подключить актуальный новый renderer на /, /projects/corvo, /projects/sarafan-radio; /projects → 307 /#projects; неизвестные и старые без замены → новая 404 с HTTP404. Навигация, breadcrumbs, anchors, reload/history не выводят в старый дизайн. Исключить public/concept-v2 и другие старые демо из runtime artifact, сохранив исторический source до архива.
-Result → одна актуальная сборка без старого дизайна и ссылок на localhost; fonts/SVG/images/scenes работают по публичным путям. Titles/description/canonical/OG/favicon/robots/sitemap соответствуют новым страницам; случайный noindex не переносится.
-Verification → clean checkout production build точного HEAD, реальный standalone server, 200/307/404 для всех маршрутов и прямых старых HTML URL, все ресурсы и anonymous внешние ссылки. Release archive v2 с DEPLOY_SHA/manifest checksum, без sandbox/secrets/локальных черновиков. Отдельные coherent commits renderer/routing и packaging; два последовательных review.
+### 6. Закончить удобное управление через Payload после выпуска
 
-### 5. Полная desktop приёмка состояний
+Target → тот же Payload, доказанный контракт/export/renderer, существующие две Hero.
+Change → полноценное редактирование текстов/ссылок/images, выбор Hero, замена layout file/package/source и доступных adaptives, raster upload/replace/remove/reorder/captions/initial. Подключить сохранение originals и quality reports, валидированные draft preview и пользовательскую публикацию через тот же snapshot/release pipeline. Главную/геометрию Hero не превращать в конструктор. Initial real CMS state только из exact deployed approved content, не из proof fixtures; real migrations/bootstrap/credentials требуют отдельных gates.
+Expected result → проекты обновляются через Payload без повторной сборки архитектуры или смены дизайна; ошибки не повреждают good state.
+Verification → реальный end-to-end authoring → draft preview → отдельно разрешённая публикация, reopening/published-vs-draft/versions/media protection, обе Hero и invalid cases, quality fallback reports; проверки текущего shared/public blast radius и два последовательных review. Не объявлять этот этап завершённым на основании технического proof этапа 2.
 
-Target → именно production candidate, не только dev server или preview demos.
-Change → выполнить матрицу ниже с контролируемыми локальными fault fixtures/harness, которые не входят в production; исправления завершать отдельными commit и повторять затронутые проверки на окончательном состоянии.
-Result → все согласованные сценарии подтверждены evidence exact SHA; сборка показана пользователю для приёмки.
-Verification → focused/contract tests обеих сторон, lint, production build, отсутствие runtime/console/hydration ошибок; сначала completeness/fidelity review, затем regression/scope/risk review с исправлениями между ними.
+## Текущий checkpoint и следующие действия
 
-Матрица:
-- Главная: ordinary/wide desktop, границы large, fade, курсор, лупа/graph, hover проектов, Process, Experience entry/reentry/reset/pulses, About/lightbox, контакты/footer.
-- Страницы проектов: direct entry, navigation, reload, back/forward, header/copy/link states и reset; материалы приняты, внешние CV/контакты/Figma доступны без авторизации.
-- «Верстка»: four Corvo scenes, все существующие размеры внутри Hero, presets/drag/inertia/переходы, реально выбранные availability ranges; ошибки источника/ресурсов без повреждения good state.
-- «Фикс адаптив»: 3/5/7/больше нечётных, быстрые очередные переходы, initial/order/captions, arrows/dots/side clicks/wrap, unavailable адаптивы, reduced-motion и качество assets.
-- Прелоадер: cold/hot/fast initial load, короткая навигация <=200ms, slow >10s, минимальная фаза logo/reveal по действующему контракту (~1800ms/1.26), normal→slow, ошибки сети/fonts/images, retry 1/2/3+ и их сообщения, восстановление сети и успешный reveal, stale attempt/cancel/abort без зависания. Реальные ошибки загрузки и переходы состояний, не только девятишаговый PreloaderPreview.
-- Routing: все новые routes, temporary redirect, неизвестные/старые HTML/static paths без утечки old UI, настоящий HTTP404.
-- Admin: saved/reopened drafts, validation сохраняет good state, соответствие preview/release, локальный publish только fixtures, отсутствие sandbox в artifact.
+- [x] Создана новая Goal без token budget; прежней Goal в механизме больше нет.
+- [x] Группа 1: neutral approved-content snapshot реализован; 2 проекта, 163 assets (4 849 130 bytes), 171 source hashes. Итоговые 34/34 tests, scoped source lint и Next compatibility build прошли; commit этой группы содержит только код/docs/tests.
+- [ ] Реальный Payload compatibility proof (обязателен до выпуска).
+- [ ] Новый standalone release, packaging и desktop приёмка.
+- [ ] Read-only production/rollback preflight и показ кандидата.
+- [ ] Отдельные пользовательские gates merge/deploy; post-deploy smoke; подтверждение и архив.
+- [ ] Удобный Payload authoring после выпуска.
 
-### 6. Переключение production и проверяемый откат
+Главные stop-lines: нет разрешения на production switch, merge/push, Figma write, личные secrets/state, real migration/bootstrap и destructive cleanup. При незапланированном существенном изменении контракта остановить зависимую работу. Goal остаётся активной до реального достижения результата, не закрывается после одного checkpoint.
 
-Target → существующий art-des.ru/VPS, deploy-v2 и рабочая Admin.
-Change → свежий read-only preflight: exact production SHA, Git/service state, доступные разрешения, capacity, origin/ownership; конкретно назвать недостающий доступ без секретов в чат. Защитить старую сборку отдельно от автоматической retention current+2, чтобы повторные публикации Admin не удалили её до приёмки. Сохранить manifest/checksum и проверенные инструкции восстановления.
-Result → предыдущий релиз можно быстро вернуть; его совместимость с Admin/data/schema известна. Репетиция восстановления в изолированной папке, не пробный rollback production.
-Verification → provenance всех canonical content/assets, protected previous release, локальное восстановление/проверки schema compatibility; readiness localhost127.0.0.1:3000 + deployed SHA; согласованное public/browser smoke.
 
-Перед mutation → отдельные подтверждения exact merge target, push/release и deploy exact окончательного SHA после пользовательской приёмки сборки и выбора времени. После merge заново собрать exact merged HEAD. Пакет собирается локально, VPS получает release archive, не случайные директории и не старый source snapshot.
-Во время deploy → фиксировать server operation id; при обрыве сети читать статус принятой операции, не повторять переключение вслепую. При readiness failure использовать штатный автоматический rollback; ручной rollback конкретного релиза отдельно согласовывается. Не чистить failure evidence.
-После deploy → публичные новые страницы, /projects redirect, true404, ресурсы и фактический SHA проверены. Packaged Admin соответствует новой версии; реальные правки/публикация контента только по конкретному пользовательскому действию, не synthetic fixtures на production.
+## Evidence первой Git-группы (2026-10-05)
 
-Admin state → сначала установить, уже ли это live state (marker/управляемый checkout), не выбирать bootstrap вслепую. Существующий live store сохраняется. Если это первый live transition и есть sandbox, до archive/bootstrap спросить пользователя: clean exact production baseline или production baseline + sandbox authoring overlay только в локальные drafts. Jobs/runtime/previews не переносятся; такой bootstrap не публикует данные. Реальная необходимая migration требует dry-run, backup, rollback и отдельного подтверждения.
-
-### 7. Приёмка production и архив
-
-Target → старый сайт, страховочная Git история, worktree registry и документация.
-Change → только после явного подтверждения пользователя, что новый сайт на production работает как нужно, архивировать старую рабочую сборку вне публичных маршрутов с SHA/checksum/инструкцией восстановления. Сохранить нужные original assets и историю. Проверить архивное восстановление отдельно.
-Result → посетители не попадают в old design, история и способ восстановления сохранены; актуальная линия/worktree однозначна.
-Verification → перед любым cleanup проверить writer/dirty/untracked/ignored originals; удаление только отдельно разрешённых папок через сохранение snapshot. Шесть phantom worktree registrations очищать только после проверки refs/сохранности и разрешения. 29 страховочных refs и десять reflog states не восстанавливать в runtime и не уничтожать. Не трогать неизвестные архивы, реальный Admin store или USERSPACE. Обновить HANDOFF/PROJECT_HISTORY/текущий DESIGN_QA и этот стабильный ExecPlan со ссылками на evidence. Отдельный archival commit/checkpoint.
-
-## Завершение Goal
-
-Цель завершена только когда весь выпуск работает на art-des.ru, ограниченная Admin обслуживает оба проекта и входные данные оболочек, полный согласованный state matrix пройден, пользователь принял exact production version, откат проверен и архивный этап выполнен с отдельным разрешением. Подготовка или первая Git-группа не являются завершением всего Goal. При approval gate продолжается только независимая безопасная работа, соответствующий этап остаётся pending.
-
-## Progress / evidence
-
-- 2026-10-04: Goal active; clean baseline e40f0b5 подтверждён. План сохранён до реализации. Других active writer в проверенном списке чатов нет.
-- [x] 1 Desktop-only — implementation/checks complete, пользовательская приёмка pending
-- [ ] 2 Admin/Shared Discovery
-- [ ] 3 Admin integration
-- [ ] 4 Release candidate
-- [ ] 5 Desktop state matrix / user acceptance
-- [ ] 6 Exact production switch / rollback
-- [ ] 7 Production acceptance / archive
-
-- 2026-10-04: этап 1 реализован; 208/208 tests, lint 93 sources, Vite production build и два последовательных review. Evidence: design-reference/desktop-only-2026-10-04/ACCEPTANCE.md. Следующий этап 2 — Admin/Shared Discovery в отдельной линии после показа группы пользователю.
+Базовые materials/scenes читаются только из утверждённых Git objects; content/projects и public/assets не изменялись. Общий snapshot покрывает ресурсы только нового renderer: redesign, logo, prepared renditions. Сохраняемые legacy v3 поля — только совместимость формы документа; старые visual/content поверхности не являются inputs нового сайта и их старые ресурсы не входят в новый artifact.
+Проверены отрицательные сценарии: draft, unknown fields/private provenance, unsafe paths/terminal DNS dot, duplicate slug/file, отсутствующие cards/AVIF/HTML/CSS, checksum и manifest mismatch. Проверка HTML/CSS dependency closure требует bytes и выполняется в createProjectSnapshot; validateProjectSnapshot отдельно не доказывает bytes/полную динамическую работу произвольного JS, которую дополнительно проверяет runtime приёмка.
+Первый completeness review: missing AVIF closure исправлен через общий mapping. Второй risk review: private hostname terminal dot и удалённый одновременно из manifest/asset CSS исправлены; legacy surface completeness явно ограничен новым renderer. Corrected-part review: оставшихся конкретных дефектов в проверенных границах нет.
+Проверки: focused snapshot/export/public-v3 и historical legacy compatibility/provenance tests; scoped npm run lint исходников; Next production build без scripts старой Admin. Старый root build проверяет только совместимость, не готовность нового release. Глобальный npm run lint падает на ранее существующем generated Vite dist; targeted source lint проходит, release integration установит корректную build/lint boundary. Реального Payload proof и нового production artifact пока нет.

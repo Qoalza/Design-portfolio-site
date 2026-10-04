@@ -1,26 +1,27 @@
 # HANDOFF
 
-Обновлено: 2026-10-04.
+Обновлено: 2026-10-05.
 Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
 
 ## Checkpoint
 
-Общая Goal выпуска активна. Согласованный полный план сохранён в docs/exec-plans/redesign-production-release.md, version1.0. Этап 1 реализован: убрана неутверждённая mobile/tablet адаптация портфолио; обе desktop композиции, их совместный порог и исправленный fade сохранены. Проектные Hero и сцены не менялись.
-208/208 tests, lint93 sources, Vite production build; desktop geometry до/после1920×1080 и2751×1500 совпадает. Browser threshold/navigation/Experience entry/motion checked; два последовательных review. Evidence: design-reference/desktop-only-2026-10-04/ACCEPTANCE.md. Пользовательская приёмка этой группы pending.
-Сверка worktree завершена ранее; переносы и страховочная история описаны в docs/exec-plans/redesign-portfolio-variant-registry.md.
+Новая Goal активна: подготовить выпуск нового сайта с доказанным до выпуска подключением существующего Payload. Полный согласованный план version 3.1 в docs/exec-plans/redesign-production-release.md заменяет прежний Admin-first план. Target CMS — Payload. Пользователь прямо отменил правила/логику Des-art Admin для Payload; технические решения нового lifecycle исполнитель выбирает сам в рамках scope.
+Визуальный/content baseline: 258e95b2a7720499c7a74ec7602c8608b8c58200; desktop-only и исправленный fade сохранены. Hero/сцены не изменять.
+Группа 1 реализована: optional Shared redesign контракт, neutral export exact approved Git материалов и validated portable snapshot. Runtime ещё не переключён на snapshot; настоящий Payload proof и production кандидат не готовы. Предыдущие полезные публичные checkpoints сохраняются в codex/redesign-admin-integration; незавершённые old Admin файлы не тронуты.
 
 ## Следующее действие
 
-Показать согласованную Git-группу и остановиться по ручному режиму AGENTS.md до следующего сообщения пользователя. Затем этап2: отдельная Admin/Shared линия от актуального redesign checkpoint, точный content/hero contract и isolated preview/publish Discovery. Главная через Admin не редактируется. Полную Goal не считать завершённой после этапа1.
+Группа 1 завершена: 34/34 tests, source lint и Next compatibility build; два последовательных review, подтверждённые дефекты исправлены. Следующий этап — настоящий temp Payload → published snapshot → тот же renderer proof, согласно плану. Пользователь разрешил автономное выполнение до готовой сборки. Проверенные группы фиксировать отдельными commits; production gates сохраняются.
 
 ## Stop-lines
 
-Нет разрешения на push, exact merge, deploy, Figma write, real data migration или cleanup старых worktree/истории. Sandbox данные не переносить в Git/canonical/production. USERSPACE и unknown untracked вне scope. Архив старого production — только после пользовательской приёмки нового production и разрешения. Блокера текущей группы нет.
+Нет разрешения на push/exact merge/upload/deploy, Figma write, real data migration/bootstrap, credentials или cleanup. Личный Payload .local и USERSPACE не читать; sandbox не переносить в Git/canonical/production. Старый production архивировать только после подтверждения пользователя нового production.
 
 ## Pointers
 
 - docs/exec-plans/redesign-production-release.md
+- docs/shared/PROJECT_CONTENT.md
 - docs/exec-plans/redesign-portfolio-variant-registry.md
 - design-reference/desktop-only-2026-10-04/ACCEPTANCE.md
 - docs/requirements/admin-image-quality.md
-- Runtime: http://127.0.0.1:4193/
+- tools/payload-admin в линии codex/payload-local-foundation (код ещё не перенесён сюда).

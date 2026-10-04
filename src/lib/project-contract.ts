@@ -1,3 +1,4 @@
+import { validateProjectRedesign, type ProjectRedesign } from "./project-redesign-contract.ts";
 import path from "node:path";
 import {
   PROJECT_VISUAL_TEMPLATES,
@@ -108,6 +109,7 @@ export type ProjectDocument = {
   heroFrame?: ProjectFrameComposition;
   workSummary?: string;
   content: ProjectContentBlock[];
+  redesign?: ProjectRedesign;
 };
 
 type UnknownRecord = Record<string, unknown>;
@@ -115,7 +117,7 @@ type UnknownRecord = Record<string, unknown>;
 const PROJECT_KEYS = [
   "schemaVersion", "designProfile", "title", "slug", "description", "subtitle", "role", "year",
   "tags", "detailTags", "visibility", "catalogOrder", "homePlacement", "detailAvailable", "materials",
-  "platforms", "logo", "visuals", "catalogFrame", "heroFrame", "workSummary", "content",
+  "platforms", "logo", "visuals", "catalogFrame", "heroFrame", "workSummary", "content", "redesign",
 ] as const;
 const VISIBILITIES: ProjectVisibility[] = ["draft", "published", "deleted"];
 const PLATFORMS: ProjectPlatform[] = ["Desktop", "Tablet", "Mobile"];
@@ -488,7 +490,8 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
   const heroFrame = input.heroFrame === undefined ? undefined : frameComposition(input.heroFrame, "Project document.heroFrame");
   if (homePlacement && !home) throw new Error("Project document.visuals.home is required for homePlacement.");
   const detailAvailable = boolean(input.detailAvailable, "Project document.detailAvailable");
-  if (detailAvailable && !hero && !heroFrame) throw new Error("Project document.visuals.hero or heroFrame is required when detailAvailable is true.");
+  const redesign = input.redesign === undefined ? undefined : validateProjectRedesign(input.redesign, { slug: slug(input.slug), profile, image, paragraph: inlineArray, href: linkHref });
+  if (detailAvailable && !redesign && !hero && !heroFrame) throw new Error("Project document.visuals.hero or heroFrame is required when detailAvailable is true.");
 
   return {
     schemaVersion: PROJECT_DOCUMENT_VERSION,
@@ -512,6 +515,7 @@ export function validateProjectDocument(value: unknown): ProjectDocument {
     ...optionalProperty("catalogFrame", catalogFrame),
     ...optionalProperty("heroFrame", heroFrame),
     ...optionalProperty("workSummary", optionalString(input.workSummary, "Project document.workSummary")),
+    ...optionalProperty("redesign", redesign),
     content: input.content.map((item, index) => contentBlock(item, `Project document.content[${index}]`, profile)),
   };
 }
