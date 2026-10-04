@@ -5,7 +5,12 @@ Checkout: `codex/redesign-portfolio`, только `/Users/designer/.codex/workt
 
 ## Checkpoint
 
-Единая code baseline: `d48bba46a8a62dc3061be51f192d573f49c9642f`.
+Последняя правка: цвет фейда широкого desktop Hero главной привязан к
+`--cv2-container-neutral-bg-main`; форма и opacity stops сохранены.
+Браузер: 1920×1080 и 2751×1500; large fade и фон имеют RGB 22/25/26.
+Изменение только CSS цвета, проектные Hero не затронуты.
+
+Единая code baseline до CSS-правки фейда: `d48bba46a8a62dc3061be51f192d573f49c9642f`.
 Сверка источников завершена; названия «Верстка» / «Фикс адаптив» перенесены
 в DESIGN_SYSTEM.md. Девять исторических HANDOFF исправлены в их собственных
 checkout и зафиксированы отдельными documentation commits. Полная карта:
