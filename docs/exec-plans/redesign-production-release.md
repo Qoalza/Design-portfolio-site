@@ -161,3 +161,68 @@ SHA b44946021d55fb1cc8a4430c3bafd62e342714c9 выпущен после clean bui
 Подробности exact artifact/backup/операции: docs/ops/REDESIGN_ACCEPTANCE.md.
 Группы1–5 выполнены в части подготовки/выпуска. Приёмка пользователя и последующее
 архивирование previous ещё ожидаются; группа6 full Payload остаётся открытой.
+
+## Группа 6: проверенная граница реализации после выпуска
+
+Checkpoint: 6745843; production b44946021d55fb1cc8a4430c3bafd62e342714c9.
+Read-only проверка native Payload выявила три конкретных незавершённых consumer:
+release-content.ts предоставляет JSON releaseContent и массив releaseAssets;
+preview/projects/[id]/page.tsx читает legacy header/hero/blocks;
+prepare-site.mjs намеренно запрещает PORTFOLIO_PROJECT_SNAPSHOT для initial release.
+Этот запрет выполнил задачу первого выпуска; подключение последующих CMS exports
+нужно реализовать явно, не выдавать существующий proof за готовую публикацию.
+
+Порядок независимых Git-групп (PUBLIC renderer/Hero CSS/геометрия сохраняются):
+
+1. Target → native releaseContent JSON field и Projects collection.
+   Change → удобный native Payload field component для существующего документа:
+   тексты/ссылки/секции и изображения, выбор «Верстка»/«Фикс адаптив»,
+   layout scenes/source package либо URL и enabled adaptives; raster нечётные
+   3/5/7/9, captions/order/initial и существующая desktop geometry.
+   Сохранять schema-v3/redesign-v1, одну запись Payload и native draft/version semantics;
+   не вводить второй store или копии authoring значений в отдельные DB fields.
+   Expected result → редактирование без ручного JSON и без изменения renderer.
+   Verification → реальные save/reopen обоих вариантов на temporary DB,
+   draft/published separation и preservation неизвестных редактору полей;
+   focused tests/typecheck/lint, native build после регистрации компонента.
+
+2. Target → authenticated native preview и release-export mapping.
+   Change → валидированный draft/published snapshot для того же Vite project
+   renderer, authenticated выдача snapshots/assets/package entries и возврат
+   в редактор; legacy preview оставить только для записей без releaseContent.
+   Expected result → черновик виден в выбранном дизайне, published состояние
+   доступно отдельно; anonymous access не получает drafts или local files.
+   Verification → browser save→preview→reload, обе Hero/scenes и ресурсы;
+   authentication/404/invalid snapshot/last-good checks. Не менять документы
+   реального локального пользователя для проверки.
+
+3. Target → explicit CMS release preparation, prepare-site/build-stamp/package.
+   Change → отдельный выбор approved Git initial release либо validated exported
+   snapshot для последующего выпуска; provenance и hashes snapshot входят в
+   build stamp/manifest. CMS export не публикует production сам по себе.
+   Expected result → actual archive содержит именно отдельно выбранную версию,
+   исключает drafts/private stores/credentials и сохраняет общий host/renderer.
+   Verification → temporary native Payload export→exact build/archive/unpack→
+   HTTP/browser, Payload остановлен; invalid/missing/export failure сохраняют
+   good snapshot, interrupted/stale build запрещает packaging.
+
+4. Target → uploaded originals и подготовленные публичные изображения.
+   Change → originals не перезаписывать; сохранять quality reports и согласованные
+   размеры/форматы для snapshot, связывать готовый asset с native media/version.
+   Expected result → замена/порядок/удаление не повреждают ранее опубликованные
+   версии; reports и fallback объясняются в редакторе.
+   Verification → raster и content images, размеры/full decode, truncated upload,
+   used-file delete protection и reopen; source quality requirement
+   docs/requirements/admin-image-quality.md прочитать перед этой группой.
+
+Real CMS initial bootstrap только из exact deployed approved snapshot; личный
+.local не читать. Реальные migration/bootstrap/credentials — отдельные gates.
+Remote publish отдельно разрешается пользователем для конкретного подготовленного
+экспорта; blanket release-first разрешение не считать разрешением выпускать
+тестовые CMS изменения. Архив previous production ожидает пользовательскую приёмку.
+
+Review плана: consumer legacy preview не доказывает redesign parity; releaseContent
+field UI может обойтись без SQL schema change, но это подтвердить на actual save.
+Если требуются новые persistent fields/schema — остановить dependent implementation
+и зафиксировать отдельное решение/миграцию. Для каждой группы два последовательных
+review completeness и regression/scope; исправить подтверждённые дефекты.
