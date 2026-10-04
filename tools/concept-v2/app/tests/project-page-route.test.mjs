@@ -118,8 +118,8 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
  assert.doesNotMatch(css,/header-home\.svg|header-lock\.svg|header-telegram\.svg|footer-corrupted\.svg/);
  assert.match(headerCss,/\.brand\s*\{[^}]*width:\s*191px/s);
  assert.match(headerCss,/\.navigation a:nth-child\(1\)\s*\{[^}]*width:\s*97px/s);
- assert.match(headerCss,/\.navigation button:nth-child\(2\)\s*\{[^}]*width:\s*76px/s);
- assert.match(headerCss,/\.navigation button:nth-child\(3\)\s*\{[^}]*width:\s*133px/s);
+ assert.match(headerCss,/\.navigation>span:nth-child\(2\) button\s*\{[^}]*width:\s*76px/s);
+ assert.match(headerCss,/\.navigation>span:nth-child\(3\) button\s*\{[^}]*width:\s*133px/s);
  assert.match(headerCss,/\.headerRight\s*\{[^}]*width:\s*378px/s);
  assert.match(headerCss,/\.availability\s*\{[^}]*width:\s*213px/s);
  assert.match(headerCss,/\.headerContact\s*\{[^}]*width:\s*121px/s);

@@ -1,3 +1,4 @@
+import {NavigationTooltip} from './NavigationTooltip';
 import {useEffect,useRef,useState} from 'react';
 import {NavigationTab} from './Controls';
 
@@ -18,8 +19,8 @@ export function MobileNavigation(){
   {open&&<div id="mobile-nav-panel" className="mobile-nav-panel">
    <nav aria-label="Мобильная навигация" onClick={event=>{if(event.target.closest('a'))setOpen(false)}}>
     <NavigationTab icon="imgColor" active>Главная</NavigationTab>
-    <NavigationTab icon="imgColor1" disabled>Блог</NavigationTab>
-    <NavigationTab icon="imgColor1" disabled>Лаборатория</NavigationTab>
+    <NavigationTooltip section="blog"><NavigationTab icon="imgColor1" disabled>Блог</NavigationTab></NavigationTooltip>
+    <NavigationTooltip section="lab"><NavigationTab icon="imgColor1" disabled>Лаборатория</NavigationTab></NavigationTooltip>
    </nav>
    <span className="mobile-status">Открыт к предложениям</span>
   </div>}
