@@ -35,7 +35,7 @@ export function RasterHeroVariantsPreview() {
             onClick={() => selectVariant(variant.id)}
           >{variant.id}</button>)}
         </div>
-        <p className={styles.note}>В 5+ показано 8 позиций. После третьей растр повторяется для проверки листания.</p>
+        <p className={styles.note}>В 5+ показано 7 позиций. После третьей растр повторяется для проверки листания.</p>
       </div>
     </main>
   );

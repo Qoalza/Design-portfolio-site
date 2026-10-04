@@ -17,6 +17,10 @@
     "motion": "13.4.2",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-stacked-center-carousel": "1.0.14",
     "vite": "6.4.2"
+  },
+  "overrides": {
+    "react-resize-detector": "12.3.0"
   }
 }

@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {sarafanRasterHero} from '../src/project-hero/raster-definition.mjs';
 import {rasterPreviewVariants, rasterVariantDefinition} from '../src/project-hero/raster-variants.mjs';
-import {carouselCards, carouselSlotVisual, visibleDotIndexes} from '../src/project-hero/raster-carousel.mjs';
+import {visibleDotIndexes} from '../src/project-hero/raster-carousel.mjs';
 
-test('variant space exposes 2, 3, 4 and 5+ image states', () => {
+test('variant space exposes only odd image counts', () => {
   assert.deepEqual(rasterPreviewVariants.map(variant => [variant.id, variant.count]),
-    [['2', 2], ['3', 3], ['4', 4], ['5+', 8]]);
+    [['3', 3], ['5', 5], ['5+', 7]]);
 });
 
 test('each variant keeps one distinct slide per position and the original home image centered', () => {
@@ -18,14 +18,19 @@ test('each variant keeps one distinct slide per position and the original home i
     assert.equal(slides.find(slide => slide.id === definition.contexts[0].initialSlideId)?.src,
       sarafanRasterHero.contexts[0].slides[1].src);
     assert.equal(visibleDotIndexes(0, slides.length).length, Math.min(variant.count, 5));
-    assert.ok(carouselCards(slides, 6).filter(card => carouselSlotVisual(card.slot, slides.length >= 5).opacity).length <= 5);
   }
 });
 
-test('the 5+ fixture reaches its sixth, seventh and eighth images', () => {
+test('the 5+ fixture includes sixth and seventh images while dots stay capped at five', () => {
   const slides = rasterVariantDefinition(sarafanRasterHero, '5+').contexts[0].slides;
-  for (const index of [5, 6, 7]) {
-    assert.equal(carouselCards(slides, index).find(card => card.slot === 0)?.slide.id, slides[index].id);
+  for (const index of [5, 6]) {
+    assert.ok(slides[index].id);
     assert.equal(visibleDotIndexes(index, slides.length).length, 5);
   }
+});
+
+test('five and 5+ previews show the same raster in their far-left initial slot', () => {
+  const five = rasterVariantDefinition(sarafanRasterHero, '5').contexts[0];
+  const seven = rasterVariantDefinition(sarafanRasterHero, '5+').contexts[0];
+  assert.equal(five.slides.at(-1).src, seven.slides.at(-1).src);
 });

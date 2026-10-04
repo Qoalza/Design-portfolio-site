@@ -1,47 +1,45 @@
-import {Fragment, useRef, useState} from 'react';
-import {AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform} from 'motion/react';
+import {createContext, Fragment, useContext, useEffect, useRef, useState} from 'react';
+import {AnimatePresence, motion, useReducedMotion} from 'motion/react';
+import {StackedCarousel} from 'react-stacked-center-carousel';
 import {ControlButton} from '../Controls.jsx';
 import {GridPattern} from '../GridPattern.jsx';
 import {Tooltip} from '../Tooltip.jsx';
 import {ScenarioTab} from '../v2/HeroTabs.jsx';
-import {carouselCardLayer, carouselCards, carouselClipPath, carouselDotItems, carouselIncomingClip, carouselOutgoingClip, carouselShadeStops, carouselSlotVisual, nearestCarouselStep, nextCarouselStep, wrapSlideIndex} from './raster-carousel.mjs';
+import {carouselDotItems, nearestCarouselStep, wrapSlideIndex} from './raster-carousel.mjs';
 import shellStyles from './ProjectResponsiveHero.module.css';
 import styles from './ProjectRasterHero.module.css';
 
 const SPRING = {type: 'spring', stiffness: 260, damping: 34, mass: 1};
+const CARD_WIDTH = 940;
+const CAROUSEL_WIDTH = 1280;
+const CAROUSEL_HEIGHT = 928;
+const CAROUSEL_DURATION = 450;
+const SCALES_ONE = [1, .5];
+const SCALES_THREE = [1, 640 / CARD_WIDTH, .5];
+const SCALES_FIVE = [1, 640 / CARD_WIDTH, .55, .45];
+const CAROUSEL_TRANSITION = `transform ${CAROUSEL_DURATION}ms ease, opacity ${CAROUSEL_DURATION}ms ease, z-index ${CAROUSEL_DURATION}ms linear`;
+const CAROUSEL_STEP_INTERVAL = CAROUSEL_DURATION + 20;
+const RasterNavigationContext = createContext(null);
 const UNAVAILABLE_ADAPTIVE_DESCRIPTIONS = {
   tablet: 'Для этой работы не предусмотрена планшетная версия',
   mobile: 'Для этой работы не предусмотрена мобильная версия',
 };
 
-function RasterCard({card, showFive, departing, reduceMotion, onSelect, onCenterSettled}) {
-  const {slide, slot} = card;
-  const x = useMotionValue(carouselSlotVisual(slot, showFive).x);
-  const outgoingClip = useTransform(x, value => carouselClipPath(carouselOutgoingClip(value, showFive)));
-  const incomingClip = useTransform(x, value => carouselClipPath(carouselIncomingClip(value, showFive)));
-  const shadeDistance = showFive ? 260 : 320;
-  const leftShade = useTransform(x, value => Math.pow(Math.max(0, Math.min(1, -value / shadeDistance)), 6));
-  const rightShade = useTransform(x, value => Math.pow(Math.max(0, Math.min(1, value / shadeDistance)), 6));
-  const shadeStart = useTransform(x, value => `${carouselShadeStops(value).start}px`);
-  const shadeEnd = useTransform(x, value => `${carouselShadeStops(value).end}px`);
-  const shadeStops = showFive ? {'--shade-start': shadeStart, '--shade-end': shadeEnd} : {};
+function RasterCard({data, dataIndex, slideIndex}) {
+  const slide = data[dataIndex];
+  const distance = Math.abs(slideIndex);
+  const navigate = useContext(RasterNavigationContext);
   return (
-    <motion.div
-      className={`${styles.card} ${showFive ? styles.cardFive : ''}`}
-      data-slot={slot}
+    <div
+      className={`${styles.card} ${distance === 1 ? styles.cardNear : ''} ${distance >= 2 ? styles.cardFar : ''}`}
+      data-slot={slideIndex}
       data-slide-id={slide.id}
-      initial={{...carouselSlotVisual(slot, showFive), opacity: 0}}
-      animate={carouselSlotVisual(slot, showFive)}
-      exit={showFive && Math.abs(slot) === 2 ? carouselSlotVisual(Math.sign(slot) * 3, true) : {opacity: 0}}
-      onAnimationComplete={slot === 0 ? onCenterSettled : undefined}
-      transition={reduceMotion ? {duration: 0} : {...SPRING, opacity: {duration: .22}}}
-      style={{x, zIndex: carouselCardLayer(slot, showFive, departing), clipPath: departing ? outgoingClip : slot === 0 ? incomingClip : undefined}}
     >
-      <img src={slide.src} width="1880" height="1358" alt={slot === 0 ? slide.title : ''} draggable={false} decoding="async" />
-      <motion.span className={`${styles.cardShade} ${styles.cardShadeLeft}`} aria-hidden="true" style={{opacity: leftShade, ...shadeStops}} />
-      <motion.span className={`${styles.cardShade} ${styles.cardShadeRight}`} aria-hidden="true" style={{opacity: rightShade, ...shadeStops}} />
-      {slot !== 0 && Math.abs(slot) <= (showFive ? 2 : 1) ? <button type="button" className={styles.sideHitArea} onClick={() => onSelect(slot)} aria-label={`Показать: ${slide.title}`} /> : null}
-    </motion.div>
+      <img src={slide.src} width="1880" height="1358" alt={slideIndex === 0 ? slide.title : ''} draggable={false} decoding="async" />
+      <span className={`${styles.cardShade} ${styles.cardShadeLeft} ${slideIndex < 0 ? styles.cardShadeVisible : ''}`} aria-hidden="true" />
+      <span className={`${styles.cardShade} ${styles.cardShadeRight} ${slideIndex > 0 ? styles.cardShadeVisible : ''}`} aria-hidden="true" />
+      {slideIndex !== 0 && distance <= 2 ? <button type="button" className={styles.sideHitArea} onClick={() => navigate(slideIndex)} aria-label={`Показать: ${slide.title}`} /> : null}
+    </div>
   );
 }
 
@@ -50,78 +48,76 @@ export function ProjectRasterHero({definition}) {
   const [contextId, setContextId] = useState(firstContext.id);
   const context = definition.contexts.find(item => item.id === contextId) ?? firstContext;
   const slides = context.slides;
-  const showFive = slides.length >= 5;
   const initialStep = Math.max(0, slides.findIndex(slide => slide.id === context.initialSlideId));
   const [step, setStep] = useState(initialStep);
   const stepRef = useRef(initialStep);
-  const targetStepRef = useRef(initialStep);
-  const movingRef = useRef(false);
-  const departingKeyRef = useRef(null);
+  const carouselRef = useRef(null);
+  const queuedStepTimerRef = useRef(null);
+  const queuedDirectionRef = useRef(0);
+  const queuedExpectedStepRef = useRef(null);
+  const orderedSlides = [...slides.slice(initialStep), ...slides.slice(0, initialStep)];
+  const visibleCount = Math.min(slides.length, 5);
   const activeIndex = wrapSlideIndex(step, slides.length);
   const activeSlide = slides[activeIndex];
   const dotItems = carouselDotItems(slides, step);
   const reduceMotion = useReducedMotion();
-  const swipeStart = useRef(null);
-  const swipeConsumed = useRef(false);
+
+  useEffect(() => () => {
+    clearTimeout(queuedStepTimerRef.current);
+  }, []);
+
+  function cancelQueuedSteps() {
+    clearTimeout(queuedStepTimerRef.current);
+    queuedStepTimerRef.current = null;
+    queuedDirectionRef.current = 0;
+    queuedExpectedStepRef.current = null;
+  }
+
+  function moveBy(steps) {
+    if (!steps || slides.length < 2) return;
+    cancelQueuedSteps();
+    if (reduceMotion || Math.abs(steps) === 1) {
+      carouselRef.current?.swipeTo(steps);
+      return;
+    }
+    const direction = Math.sign(steps);
+    let remaining = Math.abs(steps);
+    queuedDirectionRef.current = direction;
+    const advance = () => {
+      queuedExpectedStepRef.current = stepRef.current + direction;
+      carouselRef.current?.swipeTo(direction);
+      remaining -= 1;
+      if (remaining) queuedStepTimerRef.current = setTimeout(advance, CAROUSEL_STEP_INTERVAL);
+      else queuedDirectionRef.current = 0;
+    };
+    advance();
+  }
 
   function selectContext(nextContext) {
     if (!nextContext.slides.length || nextContext.id === contextId) return;
+    cancelQueuedSteps();
     const nextStep = Math.max(0, nextContext.slides.findIndex(slide => slide.id === nextContext.initialSlideId));
     stepRef.current = nextStep;
-    targetStepRef.current = nextStep;
-    movingRef.current = false;
-    departingKeyRef.current = null;
     setContextId(nextContext.id);
     setStep(nextStep);
   }
 
-  function advance() {
-    if (movingRef.current || stepRef.current === targetStepRef.current) return;
-    movingRef.current = true;
-    departingKeyRef.current = carouselCards(slides, stepRef.current).find(card => card.slot === 0)?.key;
-    const next = nextCarouselStep(stepRef.current, targetStepRef.current);
-    stepRef.current = next;
-    setStep(next);
-  }
-
-  function navigateTo(target) {
-    targetStepRef.current = target;
-    if (reduceMotion) {
-      movingRef.current = false;
-      departingKeyRef.current = null;
-      stepRef.current = target;
-      setStep(target);
-    } else advance();
+  function centerChanged(orderedIndex) {
+    const index = wrapSlideIndex(initialStep + orderedIndex, slides.length);
+    const nextStep = nearestCarouselStep(stepRef.current, index, slides.length);
+    if (nextStep === stepRef.current) return;
+    if (queuedDirectionRef.current && nextStep !== queuedExpectedStepRef.current) cancelQueuedSteps();
+    stepRef.current = nextStep;
+    setStep(nextStep);
   }
 
   function selectSlide(index) {
-    navigateTo(nearestCarouselStep(targetStepRef.current, index, slides.length));
+    const target = nearestCarouselStep(stepRef.current, index, slides.length);
+    moveBy(target - stepRef.current);
   }
 
   function move(direction) {
-    if (slides.length > 1) navigateTo(targetStepRef.current + direction);
-  }
-
-  function centerSettled() {
-    if (!movingRef.current) return;
-    movingRef.current = false;
-    advance();
-  }
-
-  function finishSwipe(event) {
-    const start = swipeStart.current;
-    swipeStart.current = null;
-    if (!start || start.pointerId !== event.pointerId) return;
-    const distance = event.clientX - start.x;
-    if (Math.abs(distance) >= 60) {
-      swipeConsumed.current = true;
-      move(distance < 0 ? 1 : -1);
-      window.setTimeout(() => {swipeConsumed.current = false;}, 0);
-    }
-  }
-
-  function selectSide(direction) {
-    if (!swipeConsumed.current) move(direction);
+    moveBy(direction);
   }
 
   return (
@@ -141,16 +137,24 @@ export function ProjectRasterHero({definition}) {
           <p className={styles.slideTitle} aria-live="polite">{activeSlide?.title}</p>
         </div>
 
-        <div
-          className={styles.carousel}
-          aria-label="Экраны проекта"
-          onPointerDown={event => {if (event.button === 0) swipeStart.current = {pointerId: event.pointerId, x: event.clientX};}}
-          onPointerUp={finishSwipe}
-          onPointerCancel={() => {swipeStart.current = null;}}
-        >
-          <AnimatePresence initial={false}>
-            {carouselCards(slides, step).map(card => <RasterCard key={`${context.id}:${card.key}`} card={card} showFive={showFive} departing={card.key === departingKeyRef.current} reduceMotion={reduceMotion} onSelect={selectSide} onCenterSettled={centerSettled} />)}
-          </AnimatePresence>
+        <div className={`${styles.carousel} ${reduceMotion ? styles.reducedMotion : ''}`} aria-label="Экраны проекта">
+          <RasterNavigationContext.Provider value={moveBy}>
+            <StackedCarousel
+            key={context.id}
+            ref={carouselRef}
+            data={orderedSlides}
+            slideComponent={RasterCard}
+            carouselWidth={CAROUSEL_WIDTH}
+            slideWidth={CARD_WIDTH}
+            height={CAROUSEL_HEIGHT}
+            maxVisibleSlide={visibleCount}
+            customScales={visibleCount === 1 ? SCALES_ONE : visibleCount === 3 ? SCALES_THREE : SCALES_FIVE}
+            fadeDistance={0}
+            transitionTime={reduceMotion ? 0 : CAROUSEL_DURATION}
+            customTransition={reduceMotion ? undefined : CAROUSEL_TRANSITION}
+            onActiveSlideChange={centerChanged}
+            />
+          </RasterNavigationContext.Provider>
         </div>
 
         {slides.length > 1 ? <div className={styles.controls} aria-label="Переключить экран">

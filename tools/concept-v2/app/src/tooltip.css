@@ -61,7 +61,9 @@
   overflow: hidden;
   color: #565c61;
   display: -webkit-box;
-  font: 400 14px/20px Onest, sans-serif;
+  font: 400 12px/16px Onest, sans-serif;
+  font-feature-settings: "calt" 0;
+  word-break: break-word;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }

@@ -10,7 +10,8 @@ const repositoryRoot=path.resolve(conceptRoot,'../..');
 
 test('standalone stack remains pinned to the approved versions',async()=>{
   const packageJson=JSON.parse(await readFile(path.join(appRoot,'package.json'),'utf8'));
-  assert.deepEqual(packageJson.dependencies,{'@vitejs/plugin-react':'5.0.4',vite:'6.4.2',react:'19.2.0','react-dom':'19.2.0',motion:'13.4.2',morphicons:'1.7.1'});
+  assert.deepEqual(packageJson.dependencies,{'@vitejs/plugin-react':'5.0.4',vite:'6.4.2',react:'19.2.0','react-dom':'19.2.0',motion:'13.4.2',morphicons:'1.7.1','react-stacked-center-carousel':'1.0.14'});
+  assert.deepEqual(packageJson.overrides,{'react-resize-detector':'12.3.0'});
   assert.equal(packageJson.scripts.dev,'vite');
   assert.equal(packageJson.scripts.build,'vite build');
   assert.match(packageJson.scripts.test,/node --test/);

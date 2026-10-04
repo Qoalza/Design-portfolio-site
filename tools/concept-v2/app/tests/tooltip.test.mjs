@@ -37,5 +37,5 @@ test('redesign Tooltip combines production behavior with Figma 222:1906 visuals'
  assert.match(css,/\.cv2-tooltip-icon\s*\{[^}]*width:\s*16px[^}]*height:\s*16px/s);
  assert.match(css,/\.cv2-tooltip-copy\s*\{[^}]*gap:\s*8px[^}]*padding:\s*0 8px/s);
  assert.match(css,/\.cv2-tooltip-title\s*\{[^}]*color:\s*#1f2224[^}]*font:\s*400 14px\/16px Onest/s);
- assert.match(css,/\.cv2-tooltip-description\s*\{[^}]*color:\s*#565c61[^}]*font:\s*400 14px\/20px Onest[^}]*-webkit-line-clamp:\s*2/s);
+ assert.match(css,/\.cv2-tooltip-description\s*\{[^}]*color:\s*#565c61[^}]*font:\s*400 12px\/16px Onest[^}]*font-feature-settings:\s*"calt" 0[^}]*word-break:\s*break-word[^}]*-webkit-line-clamp:\s*2/s);
 });
