@@ -117,3 +117,12 @@ Real proof: 2 полных проекта и 163 bindings, save/reopen новы�
 Два последовательных review: geometry fix, затем full-pixel decode fix с отрицательным тестом truncated PNG. Native migration исправляет lock relation cascade; schema fingerprint сравнивает именованные колонки, сохраняя constraints/defaults/index/trigger и прежний legacy hash. Suite отвергает неизвестную схему и подтверждает совпадение migrated/fresh config. Общий turbopack.root обеспечивает native build с Shared validation. Build fingerprint учитывает Shared source.
 
 Проверки: native npm test/typecheck/lint/build на temporary root; real migration/seed/reopen/export/renderer proof; root lint, отдельные Vite source check/tests/build, focused public adapter/snapshot checks. Git whitespace check сообщает унаследованную от native generated migrations SQL indentation; это не дефект исполнения, native lint и schema equality проходят. Новый public standalone, artifact и production/rollback preflight ещё не выполнены.
+
+
+## Checkpoint группы 3 (2026-10-05)
+
+Реализованы root Next catchall host и production Vite entry без labs; прежние src/app и historical public сохранены в Git, но не входят в новый runtime. Первый site собирается из approved Git baseline (2 проекта, 452 runtime resources), meta/robots/sitemap и /projects307/#projects/new404 обслуживаются host. Anchor применяется после завершения FirstVisit. Pipeline не запускает old Admin или Payload.
+
+Scratch Next build прошёл, root lint и 222/222 Vite check прошли, focused HTTP/CSP/HEAD/stale-runtime guards прошли. Completeness review выявил возможность подписать старый standalone новым SHA — исправлено postbuild success stamp+fingerprints и equality исходного/скопированного site; отрицательные interrupted/static/runtime checks проходят. Второй risk review не выявил конкретных оставшихся findings. Браузер выявил неверный порядок entry transform и недостающий code.svg — исправлены release pre-transform и approved UI-resource allowlist (включая SVG оболочки Corvo). Эти проверки ещё не являются полной desktop приёмкой.
+
+Следующее действие: commit → чистая exact HEAD сборка → archive/unpack/validator/реальный standalone smoke; затем матрица desktop и read-only production/rollback. Полная готовность/разрешение production ещё не подтверждены. Документ сборки: docs/ops/REDESIGN_RELEASE.md.

@@ -15,6 +15,11 @@ export function FirstVisit({children}){
     session.start({prepare:(signal,{retryNumber})=>prepareFirstView(page.current,signal,retryNumber)},{immediate:true});
     return()=>{session.dispose();if(gate.current===session)gate.current=null;};
   },[]);
+  useEffect(()=>{
+    if(state.visible||!location.hash)return;
+    let id;try{id=decodeURIComponent(location.hash.slice(1));}catch{return;}
+    document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
+  },[state.visible]);
   const captions=state.reason
     ?RETRY_MESSAGES[state.reason][Math.min(state.retryNumber,2)-1]
     :INITIAL_MESSAGES;

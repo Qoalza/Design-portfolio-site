@@ -23,12 +23,19 @@ test('published source archive stays byte-identical',async()=>{
   assert.equal(createHash('sha256').update(archive).digest('hex'),'d3a2dc3d984c5c78289992853361616056dd5d9afa0f3dbf17572f0375476caf');
 });
 
-test('tracked standalone app stays outside the public Next.js runtime',async()=>{
+test('Vite renderer is hosted by the compiled release instead of the historical concept snapshot',async()=>{
   const main=await readFile(path.join(appRoot,'src/main.jsx'),'utf8');
   const nextConfig=await readFile(path.join(repositoryRoot,'next.config.ts'),'utf8');
   assert.match(main,/createRoot/);
   assert.doesNotMatch(main,/next\//);
-  assert.match(nextConfig,/source: "\/concept-v2", destination: "\/concept-v2\/index\.html"/);
+  const releaseMain=await readFile(path.join(appRoot,'src/main-release.jsx'),'utf8');
+  const route=await readFile(path.join(repositoryRoot,'app/[[...path]]/route.ts'),'utf8');
+  assert.match(releaseMain,/createRoot/);
+  assert.doesNotMatch(releaseMain,/next\/|PreloaderPreview|NavigationLab|HeroPreview/);
+  assert.match(route,/createReleaseHandler/);
+  assert.doesNotMatch(route,/src\/app|CorvoProjectPage|SarafanProjectPage/);
+  assert.match(nextConfig,/portfolio-release\/site/);
+  assert.doesNotMatch(nextConfig,/destination:.*concept-v2/);
 });
 
 test('Library V2 foundation is isolated under its own namespace',async()=>{

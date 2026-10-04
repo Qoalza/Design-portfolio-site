@@ -1,3 +1,4 @@
+import {layoutPackageCsp as packageCsp} from '../portfolio-release/layout-package-policy.mjs';
 import {readSnapshotDirectory} from '../portfolio-release/snapshot-directory.mjs';
 import {createProjectSnapshot} from '../portfolio-release/project-snapshot.mjs';
 import {exportApprovedRedesign} from './export-approved-content.mjs';
@@ -7,7 +8,6 @@ const moduleId='virtual:project-documents',resolvedId='\0'+moduleId;
 const contentTypes={png:'image/png',webp:'image/webp',avif:'image/avif',svg:'image/svg+xml',css:'text/css',html:'text/html',js:'text/javascript',mjs:'text/javascript',woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',otf:'font/otf'};
 // This policy applies only to manifest-listed layout packages, never Admin/API or the portfolio.
 // The accepted Corvo source imports Manrope from these two existing font hosts.
-const packageCsp=["sandbox allow-scripts","default-src 'none'","script-src 'self' 'unsafe-inline'","style-src 'self' 'unsafe-inline' https://fonts.googleapis.com","font-src 'self' data: https://fonts.gstatic.com","img-src 'self' data:","media-src 'self' data:","connect-src 'none'","object-src 'none'","frame-src 'none'","base-uri 'none'","form-action 'none'"].join('; ');
 export function createApprovedAssetMiddleware(prepared){
  const assets=new Map(prepared.assets.map(asset=>[asset.publicPath,asset]));
  const packages=prepared.projects.flatMap(project=>project.redesign?.hero.kind==='layout'?project.redesign.hero.scenes.filter(scene=>scene.source.kind==='package').map(scene=>scene.source):[]);

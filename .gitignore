@@ -49,3 +49,6 @@ dist/Des-art Admin.app/Contents/Resources/source/
 dist/Des-art Admin.app/Contents/Resources/launcher-policy.mjs
 dist/Des-art Admin.app/Contents/Resources/managed-repository.mjs
 dist/Des-art Admin.app/Contents/_CodeSignature/
+
+# Generated approved public release site; never canonical content.
+/.portfolio-release/

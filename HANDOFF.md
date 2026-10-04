@@ -11,7 +11,7 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 
 ## Следующее действие
 
-Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Далее — public standalone/routes/packaging, desktop состояния и read-only production/rollback preflight. Автономное выполнение до готовой сборки разрешено; production gates сохраняются.
+Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Группа 3 реализована: root Next host/Vite release entry/approved resources/meta/routes/packaging со stamp completed build. Scratch build, root lint, Vite222/222 и focused guards прошли, два review с fixes. Далее — clean exact HEAD build → package/unpack/validator/smoke; затем desktop состояния и read-only production/rollback preflight. Автономное выполнение до готовой сборки разрешено; production gates сохраняются.
 
 ## Stop-lines
 
@@ -25,3 +25,5 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 - design-reference/desktop-only-2026-10-04/ACCEPTANCE.md
 - docs/requirements/admin-image-quality.md
 - tools/payload-admin — tracked foundation перенесён из d21f7a3; личные stores отсутствуют.
+
+- docs/ops/REDESIGN_RELEASE.md

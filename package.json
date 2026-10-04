@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "admin:build": "node tools/des-art-admin/build.mjs",
-    "prebuild": "npm run admin:build",
+    "prebuild": "node --experimental-strip-types tools/portfolio-release/prepare-site.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "release:package": "node tools/portfolio-release/package-runtime.mjs",
+    "postbuild": "node tools/portfolio-release/build-stamp.mjs"
   },
   "dependencies": {
     "@radix-ui/react-icons": "1.3.2",
