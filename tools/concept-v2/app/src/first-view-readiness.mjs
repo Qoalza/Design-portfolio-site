@@ -1,3 +1,5 @@
+import {refreshFailedFontSources} from './first-view-fonts.mjs';
+
 function nextPaint(signal){
   return new Promise((resolve,reject)=>{
     if(signal.aborted){reject(signal.reason);return;}
@@ -46,6 +48,7 @@ export async function prepareFirstView(root,signal,retryNumber=0){
   await nextPaint(signal);
   const visibleImages=[...root.querySelectorAll('.site-header img,.hero img,[data-first-view] img')]
     .filter(image=>image.loading!=='lazy'&&image.getBoundingClientRect().top<innerHeight);
+  if(retryNumber>0)refreshFailedFontSources(document,location.href);
   const fonts=[
     document.fonts.load('400 16px Onest','Артур'),
     document.fonts.load('500 48px "Google Sans"','Продуктовый дизайнер'),

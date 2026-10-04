@@ -11,7 +11,7 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 
 ## Следующее действие
 
-Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Группа 3 реализована: root Next host/Vite release entry/approved resources/meta/routes/packaging со stamp completed build. Scratch build, root lint, Vite222/222 и focused guards прошли, два review с fixes. Далее — clean exact HEAD build → package/unpack/validator/smoke; затем desktop состояния и read-only production/rollback preflight. Автономное выполнение до готовой сборки разрешено; production gates сохраняются.
+Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Группа 3 реализована: root Next host/Vite release entry/approved resources/meta/routes/packaging со stamp completed build. Scratch build, root lint, Vite222/222 и focused guards прошли, два review с fixes. Exact 6252950 build/archive/unpack/validator/HTTP451 ресурсов прошли. Desktop threshold/fade, anchor, scenes, carousel и404 частично проверены. Fault QA выявила stuck font retry; исправление и browser recovery прошли (Vite224 tests). Далее — новый exact HEAD build/package и affected browser check, затем остальная edge матрица и read-only production/rollback preflight. Автономное выполнение до готовой сборки разрешено; production gates сохраняются.
 
 ## Stop-lines
 
