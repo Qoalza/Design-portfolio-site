@@ -54,10 +54,10 @@ test('stroke morphing is reusable, 20% faster than snappy, and preserves the ico
  assert.match(agentRules,/StrokeMorphIcon/);
 });
 
-test('Corvo copy action morphs only after a successful copy and returns automatically',async()=>{
- const page=await readFile(path.join(root,'src/project-page/CorvoProjectPage.jsx'),'utf8');
+test('shared project copy action morphs only after a successful copy and returns automatically',async()=>{
+ const page=await readFile(path.join(root,'src/project-page/ProjectTitleBlock.jsx'),'utf8');
 
- assert.match(page,/function CopyLinkAction\(/);
+ assert.match(page,/async function copyLink\(/);
  assert.match(page,/await navigator\.clipboard\.writeText\(window\.location\.href\)/);
  assert.match(page,/setCopied\(true\)/);
  assert.match(page,/restartFeedbackTimer/);

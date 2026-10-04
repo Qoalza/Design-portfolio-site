@@ -1,0 +1,487 @@
+{
+  "corvo": {
+    "copy": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(187, 194, 199)",
+      "color": "rgb(187, 194, 199)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "4px",
+      "height": 36,
+      "padding": "0px 12px",
+      "radius": "8px",
+      "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 1px inset",
+      "width": 181.078125,
+      "x": 1031.921875,
+      "y": 281
+    },
+    "copyLabel": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(187, 194, 199)",
+      "color": "rgb(187, 194, 199)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "normal",
+      "height": 16,
+      "padding": "0px 4px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 137.078125,
+      "x": 1043.921875,
+      "y": 291
+    },
+    "description": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(214, 220, 224)",
+      "color": "rgb(214, 220, 224)",
+      "font": "350 16px / 24px Onest, sans-serif",
+      "gap": "normal",
+      "height": 24,
+      "padding": "0px 0px 0px 68px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 891.921875,
+      "x": 116,
+      "y": 301
+    },
+    "figma": {
+      "bg": "rgb(214, 220, 224)",
+      "border": "0px none rgb(86, 92, 97)",
+      "color": "rgb(86, 92, 97)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "4px",
+      "height": 36,
+      "padding": "0px 12px",
+      "radius": "8px",
+      "shadow": "none",
+      "width": 91,
+      "x": 1221,
+      "y": 281
+    },
+    "figmaLabel": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(86, 92, 97)",
+      "color": "rgb(86, 92, 97)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "normal",
+      "height": 16,
+      "padding": "0px 4px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 46.6484375,
+      "x": 1233.171875,
+      "y": 291
+    },
+    "group": {
+      "bg": "rgb(27, 29, 31)",
+      "border": "0px none rgb(236, 239, 242)",
+      "color": "rgb(236, 239, 242)",
+      "font": "16px Onest, sans-serif",
+      "gap": "8px",
+      "height": 52,
+      "padding": "8px",
+      "radius": "12px",
+      "shadow": "rgb(31, 34, 36) 0px 0px 0px 1px inset",
+      "width": 296.078125,
+      "x": 1023.921875,
+      "y": 273
+    },
+    "heading": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(236, 239, 242)",
+      "color": "rgb(236, 239, 242)",
+      "font": "16px Onest, sans-serif",
+      "gap": "16px",
+      "height": 92,
+      "padding": "0px 40px 0px 36px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 1280,
+      "x": 80,
+      "y": 233
+    },
+    "height": 6357,
+    "page": "/projects/corvo",
+    "section": {
+      "bg": "rgb(20, 22, 23)",
+      "border": "",
+      "color": "rgb(236, 239, 242)",
+      "font": "16px Onest, sans-serif",
+      "gap": "normal",
+      "height": 216,
+      "padding": "0px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 1440,
+      "x": 0,
+      "y": 145
+    },
+    "title": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(236, 239, 242)",
+      "color": "rgb(236, 239, 242)",
+      "font": "",
+      "gap": "normal",
+      "height": 56,
+      "padding": "0px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 125.4921875,
+      "x": 180,
+      "y": 233
+    }
+  },
+  "sarafan": {
+    "copy": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(187, 194, 199)",
+      "color": "rgb(187, 194, 199)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "4px",
+      "height": 36,
+      "padding": "0px 12px",
+      "radius": "8px",
+      "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 1px inset",
+      "width": 181.078125,
+      "x": 1031.921875,
+      "y": 281
+    },
+    "copyLabel": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(187, 194, 199)",
+      "color": "rgb(187, 194, 199)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "normal",
+      "height": 16,
+      "padding": "0px 4px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 137.078125,
+      "x": 1043.921875,
+      "y": 291
+    },
+    "description": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(214, 220, 224)",
+      "color": "rgb(214, 220, 224)",
+      "font": "350 16px / 24px Onest, sans-serif",
+      "gap": "normal",
+      "height": 24,
+      "padding": "0px 0px 0px 68px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 891.921875,
+      "x": 116,
+      "y": 301
+    },
+    "figma": {
+      "bg": "rgb(214, 220, 224)",
+      "border": "0px none rgb(86, 92, 97)",
+      "color": "rgb(86, 92, 97)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "4px",
+      "height": 36,
+      "padding": "0px 12px",
+      "radius": "8px",
+      "shadow": "none",
+      "width": 91,
+      "x": 1221,
+      "y": 281
+    },
+    "figmaLabel": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(86, 92, 97)",
+      "color": "rgb(86, 92, 97)",
+      "font": "14px / 16px Onest, sans-serif",
+      "gap": "normal",
+      "height": 16,
+      "padding": "0px 4px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 46.6484375,
+      "x": 1233.171875,
+      "y": 291
+    },
+    "group": {
+      "bg": "rgb(27, 29, 31)",
+      "border": "0px none rgb(236, 239, 242)",
+      "color": "rgb(236, 239, 242)",
+      "font": "16px Onest, sans-serif",
+      "gap": "8px",
+      "height": 52,
+      "padding": "8px",
+      "radius": "12px",
+      "shadow": "rgb(31, 34, 36) 0px 0px 0px 1px inset",
+      "width": 296.078125,
+      "x": 1023.921875,
+      "y": 273
+    },
+    "heading": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(236, 239, 242)",
+      "color": "rgb(236, 239, 242)",
+      "font": "16px Onest, sans-serif",
+      "gap": "16px",
+      "height": 92,
+      "padding": "0px 40px 0px 36px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 1280,
+      "x": 80,
+      "y": 233
+    },
+    "height": 4616,
+    "page": "/projects/sarafan-radio",
+    "section": {
+      "bg": "rgb(20, 22, 23)",
+      "border": "",
+      "color": "rgb(236, 239, 242)",
+      "font": "16px Onest, sans-serif",
+      "gap": "normal",
+      "height": 216,
+      "padding": "0px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 1440,
+      "x": 0,
+      "y": 145
+    },
+    "title": {
+      "bg": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(236, 239, 242)",
+      "color": "rgb(236, 239, 242)",
+      "font": "",
+      "gap": "normal",
+      "height": 56,
+      "padding": "0px",
+      "radius": "0px",
+      "shadow": "none",
+      "width": 359.453125,
+      "x": 180,
+      "y": 233
+    }
+  },
+  "corvoCopyFrames": [
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 257.5
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 257.2967529296875
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 257.177490234375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 257.003662109375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.8843994140625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.768310546875
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.689697265625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.610595703125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.52587890625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.4747314453125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.4114990234375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.3681640625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.33056640625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.2939453125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.265869140625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.241455078125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.22021484375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.1995849609375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.183837890625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.1700439453125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.157958984375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 256.146484375
+    }
+  ],
+  "sarafanCopyFrames": [
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 294.8243408203125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 292.7294921875
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 290.7144775390625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 287.86474609375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 284.91015625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 282.30908203125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 279.493896484375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 277.134765625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 274.9344482421875
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 272.6624755859375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 270.826416015625
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 269.359130859375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 267.478271484375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 266.3038330078125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 265.094482421875
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 263.7657470703125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 262.835205078125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 262.010498046875
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 261.281005859375
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 260.63720703125
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 260.06982421875
+    },
+    {
+      "right": 1320,
+      "text": "Скопировано",
+      "width": 259.45556640625
+    }
+  ],
+  "reset": true
+}

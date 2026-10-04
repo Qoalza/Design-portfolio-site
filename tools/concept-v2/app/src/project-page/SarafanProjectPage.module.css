@@ -1,23 +1,10 @@
 .page{min-width:1280px;background:#17191a;color:#eceff2}
-.crumb,.workArea{width:1280px;margin:auto}
+.crumb{width:1280px;margin:auto}
 .crumbRow{height:65px;border-bottom:1px solid var(--cv2-border-neutral-thin)}
 .crumb{height:48px;padding:16px 24px;display:flex;align-items:center;gap:16px;color:#99a1a6;font:400 14px/16px Onest;letter-spacing:-.1px}
 .crumb .crumbHome{width:16px;min-width:16px;height:16px;padding:0;background:none}
 .crumb .crumbProject{height:16px;min-width:0;padding:0;background:none}
-.intro{height:216px;background:var(--cv2-container-neutral-faint);border-bottom:1px solid var(--cv2-border-neutral-thin)}
-.workArea{padding:48px 0 36px}
-.tags{display:flex;gap:12px;padding-left:40px;color:#99a1a6;font:400 14px/16px "Source Code Pro";letter-spacing:-.5px}
-.tags i{width:4px;height:4px;margin:auto 0;border-radius:50%;background:#3d4347}
-.tags b{width:1px;height:16px;background:#323639}
-.tags span:last-child{color:#adb3b8}
-.heading{margin-top:24px;padding:0 40px 0 36px;display:flex;justify-content:space-between;align-items:end;gap:16px}
-.heading>div:first-child{min-width:0;flex:1}
-.name{display:flex;align-items:center;gap:20px}
-.name h1{margin:0;font:500 44px/56px "Google Sans";letter-spacing:-.2px}
-.nameLabel{display:flex;align-items:flex-start;gap:12px}
-.flag{margin-top:16px;color:#fac942}
-.heading p{margin:12px 0 0;padding-left:68px;color:#d6dce0;font:350 16px/24px Onest}
-.actions{display:flex;gap:8px;padding:8px;border:1px solid var(--cv2-border-neutral-thin);border-radius:12px;background:#1b1d1f;flex-shrink:0}
+.flag{color:#fac942}
 .hero{height:928px;overflow:hidden}
 .summary{background:var(--cv2-container-neutral-faint);border-block:1px solid var(--cv2-border-neutral-thin)}
 .summary>div{width:1280px;margin:auto;padding:48px 52px 64px;position:relative;border-inline:1px solid transparent;display:flex;flex-direction:column;gap:40px}

@@ -1,34 +1,24 @@
-import {useEffect,useRef,useState} from 'react';
-import {motion,useReducedMotion} from 'motion/react';
 import {ControlButton,Icon} from '../Controls';
 import {GridPattern} from '../GridPattern';
 import {ProjectRasterHero} from '../project-hero/ProjectRasterHero';
 import {sarafanRasterHero} from '../project-hero/raster-definition.mjs';
-import {HoverMorphAction} from '../morph-icon/HoverMorphAction';
-import {StrokeMorphIcon} from '../morph-icon/StrokeMorphIcon';
-import {checkMorphIcon,figmaIcon,link02Icon} from '../morph-icon/icons.mjs';
-import {restartFeedbackTimer} from '../morph-icon/copy-feedback.mjs';
 import {projectLinks} from '../project-links.mjs';
 import {ProjectSiteHeader} from './ProjectSiteHeader';
+import {ProjectTitleBlock} from './ProjectTitleBlock';
 import styles from './SarafanProjectPage.module.css';
 
-const actionLayout={layout:{type:'spring',stiffness:420,damping:38,mass:.8}};
 const radioLayers=['a','b','c','d'];
 function RadioSymbol({size=44}){return <span className="radio-symbol" style={{width:size,height:size,flexBasis:size}} aria-hidden="true">{radioLayers.map(layer=><span key={layer} className={`radio-logo-${layer}`}><img src={`/figma/radio-logo-vector-${layer}.svg`} alt=""/>{layer!=='d'?<img src={`/figma/radio-logo-mask-${layer}.svg`} alt=""/>:null}</span>)}</span>;}
-function useCopy(){const [copied,setCopied]=useState(false),timer=useRef(null);useEffect(()=>()=>clearTimeout(timer.current),[]);return {copied,copy:async()=>{try{await navigator.clipboard.writeText(location.href);setCopied(true);timer.current=restartFeedbackTimer(timer.current,setTimeout,clearTimeout,()=>setCopied(false));}catch{setCopied(false);}}};}
 function Hatch(){return <div className={styles.hatch} aria-hidden="true"/>;}
 function PageSection({title,children,className=''}){return <section className={`${styles.section} ${className}`}><div><h2>{title}</h2>{children}</div></section>;}
 function ScenarioFlow(){return <><section className={styles.flow}><div className={styles.flowInner}><div className={styles.flowCopy}><h2>Сценарий оформления</h2><div><p>Чтобы не проектировать страницу оформления в отрыве от продукта, сначала определил роли клиента и менеджера и место заказа в подготовке мероприятия. Получился сценарий, в котором клиент может оформить подарки самостоятельно или передать задачу менеджеру. При делегировании менеджер готовит заказ, клиент проверяет его и либо переходит к оплате, либо возвращает на корректировку.</p><p>User Flow помог зафиксировать развилки, возвраты и условия готовности заказа ещё до детальной работы с интерфейсом.</p></div></div><ControlButton variant="light" iconRight="hero-flow" href={projectLinks.sarafanFlow} external>Полная схема в FigJam</ControlButton></div></section><section className={styles.scenarioMedia} aria-label="Сценарий оформления подарков"><div className={styles.scenarioSide} aria-hidden="true"/><div className={styles.scenarioCanvas}><GridPattern/><img src="/figma/project-sarafan-scenario-01.png" width="1047" height="860" alt="User Flow оформления подарков"/></div><div className={styles.scenarioSide} aria-hidden="true"/></section></>;}
 
 export function SarafanProjectPage(){
- const reduceMotion=useReducedMotion();
- const {copied,copy}=useCopy();
- const transition=reduceMotion?{layout:{duration:0}}:actionLayout;
  return <div className={styles.page}>
   <ProjectSiteHeader>
   <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={<RadioSymbol size={16}/>} className={styles.crumbProject} aria-current="page">Сараффан.Радио</ControlButton></nav></div>
   </ProjectSiteHeader><main>
-   <section className={styles.intro} data-first-view><div className={styles.workArea}><div className={styles.tags}><span>B2B2C</span><i/><span>EVENT</span><b/><span>2026</span></div><div className={styles.heading}><div><div className={styles.name}><RadioSymbol/><div className={styles.nameLabel}><h1>Сараффан.Радио</h1><Icon name="sarafan-flag" className={styles.flag}/></div></div><p>Платформа для организации мероприятий</p></div><motion.div layout layoutDependency={copied} transition={transition} className={styles.actions}><ControlButton variant="ghost" motionLayout layoutTransition={transition} onClick={copy} aria-live="polite" iconRightNode={<StrokeMorphIcon icon={copied?checkMorphIcon:link02Icon}/>}>{copied?'Скопировано':'Копировать ссылку'}</ControlButton><HoverMorphAction motionLayout="position" layoutTransition={transition} variant="neutral" icon={figmaIcon} href={projectLinks.sarafanFigma} external>Figma</HoverMorphAction></motion.div></div></div></section>
+   <ProjectTitleBlock name="Сараффан.Радио" logo={<RadioSymbol/>} status={<Icon name="sarafan-flag" className={styles.flag}/>} tags={['B2B2C','EVENT']} description="Платформа для организации мероприятий" figmaHref={projectLinks.sarafanFigma}/>
    <div className={styles.hero} data-first-view><ProjectRasterHero definition={sarafanRasterHero}/></div>
    <section className={styles.summary}><div><div className={styles.summaryCopy}><p>«Сараффан.Радио» — платформа для организации мероприятий, объединяющая товары, услуги и специалистов. В тестовом задании я работал с оформлением подарков: проверкой заказа, настройкой получения и переходом к оплате.</p><p>Исходной точкой был wireframe одной страницы. Задача состояла в том, чтобы предложить визуальное решение и проработать структуру и логику оформления. При необходимости можно было пересматривать не только интерфейс, но и сам сценарий.</p><p>Часть бизнес-вопросов я уточнил в общении с HR и дизайнером команды. Эти ответы помогли определить контекст и ограничения, а недостающие участки сценария я описал как рабочие гипотезы, требующие дальнейшей проверки.</p></div><aside><Icon name="sarafan-info" size={20} className={styles.info}/><div><strong>По условиям тестового приоритетом были визуал и логика</strong><span>Детальную проработку компонентной системы, унификацию отступов и сетки ограничили, чтобы уложиться в отведённое время.</span></div></aside></div></section>
    <ScenarioFlow/>

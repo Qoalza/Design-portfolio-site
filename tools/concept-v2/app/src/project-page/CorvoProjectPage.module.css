@@ -5,7 +5,6 @@
   font-family: Onest, sans-serif;
 }
 
-.workArea,
 .crumb,
 .metricsHeading,
 .metricsContent,
@@ -49,115 +48,8 @@
   border-radius: 4px;
 }
 
-.projectIntro {
-  height: 216px;
-  border-bottom: 1px solid #1f2224;
-  background: #141617;
-}
-
-.projectIntro .workArea {
-  padding-top: 48px;
-}
-
-.tags {
-  height: 16px;
-  margin-left: 40px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #99a1a6;
-  font: 400 14px/16px "Source Code Pro", monospace;
-  letter-spacing: -.5px;
-}
-
-.tags i {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #788087;
-}
-
-.tags b {
-  width: 1px;
-  height: 16px;
-  background: #323639;
-}
-
-.projectHeading {
-  height: 92px;
-  margin-top: 24px;
-  padding: 0 36px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-
-.projectIdentity {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.projectName {
-  height: 56px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.projectNameLabel {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.projectName h1 {
-  margin: 0;
-  font: 500 44px/56px "Google Sans", sans-serif;
-  letter-spacing: -.2px;
-}
-
-.projectName span {
-  margin-top: 16px;
-  color: #f99544;
-  font: 400 14px/16px Onest, sans-serif;
-}
-
-.projectIdentity > p {
-  margin: 0;
-  padding-left: 68px;
-  color: #d6dce0;
-  font: 350 16px/24px Onest, sans-serif;
-}
-
-.projectActions {
-  width: max-content;
-  height: 52px;
-  margin-left: auto;
-  padding: 8px;
-  display: flex;
-  gap: 8px;
-  border: 0;
-  border-radius: 12px;
-  background: #1a1d1f;
-  box-shadow: inset 0 0 0 1px #1f2224;
-}
-
 .action {
   position: relative;
-}
-
-.projectActions .action {
-  border: 0;
-}
-
-.projectActions .action:first-child {
-  width: auto;
-  justify-content: flex-end;
-}
-
-.projectActions .action:last-child {
-  width: 91px;
 }
 
 .hero {

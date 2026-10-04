@@ -33,42 +33,34 @@ test('Corvo project route uses the dedicated page and the approved responsive He
  }
 });
 
-test('Corvo project actions use enabled design-system controls with smooth right-anchored resizing',async()=>{
- const [page,css,controls,linkIcon,figmaIcon]=await Promise.all([
+test('both project title blocks reuse library controls and right-anchored copy resizing',async()=>{
+ const [corvo,sarafan,page,css,controls]=await Promise.all([
   readFile(path.join(root,'src/project-page/CorvoProjectPage.jsx'),'utf8'),
-  readFile(path.join(root,'src/project-page/CorvoProjectPage.module.css'),'utf8'),
+  readFile(path.join(root,'src/project-page/SarafanProjectPage.jsx'),'utf8'),
+  readFile(path.join(root,'src/project-page/ProjectTitleBlock.jsx'),'utf8'),
+  readFile(path.join(root,'src/project-page/ProjectTitleBlock.module.css'),'utf8'),
   readFile(path.join(root,'src/Controls.jsx'),'utf8'),
-  readFile(path.join(root,'public/figma/project-corvo/action-link.svg'),'utf8'),
-  readFile(path.join(root,'public/figma/project-corvo/action-figma.svg'),'utf8'),
  ]);
-
- assert.match(page,/import \{ControlButton,Icon\} from '\.\.\/Controls'/);
- assert.match(page,/import \{HoverMorphAction\} from '\.\.\/morph-icon\/HoverMorphAction'/);
- assert.match(page,/import \{motion,useReducedMotion\} from 'motion\/react'/);
- assert.match(page,/function ProjectAction\(/);
- assert.match(page,/return <ControlButton variant=\{variant\}/);
- assert.match(page,/<motion\.div layout layoutDependency=\{copied\} transition=\{layoutTransition\}/);
- assert.match(page,/<CopyLinkAction copied=\{copied\} onCopy=\{copyProjectLink\} layoutTransition=\{layoutTransition\}/);
- assert.match(page,/motionLayout="position"/);
- assert.match(controls,/import \{motion\} from 'motion\/react'/);
- assert.match(controls,/motionLayout/);
+ for(const consumer of [corvo,sarafan]){
+  assert.match(consumer,/<ProjectTitleBlock name=/);
+  assert.doesNotMatch(consumer,/function CopyLinkAction|function useCopy|className=\{styles\.projectActions\}/);
+ }
+ assert.match(corvo,/figmaHref=\{projectLinks\.corvoFigma\}/);
+ assert.match(sarafan,/figmaHref=\{projectLinks\.sarafanFigma\}/);
+ assert.match(page,/<ControlButton variant="ghost"[^>]*motionLayout/);
+ assert.match(page,/<HoverMorphAction variant="neutral"[^>]*motionLayout="position"/);
+ assert.match(page,/<motion\.div layout layoutDependency=\{copied\}/);
+ assert.match(page,/stiffness:420,damping:38,mass:\.8/);
+ assert.match(page,/\{layout:\{duration:0\}\}/);
  assert.match(controls,/layout:\s*motionLayout/);
- assert.doesNotMatch(page,/StaticAction|aria-disabled="true"/);
- assert.match(await readFile(path.join(root,'src/project-page/ProjectSiteHeader.jsx'),'utf8'),/<ControlButton variant="accent"[^>]*>Связаться/);
- assert.match(page,/<HoverMorphAction motionLayout="position"[^>]*variant="neutral"[^>]*icon=\{figmaIcon\}[^>]*href=\{projectLinks\.corvoFigma\}[^>]*>Figma<\/HoverMorphAction>/);
- assert.match(page,/<HoverMorphAction[^>]*variant="light"[^>]*icon=\{metric\.icon\}[^>]*href=\{metric\.href\}/);
- assert.match(page,/projectLinks\.corvoComponents/);
- assert.match(page,/projectLinks\.corvoVariables/);
- assert.match(page,/projectLinks\.corvoIcons/);
- assert.match(css,/\.projectActions\s*\{[^}]*border:\s*0/s);
- assert.match(css,/\.projectActions\s*\{[^}]*width:\s*max-content[^}]*margin-left:\s*auto[^}]*box-shadow:\s*inset 0 0 0 1px #1f2224/s);
- assert.match(css,/\.projectActions \.action\s*\{[^}]*border:\s*0/s);
- assert.match(css,/\.projectActions \.action:first-child\s*\{[^}]*width:\s*auto[^}]*justify-content:\s*flex-end/s);
- assert.match(css,/\.projectActions \.action:last-child\s*\{[^}]*width:\s*91px/s);
- assert.match(linkIcon,/width="16" height="16"/);
- assert.match(linkIcon,/Medium \/ General \/ Link-02/);
- assert.match(figmaIcon,/width="16" height="16"/);
- assert.match(figmaIcon,/Medium \/ Social logo \/ Figma/);
+ assert.match(css,/\.heading\{[^}]*gap:16px;padding:0 40px 0 36px/);
+ assert.match(css,/\.actions\{[^}]*height:52px[^}]*margin-left:auto[^}]*padding:8px[^}]*gap:8px[^}]*border:0[^}]*background:#1b1d1f/);
+ assert.match(css,/\.actions \.button\{[^}]*border:0;box-shadow:inset 0 0 0 1px var\(--control-border,transparent\)/);
+ assert.match(css,/\.actions \.copyButton\{width:auto;justify-content:flex-end\}/);
+ assert.match(css,/\.actions \.figmaButton\{width:91px;box-shadow:none\}/);
+ assert.match(css,/\.button :global\(\.strokeMorphIcon\)\{color:var\(--control-icon-fg,var\(--control-fg\)\)\}/);
+ assert.match(corvo,/<HoverMorphAction[^>]*variant="light"[^>]*icon=\{metric\.icon\}[^>]*href=\{metric\.href\}/);
+ for(const link of ['corvoComponents','corvoVariables','corvoIcons'])assert.match(corvo,new RegExp('projectLinks\\.'+link));
 });
 
 test('Corvo breadcrumbs use true SVG system icons and preserve the color logo',async()=>{
@@ -132,7 +124,6 @@ test('Corvo project header and footer use their current Figma assets',async()=>{
  assert.match(headerCss,/\.availability\s*\{[^}]*width:\s*213px/s);
  assert.match(headerCss,/\.headerContact\s*\{[^}]*width:\s*121px/s);
  assert.match(header,/iconRight="corvo-telegram"/);
- assert.match(page,/<ControlButton[^>]*iconLeft=\{iconLeft\}[^>]*iconRight=\{iconRight\}[^>]*iconRightNode=\{iconRightNode\}/);
  assert.doesNotMatch(page,/data-icon-right=/);
  assert.match(telegram,/<svg[^>]*width="16" height="16" viewBox="0 0 16 16"/);
  for(const name of ['header-lock.svg','header-telegram.svg']){
@@ -153,8 +144,9 @@ test('Corvo structural separators use the current Figma Thin token',async()=>{
 
  assert.doesNotMatch(css,/#272b2e/i);
  assert.match(css,/\.crumbRow\s*\{[^}]*border-bottom:\s*1px solid #1f2224/s);
- assert.match(css,/\.projectIntro\s*\{[^}]*border-bottom:\s*1px solid #1f2224/s);
- assert.match(css,/\.tags b\s*\{[^}]*background:\s*#323639/s);
+ const titleCss=await readFile(path.join(root,'src/project-page/ProjectTitleBlock.module.css'),'utf8');
+ assert.match(titleCss,/\.intro\{[^}]*border-bottom:1px solid var\(--cv2-border-neutral-thin\)/);
+ assert.match(titleCss,/\.tags b\{[^}]*background:var\(--cv2-border-neutral-muted\)/);
  assert.match(css,/\.summaryInner::before,[\s\S]*?\.summaryInner::after\s*\{[^}]*repeating-linear-gradient\(to bottom, #1f2224 0 16px, transparent 16px 32px\)/s);
  assert.match(css,/\.metrics\s*\{[^}]*border-bottom:\s*1px solid #1f2224/s);
  assert.match(css,/\.contentSection\s*\{[^}]*border-bottom:\s*1px solid #1f2224/s);
