@@ -1,0 +1,42 @@
+{
+  "sha": "f28c4614061c16b19a0719e231bdc83f7e4c4232",
+  "routes": [
+    {
+      "route": "/",
+      "status": 200
+    },
+    {
+      "route": "/projects/corvo",
+      "status": 200
+    },
+    {
+      "route": "/projects/sarafan-radio",
+      "status": 200
+    },
+    {
+      "route": "/404",
+      "status": 404
+    },
+    {
+      "route": "/unknown-release-check",
+      "status": 404
+    },
+    {
+      "route": "/projects/old",
+      "status": 404
+    },
+    {
+      "route": "/concept-v2",
+      "status": 404
+    },
+    {
+      "route": "/navigation-lab",
+      "status": 404
+    },
+    {
+      "route": "/admin",
+      "status": 404
+    }
+  ],
+  "projectsRedirect": "/#projects"
+}

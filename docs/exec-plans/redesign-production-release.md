@@ -92,7 +92,7 @@ Verification → реальный end-to-end authoring → draft preview → о�
 - [x] Создана новая Goal без token budget; прежней Goal в механизме больше нет.
 - [x] Группа 1: neutral approved-content snapshot реализован; 2 проекта, 163 assets (4 849 130 bytes), 171 source hashes. Итоговые 34/34 tests, scoped source lint и Next compatibility build прошли; commit этой группы содержит только код/docs/tests.
 - [x] Группа 2: настоящий Payload compatibility proof завершён: save/reopen/export, обе Hero, draft separation и renderer после остановки CMS; native tests/typecheck/lint/build прошли.
-- [ ] Новый standalone release, packaging и desktop приёмка.
+- [x] Новый standalone release, packaging и локальная desktop/edge приёмка: docs/ops/REDESIGN_ACCEPTANCE.md.
 - [ ] Read-only production/rollback preflight и показ кандидата.
 - [ ] Отдельные пользовательские gates merge/deploy; post-deploy smoke; подтверждение и архив.
 - [ ] Удобный Payload authoring после выпуска.
@@ -147,3 +147,7 @@ HTTP read-only production marker a44efab5830a8dda5a1fd1348f644358f047672c/root20
 Review completeness: изменение только маршрута /404 и HTTP guard, visitor URL/status сохраняются; renderer/Hero/materials не меняются. Review regression/risk: beforeFiles exact-match не перехватывает assets/projects/unknown routes; GET/HEAD, 307 и noindex проверены через actual Next. lint и focused host test прошли. Финальный build/package check следует после commit.
 
 Остаётся завершить финальную desktop приёмку и серверный preflight: SSH metadata пока не получена, exact restricted deployed SHA/platform/capacity/protected real backup не подтверждены. Isolated rollback fixture не заменяет проверку реального сервера. Merge/upload/deploy/архив не разрешены.
+
+## Итог локальной приёмки
+
+f28c461 cleanbuild/archive/validator/realHTTP451assets и исправленная404 в браузере прошли. docs/ops/REDESIGN_ACCEPTANCE.md фиксирует покрытие и пределы доказательств. Следующая Git-группа только evidence/docs; её exactHEAD пересобирается для показа. Все451publicasset hashes одинаковы с a514243. Серверная проверка и защищённый настоящийpreviousrelease остаются открытыми; production/action gates и postlaunchPayload не закрыты.

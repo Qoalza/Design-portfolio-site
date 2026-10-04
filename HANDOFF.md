@@ -11,7 +11,7 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 
 ## Следующее действие
 
-Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Группа 3 реализована: root Next host/Vite release entry/approved resources/meta/routes/packaging со stamp completed build. Scratch build, root lint, Vite222/222 и focused guards прошли, два review с fixes. Exact 6252950 build/archive/unpack/validator/HTTP451 ресурсов прошли. Desktop threshold/fade, anchor, scenes, carousel и404 частично проверены. Fault QA выявила stuck font retry; исправление и browser recovery прошли (Vite224 tests). Новый a514243 build/package/assets451 и большинство edge QA прошли. Обнаружен reserved Next /404: исправлен beforeFiles rewrite, реальный HTTP guard подтверждает red→green. Далее новый clean exact build/package/unpack/HTTP/browser404 и оставшая desktop приёмка; SSH metadata для реального server/backup preflight не получена. Автономное выполнение до готовой сборки разрешено; production gates сохраняются.
+Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Группа 3 реализована: root Next host/Vite release entry/approved resources/meta/routes/packaging со stamp completed build. Scratch build, root lint, Vite222/222 и focused guards прошли, два review с fixes. Exact 6252950 build/archive/unpack/validator/HTTP451 ресурсов прошли. Desktop threshold/fade, anchor, scenes, carousel и404 частично проверены. Fault QA выявила stuck font retry; исправление и browser recovery прошли (Vite224 tests). Новый a514243 build/package/assets451 и большинство edge QA прошли. Обнаружен reserved Next /404: исправлен beforeFiles rewrite, реальный HTTP guard подтверждает red→green. f28c461 clean exact build/package/unpack/HTTP451assets/browser404 прошли; локальная приёмка записана в docs/ops/REDESIGN_ACCEPTANCE.md. Следующая группа только evidence/docs: пересобрать её exactHEAD и показать кандидат; затем SSH server/backup preflight. SSH metadata не получена. Автономное выполнение до готовой сборки разрешено; production gates сохраняются.
 
 ## Stop-lines
 
@@ -27,3 +27,5 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 - tools/payload-admin — tracked foundation перенесён из d21f7a3; личные stores отсутствуют.
 
 - docs/ops/REDESIGN_RELEASE.md
+
+- docs/ops/REDESIGN_ACCEPTANCE.md — текущая таблица приёмки и открытые условия выпуска.

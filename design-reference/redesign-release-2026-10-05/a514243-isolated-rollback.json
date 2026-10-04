@@ -1,0 +1,32 @@
+{
+  "root": "/var/folders/rt/f08dbnw150z9tsc_83q81g3c0000gn/T/redesign-rollback-proof-K3T1B8",
+  "sourceSha": "a514243c70c622d300545742a648cf93664239e3",
+  "artifactHash": "86768ee4bf9b5362d24e1e078f4e76465feecdb6c7cb0f860b1a7063346c0500",
+  "limits": "Linux systemd, ownership and flock mocked; actual script, archive manifest validation and local atomic fs.rename executed. Fixture previous release, not production backup.",
+  "cases": [
+    {
+      "mode": "success",
+      "current": "a514243c70c622d300545742a648cf93664239e3",
+      "status": "complete",
+      "error": null,
+      "backupSha256": "af4421f9889c2748ac03311dbae1c150f68767c516a30d87fed417fc10ff0fea",
+      "previousRetainedAfterRotation": false
+    },
+    {
+      "mode": "restart-failure",
+      "current": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "failed",
+      "error": "SERVICE_RESTART_FAILED",
+      "backupSha256": "f2723bdc1718ceefee4db0b6406e0f24e2b8d91cd45050ac7e5426527ca857d7",
+      "previousRetainedAfterRotation": true
+    },
+    {
+      "mode": "readiness-failure",
+      "current": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "failed",
+      "error": "READINESS_FAILED",
+      "backupSha256": "9bd8e58c6a02ffc90c76fabe84abdd6610f50903385d68cfd2747083d54f710a",
+      "previousRetainedAfterRotation": true
+    }
+  ]
+}
