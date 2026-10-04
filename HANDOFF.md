@@ -3,7 +3,9 @@
 Обновлено: 2026-10-04.
 Checkout: codex/redesign-portfolio, только /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
 
-Последний результат: Hero Сараффана использует неизменённые исходные PNG4096×2958 вместо уменьшенных WebP1880×1357. Все3 SHA256 совпадают с raw exports. Размер карточек и переключение сохранены. Focused raster tests5/5,lint95,browser decoded dimensions и Next verified.
+Последний результат: полноразмерный lossless WebP для3 экранов Сараффана, исходные PNG сохранены; декодированные растры совпадают. Требование будущего automatic Admin ingest: docs/requirements/admin-image-quality.md (не реализовано, отдельная Admin-линия).
+
+Предыдущий результат: Hero Сараффана использует неизменённые исходные PNG4096×2958 вместо уменьшенных WebP1880×1357. Все3 SHA256 совпадают с raw exports. Размер карточек и переключение сохранены. Focused raster tests5/5,lint95,browser decoded dimensions и Next verified.
 
 Предыдущий результат: подключена точная растровая оболочка Сараффана из f7db517, включая зависимости, варианты3/5/7 и обновлённый tooltip description12/16. Приёмка: design-reference/raster-hero-f7db517-2026-10-04/ACCEPTANCE.md. Проверки204/204tests,lint94,build; browser arrows/dots/side card/tooltip.
 

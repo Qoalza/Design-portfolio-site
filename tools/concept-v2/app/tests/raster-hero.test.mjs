@@ -55,12 +55,14 @@ test('navigation reaches the seventh image and wraps in the shortest direction',
 });
 
 // Keep the original export pixels: no downsampled carousel intermediates.
-test('Sarafan hero uses original full-resolution PNG exports', async()=>{
+test('Sarafan hero uses full-resolution lossless WebP exports', async()=>{
  for(const slide of sarafanRasterHero.contexts[0].slides){
-  assert.match(slide.src,/\.png$/);
+  assert.match(slide.src,/\.webp$/);
   const bytes=await readFile(new URL('../public'+slide.src,import.meta.url));
-  assert.equal(bytes.subarray(1,4).toString(),'PNG');
-  assert.equal(bytes.readUInt32BE(16),4096);
-  assert.equal(bytes.readUInt32BE(20),2958);
+  assert.equal(bytes.subarray(0,4).toString(),'RIFF');
+  assert.equal(bytes.subarray(12,16).toString(),'VP8L');
+  const dimensions=bytes.readUInt32LE(21);
+  assert.equal((dimensions&0x3fff)+1,4096);
+  assert.equal(((dimensions>>>14)&0x3fff)+1,2958);
  }
 });
