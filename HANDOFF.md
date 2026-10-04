@@ -1,25 +1,25 @@
 # HANDOFF
 
-Обновлено: 2026-10-05.
-Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
+2026-10-05. Checkout: codex/payload-site-integration,
+/Users/designer/.codex/worktrees/payload-site-integration/Design-portfolio-site.
 
 ## Checkpoint
 
-Редизайн выпущен на https://art-des.ru/. Deployed SHA b44946021d55fb1cc8a4430c3bafd62e342714c9, PR #54 merged. Пользователь явно разрешил публикацию/деплой. Clean exact build/archive/validator и public HTTP/pages/451asset hashes/browser smoke прошли.
-Previous a44efab5830a8dda5a1fd1348f644358f047672c остался в releases; до переключения создан и проверен protected backup вне rotation. Exact evidence: docs/ops/REDESIGN_ACCEPTANCE.md.
-Native temporary Payload proof завершён; полноценное управление проектами через Payload ещё открыто. Старую Des-art Admin не использовать как продуктовую логику/данные; existing deploy script только инфраструктура.
+Пользователь разрешил планирование и реализацию полного Payload/site integration;
+автономно продолжаем. Base b0ec4de; production b44946021d55fb1cc8a4430c3bafd62e342714c9.
+Новый full plan docs/exec-plans/payload-site-integration.md version1.0.
+Готовые native export/snapshot/renderer/releases переиспользовать; native editor,
+materials ingest, same-renderer authenticated preview, explicit CMS release,
+publication operations и clean bootstrap ещё реализовать/проверить.
 
 ## Next
 
-Получить пользовательскую приёмку production перед архивированием предыдущего сайта. Продолжить группу6 active plan: удобный Payload editor на доказанном snapshot/export boundary.
+Группа1 native custom field и client-safe immutable authoring model; установить
+точные locked зависимости для отдельного worktree. Проверять на temporary DB.
 
 ## Stop-lines
 
-Hero/geometry/scenes/adaptives не менять. Портфолио desktop-only. Личный Payload .local и USERSPACE не читать; sandbox fixtures не переносить в production. Real CMS bootstrap/migrations/credentials требуют отдельного решения. Старые источники/эксперименты не удалять; previous архивировать только после подтверждения пользователя.
-
-## Pointers
-
-- docs/exec-plans/redesign-production-release.md
-- docs/ops/REDESIGN_ACCEPTANCE.md
-- docs/ops/REDESIGN_RELEASE.md
-- tools/payload-admin
+Сохранить public design/Hero geometry/physics/scenes и desktop-only portfolio.
+Не использовать old Des-art Admin logic/data. Не читать личный .local/USERSPACE.
+Temporary fixtures не публиковать. Real bootstrap/migrations/access/content publish
+требуют конкретного решения; previous archive ждёт пользовательской приёмки.
