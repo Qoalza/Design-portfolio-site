@@ -1,20 +1,36 @@
 # HANDOFF
 
 Обновлено: 2026-10-04.
-Checkout: codex/redesign-portfolio, только /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
+Checkout: `codex/redesign-portfolio`, только `/Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site`.
 
-Последний результат: полноразмерный lossless WebP для3 экранов Сараффана, исходные PNG сохранены; декодированные растры совпадают. Требование будущего automatic Admin ingest: docs/requirements/admin-image-quality.md (не реализовано, отдельная Admin-линия).
+## Checkpoint
 
-Предыдущий результат: Hero Сараффана использует неизменённые исходные PNG4096×2958 вместо уменьшенных WebP1880×1357. Все3 SHA256 совпадают с raw exports. Размер карточек и переключение сохранены. Focused raster tests5/5,lint95,browser decoded dimensions и Next verified.
+Единая code baseline: `d48bba46a8a62dc3061be51f192d573f49c9642f`.
+Сверка источников завершена; названия «Верстка» / «Фикс адаптив» перенесены
+в DESIGN_SYSTEM.md. Девять исторических HANDOFF исправлены в их собственных
+checkout и зафиксированы отдельными documentation commits. Полная карта:
+`docs/exec-plans/redesign-portfolio-variant-registry.md`.
+Code baseline: 205/205 tests, lint 95 source files. Эта группа меняет только docs;
+новая browser/build приёмка не выполнялась. Blocker сверки отсутствует.
 
-Предыдущий результат: подключена точная растровая оболочка Сараффана из f7db517, включая зависимости, варианты3/5/7 и обновлённый tooltip description12/16. Приёмка: design-reference/raster-hero-f7db517-2026-10-04/ACCEPTANCE.md. Проверки204/204tests,lint94,build; browser arrows/dots/side card/tooltip.
+## Следующее действие
 
-Заголовочные блоки Corvo и Сараффан.Радио приведены к точным Figma instances 4332:726757 / 4332:731803. Общий ProjectTitleBlock использует библиотечные Ghost/Fill Medium, одинаковые отступы/геометрию и конкретные привязки цветов. Неподвижный правый край и плавное изменение ширины Copy сохранены.
-Приёмка: design-reference/project-title-fidelity-2026-10-04/ACCEPTANCE.md, screenshots и runtime.json.
-Проверки: 210/210 tests, lint94, build; fidelity/completeness и regression/scope review. Браузер: Enable/Hover/Press, Copy → Скопировано → возврат.
+После показа этой группы остановиться до следующего этапа пользователя.
+Согласованные дальнейшие направления: убрать только самовольно добавленный
+адаптив портфолио; подключить Admin к контенту проектов и входным данным
+двух готовых Hero; подготовить routing/release и проверку сложных состояний.
+Главная через Admin не редактируется. Hero и сцены сохраняются без изменения.
 
-Предыдущая единая оболочка проектов: docs/exec-plans/concept-v2-project-shell-consistency.md (COMPLETE), design-reference/project-shell-consistency-2026-10-04/ACCEPTANCE.md.
-Просмотр: http://127.0.0.1:4193/projects/sarafan-radio и /projects/corvo.
-Следующее действие: пользовательская приёмка. Blocker отсутствует.
-Сохранены Hero, Experience/Lenis/reset, preloader, morph/copy/contact motion и ссылки.
-Соседний чат/ветки/worktree, USERSPACE, production, push, merge, deploy и Figma write не затрагивались.
+## Stop-lines
+
+Нет push, merge, deploy, Figma write, очистки веток/worktree или переносов реальных
+Admin data. Отсутствующие папки и страховочная история сохранены до приёмки.
+USERSPACE и неизвестные untracked вне scope. Актуальный runtime нужно заново
+подтвердить перед приёмкой; прежний указатель просмотра был 127.0.0.1:4193.
+
+## Pointers
+
+- `docs/exec-plans/redesign-portfolio-variant-registry.md`
+- `design-reference/raster-hero-f7db517-2026-10-04/ACCEPTANCE.md`
+- `design-reference/project-title-fidelity-2026-10-04/ACCEPTANCE.md`
+- `docs/requirements/admin-image-quality.md`
