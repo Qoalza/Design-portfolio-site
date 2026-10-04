@@ -9,20 +9,14 @@ import {About} from './About';
 import {randomEdgePoint} from './process-fill.mjs';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {ResponsivePicture} from './media/ResponsivePicture';
-import {projectBackImage,projectFrontImage,sarafanBackImage,sarafanFrontImage} from './media/image-sources.mjs';
+import {projectCardView} from './project-page/project-view-model.mjs';
+import {RadioProjectSymbol} from './project-page/ProjectContent';
 import {createImagePreparer} from './media/image-preparation.mjs';
 import {projectLinks} from './project-links.mjs';
 import {HoverMorphAction} from './morph-icon/HoverMorphAction';
 import {figmaIcon} from './morph-icon/icons.mjs';
 
 const cv=projectLinks.cv;
-const corvoDescription='B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта: подключение к программе, условия сотрудничества, кампании, рекламные материалы и статистику.';
-const sarafanDescription='Сарафан.Радио — B2B2C-платформа для организации мероприятий. Она соединяет пользователей, которые готовят событие, со специалистами и поставщиками товаров и услуг.';
-const radioLogoLayers=['a','b','c','d'];
-const projectCards=[
- {id:'corvo',title:'Corvo',categories:['B2B','SAAS','PARTNER PLATFORM'],description:corvoDescription,logo:'corvo',preview:{back:projectBackImage,front:projectFrontImage,ariaLabel:'Интерфейс Corvo',frontAlt:'Corvo — управление партнёрской программой, таблица компаний'},actions:{details:{href:`${import.meta.env.BASE_URL}projects/corvo`},figma:{href:projectLinks.corvoFigma}}},
- {id:'sarafan-radio',title:'Сараффан.Радио',categories:['B2B2С','EVENT'],description:sarafanDescription,logo:'radio',tag:'Тестовое задание',preview:{back:sarafanBackImage,front:sarafanFrontImage,ariaLabel:'Интерфейс Сараффан.Радио',frontAlt:'Сараффан.Радио — оформление заказа для мероприятия'},actions:{details:{href:`${import.meta.env.BASE_URL}projects/sarafan-radio`},figma:{href:projectLinks.sarafanFigma}}}
-];
 const steps=[
  {title:'Погружаюсь в данные',description:'Разбираюсь в контексте, пользователях и бизнес-целях. Формулирую проблему/цель и нахожу главное.',image:'imgFrame26086399',dots:'imgFrame26086412',width:5},
  {title:'Собираю решение в систему',description:'Проектирую сценарии, интерфейсы и логику. Проектирую дизайн систему, описываю гайдлайны. Согласовываю с разработкой.',image:'imgFrame26086400',dots:'imgFrame26086413',width:16},
@@ -140,11 +134,9 @@ function Hero(){
 function SectionTitle({eyebrow,title,children,className='',id}){
  return <div className={`section-title ${className}`}><p className="eyebrow">{eyebrow}</p><h2 id={id}>{title}</h2><div className="section-description">{children}</div></div>;
 }
-function RadioSymbol(){
- return <span className="radio-symbol" aria-hidden="true">{radioLogoLayers.map(layer=><span key={layer} className={`radio-logo-${layer}`}><img src={`/figma/radio-logo-vector-${layer}.svg`} alt=""/>{layer!=='d'&&<img src={`/figma/radio-logo-mask-${layer}.svg`} alt=""/>}</span>)}</span>;
-}
+
 function ProjectActions({project}){
- return <div className="project-actions"><ControlButton href={project.actions.details.href}>Подробнее</ControlButton><HoverMorphAction variant="ghost" href={project.actions.figma.href} external icon={figmaIcon}>Figma</HoverMorphAction></div>;
+ return <div className="project-actions"><ControlButton href={project.actions.details.href} disabled={!project.actions.details.href}>Подробнее</ControlButton><HoverMorphAction variant="ghost" href={project.actions.figma.href} disabled={!project.actions.figma.href} external icon={figmaIcon}>Figma</HoverMorphAction></div>;
 }
 function ProjectCard({project,imageRef,onImageLoad}){
  return <article className={`project project-${project.id}`}>
@@ -155,10 +147,11 @@ function ProjectCard({project,imageRef,onImageLoad}){
    <div className="project-front-layer"><ResponsivePicture source={project.preview.front} ref={imageRef} className="project-front" alt={project.preview.frontAlt} sizes="520px" loading="lazy" decoding="async" onLoad={onImageLoad}/></div>
    {project.tag&&<div className="project-tag"><Icon name="sarafan-flag"/><span>{project.tag}</span></div>}
   </div>
-  <div className="project-main"><div className="project-categories">{project.categories.map((category,index)=><span className="project-category" key={category}><span>{category}</span>{index<project.categories.length-1&&<img src="/figma/sarafan-project-dot.svg" width="4" height="4" alt=""/>}</span>)}</div><div className="project-content"><div className="project-info"><h3>{project.logo==='corvo'?<img src="/figma/imgProjectCorvo.svg" width="28" height="28" alt=""/>:<RadioSymbol/>}{project.title}</h3><p>{project.description}</p></div><ProjectActions project={project}/></div></div>
+  <div className="project-main"><div className="project-categories">{project.categories.map((category,index)=><span className="project-category" key={category}><span>{category}</span>{index<project.categories.length-1&&<img src="/figma/sarafan-project-dot.svg" width="4" height="4" alt=""/>}</span>)}</div><div className="project-content"><div className="project-info"><h3>{project.logo==='corvo'?<img src={project.logoData.src} width="28" height="28" alt=""/>:<RadioProjectSymbol logo={project.logoData}/>}{project.title}</h3><p>{project.description}</p></div><ProjectActions project={project}/></div></div>
  </article>;
 }
-function Projects(){
+function Projects({projects}){
+ const projectCards=projects.filter(project=>project.redesign&&project.visibility==='published'&&project.homePlacement).sort((a,b)=>(a.homePlacement==='primary'?0:1)-(b.homePlacement==='primary'?0:1)).map(project=>projectCardView(project,import.meta.env.BASE_URL));
  const sectionRef=useRef(null),imageNodes=useRef(new Set()),imagePreparer=useRef(null);
  const collectImage=useCallback(image=>{if(image)imageNodes.current.add(image)},[]);
  const prepareLoadedImage=useCallback(event=>imagePreparer.current?.prepare(event.currentTarget,'high'),[]);
@@ -216,6 +209,6 @@ function StaticCode(){
 function AISection(){
  return <section className="ai-section" aria-label="AI в рабочем процессе"><div className="ai-desktop-side" aria-hidden="true"/><div className="ai-desktop-panel"><AICopy/><StaticCode/></div><div className="ai-desktop-side" aria-hidden="true"/></section>;
 }
-export default function App(){
- return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><Projects/><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
+export default function App({projects}){
+ return <><CustomCursor/><a className="skip-link" href="#projects">Перейти к проектам</a><div className="hero-shell"><Header/><Hero/></div><main><div className="body-sections"><div className="body-container"><Projects projects={projects}/><Process/></div></div><AISection/><Experience cv={cv}/><About/></main><footer className="site-footer"><div className="site-footer-inner"><span><Icon name="imgColor8"/>Разработка и Дизайн Артур А.</span><span>2026</span></div></footer></>;
 }

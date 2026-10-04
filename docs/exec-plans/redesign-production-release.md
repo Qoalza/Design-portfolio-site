@@ -91,7 +91,7 @@ Verification → реальный end-to-end authoring → draft preview → о�
 
 - [x] Создана новая Goal без token budget; прежней Goal в механизме больше нет.
 - [x] Группа 1: neutral approved-content snapshot реализован; 2 проекта, 163 assets (4 849 130 bytes), 171 source hashes. Итоговые 34/34 tests, scoped source lint и Next compatibility build прошли; commit этой группы содержит только код/docs/tests.
-- [ ] Реальный Payload compatibility proof (обязателен до выпуска).
+- [x] Группа 2: настоящий Payload compatibility proof завершён: save/reopen/export, обе Hero, draft separation и renderer после остановки CMS; native tests/typecheck/lint/build прошли.
 - [ ] Новый standalone release, packaging и desktop приёмка.
 - [ ] Read-only production/rollback preflight и показ кандидата.
 - [ ] Отдельные пользовательские gates merge/deploy; post-deploy smoke; подтверждение и архив.
@@ -106,3 +106,14 @@ Verification → реальный end-to-end authoring → draft preview → о�
 Проверены отрицательные сценарии: draft, unknown fields/private provenance, unsafe paths/terminal DNS dot, duplicate slug/file, отсутствующие cards/AVIF/HTML/CSS, checksum и manifest mismatch. Проверка HTML/CSS dependency closure требует bytes и выполняется в createProjectSnapshot; validateProjectSnapshot отдельно не доказывает bytes/полную динамическую работу произвольного JS, которую дополнительно проверяет runtime приёмка.
 Первый completeness review: missing AVIF closure исправлен через общий mapping. Второй risk review: private hostname terminal dot и удалённый одновременно из manifest/asset CSS исправлены; legacy surface completeness явно ограничен новым renderer. Corrected-part review: оставшихся конкретных дефектов в проверенных границах нет.
 Проверки: focused snapshot/export/public-v3 и historical legacy compatibility/provenance tests; scoped npm run lint исходников; Next production build без scripts старой Admin. Старый root build проверяет только совместимость, не готовность нового release. Глобальный npm run lint падает на ранее существующем generated Vite dist; targeted source lint проходит, release integration установит корректную build/lint boundary. Реального Payload proof и нового production artifact пока нет.
+
+
+## Evidence группы 2 (2026-10-05)
+
+Перенесён tracked foundation Payload d21f7a3, без личного .local. Native releaseContent/releaseAssets/project-files используют существующие SQLite/auth/versions; удобный editor остаётся после выпуска. Public renderer перенесён выборочно из c85c3065, рабочие CSS/geometry/physics Hero сохранены.
+
+Real proof: 2 полных проекта и 163 bindings, save/reopen новым процессом, byte parity с approved Git; затем изменения текста/ссылки/image/raster order/initial/layout source/enabled adaptives. Draft отличается от published. После остановки CMS экспорт читается и отображается тем же renderer. Неверные размеры, отсутствующие и truncated изображения отвергаются; last-good snapshot не повреждается. Полностью декодируются bitmap/AVIF, backup включает project-files. Fixture никогда не становится canonical/первым production.
+
+Два последовательных review: geometry fix, затем full-pixel decode fix с отрицательным тестом truncated PNG. Native migration исправляет lock relation cascade; schema fingerprint сравнивает именованные колонки, сохраняя constraints/defaults/index/trigger и прежний legacy hash. Suite отвергает неизвестную схему и подтверждает совпадение migrated/fresh config. Общий turbopack.root обеспечивает native build с Shared validation. Build fingerprint учитывает Shared source.
+
+Проверки: native npm test/typecheck/lint/build на temporary root; real migration/seed/reopen/export/renderer proof; root lint, отдельные Vite source check/tests/build, focused public adapter/snapshot checks. Git whitespace check сообщает унаследованную от native generated migrations SQL indentation; это не дефект исполнения, native lint и schema equality проходят. Новый public standalone, artifact и production/rollback preflight ещё не выполнены.

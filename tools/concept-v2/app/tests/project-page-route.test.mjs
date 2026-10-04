@@ -16,21 +16,20 @@ test('Corvo project route uses the dedicated page and the approved responsive He
  ]);
  assert.match(main,/isCorvoProject=normalizedPath==='\/projects\/corvo'/);
  assert.match(main,/isSarafanProject=normalizedPath==='\/projects\/sarafan-radio'/);
- assert.match(main,/document\.title=isCorvoProject\?'Corvo — Product Designer'/);
+ assert.match(main,/document\.title=isCorvoProject\?`\$\{projectBySlug\('corvo'\)\.title\} — Product Designer`/);
  assert.match(main,/import App,\{CustomCursor\} from '\.\/App';/);
- assert.match(main,/\{isCorvoProject\?<FirstVisit><CustomCursor\/><CorvoProjectPage\/><\/FirstVisit>/);
- assert.match(main,/<CorvoProjectPage\/>/);
- assert.match(main,/<SarafanProjectPage\/>/);
- assert.match(page,/<ProjectResponsiveHero definition=\{corvoResponsiveHero\}\/>/);
+ assert.match(main,/\{isCorvoProject\?<FirstVisit><CustomCursor\/><CorvoProjectPage project=\{projectBySlug\('corvo'\)\}\/><\/FirstVisit>/);
+ assert.match(main,/<CorvoProjectPage project=/);
+ assert.match(main,/<SarafanProjectPage project=/);
+ assert.match(page,/<ProjectDocumentHero project=\{project\}\/>/);
  assert.match(page,/className=\{styles\.page\}/);
  assert.match(page,/<ProjectSiteHeader>/);
- assert.match(home,/details:\{href:`\$\{import\.meta\.env\.BASE_URL\}projects\/corvo`\}/);
- assert.match(home,/<ControlButton href=\{project\.actions\.details\.href\}>Подробнее<\/ControlButton>/);
+ assert.match(home,/projectCardView\(project,import\.meta\.env\.BASE_URL\)/);
+ assert.match(home,/<ControlButton href=\{project\.actions\.details\.href\} disabled=\{!project\.actions\.details\.href\}>Подробнее<\/ControlButton>/);
  assert.match(readiness,/\[data-first-view\] img/);
  assert.match(page,/data-first-view/);
- for(const heading of ['В цифрах','Контекст и задача','Проработка сценариев','Дизайн-система','Результат работы']){
-  assert.match(page,new RegExp(heading));
- }
+ assert.match(page,/page\.metrics\.heading/);
+ for(let i=0;i<4;i++)assert.ok(page.includes(`title={page.sections[${i}].heading}`));
 });
 
 test('both project title blocks reuse library controls and right-anchored copy resizing',async()=>{
@@ -45,8 +44,8 @@ test('both project title blocks reuse library controls and right-anchored copy r
   assert.match(consumer,/<ProjectTitleBlock name=/);
   assert.doesNotMatch(consumer,/function CopyLinkAction|function useCopy|className=\{styles\.projectActions\}/);
  }
- assert.match(corvo,/figmaHref=\{projectLinks\.corvoFigma\}/);
- assert.match(sarafan,/figmaHref=\{projectLinks\.sarafanFigma\}/);
+ assert.match(corvo,/figmaHref=\{project\.materials\.fileState==='available'\?project\.materials\.figmaUrl:undefined\}/);
+ assert.match(sarafan,/figmaHref=\{project\.materials\.fileState==='available'\?project\.materials\.figmaUrl:undefined\}/);
  assert.match(page,/<ControlButton variant="ghost"[^>]*motionLayout/);
  assert.match(page,/<HoverMorphAction variant="neutral"[^>]*motionLayout="position"/);
  assert.match(page,/<motion\.div layout layoutDependency=\{copied\}/);
@@ -60,7 +59,8 @@ test('both project title blocks reuse library controls and right-anchored copy r
  assert.match(css,/\.actions \.figmaButton\{width:91px;box-shadow:none\}/);
  assert.match(css,/\.button :global\(\.strokeMorphIcon\)\{color:var\(--control-icon-fg,var\(--control-fg\)\)\}/);
  assert.match(corvo,/<HoverMorphAction[^>]*variant="light"[^>]*icon=\{metric\.icon\}[^>]*href=\{metric\.href\}/);
- for(const link of ['corvoComponents','corvoVariables','corvoIcons'])assert.match(corvo,new RegExp('projectLinks\\.'+link));
+ assert.match(corvo,/href:item\.action\.href/);
+ assert.match(corvo,/const metricIcons=\{adaptives:figmaIcon,components:componentIcon,tokens:stackIcon,icons:metricIcon\}/);
 });
 
 test('Corvo breadcrumbs use true SVG system icons and preserve the color logo',async()=>{
@@ -71,7 +71,7 @@ test('Corvo breadcrumbs use true SVG system icons and preserve the color logo',a
   readFile(path.join(root,'public/figma/imgProjectCorvo.svg'),'utf8'),
  ]);
  assert.match(page,/<ControlButton variant="ghost" iconLeft="imgColor" iconOnly/);
- assert.match(page,/iconLeftNode=\{<img src="\/figma\/imgProjectCorvo\.svg"/);
+ assert.match(page,/iconLeftNode=\{<img src=\{project\.logo\.src\}/);
  assert.match(controls,/dangerouslySetInnerHTML:svg/);
  assert.doesNotMatch(page,/V2Button|v2\/Controls/);
  assert.match(corvoLogo,/fill="#2A6E52"/);
@@ -86,13 +86,13 @@ test('Sarafan project content mirrors the current non-Hero Figma sequence',async
   readFile(path.join(root,'src/project-page/SarafanProjectPage.module.css'),'utf8'),
   readFile(path.join(root,'public/figma/project-sarafan-scenario-01.png')),
  ]);
- assert.match(page,/<ProjectRasterHero definition=\{sarafanRasterHero\}\/>/);
- assert.match(page,/<ScenarioFlow\/>/);
+ assert.match(page,/<ProjectDocumentHero project=\{project\}\/>/);
+ assert.match(page,/<ScenarioFlow page=\{page\}\/>/);
  assert.match(page,/Сценарий оформления/);
  assert.doesNotMatch(page,/title="То, над чем"/);
- assert.match(page,/<ControlButton variant="light" iconRight="hero-flow" href=\{projectLinks\.sarafanFlow\}/);
+ assert.match(page,/<ControlButton variant="light" iconRight="hero-flow" href=\{page\.flow\.action\.href\}/);
  assert.doesNotMatch(page,/HoverMorphAction variant="light" icon=\{figmaIcon\} href=\{projectLinks\.sarafanFlow\}/);
- assert.match(page,/project-sarafan-scenario-01\.png" width="1047" height="860"/);
+ assert.match(page,/src=\{page\.flow\.image\.src\} width="1047" height="860"/);
  assert.match(page,/<GridPattern\/>/);
  assert.match(css,/\.flowInner\{[^}]*width:1280px[^}]*padding:8px 52px 40px 64px/s);
  assert.match(css,/\.flowCopy\{[^}]*width:936px[^}]*padding-right:40px/s);
@@ -163,14 +163,14 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
 
  assert.match(page,/className=\{styles\.summaryInner\}/);
  assert.match(page,/className=\{styles\.summaryContent\}/);
- assert.match(page,/Макеты собраны в одном файле: основные сценарии, состояния и их адаптация под три размера экрана/);
+ assert.match(page,/<ProjectParagraphs paragraphs=\{page\.summary\}/);
  assert.ok(page.indexOf('className={`${styles.metric} ${styles.metricWide}`}') < page.indexOf('className={styles.metricRow}'), 'Figma places the wide adaptive card before the compact metric row');
  assert.match(page,/className=\{styles\.contextSection\}/);
  assert.match(page,/className=\{styles\.scenarioTextSection\}/);
  assert.match(page,/className=\{styles\.scenarioShowcase\}/);
- assert.match(page,/Один из сценариев/);
- assert.match(page,/Как создать медиа компанию\?/);
- assert.match(page,/media-campaign-creation\.png/);
+ assert.match(page,/\{showcase\.eyebrow\}/);
+ assert.match(page,/\{showcase\.title\}/);
+ assert.match(page,/src=\{showcase\.image\.src\}/);
  assert.match(page,/className=\{styles\.designSection\}/);
  assert.match(page,/className=\{styles\.resultWrap\}/);
  assert.doesNotMatch(page,/CorvoProjectPageFidelity/);
@@ -249,9 +249,9 @@ test('both project pages keep header and breadcrumbs in the same measured floati
 test('Sarafan preserves the approved raster Hero while restoring its colored project identity',async()=>{
  const page=await readFile(path.join(root,'src/project-page/SarafanProjectPage.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/project-page/SarafanProjectPage.module.css'),'utf8');
- assert.match(page,/<RadioSymbol size=\{16\}\/>/);
+ assert.match(page,/<RadioProjectSymbol logo=\{project\.logo\} size=\{16\}\/>/);
  assert.match(page,/name="sarafan-flag"/);
  assert.match(page,/name="sarafan-info" size=\{20\}/);
- assert.match(page,/<ProjectRasterHero definition=\{sarafanRasterHero\}\/>/);
+ assert.match(page,/<ProjectDocumentHero project=\{project\}\/>/);
  assert.doesNotMatch(css,/#14181b/);
 });

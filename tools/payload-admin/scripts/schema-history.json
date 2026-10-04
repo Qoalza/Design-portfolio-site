@@ -1,0 +1,19 @@
+{
+  "current": "6c4a98e232cb7b33f46ad2a79bc7c7efbf2e8a035dc44cece1ac996f0d1ac44a",
+  "history": [
+    {
+      "hash": "8d5275674069fe7a5769ea7ec2eb4d6cae321da28a8f72b97efd1704fc00b529",
+      "migrations": [
+        "20260911_155753_initial"
+      ]
+    },
+    {
+      "hash": "6c4a98e232cb7b33f46ad2a79bc7c7efbf2e8a035dc44cece1ac996f0d1ac44a",
+      "algorithm": "named-schema-v2",
+      "migrations": [
+        "20260911_155753_initial",
+        "20261004_191241_redesign_release_content"
+      ]
+    }
+  ]
+}

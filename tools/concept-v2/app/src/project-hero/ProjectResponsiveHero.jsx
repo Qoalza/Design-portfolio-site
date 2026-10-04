@@ -4,30 +4,22 @@ import {
   DRAG_SPRING,
   getGestureVelocity,
   getInertiaOffset,
-  isOutwardBoundaryMotion,
-  getMagneticPreset,
   INERTIA_TRANSITION,
   MAGNETIC_TRANSITION,
   PRESET_TRANSITION,
 } from './motion.mjs';
 import {
-  ADAPTIVE_PRESETS,
-  geometryFromDrag,
-  getAdaptiveRange,
-  getExactAdaptivePreset,
-  getIframeLogicalHeight,
   getIframeLogicalWidth,
   getIframeViewportHeight,
   getLogicalWidth,
-  getProductHeightForDisplayWidth,
   getStageHeight,
   getStageWidth,
-  MAX_LOGICAL_WIDTH,
-  MIN_LOGICAL_WIDTH,
+  RESPONSIVE_HERO_SCALE,
 } from './width.mjs';
 import {AdaptiveSizeTab,ScenarioTab} from '../v2/HeroTabs.jsx';
 import {GridPattern} from '../GridPattern.jsx';
 import styles from './ProjectResponsiveHero.module.css';
+import {createResponsiveRuntime} from './responsive-document-runtime.mjs';
 
 const ADAPTIVE_LAYOUTS = [
   { id: "min", label: "min-width", value: "360", segmentWidth: 256, icon: "size-min" },
@@ -97,6 +89,7 @@ function AdaptiveControl({
           caption={layout.label}
           value={layout.value}
           active={selected}
+          disabled={layout.disabled}
           aria-label={`${layout.label} ${layout.value}`}
           onClick={onSelect}
         />
@@ -118,7 +111,9 @@ export function ProjectResponsiveHero({definition}) {
   const assetRoot = definition.chromeAssetRoot;
   const initialScene = definition.scenes.find(({ id }) => id === definition.initialSceneId) ?? definition.scenes[0];
   const [activeSceneId, setActiveSceneId] = useState(initialScene.id);
-  const initialPreset = ADAPTIVE_PRESETS.max;
+  const sceneRef = useRef(initialScene.id);
+  const [runtime] = useState(() => createResponsiveRuntime(definition));
+  const initialPreset = runtime.preset(initialScene.id, 'max');
   const [geometry, setGeometry] = useState({
     logicalWidth: initialPreset.logicalWidth,
     displayWidth: initialPreset.displayWidth,
@@ -127,24 +122,25 @@ export function ProjectResponsiveHero({definition}) {
   const [selectedPreset, setSelectedPreset] = useState('max');
   const prefersReducedMotion = useReducedMotion();
   const displayWidth = useMotionValue(initialPreset.displayWidth);
-  const iframeLogicalWidth = useTransform(displayWidth, getIframeLogicalWidth);
+  const renderedDisplayWidth = useTransform(displayWidth, value => runtime.displayWidth(sceneRef.current, value));
+  const iframeLogicalWidth = useTransform(renderedDisplayWidth, getIframeLogicalWidth);
   const productHeight = useMotionValue(initialPreset.productHeight);
-  const stageWidth = useTransform(displayWidth, getStageWidth);
+  const stageWidth = useTransform(renderedDisplayWidth, getStageWidth);
   const stageHeight = useTransform(productHeight, getStageHeight);
-  const logicalHeight = useTransform(displayWidth, getIframeLogicalHeight);
+  const logicalHeight = useTransform(renderedDisplayWidth, value => runtime.height(sceneRef.current, value) / RESPONSIVE_HERO_SCALE);
   const animatedLogicalHeight = useTransform(productHeight, getIframeViewportHeight);
-  const rulerPosition = useTransform(displayWidth, (width) => width - 1);
-  const resizeEdgePosition = useTransform(displayWidth, (width) => width - 16);
+  const rulerPosition = useTransform(renderedDisplayWidth, (width) => width - 1);
+  const resizeEdgePosition = useTransform(renderedDisplayWidth, (width) => width - 16);
   const animationControls = useRef([]);
   const releaseTimer = useRef(null);
   const dragState = useRef(null);
 
   const selectedAdaptive = selectionMode === "preset"
     ? selectedPreset
-    : getAdaptiveRange(geometry.logicalWidth);
+    : runtime.range(activeSceneId, geometry.logicalWidth);
   const exactAdaptivePreset = selectionMode === "preset"
     ? selectedPreset
-    : getExactAdaptivePreset(geometry.displayWidth);
+    : runtime.exact(activeSceneId, geometry.displayWidth);
   const activeScene = definition.scenes.find(({ id }) => id === activeSceneId) ?? initialScene;
   const activeSceneIndex = definition.scenes.findIndex(({ id }) => id === activeScene.id);
   const activeLineLeft = definition.scenes
@@ -162,7 +158,7 @@ export function ProjectResponsiveHero({definition}) {
   }
 
   function moveGeometry(next, transition) {
-    const nextProductHeight = getProductHeightForDisplayWidth(next.displayWidth);
+    const nextProductHeight = runtime.height(sceneRef.current, next.displayWidth);
     stopAnimations();
     setGeometry(next);
 
@@ -182,18 +178,31 @@ export function ProjectResponsiveHero({definition}) {
     stopAnimations();
     setGeometry(next);
     displayWidth.jump(next.displayWidth);
-    productHeight.jump(getProductHeightForDisplayWidth(next.displayWidth));
+    productHeight.jump(runtime.height(sceneRef.current, next.displayWidth));
   }
 
   function selectAdaptive(id, transition = PRESET_TRANSITION) {
-    const preset = ADAPTIVE_PRESETS[id];
+    const preset = runtime.preset(sceneRef.current, id);
+    if (!preset) return;
     setSelectionMode("preset");
     setSelectedPreset(id);
     moveGeometry({ logicalWidth: preset.logicalWidth, displayWidth: preset.displayWidth }, transition);
   }
 
   function selectScene(id) {
-    if (definition.scenes.some((scene) => scene.id === id)) setActiveSceneId(id);
+    if (!definition.scenes.some(scene => scene.id === id) || id === sceneRef.current) return;
+    const previousId = sceneRef.current;
+    sceneRef.current = id;
+    if (runtime.signature(previousId) !== runtime.signature(id)) {
+      // A different source range cancels stale drag/release work, then retains a valid target.
+      dragState.current = null;
+      const nextWidth = runtime.displayWidth(id, geometry.displayWidth);
+      const next = {logicalWidth: getLogicalWidth(nextWidth), displayWidth: nextWidth};
+      const matchingPreset = runtime.preset(id, selectedPreset);
+      if (selectionMode !== 'preset' || !matchingPreset || matchingPreset.displayWidth !== nextWidth) setSelectionMode('free');
+      settleGeometry(next);
+    }
+    setActiveSceneId(id);
   }
 
   useEffect(() => () => {
@@ -206,8 +215,8 @@ export function ProjectResponsiveHero({definition}) {
     event.preventDefault();
     stopAnimations();
     const currentGeometry = {
-      logicalWidth: getLogicalWidth(displayWidth.get()),
-      displayWidth: displayWidth.get(),
+      logicalWidth: getLogicalWidth(renderedDisplayWidth.get()),
+      displayWidth: renderedDisplayWidth.get(),
     };
     setGeometry(currentGeometry);
     setSelectionMode("free");
@@ -226,13 +235,13 @@ export function ProjectResponsiveHero({definition}) {
     if (!drag || drag.pointerId !== event.pointerId) return;
     drag.samples.push({ position: event.clientX, time: event.timeStamp });
     if (drag.samples.length > 16) drag.samples.shift();
-    const nextGeometry = geometryFromDrag({
+    const nextGeometry = runtime.drag(sceneRef.current, {
       startDisplayWidth: drag.startDisplayWidth,
       physicalDelta: event.clientX - drag.startClientX,
     });
     drag.latestGeometry = nextGeometry;
     const physicalDelta = event.clientX - drag.startClientX;
-    if (isOutwardBoundaryMotion(nextGeometry.displayWidth, physicalDelta)) {
+    if (runtime.outward(sceneRef.current, nextGeometry.displayWidth, physicalDelta)) {
       settleGeometry(nextGeometry);
       return;
     }
@@ -254,24 +263,24 @@ export function ProjectResponsiveHero({definition}) {
       : 0;
 
     if (inertiaOffset !== 0) {
-      if (isOutwardBoundaryMotion(drag.latestGeometry.displayWidth, inertiaOffset)) {
+      if (runtime.outward(sceneRef.current, drag.latestGeometry.displayWidth, inertiaOffset)) {
         settleGeometry(drag.latestGeometry);
         return;
       }
-      const inertiaGeometry = geometryFromDrag({
+      const inertiaGeometry = runtime.drag(sceneRef.current, {
         startDisplayWidth: drag.latestGeometry.displayWidth,
         physicalDelta: inertiaOffset,
       });
       moveGeometry(inertiaGeometry, INERTIA_TRANSITION);
       releaseTimer.current = setTimeout(() => {
         releaseTimer.current = null;
-        const projectedPreset = getMagneticPreset(inertiaGeometry.displayWidth);
+        const projectedPreset = runtime.magnetic(sceneRef.current, inertiaGeometry.displayWidth);
         if (projectedPreset) selectAdaptive(projectedPreset, MAGNETIC_TRANSITION);
       }, INERTIA_TRANSITION.duration * 1000);
       return;
     }
 
-    const magneticPreset = getMagneticPreset(drag.latestGeometry.displayWidth);
+    const magneticPreset = runtime.magnetic(sceneRef.current, drag.latestGeometry.displayWidth);
     if (magneticPreset) selectAdaptive(magneticPreset, MAGNETIC_TRANSITION);
   }
 
@@ -290,11 +299,11 @@ export function ProjectResponsiveHero({definition}) {
     event.preventDefault();
     const physicalDelta = (event.shiftKey ? 10 : 1) * (event.key === "ArrowLeft" ? -1 : 1);
     setSelectionMode("free");
-    const nextGeometry = geometryFromDrag({
-      startDisplayWidth: displayWidth.get(),
+    const nextGeometry = runtime.drag(sceneRef.current, {
+      startDisplayWidth: renderedDisplayWidth.get(),
       physicalDelta,
     });
-    if (isOutwardBoundaryMotion(nextGeometry.displayWidth, physicalDelta)) {
+    if (runtime.outward(sceneRef.current, nextGeometry.displayWidth, physicalDelta)) {
       settleGeometry(nextGeometry);
       return;
     }
@@ -348,7 +357,7 @@ export function ProjectResponsiveHero({definition}) {
         <div className={styles.heroInner}>
           <div className={styles.workspaceContent}>
             <div className={styles.adaptiveRuler} aria-label="Диапазоны адаптивности">
-              {ADAPTIVE_LAYOUTS.map((layout) => (
+              {runtime.controls(activeSceneId, ADAPTIVE_LAYOUTS).map((layout) => (
                 <AdaptiveControl
                   key={layout.id}
                   layout={layout}
@@ -377,13 +386,15 @@ export function ProjectResponsiveHero({definition}) {
                 <span className={`${styles.stageLock} ${styles.stageLockRight}`} style={{'--lock-icon': `url("${assetRoot}/lock.svg")`}} />
               </div>
               <motion.div className={styles.stageSurface} style={{ height: productHeight }}>
-                <motion.div className={`${styles.productViewport} ${activeScene.id === 'authorization' ? styles.productViewportDark : ''}`} style={{ width: displayWidth, height: productHeight }}>
+                <motion.div className={`${styles.productViewport} ${activeScene.id === 'authorization' ? styles.productViewportDark : ''}`} style={{ width: renderedDisplayWidth, height: productHeight }}>
                   <motion.div className={styles.logicalProduct} style={{ width: iframeLogicalWidth, height: logicalHeight }}>
                     <motion.div className={styles.iframeCanvas} style={{ height: animatedLogicalHeight }}>
                       <iframe
                         className={styles.productFrame}
                         scrolling="no"
                         src={activeScene?.src}
+                        sandbox={definition.geometry ? "allow-scripts" : undefined}
+                        referrerPolicy={definition.geometry ? "no-referrer" : undefined}
                         title={`${activeScene?.label ?? "Project scene"} — проект`}
                         aria-hidden="true"
                         tabIndex={-1}
@@ -404,8 +415,8 @@ export function ProjectResponsiveHero({definition}) {
                     role="slider"
                     tabIndex={0}
                     aria-label="Изменить ширину адаптивного экрана"
-                    aria-valuemin={MIN_LOGICAL_WIDTH}
-                    aria-valuemax={Math.round(MAX_LOGICAL_WIDTH)}
+                    aria-valuemin={Math.round(runtime.preset(activeSceneId, 'min').logicalWidth)}
+                    aria-valuemax={Math.round(runtime.preset(activeSceneId, 'max').logicalWidth)}
                     aria-valuenow={Math.round(geometry.logicalWidth)}
                     aria-orientation="horizontal"
                     onKeyDown={handleResizeKeyDown}

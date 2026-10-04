@@ -40,7 +40,7 @@ export function ProjectTitleBlock({name,logo,status,tags,description,figmaHref})
     </div>
     <motion.div layout layoutDependency={copied} transition={transition} className={styles.actions}>
      <ControlButton variant="ghost" className={`${styles.button} ${styles.copyButton}`} motionLayout layoutTransition={transition} onClick={copyLink} aria-live="polite" iconRightNode={<StrokeMorphIcon icon={copied?checkMorphIcon:link02Icon}/>}>{copied?'Скопировано':'Копировать ссылку'}</ControlButton>
-     <HoverMorphAction variant="neutral" className={`${styles.button} ${styles.figmaButton}`} motionLayout="position" layoutTransition={transition} icon={figmaIcon} href={figmaHref} external>Figma</HoverMorphAction>
+     <HoverMorphAction variant="neutral" className={`${styles.button} ${styles.figmaButton}`} motionLayout="position" layoutTransition={transition} icon={figmaIcon} href={figmaHref} disabled={!figmaHref} external>Figma</HoverMorphAction>
     </motion.div>
    </div>
   </div>

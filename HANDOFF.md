@@ -7,11 +7,11 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 
 Новая Goal активна: подготовить выпуск нового сайта с доказанным до выпуска подключением существующего Payload. Полный согласованный план version 3.1 в docs/exec-plans/redesign-production-release.md заменяет прежний Admin-first план. Target CMS — Payload. Пользователь прямо отменил правила/логику Des-art Admin для Payload; технические решения нового lifecycle исполнитель выбирает сам в рамках scope.
 Визуальный/content baseline: 258e95b2a7720499c7a74ec7602c8608b8c58200; desktop-only и исправленный fade сохранены. Hero/сцены не изменять.
-Группа 1 реализована: optional Shared redesign контракт, neutral export exact approved Git материалов и validated portable snapshot. Runtime ещё не переключён на snapshot; настоящий Payload proof и production кандидат не готовы. Предыдущие полезные публичные checkpoints сохраняются в codex/redesign-admin-integration; незавершённые old Admin файлы не тронуты.
+Группа 1 реализована: optional Shared redesign контракт, neutral export exact approved Git материалов и validated portable snapshot. Public renderer использует validated snapshot; настоящий Payload proof завершён. Новый production кандидат ещё не готов. Предыдущие полезные публичные checkpoints сохраняются в codex/redesign-admin-integration; незавершённые old Admin файлы не тронуты.
 
 ## Следующее действие
 
-Группа 1 завершена: 34/34 tests, source lint и Next compatibility build; два последовательных review, подтверждённые дефекты исправлены. Следующий этап — настоящий temp Payload → published snapshot → тот же renderer proof, согласно плану. Пользователь разрешил автономное выполнение до готовой сборки. Проверенные группы фиксировать отдельными commits; production gates сохраняются.
+Группы 1–2 завершены: native Payload save/reopen/export и тот же renderer; native tests/typecheck/lint/build и real proof прошли. Два review с fixes. Далее — public standalone/routes/packaging, desktop состояния и read-only production/rollback preflight. Автономное выполнение до готовой сборки разрешено; production gates сохраняются.
 
 ## Stop-lines
 
@@ -24,4 +24,4 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 - docs/exec-plans/redesign-portfolio-variant-registry.md
 - design-reference/desktop-only-2026-10-04/ACCEPTANCE.md
 - docs/requirements/admin-image-quality.md
-- tools/payload-admin в линии codex/payload-local-foundation (код ещё не перенесён сюда).
+- tools/payload-admin — tracked foundation перенесён из d21f7a3; личные stores отсутствуют.

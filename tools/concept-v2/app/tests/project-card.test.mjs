@@ -61,17 +61,11 @@ test('project cards map the current Figma configurations and states',async()=>{
 test('Projects render distinct Corvo and Sarafan.Radio Figma content with their published routes',async()=>{
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
- assert.match(app,/id:'corvo'/);
- assert.match(app,/id:'sarafan-radio'/);
- assert.match(app,/title:'Сараффан\.Радио'/);
- assert.match(app,/categories:\['B2B2С','EVENT'\]/);
- assert.match(app,/Тестовое задание/);
- assert.match(app,/projects\/sarafan-radio/);
- assert.match(app,/projectLinks\.sarafanFigma/);
+ assert.match(app,/projectCardView\(project,import\.meta\.env\.BASE_URL\)/);
+ assert.match(app,/project\.visibility==='published'/);
  assert.match(app,/<HoverMorphAction variant="ghost" href=\{project\.actions\.figma\.href\}/);
- assert.doesNotMatch(app,/aria-disabled="true" data-cursor="hand"/);
+ assert.match(app,/<RadioProjectSymbol logo=\{project\.logoData\}/);
  assert.doesNotMatch(app,/href="https:\/\/art-des\.ru\/projects\/sarafan/);
- assert.match(app,/radio-logo-vector-\$\{layer\}\.svg/);
  assert.match(css,/\.project-actions\{[^}]*display:flex/);
 });
 
@@ -115,7 +109,7 @@ test('project AVIF derivatives omit metadata boxes rejected by Zen',async()=>{
 test('project images are promoted and decoded before the section enters the viewport',async()=>{
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  assert.match(app,/import \{createImagePreparer\} from '\.\/media\/image-preparation\.mjs'/);
- assert.match(app,/function Projects\(\)/);
+ assert.match(app,/function Projects\(\{projects\}\)/);
  assert.match(app,/new IntersectionObserver\(/);
  assert.match(app,/\{rootMargin:'150% 0px',threshold:0\}\);/);
  assert.match(app,/preparer\.prepareAll\(imageNodes\.current,'high'\)/);

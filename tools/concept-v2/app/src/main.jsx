@@ -1,4 +1,6 @@
+import approvedDocuments from 'virtual:project-documents';
 import React from 'react';
+import {projectDetailDocument} from './project-page/project-view-model.mjs';
 import {createRoot} from 'react-dom/client';
 import App,{CustomCursor} from './App';
 import {Routing404} from './Routing404';
@@ -15,6 +17,8 @@ import './style.css';
 import './v2/tokens.css';
 import {SmoothScroll} from './SmoothScroll';
 
+const projectDocuments=window.__PORTFOLIO_PROJECT_DOCUMENTS__??approvedDocuments;
+const projectBySlug=slug=>projectDetailDocument(projectDocuments,slug);
 const basePath=import.meta.env.BASE_URL.replace(/\/$/,'');
 const pagePath=location.pathname.startsWith(basePath)?location.pathname.slice(basePath.length)||'/':location.pathname;
 const normalizedPath=pagePath.replace(/\/$/,'');
@@ -24,8 +28,8 @@ const isNavigationLab=normalizedPath==='/navigation-lab';
 const isResponsiveHero=normalizedPath==='/preview/project-responsive-hero';
 const isRasterHero=normalizedPath==='/preview/project-raster-hero';
 const isRasterHeroVariants=normalizedPath==='/preview/project-raster-hero-variants';
-const isCorvoProject=normalizedPath==='/projects/corvo';
-const isSarafanProject=normalizedPath==='/projects/sarafan-radio';
+const isCorvoProject=normalizedPath==='/projects/corvo'&&Boolean(projectBySlug('corvo'));
+const isSarafanProject=normalizedPath==='/projects/sarafan-radio'&&Boolean(projectBySlug('sarafan-radio'));
 const is404=!isPreloader&&!isPreloaderPreview&&!isNavigationLab&&!isResponsiveHero&&!isRasterHero&&!isRasterHeroVariants&&!isCorvoProject&&!isSarafanProject&&(normalizedPath==='/404'||normalizedPath!=='');
 
 if(!isPreloader&&!isNavigationLab){
@@ -35,8 +39,8 @@ if(!isPreloader&&!isNavigationLab){
   window.scrollTo({top:0,left:0,behavior:'instant'});
 }
 
-document.title=isCorvoProject?'Corvo — Product Designer'
-  :isSarafanProject?'Сараффан.Радио — Product Designer'
+document.title=isCorvoProject?`${projectBySlug('corvo').title} — Product Designer`
+  :isSarafanProject?`${projectBySlug('sarafan-radio').title} — Product Designer`
   :isResponsiveHero?'Corvo Responsive Hero · Concept V.2'
   :isRasterHero?'Сараффан.Радио Raster Hero · Concept V.2'
   :isRasterHeroVariants?'Варианты Raster Hero · Concept V.2'
@@ -48,8 +52,8 @@ document.title=isCorvoProject?'Corvo — Product Designer'
 
 createRoot(document.getElementById('root')).render(<React.StrictMode>
   <SmoothScroll/>
-  {isCorvoProject?<FirstVisit><CustomCursor/><CorvoProjectPage/></FirstVisit>
-    :isSarafanProject?<FirstVisit><CustomCursor/><SarafanProjectPage/></FirstVisit>
+  {isCorvoProject?<FirstVisit><CustomCursor/><CorvoProjectPage project={projectBySlug('corvo')}/></FirstVisit>
+    :isSarafanProject?<FirstVisit><CustomCursor/><SarafanProjectPage project={projectBySlug('sarafan-radio')}/></FirstVisit>
     :isResponsiveHero?<ResponsiveHeroPreview/>
     :isRasterHero?<RasterHeroPreview/>
     :isRasterHeroVariants?<RasterHeroVariantsPreview/>
@@ -57,5 +61,5 @@ createRoot(document.getElementById('root')).render(<React.StrictMode>
       :isPreloaderPreview?<PreloaderPreview/>
       :isPreloader?<Preloader/>
         :isNavigationLab?<NavigationLab/>
-          :<FirstVisit><App/></FirstVisit>}
+          :<FirstVisit><App projects={projectDocuments}/></FirstVisit>}
 </React.StrictMode>);

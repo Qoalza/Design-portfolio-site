@@ -1,3 +1,5 @@
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
-export default defineConfig({plugins:[react()],server:{host:'127.0.0.1',port:4189,strictPort:true},build:{outDir:'dist'}});
+import {approvedContentPlugin} from '../approved-content-vite.mjs';
+import path from 'node:path';
+export default defineConfig({plugins:[react(),approvedContentPlugin({repoRoot:path.resolve(import.meta.dirname,'../../..')})],server:{host:'127.0.0.1',port:4189,strictPort:true},build:{outDir:'dist'}});

@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.local/
+.local-backups/
+.local-lock/
+.local-restore.json
+.env*
+*.tsbuildinfo
+next-env.d.ts
