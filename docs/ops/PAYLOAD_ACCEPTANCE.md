@@ -98,3 +98,16 @@ hero-bottom-dots background одинаковы rgb(22,25,26). В large оба fa
 Native editor login ещё открыт; owner credential вводит пользователь. Goal active,
 не завершён. Next: native editing acceptance и ещё не подтверждённые browser
 slow retry/late readiness/animation cases, без повторения успешных build/tests.
+
+## Browser checkpoint: обе slow retries и поздняя ошибка
+
+На deployed7faa один Image request topbar-hatch.svg удержан через explicit
+non-Document Fetch pattern. После10s появилась «Долгая загрузка». Retry1 показал
+«Второй заход пошёл», повторное ожидание→slow→Retry2 — «Третий заход без
+капитуляции». Снятие interception + продолжение именно удержанного Image request
+вернуло ready Corvo. Это заменяет прежний slow Retry UNVERIFIED checkpoint.
+Отдельно удержание→slow→Image failure дало «Проблема с соединением»; первый retry
+при blocked SVG снова дал connection error; второй после снятия block показал
+«Снова пробую выйти на связь» и вернул ready Corvo. Документы/навигационные ответы
+не перехватывались агентом. Network/cache/raw Fetch overrides очищены, tab закрыт.
+CMS projects/versions/code не менялись. Native login всё ещё pending на /admin/login.

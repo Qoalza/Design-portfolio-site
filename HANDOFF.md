@@ -78,7 +78,10 @@ raster/order/slug/version restore. Реальные test project writes ране
 auto-review из-за persistent versions/content; после нового «Разрешаю» они ещё
 не выполнялись. Не подменять actual acceptance fixture evidence.
 Main slow state при12000ms latency и automatic ready после снятия задержки PASS.
-Slow Retry click не подтверждён; tests не подменяют browser animation evidence.
+Slow Retry1/2 теперь PASS через удержанный Image request: корректные captions,
+повторный slow и ready после release. Late slow→connection и connection Retry1/2
+с последующим ready также PASS. Network/cache/Fetch overrides сняты, tab закрыт.
+Tests не подменяют ещё не просмотренные animation states.
 Desktop small1920/large2560: actual body/base fade RGB22,25,26 совпадает; gradients
 используют тот же цвет с alpha, lower Hero визуально просмотрен. Overrides сняты,
 test tabs закрыты. Публичные edge states/visual checks пока частичны. SMTP не настроен, protected
