@@ -401,3 +401,26 @@ Next build/stamp PASS; clean exact HEAD build/archive/unpack verification — ne
 Next: завершить offline archive proof группы4, затем группа5 native publication
 workflow. SourceHash expansion/cache cleanup/bootstrap/final browser acceptance
 остаются в плане. Temporary fixtures никогда не публиковать. Goal active.
+
+
+## Evidence: группа4 offline clean archive
+
+Exact clean HEAD717f711bf8fda312fd2eb12badd725852b99db5a: actual published
+Payload snapshot → public Next build/stamp → runtime archive PASS, CMS stopped.
+Content hash160df0605cce1b42bbd37067b4ea01cb176e2b9c34102453d44341e73362923a.
+Archive /private/tmp/payload-site-runtime-proof.tar.gz, SHA256
+ e8fe3a0da56ed926f0f5622eea4f396e486d18d7da8b1cff0894eec3f435f65d,
+20711270bytes/1511entries. /private/tmp/payload-site-offline-proof.json фиксирует
+result; /private/tmp/payload-site-archive-check.mjs — executable offline HTTP proof.
+
+Unpack/start без CMS: оба project routes/title/build SHA, all163 selected asset
+checksums, HEAD, temporary /projects redirect, new404, private snapshot404 PASS.
+No CMS/store/project-source files in archive allowlist. Missing/wrong expected
+CMS digest packaging reject PASS. Review дополнительно связал bundled private
+snapshot с исходным exact content bytes; actual standalone snapshot tampering
+reject/restore/reverify и focused lint PASS. Эта дополнительная проверка добавлена
+после archive build; следующий final artifact требует свежего build на новом HEAD.
+
+Group4 implementation/CLI proof готовы; browser render/motion acceptance остаётся
+pending. Далее группа5 native site-publication operation/UI, не повторный manual
+initial release. Production и personal state не менялись; fixture archive не deploy.

@@ -35,8 +35,10 @@ package, JPEG с историческим PNG extension, HTTP save/reopen/export
 PASS; детали capability/auth/closure в ExecPlan. Browser acceptance pending.
 Группа4 source/digest/build/stamp/archive guards и actual slug/template routing
 реализованы. Native rename с ранее загруженными image/layout + tests/lint/typecheck/
-scratch public Next build PASS. Далее clean exact HEAD build/archive/unpack proof,
-затем publication workflow, sourceHash/cache cleanup/bootstrap/final checks.
+scratch public Next build PASS. Clean717f711 CMS-source build/archive/unpack/HTTP proof PASS (details ExecPlan,
+/private/tmp/payload-site-offline-proof.json). Additional bundled snapshot guard
+и actual tamper/reverify PASS; final candidate нужен свежий build на новом HEAD.
+Далее группа5 publication workflow, sourceHash/cache cleanup/bootstrap/final checks.
 Own exported fixture pointer /private/tmp/payload-site-build-snapshot.txt.
 Не повторять и не обходить denied browser action. Personal state/production untouched.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
