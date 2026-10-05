@@ -1,4 +1,4 @@
-.page{min-width:1280px;background:#17191a;color:#eceff2}
+.page{min-width:1280px;background:var(--cv2-container-neutral-bg-main);color:#eceff2}
 .crumb{width:1280px;margin:auto}
 .crumbRow{height:65px;border-bottom:1px solid var(--cv2-border-neutral-thin)}
 .crumb{height:48px;padding:16px 24px;display:flex;align-items:center;gap:16px;color:#99a1a6;font:400 14px/16px Onest;letter-spacing:-.1px}
@@ -15,7 +15,7 @@
 .summary aside>div{flex:1;display:flex;flex-direction:column;gap:8px}
 .summary strong{color:#d6dce0;font:400 16px/20px Onest;letter-spacing:-.2px}
 .info{color:#788087;flex:0 0 20px}
-.flow{padding-top:120px;background:#17191a}
+.flow{padding-top:120px;background:var(--cv2-container-neutral-bg-main)}
 .flowInner{width:1280px;margin:auto;padding:8px 52px 40px 64px;display:flex;align-items:end;justify-content:space-between;overflow:hidden}
 .flowCopy{width:936px;padding-right:40px;display:flex;flex-direction:column;gap:24px}
 .flowCopy h2,.section h2{margin:0;font:500 24px/32px "Google Sans";letter-spacing:-.1px}

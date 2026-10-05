@@ -16,7 +16,8 @@ test('404 outer shell follows the current palette without changing graph behavio
 test('404 graph uses the current neutral palette in CSS and every exported state',()=>{
  const source=[routingCss,...readSvgTree(routingAssets)].join('\n');
  assert.doesNotMatch(source,/#(?:14181b|0e1012|1d2124|272d30|2d3438|414a4f|475157|747f87|949ea6|b7c0c7|d3dbe0|e9eef2|f2f4f5)\b/i);
- for(const value of ['#16191a','#101112','#1f2224','#272b2e','#323639','#565c61','#788087','#99a1a6','#bbc2c7','#d6dce0','#eceff2']){
+ assert.ok(routingCss.includes('var(--cv2-container-neutral-bg-main)'));
+ for(const value of ['#101112','#1f2224','#272b2e','#323639','#565c61','#788087','#99a1a6','#bbc2c7','#d6dce0','#eceff2']){
   assert.match(source,new RegExp(value,'i'));
  }
  assert.match(source,/#E2E2EC/);

@@ -1,6 +1,6 @@
 .page {
   min-width: 1280px;
-  background: #17191a;
+  background: var(--cv2-container-neutral-bg-main);
   color: #eceff2;
   font-family: Onest, sans-serif;
 }

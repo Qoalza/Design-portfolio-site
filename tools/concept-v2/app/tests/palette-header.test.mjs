@@ -10,7 +10,7 @@ test('Concept V2 exposes distinct current semantic palette roles',async()=>{
  const lens=await readFile(path.join(root,'src/lens.css'),'utf8');
  const svgLens=await readFile(path.join(root,'src/svg-lens.css'),'utf8');
  for(const [role,value] of Object.entries({
-  '--cv2-container-neutral-bg-main':'#16191a',
+  '--cv2-container-neutral-bg-main':'#17191a',
   '--cv2-container-neutral-faint':'#141617',
   '--cv2-container-neutral-thin':'#1a1d1f',
   '--cv2-container-neutral-soft':'#1f2224',
