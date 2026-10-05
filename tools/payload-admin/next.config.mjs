@@ -9,6 +9,10 @@ export default withPayload({
   outputFileTracingExcludes: { '/*': ['./.local/**/*', './.local-backups/**/*', './.local-lock/**/*', './.local-restore.json'] },
   agentRules: false,
   turbopack: { root },
+  // Next reserves /404 before the public catch-all, as in the original release host.
+  async rewrites() {
+    return {beforeFiles: [{source: '/404', destination: '/release-not-found'}], afterFiles: [], fallback: []}
+  },
   poweredByHeader: false,
   logging: { incomingRequests: false },
 })

@@ -4,7 +4,7 @@ Status: Ready for execution. 2026-10-06. PORTFOLIO + OPS; MEDIUM/HIGH/FULL. Work
 
 ## Outcome и baseline
 
-Public production и /admin обслуживает art-des-payload.service, exact c61d0609ec09438958526ca7b8c55238de218c03, /opt/art-des-payload/releases/<SHA>/tools/payload-admin, loopback3001. Nginx proxy3001 и постоянные /var/lib/art-des-payload/data остаются. Наш source9ca9cc0: compact Experience/stopper/reentry; собственное Lenis lerp.1, multiplier1, smoothWheel; единый Corvo hatch; Bg-main#17191A; домашний header Thin только pinned. Preserve CMS schema/storage/secret/assets/content/access и все Hero scenes/Experience geometry/travel.
+Public production и /admin обслуживает art-des-payload.service, exact c61d0609ec09438958526ca7b8c55238de218c03, /opt/art-des-payload/releases/<SHA>/tools/payload-admin, loopback3001. Nginx proxy3001 и постоянные /var/lib/art-des-payload/data остаются. Наш source9ca9cc0: compact Experience/stopper/reentry; собственное Lenis lerp.1, multiplier1, smoothWheel; единый Corvo hatch; Bg-main#17191A; домашний header Thin только pinned. Дополнение пользователя: вернуть custom404 для прямого /404 через beforeFiles rewrite в Payload Next config; HTTP404/noindex и renderer обязаны совпадать с неизвестным адресом. Preserve CMS schema/storage/secret/assets/content/access и все Hero scenes/Experience geometry/travel.
 
 ## Последовательность
 
@@ -25,3 +25,5 @@ Source/public identity меняется при подготовке; непон�
 
 - Discovery PASS: exact public c61d060 и unit/proxy3001 подтверждены read-only.
 - Integration ongoing; source merge clean except checkpoint.
+
+- Integration213a681 PASS: 230 UI tests, root/CMS lint, CMS typecheck/native fixture tests; два review PASS. Initial Linux clone пропустил approved-source ref, исправлено explicit read-only fetch source-reference; production не менялся. Новый запрос restore404 разрешил единственное code отличие CMS host config (rewrite), schema/editor без изменений.
