@@ -1,0 +1,855 @@
+{
+  "sha": "c735f3151a297eccb2885e69c0a215143c2dfe2f",
+  "dtoSha256": "dc2e9f354fec1f5133964bcc7bbb9ca6d08fbd15d063bf59e68f53f1fb009c3b",
+  "projects": 2,
+  "assets": [
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/chevron-down.svg",
+      "bytes": 318,
+      "sha256": "d4f1e11da3526666a5bab740c3b2c304abe7aa9a12c69d069c3cfc5aba1a948a"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/eye.svg",
+      "bytes": 1039,
+      "sha256": "c15ca14d2c17ce6c79a13b1b7cab7eec09f935dcfd2f6454bf6712499e244131"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/globe.svg",
+      "bytes": 616,
+      "sha256": "4a9876e5f94ac95ce48f6733c0633d05edc18ee7595eb951a75cb6ee1101bc54"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/logo.svg",
+      "bytes": 1250,
+      "sha256": "34154319acc329b02aa8ffa20c1ebd79e2c25e76fad232774b5b4141b65a4d17"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/raw-01.png",
+      "bytes": 219384,
+      "sha256": "e7bbdba7f0cc4846972076e1432fcdf39286d03dd0be896e085818e9b4658d91"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/raw-02.png",
+      "bytes": 21505,
+      "sha256": "34c48995990c643ff3ea943cf5e9a214e4e51d798adcbcd83def730a3c0bf825"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/raw-03.png",
+      "bytes": 1080608,
+      "sha256": "24af24cfbf8ca4c1a66956c0d070b61c6c5ac48e9de38050af904552c69c2722"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/raw-04.png",
+      "bytes": 75675,
+      "sha256": "d65d18b0747a098dc585e0143cf5a382e80eb3c4ad4d136f82f0847acca47218"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/send.svg",
+      "bytes": 1009,
+      "sha256": "94dfb78a8ad3f3198aae8aa07214cc6eac54c98595cee67da6f61cbe80dc9dc9"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/authorization/user.svg",
+      "bytes": 757,
+      "sha256": "80e2045c9105f868d59d27201d3d05eec3b3bce106e162b55beb9795b2410702"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/avatar.png",
+      "bytes": 108964,
+      "sha256": "164b85c84cf9fdb663450c4e1b66e82e14478ab9216492b9f05e4a09149ba14b"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/calendar.svg",
+      "bytes": 782,
+      "sha256": "e81b7007adc7f7d26e0e0cba00a3d87cc603d3d1f79eb445b5b3315be811fdb7"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/chevron-down.svg",
+      "bytes": 318,
+      "sha256": "d4f1e11da3526666a5bab740c3b2c304abe7aa9a12c69d069c3cfc5aba1a948a"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/columns-color.svg",
+      "bytes": 877,
+      "sha256": "271f424b9b019211a7e6bcb991a95e659ddaf09c62bbf5859c1bbf2c8e5ee15b"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/columns.svg",
+      "bytes": 873,
+      "sha256": "0ea155b02d24c7934c5e73871ac6e22d2956814f8bba6d01ba272426ee09a86f"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/copy.svg",
+      "bytes": 1120,
+      "sha256": "42e9da5c189b0fb31ec6f1f01c8d73432cb71a7d5248cd7c6b45d1c4f0f6151e"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/create-color.svg",
+      "bytes": 1748,
+      "sha256": "36a7a15e4663d9ba6158b7a21ae83b26a83941c0a91a51bea6d5d2b5b0695970"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/create.svg",
+      "bytes": 4582,
+      "sha256": "3a1763012df5efe3ab1209ef58a5ea8813cbba1eed6da749f41696b590824c4f"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/deposit.svg",
+      "bytes": 1101,
+      "sha256": "b59393943a91274baf179437f87d4f87ccbe5672df3d24a89a7ced2aff062f82"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/desktop-chart-1.svg",
+      "bytes": 921,
+      "sha256": "96631a773f24b102c39cabe9862389d5ec0808d909b19f4f36dcb0417a5450cc"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/desktop-chart-2.svg",
+      "bytes": 2665,
+      "sha256": "ed23f2f6cf3fb9c88f48b764d7814e03e66dea8c0ee90047f5fc8c1b716475d4"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/desktop-chart-3.svg",
+      "bytes": 927,
+      "sha256": "12aa7145e662a76955d4dca7af099790cc6c2edb756377cb43bd713c312a9fd5"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/desktop-chart-4.svg",
+      "bytes": 2461,
+      "sha256": "40bdcfff697987311984260950f5fc97127ccb43841cd85cf5a88ca9410102cb"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/desktop-chart-5.svg",
+      "bytes": 988,
+      "sha256": "a01bc55a0c4eafb4e0227262ba2c57f4e6e5d0049260d7173d9b8d72af13d018"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/desktop-chart-6.svg",
+      "bytes": 3371,
+      "sha256": "3fb60acd82ac0be33abaec898887bc9fe20597bbc17b23f26365929201871cb9"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/dot-active.svg",
+      "bytes": 247,
+      "sha256": "7707d4d72fd74cf99946bbea1373d887b3927181c101b755b0d297eff931d9b1"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/dot-passive.svg",
+      "bytes": 247,
+      "sha256": "f28d9015aeb1fea2ee10a151cc69e8011888d2774090ef2690d0e2a605b99c1c"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/edit.svg",
+      "bytes": 935,
+      "sha256": "db447e5ba3829839e90209d1b47c501efbeb719358b78747cd6ac3d59ad76239"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/eye.svg",
+      "bytes": 1039,
+      "sha256": "c15ca14d2c17ce6c79a13b1b7cab7eec09f935dcfd2f6454bf6712499e244131"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/filter-color.svg",
+      "bytes": 1538,
+      "sha256": "2820ffdd34787fe27640c7f84948c694e1a2bf79cf8cb10ad03fa787b215cb59"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/filter.svg",
+      "bytes": 1244,
+      "sha256": "210771428c91c18ebc2a9cd62dbe154655fc01decc719a6fb0ea0b67902b35d0"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/flag-china.svg",
+      "bytes": 552,
+      "sha256": "27761032150986ed74da31495c06ec7b0595fa700630cfb76d4e1cee3cf577ca"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/flag-france.svg",
+      "bytes": 318,
+      "sha256": "24f09f1d1cbceff569220d6ffb5c2cebee05eea7ca1ca1536cd961eb8f138454"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/flag-germany.svg",
+      "bytes": 320,
+      "sha256": "da7d0ae9417c3a3d04bc063190cf59e2878931eb9c96a821da642b7765921879"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/flag-greece.svg",
+      "bytes": 338,
+      "sha256": "e664324bb0fb337bc91e7fb9946335c36c70331dbb4bfa629a9694b83ba18423"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/flag-italy.svg",
+      "bytes": 318,
+      "sha256": "5b5d394dabd3b93ccd349a48f901403909f6786bca83e5a3ca793304e9b11ca2"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/ftd.svg",
+      "bytes": 833,
+      "sha256": "ba29b07b93389064731db7865114cb850d66bcfbee0484ae206c17f600cdc3ea"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/germany.svg",
+      "bytes": 1211,
+      "sha256": "5a3e9d986fba8b0d1819cfb4f88b8025ed69cf8b91c3a4fdc20f9faba875e621"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/header-calendar-color.svg",
+      "bytes": 1299,
+      "sha256": "ddb6696f5121970493ed458c3f1c8cfc482fec9a5f8d97ee24451eb2db4bc751"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/header-chevron-color.svg",
+      "bytes": 356,
+      "sha256": "e16813052027f152a95a135c452e30961b1acb43bd96feb16027510e0ab3205d"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/lock.svg",
+      "bytes": 3711,
+      "sha256": "fd47e640d52ae6f42599f6de8b2931e3b247c084500c4495b7ca702171360398"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/menu-light.svg",
+      "bytes": 300,
+      "sha256": "b1e639912ea076f9bc31ce495063409eff38595711f8c2b17c059b360fa120b5"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/menu-mobile-color.svg",
+      "bytes": 414,
+      "sha256": "075dd09fc53cc0886d36d5966a314fba3933ab062e9eb28a666de4736acc8c0d"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/menu-tablet-color.svg",
+      "bytes": 417,
+      "sha256": "06808910c703a01f9bbc9d6e22ae74604503960ed136efd9e26d3c0d1e1f5799"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/menu.svg",
+      "bytes": 320,
+      "sha256": "0e1a485b71bcac7e658b29ab2ed8e444718793ae71b15b054280c9dcc7a78cf9"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/metric-deposit-color.svg",
+      "bytes": 1471,
+      "sha256": "762963668afa2899f60d6796ef9ff8fc056dc3da58f0bdec18d8ac9f1ce04f58"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/metric-deposit.svg",
+      "bytes": 1121,
+      "sha256": "172a31c8703417a6a52ca9e8abff3426558110eaa1984ccefcb5ae6f6648fdfa"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/metric-ftd-color.svg",
+      "bytes": 2210,
+      "sha256": "2c0285470c915b8dfd4443284fc8baf94a6b858c14d5289567566e535ff0beed"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/metric-ftd.svg",
+      "bytes": 853,
+      "sha256": "3db0b0c0469b233d0abd8e4a6da160c1e4899aedf3e09124388114c2dd97b99c"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/metric-registration-color.svg",
+      "bytes": 961,
+      "sha256": "32cb1bc1f4aee1582ff7bcc4ad8ab91448d4a9db1b11f13e71be3efc8e79766d"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/metric-registration.svg",
+      "bytes": 1158,
+      "sha256": "b4570e02ecc52fabb4ddbc3ef79ea2775df721a0a35c8f4e2127cbc9a4285f90"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/mobile-accent-chart.svg",
+      "bytes": 2640,
+      "sha256": "727562ad8d2807640366d0c82355bc5fc5ae5175c12f6b6911d8091892b5d997"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/mobile-main-chart.svg",
+      "bytes": 251,
+      "sha256": "e65d0155659d9665da0e190e0c5821588ccc8054bfb3ce18a2a200d1c19d33ec"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/mobile-metric-icon.svg",
+      "bytes": 833,
+      "sha256": "ba29b07b93389064731db7865114cb850d66bcfbee0484ae206c17f600cdc3ea"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/mobile-registration-color.svg",
+      "bytes": 956,
+      "sha256": "017cbba9d869f1b57f6f4bb76f69b92e58d26ec2e4021c084030db2d4e8a523e"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/mobile-secondary-chart.svg",
+      "bytes": 932,
+      "sha256": "48e08ee1b753e74d6c87af80ac77cdc6d45a664acb4be8d2e5110044030d2447"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-1.svg",
+      "bytes": 1535,
+      "sha256": "1196c9402e06f3e9986adeb93de714fcbc11760556a381f0add4e3f57eb3df79"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-2.svg",
+      "bytes": 1013,
+      "sha256": "ff9082a6164e66680083c64ae5de90d7dc4d9d87d5a0af553245df9f01e1df89"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-4.svg",
+      "bytes": 1284,
+      "sha256": "1457f5400296332ad68b8ba2d9ee2e8bd71e4fab19d6f690c44c819da3a8d73b"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-5.svg",
+      "bytes": 1737,
+      "sha256": "b0447a1b15cabcdcf83145e243047e90640d6c5fed4d0e76aca39cadcc820b80"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-6.svg",
+      "bytes": 653,
+      "sha256": "520842e536ee4c228bc1fbf245ef110397717efbf2f39833fb0861504de0a503"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-active-workspace.svg",
+      "bytes": 2987,
+      "sha256": "75a07883ab37eb84d7c24cb209e1cbcd7a57e5ad31f8cefb7547484cd0cc1569"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-active.svg",
+      "bytes": 1966,
+      "sha256": "cc26272cd45d2ea4d858607e31533c67f85bbc10c8a7bca41efb1d5e8b68a4c4"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-coins.svg",
+      "bytes": 624,
+      "sha256": "1e977a06b402b6f9b822e3cd75467f2f7b60155b82cee7079ebeeb93aebfc82b"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-announcements.svg",
+      "bytes": 1611,
+      "sha256": "a09ef68b5d4e1a1debc5d334f8fbc3c47c1a621ec638d6c8d527978e206f4b01"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-campaigns.svg",
+      "bytes": 1890,
+      "sha256": "d0ac1efa0724e5051473a16a68e8f4f0a4b28dcad2af978edaaba5c5c1f60e28"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-charts.svg",
+      "bytes": 2081,
+      "sha256": "f323777734736710acec4e2b37fd8ee32f405a29c5be7effb87575cc3ae5e2c4"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-dashboard.svg",
+      "bytes": 1657,
+      "sha256": "a8a3aae09acf90ebe1179bd525497327137848b467ecaf9e02caeb1d87e98c67"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-exchange.svg",
+      "bytes": 982,
+      "sha256": "3bf702f7c1b89caf3929a5b793b201aff143f8edbe3a0f18c055999aa388515c"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-layout.svg",
+      "bytes": 1282,
+      "sha256": "7710abfd48616b096352a4127c82bb277af6491e9acb0a1a3b900a772dee9b57"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-referrals.svg",
+      "bytes": 986,
+      "sha256": "44a1de3850e058f018801d2d6e4ec9eeb41afdb12d8791a83ba866de6bd0bb0a"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-color-workspaces.svg",
+      "bytes": 1952,
+      "sha256": "9ef4efa50e23a67ed12cc9a4694d0d94fe179e15368c43fcd29640193ee014c8"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-inactive-campaigns.svg",
+      "bytes": 1203,
+      "sha256": "3eedd96ba0a1d8753147cad69f24614477740af8171e80aa6a0cc0f54309ca61"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-layout.svg",
+      "bytes": 796,
+      "sha256": "02c8b2041a71d672ce33a39ac0f268d3ae5f047813104f2e34606fc0effae942"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-shield.svg",
+      "bytes": 1089,
+      "sha256": "d3ce7c6d5f071dc2aef5829a3cc62ba891c29647a344a690c99d0717a00d3a46"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/rail-user.svg",
+      "bytes": 734,
+      "sha256": "97daee3e55d941b1c195095b1bc2060792e0c6d75f38341ad3f630c9f17c53a5"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/registration.svg",
+      "bytes": 1138,
+      "sha256": "f9c3fd0b91a8a499058498de6b90987f25f6d88a02e81e201011a6e0d1cefd62"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/search-color.svg",
+      "bytes": 666,
+      "sha256": "8de15a627814a9d7ecd3aecd1c10a8ed52a8db8b5b005388fea3a3c624b7990f"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/search.svg",
+      "bytes": 425,
+      "sha256": "9588a7af21397dacb36947f9d68088293ac0b8cc5046d02b8224e470cdf2fca6"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-chevron-color.svg",
+      "bytes": 356,
+      "sha256": "e16813052027f152a95a135c452e30961b1acb43bd96feb16027510e0ab3205d"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-chevron-light-color.svg",
+      "bytes": 355,
+      "sha256": "f1cf7f19f8cb437ada448145c7a75fd9db2ea5f2ba6f06097e3e287ae30aab0a"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-copy-color.svg",
+      "bytes": 1441,
+      "sha256": "d66fff7457b37ee1eae79013045b9558137c5d0980c19a53c89954b0041fa30c"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-copy-mobile-color.svg",
+      "bytes": 1793,
+      "sha256": "4b2989ab6ec26766d6b3e35a1679d75186dc9461a83089d3e2851e029506d959"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-copy-tablet-color.svg",
+      "bytes": 1816,
+      "sha256": "3f486adaef612ee75d1df478bfdeb6a13ecee60ea71afcee10da14b689169239"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-edit-color.svg",
+      "bytes": 1246,
+      "sha256": "4931b9ed5ac09a5a3f637802232d4ee0588f8df753702062fa05577be63b656a"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-edit-light-color.svg",
+      "bytes": 1237,
+      "sha256": "4b79cebd6f62bb5246be926d5b5488121b518aaa5c092726ec61da6fbc02962b"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-eye-color.svg",
+      "bytes": 1081,
+      "sha256": "da5da1f3538adba143bafd843e09fa87a82d013053b39b4e11065b685e2d4912"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-eye-mobile-color.svg",
+      "bytes": 1095,
+      "sha256": "f3b74070d979d3d17bc2864c9bd23f986785d0404de6aff7dc74c51e869e2b09"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-eye-tablet-color.svg",
+      "bytes": 1124,
+      "sha256": "5707c1e895e7dfad830c73aec5faacb0d27206e88b07a325f37767b431f1daf1"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-lock-color.svg",
+      "bytes": 1003,
+      "sha256": "b54aa7e9311e3a05017c151d62bb987b31229feb396f2014508dab564c43ef95"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-lock-mobile-color.svg",
+      "bytes": 1220,
+      "sha256": "c896c5b088b3e5238227e8d22048ddb158d55bb3eb96b8f241bb209c38f79dc2"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-lock-tablet-color.svg",
+      "bytes": 1252,
+      "sha256": "3dfbfac90c3d4a9864a5a7ba612f8e525403f2ba3ebe42f6feb5594959f8b45e"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-next-color.svg",
+      "bytes": 357,
+      "sha256": "93a6fcc3011a5198795d7d0416beaaa9356fc3ba36407b96c2f22fc8a8085fbf"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-next-light-color.svg",
+      "bytes": 299,
+      "sha256": "a13f572e0d95cf7f21a8b48aea3fac0073b6451e887c361a2a6fe6e7befae2b1"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-prev-color.svg",
+      "bytes": 359,
+      "sha256": "a7adece80369e310e1d1e5268ec97277d8c7cd290827ce06a16eba1898690abf"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/table-prev-light-color.svg",
+      "bytes": 297,
+      "sha256": "0896615ed8a6537ce459cd032789bd64ad78c964fab34c427695b58a986f89fb"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/tablet-chart-1-accent.svg",
+      "bytes": 3364,
+      "sha256": "f4b10617716dc3e7fbd842e4eed378d710529b79a84f0fb6f31374a6dcc6483f"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/tablet-chart-1-secondary.svg",
+      "bytes": 969,
+      "sha256": "816a79334b9d6866d5cdb6c85c8419af5b938c3d0923f2cef306178a2fce783e"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/tablet-chart-2-accent.svg",
+      "bytes": 2478,
+      "sha256": "6c62596adc4717292154f96b56243133efa9c425272e4ebbf4ee272bea7b85d6"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/tablet-chart-2-secondary.svg",
+      "bytes": 925,
+      "sha256": "5cdb50776b0751eefaccd4f32ee9933993c5c829842f6d290daee4cd0b5176e6"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/tablet-chart-3-accent.svg",
+      "bytes": 3364,
+      "sha256": "7c7b763f847d0194a6a80452a6a175221b880e9a60d687573288eda1ff5fa545"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/media-campaigns/tablet-chart-3-secondary.svg",
+      "bytes": 970,
+      "sha256": "28ae72cc5fbc40e9903d01e86e214125c6e1e348e941c27f6c8292172fbdfef6"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/breadcrumb-chevron.svg",
+      "bytes": 319,
+      "sha256": "e84d52e0addf2071bf2d495c047bd9029aa992f196cd8eb546c154418f7d5ac5"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/breadcrumb-home.svg",
+      "bytes": 1295,
+      "sha256": "ffd64ee8d9eb13afbd8fc079cf9a3ef21a2ff82d0c0ccdbe5eb02917ebf88798"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/chart-deposit-accent.svg",
+      "bytes": 2454,
+      "sha256": "66ec8b3502903fa166461c4cc2b92948f40a2b454a883b51b64d4aae445f30f4"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/chart-deposit-secondary.svg",
+      "bytes": 905,
+      "sha256": "a1b158a10784a2c9565971738532a9e50efd7f7d9512d759305d3776480822bc"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/chart-ftd-accent.svg",
+      "bytes": 3387,
+      "sha256": "a0bd7b47d2e4bda17374318c67b9984a00b3d6dc75cbe243ea370d73ad169235"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/chart-ftd-secondary.svg",
+      "bytes": 995,
+      "sha256": "89540eb85b6492eaf7d05eba2d6a54b81390fdc3f65bc0f22cb0c1707e7c2bf7"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/chart-registration-accent.svg",
+      "bytes": 2685,
+      "sha256": "3481ba7e5ef3c2a65b7a0575775ea6d8589a9ccda4a63aa4d342871c9d337951"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/chart-registration-secondary.svg",
+      "bytes": 920,
+      "sha256": "59d78ac032d61f8f7283342dfa62250693857ea96814fd616b27b657636a0db5"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/info-access.svg",
+      "bytes": 4322,
+      "sha256": "9693913de7fe5de6fd3bcab567ee9bd6f7ae0b368bf7f8ccb9e169513746cf1c"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/info-id.svg",
+      "bytes": 1095,
+      "sha256": "6f86b8a34b0d2c6597cc8e7c3d5d503b0e4af228d631176f661260ff234efee6"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/info-link.svg",
+      "bytes": 637,
+      "sha256": "30f16a9928ef7027ea5aa9d0d6a88adf41ab6462f5faf9de5c61aa5925d53d87"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/metric-deposit.svg",
+      "bytes": 1382,
+      "sha256": "d6ec23612b459c65419c189e79020708cadfe801c2150f06ac29ab3623861467"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/metric-ftd.svg",
+      "bytes": 1211,
+      "sha256": "5b0412d5e549f4de7ecf5bc1e9b5720031b200075834fcc729953df9fe9a67a3"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/metric-registration.svg",
+      "bytes": 1198,
+      "sha256": "ce466314f769ab363c7cf318fdb10932cdcb5bd06d62dbb3972d4441aa8e754b"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/mobile-dot-active.svg",
+      "bytes": 247,
+      "sha256": "7707d4d72fd74cf99946bbea1373d887b3927181c101b755b0d297eff931d9b1"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/mobile-dot-passive.svg",
+      "bytes": 247,
+      "sha256": "f28d9015aeb1fea2ee10a151cc69e8011888d2774090ef2690d0e2a605b99c1c"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/mobile-registration-accent.svg",
+      "bytes": 2603,
+      "sha256": "6f97b183c59fdbaa25f3d0ddea57df11b5b37e712f8fa723f816657b3023c6dd"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/mobile-registration-secondary.svg",
+      "bytes": 919,
+      "sha256": "77fbed40aca1caefc31d62a881902721f6973fbc9e5b8b937ca96df060efaabb"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/mobile-registration.svg",
+      "bytes": 1118,
+      "sha256": "cd0222e7811343231f6e7412b9322613628881f0d4b09266d85e3e6e2e3620da"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-deposit-accent.svg",
+      "bytes": 2472,
+      "sha256": "d41ac74316108740e698a0fb448acac4a993854449eb6ffcec51a33a1806cbc4"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-deposit-secondary.svg",
+      "bytes": 935,
+      "sha256": "5fbeb7606de00fe76fdf37917ae623287ed810047c3bfe703ef36aaa87f496f5"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-deposit.svg",
+      "bytes": 1363,
+      "sha256": "bb3838e8976899e8b1e7a6f0e19fdf08960ce3d100b039cee026ac6ac930203c"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-ftd-accent.svg",
+      "bytes": 3359,
+      "sha256": "69c178da4f87b00eb87027c102c79e8a395214091e17fb2226bbeed5a34354fb"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-ftd-secondary.svg",
+      "bytes": 979,
+      "sha256": "13af4930dec18ae4c5805668a96f8cfcb7f91b68917ab404635ae32643ed1311"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-ftd.svg",
+      "bytes": 1317,
+      "sha256": "c35f1e2fe35f4b6d1d1f467caf7adaf033296a3386586ca1b7f32fa3a98ff17d"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-registration-accent.svg",
+      "bytes": 2609,
+      "sha256": "b0fbb2a3f0c2a657997630878947c024bdfcf746c3ece31e3b2dcacc66119b26"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-registration-secondary.svg",
+      "bytes": 921,
+      "sha256": "95de82379825b9df6c7a5cff91b9535b6b4fbf9f8ab4cc23e989208a6e1017ab"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/tablet-registration.svg",
+      "bytes": 1118,
+      "sha256": "cd0222e7811343231f6e7412b9322613628881f0d4b09266d85e3e6e2e3620da"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/my-space/title-action.svg",
+      "bytes": 882,
+      "sha256": "699c7fcac99c08ca5c862b4d57261c8036ebd4726393b58a57de4a6a0dd9c6e8"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/statistics/export.svg",
+      "bytes": 633,
+      "sha256": "e8fe4ee1d76648bbf1c148b9b9b3d358f3bd94a1e642af554d65966ae1de21f6"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/assets/statistics/rail-active-statistics.svg",
+      "bytes": 954,
+      "sha256": "9172940363a0e5657a10fde50e2977dd078028f6dae24911dac80b1167f68ded"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/authorization/index.html",
+      "bytes": 2992,
+      "sha256": "c4a0d56dc032bdcb921a57a9484080bff1cd0e12ebc2dc3f0095967bb9f4f361"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/authorization/style.css",
+      "bytes": 6441,
+      "sha256": "2ac78103799c630a9d493adf5bad6db4bf5a0de3ad86529b7b60f6406000185d"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/media-campaigns/index.html",
+      "bytes": 20692,
+      "sha256": "2ae604f8cbf597cac7eac05b73cfbe909443b64ced6deed8d6fcecd0c96d95a6"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/media-campaigns/style.css",
+      "bytes": 19746,
+      "sha256": "b74f7eb82b0b0481235ec477b24ff4ca788c90994d119c403b04d45a0b532086"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/my-space/index.html",
+      "bytes": 13923,
+      "sha256": "ff95b0003973560bbf9ead75f864f7de903b5ff9a34e5ff2cbf12f4c3345641d"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/my-space/style.css",
+      "bytes": 12386,
+      "sha256": "aa0f0247609feb8337744b48f42a01a63d428ff3828aabb45784439744ccda23"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/shared/base.css",
+      "bytes": 338,
+      "sha256": "00cbe5ea82375c41bf74752903e5cb906390dd289637c41dc234274c1a022feb"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/statistics/index.html",
+      "bytes": 9629,
+      "sha256": "2b8cbe637583d9ed48bfeb5b0c8f64afb8f2100bf794a0d76d7bcf1fa0c0f310"
+    },
+    {
+      "path": "/assets/projects/corvo/hero-layout/0178b754ccc355d00ee69fa3a4a77d4e74a5e4493458ba9204671bc8c366d0b3/statistics/style.css",
+      "bytes": 7936,
+      "sha256": "ddb579b58f5d4b245fd98e1f0dad03816b2c39e08aa83498753c113696ddfac6"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/imgDesktop3-1080.avif",
+      "bytes": 43218,
+      "sha256": "530077caaefaf95918d45aa0a59ea0b780595d5b2a3dc6df1fb18926b552564d"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/imgDesktop3-640.avif",
+      "bytes": 20639,
+      "sha256": "6acc0d95ae1f895223a1acb3322117de9da2f900595f8c04f259a99eed27e851"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/imgDesktop3.png",
+      "bytes": 448980,
+      "sha256": "3e838d668d0acc61e850cdeb871161f7d0a8e4db1aaf4277aad470af0f20eec1"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/imgDesktop4-1080.avif",
+      "bytes": 42503,
+      "sha256": "45231ec1cc838b62fce65f14e000b37ecd4d76591c7e45a1329abf9f61b81dd5"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/imgDesktop4-640.avif",
+      "bytes": 21076,
+      "sha256": "10d573e9cf5ff3d5130acdeb4e2f800f99d61f671d7596a6a9008e36ba5ae644"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/imgDesktop4.png",
+      "bytes": 485902,
+      "sha256": "97eaa166aecdbca9a3d75f835d030cc4736cb98c1c34a2cb9ea6b22203e7978e"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/imgProjectCorvo.svg",
+      "bytes": 1247,
+      "sha256": "e9f00cc99f2b1ceda5b30c4717ed42c7627c6c8e93364528a8fa16d3f0831a07"
+    },
+    {
+      "path": "/assets/projects/corvo/redesign/media-campaign-creation.png",
+      "bytes": 127186,
+      "sha256": "07e6d96358988d3884cbd0e31ec9998db91b9b90af61d93258762ccebedc881c"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/raster-hero/delivery.webp",
+      "bytes": 619034,
+      "sha256": "2a0b49b5910a14dd68d93029a258cf693da4519147a952e2fcfdff5b8e821067"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/raster-hero/main.webp",
+      "bytes": 228472,
+      "sha256": "d09386ce48222576bf76efdea98f916222a8743b69304512bdd8eee1072fe184"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/raster-hero/variant.webp",
+      "bytes": 580412,
+      "sha256": "74971475e2093e20d65f7a6647c20b6cd1ac4d8a1b37ac59892b85373656684f"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/project-sarafan-scenario-01.png",
+      "bytes": 104080,
+      "sha256": "0ffdfcfbc66985515064e240362a53c252ffb504042bed3e99079fbe6f0d82d5"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/radio-logo-mask-a.svg",
+      "bytes": 6001,
+      "sha256": "722bae462bb905380af174f6616055091646dd8c2c70096445818bfdfd85f9e7"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/radio-logo-mask-b.svg",
+      "bytes": 2759,
+      "sha256": "048ba9c052da0076d28b42d496e302511517965a2442dd505c6b1d7d22ac433f"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/radio-logo-mask-c.svg",
+      "bytes": 5884,
+      "sha256": "f027c3e59bc57c0c4886b485fed2e92302d92aa86610c4bf2c03955b9e61736c"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/radio-logo-vector-a.svg",
+      "bytes": 1045,
+      "sha256": "edb2ec13e333aa6f7b479ad4a99a25e3070f0309d9b4774c22c550d7b7613353"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/radio-logo-vector-b.svg",
+      "bytes": 555,
+      "sha256": "936a1a9663744656890d146c5adb3905b555d6bb0f0748a1c2b1a731ff25484b"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/radio-logo-vector-c.svg",
+      "bytes": 1042,
+      "sha256": "07ba124dd6a9a075f7486b40d2d4dcdd331d6c9fd5b049a1d8fa6c00f9a568ac"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/radio-logo-vector-d.svg",
+      "bytes": 535,
+      "sha256": "508e918ec393829dda3a0f3a9de83dfddf146511d983d739ba7008996d9c9f6f"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/sarafan-desktop-3.png",
+      "bytes": 227048,
+      "sha256": "1e3092e694c27e462a94c0dd7cbc3fbb5e0bbe0e5c3f79a19e80fb392958e8e6"
+    },
+    {
+      "path": "/assets/projects/sarafan-radio/redesign/sarafan-desktop-4.png",
+      "bytes": 120054,
+      "sha256": "ae15a4788e550006e3e0d9086ea21241aaa0de2b3abaf792ef7f585ad6a892dd"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/projects/corvo",
+      "status": 200
+    },
+    {
+      "path": "/projects/sarafan-radio",
+      "status": 200
+    },
+    {
+      "path": "/404",
+      "status": 404
+    },
+    {
+      "path": "/nonexistent-release-verification",
+      "status": 404
+    },
+    {
+      "path": "/projects",
+      "status": 307
+    },
+    {
+      "path": "/admin/login",
+      "status": 200
+    }
+  ],
+  "adminLogin": true,
+  "privateAPIs": true,
+  "time": "2026-10-05T21:50:47.928Z"
+}

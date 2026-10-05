@@ -1,6 +1,6 @@
 # Выпуск исправлений портфолио с сохранением Payload
 
-Status: Ready for execution. 2026-10-06. PORTFOLIO + OPS; MEDIUM/HIGH/FULL. Worktree codex/redesign-portfolio, единственный writer. Пользователь явно разрешил интеграцию и production publish первым вариантом; token budget отсутствует.
+Status: Complete. 2026-10-06. PORTFOLIO + OPS; MEDIUM/HIGH/FULL. Worktree codex/redesign-portfolio, единственный writer. Пользователь явно разрешил интеграцию и production publish первым вариантом; token budget отсутствует.
 
 ## Outcome и baseline
 
@@ -27,3 +27,5 @@ Source/public identity меняется при подготовке; непон�
 - Integration ongoing; source merge clean except checkpoint.
 
 - Integration213a681 PASS: 230 UI tests, root/CMS lint, CMS typecheck/native fixture tests; два review PASS. Initial Linux clone пропустил approved-source ref, исправлено explicit read-only fetch source-reference; production не менялся. Новый запрос restore404 разрешил единственное code отличие CMS host config (rewrite), schema/editor без изменений.
+
+Final published SHA: c735f3151a297eccb2885e69c0a215143c2dfe2f. All release/build/public/Admin/parity checks PASS. Evidence: design-reference/payload-portfolio-fixes-2026-10-06/REPORT.md. Temporary resources cleaned, previous unit/release retained.

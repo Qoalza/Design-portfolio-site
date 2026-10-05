@@ -62,7 +62,8 @@ SMTP сейчас не настроен; password recovery доступен че
 
 ## Активный production runtime
 
-Exact code SHA: `7faa2b8f9709262cc2849de26479bb534a0268dd`.
+Exact code SHA: `c735f3151a297eccb2885e69c0a215143c2dfe2f` (2026-10-06).
+Current evidence: ../../design-reference/payload-portfolio-fixes-2026-10-06/REPORT.md. Historical receipts below retain their original SHA.
 Linux source/build находится в `/opt/art-des-payload/releases/<SHA>`;
 `art-des-payload.service` работает от portfolio, active/enabled, backend3001.
 Native Sharp/libSQL установлены и проверены на Linux, не перенесены с Mac.

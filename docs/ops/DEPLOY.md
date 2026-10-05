@@ -11,6 +11,12 @@ Old service/runtime пока сохранены для rollback до польз�
 
 Этот документ не содержит secrets, private keys, host credentials, historical smoke logs или автоматически достаточного разрешения на deploy.
 
+## Current Portfolio/Payload code release
+
+Code changes are released from exact approved Git SHA independently of Admin content Publish. Ordinary code releases do not require republishing content or migrating data. Confirm actual deployed identity/unit; compare CMS/shared diff; build clean Linux source using disposable fixtures; preserve old unit/release; switch only WorkingDirectory; verify public/Admin/auth and DTO/asset byte parity. Never use private production data/secret as build input. Restore saved unit/release on failed health/parity. Temporary build swap must be safely removed afterward.
+
+2026-10-06 release: c735f3151a297eccb2885e69c0a215143c2dfe2f, approved codex/redesign-portfolio integrated with exact deployed c61d060. Origin/main is still legacy static baseline; legacy fresh-main procedure below does not authorize replacing current Payload. Evidence: ../../design-reference/payload-portfolio-fixes-2026-10-06/REPORT.md. Separating Portfolio/Admin releases remains future work.
+
 ## Approval boundary
 
 Отдельный exact approval обязателен перед:
