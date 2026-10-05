@@ -133,3 +133,50 @@ Measured RAM pressure during Next build:1core/2GB RAM, original512MB swap fully
 used. Requested temporary private2GB /var/lib/art-des-payload-build.swap (no fstab);
 verify swapon success/current memory before more jobs. Remove only after build and
 runtime verification if safe swapoff is possible. Do not claim Linux build ready.
+
+## Latest authoritative checkpoint — ready private runtime, SSH lost again
+
+Final clean exact Linux candidate05abd7c1375eb9c731ee8c041d927eed225141d9 build
+PASS; systemd job art-des-payload-final-build-05abd7c terminal success with marker
+EXACT_LINUX_CANDIDATE_VERIFIED. Original scratch job deliberately stopped due
+known generated type drift; own source checkout renamed to final SHA and patched.
+Current local later commits are documentation only; deploy candidate remains05abd7c.
+
+Permanent schema + first owner + approved production bootstrap DONE on VPS:
+/var/lib/art-des-payload/data, actual2 projects/all163 asset aliases (156 deduped
+native files), exact DTO/bytes parity; receipt bootstrap-receipt.json private.
+Native service art-des-payload.service installed and active127.0.0.1:3001;
+not yet enabled for boot and Nginx not yet switched. Future startup safely calls
+storage unlock only if lock exists; live PID/listener guard prevents removal of
+active ownership. Graceful restart PASS, private actual backup verified:
+backup-eb490ba9-e9e9-406d-bad9-407accffb2d6, data-backups directory private.
+Fixture restore tests PASS on Linux; actual DB was NOT test-restored.
+
+Actual private HTTP proof PASS: both cases/home/404/temporary projects redirect,
+all163 exact asset bytes, native owner login/Secure/HttpOnly/SameSite cookies,
+anonymous API/raw-file denial, closed first-register, both prebuilt previews,
+compiled BUILD_ID/preview-manifest digest unchanged. Safe proof script
+/var/tmp/art-des-payload-http-proof.mjs; invoke as portfolio with node
+--experimental-strip-types from final repo. Its PROOF_PUBLIC=1 mode validates
+actual HTTPS after activation. Existing script has NO project/version test writes.
+
+Auto-review REJECTED proposed real project PATCH draft/publish tests because deploy
+authorization does not authorize persistent content/version test side effects.
+Rejected command never executed. Do not retry/indirectly bypass. Use fixture
+publication checks + actual read-only proof. No actual project test edits made.
+Temporary root login-diagnostic.json containing auth token was removed. Never print
+initial-owner.json credentials, JWT, secret or backup contents to chat/logs.
+
+SSH root control socket disappeared again after successful backup/restart. Fresh
+local check ROOT_CONTROL_SOCKET_MISSING; app terminal reports closed connection.
+Activation readiness command did NOT execute, and proxy still previously unchanged.
+Latest needed next: user password reconnect → fresh existing native/old service
+health → current proxy equality with private pre-payload backup → atomic prepared
+Nginx swap/reload with automatic old-config rollback on failure → actual HTTPS
+proof → enable native unit → safe cleanup temporary build swap if RAM permits.
+Root access permission persists; only missing authentication. Current public
+art-des.service3000 remains active; its runtime/config backup40MB retained.
+Do not claim online CMS exposed yet. Current private native app already installed;
+all work survives SSH closure. Browser acceptance still unverified; do not bypass
+prior denied browser action. Temporary2GB swap active, no fstab changes; verify
+current RAM/swap before safe cleanup, never blindly swapoff under pressure.
