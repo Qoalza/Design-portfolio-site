@@ -16,7 +16,7 @@ export default async function Preview({params,searchParams}:{params:Promise<{id:
  const project=await readPreviewProject(payload,user,id,mode)
  if(!project){
   if(mode==='draft'||!await readPreviewProject(payload,user,id,'draft'))notFound()
-  return <main className="preview-shell"><p>У проекта пока нет опубликованной локальной версии.</p><a href="?mode=draft">Открыть сохранённый черновик</a></main>
+  return <main className="preview-shell"><p>У проекта пока нет опубликованной версии.</p><a href="?mode=draft">Открыть сохранённый черновик</a></main>
  }
  if(!project.releaseContent)return <LegacyProjectPreview project={project} mode={mode}/>
  let artifact=lastPreviewArtifact(user.id,project.id,mode),failed=false
@@ -29,7 +29,7 @@ export default async function Preview({params,searchParams}:{params:Promise<{id:
  return <>
   <nav className="preview-toolbar" aria-label="Предпросмотр">
    <a href={`/admin/collections/projects/${project.id}`}>← В редактор</a>
-   <span>{mode==='published'?'Опубликовано локально':'Сохранённый черновик'}</span>
+   <span>{mode==='published'?'Опубликованная версия':'Сохранённый черновик'}</span>
    <a href="?mode=draft" aria-current={mode==='draft'?'page':undefined}>Черновик</a>
    <a href="?mode=published" aria-current={mode==='published'?'page':undefined}>Опубликованная версия</a>
    <a href={artifact?.base}>Главная в предпросмотре</a>

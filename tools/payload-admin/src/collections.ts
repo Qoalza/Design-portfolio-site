@@ -65,7 +65,7 @@ export const Projects: CollectionConfig = {
   admin: {
     useAsTitle: 'title', defaultColumns: ['title', '_status', 'updatedAt'],
     preview: (doc) => doc.id ? `/preview/projects/${encodeURIComponent(String(doc.id))}?mode=draft` : null,
-    description: 'Локальные проекты. Публикация здесь не меняет действующий сайт.',
+    description: 'Сохраняйте черновик для проверки. Публикация применяет изменения проекта на сайте.',
   },
   versions: { drafts: true, maxPerDoc: 20 },
   hooks: { beforeChange: [validateReleaseProject] },

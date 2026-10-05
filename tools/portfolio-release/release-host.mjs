@@ -1,6 +1,7 @@
 import {readFile,lstat} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
+import {projectDetailForPath} from '../concept-v2/app/src/project-page/project-view-model.mjs';
 import {layoutPackageCsp} from './layout-package-policy.mjs';
 const origin='https://art-des.ru';
 const mime={js:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',html:'text/html; charset=utf-8',svg:'image/svg+xml',png:'image/png',webp:'image/webp',jpg:'image/jpeg',jpeg:'image/jpeg',avif:'image/avif',woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',otf:'font/otf',json:'application/json'};
@@ -18,17 +19,22 @@ async function loadSite(root){
  if(!files.has('/index.html'))throw new Error('Missing site manifest entry');
  return {manifest,files};
 }
-function htmlFor(site,pathname,status){
+function htmlFor(site,pathname,status,content){
  const page=site.manifest.pages[pathname]??{title:'Страница не найдена — Product Designer',description:site.manifest.pages['/'].description};
  const title=escape(page.title),description=escape(page.description),url=origin+(status===404?'/404':pathname);
- const tags=`<meta name="description" content="${description}"/><link rel="canonical" href="${url}"/><link rel="icon" href="/artur-designer-favicon.svg" type="image/svg+xml"/><meta property="og:type" content="website"/><meta property="og:locale" content="ru_RU"/><meta property="og:title" content="${title}"/><meta property="og:description" content="${description}"/><meta property="og:url" content="${url}"/><meta property="og:image" content="${origin}/artur-designer-social-preview.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="${title}"/><meta name="twitter:description" content="${description}"/><meta name="twitter:image" content="${origin}/artur-designer-social-preview.png"/>${status===404?'<meta name="robots" content="noindex"/>':''}`;
+ const data=content?`<script id="portfolio-projects" type="application/json">${JSON.stringify(content).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029')}</script>`:'';
+ const tags=data+`<meta name="description" content="${description}"/><link rel="canonical" href="${url}"/><link rel="icon" href="/artur-designer-favicon.svg" type="image/svg+xml"/><meta property="og:type" content="website"/><meta property="og:locale" content="ru_RU"/><meta property="og:title" content="${title}"/><meta property="og:description" content="${description}"/><meta property="og:url" content="${url}"/><meta property="og:image" content="${origin}/artur-designer-social-preview.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="${title}"/><meta name="twitter:description" content="${description}"/><meta name="twitter:image" content="${origin}/artur-designer-social-preview.png"/>${status===404?'<meta name="robots" content="noindex"/>':''}`;
  return site.files.get('/index.html').content.toString('utf8').replace('<html lang="ru">',`<html lang="ru" data-build-sha="${site.manifest.buildSha}"${/^[a-f0-9]{64}$/.test(site.manifest.snapshotSha256??'')?` data-content-sha256="${site.manifest.snapshotSha256}"`:""}>`).replace(/<title>[^<]*<\/title>/,`<title>${title}</title>`).replace('</head>',tags+'</head>');
 }
-export function createReleaseHandler({root=path.join(process.cwd(),'.portfolio-release/site')}={}){
+/** @param {{root?: string, readContent?: () => Promise<{version: 1, revision: string, projects: import('../../src/lib/project-contract').ProjectDocument[]}>}} options */
+export function createReleaseHandler({root=path.join(process.cwd(),'.portfolio-release/site'),readContent}={}){
  let loading;
  return async request=>{
   if(request.method!=='GET'&&request.method!=='HEAD')return new Response(null,{status:405,headers:{Allow:'GET, HEAD'}});
-  const site=await (loading??=loadSite(root));
+  const built=await (loading??=loadSite(root));
+  const content=readContent?await readContent():undefined;
+  if(content&&(content.version!==1||!Array.isArray(content.projects)||!/^[a-f0-9]{64}$/.test(content.revision)))throw new Error('Invalid published site content');
+  const site=content?{...built,manifest:{...built.manifest,snapshotSha256:content.revision,pages:{'/':built.manifest.pages['/'],...Object.fromEntries(content.projects.filter(project=>projectDetailForPath([project],'/projects/'+project.slug)).map(project=>['/projects/'+project.slug,{title:project.title+' — Product Designer',description:project.description}]))}}}:built;
   const pathname=new URL(request.url).pathname;
   const head=request.method==='HEAD';
   const headers={'X-Content-Type-Options':'nosniff','Cache-Control':'no-cache','Referrer-Policy':'strict-origin-when-cross-origin'};
@@ -45,7 +51,7 @@ export function createReleaseHandler({root=path.join(process.cwd(),'.portfolio-r
    return respond(asset.content,200,extra);
   }
   const status=Object.hasOwn(site.manifest.pages,pathname)?200:404;
-  const html=htmlFor(site,pathname,status);
+  const html=htmlFor(site,pathname,status,content);
   return respond(html,status,{'Content-Type':'text/html; charset=utf-8','Content-Length':String(Buffer.byteLength(html)),...(status===404?{'X-Robots-Tag':'noindex'}:{})});
  };
 }

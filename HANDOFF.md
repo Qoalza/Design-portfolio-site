@@ -20,13 +20,21 @@ geometry/physics/adaptives сохраняются. Портфолио desktop-on
 Личный .local/USERSPACE и old Des-art Admin logic/data не читать/не использовать.
 Disposable fixtures не публиковать. Old worktrees не удалять.
 
-## Next action
+## Current implementation / next action
 
-Проверить и реализовать один online Next/Payload runtime: private /admin,/api,
-public renderer получает committed published records при запросе вместо build-only
-documents. Native Payload publish = Apply; не новый archive/job workflow.
-Не менять public pointer внутри Payload hooks (они до transaction commit).
-План2.0 содержит остальной online deployment/preview/asset/backup scope.
+Единый Next/Payload содержит public catchall + committed published DTO reader,
+escaped runtime JSON для прежнего renderer и dynamic metadata/routes/sitemap.
+Native Publish → actual public HTML/title/data без изменения compiled JS/BUILD_ID
+проверено через HTTP для обоих templates; черновики private. Full native tests,
+typecheck/lint/build, root runtime tests, renderer lint/build PASS; two reviews.
+Obsolete archive publication APIs/worker/helpers removed; old endpoints404.
+Pure code release tooling сохранено. Hero/design implementation не менялись.
+
+Следующее: serving only published current assets (no stale bundled fallback),
+full asset validation до native publish commit, static files без DB query;
+затем no-build private preview и online config/storage/HTTPS/bootstrap/backup.
+Текущий handler пока использует bundled assets: до asset boundary live не выпускать.
+Не новый Apply/deploy job: используется штатная native publication.
 
 ## Evidence / access
 

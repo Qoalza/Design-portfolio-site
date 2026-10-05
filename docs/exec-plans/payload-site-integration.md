@@ -1,6 +1,6 @@
 # Онлайн-Payload и прямое подключение сайта
 
-Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — online runtime discovery.
+Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — Ready for execution, online runtime implementation.
 Область ADMIN + SHARED + PORTFOLIO + OPS; LARGE / HIGH / FULL.
 Worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site,
 ветка codex/cms-integration; checkpoint 06bd7f7da7d5e393f26772c9b1b4e5d134d33d1a.
@@ -138,6 +138,40 @@ https://payloadcms.com/docs/production/deployment, drafts
 https://payloadcms.com/docs/versions/drafts, SQLite
 https://payloadcms.com/docs/database/sqlite. Конкретные параметры сверять с
 установленной3.89.0, без обновления dependencies ради этого перехода.
+
+## Checkpoint версии2.0: native publish → public runtime
+
+Один native Next/Payload runtime теперь содержит публичный catchall handler.
+Он читает committed published Projects через фиксированный server-side запрос
+(draft:false, _status:published) и пропускает только validated ProjectDocument,
+без editor metadata/raw native records. Native коллекции остаются private.
+Сервер инъектирует inert escaped JSON; уже собранный main-release получает эти
+данные в прежние App/Corvo/Sarafan компоненты. HTML title/canonical/sitemap/routes
+и content revision обновляются при запросе. Detail eligibility использует тот же
+projectDetailForPath, что клиент; detailAvailable:false →404 и нет sitemap entry.
+Публичная форма контента доступна через GET /api/site-content, без write/draft API.
+
+Из native Payload удалены obsolete publication store/service/worker/prepare/status/
+cancel и только их tests. Они доступны в истории06bd7f7, временные данные/архивы
+и старые worktrees не удалялись. Pure OPS code-release helpers остались отдельно.
+Local-only описания editor/preview заменены: native publish применяется сайтом.
+
+Evidence: unit fixed published filter/private stripping/fresh revision PASS;
+actual native DB для обоих templates — draft invisible, Publish updates DTO,
+BUILD_ID неизменен PASS. Actual HTTP на итоговом Next production build — native
+PATCH publish меняет public HTML/data/title обоих проектов, compiled JS digest и
+BUILD_ID остаются прежними; draft private, anonymous native API403; fixture titles
+восстановлены. Старые archive endpoints404. Root runtime/XSS/route/legacy tests,
+full native suite, native typecheck/lint/build, renderer lint и one-time renderer
+build PASS. Два последовательных review; исправлен detail route eligibility.
+Browser visual acceptance не выполнялась; production не изменялся.
+
+ОБЯЗАТЕЛЬНО дальше до online activation: dynamic published assets и закрытие
+build-file fallback, полная asset/closure validation до native publish commit,
+static JS/CSS без CMS query, prebuilt private preview, server configuration/
+persistent storage/HTTPS/bootstrap/backup. Текущий public handler ещё отдаёт
+build assets: новая загрузка не считается завершённой online-интеграцией.
+Не возвращаться к archive-content publication, не продолжать исторические Next.
 
 ## Историческое evidence версии1.0 — не действующий план
 

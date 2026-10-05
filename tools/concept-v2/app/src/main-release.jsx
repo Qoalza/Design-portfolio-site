@@ -1,4 +1,5 @@
-import projectDocuments from 'virtual:project-documents';
+import initialProjectDocuments from 'virtual:project-documents';
+import {runtimeProjectDocuments} from './project-page/runtime-documents.mjs';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import App,{CustomCursor} from './App';
@@ -11,6 +12,7 @@ import {SmoothScroll} from './SmoothScroll';
 import './style.css';
 import './v2/tokens.css';
 
+const projectDocuments=runtimeProjectDocuments(initialProjectDocuments,document.getElementById('portfolio-projects'));
 const pathname=location.pathname.replace(/\/$/,'')||'/';
 const project=projectDetailForPath(projectDocuments,pathname);
 const corvo=project?.designProfile==='corvo-v1'&&project;
