@@ -371,3 +371,33 @@ Next: группа4 explicit published CMS snapshot builds + actual slug/templat
 затем publication workflow, sourceHash coverage/derived cache cleanup/bootstrap,
 failed-draft fallback/expiry HTTP checks и final acceptance. Не повторять и не обходить
 denied browser action. Goal не завершён.
+
+
+## Checkpoint: группа4, explicit published content build
+
+prepare-site выбирает approved-git-code (default, не принимает CMS path) либо
+explicit payload-published с directory + expected snapshot SHA256. Validated input
+фиксируется один раз, передаётся Vite producer напрямую; snapshot/digest bundled
+в site, provenance/content digest входят в Next stamp и archive result. Public host
+не выдаёт snapshot.json, он исключён из public manifest. Packaging CMS требует
+exact expected content hash; clean HEAD и build fingerprints сохраняются.
+
+Release entry выбирает страницу по actual slug + supported designProfile. Native
+public aliases следуют новому slug, original files/relations/version metadata не
+переезжают. Перед publication нормализуются только public references; retained
+immutable private materials/packages допускаются только при exact equality с
+предыдущим native record. Identical public aliases deduplicate; conflicting bytes
+reject. Prepared AVIF mapping больше не привязан к буквальному corvo slug.
+
+Review1 выявил native publish failure при slug change из-за package ownership;
+исправлены derived aliases и retained-history guard. Actual native publish/export
+обоих templates с previously uploaded image/layout PASS, original published baseline
+восстановлен только в disposable DB. Review2: no SQL/public schema change, private
+metadata stripped, no file overwrite, expected digest protects cross-snapshot build,
+CMS data отсутствуют в публичном runtime. Snapshot/host/route focused tests и root
+lint/build PASS; native full tests/typecheck/lint PASS. Scratch actual CMS-source
+Next build/stamp PASS; clean exact HEAD build/archive/unpack verification — next.
+
+Next: завершить offline archive proof группы4, затем группа5 native publication
+workflow. SourceHash expansion/cache cleanup/bootstrap/final browser acceptance
+остаются в плане. Temporary fixtures никогда не публиковать. Goal active.

@@ -8,3 +8,10 @@ export function projectCardView(project,base='/'){
 export function projectDetailDocument(projects,slug){
  return projects.find(project=>project.slug===slug&&project.visibility==='published'&&project.detailAvailable&&project.redesign);
 }
+
+export function projectDetailForPath(projects,pathname){
+ const match=/^\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)$/.exec(pathname);
+ if(!match)return undefined;
+ const project=projectDetailDocument(projects,match[1]);
+ return ['corvo-v1','sarafan-v1'].includes(project?.designProfile)?project:undefined;
+}

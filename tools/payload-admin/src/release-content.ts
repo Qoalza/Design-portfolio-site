@@ -1,4 +1,5 @@
 import { APIError, type Field, type CollectionBeforeChangeHook, type CollectionBeforeDeleteHook, type CollectionBeforeOperationHook } from 'payload'
+import {withPublicAssetAliases} from './asset-alias'
 import { validateProjectDocument } from '../../../src/lib/project-contract'
 import type { Project } from './payload-types'
 import { packageRecords, usesPackageFile } from './authoring/packages'
@@ -20,15 +21,17 @@ export const validateReleaseProject: CollectionBeforeChangeHook = ({ data, origi
  if (effective.releaseContent) {
   let records
   try {records=materialRecords(effective.releaseContent)} catch {throw new APIError('Связи материалов повреждены. Повторите загрузку изображения.',400)}
+  const previousMaterials=originalDoc?.releaseContent?materialRecords(originalDoc.releaseContent):[]
+  const previousPackages=originalDoc?.releaseContent?packageRecords(originalDoc.releaseContent):[]
   const assets=new Map((effective.releaseAssets??[]).map((asset: NonNullable<Project['releaseAssets']>[number])=>[asset.publicPath,asset]))
   for(const record of records) {
-   if(!record.publicPath.startsWith(`/assets/projects/${effective.slug}/uploads/`)) throw new APIError('Материал принадлежит другому адресу проекта.',400)
+   if(!record.publicPath.startsWith(`/assets/projects/${effective.slug}/uploads/`)&&!previousMaterials.some(previous=>JSON.stringify(previous)===JSON.stringify(record))) throw new APIError('Материал принадлежит другому адресу проекта.',400)
    assets.set(record.publicPath,{publicPath:record.publicPath,file:record.prepared})
   }
   let packages
   try {packages=packageRecords(effective.releaseContent)} catch {throw new APIError('Связи верстки повреждены. Повторите загрузку пакета.',400)}
   for(const material of packages) {
-   if(!material.source.assetBase.startsWith(`/assets/projects/${effective.slug}/hero-layout/`)) throw new APIError('Верстка принадлежит другому адресу проекта.',400)
+   if(!material.source.assetBase.startsWith(`/assets/projects/${effective.slug}/hero-layout/`)&&!previousPackages.some(previous=>JSON.stringify(previous)===JSON.stringify(material))) throw new APIError('Верстка принадлежит другому адресу проекта.',400)
    for(const binding of material.bindings) assets.set(binding.publicPath,binding)
   }
   if(records.length||packages.length) data.releaseAssets=[...assets.values()]
@@ -37,7 +40,7 @@ export const validateReleaseProject: CollectionBeforeChangeHook = ({ data, origi
  if (effective._status !== 'published' || !effective.releaseContent) return data
  try {
   const input = withoutEditorState(effective.releaseContent)
-  const normalized = validateProjectDocument({ ...input, title: effective.title, slug: effective.slug, visibility: 'published' })
+  const normalized = validateProjectDocument({ ...withPublicAssetAliases(effective.slug,input) as Record<string,unknown>, title: effective.title, slug: effective.slug, visibility: 'published' })
   if(normalized.redesign?.hero.kind==='raster' && normalized.redesign.hero.slides.length>9) throw new Error('Too many screens')
   data.releaseContent = withEditorState(normalized, effective.releaseContent)
  } catch { throw new APIError('Данные проекта не готовы к публикации. Исправьте поля и входные данные Hero.', 400) }

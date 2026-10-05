@@ -33,9 +33,9 @@ export function createApprovedAssetMiddleware(prepared){
  };
 }
 // Development/build bridge for accepted code-origin content. The release host supplies validated canonical/preview documents separately.
-export function approvedContentPlugin({repoRoot,loadDocuments}){
+export function approvedContentPlugin({repoRoot,loadDocuments,preparedInput}){
  let prepared;
- const prepare=async()=>{if(!prepared){prepared=process.env.PORTFOLIO_PROJECT_SNAPSHOT?await readSnapshotDirectory(process.env.PORTFOLIO_PROJECT_SNAPSHOT):await exportApprovedRedesign({repoRoot});createProjectSnapshot(prepared);}return prepared;};
+ const prepare=async()=>{if(!prepared){prepared=preparedInput??(process.env.PORTFOLIO_PROJECT_SNAPSHOT?await readSnapshotDirectory(process.env.PORTFOLIO_PROJECT_SNAPSHOT):await exportApprovedRedesign({repoRoot}));createProjectSnapshot(prepared);}return prepared;};
  return {
   name:'approved-project-content',
   resolveId(id){if(id===moduleId)return resolvedId;},

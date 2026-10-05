@@ -33,8 +33,11 @@ package, JPEG с историческим PNG extension, HTTP save/reopen/export
 Группа3: общий producer и compiled sandboxed private preview подключены.
 Оба template HTTP на итоговом production build + native suite/typecheck/lint/build
 PASS; детали capability/auth/closure в ExecPlan. Browser acceptance pending.
-Далее группа4: explicit published CMS snapshot build и slug/template routing,
+Группа4 source/digest/build/stamp/archive guards и actual slug/template routing
+реализованы. Native rename с ранее загруженными image/layout + tests/lint/typecheck/
+scratch public Next build PASS. Далее clean exact HEAD build/archive/unpack proof,
 затем publication workflow, sourceHash/cache cleanup/bootstrap/final checks.
+Own exported fixture pointer /private/tmp/payload-site-build-snapshot.txt.
 Не повторять и не обходить denied browser action. Personal state/production untouched.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
 

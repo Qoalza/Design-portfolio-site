@@ -11,7 +11,8 @@ async function buildState(sourceRoot){
  const copied=await readFile(path.join(sourceRoot,'.next/standalone/.portfolio-release/site/site-manifest.json'));
  if(!source.equals(copied))throw new Error('Stale standalone site manifest');
  const site=JSON.parse(source.toString('utf8'));
- return {version:1,sha:site.buildSha,sourceDirty:site.sourceDirty,siteHash:hash(source),buildId:(await readFile(path.join(sourceRoot,'.next/BUILD_ID'),'utf8')).trim(),standaloneHash:await fingerprint(path.join(sourceRoot,'.next/standalone')),staticHash:await fingerprint(path.join(sourceRoot,'.next/static'))};
+ if(hash(await readFile(path.join(sourceRoot,'.portfolio-release/site/snapshot.json')))!==site.snapshotSha256)throw new Error('Site content snapshot mismatch');
+ return {version:1,contentHash:site.snapshotSha256,contentOrigin:site.provenance.origin,sha:site.buildSha,sourceDirty:site.sourceDirty,siteHash:hash(source),buildId:(await readFile(path.join(sourceRoot,'.next/BUILD_ID'),'utf8')).trim(),standaloneHash:await fingerprint(path.join(sourceRoot,'.next/standalone')),staticHash:await fingerprint(path.join(sourceRoot,'.next/static'))};
 }
 export async function stampNextBuild(sourceRoot){
  const state=await buildState(sourceRoot);
