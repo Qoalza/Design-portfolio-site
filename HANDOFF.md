@@ -1,60 +1,42 @@
 # HANDOFF
 
-2026-10-05. Checkout: codex/cms-integration,
+2026-10-05. Checkout codex/cms-integration,
 /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site.
+Checkpoint 06bd7f7da7d5e393f26772c9b1b4e5d134d33d1a.
 
-## Checkpoint
+## Current target
 
-Пользователь разрешил планирование и реализацию полного Payload/site integration;
-автономно продолжаем. Base b0ec4de; production b44946021d55fb1cc8a4430c3bafd62e342714c9.
-Новый full plan docs/exec-plans/payload-site-integration.md version1.0.
-Native editor/materials/private same-renderer preview и explicit CMS snapshot
-build/archive CLI реализованы и проверены; browser acceptance pending. Сейчас
-native publication operation worker/API/UI, затем clean installation/bootstrap
-и final acceptance. Готовые native export/snapshot/renderer/releases переиспользовать.
+Пользователь прямо исправил цель: ОНЛАЙН Payload — открыл в браузере, изменил,
+применил, сайт обновился БЕЗ сборки/архива/deploy при каждой content правке.
+Старый local CMS + archive publication workflow был ошибочным выбором агента.
+Не продолжать его worker/deploy/UI/recovery. Plan version2.0:
+docs/exec-plans/payload-site-integration.md.
 
-## Next
+## Preserve
 
-Первая проверенная часть группы1: native custom Field, immutable authoring helpers,
-Hero choice с native-version cache, draft/public export mapping. Tests/lint/typecheck/
-build и browser save/reopen/failure PASS, подробности в ExecPlan checkpoint.
-Группа2: pure image quality helper и6 real image tests/typecheck/lint PASS.
-Authenticated image ingest/bindings/upload controls/export closure реализованы;
-HTTP/native persistence/export/full tests/typecheck/lint/build PASS. Payload WebP
-re-encoding отключён; original/prepared bytes сохраняются как есть. Browser upload
-не завершился, UI evidence для этого шага ещё требуется.
-Copy CRUD/marks/optional fields готовы; оба templates native save/reopen и
-full tests/typecheck/lint/build PASS. Browser read denied by auto-review; не повторять
-и не обходить; UI acceptance остаётся pending, API/CLI работу продолжать.
-Native project-files downloads защищены attachment/CSP sandbox; real HTTP
-GET/HEAD/encoded path/auth/bytes и full tests/typecheck/lint/build PASS.
-Layout package endpoint/Field/immutable manifest/bindings готовы: actual Corvo
-package, JPEG с историческим PNG extension, HTTP save/reopen/export/deletion guards
-и native full tests/typecheck/lint/build PASS. Private packages сохраняются в versions.
-Группа3: общий producer и compiled sandboxed private preview подключены.
-Оба template HTTP на итоговом production build + native suite/typecheck/lint/build
-PASS; детали capability/auth/closure в ExecPlan. Browser acceptance pending.
-Группа4 source/digest/build/stamp/archive guards и actual slug/template routing
-реализованы. Native rename с ранее загруженными image/layout + tests/lint/typecheck/
-scratch public Next build PASS. Clean717f711 CMS-source build/archive/unpack/HTTP proof PASS (details ExecPlan,
-/private/tmp/payload-site-offline-proof.json). Additional bundled snapshot guard
-и actual tamper/reverify PASS; final candidate нужен свежий build на новом HEAD.
-Группа5: durable OperationStore и neutral deploy-v2 transport foundation готовы;
-replay/concurrency/reopen/unknown/exact identity/timeouts focused tests + types/lint
-PASS. Public readiness теперь binds exact code+content и all asset digests, actual
-host/transport integration/negative/deadline tests PASS. Authenticated prepare/status/cancel + detached exact snapshot/code build worker
-реализованы. Actual helper build/archive + HTTP auth/replay/cancel + full native
-suite PASS; setup failure/process descendants regression + fresh native build/
-typecheck/lint PASS. Ближайшее: clean commit → HTTP new prepare to ready, затем
-release review/deploy/reconciliation/UI/live config. Restart/partial-write recovery
-ещё нужны. Далее sourceHash/cache cleanup/bootstrap/final checks.
-Own exported fixture pointer /private/tmp/payload-site-build-snapshot.txt.
-Не повторять и не обходить denied browser action. Personal state/production untouched.
-Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
+Native custom editor, immutable materials/packages, drafts/versions, validators
+и обе готовые Hero переиспользовать. Public ProjectDocument schema/design/Hero
+geometry/physics/adaptives сохраняются. Портфолио desktop-only.
+Личный .local/USERSPACE и old Des-art Admin logic/data не читать/не использовать.
+Disposable fixtures не публиковать. Old worktrees не удалять.
 
-## Stop-lines
+## Next action
 
-Сохранить public design/Hero geometry/physics/scenes и desktop-only portfolio.
-Не использовать old Des-art Admin logic/data. Не читать личный .local/USERSPACE.
-Temporary fixtures не публиковать. Real bootstrap/migrations/access/content publish
-требуют конкретного решения; previous archive ждёт пользовательской приёмки.
+Проверить и реализовать один online Next/Payload runtime: private /admin,/api,
+public renderer получает committed published records при запросе вместо build-only
+documents. Native Payload publish = Apply; не новый archive/job workflow.
+Не менять public pointer внутри Payload hooks (они до transaction commit).
+План2.0 содержит остальной online deployment/preview/asset/backup scope.
+
+## Evidence / access
+
+Готовые native editor/material/preview/export проверки — в historical checkpoints.
+06bd7f7 preparation API group сохранена, но obsolete. Actual HTTP new prepare
+после commit завершился PREPARATION_FAILED; разбор остановлен из-за новой цели.
+Собственный fixture server41741 остановлен. Root pointer
+/private/tmp/payload-editor-test-root.txt; personal state/production untouched.
+Прежний VPS control socket /private/tmp/art-des-vps-session-G4pLXP/connection
+отсутствует (fresh read-only check). Независимая online implementation продолжается.
+Browser action ранее denied auto-review: не повторять/не обходить.
+Перед live запуском нужны exact code + production source + access/rollback checks;
+пользователь разрешил автономную работу, вопросы только при критическом препятствии.

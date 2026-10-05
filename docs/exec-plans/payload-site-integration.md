@@ -1,166 +1,150 @@
-# Полное подключение Payload к опубликованному редизайну
+# Онлайн-Payload и прямое подключение сайта
 
-Версия 1.0, 2026-10-05. Статус: IN_PROGRESS — Ready for execution.
+Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — online runtime discovery.
 Область ADMIN + SHARED + PORTFOLIO + OPS; LARGE / HIGH / FULL.
-Ветка codex/cms-integration; base b0ec4de4c50dd9fe5b557cd1de842cd55637c6f5.
-Production baseline b44946021d55fb1cc8a4430c3bafd62e342714c9, PR #54.
-Исполнение автономно по запросу пользователя «составь план ... и реализуй ... продолжай».
+Worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site,
+ветка codex/cms-integration; checkpoint 06bd7f7da7d5e393f26772c9b1b4e5d134d33d1a.
 
-## Результат и источник истины
+## Исправленный результат — прямое требование пользователя
 
-Пользователь редактирует проекты в существующей локальной Payload, сохраняет
-черновик, видит его в тех же компонентах, что production, затем отдельно публикует
-выбранную проверенную версию на art-des.ru. После перезапуска редактора данные,
-версии и originals сохраняются; ошибочный материал/экспорт/сборка/деплой сохраняет
-последнюю рабочую версию сайта и возможность отката.
+«Мне нужна онлайн админка — перешел сделал применил».
+Payload работает на сервере. Пользователь открывает его в браузере, входит,
+редактирует проект, сохраняет черновик/проверяет его и применяет опубликованную
+версию. Следующий запрос сайта получает эти изменения без локального запуска,
+Git commit/PR, сборки, архива, SSH upload или code deploy на каждую правку.
+Обычная native Payload публикация является применением контента.
 
-Готовое переиспользовать: native Payload 3.89.0/SQLite/auth/versions/media/storage,
-releaseContent/releaseAssets JSON boundary, release-export validation/full decode,
-project-snapshot/snapshot-directory, Vite renderer и обе оболочки Hero, root
-Next standalone/build stamp/archive/deploy-v2 и rollback. Старый Des-art Admin
-не является источником данных, правил или authoring UI.
+Версия1.0 ошибочно закрепляла локальный CMS и выпуск контента через полный
+runtime archive. Это больше НЕ целевой сценарий. Нельзя продолжать эту группу
+по старым Next/checkpoint ниже. Предыдущая оценка готовности к нему не является
+оценкой готовности онлайн-Payload.
 
-Native editor, image quality ingest и layout package upload реализованы;
-API/persistence/export tests PASS, browser acceptance pending. Незавершённые участки: site publication workflow, bootstrap/sourceHash и
-финальная UI/production acceptance; same-renderer preview и CMS-source build готовы.
+## Сохраняем и используем
 
-## Продуктовый контракт и ограничения
+- Native Payload3.89.0, установленный Next16.3.4, SQLite migrations, auth,
+  Projects drafts/versions и существующий custom ReleaseEditor.
+- Поля copy/links/sections/metrics; обе оболочки Hero и переключение доступных
+  adaptives; immutable originals, lossless ingest, layout packages/URLs и проверки.
+- Public ProjectDocument schema-v3/redesign-v1 и готовые компоненты главной,
+  Corvo, Сараффан.Радио, 404. Geometry/physics/scenes/CSS Hero не менять.
+- Проверенные validators, asset closure/digests и sandbox policy для HTML.
+- Production source только exact deployed approved контент/ресурсы. Личный
+  .local и USERSPACE не читать; disposable fixtures не переносить в production.
+- Сайт desktop-only. Главная не становится конструктором в CMS.
 
-Аудитория — один владелец портфолио. CMS остаётся локальной с входом;
-публичный сайт использует immutable snapshot и работает при выключенной CMS.
-Новый cloud CMS/DB/открытый admin на VPS не требуются.
+## Техническая граница и ближайшая проверка
 
-- Редактировать тексты, ссылки, agreed project images, секции существующих
-  Corvo/Sarafan templates; не превращать главную или Hero geometry в конструктор.
-- «Верстка»: четыре существующие сцены, замена готового HTML с ресурсами либо
-  публичного HTTPS URL, выбор доступных adaptives и начальной сцены. Поведение
-  внутри iframe задаёт приложенная верстка; shell/CSS/physics не переписывать.
-- «Фикс адаптив»: desktop-only, 3/5/7/9 изображений, порядок/подписи/начальный
-  экран, согласованные scale/формат/geometry. Mobile/Tablet оставить disabled.
-- Native drafts/versions и JSON schema-v3/redesign-v1 сохраняются; custom field
-  заменяет отображение releaseContent, не вводит второй store.
-- Originals неизменяемы; prepared assets immutable, привязаны к версиям.
-  UI/screens/diagrams → pixel-equivalent lossless, без resize/upscale/near-lossless;
-  unknown context → original. Quality report показывает формат/размеры/вес/причину.
-- Preview authenticated/no-store/noindex. Uploaded HTML никогда не исполняется
-  в origin CMS: sandboxed preview boundary без allow-same-origin, как production.
-- Initial CMS bootstrap только из exact deployed approved snapshot и ресурсов,
-  не из temporary proof, old Admin или чужого личного .local.
-- Архив старого production отдельно, только после пользовательской приёмки.
+Предпочтительный минимальный путь: один Next/Payload runtime обслуживает
+/admin, private /api и публичные страницы. Native published records читаются
+сервером после завершённой DB transaction. Скомпилированные React/Vite компоненты
+получают validated documents при запросе HTML; JS/CSS собираются только при
+выпуске кода. HTML metadata/routes/sitemap и allowlisted published assets берутся
+из той же версии данных. Удалить постоянную привязку runtime к bundled documents.
 
-## Порядок Git-групп
+Не вводить отдельный Apply/deploy job поверх штатной публикации без доказанной
+необходимости. Не переключать public pointer из afterChange/afterOperation:
+в installed Payload эти hooks выполняются до commitTransaction. Прямой read
+published данных после commit устраняет этот внешний transaction race.
 
-### 1. Native редактор без изменения SQL schema
+Read-only VPS discovery: прежний SSH control socket уже отсутствует. Это
+не блокирует код/fixture work; server credentials/config не изменялись.
+До реального запуска перепроверить доступ, service/proxy/storage/resources.
+Текущий static production остаётся рабочим до проверенного code release.
 
-Target → release-content.ts, collections.ts, custom client Field/importMap,
-client-safe authoring helpers и tests.
-Change → понятные поля для project copy/sections/metrics/links/notice, card images,
-выбор Hero, scene titles/source/available adaptives; raster order/caption/initial.
-Неполный draft допустим; publish проверяет полный контракт. Смена Hero сохраняет
-данные предыдущего выбора до явного пользовательского удаления.
-Expected result → типичные изменения делаются без ручного JSON; сохранение,
-повторное открытие и history используют native Payload.
-Verification → helpers negative/preservation tests; real temporary DB save/reopen,
-обе Hero, incomplete draft и publish errors; browser editing, typecheck/lint/build.
+## Упорядоченные группы
 
-### 2. Materials ingest и сохранность ресурсов
+### 1. Контракт runtime и серверной конфигурации
 
-Target → native media/project-files, releaseAssets binding, quality pipeline,
-layout package preparation, upload UI и tests.
-Change → upload/replace/remove/reorder не перезаписывает original. Приготовить
-lossless candidate, full decode/pixel compare и report, выбрать original если
-кандидат хуже/не легче. Готовая верстка: файлы + относительные пути + entry,
-manifest hashes/limits/dependency closure, безопасный immutable assetBase.
-Expected result → пользователь не вводит hashes/public paths вручную; missing,
-corrupt, traversal, oversized, unsupported resources не попадают в good snapshot.
-Verification → реальные PNG/JPEG/WebP/alpha, не легче/failure fallback, повторный
-upload; package HTML/CSS/images/fonts и forbidden paths; versions deletion guards.
+Target → native config/state/run/Next routes + current release host.
+Change → явные development/fixture/server режимы; server URL, persistent data root,
+secret из защищённого окружения, HTTPS cookies/CSRF, default-deny private APIs.
+Проверить single-runtime маршрут без конфликтов /admin,/api,/preview и public.
+Expected → online deployment не привязан к папке Mac/localhost и не открывает
+черновики/оригиналы/аккаунты анонимному посетителю.
+Verification → конфигурационные negative tests, auth/route checks на fixture,
+installed Payload sources + официальные deployment/auth docs.
 
-### 3. Единый preview/export mapping
+### 2. Данные сайта читаются из Payload без сборки
 
-Target → release-export/readPreviewProject и same-renderer preview boundary.
-Change → один mapper для selected authenticated draft/published project; preview
-рендерит compiled Vite components и scoped assets из immutable snapshot.
-Legacy preview обслуживает только legacy записи без releaseContent.
-Expected result → видны exactly saved draft и отдельно published revision;
-CMS auth/cookies недоступны коду приложенного layout, draft не выходит публично.
-Verification → browser оба templates/Hero/scenes; anonymous/unauthorized asset,
-HEAD/404/no-store/noindex; failed validation сохраняет последний good preview.
+Target → release-host, virtual document input, main-release and native public reader.
+Change → безопасная runtime JSON injection вместо build-only documents;
+published-only reader, metadata/routes/sitemap из того же результата; узкий
+cache by committed revision, invalid/error не раскрывает draft/private state.
+Expected → native publish меняет HTML/data на следующем запросе при неизменных
+build SHA/JS/CSS. Никакие npm/Git/archive/SSH процессы при content edit не стартуют.
+Verification → настоящий native save draft → public unchanged → publish → public
+updated; title/slug/link/copy/both templates, unpublish/restore, concurrent reads.
 
-### 4. Последующие site builds из выбранного CMS snapshot
+### 3. Изображения и HTML-пакеты в онлайн-режиме
 
-Target → prepare-site/approvedContentPlugin/build-stamp/package/host.
-Change → явно выбрать approved Git initial source либо validated Payload export;
-один immutable snapshot фиксирует весь build, provenance/content digest входит
-в stamp/archive. Экспорт и draft preview не меняют canonical Git files.
-Generalize route selection по supported template, если slug изменён; URL/metadata,
-/project redirect/new404 и approved main сохраняются.
-Expected result → archive содержит именно выбранную revision, без CMS/store/secrets;
-сайт не требует запущенной CMS после сборки.
-Verification → temporary native save/export→clean actual build/archive/unpack→
-HTTP/render/assets и остановленная CMS; stale/incomplete/cross-snapshot build rejection.
+Target → существующие asset bindings/validation/public asset responses.
+Change → публично отдавать только ресурсы опубликованных project revisions;
+immutable bytes и package MIME/CSP сохранять; draft assets остаются private.
+Publish полностью проверяет ссылки/closure до успешного завершения native save.
+Expected → загрузил/применил — ресурс доступен сайту без пересборки; повреждённый
+или неполный проект не заменяет рабочую published версию.
+Verification → PNG/JPEG/WebP/layout package/URL, slug change, HEAD/digest/404,
+private draft denial, native transaction failure и versions/deletion protections.
 
-### 5. Понятная публикация и восстановление
+### 4. Предпросмотр и native редактор
 
-Target → Payload UI action, authenticated local operation endpoint/worker,
-neutral release deployment transport (без old Admin state), status persistence.
-Change → «Сохранить черновик», local revision и «Опубликовать на сайт» различимы.
-Workflow фиксирует exact content/build/archive, проводит проверки, предоставляет
-preview и запускает только разрешённую публикацию. Один writer/job; повторный
-клик, disconnect, timeout и неизвестный результат не запускают второй deploy.
-Expected result → видны этап/результат/ошибка и опубликованная версия; retry
-наблюдает тот же operation; last-good защищён. Secrets не попадают в docs/log/UI.
-Verification → isolated deploy-v2 success/failure/rollback, restart/reopen operation,
-concurrent/retry tests и authenticated endpoint checks; отдельно live smoke.
+Target → существующие editor/preview routes и runtime data boundary.
+Change → переиспользовать готовые поля/загрузки/versions; preview с saved draft
+в том же renderer без compilation на изменение контента; authenticated/capability
+изоляция и sandboxed HTML. Удалить вводящие в заблуждение local-only описания.
+Expected → пользователь входит онлайн, редактирует, проверяет и штатно применяет;
+нет отдельного UI подготовки архива/публикации кода.
+Verification → API/auth + native browser editing/reopen, оба Hero и failure states.
+Ранее browser action denied; не обходить/не повторять без изменившейся авторизации.
 
-### 6. Рабочая установка и bootstrap
+### 5. Развёртывание кода и постоянные данные
 
-Target → launcher/run/source hash/schema/storage + CLI bootstrap текущего production.
-Change → полноценный clean initial state из exact deployed snapshot; согласованная
-папка локальных данных с backup/restore, schema checks, instructions и account flow.
-Личный existing .local не читать и не изменять автоматически.
-Expected result → reproducible install/start/restart, проекты совпадают с prod,
-учётная запись создаётся пользователем, backup действительно восстановим.
-Verification → temporary installation from actual approved snapshot, storage
-backup/verify/restore/reopen, schema mismatch/stale build guards; затем gate real bootstrap.
+Target → online service packaging/start/migrations/proxy and backup tooling.
+Change → code release отдельно от persistent DB/media/project-files, single
+instance SQLite для текущего объёма; schema migration только явно, backup/restore
+до смены кода. Установка новых dependency/DB не нужна без доказанной причины.
+Initial content импортируется только из exact deployed approved snapshot.
+Expected → сайт и админка доступны при выключенном Mac; restart/code rollback
+не стирает контент/файлы. Существующий static runtime можно быстро вернуть.
+Verification → isolated Linux-compatible packaging/start, temporary bootstrap,
+restart, consistent backup/restore, schema failure, existing production preflight.
 
-### 7. Сквозная приёмка и выпуск интеграции
+### 6. Сквозная проверка и запуск
 
-Target → final exact branch/build/runtime и actual deployment.
-Change → сохранить draft, изменить copy/link/image, заменить layout source и enabled
-adaptives, изменить raster order/initial; увидеть preview и только выбранную
-published revision в archive/site. После каждого failure site остаётся рабочим.
-Expected result → законченный authoring→preview→publication pipeline, не только proof.
-Verification → focused + native integration + typecheck/lint/build, public routes,
-451-equivalent asset inventory, оба Hero, preload retry и regression desktop;
-два последовательных review completeness, затем scope/security/data/rollback.
-Публичные реальные content changes не заменять тестовыми fixture.
+Target → готовый exact code candidate и online site/Payload.
+Change → удалить из активного маршрута obsolete archive-content publication APIs,
+worker/UI/config; историю и согласованные старые worktrees сохранить. Полезное
+pure code release tooling не выдавать за content publication.
+Verification → без build/deploy: login → edit → draft → preview → native apply →
+public update; image/layout/raster/order/slug/version restore и error/restart.
+Types/lint/build, две последовательные reviews и actual browser/native acceptance.
+Production bootstrap/code release только после готового проверяемого результата
+с учётом имеющейся авторизации. Никаких fixture content или старой Admin логики.
 
-## Границы разрешений и решения
+## Приёмка
 
-План/обычная реализация уже разрешены, промежуточного согласования не требуется.
-Real data bootstrap/migration, secrets/access expansion и реальная CMS content
-publication требуют отдельного конкретного решения после готового reviewable
-результата. Предыдущее разрешение site deploy учитывается для release tooling,
-но не разрешает перенос temporary CMS fixtures или чтение личного .local.
-При необходимости SQL schema/public contract expansion описать migration и
-согласовать material изменение до dependent work; пока сохраняем schema.
+- Редактор доступен по HTTPS в обычном браузере, Mac выключен.
+- Черновик приватен и не меняет публичный сайт.
+- Native применение корректной версии меняет сайт без code build/deploy.
+- Code SHA и compiled asset digests сохраняются при content-only изменении.
+- Корректны оба project templates/Hero, asset quality, публичные ссылки, 404,
+  temporary /projects redirect; прежний дизайн недоступен по public routes.
+- Failed save/upload/publish и restart сохраняют рабочий опубликованный контент.
+- Backup/restore и возврат предыдущего code release проверены.
+- Ни сохранённые тестовые данные, ни credentials/private drafts не публичны.
 
-## Приёмка и evidence
+Sources: installed native Payload transaction code; официальный deployment
+https://payloadcms.com/docs/production/deployment, drafts
+https://payloadcms.com/docs/versions/drafts, SQLite
+https://payloadcms.com/docs/database/sqlite. Конкретные параметры сверять с
+установленной3.89.0, без обновления dependencies ради этого перехода.
 
-Не объявлять завершение по коду/tests alone: сохранение/reopen и реальный browser
-в native Payload обязательны; same-renderer draft preview и exact archive/site
-после остановки CMS обязательны; обе Hero и quality failure обязательны.
-Для каждой группы записывать commit, ближайшие итоговые checks и пределы evidence.
-До actual integration acceptance UI не обещает «подключено к сайту».
+## Историческое evidence версии1.0 — не действующий план
 
-План review: устранены hidden legacy preview, initial-only release restriction и
-неполный source hash; real bootstrap/publish выделены из sandbox implementation.
-Ready for execution локальных групп1–5; real transition после explicit gate.
-
-Sources: текущие native код/типы/tests; docs/requirements/admin-image-quality.md;
-Payload custom field/useField: https://payloadcms.com/docs/fields/json,
-https://payloadcms.com/docs/admin/react-hooks. Точные API сверять с installed3.89.0.
+Ниже сохранены уже выполненные проверки. Local archive publication и её next
+steps отменены требованием online-Payload; их наличие не разрешает продолжение.
+Последний new prepare HTTP probe на06bd7f7 завершился PREPARATION_FAILED. Это
+не объявлено успехом; отладка этого obsolete пути остановлена после коррекции цели.
 
 ## Checkpoint 2026-10-05: native editor, первая проверенная часть группы1
 
