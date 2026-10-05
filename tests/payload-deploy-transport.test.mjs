@@ -24,3 +24,14 @@ test('exact bounded archive upload verifies response and fails without progress'
   await assert.rejects(uploadArchive({config,archive,sha,artifactHash,bytes:bytes.length,spawnImpl:()=>child,noProgressMs:5,timeoutMs:100}),/no progress/);
  }finally{await rm(root,{recursive:true,force:true})}
 });
+test('public verification distinguishes content revisions sharing one code SHA',async()=>{
+ const {verifyPublishedSite}=await import('../tools/portfolio-release/deploy-transport.mjs');
+ const bytes=Buffer.from('original published bitmap'),assetHash=createHash('sha256').update(bytes).digest('hex');
+ const snapshot={projects:[{slug:'case'}],assets:[{publicPath:'/assets/projects/case/image.png',sha256:assetHash,size:bytes.length}]};
+ const html=`<html data-build-sha="${sha}" data-content-sha256="${hash}"></html>`;
+ const fetchImpl=async url=>new Response(url.pathname.startsWith('/assets/')?bytes:html);
+ assert.equal((await verifyPublishedSite({baseUrl:'https://site.example.test/',codeSha:sha,contentHash:hash,snapshot,fetchImpl})).verified,true);
+ await assert.rejects(verifyPublishedSite({baseUrl:'https://site.example.test/',codeSha:sha,contentHash:'c'.repeat(64),snapshot,fetchImpl}),/identity mismatch/);
+ await assert.rejects(verifyPublishedSite({baseUrl:'https://site.example.test/',codeSha:sha,contentHash:hash,snapshot,fetchImpl:async url=>new Response(url.pathname.startsWith('/assets/')?'corrupt':html)}),/asset identity/);
+ await assert.rejects(verifyPublishedSite({baseUrl:'https://site.example.test/',codeSha:sha,contentHash:hash,snapshot,fetchImpl:()=>new Promise(()=>{}),requestTimeoutMs:5}),/deadline/);
+});

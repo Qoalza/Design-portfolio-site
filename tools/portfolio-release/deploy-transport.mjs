@@ -43,3 +43,19 @@ export async function uploadArchive({config,archive,sha,artifactHash,bytes,onPro
   progress();source.pipe(child.stdin);
  });
 }
+export async function verifyPublishedSite({baseUrl,codeSha,contentHash,snapshot,fetchImpl=fetch,timeoutMs=120000,requestTimeoutMs=15000}){
+ if(!shaPattern.test(codeSha)||!hashPattern.test(contentHash)||!snapshot?.projects?.length||!Array.isArray(snapshot.assets))throw new Error('Invalid public verification input');
+ const base=new URL(baseUrl);if(base.username||base.password||base.pathname!=='/'||base.search||base.hash)throw new Error('Invalid public origin');
+ const expires=Date.now()+timeoutMs;
+ async function read(name){
+  const remaining=Math.min(requestTimeoutMs,expires-Date.now());if(remaining<=0)throw new Error('Public verification deadline exceeded');
+  const controller=new AbortController();let timer;
+  const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(new Error('Public verification deadline exceeded'));},remaining);});
+  try{return await Promise.race([(async()=>{const response=await fetchImpl(new URL(name,base),{signal:controller.signal,redirect:'error',cache:'no-store'});if(response.status!==200)throw new Error('Published route unavailable');const chunks=[];let size=0;const reader=response.body?.getReader();if(reader){for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>20*1024*1024){await reader.cancel();throw new Error('Public response exceeds limit');}chunks.push(Buffer.from(value));}}return Buffer.concat(chunks);})(),deadline]);}finally{clearTimeout(timer);controller.abort();}
+ }
+ const mark=bytes=>{const html=bytes.toString('utf8');if(!html.includes(`data-build-sha="${codeSha}"`)||!html.includes(`data-content-sha256="${contentHash}"`))throw new Error('Published code/content identity mismatch');};
+ mark(await read('/'));
+ for(const project of snapshot.projects)mark(await read('/projects/'+project.slug));
+ for(const asset of snapshot.assets){const bytes=await read(asset.publicPath);if(bytes.length!==asset.size||createHash('sha256').update(bytes).digest('hex')!==asset.sha256)throw new Error('Published asset identity mismatch');}
+ return {verified:true,codeSha,contentHash};
+}

@@ -8,9 +8,10 @@
 Пользователь разрешил планирование и реализацию полного Payload/site integration;
 автономно продолжаем. Base b0ec4de; production b44946021d55fb1cc8a4430c3bafd62e342714c9.
 Новый full plan docs/exec-plans/payload-site-integration.md version1.0.
-Готовые native export/snapshot/renderer/releases переиспользовать; native editor,
-materials ingest, same-renderer authenticated preview, explicit CMS release,
-publication operations и clean bootstrap ещё реализовать/проверить.
+Native editor/materials/private same-renderer preview и explicit CMS snapshot
+build/archive CLI реализованы и проверены; browser acceptance pending. Сейчас
+native publication operation worker/API/UI, затем clean installation/bootstrap
+и final acceptance. Готовые native export/snapshot/renderer/releases переиспользовать.
 
 ## Next
 
@@ -40,7 +41,9 @@ scratch public Next build PASS. Clean717f711 CMS-source build/archive/unpack/HTT
 и actual tamper/reverify PASS; final candidate нужен свежий build на новом HEAD.
 Группа5: durable OperationStore и neutral deploy-v2 transport foundation готовы;
 replay/concurrency/reopen/unknown/exact identity/timeouts focused tests + types/lint
-PASS. Worker/API/UI/live config/recovery пока не подключены. Далее именно этот
+PASS. Public readiness теперь binds exact code+content и all asset digests, actual
+host/transport integration/negative/deadline tests PASS. Worker/API/UI/live config/
+recovery пока не подключены. Далее именно этот
 publication workflow, затем sourceHash/cache cleanup/bootstrap/final checks.
 Own exported fixture pointer /private/tmp/payload-site-build-snapshot.txt.
 Не повторять и не обходить denied browser action. Personal state/production untouched.

@@ -458,3 +458,22 @@ Next: authenticated prepare/status/deploy actions, bounded snapshot-freezing wor
 clean code checkout/build/archive/validation, exact prepared preview, live-config
 boundary, unknown-result reconciliation + UI. Затем isolated end-to-end deploy-v2
 failure/rollback/restart checks; group6 installation/bootstrap и final acceptance.
+
+
+## Checkpoint: public readiness binds content revision
+
+Release host добавляет data-content-sha256 рядом с code SHA, только для valid
+snapshot digest; historical manifest без поля сохраняет прежний output. Neutral
+verifyPublishedSite проверяет exact code/content markers на root и project routes,
+all snapshot asset sizes/digests, bounded response/per-request/total deadlines.
+Одинаковый code SHA с прежним content больше не проходит readiness. Внешний результат
+или timeout нельзя трактовать как permission на повторный deploy; worker должен
+сохранять unknown и наблюдать прежний server operation.
+
+3 transport tests + actual host/transport integration PASS: correct revision,
+stale content under same SHA, corrupt asset, hung request deadline, historical
+manifest compatibility; focused root lint/diff checks PASS. Review1: generation
+и consumer проверены вместе; Review2: no visual/source/SQL changes, identity fields
+строго hex, responses bounded, no secret errors. Worker/API/UI остаются следующим
+обязательным этапом; publication на сервер не запускалась. Final runtime artifact
+потребует build exact нового HEAD, предыдущая717f711 proof не текущий release.
