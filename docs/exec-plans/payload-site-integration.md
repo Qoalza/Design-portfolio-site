@@ -591,3 +591,26 @@ Linux installation/bootstrap/activation требуют root SSH. BatchMode root 
 с предположениями об actual service/storage/source/Node resources. Independent
 online code groups зафиксированы; далее fresh access → read-only VPS preflight →
 Linux exact candidate/initial owner+production baseline/bootstrap/rollback → live.
+
+## Checkpoint версии2.0: проверенный initial content bootstrap
+
+Добавлен read-only reader actual release snapshot: externally supplied exact SHA,
+snapshot digest, clean source, approved provenance, manifest closure/bytes/digests;
+symlink/changed snapshot/duplicate manifest entries отвергаются. Private offline
+bootstrap требует owned maintenance lock, initial owner, совпадающий native data
+root, пустую content БД/историю и пустые physical uploads. Native files bindings и
+published records проверяются на точный DTO/asset parity перед возможным exposure.
+Повторный запуск запрещён. Failed staging остаётся закрытым, не является baseline.
+Ни один fixture или local authoring store не переносится на сервер.
+
+Evidence: actual fresh temporary SQLite import обоих проектов/163 ресурсов;
+wrong source identity/physical orphan/retry rejection; reopen/edit/drafts/asset
+protection и сохранность good snapshot PASS. Full native suite/types/lint/build PASS (macOS fixture; не Linux release).
+Две последовательные selfreviews: completeness/provenance/parity; затем
+regression/access/ownership/partial failure. Physical-empty guard добавлен до
+итоговой проверки. Production source/access/initial owner/Linux package/activation
+остаются незавершёнными. Fresh public HTTPS preflight подтвердил deployed build SHA
+b44946021d55fb1cc8a4430c3bafd62e342714c9, главную/оба кейса200, /projects307 на
+/#projects, неизвестный адрес404. Snapshot digest через public HTML не получен;
+его нельзя угадывать. SSH socket отсутствует. GitHub CLI token также недействителен,
+поэтому Linux CI сейчас не является доступной заменой серверной проверки.

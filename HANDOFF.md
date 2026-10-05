@@ -2,7 +2,7 @@
 
 2026-10-05. Checkout codex/cms-integration,
 /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site.
-Code checkpoint 6cc3b7e: verified online server settings; documentation follow-up.
+Code checkpoint: verified offline production-baseline bootstrap; commit history supplies exact SHA.
 
 ## Current target
 
@@ -56,7 +56,12 @@ Full native suite/types/lint/build, root host/config tests PASS. SVG sandbox gap
 найден вторым selfreview и исправлен RED→GREEN; Hero не менялись.
 Next OPS требует fresh VPS preflight: root BatchMode SSH отклонён, agent identities
 нет, control socket отсутствует; app terminal подтверждает closed session.
-Linux packaging/initial production bootstrap/service+proxy activation пока НЕ готовы.
+Private initial content bootstrap реализован и проверен только на свежей временной
+SQLite: два проекта/163 ресурса, exact DTO/bytes parity, owned offline lock и
+empty content/history/physical uploads; wrong identity/orphan/retry rejected.
+Source verifier принимает externally verified deployed SHA/snapshot digest,
+clean approved provenance и exact asset bytes. Actual production source bootstrap,
+initial owner/Linux packaging/service+proxy activation пока НЕ готовы.
 Не заменять этот отсутствующий этап loopback fixture evidence. README/PAYLOAD.md
 теперь описывают фактический online contract и ещё не выполненный VPS этап. Local sandbox не является online release.
 Не новый Apply/deploy job: используется штатная native publication.
@@ -78,6 +83,13 @@ SSH reconnect prepared: /private/tmp/art-des-payload-vps-2e4mn657/connection;
 pointer /private/tmp/art-des-payload-control-path.txt. Requires user password
 login in app terminal with PubkeyAuthentication=no, PreferredAuthentications=password,
 ControlPersist=12h. No new authorization requested: missing authentication only.
-Own test servers stopped; fixture server lock released. Code tree clean at6cc3b7e.
+Own test servers stopped; fixture server lock released. Code group verification includes full native suite/types/lint/build; exact checkpoint via Git.
 Current compiled scratch build is not a Linux exact-HEAD production artifact;
 next Linux build must use the final clean candidate after fresh VPS preflight.
+
+Fresh public HTTPS preflight: / and both cases200, /projects307 → /#projects,
+unknown route404, deployed build SHA b44946021d55fb1cc8a4430c3bafd62e342714c9.
+Public HTML lacks snapshot digest; obtain it with server read-only preflight.
+GitHub CLI auth token invalid: Linux CI alternative unavailable. Root SSH control
+socket still absent. Existing server access request is the critical dependency;
+no production changes, no claim online CMS installation complete.

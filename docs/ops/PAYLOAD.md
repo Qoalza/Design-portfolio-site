@@ -80,3 +80,26 @@ activation не считать выполненными по результат�
 Sources: установленный Payload3.89.0 auth/config code и официальные docs:
 https://payloadcms.com/docs/authentication/cookies,
 https://payloadcms.com/docs/production/deployment.
+
+## Первый импорт опубликованных материалов
+
+Приватный OPS helper `tools/payload-admin/scripts/bootstrap-content.ts` работает
+только при остановленном runtime и принадлежащей процессу maintenance lock.
+Схема и первоначальный owner должны быть подготовлены заранее. На вход передаются
+проверенная actual release directory, deployed SHA и snapshot SHA-256 из свежей
+серверной сверки; HTTP build marker сам по себе не подтверждает все ресурсы.
+Read-only `production-baseline.mjs` отвергает dirty source, несовпадающие identity/
+provenance/digests, изменённые файлы и символические ссылки внутри снимка.
+
+Целевая БД не содержит projects, versions, media или project-files; физические
+upload directories также пусты. Helper сохраняет native bindings и опубликованные
+проекты, затем проверяет точное совпадение DTO и всех asset bytes. Повторный импорт
+в наполненное хранилище запрещён. При ошибке частичное staging state остаётся
+закрытым; его нельзя активировать или повторно наполнять. Не очищать существующую
+CMS ради повторного запуска. Этот helper не является публичным endpoint или
+пользовательской кнопкой публикации; обычная работа остаётся native Payload.
+
+Подтверждено только на собственном disposable fixture: оба проекта, все 163 ресурса,
+повторное открытие БД, отказ неверному identity/непустому upload store/повторному
+импорту. Actual production bootstrap, initial owner и Linux installation ещё
+не выполнялись. VPS source snapshot должен быть проверен заново при наличии SSH.
