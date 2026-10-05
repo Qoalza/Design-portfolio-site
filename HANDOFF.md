@@ -1,78 +1,83 @@
 # HANDOFF
 
 2026-10-05. Worktree: /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site.
-Branch: codex/cms-integration. Один writer. Локальные последние commits — docs;
-exact deployed code: 05abd7c1375eb9c731ee8c041d927eed225141d9.
+Branch: codex/cms-integration. Один writer. Exact deployed code:
+7faa2b8f9709262cc2849de26479bb534a0268dd; последующие локальные commits — docs.
 
 ## Текущий результат
 
-Онлайн Payload активирован на https://art-des.ru/admin. Один Next/Payload runtime
-обслуживает публичный сайт, native CMS и private preview. Native Publish меняет
-committed content в БД; обычное редактирование не запускает build/archive/deploy.
-Initial content — только проверенный actual production baseline, оба проекта,
-163 asset aliases /156 native files; DTO и bytes полностью совпали.
-Личный .local/USERSPACE, old Des-art Admin logic/state и fixtures не переносились.
-Hero/scenes/geometry/physics/adaptives и утверждённый дизайн не менялись.
-Portfolio desktop-only; главная не становится конструктором в CMS.
+Онлайн Payload работает на https://art-des.ru/admin. Один Next/Payload runtime
+обслуживает public site, native CMS и private preview. Native Publish применяет
+committed content в БД без build/archive/deploy на каждую контентную правку.
+Initial state: только actual approved production baseline, 2 проекта,
+163 asset aliases /156 native files; DTO/bytes parity PASS. Личный .local/USERSPACE,
+старый Des-art Admin и fixture content не переносились. Hero/scenes/geometry/
+physics/adaptives не менялись; Portfolio desktop-only, главная не CMS-конструктор.
 
-## Actual VPS runtime
+## Actual VPS
 
-- art-des-payload.service active/enabled, User portfolio, loopback127.0.0.1:3001.
-- Code /opt/art-des-payload/releases/05abd7c1375eb9c731ee8c041d927eed225141d9.
-- Permanent root /var/lib/art-des-payload/data, private0700; native files/DB/secret
-  вне code releases/web root. Single SQLite runtime; не запускать второй writer.
-- Actual Nginx /etc/nginx/sites-enabled/art-des — ОТДЕЛЬНЫЙ ФАЙЛ, НЕ SYMLINK.
-  Он теперь proxy3001, upload25m, read/send120s; прежние TLS/http2/redirect сохранены.
-  sites-available/art-des остаётся прежним неактивным конфигом. Не считать его
-  источником текущего routing. Проверять nginx -T, не предполагать symlink.
-- Native owner owner@art-des.ru, generated credentials приватно в
-  /var/lib/art-des-payload/initial-owner.json0600. Не читать/печатать secret/password/
-  JWT в tool output/chat/logs/Git. Пользователь может прочитать пароль сам на VPS.
-- Cleanup временного2GB build swap начат после memory guard PASS; SSH оборвался
-  до receipt, завершение swapoff/remove НЕ подтверждено. Root control socket снова
-  отсутствует; повторный BatchMode root Permission denied. Live activation уже
-  завершена/HTTPS proof PASS до этого обрыва; не выполнять повторный bootstrap.
+- art-des-payload.service active/enabled, portfolio, loopback3001.
+- Code: /opt/art-des-payload/releases/7faa2b8f9709262cc2849de26479bb534a0268dd.
+- Permanent data: /var/lib/art-des-payload/data, private0700, вне code/web root;
+  single SQLite writer. Повторный bootstrap запрещён.
+- Actual Nginx: /etc/nginx/sites-enabled/art-des — regular file, НЕ symlink.
+  Proxy3001, upload25m/read-send120s; TLS/http2/redirect сохранены.
+- Owner owner@art-des.ru. Credential file /var/lib/art-des-payload/initial-owner.json
+  приватный0600. Пароль/JWT/secret НЕ читать или печатать в tool outputs/chat/Git.
+  Пользователь получает пароль самостоятельно в серверном терминале.
+- Root SSH восстановлен пользователем. Временный build swap после memory guard
+  выключен и удалён, receipt TEMP_BUILD_SWAP_CLEANUP_VERIFIED; /swapfile сохранён.
 
-## Evidence и границы проверок
+## Последнее исправление и evidence
 
-Exact clean Linux build PASS, sourceDirty:false/codeSHA05abd7c; native full suite,
-types/lint/build и renderer/runtime checks PASS на итоговом code candidate.
-Actual HTTPS proof acceptance-live.json: home/оба кейса200, projects307→/#projects,
-unknown404, все163 asset bytes, native owner login + Secure/HttpOnly/SameSiteLax,
-anonymous API/raw file denial, closed first-register, оба private previews/CSP,
-DTO и compiled BUILD_ID/preview-manifest неизменны. Native unit boot enabled.
-Independent direct external HTTPS from Mac PASS: home/admin/login/DTO/both cases/
-projects307/404 and exact code marker. Local-proxy request failed; direct worked.
-Graceful restart PASS; consistent actual private backup verify PASS.
-Restore проверен на Linux fixtures; actual production DB НЕ test-restored.
-No-build draft→Publish→public и failure/version checks доказаны на isolated fixtures;
-реальные production projects не менялись тестовыми PATCH/Publish.
+Browser обнаружил 404 у code-owned SVG Corvo: dynamic CMS asset routing поглощал
+готовые shell files. Host теперь выдаёт только exact allowlist23 verified built
+SVG, explicit CMS ownership имеет приоритет; unknown/draft resources404.
+Hero компоненты/CSS/поведение не менялись.
+RED→GREEN regression; focused host/runtime tests4PASS, root lint PASS,
+actual built shell23PASS; exact clean Linux build PASS/sourceDirty:false.
+Два последовательных selfreview: completeness/ownership; regression/privacy/CSP.
 
-Browser acceptance остаётся НЕПРОВЕРЕННОЙ. Ранее browser action auto-review denied;
-не повторять/не обходить через CDP/Playwright/shell. Auto-review также rejected
-real production test PATCH/Publish: persistent content/version side effects.
-Команда не выполнялась; не повторять/не обходить. Использовать безопасные fixtures
-и read-only actual checks. Не объявлять полную пользовательскую приёмку завершённой.
+Actual HTTPS receipt10:37:03Z: exact code7faa,2projects/all163bytes, native login,
+secure cookies, private APIs/files, closed first-register, обе private previews,
+unchanged compiled stamps PASS. Transport loopback-nginx с art-des.ru Host/SNI и
+штатной TLS validation. Independent external Mac HTTPS code marker и ранее
+missing SVG PASS. Первый switch автоматически вернулся на05 после timeout
+внешнего HTTPS с VPS; повторный loopback TLS proof успешно завершил switch7faa.
+
+Browser: Corvo normal preloader→ready; Сараффан normal preloader→ready и кнопка
+«Следующий экран» меняет экран. Все6 Figma links ранее проверены анонимно в browser,
+canvas открыт без аккаунта. Corvo Statistics selection открывает готовый statistics/index.html, iframe body
+с таблицей подтверждён. Selective missing-SVG browser test показал connection
+error→«Повторить»→«Пробую достучаться снова»→ready Corvo; blocked URLs сняты.
+Full native editor/content publication acceptance
+остаётся открытой: пользователь ещё не подтвердил вход в Payload.
+Offline top-level navigation в temporary tab привёл к native browser error page;
+Browser Use policy запрещает data: error-page, поэтому in-app retry этим тестом
+не проверен. Selective asset failure/retry проверен отдельным тестом выше.
+Временная вкладка не помечена на сохранение, viewport reset выполнен;
+не обходить policy и не выдавать это за PASS состояния прелоадера.
 
 ## Быстрый откат
 
-Old art-des.service active127.0.0.1:3000, current static SHA
-b44946021d55fb1cc8a4430c3bafd62e342714c9. Его current pointer — legacy standby,
-НЕ active public runtime identity. Старый runtime/config сохранены в
-/var/backups/art-des/pre-payload-0882f79. Actual proxy rollback source:
-nginx-art-des-enabled; nginx-art-des — неактивный sites-available backup.
-Restore actual enabled config + nginx -t + reload возвращает старый3000,
-CMS data остаются на месте. До приёмки не удалять старый runtime/service/worktrees.
-Latest verified CMS backup:
-/var/lib/art-des-payload/data-backups/backup-eb490ba9-e9e9-406d-bad9-407accffb2d6.
+Old art-des.service active3000, static SHA b44946021d55fb1cc8a4430c3bafd62e342714c9
+— standby, НЕ current public identity. Backup /var/backups/art-des/pre-payload-0882f79,
+actual Nginx rollback source nginx-art-des-enabled. Restore enabled config +
+nginx -t/reload возвращает3000, CMS data сохраняются. Не удалять до user acceptance.
+Предыдущий online code05 unit:
+/var/backups/art-des/payload-before-corvo-fix-7faa2b8/art-des-payload.service.
+Latest offline consistent CMS backup verified:
+/var/lib/art-des-payload/data-backups/backup-18826003-328c-49d2-8357-0c2001b43efd.
+Actual DB НЕ test-restored; restore/publication behavior проверены на fixtures.
 
-## Next / pointers
+## Следующий шаг / stop-lines
 
-Пользовательская browser acceptance редактора и реального разрешённого контентного
-изменения остаётся открытой; SMTP не настроен, protected console recovery доступен.
-Не добавлять archive-content publication workflow. Pure code releases отдельно.
-Active plan v2.0: docs/exec-plans/payload-site-integration.md.
-Live OPS/config/rollback: docs/ops/PAYLOAD.md.
-Requirement audit + fresh anonymous privacy/fade/resume/Figma evidence:
-docs/ops/PAYLOAD_ACCEPTANCE.md. Figma anonymous403 not proof of private sharing;
-browser access remains unverified. Do not repeat successful checks without change.
+Дождаться пользовательского входа в Payload и закончить native editor browser
+acceptance: saved draft/reopen/preview/native Publish/public update; image/layout/
+raster/order/slug/version restore. Реальные test project writes ранее rejected
+auto-review из-за persistent versions/content; после нового «Разрешаю» они ещё
+не выполнялись. Не подменять actual acceptance fixture evidence.
+Публичные edge states/visual checks пока частичны. SMTP не настроен, protected
+console recovery доступен. Goal не завершён; старые runtime/worktrees не архивировать.
+Plan: docs/exec-plans/payload-site-integration.md v2.0.
+OPS/rollback: docs/ops/PAYLOAD.md. Audit: docs/ops/PAYLOAD_ACCEPTANCE.md.

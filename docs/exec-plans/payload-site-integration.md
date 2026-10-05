@@ -4,7 +4,7 @@
 Область ADMIN + SHARED + PORTFOLIO + OPS; LARGE / HIGH / FULL.
 Worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site,
 ветка codex/cms-integration; deployed code checkpoint
-05abd7c1375eb9c731ee8c041d927eed225141d9. Последующие локальные commits — docs.
+7faa2b8f9709262cc2849de26479bb534a0268dd. Последующие локальные commits — docs.
 
 ## Исправленный результат — прямое требование пользователя
 
@@ -670,3 +670,32 @@ access cannot be proved with HTTP tooling. Requirements/evidence/outstanding gat
 recorded in docs/ops/PAYLOAD_ACCEPTANCE.md. Root still Permission denied; optional
 swap cleanup unconfirmed. Browser/actual content interaction gate unchanged.
 Goal remains active; no production test writes, no repeated builds/source edits.
+
+## Latest authoritative checkpoint — Corvo shell routing и browser acceptance
+
+2026-10-05T10:37:03Z: deployed clean Linux7faa2b8f9709262cc2849de26479bb534a0268dd.
+Этот checkpoint заменяет старые access/browser/Figma/swap статусы выше.
+Browser обнаружил missing code-owned shell SVG404; host allowlist23 исправляет
+выдачу verified built SVG с сохранением CMS ownership и privacy404. Hero код/CSS/
+geometry не менялись. RED→GREEN, focused tests4PASS/root lint/builded shell23PASS;
+exact Linux full build/sourceDirty:false PASS. Два selfreview: completeness/
+ownership, затем regression/privacy/CSP. New consistent CMS backup18826003-328c-
+49d2-8357-0c2001b43efd verified; previous05 unit retained. First switch reverted
+после transport timeout, second switch7faa actual HTTPS proof PASS. Loopback Nginx
+с actual domain/TLS verification плюс independent external code/SVG check PASS.
+
+Browser normal Corvo→ready и Sarafan→ready, raster next screen changes state.
+Все6 Figma links anonymous canvas PASS. Temporary build swap safely off/removed,
+original retained, service active. Пользовательский Payload login пока ожидается.
+Native editor actual draft/reopen/preview/Publish/public update и полный набор
+visual/preloader edge checks НЕ завершены. Offline top-level navigation ушёл в
+browser data: error page и заблокирован Browser Use policy; не обходить и не
+заявлять in-app retry PASS. Browser viewport reset выполнен; temporary test tab
+без handoff подлежит автоматической очистке. No real project test edits/versions.
+Goal remains active; latest acceptance audit docs/ops/PAYLOAD_ACCEPTANCE.md.
+
+Browser continuation: selective topbar-hatch SVG block вызвал connection-error
+preloader; после снятия block native Retry показал retry copy и вернул ready
+Corvo heading. Statistics button меняет selected state и iframe URL; фактический
+iframe body содержит statistics/table. Это доказывает resource failure/recovery,
+но не все slow/late/animation состояния. Temporary settings сняты, test tab closed.

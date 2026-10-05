@@ -47,7 +47,8 @@ Nginx передаёт approved Host `art-des.ru`, Origin запроса и ис
 backend доступен только на127.0.0.1:3001. Actual TLS certificate verification и
 HTTPS proof PASS на сервере. Независимый direct HTTPS с Mac (`--noproxy *`,
 verified IP/Host и штатная certificate validation): главная/admin/login/public DTO/
-оба кейса/projects redirect/404 PASS, exact code marker05abd7c. Предыдущий запрос
+оба кейса/projects redirect/404 PASS на05; на7faa Corvo HTML/code marker и
+ранее missing shell SVG PASS. Серверный proof7faa покрывает routes/assets/auth. Предыдущий запрос
 через локальный proxy завершился SSL error. HTTP proof не заменяет browser acceptance.
 Auth cookies Secure/HttpOnly/SameSite=Lax; CSRF/CORS ограничены approved origin.
 Native mutation endpoints дополнительно проверяют Origin/Host. Anonymous users,
@@ -61,7 +62,7 @@ SMTP сейчас не настроен; password recovery доступен че
 
 ## Активный production runtime
 
-Exact code SHA: `05abd7c1375eb9c731ee8c041d927eed225141d9`.
+Exact code SHA: `7faa2b8f9709262cc2849de26479bb534a0268dd`.
 Linux source/build находится в `/opt/art-des-payload/releases/<SHA>`;
 `art-des-payload.service` работает от portfolio, active/enabled, backend3001.
 Native Sharp/libSQL установлены и проверены на Linux, не перенесены с Mac.
@@ -88,20 +89,27 @@ closed first-register и обе published private previews. Build stamps не м
 Graceful native restart и consistent actual backup verification PASS. Restore,
 native draft→Publish→public/failure checks выполнены на isolated Linux fixtures;
 actual production DB не test-restored, реальные projects не редактировались тестом.
-Browser interaction acceptance ещё не подтверждена; denied browser action не
-повторять/не обходить. Auto-review rejected real production test PATCH/Publish:
-persistent version/content side effects; safe fixture evidence используется вместо
-таких тестовых записей. Не выдавать это за actual browser editing proof.
+Browser interaction acceptance частична: Corvo/Сараффан загружаются после
+normal preloader, raster «Следующий экран» работает. Пользовательский login/edit/
+Publish/public update ещё не проверен. Browser доступ восстановлен после нового
+«Разрешаю»; real project test PATCH/Publish после него не выполнялись, ранее
+auto-review rejected persistent content/version side effects.
+
+Current7faa host отдельно разрешает23 exact code-owned Corvo shell SVG из verified
+build files; CMS assets и unknown/draft resources не получают static fallback.
+Actual HTTPS receipt10:37:03Z использует loopback-nginx, art-des.ru Host/SNI,
+обычную certificate validation. Independent external Mac code/SVG PASS.
+First switch timeout автоматически восстановил05 unit, second switch7faa PASS.
+Previous online05 unit сохранён в
+`/var/backups/art-des/payload-before-corvo-fix-7faa2b8/art-des-payload.service`.
 
 ## Временные ресурсы и доступ
 
-Временный2GB `/var/lib/art-des-payload-build.swap` добавлялся только для Linux build,
-без fstab. После successful activation memory guard подтвердил1428MB available
-при129MB used temporary swap; cleanup swapoff→remove запущен, но SSH оборвался
-до итогового receipt. Удаление НЕ подтверждено. При следующем root доступе сначала
-проверить `/proc/swaps` и наличие файла; удалять только после безопасного swapoff.
-Исходный `/swapfile` не трогать. Last root control socket исчез, BatchMode повторно
-Permission denied; activation уже была завершена и unit enabled до обрыва.
+Temporary2GB `/var/lib/art-des-payload-build.swap` после Linux build7faa safely
+swapoff/remove, memory guard available1316180KiB > used125732KiB +524288KiB; receipt verified,
+CMS service active. Original `/swapfile` сохранён, fstab не менялся. Root SSH
+восстановлен пользователем; UI Terminal capability не использовалась для обхода
+отказа. Routine credentials/content в чат и Git не выводить.
 
 ## Сохранённый предыдущий runtime и быстрый откат
 
@@ -124,7 +132,7 @@ nginx -t && systemctl reload nginx
 explicit migrations, exact Linux build/proxy smoke; не применять static publisher
 или старые Des-art Admin publication правила к онлайн Payload.
 Actual verified CMS backup:
-`/var/lib/art-des-payload/data-backups/backup-eb490ba9-e9e9-406d-bad9-407accffb2d6`.
+`/var/lib/art-des-payload/data-backups/backup-18826003-328c-49d2-8357-0c2001b43efd`.
 Проверен backup digest/closure; actual DB restore не проводился.
 
 Sources: установленный Payload3.89.0 auth/config code и официальные docs:

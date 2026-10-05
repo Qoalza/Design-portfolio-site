@@ -1,6 +1,6 @@
 # Онлайн Payload: аудит оставшейся приёмки
 
-2026-10-05. Exact public code:05abd7c1375eb9c731ee8c041d927eed225141d9.
+2026-10-05. Exact public code:7faa2b8f9709262cc2849de26479bb534a0268dd.
 Deployment/config: PAYLOAD.md. Active plan: ../exec-plans/payload-site-integration.md v2.0.
 Это evidence и границы проверки, не разрешение на дополнительные production mutations.
 
@@ -8,9 +8,10 @@ Deployment/config: PAYLOAD.md. Active plan: ../exec-plans/payload-site-integrati
 
 - Независимый direct external HTTPS с Mac, verified IP/Host и certificate validation:
   главная/оба кейса200, admin/login200, public DTO200 с2 проектами, projects307,
-  unknown404; exact code marker05. Серверный actual HTTPS proof также PASS.
+  unknown404 на предыдущем05; на7faa внешний check подтвердил Corvo HTML/code marker
+  и ранее missing shell SVG. Серверный actual HTTPS proof7faa также PASS.
 - Все163 ресурса/DTO byte parity, native owner login/secure cookies, оба previews,
-  unchanged BUILD_ID/preview manifest — server actual proof перед closure SSH.
+  unchanged BUILD_ID/preview manifest — current7faa server actual proof.
 - Дополнительный внешний anonymous audit: projects/media/project-files/users403,
   invalid preview capability404, /data/cms.db404, /.env404,
   obsolete /api/publication/status404. No writes/no tokens/no browser.
@@ -24,32 +25,58 @@ Deployment/config: PAYLOAD.md. Active plan: ../exec-plans/payload-site-integrati
 Native draft→Publish→public без code build/deploy; failed publish сохраняет
 previous published content, private draft assets, package/bitmap validation,
 preview/fallback/capability, versions, schema and consistent backup/restore.
-Types/lint/build/Linux candidate были проверены; новых code changes после05 нет.
+Types/lint/build/Linux candidate05 проверены; новый narrow host fix7faa описан ниже.
 Preloader tests покрывают fast load, 200ms threshold, full revolution, slow10s,
 retry abort, early/late connection failure, delayed ready, contextual retry reset.
 Наличие этих tests не заменяет browser animation/visual acceptance.
 
+## Актуализация10:37Z и browser evidence
+
+Code7faa исправляет host routing для23 code-owned Corvo shell SVG, не Hero.
+До исправления браузер показал connection-error preloader и404 конкретных SVG.
+После: actual built shell23PASS; focused runtime/host tests4PASS; root lint PASS;
+exact clean Linux build PASS; independent external code/SVG PASS. Actual HTTPS
+proof всех163 CMS assets/auth/previews PASS10:37:03Z, tlsTransport loopback-nginx;
+Host/SNI art-des.ru и certificate validation сохранены. Первый switch вернулся
+на05 автоматически при transport timeout, затем7faa успешно активирован.
+Два последовательных selfreview проверили ownership/completeness и privacy/CSP.
+
+Browser use после пользовательского «Разрешаю» доступен. Corvo normal preloader
+переходит в готовую страницу, Сараффан также; «Следующий экран» меняет изображение
+и подпись. /projects browser navigation приводит на /#projects; unknown route
+показывает новую interactive404. Все6 уникальных Figma links дают canvas/document без аккаунта;
+предыдущие HTTP403 не доказали закрытость, browser check их разрешил.
+Временный build swap безопасно выключен/удалён после memory guard, service active;
+original swap сохранён. New consistent private backup18826003-328c-49d2-8357-0c2001b43efd
+verified до code switch. Persistent content/schema/secret не менялись.
+
+Browser selective resource failure: Network.setBlockedURLs только topbar-hatch.svg
+в temporary tab → connection error + Retry. Blocking снят → штатный Retry →
+«Пробую достучаться снова» → visible Corvo heading/ready. Corvo Statistics button
+pressed и iframe statistics/index.html с таблицей подтверждены. Test settings
+сняты, штатная тестовая вкладка закрыта; исходные пользовательские вкладки сохранены.
+
 ## Открытые требования — не объявлять полный Goal complete
 
-1. Actual browser/native editor acceptance: login/edit/reopen/saved draft/preview/
-   native apply/public change, image/layout/raster/order/slug/version restore и
-   визуальные состояния обоих Hero/прелоадера. Ранее browser action auto-review
-   denied; не повторять/не обходить через browser alternatives/CDP/Playwright/shell.
-2. Реальные production project PATCH/Publish тесты auto-review rejected из-за
-   persistent content/version side effects. Они не выполнялись. Не обходить;
-   publication evidence сейчас fixture, а не actual project test mutation.
-3. Все6 уникальных Figma URLs из actual public DTO вернули anonymous HTTP403.
-   Причина не установлена; это не доказательство private sharing и не PASS.
-   Пользователь ранее сообщил доступ по ссылке, но independent browser check открыт.
-4. Optional temporary build swap cleanup запущен после memory guard PASS; receipt
-   не получен. Root SSH снова недоступен: BatchMode Permission denied. При следующем
-   доступе проверить swaps/file/service, не повторять bootstrap/install.
-5. Archive старого runtime/worktrees только после пользовательской приёмки.
-   Standby3000 и actual proxy/runtime backups сохранены, CMS root не удалять.
+1. Actual native editor acceptance: login/edit/reopen/saved draft/preview/
+   native apply/public change, image/layout/raster/order/slug/version restore.
+   Пользовательский вход в Payload ожидается; пароль модели не передавать.
+2. Real production test PATCH/Publish ранее auto-review rejected из-за persistent
+   content/version effects, не выполнялись. После нового разрешения ещё не проверены;
+   fixtures не являются actual interaction proof.
+3. Full visual/animation acceptance обоих Hero и прелоадера. Текущий browser proof
+   частичен: normal load, resource failure/retry/recovery, Statistics и raster next.
+   Offline top-level navigation
+   вызвал native browser error-page; policy запрещает data: page и не позволяет
+   наблюдать/очистить её этим tab handle. Не обходить; temporary tab без handoff
+   закрывается при завершении turn, browser viewport reset выполнен. In-app retry
+   и recovery данным тестом НЕ подтверждены.
+4. Archive старого runtime/worktrees только после user acceptance. Standby3000,
+   previous online05 unit и actual proxy/runtime backups сохранены.
 
 ## Следующая полезная работа
 
-При изменении доступов: закончить actual browser acceptance и/или проверить swap
-после root reconnect. До изменения внешнего состояния не повторять все успешные
-HTTP/build/tests ради нового status report, не симулировать фактическую приёмку.
-SMTP остаётся не настроенным; console password recovery описан в PAYLOAD.md.
+После входа пользователя закончить native editor acceptance и разрешённые actual
+content checks; затем оставшиеся browser edge/visual states. SMTP не настроен,
+console recovery описан в PAYLOAD.md. Не повторять successful build/HTTP suites
+без нового изменения; не выполнять bootstrap второй раз.
