@@ -269,3 +269,19 @@ Browser auto-review отклонил открытие localhost из-за пол
 browser surface. Visual/UI acceptance остаётся непроверенной; API/CLI implementation
 и проверки продолжаются независимо. Layout file/package upload, same-renderer
 preview и site publication ещё не завершены.
+
+## Checkpoint: native layout file download boundary
+
+До package upload закрыта CMS-origin execution boundary: native project-files/file
+GET/HEAD получает attachment + CSP sandbox/default-src none + nosniff/private
+no-store/noindex. Policy использует decoded route segments: encoded collection
+name не обходит защиту. Collection JSON/media/auth/preview не меняются.
+
+HTTP integration на existing disposable HTML PASS: anonymous403, authenticated
+GET200 и byte-for-byte file equality, encoded collection same behavior, HEAD200
+с теми же заголовками и пустым body, collection JSON без attachment. Обнаруженный
+HEAD404 исправлен explicit HEAD→authenticated GET mapping без ответа body.
+2 policy unit tests/full native suite/typecheck/lint/build PASS.
+Review1 completeness: native download изолирован независимо от будущего preview.
+Review2 regression/risk: access не расширяется, response bytes/status сохраняются,
+no user data/public renderer change. Same-renderer sandbox preview ещё требуется.

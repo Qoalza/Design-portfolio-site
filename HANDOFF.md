@@ -25,6 +25,8 @@ re-encoding отключён; original/prepared bytes сохраняются к�
 Copy CRUD/marks/optional fields готовы; оба templates native save/reopen и
 full tests/typecheck/lint/build PASS. Browser read denied by auto-review; не повторять
 и не обходить; UI acceptance остаётся pending, API/CLI работу продолжать.
+Native project-files downloads защищены attachment/CSP sandbox; real HTTP
+GET/HEAD/encoded path/auth/bytes и full tests/typecheck/lint/build PASS.
 Далее layout package ingest/upload;
 затем закончить отсутствующие authoring actions и same-renderer preview.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
