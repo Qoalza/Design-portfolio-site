@@ -64,7 +64,7 @@ export async function compilePreview({inputFile,output,base}){
  async function scan(directory){for(const entry of await readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name);if((await lstat(file)).isSymbolicLink())throw new Error('Preview symlink');if(entry.isDirectory())await scan(file);else if(entry.isFile()){const bytes=await readFile(file);files.push({path:path.relative(output,file).split(path.sep).join('/'),size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')});}else throw new Error('Unsupported preview entry');}}
  await scan(output);
  const packageFiles=Object.fromEntries(documents.flatMap(project=>project.redesign?.hero.kind==='layout'?project.redesign.hero.scenes.flatMap(scene=>scene.source.kind==='package'?scene.source.files.map(file=>[scene.source.assetBase.slice(1)+file.path,file.mime]):[]):[]));
- const manifest={version:1,revision:input.revision,source:input.source,base,files:files.sort((a,b)=>a.path.localeCompare(b.path)),packageFiles};
+ const manifest={version:1,revision:input.revision,source:input.source,base,contentAssets:assets.map(asset=>asset.publicPath),files:files.sort((a,b)=>a.path.localeCompare(b.path)),packageFiles};
  await writeFile(path.join(output,'preview-manifest.json'),JSON.stringify(manifest));
  return manifest;
 }

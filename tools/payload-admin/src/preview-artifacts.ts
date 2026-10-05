@@ -1,70 +1,84 @@
 import {randomBytes,createHash} from 'node:crypto'
-import {mkdtemp,mkdir,writeFile,readFile,rm,lstat} from 'node:fs/promises'
+import {readFile,lstat} from 'node:fs/promises'
 import path from 'node:path'
-import {execFile} from 'node:child_process'
-import {promisify} from 'node:util'
 import type {preparePreviewRelease} from './preview'
 import {layoutPackageCsp} from '../../portfolio-release/layout-package-policy.mjs'
-const exec=promisify(execFile)
 type Prepared=NonNullable<Awaited<ReturnType<typeof preparePreviewRelease>>>
-type Manifest={version:1;revision:string;base:string;files:Array<{path:string;size:number;sha256:string}>;packageFiles:Record<string,string>;source:{projectId:number;mode:'draft'|'published'}}
-type Artifact={directory:string;manifest:Manifest;expires:number;routes:Set<string>;revision:string;owner:number}
-type PreviewState={artifacts:Map<string,Artifact>;compiling:boolean}
+type File={content:Buffer;mime?:string;packaged:boolean;scoped?:boolean}
+type Artifact={prepared:Prepared;expires:number;owner:number;files:Map<string,File>;routes:Set<string>;base:string}
+type Shell={files:Map<string,File>}
+type PreviewState={artifacts:Map<string,Artifact>;shell?:{root:string;promise:Promise<Shell>}}
 const processState=globalThis as typeof globalThis & {__payloadPrivatePreviewState?:PreviewState}
-const state:PreviewState=processState.__payloadPrivatePreviewState??={artifacts:new Map<string,Artifact>(),compiling:false}
-const artifacts=state.artifacts
-export function lastPreviewArtifact(owner:number,projectId:number,mode:'draft'|'published') {
- const items=[...artifacts].reverse()
- const item=items.find(([,artifact])=>artifact.owner===owner&&artifact.manifest.source.projectId===projectId&&artifact.manifest.source.mode===mode&&artifact.expires>Date.now())
- return item?{base:`/api/preview-artifacts/${item[0]}/`,expires:item[1].expires}:null
-}
+const state:PreviewState=processState.__payloadPrivatePreviewState??={artifacts:new Map<string,Artifact>()}
+const placeholder='/api/preview-artifacts/'+'0'.repeat(64)+'/'
 const ttl=30*60*1000
 const mime:Record<string,string>={html:'text/html; charset=utf-8',css:'text/css; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',json:'application/json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',avif:'image/avif',svg:'image/svg+xml',woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',otf:'font/otf',wasm:'application/wasm'}
-export async function createPreviewArtifact({prepared,dataRoot,owner}:{prepared:Prepared;dataRoot:string;owner:number}) {
- // Creation is called only after native auth and full producer validation. The frame
- // receives a read-only expiring capability, never CMS cookies, JWTs or API credentials.
- for(const [key,item] of artifacts)if(item.expires<Date.now()){artifacts.delete(key);await rm(item.directory,{recursive:true,force:true})}
- for(const [key,item] of artifacts)if(item.owner===owner&&item.revision===prepared.revision){return {base:`/api/preview-artifacts/${key}/`,expires:item.expires}}
- if(state.compiling)throw new Error('Preview compilation already in progress')
- if(artifacts.size>=8||[...artifacts.values()].reduce((sum,item)=>sum+item.manifest.files.reduce((size,file)=>size+file.size,0),0)>384*1024*1024)throw new Error('Preview cache capacity exceeded')
- if(prepared.assets.reduce((sum,asset)=>sum+asset.bytes.length,0)>128*1024*1024)throw new Error('Preview asset budget exceeded')
- state.compiling=true
- let directory:string|undefined
- try {
-  const cache=path.join(dataRoot,'previews');await mkdir(cache,{recursive:true,mode:0o700})
-  if((await lstat(cache)).isSymbolicLink())throw new Error('Preview cache symlink')
-  directory=await mkdtemp(path.join(cache,'artifact-'))
-  const key=randomBytes(32).toString('hex'),base=`/api/preview-artifacts/${key}/`
-  const input=path.join(directory,'input.json'),output=path.join(directory,'site')
-  await writeFile(input,JSON.stringify({...prepared,assets:prepared.assets.map(asset=>({publicPath:asset.publicPath,sha256:asset.sha256,base64:asset.bytes.toString('base64')}))}),{mode:0o600})
-  const appRoot=path.resolve(/*turbopackIgnore: true*/ process.cwd())
-  const compileEnv:NodeJS.ProcessEnv={...process.env,PORTFOLIO_PROJECT_SNAPSHOT:''};delete compileEnv.PAYLOAD_SECRET
-  await exec(process.execPath,['--import','tsx',path.join(appRoot,'scripts/preview/compile.mjs'),input,output,base],{cwd:appRoot,timeout:120000,maxBuffer:1024*1024,env:compileEnv})
-  await rm(input)
-  const manifest=JSON.parse(await readFile(path.join(output,'preview-manifest.json'),'utf8')) as Manifest
-  if(manifest.version!==1||manifest.revision!==prepared.revision||manifest.base!==base||manifest.files.length>4096||manifest.files.reduce((sum,file)=>sum+file.size,0)>128*1024*1024)throw new Error('Preview manifest mismatch')
-  const expires=Date.now()+ttl
-  artifacts.set(key,{directory,manifest,expires,revision:prepared.revision,owner,routes:new Set(['',...prepared.projects.map(project=>`projects/${project.slug}`)])})
-  return {base,expires}
- }catch{if(directory)await rm(directory,{recursive:true,force:true});throw new Error('Не удалось собрать предпросмотр. Проверьте сохранённые данные и ресурсы.')}
- finally{state.compiling=false}
+function scopeValue(value:unknown,base:string):unknown{
+ if(typeof value==='string')return /^\/(assets|figma|fonts|cursors|projects)(\/|$)/.test(value)?base+value.slice(1):value
+ if(Array.isArray(value))return value.map(item=>scopeValue(item,base))
+ if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,scopeValue(item,base)]))
+ return value
 }
-export async function previewArtifactResponse(key:string,segments:string[],head=false) {
- const denied=()=>new Response(head?null:'Not found',{status:404,headers:{'Cache-Control':'no-store','X-Robots-Tag':'noindex'}})
+async function safeRead(root:string,name:string){
+ if(!/^[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(name)||name.split('/').some(part=>!part||part==='.'||part==='..'))throw new Error('Unsafe preview shell path')
+ let current=root
+ for(const part of name.split('/')){current=path.join(current,part);if((await lstat(current)).isSymbolicLink())throw new Error('Preview shell symlink')}
+ return readFile(current)
+}
+async function loadShell(root:string):Promise<Shell>{
+ if((await lstat(root)).isSymbolicLink())throw new Error('Preview shell symlink')
+ const manifest=JSON.parse((await safeRead(root,'preview-manifest.json')).toString('utf8')) as {version:number;base:string;files:Array<{path:string;size:number;sha256:string}>;contentAssets:string[]}
+ if(manifest.version!==1||manifest.base!==placeholder||!Array.isArray(manifest.contentAssets)||!Array.isArray(manifest.files)||manifest.files.length>4096||manifest.files.reduce((sum,file)=>sum+file.size,0)>128*1024*1024)throw new Error('Invalid prebuilt preview shell')
+ const files=new Map<string,File>(),contentAssets=new Set(manifest.contentAssets.map(name=>name.replace(/^\//,'')))
+ for(const entry of manifest.files){
+  if(contentAssets.has(entry.path))continue
+  if(files.has(entry.path))throw new Error('Duplicate preview shell file')
+  const content=await safeRead(root,entry.path)
+  if(content.length!==entry.size||createHash('sha256').update(content).digest('hex')!==entry.sha256)throw new Error('Preview shell checksum mismatch')
+  files.set(entry.path,{content,packaged:false,scoped:/\.(html|css|js|mjs)$/.test(entry.path)})
+ }
+ if(!files.has('index.html'))throw new Error('Preview shell entry missing')
+ return {files}
+}
+export function lastPreviewArtifact(owner:number,projectId:number,mode:'draft'|'published'){
+ const item=[...state.artifacts].reverse().find(([,artifact])=>artifact.owner===owner&&artifact.prepared.source.projectId===projectId&&artifact.prepared.source.mode===mode&&artifact.expires>Date.now())
+ return item?{base:item[1].base,expires:item[1].expires,slug:item[1].prepared.source.slug}:null
+}
+export async function createPreviewArtifact({prepared,owner}:{prepared:Prepared;dataRoot:string;owner:number}){
+ // Native auth and validation precede creation. Only an expiring read capability
+ // enters the sandboxed frame; compilation belongs exclusively to code release.
+ for(const [key,item] of state.artifacts)if(item.expires<Date.now())state.artifacts.delete(key)
+ for(const item of state.artifacts.values())if(item.owner===owner&&item.prepared.revision===prepared.revision)return {base:item.base,expires:item.expires,slug:item.prepared.source.slug}
+ if(!Number.isSafeInteger(owner)||owner<=0)throw new Error('Preview owner required')
+ const root=path.resolve(/*turbopackIgnore: true*/ process.env.PORTFOLIO_PREVIEW_ROOT||path.resolve(process.cwd(),'../../.portfolio-release/preview'))
+ if(state.shell?.root!==root)state.shell={root,promise:loadShell(root)}
+ const shell=await state.shell.promise
+ for(const item of state.artifacts.values())if(item.owner===owner&&item.prepared.revision===prepared.revision)return {base:item.base,expires:item.expires,slug:item.prepared.source.slug}
+ const size=prepared.assets.reduce((sum,asset)=>sum+asset.bytes.length,0)
+ const cachedSize=[...state.artifacts.values()].reduce((sum,item)=>sum+item.prepared.assets.reduce((total,asset)=>total+asset.bytes.length,0),0)
+ if(state.artifacts.size>=8||size>128*1024*1024||cachedSize+size>384*1024*1024)throw new Error('Preview cache capacity exceeded')
+ const key=randomBytes(32).toString('hex'),base=`/api/preview-artifacts/${key}/`,files=new Map(shell.files)
+ const packageTypes=new Map<string,string>()
+ for(const project of prepared.projects)if(project.redesign?.hero.kind==='layout')for(const scene of project.redesign.hero.scenes)if(scene.source.kind==='package')for(const file of scene.source.files)packageTypes.set(scene.source.assetBase+file.path,file.mime)
+ for(const asset of prepared.assets)files.set(asset.publicPath.slice(1),{content:asset.bytes,mime:packageTypes.get(asset.publicPath),packaged:packageTypes.has(asset.publicPath)})
+ const json=JSON.stringify({version:1,revision:prepared.revision,projects:scopeValue(prepared.projects,base)}).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029')
+ const html=files.get('index.html')!.content.toString('utf8').replaceAll(placeholder,base).replace('</head>',`<script id="portfolio-projects" type="application/json">${json}</script></head>`)
+ files.set('index.html',{content:Buffer.from(html),packaged:false})
+ const expires=Date.now()+ttl
+ state.artifacts.set(key,{prepared,expires,owner,files,routes:new Set(['',...prepared.projects.map(project=>`projects/${project.slug}`)]),base})
+ return {base,expires,slug:prepared.source.slug}
+}
+export async function previewArtifactResponse(key:string,segments:string[],head=false){
+ const denied=()=>new Response(null,{status:404,headers:{'Cache-Control':'no-store','X-Robots-Tag':'noindex'}})
  if(!/^[a-f0-9]{64}$/.test(key)||segments.some(segment=>!segment||segment==='.'||segment==='..'||/[\\/%\u0000-\u001f]/.test(segment)))return denied()
- const item=artifacts.get(key)
+ const item=state.artifacts.get(key)
  if(!item||item.expires<Date.now())return denied()
  const route=segments.join('/'),name=item.routes.has(route)?'index.html':route
- const entry=item.manifest.files.find(file=>file.path===name)
- if(!entry)return denied()
- try {
-  const file=path.join(item.directory,'site',name)
-  if((await lstat(file)).isSymbolicLink())return denied()
-  const bytes=await readFile(file)
-  if(bytes.length!==entry.size||createHash('sha256').update(bytes).digest('hex')!==entry.sha256)return denied()
-  const type=item.manifest.packageFiles[name]??mime[name.split('.').at(-1)!]??'application/octet-stream'
-  const headers:Record<string,string>={'Content-Type':type,'Content-Length':String(bytes.length),'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Access-Control-Allow-Origin':'*'}
-  if(type.startsWith('text/html'))headers['Content-Security-Policy']=item.manifest.packageFiles[name]?layoutPackageCsp:"sandbox allow-scripts; default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self' https:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
-  return new Response(head?null:new Uint8Array(bytes),{headers})
- }catch{return denied()}
+ const file=item.files.get(name)
+ if(!file)return denied()
+ const bytes=file.scoped?Buffer.from(file.content.toString('utf8').replaceAll(placeholder,item.base)):file.content
+ const type=file.mime??mime[name.split('.').at(-1)!]??'application/octet-stream'
+ const headers:Record<string,string>={'Content-Type':type,'Content-Length':String(bytes.length),'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Access-Control-Allow-Origin':'*'}
+ if(type.startsWith('text/html')||type==='image/svg+xml')headers['Content-Security-Policy']=file.packaged?layoutPackageCsp:"sandbox allow-scripts; default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; frame-src 'self' https:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+ return new Response(head?null:new Uint8Array(bytes),{headers})
 }

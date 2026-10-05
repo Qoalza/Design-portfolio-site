@@ -14,10 +14,11 @@ async function sourceHash() {
       else if (entry.isFile()) { hash.update(file); hash.update(await readFile(path.join(appRoot, file))) }
     }
   }
-  for (const dir of ['src', 'scripts', 'public']) await walk(dir)
+  for (const dir of ['src', 'scripts', 'public', '../concept-v2/app/src', '../portfolio-release']) await walk(dir)
   for (const file of ['package.json', 'package-lock.json', 'next.config.mjs', 'tsconfig.json']) hash.update(await readFile(path.join(appRoot, file)))
   // Native Payload validation also depends on the shared content contract.
-  for (const file of ['project-contract.ts', 'project-redesign-contract.ts', 'project-visual-registry.ts']) hash.update(await readFile(path.resolve(appRoot, '../../src/lib', file)))
+  for (const file of ['project-contract.ts', 'project-redesign-contract.ts', 'project-visual-registry.ts', 'project-image-source.mjs']) hash.update(await readFile(path.resolve(appRoot, '../../src/lib', file)))
+  for(const file of ['../concept-v2/export-approved-content.mjs','../concept-v2/approved-content-vite.mjs','../concept-v2/app/vite.config.js','../concept-v2/app/index.html','../concept-v2/app/package.json','../concept-v2/app/package-lock.json'])hash.update(await readFile(path.resolve(appRoot,file)))
   return hash.digest('hex')
 }
 async function main() {
@@ -49,6 +50,7 @@ async function main() {
     const commands = mode === 'generate'
       ? [['--import', 'tsx', 'node_modules/payload/bin.js', '--disable-transpile', 'generate:importmap'], ['--import', 'tsx', 'node_modules/payload/bin.js', '--disable-transpile', 'generate:types']]
       : [['node_modules/next/dist/bin/next', mode, ...(mode === 'build' ? [] : ['--hostname', '127.0.0.1', '--port', String(state.port)])]]
+    if(mode==='build')commands.unshift(['--import','tsx','scripts/preview/build-shell.mjs'])
     for (const args of commands) {
       const child = spawn(process.execPath, args, { cwd: appRoot, env, stdio: 'inherit' })
       const completion = new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', code => resolve(code ?? 1)) })

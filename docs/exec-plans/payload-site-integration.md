@@ -542,3 +542,24 @@ baseline убирает новый ресурс. Public HTML/title checks для
 Full native suite/typecheck/lint/build; root host checks; renderer build PASS.
 Две последовательные selfreviews: fidelity/completeness, затем regression/access/
 transaction/scope. Production и Hero не менялись. Далее: no-build private preview.
+
+## Checkpoint версии2.0: no-build private preview
+
+Предпросмотр переиспользует prebuilt renderer с фиксированным внутренним namespace.
+Code build один раз компилирует shell; создание saved-draft preview подставляет
+escaped runtime DTO, выдаёт только verified draft assets и меняет namespace
+статических JS/CSS. HTML packages сохраняют точные bytes без переписывания.
+Ни compiler, ни Git, ни subprocess больше не вызываются на content/preview path.
+Native authentication создаёт expiring read-only capability, frame sandbox,
+CORS/no-store/robots/no-referrer. Raw DB/manifest/unknown files404. Failed preview
+сохраняет прошлый успешный frame с его собственным slug, даже после invalid rename.
+Cache имеет лимит8/384MB и проверку capacity после async shell load.
+Build freshness теперь покрывает renderer/shared image helper/host/tooling.
+
+Evidence: no-build preview fixture RED→GREEN; actual Next HTTP обеих templates,
+новый saved draft title в runtime JSON, public DTO неизменен, BUILD_ID/prebuilt
+shell digest unchanged, anonymous creation denied, HEAD/CSP/CORS/no-store and
+unknown namespaces404. Missing-file renamed draft показывает previous successful
+frame; fixture восстановлен. Native suite/types/lint/build PASS; два selfreview
+с исправлениями capacity race/fallback slug до final HTTP check. Browser не запускался.
+Далее server environment/permanent storage/HTTPS/code packaging/bootstrap/deploy.

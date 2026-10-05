@@ -34,7 +34,7 @@ export default async function Preview({params,searchParams}:{params:Promise<{id:
    <a href="?mode=published" aria-current={mode==='published'?'page':undefined}>Опубликованная версия</a>
    <a href={artifact?.base}>Главная в предпросмотре</a>
   </nav>
-  {failed?<p role="alert" className="preview-hint">Не удалось собрать текущую версию. Проверьте сохранённые данные и ресурсы.{artifact?' Ниже остаётся предыдущий успешный предпросмотр.':''}</p>:<p className="preview-hint">Показана сохранённая версия. После правок сохраните проект и обновите страницу. Предпросмотр действует 30 минут.</p>}
-  {artifact&&<iframe title={`Предпросмотр: ${project.title}`} sandbox="allow-scripts" referrerPolicy="no-referrer" src={`${artifact.base}projects/${project.slug}`} style={{display:'block',width:'100%',height:'calc(100vh - 110px)',border:0}}/>}
+  {failed?<p role="alert" className="preview-hint">Не удалось открыть текущую версию. Проверьте сохранённые данные и ресурсы.{artifact?' Ниже остаётся предыдущий успешный предпросмотр.':''}</p>:<p className="preview-hint">Показана сохранённая версия. После правок сохраните проект и обновите страницу. Предпросмотр действует 30 минут.</p>}
+  {artifact&&<iframe title={`Предпросмотр: ${project.title}`} sandbox="allow-scripts" referrerPolicy="no-referrer" src={`${artifact.base}projects/${artifact.slug}`} style={{display:'block',width:'100%',height:'calc(100vh - 110px)',border:0}}/>}
  </>
 }
