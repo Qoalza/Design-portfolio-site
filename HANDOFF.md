@@ -25,7 +25,7 @@ physics/adaptives не менялись; Portfolio desktop-only, главная 
 - Owner owner@art-des.ru. Credential file /var/lib/art-des-payload/initial-owner.json
   приватный0600. Пароль/JWT/secret НЕ читать или печатать в tool outputs/chat/Git.
   Пользователь получает пароль самостоятельно в серверном терминале.
-- Root SSH восстановлен пользователем. Временный build swap после memory guard
+- Root SSH ранее восстановлен пользователем, сейчас канал истёк. Временный build swap после memory guard
   выключен и удалён, receipt TEMP_BUILD_SWAP_CLEANUP_VERIFIED; /swapfile сохранён.
 
 ## Последнее исправление и evidence
@@ -50,8 +50,9 @@ Browser: Corvo normal preloader→ready; Сараффан normal preloader→rea
 canvas открыт без аккаунта. Corvo Statistics selection открывает готовый statistics/index.html, iframe body
 с таблицей подтверждён. Selective missing-SVG browser test показал connection
 error→«Повторить»→«Пробую достучаться снова»→ready Corvo; blocked URLs сняты.
-Full native editor/content publication acceptance
-остаётся открытой: пользователь ещё не подтвердил вход в Payload.
+Пользователь вошёл в native Payload. Actual draft/reopen/private preview/Publish,
+public update и штатное восстановление версии теперь проверены; остальные
+editor/material acceptance пункты остаются открытыми.
 Offline top-level navigation в temporary tab привёл к native browser error page;
 Browser Use policy запрещает data: error-page, поэтому in-app retry этим тестом
 не проверен. Selective asset failure/retry проверен отдельным тестом выше.
@@ -72,11 +73,16 @@ Actual DB НЕ test-restored; restore/publication behavior проверены н
 
 ## Следующий шаг / stop-lines
 
-Дождаться пользовательского входа в Payload и закончить native editor browser
-acceptance: saved draft/reopen/preview/native Publish/public update; image/layout/
-raster/order/slug/version restore. Реальные test project writes ранее rejected
-auto-review из-за persistent versions/content; после нового «Разрешаю» они ещё
-не выполнялись. Не подменять actual acceptance fixture evidence.
+Закончить оставшуюся native editor acceptance: image/layout upload, raster/order,
+published slug change и сопутствующие public asset checks. Actual текстовый
+черновик пережил reload, private preview показал правку, public DTO остался
+побайтно прежним до native Publish. Публикация показала правку публично; исходный
+текст восстановлен, оба public projects полностью совпали с baseline. Native
+versions restore исходной версии также PASS. Draft slug сохранился после reload
+и не изменил public projects; штатный возврат к published проверен. Test versions
+сохраняются как обычная история CMS; canonical Git content не менялся.
+Прежний root SSH канал истёк; CMS browser workflow доступен независимо от него.
+Не подменять actual acceptance fixture evidence.
 Main slow state при12000ms latency и automatic ready после снятия задержки PASS.
 Slow Retry1/2 теперь PASS через удержанный Image request: корректные captions,
 повторный slow и ready после release. Late slow→connection и connection Retry1/2

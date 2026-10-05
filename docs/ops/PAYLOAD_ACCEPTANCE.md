@@ -58,12 +58,12 @@ pressed и iframe statistics/index.html с таблицей подтвержде
 
 ## Открытые требования — не объявлять полный Goal complete
 
-1. Actual native editor acceptance: login/edit/reopen/saved draft/preview/
-   native apply/public change, image/layout/raster/order/slug/version restore.
-   Пользовательский вход в Payload ожидается; пароль модели не передавать.
-2. Real production test PATCH/Publish ранее auto-review rejected из-за persistent
-   content/version effects, не выполнялись. После нового разрешения ещё не проверены;
-   fixtures не являются actual interaction proof.
+1. Оставшаяся actual native editor acceptance: image/layout uploads, raster/order,
+   published slug change и публичная выдача новых ресурсов. Login/text draft/
+   reopen/preview/native Publish/version restore проверены в checkpoint ниже.
+2. Прежние shell PATCH/Publish были rejected и не выполнялись. Последующий
+   разрешённый тест сделан штатным browser UI, с возвратом исходных данных.
+   Fixtures по-прежнему не заменяют непроверенные actual interactions.
 3. Full visual/animation acceptance обоих Hero и прелоадера. Текущий browser proof
    частичен: normal load, resource failure/retry/recovery, Statistics и raster next.
    Offline top-level navigation
@@ -76,8 +76,8 @@ pressed и iframe statistics/index.html с таблицей подтвержде
 
 ## Следующая полезная работа
 
-После входа пользователя закончить native editor acceptance и разрешённые actual
-content checks; затем оставшиеся browser edge/visual states. SMTP не настроен,
+Закончить оставшуюся native editor acceptance и разрешённые actual
+material checks; затем оставшиеся browser edge/visual states. SMTP не настроен,
 console recovery описан в PAYLOAD.md. Не повторять successful build/HTTP suites
 без нового изменения; не выполнять bootstrap второй раз.
 
@@ -111,3 +111,25 @@ non-Document Fetch pattern. После10s появилась «Долгая за
 «Снова пробую выйти на связь» и вернул ready Corvo. Документы/навигационные ответы
 не перехватывались агентом. Network/cache/raw Fetch overrides очищены, tab закрыт.
 CMS projects/versions/code не менялись. Native login всё ещё pending на /admin/login.
+
+## Browser checkpoint: native редактирование и восстановление
+
+Пользователь самостоятельно вошёл в Payload; пароль, cookie и tokens не читались.
+На project2 штатный редактор изменил subtitle тестовой пометкой. Save draft →
+reload сохранил текст; private draft preview показал его. Public /api/site-content
+до Publish побайтно совпал с исходным baseline. Native Publish показал пометку в
+public DTO без выпуска кода. Для возврата исходный текст отдельно сохранён
+черновиком и опубликован; public projects полностью совпали с baseline.
+Первая быстрая попытка возврата через Publish не дала подтверждённого public
+изменения; успешной считаем только последующую save-draft/Publish + DTO проверку.
+Не объявлять причину первой попытки установленным дефектом без воспроизведения.
+
+Native Versions показали текущую и прежние published/draft версии. Исходная
+версия2 восстановлена штатной кнопкой с подтверждением; public projects parity
+PASS. Draft slug sarafan-radio-cms-check сохранился после reload, опубликованные
+projects остались исходными. Затем штатный возврат к published убрал тестовый
+черновик. Hero/scenes/assets не редактировались. Test versions остаются обычной
+историей CMS, не удаляются. Canonical Git content не менялся.
+
+Это не полная приёмка uploads/layout/raster/order/published slug change. Root
+SSH истёк; текущий browser CMS workflow не требует этого канала.

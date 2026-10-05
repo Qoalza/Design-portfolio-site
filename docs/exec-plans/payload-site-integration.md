@@ -730,3 +730,16 @@ non-Document Fetch pattern. После10s появилась «Долгая за
 «Снова пробую выйти на связь» и вернул ready Corvo. Документы/навигационные ответы
 не перехватывались агентом. Network/cache/raw Fetch overrides очищены, tab закрыт.
 CMS projects/versions/code не менялись. Native login всё ещё pending на /admin/login.
+
+## Browser checkpoint: native CMS после пользовательского входа
+
+2026-10-05, code7faa. Actual browser save draft/reopen/private preview/native
+Publish/public DTO update PASS. Исходный subtitle восстановлен через отдельные
+save-draft/Publish и проверен public projects equality с baseline. Native restore
+исходной version2 также PASS. Draft slug сохраняется после reload и не меняет
+public data; тестовый черновик возвращён к published штатно. Test versions
+сохранены, canonical Git/Hero/resources не изменялись. Первая быстрая попытка
+возврата не подтвердилась; причина не установлена, успешная последующая цепочка
+проверена по DTO. Оставшиеся actual uploads/layout/raster/order/published slug
+acceptance открыты. Root SSH истёк; browser редактирование работает независимо.
+Подробное evidence: docs/ops/PAYLOAD_ACCEPTANCE.md. Goal не объявлять complete.
