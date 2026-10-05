@@ -38,7 +38,10 @@ PASS; детали capability/auth/closure в ExecPlan. Browser acceptance pendi
 scratch public Next build PASS. Clean717f711 CMS-source build/archive/unpack/HTTP proof PASS (details ExecPlan,
 /private/tmp/payload-site-offline-proof.json). Additional bundled snapshot guard
 и actual tamper/reverify PASS; final candidate нужен свежий build на новом HEAD.
-Далее группа5 publication workflow, sourceHash/cache cleanup/bootstrap/final checks.
+Группа5: durable OperationStore и neutral deploy-v2 transport foundation готовы;
+replay/concurrency/reopen/unknown/exact identity/timeouts focused tests + types/lint
+PASS. Worker/API/UI/live config/recovery пока не подключены. Далее именно этот
+publication workflow, затем sourceHash/cache cleanup/bootstrap/final checks.
 Own exported fixture pointer /private/tmp/payload-site-build-snapshot.txt.
 Не повторять и не обходить denied browser action. Personal state/production untouched.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.

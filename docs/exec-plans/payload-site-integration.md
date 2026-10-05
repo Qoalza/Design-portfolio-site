@@ -424,3 +424,37 @@ reject/restore/reverify и focused lint PASS. Эта дополнительна�
 Group4 implementation/CLI proof готовы; browser render/motion acceptance остаётся
 pending. Далее группа5 native site-publication operation/UI, не повторный manual
 initial release. Production и personal state не менялись; fixture archive не deploy.
+
+
+## Checkpoint: группа5, durable operation/neutral transport foundation
+
+OperationStore v1 хранит derived status в dataRoot/site-publication, не второй
+контентный store/SQL. Frozen codeSha/contentHash, UUID request identity, owner,
+archive hash/bytes, server operation ID; strict fields/states/errors. Atomic files
+и independent filesystem reservation/update locks. Global active nonterminal job
+не заменяется новым. Повторное requestId возвращает прежний job даже после нового
+active job; payload с тем же requestId и другим content/code reject. Archive identity
+не меняется после ready. Unknown deploy result допускает только observation recovery,
+не повторный upload/start; stale lock автоматически новый deploy не разрешает.
+Worker/restart recovery/partial-write handling ещё нужны, foundation не является
+завершённым publication pipeline.
+
+Neutral tools/portfolio-release/deploy-transport.mjs использует только restricted
+upload-v2/start-v2/status-v2. Ни imports, ни данные/правила old Admin не используются.
+Archive size/full digest before upload, bounded response/progress/hard deadlines,
+exact SHA/archive-derived operation ID, exact status identity; generic errors без
+key/config/SSH stderr в UI. Реальные SSH/deploy команды не выполнялись.
+
+2 durable state tests: reopen, full transitions, same request after completed jobs,
+concurrent reservations, owner boundary, wrong identity/state, immutable archive,
+unknown-result duplicate block PASS. 2 neutral transport tests: forced commands,
+wrong status/response identity, archive corruption, non-progress timeout PASS.
+Native typecheck/lint + root focused lint/diff checks PASS.
+Review1 исправил replay старого requestId после другого active job. Review2 добавил
+immutable archive binding и очищает previous transient error при recovery. No native
+schema/source ownership/UI/public runtime/production changes.
+
+Next: authenticated prepare/status/deploy actions, bounded snapshot-freezing worker,
+clean code checkout/build/archive/validation, exact prepared preview, live-config
+boundary, unknown-result reconciliation + UI. Затем isolated end-to-end deploy-v2
+failure/rollback/restart checks; group6 installation/bootstrap и final acceptance.
