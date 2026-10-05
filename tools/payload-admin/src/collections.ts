@@ -53,6 +53,7 @@ const Gallery: Block = {
 
 export const ProjectFiles: CollectionConfig = {
   slug: 'project-files', labels: { singular: 'Файл проекта', plural: 'Файлы проектов' },
+  admin: { group: false },
   access: privateAccess, upload: true,
   hooks: { beforeOperation: [validateReleaseFileOperation], beforeDelete: [protectReleaseFileDelete] },
   fields: [{ name: 'label', label: 'Название', type: 'text', required: true }],

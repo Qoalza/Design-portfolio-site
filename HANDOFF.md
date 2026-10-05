@@ -29,9 +29,16 @@ Old art-des.service inactive/disabled, original releases сохранены. Д�
 RESTORE.txt в архиве и docs/ops/PAYLOAD.md. Payload data сохраняются.
 Final actual TLS main/Corvo/Sarafan/admin-login200; public projects unchanged.
 
-## Следующая работа
+## Текущая небольшая правка UI Payload
 
-В этой задаче открытых действий нет. Дизайн — отдельная пользовательская задача.
+По запросу пользователя скрыты только технические списки: ProjectFiles admin.group:false
+убирает коллекцию из nav/dashboard с сохранением routes; releaseAssets admin.hidden:true
+убирает read-only bindings из project editor. Schema/access/storage/ingest/Hero не менялись.
+Native typecheck/lint и fixture build PASS. Два review: покрытие обоих UI мест;
+сохранность fields/hooks/routes и отсутствие data/schema changes. На production пока7faa.
+SSH control session истекла, BatchMode denied; нужен пользовательский вход для
+Linux exact build и code switch. No bootstrap/migration/content edit.
+Предыдущая большая задача завершена. Дизайн — отдельная пользовательская задача.
 Visual/animation evidence частично: не заявлять полный visual PASS. Actual DB
 restore не выполнялся, fixture restore PASS. Worktrees не удалять автоматически.
 Plan: docs/exec-plans/payload-site-integration.md COMPLETE.

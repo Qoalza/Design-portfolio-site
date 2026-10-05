@@ -12,7 +12,7 @@ import {prepareRecordAssets} from './release-export'
 // The custom field edits this JSON boundary without a SQL schema change.
 export const releaseFields: Field[] = [
  { name: 'releaseContent', label: 'Данные нового портфолио', type: 'json', admin: { components: { Field: '/components/ReleaseEditor#ReleaseEditor' } } },
- { name: 'releaseAssets', label: 'Ресурсы нового портфолио', type: 'array', admin: { readOnly: true, description: 'Связи создаются при загрузке изображений и верстки. Вручную менять пути не требуется.' }, fields: [
+ { name: 'releaseAssets', label: 'Ресурсы нового портфолио', type: 'array', admin: { hidden: true, readOnly: true, description: 'Связи создаются при загрузке изображений и верстки. Вручную менять пути не требуется.' }, fields: [
   { name: 'publicPath', label: 'Путь в сайте', type: 'text', required: true },
   { name: 'file', label: 'Файл', type: 'upload', relationTo: ['media', 'project-files'], required: true },
  ] },
