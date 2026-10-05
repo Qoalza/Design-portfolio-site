@@ -18,7 +18,11 @@ publication operations и clean bootstrap ещё реализовать/пров
 Hero choice с native-version cache, draft/public export mapping. Tests/lint/typecheck/
 build и browser save/reopen/failure PASS, подробности в ExecPlan checkpoint.
 Группа2: pure image quality helper и6 real image tests/typecheck/lint PASS.
-Далее authenticated ingest, originals/prepared binding, image/package upload;
+Authenticated image ingest/bindings/upload controls/export closure реализованы;
+HTTP/native persistence/export/full tests/typecheck/lint/build PASS. Payload WebP
+re-encoding отключён; original/prepared bytes сохраняются как есть. Browser upload
+не завершился, UI evidence для этого шага ещё требуется.
+Далее layout package ingest/upload;
 затем закончить отсутствующие authoring actions и same-renderer preview.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
 

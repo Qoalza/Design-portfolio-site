@@ -25,7 +25,7 @@ export function editorState(value: unknown): ObjectValue | undefined {
  const state = object(value)._payloadEditor
  if (state === undefined) return undefined
  const result = object(state)
- if (result.version !== 1 || Object.keys(result).some(key => !['version', 'heroes'].includes(key))) throw new Error('Версия данных редактора не поддерживается.')
+ if (result.version !== 1 || Object.keys(result).some(key => !['version', 'heroes', 'materials'].includes(key))) throw new Error('Версия данных редактора не поддерживается.')
  const heroes = object(result.heroes)
  for (const [kind, hero] of Object.entries(heroes)) {
   if (!['layout', 'raster'].includes(kind) || object(hero).kind !== kind) throw new Error('Сохранённый вариант Hero повреждён.')
@@ -52,5 +52,5 @@ export function switchHero(document: Value, kind: HeroKind): Value {
  const heroes = { ...(oldState ? object(oldState.heroes) : {}), [current.kind]: current }
  const selected = heroes[kind] || emptyHero(kind)
  const changed = object(replaceValue(document, ['redesign', 'hero'], selected))
- return { ...changed, _payloadEditor: { version: 1, heroes } }
+ return { ...changed, _payloadEditor: { ...oldState, version: 1, heroes } }
 }

@@ -6,7 +6,6 @@ import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { ru } from '@payloadcms/translations/languages/ru'
 import { buildConfig } from 'payload'
-import sharp from 'sharp'
 import { Projects, Media, Users, ProjectFiles } from './collections'
 
 const directory = path.dirname(fileURLToPath(import.meta.url))
@@ -49,7 +48,7 @@ export default buildConfig({
     push: testRoot && process.env.PAYLOAD_TEST_PUSH === '1',
     migrationDir: path.join(directory, 'migrations'),
   }),
-  sharp,
+  // Store originals and verified candidates byte-for-byte; image ingest owns preparation.
   upload: { limits: { fileSize: 20 * 1024 * 1024 } },
   typescript: { outputFile: path.join(directory, 'payload-types.ts') },
 })

@@ -6,7 +6,7 @@ import sharp from 'sharp'
 import type { User, Project } from './payload-types'
 import { withoutEditorState } from './authoring/hero'
 import { validateProjectDocument, type ProjectDocument } from '../../../src/lib/project-contract'
-import { createProjectSnapshot } from '../../portfolio-release/project-snapshot.mjs'
+import { createProjectSnapshot, requiredAssets } from '../../portfolio-release/project-snapshot.mjs'
 
 export function releaseProjectDocument(record: Project): ProjectDocument {
  if (!record.releaseContent || typeof record.releaseContent !== 'object' || Array.isArray(record.releaseContent)) throw new Error('Project has no redesign content')
@@ -29,7 +29,9 @@ export async function exportPayloadPublished({ payload, user, dataRoot }: { payl
  const records = await readReleaseProjects(payload, user, 'published')
  const projects = records.map(releaseProjectDocument)
  const assets: Array<{ publicPath: string; sha256: string; bytes: Buffer }> = []
+ const required = new Set<string>(projects.flatMap(project => [...requiredAssets(project).paths] as string[]))
  for (const record of records) for (const binding of record.releaseAssets ?? []) {
+  if (!required.has(binding.publicPath)) continue
   const relation = binding.file
   if (!relation?.value) throw new Error('Missing Payload asset relation')
   const media = typeof relation.value === 'object' ? relation.value : await payload.findByID({ collection: relation.relationTo, id: relation.value, user, overrideAccess: false })
@@ -43,7 +45,9 @@ export async function exportPayloadPublished({ payload, user, dataRoot }: { payl
    if (!stat.isFile() || stat.size === 0 || stat.size > 20 * 1024 * 1024) throw new Error('Invalid Payload file')
    bytes = await file.readFile()
   } finally { await file.close() }
-  assets.push({ publicPath: binding.publicPath, sha256: createHash('sha256').update(bytes).digest('hex'), bytes })
+  const sha256=createHash('sha256').update(bytes).digest('hex')
+  if(binding.publicPath.includes('/uploads/') && path.posix.basename(binding.publicPath).split('.')[0]!==sha256) throw new Error('Immutable upload path does not match bytes')
+  assets.push({ publicPath: binding.publicPath, sha256, bytes })
  }
  // Header metadata alone accepts truncated files. Decode every packaged bitmap,
  // including prepared AVIFs and scene resources, before a new snapshot can exist.

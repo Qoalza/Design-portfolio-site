@@ -218,3 +218,32 @@ quality report в native versions, safe slot mapping/upload UI/deletion guards;
 public asset closure исключает originals и unused cached materials.
 Official installed-compatible API sources: https://sharp.pixelplumbing.com/api-output/#keepmetadata,
 https://sharp.pixelplumbing.com/api-output/#webp, https://sharp.pixelplumbing.com/api-input/#metadata.
+
+## Checkpoint: группа2, authenticated image ingest
+
+Реализованы bounded multipart endpoint с native auth/origin/host checks, immutable
+original/prepared native relations и automatic public asset binding, upload/replace/
+append/remove raster controls, quality report в native JSON/versions. Existing
+Hero geometry, renderer и персональное хранилище не изменены. Максимум9 экранов;
+publish сохраняет общий odd-screen validation. Изображения исторических версий
+защищены от удаления. Public export выбирает только requiredAssets closure;
+immutable upload basename проверяется против фактического SHA256.
+
+HTTP проверка на disposable native DB PASS: anonymous401, foreign origin403,
+authenticated upload200, lossless report, save/reopen draft, automatic relation,
+previous published unchanged, original/prepared delete409. Fresh-process export
+PASS: draft upload не экспортируется; после native test publication prepared image
+экспортируется один раз, original/replaced bitmap/private metadata исключены;
+только disposable baseline восстановлен. Файловый диалог браузера не завершился;
+успешной UI загрузки этим evidence не заявляем. Проверка продолжена через API.
+
+Review1 completeness нашёл повторное преобразование WebP внутри Payload:
+installed generateFileData считает любой WebP animated-capable и с config.sharp
+перекодирует его. Убрано встроенное преобразование; установленный Sharp остаётся
+в explicit validation/quality pipeline. Native Media теперь сохраняет байты
+как есть; probeImageSize измеряет размеры, beforeOperation fully decodes bitmap.
+Новый real WebP storage regression и повторные HTTP/export tests PASS.
+Review2 regression/scope: native auth/drafts/history/delete/storage tests PASS,
+original не публичный, no SQL/dependency/production/personal data changes.
+Native full test suite, typecheck/lint/build PASS; прежний dynamic-root tracing
+warning сохраняется. Layout package ingest и UI upload acceptance ещё не закрыты.

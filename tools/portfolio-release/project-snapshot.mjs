@@ -14,7 +14,7 @@ function publicPath(value, slugs) {
  if(typeof value!=='string' || /[\\%?#\u0000-\u0020\u007f]/.test(value) || path.posix.normalize(value)!==value || value.endsWith('/') || !slugs.some(slug=>value.startsWith(`/assets/projects/${slug}/`)))throw new Error('Unsafe public asset path.');
  return value;
 }
-function requiredAssets(project) {
+export function requiredAssets(project) {
  const paths=new Set();
  function visit(value){
   if(!value || typeof value!=='object')return;

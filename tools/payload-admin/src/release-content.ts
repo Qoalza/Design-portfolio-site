@@ -1,13 +1,14 @@
 import { APIError, type Field, type CollectionBeforeChangeHook, type CollectionBeforeDeleteHook, type CollectionBeforeOperationHook } from 'payload'
 import { validateProjectDocument } from '../../../src/lib/project-contract'
 import type { Project } from './payload-types'
+import { materialRecords, usesMaterialFile } from './authoring/materials'
 import { withoutEditorState, withEditorState } from './authoring/hero'
 
 // Native Payload fields and versions remain the single content store.
 // The custom field edits this JSON boundary without a SQL schema change.
 export const releaseFields: Field[] = [
  { name: 'releaseContent', label: 'Данные нового портфолио', type: 'json', admin: { components: { Field: '/components/ReleaseEditor#ReleaseEditor' } } },
- { name: 'releaseAssets', label: 'Ресурсы нового портфолио', type: 'array', fields: [
+ { name: 'releaseAssets', label: 'Ресурсы нового портфолио', type: 'array', admin: { readOnly: true, description: 'Связи создаются при загрузке изображений и верстки. Вручную менять пути не требуется.' }, fields: [
   { name: 'publicPath', label: 'Путь в сайте', type: 'text', required: true },
   { name: 'file', label: 'Файл', type: 'upload', relationTo: ['media', 'project-files'], required: true },
  ] },
@@ -15,16 +16,27 @@ export const releaseFields: Field[] = [
 ]
 export const validateReleaseProject: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
  const effective = { ...originalDoc, ...data }
+ if (effective.releaseContent) {
+  let records
+  try {records=materialRecords(effective.releaseContent)} catch {throw new APIError('Связи материалов повреждены. Повторите загрузку изображения.',400)}
+  const assets=new Map((effective.releaseAssets??[]).map((asset: NonNullable<Project['releaseAssets']>[number])=>[asset.publicPath,asset]))
+  for(const record of records) {
+   if(!record.publicPath.startsWith(`/assets/projects/${effective.slug}/uploads/`)) throw new APIError('Материал принадлежит другому адресу проекта.',400)
+   assets.set(record.publicPath,{publicPath:record.publicPath,file:record.prepared})
+  }
+  if(records.length) data.releaseAssets=[...assets.values()]
+ }
  if (effective._status !== 'published' || !effective.releaseContent) return data
  try {
   const input = withoutEditorState(effective.releaseContent)
   const normalized = validateProjectDocument({ ...input, title: effective.title, slug: effective.slug, visibility: 'published' })
+  if(normalized.redesign?.hero.kind==='raster' && normalized.redesign.hero.slides.length>9) throw new Error('Too many screens')
   data.releaseContent = withEditorState(normalized, effective.releaseContent)
  } catch { throw new APIError('Данные проекта не готовы к публикации. Исправьте поля и входные данные Hero.', 400) }
  return data
 }
 export function usesReleaseFile(project: Partial<Project>, collection: string, id: string) {
- return project.releaseAssets?.some(asset => asset.file?.relationTo === collection && String(asset.file.value && typeof asset.file.value === 'object' ? asset.file.value.id : asset.file.value) === id) ?? false
+ return usesMaterialFile(project.releaseContent,collection,id) || (project.releaseAssets?.some(asset => asset.file?.relationTo === collection && String(asset.file.value && typeof asset.file.value === 'object' ? asset.file.value.id : asset.file.value) === id) ?? false)
 }
 export const protectReleaseFileDelete: CollectionBeforeDeleteHook = async ({ id, req }) => {
  for (const versions of [false, true]) for (let page = 1; ; page++) {
