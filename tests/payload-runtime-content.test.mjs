@@ -37,7 +37,7 @@ test('online assets use published bytes only; static shell survives DB failure; 
   for(const [name,value] of entries){const {mkdir}=await import('node:fs/promises');await mkdir(path.dirname(path.join(root,name)),{recursive:true});await writeFile(path.join(root,name),value);files.push({path:name,bytes:Buffer.byteLength(value),sha256:createHash('sha256').update(value).digest('hex')});}
   await writeFile(path.join(root,'site-manifest.json'),JSON.stringify({version:1,buildSha:'a'.repeat(40),pages:{'/':{title:'Portfolio',description:'Designer'}},contentAssets:['/assets/projects/old.png'],files}));
   let calls=0;
-  const serve=createReleaseHandler({root,readContent:async()=>{calls++;throw new Error('DB unavailable')},readAsset:async name=>name==='/assets/projects/current/frame.html'?{content:Buffer.from('<html>published</html>'),sha256:'d'.repeat(64),mime:'text/html',packaged:true}:null});
+  const serve=createReleaseHandler({root,readContent:async()=>{calls++;throw new Error('DB unavailable')},readAsset:async name=>name==='/assets/projects/current/frame.html'?{content:Buffer.from('<html>published</html>'),sha256:'d'.repeat(64),mime:'text/html',packaged:true}:name==='/assets/projects/current/vector.svg'?{content:Buffer.from('<svg/>'),sha256:'e'.repeat(64),mime:'image/svg+xml',packaged:true}:null});
   const request=(name,options)=>serve(new Request('https://art-des.ru'+name,options));
   assert.equal(await(await request('/app.js')).text(),'compiled');assert.equal(calls,0);
   assert.equal((await request('/assets/projects/old.png')).status,404);
@@ -45,6 +45,7 @@ test('online assets use published bytes only; static shell survives DB failure; 
   const response=await request('/assets/projects/current/frame.html');assert.equal(response.status,200);assert.match(response.headers.get('content-security-policy'),/sandbox/);assert.equal(response.headers.get('content-type'),'text/html');
   assert.equal((await request('/assets/projects/current/frame.html',{method:'HEAD'})).headers.get('content-length'),'22');
   assert.equal((await request('/assets/projects/current/frame.html',{headers:{'if-none-match':'"'+'d'.repeat(64)+'"'}})).status,304);
+  assert.match((await request('/assets/projects/current/vector.svg')).headers.get('content-security-policy')??'',/sandbox/);
   assert.equal(calls,0);
  }finally{await rm(root,{recursive:true,force:true});}
 });

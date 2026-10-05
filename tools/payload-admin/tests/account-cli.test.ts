@@ -10,7 +10,7 @@ if (process.platform !== 'darwin') {
 } else {
   const nonInteractive = spawnSync(process.execPath, ['scripts/account.mjs'], { encoding: 'utf8' })
   assert.notEqual(nonInteractive.status, 0)
-  assert.match(nonInteractive.stderr, /локальном терминале/)
+  assert.match(nonInteractive.stderr, /терминале/)
   const password = randomBytes(32).toString('hex')
   const result = spawnSync('python3', ['tests/terminal-driver.py', process.execPath, 'scripts/account.mjs'], {
     encoding: 'utf8', input: JSON.stringify({ email: 'recovery@example.test', password }), timeout: 40000,

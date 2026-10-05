@@ -11,7 +11,7 @@ import { schemaHash, schemaContract, requireCurrentSchema } from './schema.mjs'
 
 export async function migrateStage(root) {
   const child = spawn(process.execPath, ['--import', 'tsx', 'scripts/migrate-worker.ts'], {
-    cwd: appRoot, stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production', PAYLOAD_MIGRATING: 'true', PAYLOAD_TEST_PUSH: '', PAYLOAD_LOCAL_ROOT: root, PAYLOAD_SECRET: await readFile(path.join(root, 'secret'), 'utf8') },
+    cwd: appRoot, stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production', PAYLOAD_RUNTIME_MODE:'fixture',PAYLOAD_DATA_ROOT:'',PAYLOAD_PUBLIC_URL:'',PAYLOAD_PORT:'',PAYLOAD_MIGRATING: 'true', PAYLOAD_TEST_PUSH: '', PAYLOAD_LOCAL_ROOT: root, PAYLOAD_SECRET: await readFile(path.join(root, 'secret'), 'utf8') },
   })
   const code = await new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', code => resolve(code ?? 1)) })
   if (code !== 0) throw new Error('Обновление тестовой копии не удалось. Активная база не изменена.')

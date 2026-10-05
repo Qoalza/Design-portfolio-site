@@ -44,6 +44,7 @@ export function createReleaseHandler({root=path.join(process.cwd(),'.portfolio-r
    const contentType=packageType??mime[pathname.split('.').at(-1)]??'application/octet-stream';
    const extra={'Content-Type':contentType,'Content-Length':String(asset.content.length),ETag:`"${asset.sha256}"`};
    if(packageType){extra['Access-Control-Allow-Origin']='*';extra['Referrer-Policy']='no-referrer';if(packageType==='text/html')extra['Content-Security-Policy']=layoutPackageCsp;}
+   if(contentType==='image/svg+xml')extra['Content-Security-Policy']=layoutPackageCsp;
    if(request.headers.get('if-none-match')===extra.ETag){delete extra['Content-Length'];return respond(null,304,extra);}
    return respond(asset.content,200,extra);
   }

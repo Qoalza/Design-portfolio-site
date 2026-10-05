@@ -1,3 +1,4 @@
+import {runtimeSettings} from '../scripts/runtime-settings.mjs'
 import { APIError, type Field, type CollectionBeforeChangeHook, type CollectionBeforeDeleteHook, type CollectionBeforeOperationHook } from 'payload'
 import {withPublicAssetAliases} from './asset-alias'
 import { validateProjectDocument } from '../../../src/lib/project-contract'
@@ -6,7 +7,6 @@ import { packageRecords, usesPackageFile } from './authoring/packages'
 import { materialRecords, usesMaterialFile } from './authoring/materials'
 import { withoutEditorState, withEditorState } from './authoring/hero'
 import {prepareRecordAssets} from './release-export'
-import path from 'node:path'
 
 // Native Payload fields and versions remain the single content store.
 // The custom field edits this JSON boundary without a SQL schema change.
@@ -48,7 +48,7 @@ export const validateReleaseProject: CollectionBeforeChangeHook = async ({ data,
  } catch { throw new APIError('Данные проекта не готовы к публикации. Исправьте поля и входные данные Hero.', 400) }
  try {
   const record={...originalDoc,...data} as Project
-  const dataRoot=path.resolve(/*turbopackIgnore: true*/ process.env.PAYLOAD_LOCAL_ROOT||path.resolve(process.cwd(),'.local'))
+  const dataRoot=runtimeSettings().root
   await prepareRecordAssets({dataRoot,records:[record],resolveFile:(collection,id)=>req.payload.findByID({collection,id,req,overrideAccess:true,depth:0})})
  }catch{throw new APIError('Материалы проекта не готовы к публикации. Проверьте изображения и ресурсы верстки.',400)}
  return data

@@ -563,3 +563,31 @@ unknown namespaces404. Missing-file renamed draft показывает previous 
 frame; fixture восстановлен. Native suite/types/lint/build PASS; два selfreview
 с исправлениями capacity race/fallback slug до final HTTP check. Browser не запускался.
 Далее server environment/permanent storage/HTTPS/code packaging/bootstrap/deploy.
+
+## Checkpoint версии2.0: explicit server runtime
+
+Общий runtime-settings contract обслуживает server/development/fixture режимы.
+Server root вне code/public, HTTPS approved origin, safe SQLite path и loopback
+port; native upload/publish/public/preview/maintenance используют один root.
+Cookie Secure/HttpOnly/SameSite=Lax, approved CSRF/CORS, native write Origin/Host
+checks и closed online first-register. Native recovery/backup/schema staging
+адаптированы; staging migrations/tests не наследуют server data root. Сборка
+подготавливает public и private renderer один раз при изменении кода.
+
+Evidence: configuration negatives RED→GREEN, sanitized installed config PASS;
+actual online-mode HTTP с временным external data root: cookie login/native auth,
+foreign-origin/anonymous denial, draft/public Publish/private preview PASS. Online
+backup/verify/restore/schema+restart PASS. Native full suite/types/lint/build;
+root host/config tests PASS. Два selfreview: contract/completeness, затем source/
+auth/transaction/scope/risk. Второй обнаружил отсутствие isolation для public SVG;
+focused RED→GREEN исправлен до final build/HTTP. Fixture data restored, production
+не менялась. Actual TLS и browser не подтверждены по loopback HTTP.
+
+Discovery/blocked dependent milestone: свежий administrative VPS preflight и
+Linux installation/bootstrap/activation требуют root SSH. BatchMode root вход
+возвращает Permission denied(publickey,password), agent identities отсутствуют,
+предыдущий control socket отсутствует; app terminal показывает closed session.
+Доступ не восстановлен инструментами. Goal не завершён. Не продолжать установку
+с предположениями об actual service/storage/source/Node resources. Independent
+online code groups зафиксированы; далее fresh access → read-only VPS preflight →
+Linux exact candidate/initial owner+production baseline/bootstrap/rollback → live.

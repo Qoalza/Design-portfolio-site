@@ -46,11 +46,11 @@ async function main() {
       secret = await readFile(secretFile, 'utf8')
       if (!/^[0-9a-f]{96}$/.test(secret)) throw new Error('Локальный секрет повреждён. Восстановите проверенную копию.')
     }
-    const env = { ...process.env, PAYLOAD_SECRET: secret, PAYLOAD_LOCAL_ROOT: state.root, PAYLOAD_TEST_PUSH: '', NEXT_TELEMETRY_DISABLED: '1', PAYLOAD_TELEMETRY_DISABLED: '1' }
+    const env = { ...process.env, PAYLOAD_SECRET: secret, ...(state.server?{PAYLOAD_DATA_ROOT:state.root,PAYLOAD_LOCAL_ROOT:''}:{PAYLOAD_RUNTIME_MODE:state.fixture?'fixture':'development',PAYLOAD_LOCAL_ROOT:state.root}), PAYLOAD_TEST_PUSH: '', NEXT_TELEMETRY_DISABLED: '1', PAYLOAD_TELEMETRY_DISABLED: '1' }
     const commands = mode === 'generate'
       ? [['--import', 'tsx', 'node_modules/payload/bin.js', '--disable-transpile', 'generate:importmap'], ['--import', 'tsx', 'node_modules/payload/bin.js', '--disable-transpile', 'generate:types']]
       : [['node_modules/next/dist/bin/next', mode, ...(mode === 'build' ? [] : ['--hostname', '127.0.0.1', '--port', String(state.port)])]]
-    if(mode==='build')commands.unshift(['--import','tsx','scripts/preview/build-shell.mjs'])
+    if(mode==='build')commands.unshift(['--experimental-strip-types','../portfolio-release/prepare-site.mjs'],['--import','tsx','scripts/preview/build-shell.mjs'])
     for (const args of commands) {
       const child = spawn(process.execPath, args, { cwd: appRoot, env, stdio: 'inherit' })
       const completion = new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', code => resolve(code ?? 1)) })

@@ -3,7 +3,7 @@ export class MaterialRequestError extends Error {
 }
 // Bounded read even if the sender omits or lies about Content-Length.
 export async function readMaterialForm(request:Request, origin:string, limit=20*1024*1024+16*1024) {
- if(request.headers.get('origin')!==origin || request.headers.get('host')!==new URL(origin).host) throw new MaterialRequestError('Загрузка доступна только из локальной Payload.',403)
+ if(request.headers.get('origin')!==origin || request.headers.get('host')!==new URL(origin).host) throw new MaterialRequestError('Загрузка доступна только из этой Payload.',403)
  const contentType=request.headers.get('content-type')||''
  if(!contentType.startsWith('multipart/form-data;')) throw new MaterialRequestError('Ожидается файл изображения.',400)
  const declared=request.headers.get('content-length')

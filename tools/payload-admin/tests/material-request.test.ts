@@ -10,8 +10,8 @@ test('bounded authenticated-origin transport reads one multipart image without m
 })
 test('foreign origin, host and oversized streamed or declared bodies are rejected',async()=>{
  const form=new FormData();form.set('file',new File([Buffer.alloc(1024)],'fixture.png'))
- await assert.rejects(readMaterialForm(request(form,{origin:'https://external.example'}),origin),/локальной/)
- await assert.rejects(readMaterialForm(request(form,{host:'external.example'}),origin),/локальной/)
+ await assert.rejects(readMaterialForm(request(form,{origin:'https://external.example'}),origin),error=>error instanceof Error&&'status' in error&&error.status===403)
+ await assert.rejects(readMaterialForm(request(form,{host:'external.example'}),origin),error=>error instanceof Error&&'status' in error&&error.status===403)
  await assert.rejects(readMaterialForm(request(form,{'content-length':'999999999'}),origin),/превышает/)
  await assert.rejects(readMaterialForm(request(form),origin,100),/превышает/)
 })

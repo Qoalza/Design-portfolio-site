@@ -1,7 +1,7 @@
+import {runtimeSettings} from '../../../../../../scripts/runtime-settings.mjs'
 import {headers} from 'next/headers'
 import {notFound,redirect} from 'next/navigation'
 import {getPayload} from 'payload'
-import path from 'node:path'
 import config from '@payload-config'
 import {preparePreviewRelease,readPreviewProject} from '../../../../../preview'
 import {LegacyProjectPreview} from '../../../../../components/LegacyProjectPreview'
@@ -21,7 +21,7 @@ export default async function Preview({params,searchParams}:{params:Promise<{id:
  if(!project.releaseContent)return <LegacyProjectPreview project={project} mode={mode}/>
  let artifact=lastPreviewArtifact(user.id,project.id,mode),failed=false
  try {
-  const dataRoot=process.env.PAYLOAD_LOCAL_ROOT||path.join(process.cwd(),'.local')
+  const dataRoot=runtimeSettings().root
   const prepared=await preparePreviewRelease({payload,user,id,mode,dataRoot})
   if(!prepared)throw new Error('Missing renderer data')
   artifact=await createPreviewArtifact({prepared,dataRoot,owner:user.id})

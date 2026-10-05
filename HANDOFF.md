@@ -2,7 +2,7 @@
 
 2026-10-05. Checkout codex/cms-integration,
 /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site.
-Baseline 6edbd7a; next checkpoint: no-build private preview.
+Baseline c93be03; next checkpoint: explicit online server settings.
 
 ## Current target
 
@@ -46,7 +46,19 @@ Actual HTTP обеих templates + new draft title + rejected incomplete preview
 previous successful own slug frame PASS; public DTO/BUILD_ID/shell digest unchanged.
 Native full suite, types/lint/build PASS. Два selfreview выполнены; race capacity
 после async shell load и fallback slug устранены до финального HTTP check.
-Следующее: server config/storage/HTTPS/bootstrap/backup и online deployment. Local sandbox не является online release.
+Explicit development/fixture/server settings теперь едины для native config,
+readers, hooks и maintenance. Online root вне code/public, approved HTTPS origin,
+secure same-site cookies, Origin/Host checks, closed first-register. Test runner
+принудительно isolated fixture; staging migrations не наследуют server data root.
+Actual online-mode HTTP: cookie login, draft/private published apply/preview,
+foreign-origin403, anonymous403 PASS. Verified backup/restore + restart PASS.
+Full native suite/types/lint/build, root host/config tests PASS. SVG sandbox gap
+найден вторым selfreview и исправлен RED→GREEN; Hero не менялись.
+Next OPS требует fresh VPS preflight: root BatchMode SSH отклонён, agent identities
+нет, control socket отсутствует; app terminal подтверждает closed session.
+Linux packaging/initial production bootstrap/service+proxy activation пока НЕ готовы.
+Не заменять этот отсутствующий этап loopback fixture evidence. README/PAYLOAD.md
+теперь описывают фактический online contract и ещё не выполненный VPS этап. Local sandbox не является online release.
 Не новый Apply/deploy job: используется штатная native publication.
 
 ## Evidence / access
