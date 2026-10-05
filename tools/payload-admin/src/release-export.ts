@@ -25,8 +25,9 @@ export async function readReleaseProjects(payload: Payload, user: User | null, m
  }
  return docs
 }
-export async function exportPayloadPublished({ payload, user, dataRoot }: { payload: Payload; user: User | null; dataRoot: string }) {
- const records = await readReleaseProjects(payload, user, 'published')
+// Shared preparation for authenticated preview and published export. The caller selects native revisions.
+export async function prepareReleaseRecords({ payload, user, dataRoot, records }: {payload:Payload;user:User|null;dataRoot:string;records:Project[]}) {
+ if(!user) throw new Error('Payload project access requires authentication')
  const projects = records.map(releaseProjectDocument)
  const assets: Array<{ publicPath: string; sha256: string; bytes: Buffer }> = []
  const required = new Set<string>(projects.flatMap(project => [...requiredAssets(project).paths] as string[]))
@@ -57,6 +58,7 @@ export async function exportPayloadPublished({ payload, user, dataRoot }: { payl
   checked.add(asset.sha256)
  }
  const byPath = new Map(assets.map(asset => [asset.publicPath, asset]))
+ if(byPath.size!==assets.length) throw new Error('Duplicate Payload asset binding')
  async function verifyImages(value: unknown): Promise<void> {
   if (!value || typeof value !== 'object') return
   if (Array.isArray(value)) { for (const item of value) await verifyImages(item); return }
@@ -70,8 +72,19 @@ export async function exportPayloadPublished({ payload, user, dataRoot }: { payl
   for (const child of Object.values(item)) await verifyImages(child)
  }
  for (const project of projects) await verifyImages(project.redesign)
+ // Verify the same full manifest closure for previews before any compiled artifact exists.
+ for(const project of projects) {
+  const closure=requiredAssets(project)
+  for(const name of closure.paths) if(!byPath.has(String(name))) throw new Error('Missing Payload asset')
+  for(const entry of closure.manifests) {const asset=byPath.get(entry.publicPath);if(!asset||asset.sha256!==entry.sha256||asset.bytes.length!==entry.size) throw new Error('Payload layout manifest does not match bytes')}
+ }
+ return {projects,assets}
+}
+export async function exportPayloadPublished({ payload, user, dataRoot }: { payload: Payload; user: User | null; dataRoot: string }) {
+ const records = await readReleaseProjects(payload, user, 'published')
+ const core=await prepareReleaseRecords({payload,user,dataRoot,records})
  const externalDependencies = [...new Set(records.flatMap(record => record.releaseExternalDependencies?.map(item => item.url) ?? []))]
  const publicationId = createHash('sha256').update(JSON.stringify(records.map(record => [record.id, record.updatedAt]))).digest('hex')
- const prepared = { projects, assets, provenance: { origin: 'payload-published', publicationId, externalDependencies } }
+ const prepared = { ...core, provenance: { origin: 'payload-published', publicationId, externalDependencies } }
  return { ...prepared, snapshot: createProjectSnapshot(prepared) }
 }

@@ -20,11 +20,10 @@ project-snapshot/snapshot-directory, Vite renderer и обе оболочки He
 Next standalone/build stamp/archive/deploy-v2 и rollback. Старый Des-art Admin
 не является источником данных, правил или authoring UI.
 
-Проверенные незавершённые участки: JSON вместо удобных полей; legacy preview
-в /preview/projects/[id]; initial-only prepare-site; нет пользовательского
-release workflow, загрузки layout package в Hero и quality ingest; run sourceHash
-не охватывает будущие preview/compiler consumers. Existing local Publish изменяет
-только SQLite; нельзя представлять его как публикацию на сайт.
+Native editor, image quality ingest и layout package upload реализованы;
+API/persistence/export tests PASS, browser acceptance pending. Незавершённые
+участки: legacy preview, initial-only prepare-site, site publication workflow,
+bootstrap/sourceHash и ограничение dynamic-root tracing.
 
 ## Продуктовый контракт и ограничения
 
@@ -317,3 +316,19 @@ metadata исключена. Только disposable baseline восстанов
 typecheck/lint/build PASS. HTTP/upload UI browser acceptance pending per denied
 browser access; request не повторять. Next: authenticated same-renderer preview
 (group3), subsequent CMS snapshot builds/publish workflow/bootstrap (groups4–7).
+
+
+## Checkpoint: группа3, общий producer preview/release
+
+prepareReleaseRecords проверяет одинаковые documents, image bytes/dimensions и
+полную asset/package manifest closure. Private preparePreviewRelease подменяет
+только выбранный сохранённый draft, остальные проекты остаются published.
+Режим, author status и revision находятся в private metadata; draft не получает
+publication provenance. Published export сохраняет прежний snapshot contract.
+
+Оба templates: auth, invalid id, draft/published revision, unpublished isolation,
+private editor metadata exclusion, missing binding rejection PASS. Native full
+suite/typecheck/lint/build PASS. Review1: closure проверяется до compile. Review2:
+public snapshot/SQL/Hero/CSS/personal data неизменны. UI пока legacy, группа3
+не завершена. Далее compiled immutable scoped artifact, sandboxed same-renderer
+frame и HTTP guards. Browser action не повторять и не обходить.
