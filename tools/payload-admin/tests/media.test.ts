@@ -3,6 +3,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { getPayload } from 'payload'
 import config from '../src/payload.config'
+import sharp from 'sharp'
 
 const payload = await getPayload({ config })
 try {
@@ -32,6 +33,11 @@ try {
   const unused = await payload.create({ collection: 'media', ...access, data: { alt: 'Temporary unreferenced' }, file: validFile })
   await payload.delete({ collection: 'media', id: unused.id, ...access })
   assert.equal((await readdir(fileRoot)).includes(unused.filename!), false)
+  // Payload must not silently re-encode WebP originals or prepared candidates.
+  const webp = await sharp(bytes).webp({lossless:true}).toBuffer()
+  const stored = await payload.create({collection:'media', ...access, data:{alt:'Byte-preserving WebP'}, file:{name:'original.webp',mimetype:'image/webp',size:webp.length,data:webp}})
+  assert.deepEqual(await readFile(path.join(fileRoot,stored.filename!)),webp)
+  await payload.delete({collection:'media',id:stored.id,...access})
   // An image used only in an older version is still required for restoring it.
   const historical = await payload.create({ collection: 'media', ...access, data: { alt: 'Historical' }, file: validFile })
   const draft = await payload.create({ collection: 'projects', ...access, draft: true, data: { title: 'History guard', blocks: [{ blockType: 'gallery', images: [{ image: historical.id }] }] } })

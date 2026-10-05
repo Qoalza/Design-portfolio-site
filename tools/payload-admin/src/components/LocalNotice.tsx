@@ -9,7 +9,7 @@ export function LocalNotice() {
     <Theme appearance={theme} hasBackground={false} style={{ minHeight: 0 }}>
       <Callout.Root>
         <Callout.Text>
-          Локальная версия редактора. Сохранение и публикация работают только здесь и не меняют действующий сайт.
+          Черновики доступны только в редакторе и предпросмотре. Опубликованные версии проектов используются сайтом.
         </Callout.Text>
       </Callout.Root>
     </Theme>

@@ -2,7 +2,12 @@
 
 ## Scope
 
-Current production release/rollback contract for `https://art-des.ru`.
+2026-10-05: active `https://art-des.ru` работает через онлайн Payload3001.
+Текущий runtime/config/backup/rollback contract: [PAYLOAD.md](PAYLOAD.md).
+Оставшиеся разделы этого документа описывают legacy static runtime3000 и старую
+Des-art Admin; они НЕ применяются к новой CMS или обычной публикации контента.
+`/var/www/art-des/current` остаётся standby pointer, не active public identity.
+Old service/runtime пока сохранены для rollback до пользовательской приёмки.
 
 Этот документ не содержит secrets, private keys, host credentials, historical smoke logs или автоматически достаточного разрешения на deploy.
 
@@ -229,3 +234,7 @@ systemctl reload nginx
 - временные branch/PR URLs.
 
 Эти данные получать fresh read-only preflight и при необходимости кратко указывать в `HANDOFF.md` или конкретном ExecPlan.
+
+## Ручные изменения кода online Portfolio (2026-10-06)
+
+Native Payload Publish меняет только контент. CSS/React/scroll/code fixes выпускаются общей Next/Payload сборкой. Актуальный источник — exact public data-build-sha плюс systemd WorkingDirectory, не static /var/www/art-des/current. В отдельном согласованном worktree интегрировать exact опубликованный code baseline; не перезаписывать CMS/shared/schema/content. Новая clean exact Linux build использует disposable fixture, не actual CMS data/secret. Сохранить previous unit и release, менять только WorkingDirectory art-des-payload.service, затем restart/readiness3001 и exact publicSHA/admin-login/private API/public DTO+assets parity. Failure: восстановить предыдущий unit, daemon-reload/restart; data не восстанавливать. Nginx proxy3001, permanent data root, secret, access и migrations не менять. Старый deploy-v2/static status — standby, применять его для online site нельзя. Full runtime split и redesign Admin остаются отдельными работами.

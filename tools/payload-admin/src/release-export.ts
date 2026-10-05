@@ -3,13 +3,16 @@ import { open, constants } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import type { Payload } from 'payload'
 import sharp from 'sharp'
-import type { User, Project } from './payload-types'
+import {publicAssetAlias,withPublicAssetAliases} from './asset-alias'
+import type { User, Project, Media, ProjectFile } from './payload-types'
+import { withoutEditorState } from './authoring/hero'
 import { validateProjectDocument, type ProjectDocument } from '../../../src/lib/project-contract'
-import { createProjectSnapshot } from '../../portfolio-release/project-snapshot.mjs'
+import { createProjectSnapshot, requiredAssets } from '../../portfolio-release/project-snapshot.mjs'
 
 export function releaseProjectDocument(record: Project): ProjectDocument {
  if (!record.releaseContent || typeof record.releaseContent !== 'object' || Array.isArray(record.releaseContent)) throw new Error('Project has no redesign content')
- return validateProjectDocument({ ...record.releaseContent, title: record.title, slug: record.slug, visibility: 'published' })
+ const content=withPublicAssetAliases(record.slug,withoutEditorState(record.releaseContent)) as Record<string,unknown>
+ return validateProjectDocument({ ...content, title: record.title, slug: record.slug, visibility: 'published' })
 }
 // Preview and publication use this same mapping. Drafts are only returned to authenticated preview callers.
 export async function readReleaseProjects(payload: Payload, user: User | null, mode: 'draft' | 'published') {
@@ -24,14 +27,21 @@ export async function readReleaseProjects(payload: Payload, user: User | null, m
  }
  return docs
 }
-export async function exportPayloadPublished({ payload, user, dataRoot }: { payload: Payload; user: User | null; dataRoot: string }) {
- const records = await readReleaseProjects(payload, user, 'published')
+// The resolver owns access policy; only bound IDs are passed, never client filenames.
+export async function prepareRecordAssets({dataRoot,records,resolveFile}:{
+ dataRoot:string;records:Project[];
+ resolveFile:(collection:'media'|'project-files',id:number)=>Promise<Media|ProjectFile>;
+}) {
  const projects = records.map(releaseProjectDocument)
  const assets: Array<{ publicPath: string; sha256: string; bytes: Buffer }> = []
+ const required = new Set<string>(projects.flatMap(project => [...requiredAssets(project).paths] as string[]))
  for (const record of records) for (const binding of record.releaseAssets ?? []) {
+  const publicPath=publicAssetAlias(record.slug,binding.publicPath)
+  if (!required.has(publicPath)) continue
   const relation = binding.file
   if (!relation?.value) throw new Error('Missing Payload asset relation')
-  const media = typeof relation.value === 'object' ? relation.value : await payload.findByID({ collection: relation.relationTo, id: relation.value, user, overrideAccess: false })
+  const id=typeof relation.value==='object'?relation.value.id:relation.value
+  const media=await resolveFile(relation.relationTo,id)
   const name = media.filename
   if (!name || path.basename(name) !== name) throw new Error('Unsafe Payload filename')
   const directory = relation.relationTo === 'media' ? 'media' : 'project-files'
@@ -42,7 +52,11 @@ export async function exportPayloadPublished({ payload, user, dataRoot }: { payl
    if (!stat.isFile() || stat.size === 0 || stat.size > 20 * 1024 * 1024) throw new Error('Invalid Payload file')
    bytes = await file.readFile()
   } finally { await file.close() }
-  assets.push({ publicPath: binding.publicPath, sha256: createHash('sha256').update(bytes).digest('hex'), bytes })
+  const sha256=createHash('sha256').update(bytes).digest('hex')
+  if(binding.publicPath.includes('/uploads/') && path.posix.basename(binding.publicPath).split('.')[0]!==sha256) throw new Error('Immutable upload path does not match bytes')
+  const existing=assets.find(asset=>asset.publicPath===publicPath)
+  if(existing){if(existing.sha256!==sha256||!existing.bytes.equals(bytes))throw new Error('Conflicting Payload asset aliases');continue}
+  assets.push({ publicPath, sha256, bytes })
  }
  // Header metadata alone accepts truncated files. Decode every packaged bitmap,
  // including prepared AVIFs and scene resources, before a new snapshot can exist.
@@ -52,6 +66,7 @@ export async function exportPayloadPublished({ payload, user, dataRoot }: { payl
   checked.add(asset.sha256)
  }
  const byPath = new Map(assets.map(asset => [asset.publicPath, asset]))
+ if(byPath.size!==assets.length) throw new Error('Duplicate Payload asset binding')
  async function verifyImages(value: unknown): Promise<void> {
   if (!value || typeof value !== 'object') return
   if (Array.isArray(value)) { for (const item of value) await verifyImages(item); return }
@@ -65,8 +80,24 @@ export async function exportPayloadPublished({ payload, user, dataRoot }: { payl
   for (const child of Object.values(item)) await verifyImages(child)
  }
  for (const project of projects) await verifyImages(project.redesign)
+ // Verify the same full manifest closure for previews before any compiled artifact exists.
+ for(const project of projects) {
+  const closure=requiredAssets(project)
+  for(const name of closure.paths) if(!byPath.has(String(name))) throw new Error('Missing Payload asset')
+  for(const entry of closure.manifests) {const asset=byPath.get(entry.publicPath);if(!asset||asset.sha256!==entry.sha256||asset.bytes.length!==entry.size) throw new Error('Payload layout manifest does not match bytes')}
+ }
+ return {projects,assets}
+}
+// Authenticated preview/export still uses native collection access.
+export async function prepareReleaseRecords({payload,user,dataRoot,records}:{payload:Payload;user:User|null;dataRoot:string;records:Project[]}) {
+ if(!user)throw new Error('Payload project access requires authentication')
+ return prepareRecordAssets({dataRoot,records,resolveFile:(collection,id)=>payload.findByID({collection,id,user,overrideAccess:false})})
+}
+export async function exportPayloadPublished({ payload, user, dataRoot }: { payload: Payload; user: User | null; dataRoot: string }) {
+ const records = await readReleaseProjects(payload, user, 'published')
+ const core=await prepareReleaseRecords({payload,user,dataRoot,records})
  const externalDependencies = [...new Set(records.flatMap(record => record.releaseExternalDependencies?.map(item => item.url) ?? []))]
  const publicationId = createHash('sha256').update(JSON.stringify(records.map(record => [record.id, record.updatedAt]))).digest('hex')
- const prepared = { projects, assets, provenance: { origin: 'payload-published', publicationId, externalDependencies } }
+ const prepared = { ...core, provenance: { origin: 'payload-published', publicationId, externalDependencies } }
  return { ...prepared, snapshot: createProjectSnapshot(prepared) }
 }

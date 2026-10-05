@@ -53,6 +53,7 @@ const Gallery: Block = {
 
 export const ProjectFiles: CollectionConfig = {
   slug: 'project-files', labels: { singular: 'Файл проекта', plural: 'Файлы проектов' },
+  admin: { group: false },
   access: privateAccess, upload: true,
   hooks: { beforeOperation: [validateReleaseFileOperation], beforeDelete: [protectReleaseFileDelete] },
   fields: [{ name: 'label', label: 'Название', type: 'text', required: true }],
@@ -65,7 +66,7 @@ export const Projects: CollectionConfig = {
   admin: {
     useAsTitle: 'title', defaultColumns: ['title', '_status', 'updatedAt'],
     preview: (doc) => doc.id ? `/preview/projects/${encodeURIComponent(String(doc.id))}?mode=draft` : null,
-    description: 'Локальные проекты. Публикация здесь не меняет действующий сайт.',
+    description: 'Сохраняйте черновик для проверки. Публикация применяет изменения проекта на сайте.',
   },
   versions: { drafts: true, maxPerDoc: 20 },
   hooks: { beforeChange: [validateReleaseProject] },
@@ -78,17 +79,17 @@ export const Projects: CollectionConfig = {
         ? true : 'Используйте латинские буквы в нижнем регистре, цифры и дефис.',
     },
     {
-      name: 'hero', label: 'Херо', type: 'group',
+      name: 'hero', label: 'Херо', type: 'group', admin: { condition: (_, siblingData) => !siblingData?.releaseContent },
       fields: [{ name: 'image', label: 'Главное изображение', type: 'upload', relationTo: 'media', validate: (value: unknown, { data }: { data?: Record<string, unknown> }) => data?.releaseContent || value ? true : 'Выберите изображение.' }],
     },
     {
-      name: 'header', label: 'Заголовок кейса', type: 'group',
+      name: 'header', label: 'Заголовок кейса', type: 'group', admin: { condition: (_, siblingData) => !siblingData?.releaseContent },
       fields: [
         { name: 'heading', label: 'Заголовок', type: 'text', validate: (value: unknown, { data }: { data?: Record<string, unknown> }) => data?.releaseContent || value ? true : 'Укажите заголовок.' },
         { name: 'description', label: 'Краткое описание', type: 'textarea' },
       ],
     },
     ...releaseFields,
-    { name: 'blocks', label: 'Содержимое кейса', labels: { singular: 'Блок', plural: 'Блоки' }, type: 'blocks', blocks: [Section, Gallery] },
+    { name: 'blocks', label: 'Содержимое кейса', labels: { singular: 'Блок', plural: 'Блоки' }, type: 'blocks', admin: { condition: (_, siblingData) => !siblingData?.releaseContent }, blocks: [Section, Gallery] },
   ],
 }

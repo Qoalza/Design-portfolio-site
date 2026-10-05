@@ -3,14 +3,13 @@ import { randomUUID } from 'node:crypto'
 import { createConnection } from 'node:net'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import os from 'node:os'
+import {runtimeSettings} from './runtime-settings.mjs'
 
 export const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-export function locations(root = process.env.PAYLOAD_LOCAL_ROOT || path.join(appRoot, '.local')) {
-  root = path.resolve(root)
-  const fixture = path.dirname(root) === path.resolve(os.tmpdir()) && path.basename(root).startsWith('des-art-payload-test-')
-  if (root !== path.join(appRoot, '.local') && !fixture) throw new Error('Разрешено только локальное хранилище CMS или временная тестовая база.')
-  return { root, fixture, port: fixture ? 41741 : 41740, backups: `${root}-backups`, lock: `${root}-lock`, journal: `${root}-restore.json` }
+export function locations(root) {
+  const env=root===undefined?process.env:{...process.env,PAYLOAD_RUNTIME_MODE:'fixture',PAYLOAD_LOCAL_ROOT:root,PAYLOAD_DATA_ROOT:'',PAYLOAD_PUBLIC_URL:'',PAYLOAD_PORT:''}
+  const settings=runtimeSettings({env,appRoot})
+  return { ...settings, backups: `${settings.root}-backups`, lock: `${settings.root}-lock`, journal: `${settings.root}-restore.json` }
 }
 export async function exists(file) {
   try { await access(file); return true } catch (error) { if (error.code === 'ENOENT') return false; throw error }

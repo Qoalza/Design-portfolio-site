@@ -7,7 +7,7 @@ import { backup } from './storage.mjs'
 import { prompt } from './terminal-input.mjs'
 
 async function main() {
-  if (process.argv.length !== 2 || !process.stdin.isTTY || !process.stdout.isTTY) throw new Error('Запустите npm run account:recover в локальном терминале. Не передавайте пароль аргументом или через pipe.')
+  if (process.argv.length !== 2 || !process.stdin.isTTY || !process.stdout.isTTY) throw new Error('Запустите npm run account:recover в защищённом терминале. Не передавайте пароль аргументом или через pipe.')
   const state = locations()
   const lock = await acquire(state)
   try {
@@ -19,7 +19,7 @@ async function main() {
     const id = await backup(state)
     const child = spawn(process.execPath, ['--import', 'tsx', 'scripts/account-worker.ts'], {
       cwd: appRoot, stdio: ['pipe', 'ignore', 'ignore'],
-      env: { ...process.env, PAYLOAD_LOCAL_ROOT: state.root, PAYLOAD_SECRET: await readFile(path.join(state.root, 'secret'), 'utf8'), PAYLOAD_TEST_PUSH: '', NODE_ENV: 'production' },
+      env: { ...process.env, ...(state.server?{PAYLOAD_DATA_ROOT:state.root,PAYLOAD_LOCAL_ROOT:''}:{PAYLOAD_LOCAL_ROOT:state.root}), PAYLOAD_SECRET: await readFile(path.join(state.root, 'secret'), 'utf8'), PAYLOAD_TEST_PUSH: '', NODE_ENV: 'production' },
     })
     const completion = new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', code => resolve(code ?? 1)) })
     await lock.child(child.pid)

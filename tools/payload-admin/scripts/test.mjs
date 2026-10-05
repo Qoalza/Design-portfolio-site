@@ -8,10 +8,10 @@ const root = await mkdtemp(path.join(os.tmpdir(), 'des-art-payload-test-'))
 try {
   const secret = randomBytes(48).toString('hex')
   await writeFile(path.join(root, 'secret'), secret, { mode: 0o600 })
-  for (const test of ['tests/database.test.mjs', 'tests/content.test.ts', 'tests/media.test.ts', 'tests/account.test.ts', 'tests/account-cli.test.ts', 'tests/storage.test.mjs', 'tests/persistence.test.ts']) {
+  for (const test of ['tests/production-baseline.test.ts', 'tests/runtime-settings.test.mjs', 'tests/server-request.test.ts', 'tests/preview-runtime.test.ts', 'tests/site-content.test.ts', 'tests/authoring-model.test.ts', 'tests/copy-model.test.ts', 'tests/image-quality.test.ts', 'tests/materials-model.test.ts', 'tests/material-request.test.ts', 'tests/file-response.test.ts', 'tests/layout-package.test.ts', 'tests/packages-model.test.ts', 'tests/preview-compiler.test.ts', 'tests/database.test.mjs', 'tests/content.test.ts', 'tests/media.test.ts', 'tests/account.test.ts', 'tests/account-cli.test.ts', 'tests/storage.test.mjs', 'tests/persistence.test.ts']) {
     const child = spawn(process.execPath, ['--import', 'tsx', test], {
       stdio: 'inherit',
-      env: { ...process.env, PAYLOAD_LOCAL_ROOT: root, PAYLOAD_SECRET: secret, PAYLOAD_TELEMETRY_DISABLED: '1' },
+      env: { ...process.env, PAYLOAD_RUNTIME_MODE:'fixture',PAYLOAD_DATA_ROOT:'',PAYLOAD_PUBLIC_URL:'',PAYLOAD_PORT:'', PAYLOAD_LOCAL_ROOT: root, PAYLOAD_SECRET: secret, PAYLOAD_TELEMETRY_DISABLED: '1' },
     })
     const code = await new Promise((resolve, reject) => {
       child.once('error', reject)

@@ -1,28 +1,60 @@
+import {runtimeSettings} from '../scripts/runtime-settings.mjs'
 import { APIError, type Field, type CollectionBeforeChangeHook, type CollectionBeforeDeleteHook, type CollectionBeforeOperationHook } from 'payload'
+import {withPublicAssetAliases} from './asset-alias'
 import { validateProjectDocument } from '../../../src/lib/project-contract'
 import type { Project } from './payload-types'
+import { packageRecords, usesPackageFile } from './authoring/packages'
+import { materialRecords, usesMaterialFile } from './authoring/materials'
+import { withoutEditorState, withEditorState } from './authoring/hero'
+import {prepareRecordAssets} from './release-export'
 
-// These are native Payload fields and versions. JSON is the stable content boundary;
-// dedicated authoring widgets are a later stage, not a second content store.
+// Native Payload fields and versions remain the single content store.
+// The custom field edits this JSON boundary without a SQL schema change.
 export const releaseFields: Field[] = [
- { name: 'releaseContent', label: 'Данные нового портфолио', type: 'json', admin: { description: 'Технические данные проекта. Удобное редактирование будет подключено после выпуска сайта.' } },
- { name: 'releaseAssets', label: 'Ресурсы нового портфолио', type: 'array', fields: [
+ { name: 'releaseContent', label: 'Данные нового портфолио', type: 'json', admin: { components: { Field: '/components/ReleaseEditor#ReleaseEditor' } } },
+ { name: 'releaseAssets', label: 'Ресурсы нового портфолио', type: 'array', admin: { hidden: true, readOnly: true, description: 'Связи создаются при загрузке изображений и верстки. Вручную менять пути не требуется.' }, fields: [
   { name: 'publicPath', label: 'Путь в сайте', type: 'text', required: true },
   { name: 'file', label: 'Файл', type: 'upload', relationTo: ['media', 'project-files'], required: true },
  ] },
  { name: 'releaseExternalDependencies', label: 'Внешние ресурсы верстки', type: 'array', fields: [{ name: 'url', type: 'text', required: true }] },
 ]
-export const validateReleaseProject: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
+export const validateReleaseProject: CollectionBeforeChangeHook = async ({ data, originalDoc, req }) => {
  const effective = { ...originalDoc, ...data }
+ if (effective.releaseContent) {
+  let records
+  try {records=materialRecords(effective.releaseContent)} catch {throw new APIError('Связи материалов повреждены. Повторите загрузку изображения.',400)}
+  const previousMaterials=originalDoc?.releaseContent?materialRecords(originalDoc.releaseContent):[]
+  const previousPackages=originalDoc?.releaseContent?packageRecords(originalDoc.releaseContent):[]
+  const assets=new Map((effective.releaseAssets??[]).map((asset: NonNullable<Project['releaseAssets']>[number])=>[asset.publicPath,asset]))
+  for(const record of records) {
+   if(!record.publicPath.startsWith(`/assets/projects/${effective.slug}/uploads/`)&&!previousMaterials.some(previous=>JSON.stringify(previous)===JSON.stringify(record))) throw new APIError('Материал принадлежит другому адресу проекта.',400)
+   assets.set(record.publicPath,{publicPath:record.publicPath,file:record.prepared})
+  }
+  let packages
+  try {packages=packageRecords(effective.releaseContent)} catch {throw new APIError('Связи верстки повреждены. Повторите загрузку пакета.',400)}
+  for(const material of packages) {
+   if(!material.source.assetBase.startsWith(`/assets/projects/${effective.slug}/hero-layout/`)&&!previousPackages.some(previous=>JSON.stringify(previous)===JSON.stringify(material))) throw new APIError('Верстка принадлежит другому адресу проекта.',400)
+   for(const binding of material.bindings) assets.set(binding.publicPath,binding)
+  }
+  if(records.length||packages.length) data.releaseAssets=[...assets.values()]
+  if(packages.length) data.releaseExternalDependencies=[...new Set([...(effective.releaseExternalDependencies??[]).map((item:{url:string})=>item.url),...packages.flatMap(item=>item.externalDependencies)])].map(url=>({url}))
+ }
  if (effective._status !== 'published' || !effective.releaseContent) return data
  try {
-  const input = effective.releaseContent as Record<string, unknown>
-  data.releaseContent = validateProjectDocument({ ...input, title: effective.title, slug: effective.slug, visibility: 'published' })
+  const input = withoutEditorState(effective.releaseContent)
+  const normalized = validateProjectDocument({ ...withPublicAssetAliases(effective.slug,input) as Record<string,unknown>, title: effective.title, slug: effective.slug, visibility: 'published' })
+  if(normalized.redesign?.hero.kind==='raster' && normalized.redesign.hero.slides.length>9) throw new Error('Too many screens')
+  data.releaseContent = withEditorState(normalized, effective.releaseContent)
  } catch { throw new APIError('Данные проекта не готовы к публикации. Исправьте поля и входные данные Hero.', 400) }
+ try {
+  const record={...originalDoc,...data} as Project
+  const dataRoot=runtimeSettings().root
+  await prepareRecordAssets({dataRoot,records:[record],resolveFile:(collection,id)=>req.payload.findByID({collection,id,req,overrideAccess:true,depth:0})})
+ }catch{throw new APIError('Материалы проекта не готовы к публикации. Проверьте изображения и ресурсы верстки.',400)}
  return data
 }
 export function usesReleaseFile(project: Partial<Project>, collection: string, id: string) {
- return project.releaseAssets?.some(asset => asset.file?.relationTo === collection && String(asset.file.value && typeof asset.file.value === 'object' ? asset.file.value.id : asset.file.value) === id) ?? false
+ return usesPackageFile(project.releaseContent,collection,id) || usesMaterialFile(project.releaseContent,collection,id) || (project.releaseAssets?.some(asset => asset.file?.relationTo === collection && String(asset.file.value && typeof asset.file.value === 'object' ? asset.file.value.id : asset.file.value) === id) ?? false)
 }
 export const protectReleaseFileDelete: CollectionBeforeDeleteHook = async ({ id, req }) => {
  for (const versions of [false, true]) for (let page = 1; ; page++) {

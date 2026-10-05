@@ -1,19 +1,23 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
+import os from 'node:os'
 import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises'
-import { randomBytes } from 'node:crypto'
-import { getPayload } from 'payload'
+import { createHash,randomBytes } from 'node:crypto'
 import sharp from 'sharp'
-import config from '../src/payload.config'
 import { exportPayloadPublished, readReleaseProjects, releaseProjectDocument } from '../src/release-export'
 import { exportApprovedRedesign } from '../../concept-v2/export-approved-content.mjs'
 import { backup, verifyBackup } from '../scripts/storage.mjs'
-import { locations } from '../scripts/state.mjs'
+import { locations,acquire } from '../scripts/state.mjs'
+import {bootstrapProductionContent} from '../scripts/bootstrap-content'
 import { writeSnapshotDirectory, readSnapshotDirectory } from '../../portfolio-release/snapshot-directory.mjs'
 
-const root=process.env.PAYLOAD_LOCAL_ROOT!
+const root=path.resolve(process.env.PAYLOAD_LOCAL_ROOT||'')
+assert.equal(path.dirname(root),path.resolve(os.tmpdir()))
+assert.ok(path.basename(root).startsWith('des-art-payload-test-'))
+const {getPayload}=await import('payload'),{default:config}=await import('../src/payload.config')
 const repoRoot=path.resolve(import.meta.dirname,'../../..')
 const approved=await exportApprovedRedesign({repoRoot})
+const lock=await acquire(locations(root))
 const payload=await getPayload({config})
 try {
  const phase=process.argv[2]
@@ -21,22 +25,19 @@ try {
  const user=users.docs[0]??await payload.create({collection:'users',data:{email:'release-proof@example.test',password:randomBytes(32).toString('hex')}})
  const access={user:{...user,collection:'users' as const},overrideAccess:false}
  if(phase==='seed'){
-  const files=new Map<string,{relationTo:'media'|'project-files';value:number}>()
-  const mime:Record<string,string>={'.png':'image/png','.webp':'image/webp','.avif':'image/avif','.svg':'image/svg+xml','.html':'text/html','.css':'text/css'}
-  const bindings=[]
-  for(const asset of approved.assets){
-   let type=mime[path.extname(asset.publicPath)]
-   if(type==='image/png'||type==='image/webp'){const metadata=await sharp(asset.bytes).metadata();if(metadata.format==='jpeg')type='image/jpeg'}
-   const collection=['image/png','image/webp','image/jpeg'].includes(type)?'media':'project-files'
-   const key=collection+asset.sha256
-   let relation=files.get(key)
-   if(!relation){
-    const uploaded=await payload.create({collection,...access,data:collection==='media'?{alt:'Approved project asset'}:{label:'Approved package asset'},file:{name:path.basename(asset.publicPath),mimetype:type,size:asset.bytes.length,data:asset.bytes}})
-    relation={relationTo:collection,value:uploaded.id};files.set(key,relation)
-   }
-   bindings.push({publicPath:asset.publicPath,file:relation})
-  }
-  for(const project of approved.projects)await payload.create({collection:'projects',...access,data:{title:project.title,slug:project.slug,releaseContent:project,releaseAssets:bindings.filter(asset=>asset.publicPath.startsWith(`/assets/projects/${project.slug}/`)),releaseExternalDependencies:approved.provenance.externalDependencies.map(url=>({url})),_status:'published'}})
+  const siteRoot=path.join(root,'baseline-input'),expectedSha='a'.repeat(40)
+  await writeSnapshotDirectory(siteRoot,approved)
+  const snapshotBytes=await readFile(path.join(siteRoot,'snapshot.json'))
+  const expectedContentHash=createHash('sha256').update(snapshotBytes).digest('hex')
+  await writeFile(path.join(siteRoot,'site-manifest.json'),JSON.stringify({version:1,buildSha:expectedSha,sourceDirty:false,snapshotSha256:expectedContentHash,provenance:approved.provenance,files:approved.assets.map(asset=>({path:asset.publicPath.slice(1),sha256:asset.sha256,bytes:asset.bytes.length}))}))
+  const source={payload,user,dataRoot:root,siteRoot,expectedSha,expectedContentHash}
+  await assert.rejects(bootstrapProductionContent({...source,expectedContentHash:'f'.repeat(64)}),/identity/)
+  assert.equal((await payload.find({collection:'media',...access})).totalDocs,0)
+  const orphan=path.join(root,'media/orphan-fixture');await writeFile(orphan,'fixture')
+  await assert.rejects(bootstrapProductionContent(source),/empty physical/);await unlink(orphan)
+  const imported=await bootstrapProductionContent(source)
+  assert.equal(imported.projectIds.length,2);assert.equal(imported.assets,approved.assets.length)
+  await assert.rejects(bootstrapProductionContent(source),/empty/)
   await mkdir(path.join(root,'exports'))
   const exported=await exportPayloadPublished({payload,user,dataRoot:root})
   assert.deepEqual(exported.projects,approved.projects)
@@ -44,10 +45,10 @@ try {
   for(const asset of exported.assets)assert.deepEqual(asset.bytes,approved.assets.find(a=>a.publicPath===asset.publicPath)!.bytes)
   await writeSnapshotDirectory(path.join(root,'exports/baseline'),exported)
   const state=locations(root),backupId=await backup(state),saved=await verifyBackup(state,backupId)
-  const packageBinding=bindings.find(asset=>asset.file.relationTo==='project-files')!
-  const packageFile=await payload.findByID({collection:'project-files',id:packageBinding.file.value,...access})
+  const packageBinding=(await readReleaseProjects(payload,user,'published')).flatMap(record=>record.releaseAssets??[]).find(asset=>asset.file.relationTo==='project-files')!
+  const packageFile=await payload.findByID({collection:'project-files',id:typeof packageBinding.file.value==='object'?packageBinding.file.value.id:packageBinding.file.value,...access})
   assert.deepEqual(await readFile(path.join(saved,'project-files',packageFile.filename!)),approved.assets.find(asset=>asset.publicPath===packageBinding.publicPath)!.bytes)
-  console.log('PASS: native Payload saved both complete projects and all 163 asset bindings; published export matches approved bytes')
+  console.log('PASS: native Payload saved both complete projects and exact-identity operator bootstrap saved both projects and all asset bindings; invalid source/retry rejected; export matches approved bytes')
  }else{
   const baseline=await exportPayloadPublished({payload,user,dataRoot:root})
   assert.deepEqual(baseline.projects,approved.projects)
@@ -92,8 +93,8 @@ try {
   assert.deepEqual(await readFile(path.join(root,'exports/changed/snapshot.json')),goodSnapshot)
   await writeFile(nativeImage,replacement)
 
-  await payload.update({collection:'projects',id:radio.id,...access,data:{releaseAssets:goodRadio.releaseAssets!.map(asset=>asset.publicPath===newPath?{publicPath:newPath,file:{relationTo:'media' as const,value:tinyFile.id}}:asset),_status:'published'}})
-  await assert.rejects(exportPayloadPublished({payload,user,dataRoot:root}),/dimensions/)
+  await assert.rejects(payload.update({collection:'projects',id:radio.id,...access,data:{releaseAssets:goodRadio.releaseAssets!.map(asset=>asset.publicPath===newPath?{publicPath:newPath,file:{relationTo:'media' as const,value:tinyFile.id}}:asset),_status:'published'}}),/Материалы/)
+  assert.deepEqual((await exportPayloadPublished({payload,user,dataRoot:root})).projects,changed.projects)
   assert.deepEqual(await readFile(path.join(root,'exports/changed/snapshot.json')),goodSnapshot)
   await payload.update({collection:'projects',id:radio.id,...access,data:{releaseAssets:goodRadio.releaseAssets,_status:'published'}})
 
@@ -119,4 +120,4 @@ try {
   await writeFile(path.join(root,'proof-result.json'),JSON.stringify({projects:changed.projects.map(p=>p.slug),assets:changed.assets.length,publishedIndependentOfDrafts:true,reopen:true,invalidKeepsLastGood:true}))
   console.log('PASS: fresh SQLite process, edits to both Hero modes/content/image, private drafts, guarded files, invalid/missing files retain good export')
  }
-}finally{await payload.destroy()}
+}finally{await payload.destroy();await lock.release()}

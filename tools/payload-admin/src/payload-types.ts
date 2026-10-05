@@ -185,7 +185,7 @@ export interface ProjectFile {
   focalY?: number | null;
 }
 /**
- * Локальные проекты. Публикация здесь не меняет действующий сайт.
+ * Сохраняйте черновик для проверки. Публикация применяет изменения проекта на сайте.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects".
@@ -204,9 +204,6 @@ export interface Project {
     heading?: string | null;
     description?: string | null;
   };
-  /**
-   * Технические данные проекта. Удобное редактирование будет подключено после выпуска сайта.
-   */
   releaseContent?:
     | {
         [k: string]: unknown;
@@ -216,6 +213,9 @@ export interface Project {
     | number
     | boolean
     | null;
+  /**
+   * Связи создаются при загрузке изображений и верстки. Вручную менять пути не требуется.
+   */
   releaseAssets?:
     | {
         publicPath: string;

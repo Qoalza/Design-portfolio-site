@@ -10,4 +10,5 @@ export default withPayload({
   agentRules: false,
   turbopack: { root },
   poweredByHeader: false,
+  logging: { incomingRequests: false },
 })
