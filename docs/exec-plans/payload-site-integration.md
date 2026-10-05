@@ -699,3 +699,21 @@ preloader; после снятия block native Retry показал retry copy 
 Corvo heading. Statistics button меняет selected state и iframe URL; фактический
 iframe body содержит statistics/table. Это доказывает resource failure/recovery,
 но не все slow/late/animation состояния. Temporary settings сняты, test tab closed.
+
+## Browser checkpoint: долгий ответ и desktop fade
+
+2026-10-05, deployed code7faa2b8f9709262cc2849de26479bb534a0268dd.
+Main normal load, simulated12000ms network latency: browser показал «Долгая
+загрузка», explanatory copy и Retry button. После снятия latency готовая главная
+открылась автоматически. Slow-state Retry НЕ доказан: первая попытка click уже
+не нашла кнопку после ready; второй observation deadline наступил до slow state.
+Эти попытки не объявлять PASS, fixtures остаются отдельным evidence. Все test
+network/cache overrides сняты, tabs закрыты, user settings не менялись.
+
+Desktop fade:1920x1080 small и2560x1440 large runtime variants. Actual body и
+hero-bottom-dots background одинаковы rgb(22,25,26). В large оба fade gradients
+используют тот же RGB с изменяемой alpha. Lower Hero screenshot просмотрен;
+цветовой шов старого fade не воспроизведён. Никаких CSS/design changes этим шагом.
+Native editor login ещё открыт; owner credential вводит пользователь. Goal active,
+не завершён. Next: native editing acceptance и ещё не подтверждённые browser
+slow retry/late readiness/animation cases, без повторения успешных build/tests.

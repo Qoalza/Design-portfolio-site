@@ -77,7 +77,11 @@ acceptance: saved draft/reopen/preview/native Publish/public update; image/layou
 raster/order/slug/version restore. Реальные test project writes ранее rejected
 auto-review из-за persistent versions/content; после нового «Разрешаю» они ещё
 не выполнялись. Не подменять actual acceptance fixture evidence.
-Публичные edge states/visual checks пока частичны. SMTP не настроен, protected
+Main slow state при12000ms latency и automatic ready после снятия задержки PASS.
+Slow Retry click не подтверждён; tests не подменяют browser animation evidence.
+Desktop small1920/large2560: actual body/base fade RGB22,25,26 совпадает; gradients
+используют тот же цвет с alpha, lower Hero визуально просмотрен. Overrides сняты,
+test tabs закрыты. Публичные edge states/visual checks пока частичны. SMTP не настроен, protected
 console recovery доступен. Goal не завершён; старые runtime/worktrees не архивировать.
 Plan: docs/exec-plans/payload-site-integration.md v2.0.
 OPS/rollback: docs/ops/PAYLOAD.md. Audit: docs/ops/PAYLOAD_ACCEPTANCE.md.
