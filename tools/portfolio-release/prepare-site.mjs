@@ -34,5 +34,5 @@ files.sort((a,b)=>a.path.localeCompare(b.path));
 const pages={'/':{title:'Артур — Product Designer',description:'Портфолио продуктового дизайнера: B2B, B2E, SaaS и сложные внутренние системы.'}};
 for(const project of prepared.projects)pages[`/projects/${project.slug}`]={title:`${project.title} — Product Designer`,description:project.description};
 const packageFiles=Object.fromEntries(prepared.projects.flatMap(project=>project.redesign.hero.kind==='layout'?project.redesign.hero.scenes.flatMap(scene=>scene.source.kind==='package'?scene.source.files.map(file=>[scene.source.assetBase+file.path,file.mime]):[]):[]));
-await writeFile(path.join(siteRoot,'site-manifest.json'),JSON.stringify({version:1,buildSha,sourceDirty,approvedSourceSha:approvedSourceSha,provenance:prepared.provenance,snapshotSha256,pages,packageFiles,files},null,2)+'\n');
+await writeFile(path.join(siteRoot,'site-manifest.json'),JSON.stringify({version:1,buildSha,sourceDirty,approvedSourceSha:approvedSourceSha,provenance:prepared.provenance,snapshotSha256,pages,packageFiles,contentAssets:prepared.assets.map(asset=>asset.publicPath),files},null,2)+'\n');
 console.log(`Prepared selected release site: ${files.length} files; SHA ${buildSha}; ${sourceDirty?'scratch build (not publishable)':'clean source'}`);

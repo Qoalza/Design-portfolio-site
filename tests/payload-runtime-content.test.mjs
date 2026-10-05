@@ -28,3 +28,23 @@ test('already-built renderer gets changed native content, routes and metadata wi
   assert.throws(()=>runtimeProjectDocuments([],{textContent:'{}'}),/Invalid/);
  }finally{await rm(root,{recursive:true,force:true});}
 });
+
+test('online assets use published bytes only; static shell survives DB failure; HEAD/ETag/package isolation',async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),'payload-runtime-content-'));
+ try{
+  const entries=[['index.html','<html lang="ru"><head><title>Portfolio</title></head></html>'],['app.js','compiled'],['assets/projects/old.png','stale']];
+  const files=[];
+  for(const [name,value] of entries){const {mkdir}=await import('node:fs/promises');await mkdir(path.dirname(path.join(root,name)),{recursive:true});await writeFile(path.join(root,name),value);files.push({path:name,bytes:Buffer.byteLength(value),sha256:createHash('sha256').update(value).digest('hex')});}
+  await writeFile(path.join(root,'site-manifest.json'),JSON.stringify({version:1,buildSha:'a'.repeat(40),pages:{'/':{title:'Portfolio',description:'Designer'}},contentAssets:['/assets/projects/old.png'],files}));
+  let calls=0;
+  const serve=createReleaseHandler({root,readContent:async()=>{calls++;throw new Error('DB unavailable')},readAsset:async name=>name==='/assets/projects/current/frame.html'?{content:Buffer.from('<html>published</html>'),sha256:'d'.repeat(64),mime:'text/html',packaged:true}:null});
+  const request=(name,options)=>serve(new Request('https://art-des.ru'+name,options));
+  assert.equal(await(await request('/app.js')).text(),'compiled');assert.equal(calls,0);
+  assert.equal((await request('/assets/projects/old.png')).status,404);
+  assert.equal((await request('/assets/projects/draft.png')).status,404);
+  const response=await request('/assets/projects/current/frame.html');assert.equal(response.status,200);assert.match(response.headers.get('content-security-policy'),/sandbox/);assert.equal(response.headers.get('content-type'),'text/html');
+  assert.equal((await request('/assets/projects/current/frame.html',{method:'HEAD'})).headers.get('content-length'),'22');
+  assert.equal((await request('/assets/projects/current/frame.html',{headers:{'if-none-match':'"'+'d'.repeat(64)+'"'}})).status,304);
+  assert.equal(calls,0);
+ }finally{await rm(root,{recursive:true,force:true});}
+});

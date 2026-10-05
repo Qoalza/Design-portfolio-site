@@ -520,3 +520,25 @@ checkout. Реальный child с игнорированием SIGTERM про�
 persisted JSON идентичны; terminal чужого owner не блокирует следующий запрос.
 Restart reconciliation/partial-write recovery, release review, deploy/UI/live
 config и installation остаются обязательным продолжением, не закрыты этим шагом.
+
+## Checkpoint версии2.0: опубликованные ресурсы
+
+Server asset reader выбирает только committed published records; внутренний
+resolver читает только связанные native upload IDs. Имена файлов из присланного
+populated relation не используются. Проверяется regular/O_NOFOLLOW, размер,
+immutable digest, полное декодирование bitmap, image dimensions и package closure.
+Native beforeChange выполняет те же проверки с req transaction до публикации.
+Неполный черновик сохраняется, ошибочная публикация не меняет рабочий контент.
+Public host не выдаёт старые bundled content assets при отсутствии published
+binding. Static JS/CSS/fonts доступны без запроса БД. HTML packages сохраняют
+MIME/CSP, GET/HEAD/ETag; cache ограничен текущим native published revision.
+
+Evidence: missing-image test RED (native Publish ошибочно принимался) → GREEN;
+actual native DB: draft upload404 → Publish exact bytes200, смена slug aliases,
+BUILD_ID unchanged, fixture restored. Actual Next HTTP: anonymous raw upload403,
+draft public404, published image byte-identical, HEAD/ETag304, полный required
+asset closure200; missing image Publish400 сохраняет прежний DTO; восстановление
+baseline убирает новый ресурс. Public HTML/title checks для обоих templates PASS.
+Full native suite/typecheck/lint/build; root host checks; renderer build PASS.
+Две последовательные selfreviews: fidelity/completeness, затем regression/access/
+transaction/scope. Production и Hero не менялись. Далее: no-build private preview.

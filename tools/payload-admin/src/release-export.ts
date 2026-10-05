@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 import type { Payload } from 'payload'
 import sharp from 'sharp'
 import {publicAssetAlias,withPublicAssetAliases} from './asset-alias'
-import type { User, Project } from './payload-types'
+import type { User, Project, Media, ProjectFile } from './payload-types'
 import { withoutEditorState } from './authoring/hero'
 import { validateProjectDocument, type ProjectDocument } from '../../../src/lib/project-contract'
 import { createProjectSnapshot, requiredAssets } from '../../portfolio-release/project-snapshot.mjs'
@@ -27,9 +27,11 @@ export async function readReleaseProjects(payload: Payload, user: User | null, m
  }
  return docs
 }
-// Shared preparation for authenticated preview and published export. The caller selects native revisions.
-export async function prepareReleaseRecords({ payload, user, dataRoot, records }: {payload:Payload;user:User|null;dataRoot:string;records:Project[]}) {
- if(!user) throw new Error('Payload project access requires authentication')
+// The resolver owns access policy; only bound IDs are passed, never client filenames.
+export async function prepareRecordAssets({dataRoot,records,resolveFile}:{
+ dataRoot:string;records:Project[];
+ resolveFile:(collection:'media'|'project-files',id:number)=>Promise<Media|ProjectFile>;
+}) {
  const projects = records.map(releaseProjectDocument)
  const assets: Array<{ publicPath: string; sha256: string; bytes: Buffer }> = []
  const required = new Set<string>(projects.flatMap(project => [...requiredAssets(project).paths] as string[]))
@@ -38,7 +40,8 @@ export async function prepareReleaseRecords({ payload, user, dataRoot, records }
   if (!required.has(publicPath)) continue
   const relation = binding.file
   if (!relation?.value) throw new Error('Missing Payload asset relation')
-  const media = typeof relation.value === 'object' ? relation.value : await payload.findByID({ collection: relation.relationTo, id: relation.value, user, overrideAccess: false })
+  const id=typeof relation.value==='object'?relation.value.id:relation.value
+  const media=await resolveFile(relation.relationTo,id)
   const name = media.filename
   if (!name || path.basename(name) !== name) throw new Error('Unsafe Payload filename')
   const directory = relation.relationTo === 'media' ? 'media' : 'project-files'
@@ -84,6 +87,11 @@ export async function prepareReleaseRecords({ payload, user, dataRoot, records }
   for(const entry of closure.manifests) {const asset=byPath.get(entry.publicPath);if(!asset||asset.sha256!==entry.sha256||asset.bytes.length!==entry.size) throw new Error('Payload layout manifest does not match bytes')}
  }
  return {projects,assets}
+}
+// Authenticated preview/export still uses native collection access.
+export async function prepareReleaseRecords({payload,user,dataRoot,records}:{payload:Payload;user:User|null;dataRoot:string;records:Project[]}) {
+ if(!user)throw new Error('Payload project access requires authentication')
+ return prepareRecordAssets({dataRoot,records,resolveFile:(collection,id)=>payload.findByID({collection,id,user,overrideAccess:false})})
 }
 export async function exportPayloadPublished({ payload, user, dataRoot }: { payload: Payload; user: User | null; dataRoot: string }) {
  const records = await readReleaseProjects(payload, user, 'published')
