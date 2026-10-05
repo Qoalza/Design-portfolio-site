@@ -2,7 +2,7 @@
 
 Статус 2026-10-05: онлайн Payload активирован на actual VPS; actual HTTPS
 public/admin/auth/assets/private preview и native editor/material проверки PASS.
-Пользовательская visual/animation приёмка ещё открыта. Этот документ относится к новой Payload CMS. Процедуры старой
+Операционная приёмка завершена пользователем; переделка дизайна выделена отдельно. Этот документ относится к новой Payload CMS. Процедуры старой
 Des-art Admin не являются источником логики или публикации контента.
 
 ## Рабочий процесс
@@ -97,7 +97,7 @@ HTTPS source, raster order/count rejection, slug/routes/sitemap/assets,
 к точному approved baseline; тестовые versions/materials приватны. JPEG проверен
 как private draft, не как опубликованная карточка. Подробное evidence и различия
 actual/fixture: PAYLOAD_ACCEPTANCE.md. Не повторять ранние pending checkpoints
-как текущий статус. Пользовательская визуальная приёмка остаётся открытой.
+как текущий статус. Пользователь принял работоспособность, дизайн переделывает отдельно.
 
 Current7faa host отдельно разрешает23 exact code-owned Corvo shell SVG из verified
 build files; CMS assets и unknown/draft resources не получают static fallback.
@@ -117,10 +117,13 @@ CMS service active. Original `/swapfile` сохранён, fstab не менял
 
 ## Сохранённый предыдущий runtime и быстрый откат
 
-Old `art-des.service` остаётся active3000, его current release SHA
+Old `art-des.service` после приёмки остановлен и disabled; сохранённый release SHA
 `b44946021d55fb1cc8a4430c3bafd62e342714c9`. `/var/www/art-des/current` и restricted
 static status отражают standby runtime, а не новый public CMS code identity.
-Старый код не архивировать/не удалять до пользовательской приёмки.
+Старый код архивирован по прямому разрешению пользователя; исходные releases сохранены.
+Архив /var/backups/art-des/archived-static-20261005T133522Z, gzip/tar/checksum PASS.
+Перед rollback: systemctl enable --now art-des.service, затем readiness3000.
+RESTORE.txt в архиве содержит процедуру восстановления.
 Private runtime/config backup: `/var/backups/art-des/pre-payload-0882f79`.
 Actual rollback proxy source: `nginx-art-des-enabled`; `nginx-art-des` относится
 к неактивному sites-available. При разрешённом rollback:

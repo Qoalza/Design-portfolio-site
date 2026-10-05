@@ -1,4 +1,4 @@
-# Онлайн Payload: аудит оставшейся приёмки
+# Онлайн Payload: завершённая операционная приёмка
 
 2026-10-05. Exact public code:7faa2b8f9709262cc2849de26479bb534a0268dd.
 Deployment/config: PAYLOAD.md. Active plan: ../exec-plans/payload-site-integration.md v2.0.
@@ -56,7 +56,7 @@ Browser selective resource failure: Network.setBlockedURLs только topbar-h
 pressed и iframe statistics/index.html с таблицей подтверждены. Test settings
 сняты, штатная тестовая вкладка закрыта; исходные пользовательские вкладки сохранены.
 
-## Открытые требования — не объявлять полный Goal complete
+## Исторический список требований перед финальной приёмкой
 
 1. Native editor/material acceptance перечисленных сценариев завершена; см. итоговый checkpoint ниже.
 2. Transient browser Failed to fetch отражён отдельно; повтор подтверждён200/public update.
@@ -70,7 +70,7 @@ pressed и iframe statistics/index.html с таблицей подтвержде
 4. Archive старого runtime/worktrees только после user acceptance. Standby3000,
    previous online05 unit и actual proxy/runtime backups сохранены.
 
-## Следующая полезная работа
+## Исторический следующий шаг до пользовательской приёмки
 
 Native editor/material checks завершены. Далее пользовательская visual/animation приёмка и archive после её подтверждения. SMTP не настроен,
 console recovery описан в PAYLOAD.md. Не повторять successful build/HTTP suites
@@ -193,3 +193,23 @@ Tablet/Mobile остаются disabled. Временные вкладки за�
 настройки не вводились. Это evidence переключения и отрисовки, не доказательство
 каждого промежуточного animation frame. Пользовательская визуальная приёмка и
 архивирование после её подтверждения остаются открытыми.
+
+## Завершение 2026-10-05
+
+Пользователь подтвердил работоспособность, вынес переделку дизайна в отдельную
+задачу и прямо разрешил архивировать старую версию и завершить работу. Это
+операционная приёмка; она не превращает частичные visual/animation checks в
+полный визуальный PASS. SMTP/actual production DB test-restore не заявляются.
+Приватный архив: /var/backups/art-des/archived-static-20261005T133522Z.
+static-runtime.tar.gz:207197016bytes, mode0600, directory0700;
+SHA256 b71e9788496889f924a67f26f2fa1bd610c12aa3c2f29d8367ce782bb1095a65.
+Содержит3 прежних static releases, current symlink, old unit и pre-redesign/
+pre-payload runtime/config backups. gzip integrity, tar compare с исходными
+файлами и SHA256 verification PASS. Исходные releases сохранены для быстрого
+отката. art-des.service inactive/disabled; после SIGTERM143 wrapper оставил
+failed status, reset-failed снял только статус, процесс не перезапускался.
+art-des-payload.service active, code7faa неизменен. Actual TLS через Nginx:
+главная/оба кейса/admin-login200, public projects до/после точно равны.
+RESTORE.txt и receipt.txt находятся в архивной директории. Возврат static требует
+сначала enable --now старого сервиса и readiness3000, затем approved proxy
+rollback; БД Payload не восстанавливать для static rollback. Worktrees не удалены.

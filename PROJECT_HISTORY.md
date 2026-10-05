@@ -8,6 +8,17 @@
 
 Читать только релевантные разделы. Не добавлять каждый commit, screenshot matrix или промежуточный status.
 
+## 2026-10-05 — онлайн Payload и архив прежнего static runtime
+
+Новый public Portfolio и native Payload активированы одним runtime. Published
+контент читается после DB commit; обычная редакторская публикация не требует
+архива/build/deploy. Native editor/material acceptance и восстановление approved
+baseline проверены. Пользователь принял работоспособность, дизайн оставил для
+отдельной переделки и разрешил завершение. Прежние static releases/runtime/config
+сохранены в private verified archive, старый сервис остановлен/disabled, текущий
+Payload и public content не изменились. Originals сохранены для rollback.
+Evidence: docs/ops/PAYLOAD_ACCEPTANCE.md; operations: docs/ops/PAYLOAD.md.
+
 ## 2026-08-11 — первая homepage implementation и QA baseline
 
 - Главная была собрана по тогдашнему Figma source, после пользовательского отклонения проведена секционная rebuild-инвентаризация.

@@ -1,6 +1,6 @@
 # Онлайн-Payload и прямое подключение сайта
 
-Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — online runtime ACTIVATED; native editor acceptance PASS; пользовательская visual приёмка pending.
+Версия 2.0, 2026-10-05. Статус: COMPLETE — online runtime и CMS приняты функционально; прежние static releases архивированы; дизайн вынесен пользователем отдельно.
 Область ADMIN + SHARED + PORTFOLIO + OPS; LARGE / HIGH / FULL.
 Worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site,
 ветка codex/cms-integration; deployed code checkpoint
@@ -794,3 +794,23 @@ Final оба public projects точно совпали с актуальным b
 не менялись. Test versions/materials остаются private; maxPerDoc20 ограничивает
 историю, не обещать доступность самых ранних test versions. Fixture content/
 credentials/.local/USERSPACE не переносились. Root SSH истёк, CMS от него не зависит.
+
+## Завершение 2026-10-05
+
+Пользователь подтвердил работоспособность, вынес переделку дизайна в отдельную
+задачу и прямо разрешил архивировать старую версию и завершить работу. Это
+операционная приёмка; она не превращает частичные visual/animation checks в
+полный визуальный PASS. SMTP/actual production DB test-restore не заявляются.
+Приватный архив: /var/backups/art-des/archived-static-20261005T133522Z.
+static-runtime.tar.gz:207197016bytes, mode0600, directory0700;
+SHA256 b71e9788496889f924a67f26f2fa1bd610c12aa3c2f29d8367ce782bb1095a65.
+Содержит3 прежних static releases, current symlink, old unit и pre-redesign/
+pre-payload runtime/config backups. gzip integrity, tar compare с исходными
+файлами и SHA256 verification PASS. Исходные releases сохранены для быстрого
+отката. art-des.service inactive/disabled; после SIGTERM143 wrapper оставил
+failed status, reset-failed снял только статус, процесс не перезапускался.
+art-des-payload.service active, code7faa неизменен. Actual TLS через Nginx:
+главная/оба кейса/admin-login200, public projects до/после точно равны.
+RESTORE.txt и receipt.txt находятся в архивной директории. Возврат static требует
+сначала enable --now старого сервиса и readiness3000, затем approved proxy
+rollback; БД Payload не восстанавливать для static rollback. Worktrees не удалены.
