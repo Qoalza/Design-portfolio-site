@@ -51,8 +51,8 @@ canvas открыт без аккаунта. Corvo Statistics selection откр
 с таблицей подтверждён. Selective missing-SVG browser test показал connection
 error→«Повторить»→«Пробую достучаться снова»→ready Corvo; blocked URLs сняты.
 Пользователь вошёл в native Payload. Actual draft/reopen/private preview/Publish,
-public update и штатное восстановление версии теперь проверены; остальные
-editor/material acceptance пункты остаются открытыми.
+public update и штатное восстановление версии проверены. Оставшиеся native
+editor/material сценарии также завершены; итоговый checkpoint ниже.
 Offline top-level navigation в temporary tab привёл к native browser error page;
 Browser Use policy запрещает data: error-page, поэтому in-app retry этим тестом
 не проверен. Selective asset failure/retry проверен отдельным тестом выше.
@@ -73,20 +73,15 @@ Actual DB НЕ test-restored; restore/publication behavior проверены н
 
 ## Следующий шаг / stop-lines
 
-Закончить оставшуюся native editor acceptance: JPEG/WebP inputs/layout upload, raster/order,
-published slug change и сопутствующие public asset checks. Actual текстовый
-черновик пережил reload, private preview показал правку, public DTO остался
-побайтно прежним до native Publish. Публикация показала правку публично; исходный
-текст восстановлен, оба public projects полностью совпали с baseline. Native
-versions restore исходной версии также PASS. Draft slug сохранился после reload
-и не изменил public projects; штатный возврат к published проверен. Test versions
-сохраняются как обычная история CMS; canonical Git content не менялся.
-Actual PNG image upload → private draft404 → native Publish/file200/digest parity
-→ version restore/public baseline equality/resource404 PASS. Original PNG
-сохранён, lossless WebP подготовлен. После version restore native stale-document
-dialog требует штатную кнопку «Перезагрузить документ»; она проверена.
-Прежний root SSH канал истёк; CMS browser workflow доступен независимо от него.
-Не подменять actual acceptance fixture evidence.
+Native editor/material browser acceptance PASS: text/draft/reopen/preview/Publish,
+PNG/JPEG/WebP,142-file folder/HTTPS source, raster order/count rejection,
+published slug/routes/sitemap/assets, variants/adaptives, version restore/revert.
+Final public projects exact baseline equality PASS. Test history/materials private,
+maxPerDoc20; canonical Git/Hero code/geometry/physics не менялись.
+Некоторые browser submit дали Failed to fetch; повтор200/public update проверен,
+связь с VPN не доказана. Root SSH истёк; CMS workflow от него не зависит.
+Next: пользовательская visual/animation приёмка; archive только после подтверждения.
+Не повторять successful build/test suites без нового code change.
 Main slow state при12000ms latency и automatic ready после снятия задержки PASS.
 Slow Retry1/2 теперь PASS через удержанный Image request: корректные captions,
 повторный slow и ready после release. Late slow→connection и connection Retry1/2

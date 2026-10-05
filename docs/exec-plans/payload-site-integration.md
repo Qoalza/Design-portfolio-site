@@ -1,6 +1,6 @@
 # Онлайн-Payload и прямое подключение сайта
 
-Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — online runtime ACTIVATED; browser acceptance pending.
+Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — online runtime ACTIVATED; native editor acceptance PASS; пользовательская visual приёмка pending.
 Область ADMIN + SHARED + PORTFOLIO + OPS; LARGE / HIGH / FULL.
 Worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site,
 ветка codex/cms-integration; deployed code checkpoint
@@ -764,3 +764,33 @@ selector сбои не обходились другими средствами.
 lossless preparation/private draft/native publication/version resource revocation
 actual PASS. JPEG/WebP inputs/layout package/raster order/published slug остаются
 открытыми для actual проверки; fixture coverage учитывается отдельно.
+
+## Native browser acceptance: оставшиеся сценарии — PASS
+
+2026-10-05, deployed7faa, без code deploy.
+
+- Published slug: новый адрес200, прежний404, sitemap обновлён; delivery asset
+  по новому alias200 с исходным digest. Native restore вернул исходный адрес.
+- Layout folder:142 canonical Corvo files совпали с published manifest до upload.
+  Native folder chooser/entry media-campaigns/index.html/ingest/draft/reopen/
+  Publish подтверждены; published version17, public source/manifest parity PASS.
+  Затем native restore исходной version1.
+- Raster: move/save/Publish дал home/delivery/variant; исходный порядок возвращён.
+  WebP4096×2958,605КБ сохранён без повторного сжатия как четвёртый draft screen.
+  Publish400 с сообщением о неготовых данных Hero; public baseline unchanged.
+  Revert убрал тестовый черновик.
+- JPEG: approved Corvo avatar.png по magic JPEG1024×1024,107КБ. Ingest сохранил
+  исходник, поскольку candidate не легче; draft .jpg binding/anonymous404/
+  public unchanged PASS. JPEG не публиковался в карточке; draft возвращён.
+- HTTPS source: ссылка на тот же approved media-campaigns/index.html, private
+  preview nested heading PASS; native Publish/public kind:url PASS; затем restore.
+- Верстка→Фикс адаптив→Верстка сохранила4 сцены. Выключенный Tablet в saved
+  draft preview disabled:true; Mobile/Desktop disabled:false. Revert вернул
+  оригинальные настройки. Portfolio adaptive и Hero code/geometry/physics не менялись.
+
+Final оба public projects точно совпали с актуальным baseline до проверок.
+Некоторые первые browser submit дали Failed to fetch; повтор200/public update
+подтверждены. Это transport failure, связь с VPN не установлена; настройки сети
+не менялись. Test versions/materials остаются private; maxPerDoc20 ограничивает
+историю, не обещать доступность самых ранних test versions. Fixture content/
+credentials/.local/USERSPACE не переносились. Root SSH истёк, CMS от него не зависит.
