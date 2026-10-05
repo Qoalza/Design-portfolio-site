@@ -1,68 +1,40 @@
-import { headers } from 'next/headers'
-import { notFound, redirect } from 'next/navigation'
-import Image from 'next/image'
-import { getPayload } from 'payload'
-import { RichText } from '@payloadcms/richtext-lexical/react'
+import {headers} from 'next/headers'
+import {notFound,redirect} from 'next/navigation'
+import {getPayload} from 'payload'
+import path from 'node:path'
 import config from '@payload-config'
-import type { Media } from '../../../../../payload-types'
-import { readPreviewProject } from '../../../../../preview'
-import headerStyles from '../../../../../components/preview-header.module.css'
-
-export const dynamic = 'force-dynamic'
-
-function Picture({ media, hero = false }: { media?: number | Media | null; hero?: boolean }) {
-  if (!media || typeof media === 'number' || !media.filename) return null
-  return <Image unoptimized src={`/api/media/file/${encodeURIComponent(media.filename)}`} alt={media.alt || ''}
-    width={media.width || 1200} height={media.height || 800} className={hero ? 'hero-image' : 'content-image'} />
-}
-
-export default async function Preview({ params, searchParams }: {
-  params: Promise<{ id: string }>; searchParams: Promise<{ mode?: string }>
-}) {
-  const { id } = await params
-  const mode = (await searchParams).mode === 'published' ? 'published' : 'draft'
-  const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
-  if (!user) redirect('/admin/login')
-  const project = await readPreviewProject(payload, user, id, mode)
-  if (!project) {
-    if (mode !== 'published') notFound()
-    const draft = await readPreviewProject(payload, user, id, 'draft')
-    if (!draft) notFound()
-    return <main className="preview-shell"><p>У этого проекта пока нет опубликованной локальной версии.</p><a href={`?mode=draft`}>Открыть сохранённый черновик</a></main>
-  }
-  const blocks = project.blocks || []
-  return <>
-    <nav className="preview-toolbar" aria-label="Предпросмотр">
-      <a href={`/admin/collections/projects/${project.id}`}>← В редактор</a>
-      <span>{mode === 'published' ? 'Опубликовано локально' : 'Сохранённый черновик'}</span>
-      <a href="?mode=draft" aria-current={mode === 'draft' ? 'page' : undefined}>Черновик</a>
-      <a href="?mode=published" aria-current={mode === 'published' ? 'page' : undefined}>Опубликованная версия</a>
-    </nav>
-    <main className="preview-shell">
-      <p className="preview-hint">Локальный предпросмотр. Чтобы увидеть новые правки, сохраните их в редакторе и обновите эту страницу.</p>
-      <header className={`${headerStyles.pageHeader} ${headerStyles.simple} ${headerStyles.projectPage}`}>
-        <div className={headerStyles.head}><div className={headerStyles.text}>
-          <h1>{project.header?.heading || project.title || 'Без названия'}</h1>
-          {project.header?.description && <p>{project.header.description}</p>}
-        </div></div>
-      </header>
-      <div className="hero-preview"><Picture media={project.hero?.image} hero /></div>
-      <div className="project-information">
-        <nav className="section-navigation" aria-label="Секции кейса">{blocks.map((block, index) =>
-          <a key={block.id || index} href={`#block-${index}`}>{block.heading || (block.blockType === 'gallery' ? 'Галерея' : 'Секция')}</a>)}</nav>
-        <article>{blocks.map((block, index) => <section className="contentSection" id={`block-${index}`} key={block.id || index}>
-          <h2>{block.heading || (block.blockType === 'gallery' ? 'Галерея' : 'Секция')}</h2>
-          {block.blockType === 'section' ? <>
-            {block.text?.root && <RichText data={block.text} />}
-            <Picture media={block.image} />
-            {block.note && <aside className="projectNotice"><p>{block.note}</p></aside>}
-          </> : <div className="preview-gallery">{block.images?.map((item, i) => <figure key={item.id || i}>
-            <Picture media={item.image} />{item.caption && <figcaption>{item.caption}</figcaption>}
-          </figure>)}</div>}
-          <hr className="contentDivider" />
-        </section>)}</article>
-      </div>
-    </main>
-  </>
+import {preparePreviewRelease,readPreviewProject} from '../../../../../preview'
+import {LegacyProjectPreview} from '../../../../../components/LegacyProjectPreview'
+import {createPreviewArtifact,lastPreviewArtifact} from '../../../../../preview-artifacts'
+export const dynamic='force-dynamic'
+export default async function Preview({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<{mode?:string}>}) {
+ const {id}=await params
+ const mode=(await searchParams).mode==='published'?'published':'draft'
+ const payload=await getPayload({config})
+ const {user}=await payload.auth({headers:await headers()})
+ if(!user)redirect('/admin/login')
+ const project=await readPreviewProject(payload,user,id,mode)
+ if(!project){
+  if(mode==='draft'||!await readPreviewProject(payload,user,id,'draft'))notFound()
+  return <main className="preview-shell"><p>У проекта пока нет опубликованной локальной версии.</p><a href="?mode=draft">Открыть сохранённый черновик</a></main>
+ }
+ if(!project.releaseContent)return <LegacyProjectPreview project={project} mode={mode}/>
+ let artifact=lastPreviewArtifact(user.id,project.id,mode),failed=false
+ try {
+  const dataRoot=process.env.PAYLOAD_LOCAL_ROOT||path.join(process.cwd(),'.local')
+  const prepared=await preparePreviewRelease({payload,user,id,mode,dataRoot})
+  if(!prepared)throw new Error('Missing renderer data')
+  artifact=await createPreviewArtifact({prepared,dataRoot,owner:user.id})
+ }catch{failed=true}
+ return <>
+  <nav className="preview-toolbar" aria-label="Предпросмотр">
+   <a href={`/admin/collections/projects/${project.id}`}>← В редактор</a>
+   <span>{mode==='published'?'Опубликовано локально':'Сохранённый черновик'}</span>
+   <a href="?mode=draft" aria-current={mode==='draft'?'page':undefined}>Черновик</a>
+   <a href="?mode=published" aria-current={mode==='published'?'page':undefined}>Опубликованная версия</a>
+   <a href={artifact?.base}>Главная в предпросмотре</a>
+  </nav>
+  {failed?<p role="alert" className="preview-hint">Не удалось собрать текущую версию. Проверьте сохранённые данные и ресурсы.{artifact?' Ниже остаётся предыдущий успешный предпросмотр.':''}</p>:<p className="preview-hint">Показана сохранённая версия. После правок сохраните проект и обновите страницу. Предпросмотр действует 30 минут.</p>}
+  {artifact&&<iframe title={`Предпросмотр: ${project.title}`} sandbox="allow-scripts" referrerPolicy="no-referrer" src={`${artifact.base}projects/${project.slug}`} style={{display:'block',width:'100%',height:'calc(100vh - 110px)',border:0}}/>}
+ </>
 }

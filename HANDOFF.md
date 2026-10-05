@@ -30,11 +30,12 @@ GET/HEAD/encoded path/auth/bytes и full tests/typecheck/lint/build PASS.
 Layout package endpoint/Field/immutable manifest/bindings готовы: actual Corvo
 package, JPEG с историческим PNG extension, HTTP save/reopen/export/deletion guards
 и native full tests/typecheck/lint/build PASS. Private packages сохраняются в versions.
-Группа3: общий prepareReleaseRecords/private preparePreviewRelease готовы;
-оба templates auth/draft/published/revision/closure и native tests/build PASS.
-UI пока legacy. Далее compiled immutable scoped artifact + sandboxed frame/HTTP
-guards, затем CMS builds/publication/bootstrap. Browser acceptance pending;
-не повторять и не обходить denied browser action.
+Группа3: общий producer и compiled sandboxed private preview подключены.
+Оба template HTTP на итоговом production build + native suite/typecheck/lint/build
+PASS; детали capability/auth/closure в ExecPlan. Browser acceptance pending.
+Далее группа4: explicit published CMS snapshot build и slug/template routing,
+затем publication workflow, sourceHash/cache cleanup/bootstrap/final checks.
+Не повторять и не обходить denied browser action. Personal state/production untouched.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
 
 ## Stop-lines

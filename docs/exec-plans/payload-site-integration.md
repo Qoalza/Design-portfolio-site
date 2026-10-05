@@ -332,3 +332,42 @@ suite/typecheck/lint/build PASS. Review1: closure проверяется до co
 public snapshot/SQL/Hero/CSS/personal data неизменны. UI пока legacy, группа3
 не завершена. Далее compiled immutable scoped artifact, sandboxed same-renderer
 frame и HTTP guards. Browser action не повторять и не обходить.
+
+
+## Checkpoint: группа3, compiled private same-renderer preview
+
+Native auth выбирает сохранённый draft/published и запускает isolated Vite compiler.
+Он использует existing App/project templates/FirstVisit/Hero/styles, approved shell
+assets и проверенный private asset closure. Local document/static resource paths
+получают отдельный namespace; bytes/layout geometry/adaptives не меняются. Private
+renderer input не получает public publication provenance. Legacy Payload records
+без releaseContent сохраняют прежний native preview; Des-art Admin не используется.
+
+Frame имеет sandbox allow-scripts без allow-same-origin. Внутри используется
+256-bit read-only capability на exact manifest, TTL30min; native auth нужен для
+создания, CMS session/JWT/secret frame/compiler не получает. Routes/GET/HEAD ограничены
+manifest, digest/size проверяются при чтении; no-store/noindex/nosniff/no-referrer,
+opaque module CORS. Package HTML сохраняет approved sandbox CSP. Manifest/DB/unknown
+asset/unknown namespace недоступны. Incoming request logging выключен, чтобы ссылки
+предпросмотра не попадали в terminal logs. Cache shared process-global across route
+bundles/HMR, one compiler, count/byte budgets. Links invalid after server restart;
+очистку abandoned derived cache после restart ещё включить в группу6.
+
+Failed producer/compiler показывает previous good artifact этого user/project/mode.
+API/HTTP на итоговом production build: auth redirect, оба template frames, module
+assets without CMS credentials, sandbox/CORS/no-store, HEAD empty body, invalid
+namespace/missing files/private manifest exclusion и repeated revision reuse PASS.
+Pure real renderer compiler/path mapping/original bytes и native full suite PASS;
+typecheck/lint/build PASS. Dynamic-root tracing warnings сняты documented ignore
+annotations на runtime paths, runtime root/symlink guards сохранены.
+
+Review1 completeness исправил Vite transform order и route literal prefix mismatch;
+legacy-only fallback сохранён. Review2 security/scope: full closure до compile,
+private/public provenance разделены, child secret исключён, bounded manifest serving,
+no personal state/production/browser changes. Browser visual/runtime interaction
+acceptance всё ещё pending; HTTP build не заменяет проверку animation/scenes.
+
+Next: группа4 explicit published CMS snapshot builds + actual slug/template routing;
+затем publication workflow, sourceHash coverage/derived cache cleanup/bootstrap,
+failed-draft fallback/expiry HTTP checks и final acceptance. Не повторять и не обходить
+denied browser action. Goal не завершён.

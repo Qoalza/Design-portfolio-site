@@ -10,7 +10,7 @@ import { Projects, Media, Users, ProjectFiles } from './collections'
 
 const directory = path.dirname(fileURLToPath(import.meta.url))
 const localRoot = path.resolve(directory, '../.local')
-const dataRoot = path.resolve(process.env.PAYLOAD_LOCAL_ROOT || localRoot)
+const dataRoot = path.resolve(/*turbopackIgnore: true*/ process.env.PAYLOAD_LOCAL_ROOT || localRoot)
 const testRoot = path.dirname(dataRoot) === path.resolve(os.tmpdir())
   && path.basename(dataRoot).startsWith('des-art-payload-test-')
 if (dataRoot !== localRoot && !testRoot) throw new Error('CMS accepts only its local sandbox or a disposable test directory')
