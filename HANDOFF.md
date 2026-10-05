@@ -44,9 +44,15 @@ Temporary build swap выключен/удалён. Prod browser session ист�
 не читались, нового owner/login/password change не делали.
 Linux clone должен отдельно получить approved-source258e95b Git ref: это не ancestor
 рабочего HEAD. Без него exporter не найдёт accepted sources; файлы не менять ради этого.
-Temporary SSH /private/tmp/art-des-ui-session-1j1e7r/connection сейчас восстановлен.
-Запрос на постоянный root SSH key auto-review rejected: пользователь ещё не подтвердил
-явно root scope в async question. Ключ НЕ создан/не установлен; не обходить отказ.
+Постоянный root SSH key пользователь явно разрешил после вопроса о scope;
+повторная auto-review разрешила создание. Отдельный локальный keypair
+/Users/designer/.ssh/id_ed25519_art_des_ops создан, private mode0600.
+На VPS ключ ещё НЕ установлен: предыдущий temporary SSH канал закрылся до upload.
+Подготовлен проверенный install script /private/tmp/art-des-permanent-access-gTtoOJ/install-key.py;
+следующий шаг — один финальный password login через новый ControlMaster socket
+/private/tmp/art-des-permanent-access-gTtoOJ/connection, установка public key с restrict,
+проверка нового прямого key-only подключения и сохранение host alias art-des-ops.
+Не генерировать ключ повторно, не читать/выводить private key, не менять SSH global config.
 Предыдущая большая Goal завершена. Дизайн — отдельная пользовательская задача.
 Visual/animation evidence частично: не заявлять полный visual PASS. Actual DB
 restore не выполнялся, fixture restore PASS. Worktrees не удалять автоматически.
