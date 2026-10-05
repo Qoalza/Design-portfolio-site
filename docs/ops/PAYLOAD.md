@@ -111,9 +111,28 @@ Previous online05 unit сохранён в
 
 Temporary2GB `/var/lib/art-des-payload-build.swap` после Linux build7faa safely
 swapoff/remove, memory guard available1316180KiB > used125732KiB +524288KiB; receipt verified,
-CMS service active. Original `/swapfile` сохранён, fstab не менялся. Root SSH
-ранее восстановлен пользователем, текущий канал истёк; UI Terminal capability не использовалась для обхода
-отказа. Routine credentials/content в чат и Git не выводить.
+CMS service active. Original `/swapfile` сохранён, fstab не менялся.
+Routine credentials/content в чат и Git не выводить.
+
+Постоянный OPS SSH-доступ установлен 2026-10-05 после явного разрешения пользователя
+на root scope. На его Mac сохранён отдельный профиль `art-des-ops` для
+`root@185.219.41.147`, ключ `/Users/designer/.ssh/id_ed25519_art_des_ops`0600,
+SSH config0600. Private key/password не сохранены в проекте, документации или логах.
+Использование: `ssh art-des-ops '<command>'`. Профиль требует key-only вход,
+проверку known host; agent forwarding и control socket отключены. Проверен новый
+прямой вход без пароля/keyboard-interactive/старой сессии, затем вход через alias;
+`art-des-payload.service` active. Подключение действует с этого Mac, пока ключ
+сохранён и разрешён сервером; пароль VPS для обычных OPS команд не нужен.
+
+В `/root/.ssh/authorized_keys` новый public key имеет comment
+`art-des-ops-designer-mac` и option `restrict`: запрещены SSH forwarding/PTY/user rc,
+но права исполнения команд остаются полными root. Existing authorized keys
+сохранены, перед добавлением сделана private backup; directory0700/file0600.
+Global sshd config, password authentication и CMS data не менялись.
+Local config перед добавлением профиля также сохранён в private backup.
+Отзыв доступа: через другой действующий административный вход удалить только
+строку с этим comment из `/root/.ssh/authorized_keys`; существующие ключи сохранить.
+Затем проверить отказ нового key-only входа. Private key не читать/выводить/передавать.
 
 ## Сохранённый предыдущий runtime и быстрый откат
 

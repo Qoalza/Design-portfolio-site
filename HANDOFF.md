@@ -44,15 +44,16 @@ Temporary build swap выключен/удалён. Prod browser session ист�
 не читались, нового owner/login/password change не делали.
 Linux clone должен отдельно получить approved-source258e95b Git ref: это не ancestor
 рабочего HEAD. Без него exporter не найдёт accepted sources; файлы не менять ради этого.
-Постоянный root SSH key пользователь явно разрешил после вопроса о scope;
-повторная auto-review разрешила создание. Отдельный локальный keypair
-/Users/designer/.ssh/id_ed25519_art_des_ops создан, private mode0600.
-На VPS ключ ещё НЕ установлен: предыдущий temporary SSH канал закрылся до upload.
-Подготовлен проверенный install script /private/tmp/art-des-permanent-access-gTtoOJ/install-key.py;
-следующий шаг — один финальный password login через новый ControlMaster socket
-/private/tmp/art-des-permanent-access-gTtoOJ/connection, установка public key с restrict,
-проверка нового прямого key-only подключения и сохранение host alias art-des-ops.
-Не генерировать ключ повторно, не читать/выводить private key, не менять SSH global config.
+Постоянный SSH-доступ установлен с явного разрешения пользователя.
+Host alias art-des-ops → root@185.219.41.147; отдельный keypair
+/Users/designer/.ssh/id_ed25519_art_des_ops, private0600; config0600.
+Новый прямой key-only вход (password/kbd-interactive/control socket отключены)
+и отдельный вход через alias PASS; CMS service active. Старые keys/config сохранены.
+Server authorized_keys содержит restrict для нового ключа: forwarding/PTY/user rc
+запрещены, права команд остаются root. Не читать/выводить private key.
+Обычные OPS команды: ssh art-des-ops '<command>'; временный password socket не нужен.
+Отзыв — удалить только строку с комментарием art-des-ops-designer-mac из root
+/root/.ssh/authorized_keys, как описано в docs/ops/PAYLOAD.md.
 Предыдущая большая Goal завершена. Дизайн — отдельная пользовательская задача.
 Visual/animation evidence частично: не заявлять полный visual PASS. Actual DB
 restore не выполнялся, fixture restore PASS. Worktrees не удалять автоматически.
