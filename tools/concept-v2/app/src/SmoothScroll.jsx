@@ -48,7 +48,9 @@ export function SmoothScroll(){
       destroy();
       if(!finePointer.matches)return;
       lenis=new Lenis({
-        autoRaf:false,smoothWheel:!reduced.matches,syncTouch:false,
+        // Experience keeps its approved wheel curve even when ordinary areas
+        // use native input. The virtualScroll policy owns that separation.
+        autoRaf:false,smoothWheel:true,syncTouch:false,
         lerp:.1,wheelMultiplier:1,stopInertiaOnNavigate:true,
         virtualScroll:({event,deltaY})=>{
           if(!event.type.includes('wheel'))return;
@@ -64,7 +66,7 @@ export function SmoothScroll(){
           const handling=wheelHandlingProfile.observe({event,input,protectedRegionVisible});
           // Native ordinary scrolling still needs a wheel owner at the entry
           // boundary; width/reduced-motion must never remove the stopper.
-          const nextHandling=(!desktop.matches||reduced.matches)&&!protectedRegionVisible&&!lenis.isStopped?'native':handling;
+          const nextHandling=lenis.isStopped?'smooth':(!desktop.matches||reduced.matches)&&!protectedRegionVisible?'native':handling;
           document.documentElement.dataset.scrollHandling=nextHandling;
           if(nextHandling!==wheelHandling){
             const reset=shouldResetSmoothScroll({previousHandling:wheelHandling,nextHandling,isScrolling:lenis.isScrolling});

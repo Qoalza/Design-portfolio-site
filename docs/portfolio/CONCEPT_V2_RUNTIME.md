@@ -23,7 +23,7 @@ This contract applies only to `tools/concept-v2/app`. It does not share the publ
 - While About viewer fixes `body`, Experience retains a dirty position cache. Viewer cleanup restores scroll first and then notifies invalidation.
 
 - Short-screen mode uses the existing 80 px site-header reserve when selecting the compact composition: 1011 and 1078 px viewports both omit the static progress bar and keep the established 128 px compact inset. The track geometry and travel are unchanged.
-- Entry capture records the actual boundary event timestamp. Continuous mouse notches remain blocked until the existing 120 ms idle arm; trackpad renewal keeps its established 48 ms gap/rising-impulse rules. Region crossing uses Lenis-normalized pixel delta, including line/page wheel events. A fine-pointer wheel owner remains available below 1280 px and with reduced motion, while ordinary scrolling stays native there. Reduced-motion anchor navigation is immediate.
+- Entry capture records the actual boundary event timestamp. Continuous mouse notches remain blocked until the existing 120 ms idle arm; trackpad renewal keeps its established 48 ms gap/rising-impulse rules. Region crossing uses Lenis-normalized pixel delta, including line/page wheel events. A fine-pointer wheel owner remains available below 1280 px and with reduced motion, while ordinary scrolling stays native there. Experience always retains smoothWheel=true, lerp=.1 and wheelMultiplier=1 independently from the ordinary-page policy, including reduced motion. A stopped Lenis must always receive and cancel the incoming tail instead of bypassing to native input. Reduced-motion anchor navigation is immediate.
 
 ## Media
 
