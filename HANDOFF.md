@@ -22,6 +22,9 @@ Authenticated image ingest/bindings/upload controls/export closure реализ�
 HTTP/native persistence/export/full tests/typecheck/lint/build PASS. Payload WebP
 re-encoding отключён; original/prepared bytes сохраняются как есть. Browser upload
 не завершился, UI evidence для этого шага ещё требуется.
+Copy CRUD/marks/optional fields готовы; оба templates native save/reopen и
+full tests/typecheck/lint/build PASS. Browser read denied by auto-review; не повторять
+и не обходить; UI acceptance остаётся pending, API/CLI работу продолжать.
 Далее layout package ingest/upload;
 затем закончить отсутствующие authoring actions и same-renderer preview.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.

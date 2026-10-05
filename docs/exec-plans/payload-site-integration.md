@@ -247,3 +247,25 @@ Review2 regression/scope: native auth/drafts/history/delete/storage tests PASS,
 original не публичный, no SQL/dependency/production/personal data changes.
 Native full test suite, typecheck/lint/build PASS; прежний dynamic-root tracing
 warning сохраняется. Layout package ingest и UI upload acceptance ещё не закрыты.
+
+## Checkpoint: группа1, действия для текстов и optional fields
+
+Native editor теперь добавляет/удаляет абзацы, inline text/link, Corvo headings/list/
+hardBreak и tags. Marks доступны даже если их раньше не было; subtitle, card tag,
+Figma URL и metric secondaryValue добавляются/очищаются без JSON. Локальные href
+редактируются как text, HTML URL validity больше не отклоняет /path и anchors.
+Фиксированные sections/scenes/metrics не получают произвольный CRUD; системное
+примечание Corvo защищено. Public schema/geometry не меняются.
+
+2 focused helper tests PASS; native copy-session проверил оба templates: additions,
+relative link, marks/optional field save/reopen, previous published/Hero preservation,
+восстановление только disposable baseline. Full native tests/typecheck/lint/build
+PASS. Review1 completeness: optional fields появились независимо от старого JSON;
+Review2 regression/scope: path whitelists, source immutability, fixed slot/notice
+guards, unchanged native publication/history tests.
+
+Browser auto-review отклонил открытие localhost из-за пользовательского запрета
+запрашивать browser access; не повторять это действие и не обходить через другую
+browser surface. Visual/UI acceptance остаётся непроверенной; API/CLI implementation
+и проверки продолжаются независимо. Layout file/package upload, same-renderer
+preview и site publication ещё не завершены.
