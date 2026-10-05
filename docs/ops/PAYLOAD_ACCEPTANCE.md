@@ -179,3 +179,17 @@ Final оба public projects точно совпали с актуальным b
 не менялись. Test versions/materials остаются private; maxPerDoc20 ограничивает
 историю, не обещать доступность самых ранних test versions. Fixture content/
 credentials/.local/USERSPACE не переносились. Root SSH истёк, CMS от него не зависит.
+
+## Browser checkpoint: оставшиеся сцены и цикл карусели
+
+2026-10-05, public code7faa, read-only проверка без CMS/code writes.
+Corvo: native My Space/Authorization переключают pressed state и iframe на
+my-space/index.html / authorization/index.html того же approved package.
+Загруженные body и screenshots подтверждают таблицу My Space и форму Authorization
+с иллюстрацией. Форму не отправляли; геометрию/поведение Hero не меняли.
+Сараффан: три последовательных Next дают Главная→Вариант→Доставка→Главная;
+Previous возвращает Доставку. Подпись и центральное изображение синхронно меняются.
+Tablet/Mobile остаются disabled. Временные вкладки закрыты, network/viewport
+настройки не вводились. Это evidence переключения и отрисовки, не доказательство
+каждого промежуточного animation frame. Пользовательская визуальная приёмка и
+архивирование после её подтверждения остаются открытыми.

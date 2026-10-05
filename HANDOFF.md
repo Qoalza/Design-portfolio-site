@@ -80,6 +80,8 @@ Final public projects exact baseline equality PASS. Test history/materials priva
 maxPerDoc20; canonical Git/Hero code/geometry/physics не менялись.
 Некоторые browser submit дали Failed to fetch; повтор200/public update проверен,
 связь с VPN не доказана. Root SSH истёк; CMS workflow от него не зависит.
+My Space/Authorization iframe/body/screenshots и полный Next-цикл/Previous
+Сараффан дополнительно проверены read-only; code/data не менялись.
 Next: пользовательская visual/animation приёмка; archive только после подтверждения.
 Не повторять successful build/test suites без нового code change.
 Main slow state при12000ms latency и automatic ready после снятия задержки PASS.
