@@ -10,6 +10,7 @@ import './smooth-scroll.css';
 export function SmoothScroll(){
   useEffect(()=>{
     const desktop=window.matchMedia('(min-width: 1280px) and (pointer: fine)');
+    const finePointer=window.matchMedia('(pointer: fine)');
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let lenis;
     let frame;
@@ -45,11 +46,11 @@ export function SmoothScroll(){
     }
     function update(){
       destroy();
-      if(!desktop.matches||reduced.matches)return;
+      if(!finePointer.matches)return;
       lenis=new Lenis({
-        autoRaf:false,smoothWheel:true,syncTouch:false,
+        autoRaf:false,smoothWheel:!reduced.matches,syncTouch:false,
         lerp:.1,wheelMultiplier:1,stopInertiaOnNavigate:true,
-        virtualScroll:({event})=>{
+        virtualScroll:({event,deltaY})=>{
           if(!event.type.includes('wheel'))return;
           publishWheelActivity(true);
           clearTimeout(wheelIdleTimer);
@@ -59,8 +60,11 @@ export function SmoothScroll(){
           },WHEEL_GESTURE_IDLE_MS);
           const input=wheelInput.observe(event);
           document.documentElement.dataset.scrollInput=input;
-          const protectedRegionVisible=isProtectedWheelRegion({scrollY:window.scrollY,deltaY:event.deltaY,...experienceBounds,viewportHeight:window.innerHeight});
-          const nextHandling=wheelHandlingProfile.observe({event,input,protectedRegionVisible});
+          const protectedRegionVisible=isProtectedWheelRegion({scrollY:window.scrollY,deltaY,...experienceBounds,viewportHeight:window.innerHeight});
+          const handling=wheelHandlingProfile.observe({event,input,protectedRegionVisible});
+          // Native ordinary scrolling still needs a wheel owner at the entry
+          // boundary; width/reduced-motion must never remove the stopper.
+          const nextHandling=(!desktop.matches||reduced.matches)&&!protectedRegionVisible&&!lenis.isStopped?'native':handling;
           document.documentElement.dataset.scrollHandling=nextHandling;
           if(nextHandling!==wheelHandling){
             const reset=shouldResetSmoothScroll({previousHandling:wheelHandling,nextHandling,isScrolling:lenis.isScrolling});
@@ -108,7 +112,7 @@ export function SmoothScroll(){
         target.focus({preventScroll:true});
         if(previous===null)target.removeAttribute('tabindex');
       };
-      if(lenis)lenis.scrollTo(target,{offset,force:true,onComplete:focusTarget});
+      if(lenis)lenis.scrollTo(target,{offset,force:true,immediate:reduced.matches,onComplete:focusTarget});
       else{
         window.scrollTo({top:target.getBoundingClientRect().top+window.scrollY+offset,behavior:reduced.matches?'instant':'smooth'});
         focusTarget();
@@ -116,11 +120,13 @@ export function SmoothScroll(){
     }
     update();
     desktop.addEventListener('change',update);
+    finePointer.addEventListener('change',update);
     reduced.addEventListener('change',update);
     document.addEventListener('click',anchor);
     return ()=>{
       destroy();
       desktop.removeEventListener('change',update);
+      finePointer.removeEventListener('change',update);
       reduced.removeEventListener('change',update);
       document.removeEventListener('click',anchor);
     };

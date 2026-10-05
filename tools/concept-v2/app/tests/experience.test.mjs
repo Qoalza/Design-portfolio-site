@@ -11,7 +11,7 @@ test('experience height adaptation follows the contracted priority order',()=>{
   assert.deepEqual(experienceLayout(1600),{outer:240,topOuter:240,bottomOuter:0,center:1360,free:227,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
   assert.deepEqual(experienceLayout(1440),{outer:240,topOuter:240,bottomOuter:0,center:1200,free:147,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
   assert.deepEqual(experienceLayout(1280),{outer:116,topOuter:116,bottomOuter:0,center:1164,free:129,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
-  assert.deepEqual(experienceLayout(1080),{outer:0,topOuter:0,bottomOuter:0,center:1080,free:87,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:false,compactOffset:0});
+  assert.deepEqual(experienceLayout(1080),{outer:0,topOuter:0,bottomOuter:0,center:1080,free:87,headingGap:48,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:128});
   assert.deepEqual(experienceLayout(900),{outer:0,topOuter:0,bottomOuter:0,center:900,free:0,headingGap:42,tapeTop:24,progressGap:108,bottom:80,scale:1,compact:true,compactOffset:128});
   const compact=experienceLayout(720);
   assert.equal(compact.outer,0);
@@ -253,7 +253,7 @@ test('a renewed wheel impulse releases Experience before the inertial tail fully
 test('a second wheel gesture releases Experience without pointer movement or a larger delta',()=>{
   const gate=createExperienceEntryGate({schedule:()=>1,cancel:()=>{}});
   assert.equal(gate.onVirtualScroll({deltaY:24,event:{timeStamp:100}}),false,'the entry wheel event is observed before the section captures');
-  gate.capture();
+  gate.capture({event:{timeStamp:100}});
   for(const [deltaY,timeStamp] of [[18,116],[10,132],[4,148]]){
     assert.equal(gate.onVirtualScroll({deltaY,event:{timeStamp}}),false,'the uninterrupted inertial tail stays blocked');
   }
@@ -343,4 +343,31 @@ test('decorative upper field keeps the exact 3px Figma tile without changing fun
   assert.doesNotMatch(css,/\.experience-grid\{[^}]*dot-tile\.svg/);
   assert.match(css,/\.about-dots button::before\{content:"";width:6px;height:6px/);
   assert.match(css,/\.experience-node\{[^}]*width:32px;height:32px/);
+});
+
+
+test('short browser windows reserve the site header before selecting compact Experience',()=>{
+  assert.equal(experienceLayout(1011).compact,true);
+  assert.equal(experienceLayout(1078).compact,true);
+  assert.equal(experienceLayout(1105).compact,true);
+  assert.equal(experienceLayout(1106).compact,false);
+});
+
+test('capture records the boundary impulse instead of the earlier input timestamp',()=>{
+  const gate=createExperienceEntryGate({schedule:()=>1,cancel:()=>{}});
+  gate.onVirtualScroll({deltaY:120,event:{timeStamp:0}});
+  gate.capture({deltaY:120,event:{timeStamp:50}});
+  assert.equal(gate.onVirtualScroll({deltaY:120,event:{timeStamp:70}}),false);
+  assert.equal(gate.state,'holding');
+});
+
+test('continuous mouse notches cannot release the entry stopper as a renewed trackpad impulse',()=>{
+  const timers=new Map();let id=0;
+  const gate=createExperienceEntryGate({schedule:callback=>{timers.set(++id,callback);return id;},cancel:key=>timers.delete(key)});
+  gate.capture({deltaY:120,event:{timeStamp:0},input:'mouse'});
+  for(const [deltaY,timeStamp] of [[120,60],[240,120],[480,180]]){
+    assert.equal(gate.onVirtualScroll({deltaY,event:{timeStamp},input:'mouse'}),false);
+  }
+  [...timers.values()][0]();
+  assert.equal(gate.onVirtualScroll({deltaY:120,event:{timeStamp:400},input:'mouse'}),true);
 });

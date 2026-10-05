@@ -32,7 +32,7 @@ export function experienceLayout(viewportHeight){
   // On short desktop screens the static progress bar costs more vertical room
   // than it returns. Hide it before the content has to crowd the persistent
   // site header, and use that reclaimed room as a real top inset.
-  const compact=center<1026;
+  const compact=center-EXPERIENCE_HEADER_RESERVE<1026;
   const compactFlowHeight=112+headingGap+tapeTop+530;
   // Keep the compact composition's established scale, but move the complete
   // scene 32px upward so the header no longer consumes its visual breathing room.

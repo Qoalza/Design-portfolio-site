@@ -9,6 +9,8 @@ Checkout: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-po
 Previous a44efab5830a8dda5a1fd1348f644358f047672c остался в releases; до переключения создан и проверен protected backup вне rotation. Exact evidence: docs/ops/REDESIGN_ACCEPTANCE.md.
 Native temporary Payload proof завершён; полноценное управление проектами через Payload ещё открыто. Старую Des-art Admin не использовать как продуктовую логику/данные; existing deploy script только инфраструктура.
 
+Локально исправлены адаптив и входной стоппер Experience (2026-10-06); ещё не опубликовано. Evidence: design-reference/experience-scroll-2026-10-06/REPORT.md. 228 tests, lint/build и локальные browser checks прошли. User preview: http://127.0.0.1:4193/.
+
 ## Next
 
 Получить пользовательскую приёмку production перед архивированием предыдущего сайта. Продолжить группу6 active plan: удобный Payload editor на доказанном snapshot/export boundary.
