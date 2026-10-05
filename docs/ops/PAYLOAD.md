@@ -62,7 +62,7 @@ SMTP сейчас не настроен; password recovery доступен че
 
 ## Активный production runtime
 
-Exact code SHA: `7faa2b8f9709262cc2849de26479bb534a0268dd`.
+Exact code SHA: `c61d0609ec09438958526ca7b8c55238de218c03`.
 Linux source/build находится в `/opt/art-des-payload/releases/<SHA>`;
 `art-des-payload.service` работает от portfolio, active/enabled, backend3001.
 Native Sharp/libSQL установлены и проверены на Linux, не перенесены с Mac.
@@ -181,3 +181,16 @@ reads sandbox input or changes the deployed directory. Legacy compatibility
 fixture/types/lint PASS; actual production parity и exact clean Linux candidate
 05abd7c build PASS. Content hash verified:
 23d7de746136d591ce350f60c1bd241bce35836d4b710b32fe9d9e2f2ebf29c2.
+
+## UI-правка 2026-10-05
+
+Выпущен c61d060: служебная ProjectFiles коллекция скрыта из nav/dashboard,
+releaseAssets bindings скрыты из project editor. Routes/access/schema/files/
+publication/Hero не менялись. Native types/lint, fixture build и exact clean
+Linux build PASS; actual TLS routes200/private API403/public project parity PASS.
+UI проверен на disposable fixture после истечения production browser session.
+Fresh offline full data + unit backup: /var/backups/art-des/payload-before-ui-c61d060;
+gzip/tar compare/SHA256 PASS. Для code rollback восстановить его unit, daemon-reload
+и restart; не откатывать БД ради UI. Temporary build swap removed, old static stays disabled.
+При clone release history отдельно fetch approved-source258e95b: commit не входит
+в HEAD ancestry. Иначе clean exporter не увидит accepted files.

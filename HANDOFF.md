@@ -2,7 +2,7 @@
 
 2026-10-05. Работа завершена после пользовательской операционной приёмки.
 Worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site;
-branch codex/cms-integration. Deployed code7faa2b8f9709262cc2849de26479bb534a0268dd;
+branch codex/cms-integration. Deployed codec61d0609ec09438958526ca7b8c55238de218c03;
 последующие commits — документация. Один writer, production code/data не менялись
 при финальном архивировании. Пользователь переделывает дизайн отдельно: не править.
 
@@ -29,16 +29,25 @@ Old art-des.service inactive/disabled, original releases сохранены. Д�
 RESTORE.txt в архиве и docs/ops/PAYLOAD.md. Payload data сохраняются.
 Final actual TLS main/Corvo/Sarafan/admin-login200; public projects unchanged.
 
-## Текущая небольшая правка UI Payload
+## Последняя UI-правка завершена
 
 По запросу пользователя скрыты только технические списки: ProjectFiles admin.group:false
 убирает коллекцию из nav/dashboard с сохранением routes; releaseAssets admin.hidden:true
 убирает read-only bindings из project editor. Schema/access/storage/ingest/Hero не менялись.
-Native typecheck/lint и fixture build PASS. Два review: покрытие обоих UI мест;
-сохранность fields/hooks/routes и отсутствие data/schema changes. На production пока7faa.
-SSH control session истекла, BatchMode denied; нужен пользовательский вход для
-Linux exact build и code switch. No bootstrap/migration/content edit.
-Предыдущая большая задача завершена. Дизайн — отдельная пользовательская задача.
+Native typecheck/lint, fixture build и exact clean Linux build PASS.
+Browser на отдельной fixture DB: Files отсутствуют в dashboard/nav, raw assets
+и SVG rows отсутствуют в project editor, controls Верстка/Сцены/Адаптивы сохранены.
+Actual production: c61d060, published projects до/после равны, main/оба кейса/admin200,
+anonymous project-files403, service active/enabled. Перед сменой кода сделан
+verified private data/unit backup /var/backups/art-des/payload-before-ui-c61d060.
+Temporary build swap выключен/удалён. Prod browser session истекла; credentials
+не читались, нового owner/login/password change не делали.
+Linux clone должен отдельно получить approved-source258e95b Git ref: это не ancestor
+рабочего HEAD. Без него exporter не найдёт accepted sources; файлы не менять ради этого.
+Temporary SSH /private/tmp/art-des-ui-session-1j1e7r/connection сейчас восстановлен.
+Запрос на постоянный root SSH key auto-review rejected: пользователь ещё не подтвердил
+явно root scope в async question. Ключ НЕ создан/не установлен; не обходить отказ.
+Предыдущая большая Goal завершена. Дизайн — отдельная пользовательская задача.
 Visual/animation evidence частично: не заявлять полный visual PASS. Actual DB
 restore не выполнялся, fixture restore PASS. Worktrees не удалять автоматически.
 Plan: docs/exec-plans/payload-site-integration.md COMPLETE.
