@@ -662,3 +662,11 @@ memory guard PASS, SSH closed before final receipt. Completion unverified; root
 BatchMode now Permission denied. Do not infer rollback/service failure from SSH
 closure: activation proof/service enable had already completed. At next root
 access inspect actual swap before cleanup; original swap retained, no fstab edits.
+
+Completion audit continuation: direct external anonymous private API/file/obsolete
+endpoint denial PASS, actual served desktop fade token matches background, resume
+anonymous200/expected PDF viewer title. All6 unique Figma URLs403: independent
+access cannot be proved with HTTP tooling. Requirements/evidence/outstanding gates
+recorded in docs/ops/PAYLOAD_ACCEPTANCE.md. Root still Permission denied; optional
+swap cleanup unconfirmed. Browser/actual content interaction gate unchanged.
+Goal remains active; no production test writes, no repeated builds/source edits.

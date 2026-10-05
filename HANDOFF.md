@@ -73,3 +73,6 @@ Latest verified CMS backup:
 Не добавлять archive-content publication workflow. Pure code releases отдельно.
 Active plan v2.0: docs/exec-plans/payload-site-integration.md.
 Live OPS/config/rollback: docs/ops/PAYLOAD.md.
+Requirement audit + fresh anonymous privacy/fade/resume/Figma evidence:
+docs/ops/PAYLOAD_ACCEPTANCE.md. Figma anonymous403 not proof of private sharing;
+browser access remains unverified. Do not repeat successful checks without change.
