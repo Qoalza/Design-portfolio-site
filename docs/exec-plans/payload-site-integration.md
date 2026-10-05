@@ -614,3 +614,11 @@ b44946021d55fb1cc8a4430c3bafd62e342714c9, главную/оба кейса200, /
 /#projects, неизвестный адрес404. Snapshot digest через public HTML не получен;
 его нельзя угадывать. SSH socket отсутствует. GitHub CLI token также недействителен,
 поэтому Linux CI сейчас не является доступной заменой серверной проверки.
+
+Fresh VPS discovery: Node22.23.2/Linux x86_64, 22GB free, existing portfolio service
+active on127.0.0.1:3000. Deployed b44946021d55fb1cc8a4430c3bafd62e342714c9
+manifest has approved Git provenance but no snapshot/digest. Private legacy reader
+therefore reconstructs DTO only from exact approved Git source and requires full
+provenance equality plus byte/hash equality for every production asset. It never
+reads sandbox input or changes the deployed directory. Legacy compatibility
+fixture/types/lint PASS; actual production parity/Linux candidate pending.

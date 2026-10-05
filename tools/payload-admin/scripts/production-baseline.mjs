@@ -42,3 +42,26 @@ export async function readDeployedSiteBaseline({root,expectedSha,expectedContent
  createProjectSnapshot(prepared);
  return {...prepared,releaseIdentity:{sha:expectedSha,contentHash:expectedContentHash}};
 }
+
+// Read-only compatibility with the deployed static release without snapshot.json.
+export async function readLegacyDeployedSiteBaseline({root,expectedSha,repoRoot}){
+ if(!path.isAbsolute(root)||!path.isAbsolute(repoRoot)||!/^[a-f0-9]{40}$/.test(expectedSha))throw new Error('Explicit legacy production identity required');
+ const stat=await lstat(root);if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error('Production baseline root must be a directory without symlink');
+ const manifestBytes=await readBoundFile(root,'site-manifest.json',4*1024*1024),manifest=JSON.parse(manifestBytes);
+ if(manifest.version!==1||manifest.buildSha!==expectedSha||manifest.sourceDirty!==false||manifest.snapshotSha256!=null||!Array.isArray(manifest.files))throw new Error('Legacy production baseline identity mismatch');
+ const {exportApprovedRedesign}=await import('../../concept-v2/export-approved-content.mjs');
+ const approved=await exportApprovedRedesign({repoRoot});
+ if(!isDeepStrictEqual(manifest.provenance,approved.provenance))throw new Error('Legacy production source provenance mismatch');
+ const entries=new Map();for(const entry of manifest.files){if(entries.has(entry.path))throw new Error('Duplicate production asset manifest entry');entries.set(entry.path,entry);}
+ const assets=[];
+ for(const asset of approved.assets){
+  const name=asset.publicPath.slice(1),entry=entries.get(name);
+  if(!entry||entry.sha256!==asset.sha256||entry.bytes!==asset.bytes.length)throw new Error('Legacy production asset manifest mismatch');
+  const bytes=await readBoundFile(root,name,20*1024*1024);
+  if(bytes.length!==entry.bytes||hash(bytes)!==entry.sha256||!bytes.equals(asset.bytes))throw new Error('Legacy production asset checksum mismatch');
+  assets.push({...asset,size:bytes.length,bytes});
+ }
+ if(!(await readBoundFile(root,'site-manifest.json',4*1024*1024)).equals(manifestBytes))throw new Error('Production baseline changed during verification');
+ const prepared={projects:approved.projects,assets,provenance:approved.provenance};
+ return {...prepared,releaseIdentity:{sha:expectedSha,contentHash:hash(Buffer.from(JSON.stringify(createProjectSnapshot(prepared))))}};
+}

@@ -103,3 +103,11 @@ CMS ради повторного запуска. Этот helper не явля�
 повторное открытие БД, отказ неверному identity/непустому upload store/повторному
 импорту. Actual production bootstrap, initial owner и Linux installation ещё
 не выполнялись. VPS source snapshot должен быть проверен заново при наличии SSH.
+
+Fresh VPS discovery: Node22.23.2/Linux x86_64, 22GB free, existing portfolio service
+active on127.0.0.1:3000. Deployed b44946021d55fb1cc8a4430c3bafd62e342714c9
+manifest has approved Git provenance but no snapshot/digest. Private legacy reader
+therefore reconstructs DTO only from exact approved Git source and requires full
+provenance equality plus byte/hash equality for every production asset. It never
+reads sandbox input or changes the deployed directory. Legacy compatibility
+fixture/types/lint PASS; actual production parity/Linux candidate pending.
