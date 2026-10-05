@@ -2,7 +2,7 @@
 
 2026-10-05. Checkout codex/cms-integration,
 /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site.
-Baseline c93be03; next checkpoint: explicit online server settings.
+Code checkpoint 6cc3b7e: verified online server settings; documentation follow-up.
 
 ## Current target
 
@@ -73,3 +73,11 @@ Linux packaging/initial production bootstrap/service+proxy activation пока �
 Browser action ранее denied auto-review: не повторять/не обходить.
 Перед live запуском нужны exact code + production source + access/rollback checks;
 пользователь разрешил автономную работу, вопросы только при критическом препятствии.
+
+SSH reconnect prepared: /private/tmp/art-des-payload-vps-2e4mn657/connection;
+pointer /private/tmp/art-des-payload-control-path.txt. Requires user password
+login in app terminal with PubkeyAuthentication=no, PreferredAuthentications=password,
+ControlPersist=12h. No new authorization requested: missing authentication only.
+Own test servers stopped; fixture server lock released. Code tree clean at6cc3b7e.
+Current compiled scratch build is not a Linux exact-HEAD production artifact;
+next Linux build must use the final clean candidate after fresh VPS preflight.
