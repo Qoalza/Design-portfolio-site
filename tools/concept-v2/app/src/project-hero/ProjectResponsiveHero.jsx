@@ -315,7 +315,6 @@ export function ProjectResponsiveHero({definition}) {
       <header className={styles.heroTopbar}>
         <div className={styles.heroTopbarInner}>
           <span className={`${styles.topbarSide} ${styles.topbarSideLeft}`} aria-hidden="true">
-            <ExactAsset className={styles.topbarHatch} src={`${assetRoot}/topbar-hatch.svg`} width={79} height={52} />
             <ExactAsset className={styles.topbarSeparation} src={`${assetRoot}/topbar-separation.svg`} width={1} height={52} />
           </span>
           <div
@@ -347,7 +346,6 @@ export function ProjectResponsiveHero({definition}) {
           <p className={styles.heroHint}>{hint}</p>
           <span className={`${styles.topbarSide} ${styles.topbarSideRight}`} aria-hidden="true">
             <ExactAsset className={styles.topbarSeparation} src={`${assetRoot}/topbar-separation.svg`} width={1} height={52} />
-            <ExactAsset className={styles.topbarHatch} src={`${assetRoot}/topbar-hatch.svg`} width={79} height={52} />
           </span>
         </div>
       </header>

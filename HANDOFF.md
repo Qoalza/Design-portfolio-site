@@ -11,6 +11,8 @@ Native temporary Payload proof завершён; полноценное упра
 
 Локально исправлены адаптив и входной стоппер Experience (2026-10-06); ещё не опубликовано. Evidence: design-reference/experience-scroll-2026-10-06/REPORT.md. Дополнительно восстановлена собственная плавность схемы независимо от общего native/reduced-motion режима; evidence: design-reference/experience-smoothing-2026-10-06/REPORT.md. 229 tests, lint/build и локальные browser checks прошли. Мышь ожидает пользовательской проверки. User preview: http://127.0.0.1:4193/.
 
+Также локально исправлен боковой штрих Corvo: один CSS-паттерн с параметрами остальных блоков, без наложения SVG. Evidence: design-reference/corvo-hatch-2026-10-06/REPORT.md; 230 tests, lint/build PASS.
+
 ## Next
 
 Получить пользовательскую приёмку production перед архивированием предыдущего сайта. Продолжить группу6 active plan: удобный Payload editor на доказанном snapshot/export boundary.
