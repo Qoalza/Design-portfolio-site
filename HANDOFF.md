@@ -73,7 +73,7 @@ Actual DB НЕ test-restored; restore/publication behavior проверены н
 
 ## Следующий шаг / stop-lines
 
-Закончить оставшуюся native editor acceptance: image/layout upload, raster/order,
+Закончить оставшуюся native editor acceptance: JPEG/WebP inputs/layout upload, raster/order,
 published slug change и сопутствующие public asset checks. Actual текстовый
 черновик пережил reload, private preview показал правку, public DTO остался
 побайтно прежним до native Publish. Публикация показала правку публично; исходный
@@ -81,6 +81,10 @@ published slug change и сопутствующие public asset checks. Actual 
 versions restore исходной версии также PASS. Draft slug сохранился после reload
 и не изменил public projects; штатный возврат к published проверен. Test versions
 сохраняются как обычная история CMS; canonical Git content не менялся.
+Actual PNG image upload → private draft404 → native Publish/file200/digest parity
+→ version restore/public baseline equality/resource404 PASS. Original PNG
+сохранён, lossless WebP подготовлен. После version restore native stale-document
+dialog требует штатную кнопку «Перезагрузить документ»; она проверена.
 Прежний root SSH канал истёк; CMS browser workflow доступен независимо от него.
 Не подменять actual acceptance fixture evidence.
 Main slow state при12000ms latency и automatic ready после снятия задержки PASS.

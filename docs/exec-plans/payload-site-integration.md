@@ -743,3 +743,24 @@ public data; тестовый черновик возвращён к published �
 проверена по DTO. Оставшиеся actual uploads/layout/raster/order/published slug
 acceptance открыты. Root SSH истёк; browser редактирование работает независимо.
 Подробное evidence: docs/ops/PAYLOAD_ACCEPTANCE.md. Goal не объявлять complete.
+
+## Browser checkpoint: actual image upload → Publish → restore
+
+Через штатный input native редактора project2 загружен уже утверждённый
+canonical sarafan-desktop-4.png (не личные данные/не fixture). Original PNG
+1440×1162 сохранён в native media; lossless WebP59КБ вместо118КБ, report:
+verified-lossless. После Save draft новая связь сохранена. Anonymous новый
+upload path404 до Publish; после native Publish файл200 и SHA256 совпал с
+prepared digest1cafe0215e7244841526a458395b544c3147b542bacdf9e362519ced2b5003c2.
+Код не выпускался, оформление/Hero не менялись. Native restore исходной version2
+вернул оба public projects к точному baseline; upload path снова404.
+Материалы/versions сохранены в приватной истории CMS, не удалены.
+
+Первая попытка Save была заблокирована native dialog «Документ изменен» после
+предыдущего version restore. Обновление штатной кнопкой «Перезагрузить документ»
+и повторная загрузка разрешили блокировку. Это не подтверждённый дефект upload
+endpoint: ingest создаёт media, не меняет project document. Tool clipboard/
+selector сбои не обходились другими средствами. Проверка PNG upload/storage/
+lossless preparation/private draft/native publication/version resource revocation
+actual PASS. JPEG/WebP inputs/layout package/raster order/published slug остаются
+открытыми для actual проверки; fixture coverage учитывается отдельно.
