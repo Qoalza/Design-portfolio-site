@@ -2,7 +2,12 @@
 
 ## Scope
 
-Current production release/rollback contract for `https://art-des.ru`.
+2026-10-05: active `https://art-des.ru` работает через онлайн Payload3001.
+Текущий runtime/config/backup/rollback contract: [PAYLOAD.md](PAYLOAD.md).
+Оставшиеся разделы этого документа описывают legacy static runtime3000 и старую
+Des-art Admin; они НЕ применяются к новой CMS или обычной публикации контента.
+`/var/www/art-des/current` остаётся standby pointer, не active public identity.
+Old service/runtime пока сохранены для rollback до пользовательской приёмки.
 
 Этот документ не содержит secrets, private keys, host credentials, historical smoke logs или автоматически достаточного разрешения на deploy.
 

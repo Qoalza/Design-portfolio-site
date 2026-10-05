@@ -1,7 +1,8 @@
 # Онлайн-Payload: граница запуска
 
-Статус 2026-10-05: код проверен в isolated online-mode runtime; live activation
-ещё не выполнена. Этот документ относится к новой Payload CMS. Процедуры старой
+Статус 2026-10-05: онлайн Payload активирован на actual VPS; actual HTTPS
+public/admin/auth/assets/private preview проверки PASS. Browser acceptance ещё
+открыта. Этот документ относится к новой Payload CMS. Процедуры старой
 Des-art Admin не являются источником логики или публикации контента.
 
 ## Рабочий процесс
@@ -43,7 +44,11 @@ root внутри кода/public и небезопасные SQLite URI charact
 ## HTTPS и доступ
 
 Nginx передаёт approved Host `art-des.ru`, Origin запроса и исходную схему;
-backend доступен только на127.0.0.1. TLS на actual VPS ещё предстоит проверить.
+backend доступен только на127.0.0.1:3001. Actual TLS certificate verification и
+HTTPS proof PASS на сервере. Независимый direct HTTPS с Mac (`--noproxy *`,
+verified IP/Host и штатная certificate validation): главная/admin/login/public DTO/
+оба кейса/projects redirect/404 PASS, exact code marker05abd7c. Предыдущий запрос
+через локальный proxy завершился SSL error. HTTP proof не заменяет browser acceptance.
 Auth cookies Secure/HttpOnly/SameSite=Lax; CSRF/CORS ограничены approved origin.
 Native mutation endpoints дополнительно проверяют Origin/Host. Anonymous users,
 raw uploads и drafts приватны; `/api/site-content` содержит только public DTO.
@@ -54,28 +59,73 @@ HTML packages и public SVG documents получают sandbox CSP. Preview fram
 SMTP сейчас не настроен; password recovery доступен через защищённую console
 команду `account:recover`, с hidden input/backup/session revocation.
 
-## Следующий обязательный OPS-этап
+## Активный production runtime
 
-1. Восстановить административный SSH доступ и получить fresh read-only preflight:
-   actual deployed SHA/source snapshot/assets, service/proxy, Node/CPU/OS/RAM/disk,
-   permanent storage/permissions и свободный backend port.
-2. Подготовить Linux candidate exact clean HEAD. Payload использует native
-   Sharp/libSQL: текущая macOS fixture сборка не доказывает Linux runtime readiness.
-   Не применять прежний platform-neutral packaging, удаляющий native dependencies.
-3. Создать новую пустую permanent CMS state, schema и initial owner. Наполнить
-   только exact deployed approved Portfolio content/assets после проверки digest.
-   Личный `.local`, fixture databases/uploads/users и old Admin state не переносить.
-   Отдельно проверить DTO/asset parity, вход, preview, native apply и restart.
-4. До переключения сохранить рабочий код и proxy/service configuration; проверить
-   быстрый возврат. Не удалять/архивировать прежний рабочий сайт до пользовательской
-   приёмки нового online runtime.
-5. Применить готовую проверенную конфигурацию в рамках существующей авторизации,
-   затем actual HTTPS public/admin/API smoke и проверки приватности. Browser
-   acceptance остаётся отдельным непроверенным пунктом; прежний denied browser
-   action не повторять и не обходить.
+Exact code SHA: `05abd7c1375eb9c731ee8c041d927eed225141d9`.
+Linux source/build находится в `/opt/art-des-payload/releases/<SHA>`;
+`art-des-payload.service` работает от portfolio, active/enabled, backend3001.
+Native Sharp/libSQL установлены и проверены на Linux, не перенесены с Mac.
+Server data root `/var/lib/art-des-payload/data` private0700, его siblings также
+доступны service user. Secret сохраняется между code releases.
+Native initial owner `owner@art-des.ru`; credential file
+`/var/lib/art-des-payload/initial-owner.json`0600 доступен только приватно на VPS.
+Не выводить его содержимое в tool outputs/docs/Git/chat. SMTP не настроен.
 
-Server install/production baseline bootstrap/Linux candidate/actual TLS/rollback
-activation не считать выполненными по результатам loopback fixture tests.
+Actual Nginx routing: `/etc/nginx/sites-enabled/art-des` — отдельный regular file,
+НЕ symlink на sites-available. Он proxy3001, upload25m/read-send120s. Existing
+TLS/http2/http→HTTPS/www redirects сохранены. Непосредственно перед mutation
+проверять `nginx -T` и backup именно actual included file. Sites-available сейчас
+неактивен и не является source of truth.
+
+Первое переключение available-файла не меняло active route и было автоматически
+отменено. После discovery enabled-файла его exact backup сохранён; исправленная
+активация прошла весь actual HTTPS proof. Proof receipt:
+`/var/lib/art-des-payload/acceptance-live.json`, safe metadata only.
+
+Проверено: главная/оба кейса/404/temporary projects redirect, exact code marker,
+all163 asset bytes/DTO, native owner login и secure cookies, private APIs/files,
+closed first-register и обе published private previews. Build stamps не менялись.
+Graceful native restart и consistent actual backup verification PASS. Restore,
+native draft→Publish→public/failure checks выполнены на isolated Linux fixtures;
+actual production DB не test-restored, реальные projects не редактировались тестом.
+Browser interaction acceptance ещё не подтверждена; denied browser action не
+повторять/не обходить. Auto-review rejected real production test PATCH/Publish:
+persistent version/content side effects; safe fixture evidence используется вместо
+таких тестовых записей. Не выдавать это за actual browser editing proof.
+
+## Временные ресурсы и доступ
+
+Временный2GB `/var/lib/art-des-payload-build.swap` добавлялся только для Linux build,
+без fstab. После successful activation memory guard подтвердил1428MB available
+при129MB used temporary swap; cleanup swapoff→remove запущен, но SSH оборвался
+до итогового receipt. Удаление НЕ подтверждено. При следующем root доступе сначала
+проверить `/proc/swaps` и наличие файла; удалять только после безопасного swapoff.
+Исходный `/swapfile` не трогать. Last root control socket исчез, BatchMode повторно
+Permission denied; activation уже была завершена и unit enabled до обрыва.
+
+## Сохранённый предыдущий runtime и быстрый откат
+
+Old `art-des.service` остаётся active3000, его current release SHA
+`b44946021d55fb1cc8a4430c3bafd62e342714c9`. `/var/www/art-des/current` и restricted
+static status отражают standby runtime, а не новый public CMS code identity.
+Старый код не архивировать/не удалять до пользовательской приёмки.
+Private runtime/config backup: `/var/backups/art-des/pre-payload-0882f79`.
+Actual rollback proxy source: `nginx-art-des-enabled`; `nginx-art-des` относится
+к неактивному sites-available. При разрешённом rollback:
+
+```sh
+install -m 0644 /var/backups/art-des/pre-payload-0882f79/nginx-art-des-enabled /etc/nginx/sites-enabled/art-des.rollback
+mv -f /etc/nginx/sites-enabled/art-des.rollback /etc/nginx/sites-enabled/art-des
+nginx -t && systemctl reload nginx
+```
+
+Предварительно подтвердить old3000 readiness. CMS data не удаляются. Возврат
+прокси не откатывает БД. Для code upgrade отдельно offline consistent backup,
+explicit migrations, exact Linux build/proxy smoke; не применять static publisher
+или старые Des-art Admin publication правила к онлайн Payload.
+Actual verified CMS backup:
+`/var/lib/art-des-payload/data-backups/backup-eb490ba9-e9e9-406d-bad9-407accffb2d6`.
+Проверен backup digest/closure; actual DB restore не проводился.
 
 Sources: установленный Payload3.89.0 auth/config code и официальные docs:
 https://payloadcms.com/docs/authentication/cookies,
@@ -99,10 +149,10 @@ upload directories также пусты. Helper сохраняет native bindi
 CMS ради повторного запуска. Этот helper не является публичным endpoint или
 пользовательской кнопкой публикации; обычная работа остаётся native Payload.
 
-Подтверждено только на собственном disposable fixture: оба проекта, все 163 ресурса,
-повторное открытие БД, отказ неверному identity/непустому upload store/повторному
-импорту. Actual production bootstrap, initial owner и Linux installation ещё
-не выполнялись. VPS source snapshot должен быть проверен заново при наличии SSH.
+Disposable fixture подтверждает оба проекта/163 ресурса, reopen, отказ wrong
+identity/nonempty upload store/retry. Actual production bootstrap также выполнен:
+2 проекта/163 aliases/156 native files, exact DTO/bytes parity, private receipt
+bootstrap-receipt.json. Helper в наполненную permanent CMS повторно не запускать.
 
 Fresh VPS discovery: Node22.23.2/Linux x86_64, 22GB free, existing portfolio service
 active on127.0.0.1:3000. Deployed b44946021d55fb1cc8a4430c3bafd62e342714c9
@@ -110,4 +160,6 @@ manifest has approved Git provenance but no snapshot/digest. Private legacy read
 therefore reconstructs DTO only from exact approved Git source and requires full
 provenance equality plus byte/hash equality for every production asset. It never
 reads sandbox input or changes the deployed directory. Legacy compatibility
-fixture/types/lint PASS; actual production parity/Linux candidate pending.
+fixture/types/lint PASS; actual production parity и exact clean Linux candidate
+05abd7c build PASS. Content hash verified:
+23d7de746136d591ce350f60c1bd241bce35836d4b710b32fe9d9e2f2ebf29c2.

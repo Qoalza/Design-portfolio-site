@@ -1,9 +1,10 @@
 # Онлайн-Payload и прямое подключение сайта
 
-Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — Ready for execution, online runtime implementation.
+Версия 2.0, 2026-10-05. Статус: IN_PROGRESS — online runtime ACTIVATED; browser acceptance pending.
 Область ADMIN + SHARED + PORTFOLIO + OPS; LARGE / HIGH / FULL.
 Worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site,
-ветка codex/cms-integration; checkpoint 06bd7f7da7d5e393f26772c9b1b4e5d134d33d1a.
+ветка codex/cms-integration; deployed code checkpoint
+05abd7c1375eb9c731ee8c041d927eed225141d9. Последующие локальные commits — docs.
 
 ## Исправленный результат — прямое требование пользователя
 
@@ -622,3 +623,42 @@ therefore reconstructs DTO only from exact approved Git source and requires full
 provenance equality plus byte/hash equality for every production asset. It never
 reads sandbox input or changes the deployed directory. Legacy compatibility
 fixture/types/lint PASS; actual production parity/Linux candidate pending.
+
+## Latest authoritative checkpoint — actual online activation
+
+2026-10-05T09:42:39Z: actual HTTPS proof PASS, deployed exact clean Linux code
+05abd7c1375eb9c731ee8c041d927eed225141d9. Groups1–5 implemented and server installed;
+group6 automated/HTTP checks PASS, browser/native interaction acceptance pending.
+Earlier “pending installation/bootstrap/access” notes above are historical.
+Permanent native schema/owner/bootstrap completed with actual approved baseline:
+2 projects,163 aliases/156 native files, exact DTO/byte parity, no sandbox data.
+Native art-des-payload.service active/enabled3001; old static service retained3000.
+
+Review1 completeness/provenance/runtime: exact Linux build stamp, native deps,
+actual approved data/163 assets, auth/preview/private/public checks, restart and
+consistent private backup verified. Review2 regression/rollback/scope: actual
+included Nginx file found regular, not assumed symlink. Available-file activation
+failed readiness and automatically reverted; exact enabled-file backup saved and
+narrow port/upload/timeout change applied preserving TLS/http2/redirect. Corrected
+actual HTTPS proof validates active code marker, pages/routes/assets/native login,
+privacy/closed first-register/previews and unchanged compiled stamps. No production
+test project edits/versions; old runtime retained. Both reviews are self-reviews.
+
+Actual rollback source nginx-art-des-enabled in /var/backups/art-des/pre-payload-0882f79.
+Latest consistent CMS backup backup-eb490ba9-e9e9-406d-bad9-407accffb2d6 verified;
+actual DB was NOT test-restored. Full restore/publication behavior tests on isolated
+Linux fixtures PASS. Prior browser action denied: do not bypass. Auto-review also
+rejected real production-project PATCH/Publish tests because persistent version/
+content effects are not implied by deploy authorization; rejected command did not
+execute. Actual content publication interaction/browser acceptance remains open.
+Initial Mac request through local proxy errored; independent direct external HTTPS
+then PASS for home/admin/login/DTO/both cases/projects307/404 with exact codeSHA05.
+Server actual HTTPS certificate/domain proof also PASS; browser acceptance pending.
+Live operations and password handling: docs/ops/PAYLOAD.md. Goal not called complete
+until outstanding acceptance resolved; old runtime/worktrees not archived/deleted.
+
+Noncritical cleanup checkpoint: temporary build swap removal started after actual
+memory guard PASS, SSH closed before final receipt. Completion unverified; root
+BatchMode now Permission denied. Do not infer rollback/service failure from SSH
+closure: activation proof/service enable had already completed. At next root
+access inspect actual swap before cleanup; original swap retained, no fstab edits.
