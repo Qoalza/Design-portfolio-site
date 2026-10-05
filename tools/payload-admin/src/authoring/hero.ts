@@ -25,7 +25,7 @@ export function editorState(value: unknown): ObjectValue | undefined {
  const state = object(value)._payloadEditor
  if (state === undefined) return undefined
  const result = object(state)
- if (result.version !== 1 || Object.keys(result).some(key => !['version', 'heroes', 'materials'].includes(key))) throw new Error('Версия данных редактора не поддерживается.')
+ if (result.version !== 1 || Object.keys(result).some(key => !['version', 'heroes', 'materials', 'packages'].includes(key))) throw new Error('Версия данных редактора не поддерживается.')
  const heroes = object(result.heroes)
  for (const [kind, hero] of Object.entries(heroes)) {
   if (!['layout', 'raster'].includes(kind) || object(hero).kind !== kind) throw new Error('Сохранённый вариант Hero повреждён.')

@@ -27,8 +27,11 @@ full tests/typecheck/lint/build PASS. Browser read denied by auto-review; не �
 и не обходить; UI acceptance остаётся pending, API/CLI работу продолжать.
 Native project-files downloads защищены attachment/CSP sandbox; real HTTP
 GET/HEAD/encoded path/auth/bytes и full tests/typecheck/lint/build PASS.
-Далее layout package ingest/upload;
-затем закончить отсутствующие authoring actions и same-renderer preview.
+Layout package endpoint/Field/immutable manifest/bindings готовы: actual Corvo
+package, JPEG с историческим PNG extension, HTTP save/reopen/export/deletion guards
+и native full tests/typecheck/lint/build PASS. Private packages сохраняются в versions.
+Далее same-renderer authenticated preview (группа3), затем CMS builds/publication/
+bootstrap; browser acceptance остаётся pending без повторных browser запросов.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.
 
 ## Stop-lines

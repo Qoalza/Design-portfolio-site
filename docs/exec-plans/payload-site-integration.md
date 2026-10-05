@@ -285,3 +285,35 @@ HEAD404 исправлен explicit HEAD→authenticated GET mapping без от
 Review1 completeness: native download изолирован независимо от будущего preview.
 Review2 regression/risk: access не расширяется, response bytes/status сохраняются,
 no user data/public renderer change. Same-renderer sandbox preview ещё требуется.
+
+## Checkpoint: группа2, layout package ingest
+
+Authenticated bounded multipart endpoint принимает HTML + ресурсы или выбранную
+папку с сохранением внутренних путей. Native Field предоставляет выбор HTML entry,
+URL, загрузку/повторный выбор package; source binding не меняет scenes/adaptives/
+geometry. Versioned `_payloadEditor.packages` хранит manifest/bindings; automatic
+releaseAssets/external font dependencies и native deletion guards защищают оригиналы.
+Никакие файлы не трансформируются. SQL/public schema/dependencies не менялись.
+
+До первой записи проверяются512 files/20MB each/64MB total, normalized relative
+paths/case duplicates, UTF8/JSON, bitmap full decode, supported format/signatures,
+HTML/CSS/static JS dependencies; remote URLs не fetch. Внешние ресурсы допускаются
+только для двух approved font hosts в рамках existing sandbox CSP. Dynamic JS
+behavior подтверждать в runtime приёмке; static closure test это не заменяет.
+
+Review1 completeness: actual approved Corvo package выявил JPEG под именем.png.
+Исправлено определение MIME по bytes, пути/байты сохраняются. Actual approved
+package теперь принимается; отдельный real JPEG-under-PNG regression PASS.
+Выбор папки убирает только её внешний basename (может содержать пробелы), сохраняет
+nested resource paths и даёт выбрать entry.
+Review2 scope/security: auth401/foreign403, unsafe package400 создаёт0 файлов,
+no remote fetch, private native downloads remain attachment/sandbox. Draft save/
+reopen, automatic HTML/CSS/JS/bitmap relations, unchanged published, original
+version deletion409 PASS. Fresh process test publication/export сохраняет все
+original bytes/manifest/adaptives; unpublished package исключён; private editor
+metadata исключена. Только disposable baseline восстановлен.
+
+4 package helper +2 binding/selection tests, native full regression suite,
+typecheck/lint/build PASS. HTTP/upload UI browser acceptance pending per denied
+browser access; request не повторять. Next: authenticated same-renderer preview
+(group3), subsequent CMS snapshot builds/publish workflow/bootstrap (groups4–7).

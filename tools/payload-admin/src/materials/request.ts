@@ -7,7 +7,7 @@ export async function readMaterialForm(request:Request, origin:string, limit=20*
  const contentType=request.headers.get('content-type')||''
  if(!contentType.startsWith('multipart/form-data;')) throw new MaterialRequestError('Ожидается файл изображения.',400)
  const declared=request.headers.get('content-length')
- if(declared!==null && (!/^\d+$/.test(declared)||Number(declared)>limit)) throw new MaterialRequestError('Файл превышает20МБ.',413)
+ if(declared!==null && (!/^\d+$/.test(declared)||Number(declared)>limit)) throw new MaterialRequestError('Загрузка превышает допустимый размер.',413)
  const reader=request.body?.getReader()
  if(!reader) throw new MaterialRequestError('Выберите изображение.',400)
  const chunks:Uint8Array[]=[]
@@ -17,7 +17,7 @@ export async function readMaterialForm(request:Request, origin:string, limit=20*
    const {done,value}=await reader.read()
    if(done) break
    size+=value.length
-   if(size>limit){await reader.cancel();throw new MaterialRequestError('Файл превышает20МБ.',413)}
+   if(size>limit){await reader.cancel();throw new MaterialRequestError('Загрузка превышает допустимый размер.',413)}
    chunks.push(value)
   }
  } finally {reader.releaseLock()}

@@ -1,6 +1,7 @@
 import { APIError, type Field, type CollectionBeforeChangeHook, type CollectionBeforeDeleteHook, type CollectionBeforeOperationHook } from 'payload'
 import { validateProjectDocument } from '../../../src/lib/project-contract'
 import type { Project } from './payload-types'
+import { packageRecords, usesPackageFile } from './authoring/packages'
 import { materialRecords, usesMaterialFile } from './authoring/materials'
 import { withoutEditorState, withEditorState } from './authoring/hero'
 
@@ -24,7 +25,14 @@ export const validateReleaseProject: CollectionBeforeChangeHook = ({ data, origi
    if(!record.publicPath.startsWith(`/assets/projects/${effective.slug}/uploads/`)) throw new APIError('Материал принадлежит другому адресу проекта.',400)
    assets.set(record.publicPath,{publicPath:record.publicPath,file:record.prepared})
   }
-  if(records.length) data.releaseAssets=[...assets.values()]
+  let packages
+  try {packages=packageRecords(effective.releaseContent)} catch {throw new APIError('Связи верстки повреждены. Повторите загрузку пакета.',400)}
+  for(const material of packages) {
+   if(!material.source.assetBase.startsWith(`/assets/projects/${effective.slug}/hero-layout/`)) throw new APIError('Верстка принадлежит другому адресу проекта.',400)
+   for(const binding of material.bindings) assets.set(binding.publicPath,binding)
+  }
+  if(records.length||packages.length) data.releaseAssets=[...assets.values()]
+  if(packages.length) data.releaseExternalDependencies=[...new Set([...(effective.releaseExternalDependencies??[]).map((item:{url:string})=>item.url),...packages.flatMap(item=>item.externalDependencies)])].map(url=>({url}))
  }
  if (effective._status !== 'published' || !effective.releaseContent) return data
  try {
@@ -36,7 +44,7 @@ export const validateReleaseProject: CollectionBeforeChangeHook = ({ data, origi
  return data
 }
 export function usesReleaseFile(project: Partial<Project>, collection: string, id: string) {
- return usesMaterialFile(project.releaseContent,collection,id) || (project.releaseAssets?.some(asset => asset.file?.relationTo === collection && String(asset.file.value && typeof asset.file.value === 'object' ? asset.file.value.id : asset.file.value) === id) ?? false)
+ return usesPackageFile(project.releaseContent,collection,id) || usesMaterialFile(project.releaseContent,collection,id) || (project.releaseAssets?.some(asset => asset.file?.relationTo === collection && String(asset.file.value && typeof asset.file.value === 'object' ? asset.file.value.id : asset.file.value) === id) ?? false)
 }
 export const protectReleaseFileDelete: CollectionBeforeDeleteHook = async ({ id, req }) => {
  for (const versions of [false, true]) for (let page = 1; ; page++) {
