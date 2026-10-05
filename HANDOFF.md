@@ -93,3 +93,43 @@ Public HTML lacks snapshot digest; obtain it with server read-only preflight.
 GitHub CLI auth token invalid: Linux CI alternative unavailable. Root SSH control
 socket still absent. Existing server access request is the critical dependency;
 no production changes, no claim online CMS installation complete.
+
+## Live continuation checkpoint — administrative access restored
+
+Root control socket /private/tmp/art-des-payload-vps-2e4mn657/connection works
+with sandbox escalation. Current private Linux checkout is
+/opt/art-des-payload/releases/0882f797276de8ad8ba10dd4f4ae500faffcb5a5.
+Live systemd build job art-des-payload-build-0882f79: Linux full suite, types/lint
+passed; Next build still live. Generated payload-types description comments were
+stale and tests regenerated them: current scratch candidate MUST NOT be activated.
+Final clean code commit05abd7c1375eb9c731ee8c041d927eed225141d9 fixes only comments.
+Exact small delta uploaded to /var/tmp/payload-final-code-delta.pack; after original
+job becomes terminal, rename checkout to final SHA, unpack delta as portfolio,
+checkout final SHA, then run /var/tmp/art-des-payload-final-build.sh via systemd.
+Do not move/change code while current build job is live. No npm reinstall needed.
+Source bare archive had generated AppleDouble metadata: removed only own .git
+metadata and ._source.git before build. Source only, no local data uploaded.
+
+Actual VPS production baseline parity reader PASS: both projects/all163 assets,
+source b44946021d55fb1cc8a4430c3bafd62e342714c9; reconstructed verified content
+hash23d7de746136d591ce350f60c1bd241bce35836d4b710b32fe9d9e2f2ebf29c2.
+Old deployed manifest lacks snapshot; legacy reader verifies exact approved Git
+provenance and production bytes before bootstrap. Current old public service still
+active127.0.0.1:3000 and proxy unchanged. Private backup of actual runtime/config
+/var/backups/art-des/pre-payload-0882f79 (runtime40MB, old SHA receipt).
+Future proxy /var/tmp/art-des-payload-nginx.conf points3001, upload25m/timeout120s;
+full candidate nginx configuration syntax test PASS, not yet applied.
+Permanent container /var/lib/art-des-payload created private portfolio0700;
+initial-owner.json private0600 created, never print/read credentials into chat/logs.
+No actual schema/owner/content bootstrap yet. /var/tmp/art-des-payload.service and
+/var/tmp/art-des-payload-initial-bootstrap.mts already updated to final05abd7c path;
+not installed/run. Bootstrap only actual verified production content; initial
+credential file is read privately on server. Next fresh schema → initial bootstrap
+→ closed3001 runtime + native auth/assets/public/preview → backup/restart/review →
+proxy activation with quick old3000 rollback → actual HTTPS checks. Browser gate
+still unverified; do not bypass prior denied action.
+
+Measured RAM pressure during Next build:1core/2GB RAM, original512MB swap fully
+used. Requested temporary private2GB /var/lib/art-des-payload-build.swap (no fstab);
+verify swapon success/current memory before more jobs. Remove only after build and
+runtime verification if safe swapoff is possible. Do not claim Linux build ready.
