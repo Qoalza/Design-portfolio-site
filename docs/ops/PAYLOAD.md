@@ -1,8 +1,8 @@
 # Онлайн-Payload: граница запуска
 
 Статус 2026-10-05: онлайн Payload активирован на actual VPS; actual HTTPS
-public/admin/auth/assets/private preview проверки PASS. Browser acceptance ещё
-открыта. Этот документ относится к новой Payload CMS. Процедуры старой
+public/admin/auth/assets/private preview и native editor/material проверки PASS.
+Пользовательская visual/animation приёмка ещё открыта. Этот документ относится к новой Payload CMS. Процедуры старой
 Des-art Admin не являются источником логики или публикации контента.
 
 ## Рабочий процесс
@@ -88,12 +88,16 @@ all163 asset bytes/DTO, native owner login и secure cookies, private APIs/files
 closed first-register и обе published private previews. Build stamps не менялись.
 Graceful native restart и consistent actual backup verification PASS. Restore,
 native draft→Publish→public/failure checks выполнены на isolated Linux fixtures;
-actual production DB не test-restored, реальные projects не редактировались тестом.
-Browser interaction acceptance частична: Corvo/Сараффан загружаются после
-normal preloader, raster «Следующий экран» работает. Пользовательский login/edit/
-Publish/public update ещё не проверен. Browser доступ восстановлен после нового
-«Разрешаю»; real project test PATCH/Publish после него не выполнялись, ранее
-auto-review rejected persistent content/version side effects.
+actual production DB не test-restored. Последующие native browser content
+проверки и восстановление approved baseline описаны ниже.
+Native browser acceptance завершена после входа пользователя: draft/reopen/
+private preview/Publish/public update, загрузки PNG/JPEG/WebP и HTML-папки,
+HTTPS source, raster order/count rejection, slug/routes/sitemap/assets,
+оболочки/adaptives и native version restore/revert. Public projects возвращены
+к точному approved baseline; тестовые versions/materials приватны. JPEG проверен
+как private draft, не как опубликованная карточка. Подробное evidence и различия
+actual/fixture: PAYLOAD_ACCEPTANCE.md. Не повторять ранние pending checkpoints
+как текущий статус. Пользовательская визуальная приёмка остаётся открытой.
 
 Current7faa host отдельно разрешает23 exact code-owned Corvo shell SVG из verified
 build files; CMS assets и unknown/draft resources не получают static fallback.
@@ -108,7 +112,7 @@ Previous online05 unit сохранён в
 Temporary2GB `/var/lib/art-des-payload-build.swap` после Linux build7faa safely
 swapoff/remove, memory guard available1316180KiB > used125732KiB +524288KiB; receipt verified,
 CMS service active. Original `/swapfile` сохранён, fstab не менялся. Root SSH
-восстановлен пользователем; UI Terminal capability не использовалась для обхода
+ранее восстановлен пользователем, текущий канал истёк; UI Terminal capability не использовалась для обхода
 отказа. Routine credentials/content в чат и Git не выводить.
 
 ## Сохранённый предыдущий runtime и быстрый откат
@@ -133,7 +137,10 @@ explicit migrations, exact Linux build/proxy smoke; не применять stat
 или старые Des-art Admin publication правила к онлайн Payload.
 Actual verified CMS backup:
 `/var/lib/art-des-payload/data-backups/backup-18826003-328c-49d2-8357-0c2001b43efd`.
-Проверен backup digest/closure; actual DB restore не проводился.
+Проверен backup digest/closure; actual DB restore не проводился. Этот backup
+создан до последующих native browser checks и не включает их private test
+versions/materials. Возврат версии проекта выполнять штатными Versions/Revert,
+не восстановлением всей БД ради удаления тестового черновика.
 
 Sources: установленный Payload3.89.0 auth/config code и официальные docs:
 https://payloadcms.com/docs/authentication/cookies,

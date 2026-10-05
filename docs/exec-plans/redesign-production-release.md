@@ -1,10 +1,25 @@
 # Выпустить новый сайт с заранее проверенным подключением Payload
 
-Version: 3.1, 2026-10-05. Status: IN_PROGRESS — Ready for execution.
+Version: 3.1, 2026-10-05. Status: SUPERSEDED — initial release выполнен; дальнейшая работа по payload-site-integration.md v2.0.
 Области: PORTFOLIO / ADMIN (Payload) / SHARED / OPS. LARGE / HIGH / FULL.
 Рабочая линия: codex/redesign-portfolio, /Users/designer/.codex/worktrees/redesign-portfolio/Design-portfolio-site.
 Утверждённый визуальный и контентный baseline: 258e95b2a7720499c7a74ec7602c8608b8c58200.
 План заменяет прежнее требование закончить Admin до выпуска. Пользователь разрешил реализацию и новую Goal. Пользователь отдельно разрешил автономно пройти согласованные локальные группы до готовой сборки (2026-10-05); commit/checks сохраняются. Production, exact merge, real-data/secrets и cleanup gates действуют отдельно.
+
+## Текущая граница исполнения
+
+Этот release-first план сохраняет историю требований и первого выпуска.
+Static-сценарий ниже заменён прямым требованием пользователя об online CMS.
+Текущий exact deployed code7faa2b8f9709262cc2849de26479bb534a0268dd обслуживает
+новый сайт и native Payload одним runtime; контент применяется через штатный
+Publish без архива/build/deploy. Рабочая линия codex/cms-integration,
+worktree /Users/designer/.codex/worktrees/payload-1939/Design-portfolio-site.
+Актуальное исполнение: payload-site-integration.md v2.0; actual acceptance:
+../ops/PAYLOAD_ACCEPTANCE.md; rollback: ../ops/PAYLOAD.md.
+Native editor/material acceptance PASS, approved public baseline восстановлен.
+Открыты пользовательская visual/animation приёмка и последующее разрешённое
+архивирование. Standby/backup не удалять. Старые Next/checkpoints этого документа
+не являются очередью оставшихся задач и не разрешают возврат к archive workflow.
 
 ## Результат и источники истины
 
