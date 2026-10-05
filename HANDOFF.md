@@ -42,9 +42,12 @@ scratch public Next build PASS. Clean717f711 CMS-source build/archive/unpack/HTT
 Группа5: durable OperationStore и neutral deploy-v2 transport foundation готовы;
 replay/concurrency/reopen/unknown/exact identity/timeouts focused tests + types/lint
 PASS. Public readiness теперь binds exact code+content и all asset digests, actual
-host/transport integration/negative/deadline tests PASS. Worker/API/UI/live config/
-recovery пока не подключены. Далее именно этот
-publication workflow, затем sourceHash/cache cleanup/bootstrap/final checks.
+host/transport integration/negative/deadline tests PASS. Authenticated prepare/status/cancel + detached exact snapshot/code build worker
+реализованы. Actual helper build/archive + HTTP auth/replay/cancel + full native
+suite PASS; setup failure/process descendants regression + fresh native build/
+typecheck/lint PASS. Ближайшее: clean commit → HTTP new prepare to ready, затем
+release review/deploy/reconciliation/UI/live config. Restart/partial-write recovery
+ещё нужны. Далее sourceHash/cache cleanup/bootstrap/final checks.
 Own exported fixture pointer /private/tmp/payload-site-build-snapshot.txt.
 Не повторять и не обходить denied browser action. Personal state/production untouched.
 Disposable fixture pointer /private/tmp/payload-editor-test-root.txt; dev остановлен.

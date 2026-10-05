@@ -21,9 +21,8 @@ Next standalone/build stamp/archive/deploy-v2 и rollback. Старый Des-art 
 не является источником данных, правил или authoring UI.
 
 Native editor, image quality ingest и layout package upload реализованы;
-API/persistence/export tests PASS, browser acceptance pending. Незавершённые
-участки: legacy preview, initial-only prepare-site, site publication workflow,
-bootstrap/sourceHash и ограничение dynamic-root tracing.
+API/persistence/export tests PASS, browser acceptance pending. Незавершённые участки: site publication workflow, bootstrap/sourceHash и
+финальная UI/production acceptance; same-renderer preview и CMS-source build готовы.
 
 ## Продуктовый контракт и ограничения
 
@@ -477,3 +476,29 @@ manifest compatibility; focused root lint/diff checks PASS. Review1: generation
 строго hex, responses bounded, no secret errors. Worker/API/UI остаются следующим
 обязательным этапом; publication на сервер не запускалась. Final runtime artifact
 потребует build exact нового HEAD, предыдущая717f711 proof не текущий release.
+
+
+## Checkpoint: группа5, подготовка через authenticated API
+
+Реализованы prepare/status/cancel и detached preparation worker. Подготовка
+замораживает published snapshot, exact clean code HEAD и собирает отдельный
+временный checkout через offline npm cache. Archive/code/content identity
+проверяются до ready; личные данные и dirty code не копируются. Повторный
+requestId читает прежнюю операцию до обращения к текущим данным/коду. Готовую
+подготовку можно снять без удаления архива/данных, после отправки cancel запрещён.
+
+Full native suite PASS; own temporary snapshot → actual detached build/archive/
+cleanup/replay PASS; authenticated HTTP auth/origin/body bounds, owner isolation,
+frozen replay/status/ready-only cancel PASS. Updated native build/typecheck/lint
+и focused operation/request/failure tests PASS. Fresh end-to-end API launch после
+clean commit — ближайшая проверка; worker/deploy/UI ещё не завершены.
+
+Review1: post-reservation setup failures теперь переводят operation в failed;
+специальный тест блокирует inputs обычным файлом и доказывает новый запрос после
+ошибки. Worker ожидает atomic dispatch descriptor до начала сборки. Review2:
+каждая build command имеет собственную process group, timeout/output overflow
+завершают descendants и дожидаются их выхода. Неподтверждённая остановка сохраняет
+checkout. Реальный child с игнорированием SIGTERM проверен. Prepared return и
+persisted JSON идентичны; terminal чужого owner не блокирует следующий запрос.
+Restart reconciliation/partial-write recovery, release review, deploy/UI/live
+config и installation остаются обязательным продолжением, не закрыты этим шагом.

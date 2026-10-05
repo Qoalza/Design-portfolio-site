@@ -17,31 +17,33 @@ export function validateOperation(value:unknown):PublicationOperation{
  if(!['preparing','failed'].includes(item.state)&&(!item.artifactHash||!item.archiveBytes))throw new Error('Prepared archive required')
  const keys=['version','id','requestId','owner','state','codeSha','contentHash','createdAt','updatedAt','artifactHash','archiveBytes','serverOperationId','errorCode']
  if(Object.keys(item).some(key=>!keys.includes(key)))throw new Error('Unknown operation field')
- return {...item}
+ return Object.fromEntries(Object.entries(item).filter(([,value])=>value!==undefined)) as PublicationOperation
 }
 export class OperationStore{
  readonly root:string
  constructor(dataRoot:string){this.root=path.join(dataRoot,'site-publication')}
  private async initialize(){await mkdir(this.root,{recursive:true,mode:0o700});if((await lstat(this.root)).isSymbolicLink())throw new Error('Publication store symlink');await mkdir(path.join(this.root,'operations'),{recursive:true,mode:0o700});if((await lstat(path.join(this.root,'operations'))).isSymbolicLink())throw new Error('Publication operations symlink')}
  private requestFile(requestId:string,owner:number){if(!uuid.test(requestId)||!Number.isSafeInteger(owner)||owner<1)throw new Error('Invalid request identity');return path.join(this.root,`request-${owner}-${requestId}`)}
- private async previousRequest(requestId:string,owner:number){try{return this.read(await readFile(this.requestFile(requestId,owner),'utf8'),owner)}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return null;throw error}}
+ async forRequest(requestId:string,owner:number){try{return this.read(await readFile(this.requestFile(requestId,owner),'utf8'),owner)}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return null;throw error}}
  private file(id:string){if(!uuid.test(id))throw new Error('Invalid operation id');return path.join(this.root,'operations',id+'.json')}
- async read(id:string,owner:number){await this.initialize();const file=this.file(id);if((await lstat(file)).isSymbolicLink())throw new Error('Publication operation symlink');const operation=validateOperation(JSON.parse(await readFile(file,'utf8')));if(operation.owner!==owner)throw new Error('Publication operation unavailable');return operation}
- async active(owner:number){await this.initialize();let id:string;try{id=await readFile(path.join(this.root,'active'),'utf8')}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return null;throw error}return this.read(id,owner)}
+ private async readInternal(id:string){await this.initialize();const file=this.file(id);if((await lstat(file)).isSymbolicLink())throw new Error('Publication operation symlink');return validateOperation(JSON.parse(await readFile(file,'utf8')))}
+ async read(id:string,owner:number){const operation=await this.readInternal(id);if(operation.owner!==owner)throw new Error('Publication operation unavailable');return operation}
+ private async activeInternal(){await this.initialize();let id:string;try{const file=path.join(this.root,'active');if((await lstat(file)).isSymbolicLink())throw new Error('Publication pointer symlink');id=await readFile(file,'utf8')}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return null;throw error}return this.readInternal(id)}
+ async active(owner:number){const operation=await this.activeInternal();if(!operation)return null;if(operation.owner===owner)return operation;if(['complete','failed'].includes(operation.state))return null;throw new Error('Publication already active')}
  async create({requestId,owner,codeSha,contentHash}:{requestId:string;owner:number;codeSha:string;contentHash:string}){
-  await this.initialize();const prior=await this.previousRequest(requestId,owner)
+  await this.initialize();const prior=await this.forRequest(requestId,owner)
   if(prior){if(prior.codeSha!==codeSha||prior.contentHash!==contentHash)throw new Error('Idempotency key content changed');return prior}
-  const active=await this.active(owner)
-  if(active){if(active.requestId===requestId){if(active.codeSha!==codeSha||active.contentHash!==contentHash)throw new Error('Idempotency key content changed');return active}if(!['complete','failed'].includes(active.state))throw new Error('Publication already active')}
+  const active=await this.activeInternal()
+  if(active){if(active.owner===owner&&active.requestId===requestId){if(active.codeSha!==codeSha||active.contentHash!==contentHash)throw new Error('Idempotency key content changed');return active}if(!['complete','failed'].includes(active.state))throw new Error('Publication already active')}
   const now=new Date().toISOString(),operation=validateOperation({version:1,id:randomUUID(),requestId,owner,codeSha,contentHash,state:'preparing',createdAt:now,updatedAt:now})
   // One process-independent reservation. Terminal active state is replaced only
   // under this short exclusive lock. A stale lock never authorizes a new deploy.
   const lock=path.join(this.root,'reservation');await mkdir(lock)
   try {
-   const replay=await this.previousRequest(requestId,owner)
+   const replay=await this.forRequest(requestId,owner)
    if(replay){if(replay.codeSha!==codeSha||replay.contentHash!==contentHash)throw new Error('Idempotency key content changed');return replay}
-   const current=await this.active(owner)
-   if(current){if(current.requestId===requestId){if(current.contentHash!==contentHash||current.codeSha!==codeSha)throw new Error('Idempotency key content changed');return current}if(!['complete','failed'].includes(current.state))throw new Error('Publication already active')}
+   const current=await this.activeInternal()
+   if(current){if(current.owner===owner&&current.requestId===requestId){if(current.contentHash!==contentHash||current.codeSha!==codeSha)throw new Error('Idempotency key content changed');return current}if(!['complete','failed'].includes(current.state))throw new Error('Publication already active')}
    await writeFile(this.file(operation.id),JSON.stringify(operation),{flag:'wx',mode:0o600})
    await writeFile(this.requestFile(requestId,owner),operation.id,{flag:'wx',mode:0o600})
    const pointer=path.join(this.root,'active-'+operation.id);await writeFile(pointer,operation.id,{flag:'wx',mode:0o600});await rename(pointer,path.join(this.root,'active'))
