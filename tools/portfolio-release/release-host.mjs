@@ -4,6 +4,32 @@ import path from 'node:path';
 import {projectDetailForPath} from '../concept-v2/app/src/project-page/project-view-model.mjs';
 import {layoutPackageCsp} from './layout-package-policy.mjs';
 const origin='https://art-des.ru';
+// Exact code-owned Hero controls/decoration; never a fallback for CMS content.
+const heroShellAssets=new Set([
+ '/assets/projects/corvo/responsive-hero/adaptive-desktop.svg',
+ '/assets/projects/corvo/responsive-hero/adaptive-max.svg',
+ '/assets/projects/corvo/responsive-hero/adaptive-min.svg',
+ '/assets/projects/corvo/responsive-hero/adaptive-mobile.svg',
+ '/assets/projects/corvo/responsive-hero/adaptive-tablet.svg',
+ '/assets/projects/corvo/responsive-hero/hover-search-scale.svg',
+ '/assets/projects/corvo/responsive-hero/lock.svg',
+ '/assets/projects/corvo/responsive-hero/resize-chevron.svg',
+ '/assets/projects/corvo/responsive-hero/resize-hatch.svg',
+ '/assets/projects/corvo/responsive-hero/resize-separation.svg',
+ '/assets/projects/corvo/responsive-hero/ruler-edge-tick.svg',
+ '/assets/projects/corvo/responsive-hero/ruler-end-hatch.svg',
+ '/assets/projects/corvo/responsive-hero/ruler-end-tick.svg',
+ '/assets/projects/corvo/responsive-hero/ruler-start-hatch.svg',
+ '/assets/projects/corvo/responsive-hero/ruler-tick.svg',
+ '/assets/projects/corvo/responsive-hero/stage-guide.svg',
+ '/assets/projects/corvo/responsive-hero/tab-authorization.svg',
+ '/assets/projects/corvo/responsive-hero/tab-media-campaigns.svg',
+ '/assets/projects/corvo/responsive-hero/tab-my-space.svg',
+ '/assets/projects/corvo/responsive-hero/tab-statistics.svg',
+ '/assets/projects/corvo/responsive-hero/topbar-active-line.svg',
+ '/assets/projects/corvo/responsive-hero/topbar-hatch.svg',
+ '/assets/projects/corvo/responsive-hero/topbar-separation.svg',
+]);
 const mime={js:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',html:'text/html; charset=utf-8',svg:'image/svg+xml',png:'image/png',webp:'image/webp',jpg:'image/jpeg',jpeg:'image/jpeg',avif:'image/avif',woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',otf:'font/otf',json:'application/json'};
 const escape=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 async function safeRead(root,name){
@@ -36,7 +62,9 @@ export function createReleaseHandler({root=path.join(process.cwd(),'.portfolio-r
   const head=request.method==='HEAD';
   const headers={'X-Content-Type-Options':'nosniff','Cache-Control':'no-cache','Referrer-Policy':'strict-origin-when-cross-origin'};
   const respond=(body,status=200,extra={})=>new Response(head?null:body,{status,headers:{...headers,...extra}});
-  const dynamicAsset=Boolean(readAsset&&(pathname.startsWith('/assets/projects/')||built.manifest.contentAssets?.includes(pathname)));
+  const contentAsset=built.manifest.contentAssets?.includes(pathname);
+  const shellAsset=heroShellAssets.has(pathname)&&built.files.has(pathname)&&!contentAsset;
+  const dynamicAsset=Boolean(readAsset&&!shellAsset&&(pathname.startsWith('/assets/projects/')||contentAsset));
   const asset=dynamicAsset?await readAsset(pathname):built.files.get(pathname);
   if(dynamicAsset&&!asset)return respond(null,404);
   if(asset&&pathname!=='/index.html'){

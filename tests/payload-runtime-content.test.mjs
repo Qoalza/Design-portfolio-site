@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {mkdtemp,writeFile,rm,readdir} from 'node:fs/promises';
 import os from 'node:os';import path from 'node:path';import {createHash} from 'node:crypto';
 import {createReleaseHandler} from '../tools/portfolio-release/release-host.mjs';
 import {runtimeProjectDocuments} from '../tools/concept-v2/app/src/project-page/runtime-documents.mjs';
@@ -47,5 +47,37 @@ test('online assets use published bytes only; static shell survives DB failure; 
   assert.equal((await request('/assets/projects/current/frame.html',{headers:{'if-none-match':'"'+'d'.repeat(64)+'"'}})).status,304);
   assert.match((await request('/assets/projects/current/vector.svg')).headers.get('content-security-policy')??'',/sandbox/);
   assert.equal(calls,0);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
+
+
+test('online host serves immutable Hero shell SVGs without CMS lookup while rejecting stale project assets',async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),'payload-hero-shell-'));
+ try{
+  const {mkdir}=await import('node:fs/promises');
+  const shell='assets/projects/corvo/responsive-hero/topbar-hatch.svg';
+  const stale='assets/projects/corvo/responsive-hero/unapproved.svg';
+  const names=await readdir(new URL('../tools/concept-v2/app/public/assets/projects/corvo/responsive-hero/',import.meta.url));
+  const codeShells=names.filter(name=>name.endsWith('.svg')).map(name=>'assets/projects/corvo/responsive-hero/'+name);
+  const entries=[['index.html','<html lang="ru"><head><title>Portfolio</title></head></html>'],...codeShells.map(name=>[name,'<svg><path/></svg>']),[stale,'<svg/>']];
+  const files=[];
+  for(const [name,value] of entries){await mkdir(path.dirname(path.join(root,name)),{recursive:true});await writeFile(path.join(root,name),value);files.push({path:name,bytes:Buffer.byteLength(value),sha256:createHash('sha256').update(value).digest('hex')});}
+  await writeFile(path.join(root,'site-manifest.json'),JSON.stringify({version:1,buildSha:'a'.repeat(40),pages:{'/':{title:'Portfolio',description:'Designer'}},contentAssets:[],files}));
+  let lookups=0;
+  const serve=createReleaseHandler({root,readContent:async()=>{throw new Error('DB unavailable')},readAsset:async()=>{lookups++;return null;}});
+  const response=await serve(new Request('https://art-des.ru/'+shell+'?preloader-retry=2'));
+  assert.equal(response.status,200);assert.equal(await response.text(),'<svg><path/></svg>');
+  assert.equal(response.headers.get('content-type'),'image/svg+xml');
+  assert.match(response.headers.get('content-security-policy')??'',/sandbox/);
+  assert.equal(lookups,0);
+  for(const name of codeShells)assert.equal((await serve(new Request('https://art-des.ru/'+name))).status,200,name);
+  assert.equal(lookups,0);
+  const head=await serve(new Request('https://art-des.ru/'+shell,{method:'HEAD'}));assert.equal(head.status,200);assert.equal(await head.text(),'');
+  assert.equal((await serve(new Request('https://art-des.ru/'+stale))).status,404);
+  assert.equal((await serve(new Request('https://art-des.ru/assets/projects/corvo/draft.png'))).status,404);
+  const manifest=JSON.parse(await (await import('node:fs/promises')).readFile(path.join(root,'site-manifest.json'),'utf8'));
+  manifest.contentAssets=['/'+shell];await writeFile(path.join(root,'site-manifest.json'),JSON.stringify(manifest));
+  const contentOwned=createReleaseHandler({root,readAsset:async()=>null});
+  assert.equal((await contentOwned(new Request('https://art-des.ru/'+shell))).status,404,'content ownership must never fall back to static shell bytes');
  }finally{await rm(root,{recursive:true,force:true});}
 });
