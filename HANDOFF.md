@@ -1,6 +1,6 @@
 # HANDOFF
 
-2026-10-06. Независимый выпуск Portfolio/Payload.
+2026-10-07. Независимый выпуск Portfolio/Payload.
 Worktree: /Users/designer/.codex/worktrees/payload-admin/Design-portfolio-site.
 Branch: codex/cms-integration. Baseline ce3e80fd4c45d1f16c808f80c1f3e1686702e99c.
 Пользователь разрешил автономную реализацию и все будущие browser checks.
@@ -47,8 +47,15 @@ Documentation checkpoint не является новой проверенной
   at /private/tmp/des-art-payload-test-linux-amd64-qylb49c2, temporary retention only.
 - User reports trackpad Experience feels too fast; mouse unavailable. Loaded JS
   retains smoothWheel:true/lerp0.1/wheelMultiplier1 and unchanged travel; Lenis enabled.
-  Root cause is unconfirmed. Browser used for physical observation requested;
-  awaiting answer. Do not tune parameters speculatively or mark physical checks PASS.
+  User identifies Zen as the browser; native UI access is unavailable. User explicitly
+  deferred further local launch/physical checks: «Потом проверим ес шо». Parameters
+  remain unchanged; deferred acceptance is not a physical PASS. Do not launch Zen
+  or new local test stands until the user resumes those checks.
+- The owned unprivileged Debian VM des-art-payload-systemd-vm-proof booted but did
+  not consume its optical NoCloud seed; no guest service proof ran. It was deliberately
+  stopped after the user declined further local launches; Docker confirms exited 137.
+  This is an interrupted fixture setup, not an application test failure or a PASS.
+  Preserve its existing private temporary seed; never put it in Git/canonical content.
 - Не повторять зелёные local suites без новых изменений/concerns. For further Linux
   proofs preserve exact source/artifact identity and isolate from the live server.
 - Не считать локальные PASS доказательством полной G6/G7 готовности.

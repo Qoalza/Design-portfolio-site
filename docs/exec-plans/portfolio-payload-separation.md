@@ -22,8 +22,12 @@ syntax checks PASS. Read-only VPS preflight establishes x86_64/glibc2.39/Node22.
 systemd255/cgroupv2. Full actual systemd lifecycle/UID/cgroup/closed-port proof is
 still missing; no production mutations. G7/A12 remains separately gated.
 User trackpad observation reports excessive speed; mouse not available. Loaded
-scroll parameters/travel match baseline; physical acceptance remains open pending
-runtime diagnosis. [Linux report](../../design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md).
+scroll parameters/travel match baseline. On 2026-10-07 user identified Zen and
+explicitly deferred further local launch/physical checks («Потом проверим ес шо»).
+Physical acceptance remains deferred, not PASS. An owned unprivileged Debian VM
+booted without consuming its optical NoCloud seed; no actual service proof ran.
+The VM was deliberately stopped after that user instruction (Docker exited 137);
+do not launch further local test stands until the user resumes those checks. [Linux report](../../design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md).
 
 ### Final local automated candidate checkpoint
 
@@ -35,9 +39,9 @@ fixed preloader и описанный focused browser маршрут подтв�
 fixtures завершены/очищены; code-only archives сохранены локально. Два bounded
 последовательных final evidence review без confirmed findings.
 
-G1–G6 полная приёмка остаётся INCOMPLETE: actual Linux native/service/resource proof
-и physical mouse/trackpad Experience отсутствуют. Linux builder/наблюдение пользователя
-запрошены, но не получены. G7/A12 не выполнялся и требует отдельного exact gate.
+G1–G6 полная приёмка остаётся INCOMPLETE: Linux native/build/package/resource proof
+получен в checkpoint выше; actual systemd lifecycle остаётся непроверенным. Physical
+mouse/trackpad Experience отложен пользователем, а не подтверждён. G7/A12 не выполнялся и требует отдельного exact gate.
 Последующие documentation commits не меняют проверенную identity candidate.
 Подробные границы evidence и artifact hashes: [локальный отчёт](../../design-reference/portfolio-payload-separation-local-7d67676/REPORT.md).
 
