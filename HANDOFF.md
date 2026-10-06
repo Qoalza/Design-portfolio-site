@@ -63,7 +63,12 @@ Durable HTTP rejection slice added to existing separated artifact harness: exact
 errors, unchanged media/native versions/active pointer, intact delivered asset hashes.
 Both independent builds at source 1de27358, root lint and extended separation:test PASS;
 wrapper exited 0, own fixture cleaned. Two sequential reviews closed without findings.
-Next: preview expiry/isolation evidence, interrupted-upload/fault coverage audit,
+Preview runtime TTL/header guard now PASS: 30-minute expiry denies HTML/JS/package
+bytes, cache reuse does not extend lifetime, another owner remains independently valid,
+renewal uses a new capability. no-store/no-referrer/noindex and sandbox/connect/form
+restrictions checked. Focused runtime test, root/CMS lint and strict CMS types PASS;
+two sequential reviews closed. This is unit/header evidence, not external-network proof.
+Next: actual external-request privacy evidence, interrupted-upload/fault coverage audit,
 remaining final-candidate browser matrix and Linux proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral

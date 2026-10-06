@@ -10,6 +10,7 @@ import {createPreviewArtifact,previewArtifactResponse} from '../src/preview-arti
 const placeholder='/api/preview-artifacts/'+'0'.repeat(64)+'/'
 test('private preview uses a prebuilt renderer and exact saved-draft bytes without compilation',async()=>{
  const root=await mkdtemp(path.join(os.tmpdir(),'des-art-payload-preview-runtime-'))
+ const realNow=Date.now;let now=realNow();Date.now=()=>now
  try{
   const files=[]
   for(const [name,value] of [['index.html','<html><head><script src="'+placeholder+'assets/app.js"></script></head></html>'],['assets/app.js','const base="'+placeholder+'";']]){
@@ -26,7 +27,12 @@ test('private preview uses a prebuilt renderer and exact saved-draft bytes witho
   const publicPath=scene.source.assetBase+'index.html',bytes=fixture.assets.find(asset=>asset.publicPath===publicPath)!.bytes
   const prepared={version:1 as const,revision:'a'.repeat(64),rendererId:'a'.repeat(64),previewRoot:root,source:{projectId:1,slug:project.slug,mode:'draft' as const,authorStatus:'draft' as const,updatedAt:'fixture'},...fixture,projects:generation.projects}
   const artifact=await createPreviewArtifact({prepared:prepared as never,dataRoot:root,owner:1}),key=artifact.base.split('/')[3]
-  const html=await(await previewArtifactResponse(key,['projects',project.slug])).text()
+  assert.equal(artifact.expires,now+30*60*1000)
+  const page=await previewArtifactResponse(key,['projects',project.slug])
+  assert.equal(page.status,200);assert.equal(page.headers.get('referrer-policy'),'no-referrer');assert.equal(page.headers.get('cache-control'),'private, no-store');assert.equal(page.headers.get('x-robots-tag'),'noindex, nofollow')
+  const csp=page.headers.get('content-security-policy')!;assert.match(csp,/sandbox allow-scripts;/);assert.ok(!csp.includes('allow-same-origin'));assert.match(csp,/connect-src 'none'/);assert.match(csp,/form-action 'none'/)
+  assert.equal(page.headers.has('set-cookie'),false)
+  const html=await page.text()
   assert.ok(html.includes(artifact.base+'assets/app.js'))
   const json=html.match(/<script id="portfolio-projects" type="application\/json">(.*?)<\/script>/s)![1];assert.ok(!json.includes('<'));assert.equal(JSON.parse(json).projects[0].title,'Private </script>')
   assert.ok(JSON.parse(json).projects[0].redesign.hero.scenes[0].source.assetBase.startsWith(artifact.base))
@@ -35,5 +41,16 @@ test('private preview uses a prebuilt renderer and exact saved-draft bytes witho
   const resource=await previewArtifactResponse(key,publicPath.slice(1).split('/'));assert.deepEqual(Buffer.from(await resource.arrayBuffer()),bytes);assert.match(resource.headers.get('content-security-policy')!,/sandbox allow-scripts/)
   for(const segments of [['snapshot.json'],['..'],['projects','absent']])assert.equal((await previewArtifactResponse(key,segments)).status,404)
   assert.equal((await previewArtifactResponse('f'.repeat(64),[])).status,404)
- }finally{await rm(root,{recursive:true,force:true})}
+  // Reusing the saved revision does not extend its capability lifetime.
+  now+=29*60*1000
+  assert.equal((await createPreviewArtifact({prepared:prepared as never,dataRoot:root,owner:1})).base,artifact.base)
+  assert.equal((await previewArtifactResponse(key,[])).status,200)
+  const otherOwner=await createPreviewArtifact({prepared:prepared as never,dataRoot:root,owner:2});assert.notEqual(otherOwner.base,artifact.base)
+  now=artifact.expires+1
+  for(const segments of [[],['projects',project.slug],['assets','app.js'],publicPath.slice(1).split('/')]){
+   const expired=await previewArtifactResponse(key,segments);assert.equal(expired.status,404);assert.equal(await expired.text(),'');assert.equal(expired.headers.get('cache-control'),'no-store');assert.equal(expired.headers.get('x-robots-tag'),'noindex')
+  }
+  assert.equal((await previewArtifactResponse(otherOwner.base.split('/')[3],[])).status,200)
+  const renewed=await createPreviewArtifact({prepared:prepared as never,dataRoot:root,owner:1});assert.notEqual(renewed.base,artifact.base);assert.equal(renewed.expires,now+30*60*1000);assert.equal((await previewArtifactResponse(key,[])).status,404);assert.equal((await previewArtifactResponse(renewed.base.split('/')[3],[])).status,200)
+ }finally{Date.now=realNow;await rm(root,{recursive:true,force:true})}
 })
