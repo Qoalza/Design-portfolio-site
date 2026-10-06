@@ -82,8 +82,13 @@ export function createProjectSnapshot({projects,assets,provenance}) {
   return {publicPath:asset.publicPath,sha256:asset.sha256,size:asset.bytes.length};
  });
  const snapshot=validateProjectSnapshot({version:1,projects,assets:manifest,provenance});
+ validatePackageResources(snapshot.projects,assets,snapshot.provenance.externalDependencies);
+ return snapshot;
+}
+// Shared byte-level package closure; canonical document validation remains the caller's responsibility.
+export function validatePackageResources(projects,assets,externalDependencies=[]) {
  const byPath=new Map(assets.map(a=>[a.publicPath,a]));
- for(const project of snapshot.projects)if(project.redesign.hero.kind==='layout'){
+ for(const project of projects)if(project.redesign.hero.kind==='layout'){
   const inspected=new Set();
   for(const scene of project.redesign.hero.scenes)if(scene.source.kind==='package'){
    const source=scene.source,base='https://package.example'+source.assetBase;
@@ -102,7 +107,7 @@ export function createProjectSnapshot({projects,assets,provenance}) {
      if(!reference || reference.startsWith('#') || reference.startsWith('data:'))continue;
      const target=new URL(reference,base+file.path);
      if(target.origin!=='https://package.example'){
-      if(!snapshot.provenance.externalDependencies?.includes(target.href))throw new Error(`Undeclared external package resource: ${target.href}`);
+      if(!externalDependencies.includes(target.href))throw new Error(`Undeclared external package resource: ${target.href}`);
       continue;
      }
      if(!target.pathname.startsWith(source.assetBase) || !source.files.some(f=>source.assetBase+f.path===target.pathname) || !byPath.has(target.pathname))throw new Error(`Missing package dependency: ${reference} in ${file.path}`);
@@ -110,5 +115,4 @@ export function createProjectSnapshot({projects,assets,provenance}) {
    }
   }
  }
- return snapshot;
 }

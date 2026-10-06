@@ -1,21 +1,40 @@
 # HANDOFF
 
-2026-10-06. Единственная актуальная Admin — Payload в tools/payload-admin.
+2026-10-06. Workstream: независимый выпуск Portfolio и Payload.
 Worktree: /Users/designer/.codex/worktrees/payload-admin/Design-portfolio-site.
-Ветка: codex/cms-integration. Название payload-1939 заменено на payload-admin.
-Другого writer при синхронизации не обнаружено.
+Ветка: codex/cms-integration. Исходный HEAD: ce3e80fd4c45d1f16c808f80c1f3e1686702e99c.
 
 ## Checkpoint
 
-По прямому запросу пользователя интегрирован exact production c735f3151a297eccb2885e69c0a215143c2dfe2f. Свежая серверная проверка подтвердила SHA и active art-des-payload.service/WorkingDirectory. Исполняемый код синхронизирован с production; локальная документация SSH сохранена. Соседние ветки/worktree не изменялись. Синхронизация не меняла сервер, CMS данные или secret.
+Пользователь прямо разрешил реализацию приложенного плана в payload-admin.
+G0 проверен: база плана совпала, worktree был чистым, другого active writer не обнаружено.
+G1 реализован: public-delivery-v1, canonical digest, metadata/byte MIME/closure validation,
+empty/no-detail generation, scoped resource mapping и typed reader/DTO interfaces.
+Reader не импортирует Payload, не читает SQLite/secret и удерживает проверенный last-good;
+readiness проверяется строго, старые request handles сохраняют generation и resources.
+Existing snapshot v1 policy не ослаблена; shared package dependency checker извлечён без изменения поведения.
 
-Сайт и /admin пока обслуживаются одним Next/Payload runtime, backend3001. Native draft/preview/Publish/versions и persistent data сохраняются. Experience smoothing/stopper/reentry, compact layout, Corvo hatch, Bg-main#17191A, pinned-only home header line и custom404 входят в базу.
-Текущая published версия c735; последующие локальные коммиты не означают нового deploy.
-Old Des-art Admin и redesign-admin-integration не являются актуальной Admin или источником работы.
+Проверки: 21 focused/regression tests PASS, root lint PASS, strict declarations TypeScript PASS,
+standalone reader bundle/import PASS. Два review выполнены с исправлениями mapping,
+MIME/strict readiness, повторных resource reads и завершения конкурентных requests.
+Fixture bytes синтетические: transport MIME proof не заменяет CMS decoder/dimension tests G3/G6.
 
-## Текущий запрос и границы
+## Следующее действие
 
-Пользователь запросил фиксацию требований к разделению сайта и Admin, без планирования и реализации. Требования зафиксированы: docs/requirements/portfolio-payload-separation.md. Код не переделывать и не выпускать на прод по этому запросу.
-Схемы, DB, drafts/versions/accounts, материалы, secret и доступы не менять. Повторный bootstrap запрещён; USERSPACE и sandbox не читать/переносить.
-Операции: docs/ops/PAYLOAD.md и DEPLOY.md. Production evidence c735 находится в линии Portfolio, design-reference/payload-portfolio-fixes-2026-10-06/REPORT.md.
-Постоянный SSH alias art-des-ops сохранён; private key/credentials не читать. Реальный DB restore не выполнялся; fixture restore ранее PASS. Future Admin redesign и разделение — ещё не реализованы.
+G2: Node public host, builds public/preview без CMS/data и Git fallback.
+Полный план/acceptance/checkpoint: docs/exec-plans/portfolio-payload-separation.md.
+G3–G7 пока не выполнены; текущий сайт/Admin ещё работают по прежней combined схеме.
+Свежий production preflight не выполнялся. Исторический deployed SHA c735f3151a297eccb2885e69c0a215143c2dfe2f не считать свежим подтверждением.
+
+## Stop-lines
+
+Не читать USERSPACE, .local или redesign-admin-integration. Не переносить sandbox данные.
+Не делать bootstrap, schema/DB migration, merge или production switch без exact gate из плана.
+G7 требует exact artifacts, service/proxy delta, fresh parity/backup и отдельное разрешение на concrete transition.
+
+## Pointers
+
+- docs/exec-plans/portfolio-payload-separation.md
+- docs/requirements/portfolio-payload-separation.md
+- docs/ops/PAYLOAD.md
+- tools/portfolio-delivery/
