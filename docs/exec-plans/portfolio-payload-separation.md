@@ -23,11 +23,13 @@ systemd255/cgroupv2. Full actual systemd lifecycle/UID/cgroup/closed-port proof 
 still missing; no production mutations. G7/A12 remains separately gated.
 User trackpad observation reports excessive speed; mouse not available. Loaded
 scroll parameters/travel match baseline. On 2026-10-07 user identified Zen and
-explicitly deferred further local launch/physical checks («Потом проверим ес шо»).
+deferred only trackpad/Zen checks («Потом проверим ес шо»), then explicitly clarified
+that Linux checks must continue.
 Physical acceptance remains deferred, not PASS. An owned unprivileged Debian VM
 booted without consuming its optical NoCloud seed; no actual service proof ran.
-The VM was deliberately stopped after that user instruction (Docker exited 137);
-do not launch further local test stands until the user resumes those checks. [Linux report](../../design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md).
+The VM was stopped because the deferral was incorrectly interpreted (Docker exited
+137). After user clarification, Linux proof resumed with a fresh overlay and virtio
+seed attachment, reusing the verified base image; actual service proof still pending. [Linux report](../../design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md).
 
 ### Final local automated candidate checkpoint
 

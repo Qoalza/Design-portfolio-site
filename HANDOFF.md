@@ -48,14 +48,15 @@ Documentation checkpoint не является новой проверенной
 - User reports trackpad Experience feels too fast; mouse unavailable. Loaded JS
   retains smoothWheel:true/lerp0.1/wheelMultiplier1 and unchanged travel; Lenis enabled.
   User identifies Zen as the browser; native UI access is unavailable. User explicitly
-  deferred further local launch/physical checks: «Потом проверим ес шо». Parameters
-  remain unchanged; deferred acceptance is not a physical PASS. Do not launch Zen
-  or new local test stands until the user resumes those checks.
+  deferred only trackpad/Zen checks («Потом проверим ес шо»), explicitly clarified
+  on 2026-10-07 that Linux checks must continue. Parameters remain unchanged;
+  deferred physical acceptance is not PASS. Do not launch Zen for that check.
 - The owned unprivileged Debian VM des-art-payload-systemd-vm-proof booted but did
   not consume its optical NoCloud seed; no guest service proof ran. It was deliberately
-  stopped after the user declined further local launches; Docker confirms exited 137.
-  This is an interrupted fixture setup, not an application test failure or a PASS.
-  Preserve its existing private temporary seed; never put it in Git/canonical content.
+  stopped due to an incorrect interpretation of the trackpad deferral (exit 137).
+  User corrected that interpretation; Linux proof resumed with a fresh overlay and
+  virtio seed attachment, reusing the checksum-verified base image. No service PASS
+  yet. Preserve its private temporary seed; never put it in Git/canonical content.
 - Не повторять зелёные local suites без новых изменений/concerns. For further Linux
   proofs preserve exact source/artifact identity and isolate from the live server.
 - Не считать локальные PASS доказательством полной G6/G7 готовности.

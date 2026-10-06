@@ -233,8 +233,9 @@ G5 still needs actual systemd-managed lifecycle/UID/cgroup/closed-port proof; Li
 x64 builds, eligible packaging, native startup, resource measurements and separate
 syntax checks passed. Code controller and fixed service adapters are implemented.
 G6 automated two-process update/rollback/failure and recorded browser routes passed;
-physical mouse/trackpad Experience acceptance is deferred, not PASS. The user declined
-further local launches on 2026-10-07; do not start new local test stands until resumed.
+physical mouse/trackpad Experience acceptance is deferred, not PASS. On 2026-10-07
+the user clarified that this deferral applies only to trackpad/Zen; Linux verification
+remains authorized and must continue.
 G7 needs fresh deployed SHA, resource/backup/parity evidence, exact service/proxy/OS
 permissions delta and separately approved concrete transition. No sandbox data enters
 canonical content, Git or production. See the durable separation plan for stop-lines.
