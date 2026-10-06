@@ -11,7 +11,7 @@ export function createLoopbackProbe(origin,{timeoutMs=6000,portfolioBuildId,code
   if(request.kind==='candidate')url.searchParams.set('contentId',request.contentId);
   // Fetch errors/timeouts are uncertain. They do not prove a new active pointer
   // should be reverted; an explicit retry resolves identities before writing.
-  const response=await fetch(url,{redirect:'error',signal:AbortSignal.timeout(timeoutMs),headers:{Accept:'application/json'}});
+  const response=await fetch(url,{redirect:'error',signal:AbortSignal.timeout(timeoutMs),headers:{Accept:'application/json',Connection:'close'}});
   let value;try {value=await response.json();}catch {throw new Error('Public probe response is uncertain.');}
   const expectedRenderer=request.rendererId??(request.kind==='active'?request.descriptor.rendererId:undefined);
   if(!value||typeof value!=='object'||typeof value.rendererId!=='string')throw new Error('Public probe code identity is uncertain.');

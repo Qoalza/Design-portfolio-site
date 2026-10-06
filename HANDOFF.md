@@ -14,7 +14,8 @@ G5b CMS packaging/lifetime/health proof implemented; Linux native proof still pe
 G5c1 selected/confirmed state and monotonic codeActivationSeq fence are implemented;
 actual process epochs are implemented and verified;
 stable launchers and continuous CMS lifetime reload ownership are implemented;
-activation controller/rollback remain pending.
+journaled controller/explicit abort/code-only rollback core are implemented;
+fixed service adapters/CLI remain pending.
 G6 full acceptance and gated G7 are not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native
@@ -28,7 +29,7 @@ or full G6 browser/failure acceptance. Temporary fixture processes are stopped.
 
 ## Next
 
-G5c: independent code descriptors/activation/rollback and shared lock/probe protocol,
+G5c5: fixed service adapters/CLI and retained-artifact OPS templates,
 OPS templates/resource proof. Then exact final-candidate G6 harness/browser matrix.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.

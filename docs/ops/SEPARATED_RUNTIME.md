@@ -83,13 +83,30 @@ its owned writer, waits for actual exit, checks the selected artifact/schema/pub
 compatibility and existing secret under the retained lock, then registers the new
 writer before importing Payload. Supervisor PID and lock token remain unchanged;
 writer PID and code epoch change. SIGINT/SIGTERM suppress pending reload. This signal
-is a mechanism, not an activation command: the journaled controller still needs to
-select, verify actual health and confirm a release under the shared activation lock.
+is a mechanism, not an activation command: the journaled controller selects, verifies actual health and confirms a release under
+the shared activation lock. Fixed service adapters/CLI are the next slice.
 
 CMS restart/reload invalidates existing in-memory private preview capabilities;
 reload the preview to issue a new capability. Portfolio-only releases keep CMS PID
 and its issued snapshot capabilities; retained old renderer artifacts remain required.
 No capability persistence format or preview TTL behavior has changed.
+
+Code controller requests bind a unique operation ID, app, exact expected confirmed
+slot and verified target descriptor. Pending state gates new public authority. Retries
+reconcile known pointer/process combinations, while unrelated build/epoch identities
+fail closed. Explicit abort of a selected failed operation returns to its prior
+confirmed artifact using a new epoch. Every retry/rollback checks current content;
+content descriptors, DB/history and secret are never restored from a code receipt.
+Receipt recovery finishes an earlier confirmed operation before a newer selection
+can consume its slot. Historical completed requests return only their receipt.
+
+All referenced artifact directories are retained; descriptors are recorded by full
+path/identity under private delivery `retained-code`. There is no garbage collection.
+Keep the current code, at least two previous compatible artifacts and every renderer
+referenced by issued preview capabilities. Do not remove/replace artifact directories.
+Private readiness requests close connections and consume response bodies: repeated
+keepalive polling can delay Next graceful HTTP shutdown. Closed HTTP port alone never
+proves writer exit or permits releasing/replacing lifetime ownership.
 
 ## Disposable proof
 
