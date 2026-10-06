@@ -71,6 +71,7 @@ export async function buildPortfolio({output=path.join(repoRoot,'.portfolio-rele
  }
  await bundle({entryPoints:[path.join(repoRoot,'tools/portfolio-runtime/start.mjs')],bundle:true,platform:'node',target:'node22',format:'esm',outfile:path.join(output,'server.mjs'),sourcemap:false});
  await bundle({entryPoints:[path.join(repoRoot,'tools/portfolio-runtime/active-start.mjs')],bundle:true,platform:'node',target:'node22',format:'esm',outfile:path.join(output,'ops/active-start.mjs'),sourcemap:false});
+ await bundle({entryPoints:[path.join(repoRoot,'tools/portfolio-runtime/code-cli.mjs')],bundle:true,platform:'node',target:'node22',format:'esm',outfile:path.join(output,'ops/code-cli.mjs'),sourcemap:false});
  await rm(path.join(output,'release-manifest.json'),{force:true});
  const files=await artifactFiles(output),portfolioBuildId={sourceSha:sha,artifactSha256:contentHash(canonicalJSON({files,renderer}))};
  const manifest={version:1,portfolioBuildId,renderer,sourceDirty:Boolean(dirty.trim()),files};

@@ -1,7 +1,7 @@
 # Independent runtime artifacts
 
-Local implementation checkpoint, 2026-10-06. Production has not switched. Code
-activation/rollback commands, Linux CMS proof and complete G6 acceptance remain pending;
+Local implementation checkpoint, 2026-10-06. Production has not switched. Fixed code activation/rollback commands and service templates are implemented locally.
+Linux CMS proof, maintenance command and complete G6 acceptance remain pending;
 this file is not permission to change services, proxy, accounts or real data.
 
 ## Build and verify
@@ -84,7 +84,7 @@ compatibility and existing secret under the retained lock, then registers the ne
 writer before importing Payload. Supervisor PID and lock token remain unchanged;
 writer PID and code epoch change. SIGINT/SIGTERM suppress pending reload. This signal
 is a mechanism, not an activation command: the journaled controller selects, verifies actual health and confirms a release under
-the shared activation lock. Fixed service adapters/CLI are the next slice.
+the shared activation lock. Fixed service adapters/CLI are included in both packages.
 
 CMS restart/reload invalidates existing in-memory private preview capabilities;
 reload the preview to issue a new capability. Portfolio-only releases keep CMS PID
@@ -107,6 +107,49 @@ referenced by issued preview capabilities. Do not remove/replace artifact direct
 Private readiness requests close connections and consume response bodies: repeated
 keepalive polling can delay Next graceful HTTP shutdown. Closed HTTP port alone never
 proves writer exit or permits releasing/replacing lifetime ownership.
+
+## Fixed service controller CLI
+
+Both artifacts include `code-cli.mjs`: public `ops/code-cli.mjs`, CMS
+`tools/payload-admin/scripts/code-cli.mjs`. Invoke a verified immutable package entry:
+
+```sh
+node /absolute/portfolio-release/ops/code-cli.mjs /absolute/controller.json state portfolio
+node /absolute/portfolio-release/ops/code-cli.mjs /absolute/controller.json state cms
+node /absolute/portfolio-release/ops/code-cli.mjs /absolute/controller.json apply /absolute/intent.json
+```
+
+`state` reads descriptors/selected/confirmed slots without running systemctl. `apply`
+requires Linux-eligible verified packages. An intent has exactly `version: 1`, a new
+unique `operationId`, `app` (`portfolio` or `cms`), `expected` (the complete current
+confirmed slot from `state`), `target` (the complete verified retained release
+descriptor) and `aborts: null`. Persist this exact intent outside code before applying;
+retry the same bytes/ID after an uncertain response. Never substitute a later expected
+slot into an existing operation. Ordinary rollback is a new intent targeting a retained
+compatible descriptor. To explicitly abort a pending selection, use its prior confirmed
+release as target and its operation ID as `aborts`, with a new operation ID.
+
+`tools/portfolio-runtime/ops` contains templates, not installed configuration. They
+propose fixed separate units/users, immutable launcher copies, external environment
+files and loopback ports. The controller checks loaded unit paths, exact executable
+and arguments, empty lifecycle hooks and execution privilege flags, restrictive
+service settings, actual process UID and PID-correlated health before mutations.
+Public releases restart only the public unit; CMS releases signal only its stable
+supervisor with SIGUSR2. A stopped service must have no remaining cgroup processes and
+an explicitly refused loopback connection. Unknown ownership/profile fails closed.
+Linux target requires systemd 252 or newer, cgroup v2 and compatible Node 22; confirm
+these in the actual preflight. Systemd property/command references:
+[systemctl documentation](https://www.freedesktop.org/software/systemd/man/latest/systemctl.html)
+and [v252 show serializer](https://github.com/systemd/systemd/blob/v252/src/systemctl/systemctl-show.c).
+
+Code descriptors/state are explicitly mode 0644 even under umask 077; private journals
+remain 0600 in 0700 directories. Actual shared parent traversal/ownership and private
+root denial must be verified using both service users on Linux. CMS needs write access
+to the derived published root; public gets only read access and cannot access the
+private authoring root. Proxy templates route `/payload-assets` (including preview
+fonts) and private preview to CMS, public pages to Portfolio, and deny both internal
+health namespaces. Installing users/units/proxy, assigning filesystem ownership and
+choosing actual ports is the concrete G7 delta; templates are not fresh production proof.
 
 ## Disposable proof
 
@@ -132,8 +175,9 @@ limits or build on an active service host without the concrete plan gate.
 
 ## Remaining release gate
 
-G5 still needs code activation/rollback with shared activation locking, exact actual
-process probes, immutable retained artifacts and no content/DB/history rollback.
+G5 still needs the packaged exclusive-root maintenance command and actual Linux
+native/service/resource proof. Code controller and fixed service adapters are implemented;
+actual distinct-artifact rollback/failure acceptance remains part of G6.
 G6 needs the full two-process and browser acceptance matrix on the final exact candidate.
 G7 needs fresh deployed SHA, resource/backup/parity evidence, exact service/proxy/OS
 permissions delta and separately approved concrete transition. No sandbox data enters

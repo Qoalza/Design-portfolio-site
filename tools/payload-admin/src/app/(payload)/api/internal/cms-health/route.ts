@@ -21,6 +21,6 @@ export async function GET(request:Request){
   if(owner.pid!==process.ppid||owner.childPID!==process.pid||!process.env.PAYLOAD_WRITER_TOKEN||owner.token!==process.env.PAYLOAD_WRITER_TOKEN)throw new Error('Writer identity unavailable')
   const actualSchema=await schemaHash(settings.root,{contractRoot:process.cwd()})
   if(actualSchema!==process.env.PAYLOAD_CMS_SCHEMA_HASH)throw new Error('Schema differs')
-  return Response.json({cmsBuildId:build,codeActivationSeq,schemaHash:actualSchema,producer,writerConfirmed:true},{headers})
+  return Response.json({cmsBuildId:build,codeActivationSeq,supervisorPID:process.ppid,writerPID:process.pid,schemaHash:actualSchema,producer,writerConfirmed:true},{headers})
  }catch{return Response.json({error:'cms-not-ready'},{status:503,headers})}
 }

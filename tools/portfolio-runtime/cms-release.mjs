@@ -11,6 +11,7 @@ export function validateCMSRelease(value){
 export async function verifyCMSRelease(value,{fixture=false}={}){
  const release=validateCMSRelease(value);await assertDirectory(release.artifactRoot);
  const manifest=await verifyCMSArtifact(release.artifactRoot,{fixture});
+ if(!manifest.files.some(file=>file.path==='tools/payload-admin/scripts/active-start.mjs'))throw new Error('CMS artifact lacks stable lifecycle entry');
  for(const name of ['cmsBuildId','schemaHash','producer','runtime'])if(canonicalJSON(manifest[name])!==canonicalJSON(release[name]))throw new Error('CMS artifact differs from selected descriptor');
  return release;
 }

@@ -1,0 +1,10 @@
+{
+ "version":1,
+ "dataRoot":"/var/lib/art-des-payload/data",
+ "publicRoot":"/var/lib/art-des-separated/public",
+ "files":{"portfolio":"/var/lib/art-des-separated/code/portfolio.json","cms":"/var/lib/art-des-separated/code/cms.json"},
+ "services":{
+  "portfolio":{"unit":"art-des-portfolio.service","fragment":"/etc/systemd/system/art-des-portfolio.service","node":"/usr/bin/node","launcher":"/opt/art-des-separated/launchers/portfolio/active-start.mjs","user":"portfolio-public","environmentFile":"/etc/art-des-separated/portfolio.env","origin":"http://127.0.0.1:3101"},
+  "cms":{"unit":"art-des-cms.service","fragment":"/etc/systemd/system/art-des-cms.service","node":"/usr/bin/node","launcher":"/opt/art-des-separated/launchers/cms/active-start.mjs","user":"portfolio-cms","environmentFile":"/etc/art-des-separated/cms.env","origin":"http://127.0.0.1:3102"}
+ }
+}

@@ -15,7 +15,7 @@ G5c1 selected/confirmed state and monotonic codeActivationSeq fence are implemen
 actual process epochs are implemented and verified;
 stable launchers and continuous CMS lifetime reload ownership are implemented;
 journaled controller/explicit abort/code-only rollback core are implemented;
-fixed service adapters/CLI remain pending.
+fixed service adapters/CLI and retained-artifact OPS templates are implemented locally.
 G6 full acceptance and gated G7 are not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native
@@ -29,8 +29,8 @@ or full G6 browser/failure acceptance. Temporary fixture processes are stopped.
 
 ## Next
 
-G5c5: fixed service adapters/CLI and retained-artifact OPS templates,
-OPS templates/resource proof. Then exact final-candidate G6 harness/browser matrix.
+G5 maintenance: packaged exclusive-root unlock/recovery command. Then Linux
+native/service/resource proof and exact final-candidate G6 harness/browser matrix.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.
 Historical deployed c735f3151a297eccb2885e69c0a215143c2dfe2f is not fresh evidence.

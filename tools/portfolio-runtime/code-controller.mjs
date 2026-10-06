@@ -28,6 +28,7 @@ export function createCodeController({privateRoot,dataRoot,publicRoot,files,adap
  async function verify(app,release){
   if(app==='cms')return verifyCMSRelease(release,{fixture});
   const manifest=await verifyPortfolioArtifact(release.artifactRoot);
+  if(!manifest.files.some(file=>file.path==='ops/active-start.mjs'))throw new Error('Portfolio artifact lacks code epoch lifecycle entry');
   if((!fixture&&manifest.sourceDirty)||!equal(manifest.portfolioBuildId,release.portfolioBuildId)||!equal(manifest.renderer,release.renderer))throw new Error('Portfolio code artifact differs');
   return release;
  }
@@ -118,7 +119,7 @@ export function createCodeController({privateRoot,dataRoot,publicRoot,files,adap
    await observe(request.app,[request.expected,operation.previous,target]);
    await retain(request.app,request.expected.release);await retain(request.app,operation.previous.release);await retain(request.app,request.target);
    if(request.aborts!==null){const aborted=await journal(request.aborts);if(!aborted||aborted.phase==='complete'||aborted.supersededBy!==null&&aborted.supersededBy!==request.operationId)throw new Error('Code abort conflict');aborted.phase='superseded';aborted.supersededBy=request.operationId;await save(aborted);}
-   if(!alreadyConfirmed){current={...current,selected:target};await atomicJSON(files[request.app]+'.state.json',current);}
+   if(!alreadyConfirmed){current={...current,selected:target};await atomicJSON(files[request.app]+'.state.json',current,{mode:0o644});}
    let actual=await observe(request.app,[request.expected,operation.previous,target]);
    if(!matches(request.app,actual.identity,target)||actual.status!=='ready'){
     // Lifecycle adapters affect only their exact managed application. No data,
@@ -128,8 +129,8 @@ export function createCodeController({privateRoot,dataRoot,publicRoot,files,adap
    }
    content=await compatible(request.app,request.target);ready(request.app,actual,target,content);
    operation.phase='confirming';operation.confirmation={contentId:content.contentId,activationSeq:content.activationSeq};await save(operation);
-   await atomicJSON(files[request.app],target.release);
-   await atomicJSON(files[request.app]+'.state.json',{version:1,app:request.app,confirmed:target,selected:target});
+   await atomicJSON(files[request.app],target.release,{mode:0o644});
+   await atomicJSON(files[request.app]+'.state.json',{version:1,app:request.app,confirmed:target,selected:target},{mode:0o644});
    await fault('after-code-confirmation');return complete(operation);
   });
  }

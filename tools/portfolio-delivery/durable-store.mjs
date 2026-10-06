@@ -9,9 +9,11 @@ export async function assertDirectory(directory, {create=false, mode=0o700}={}) 
  let current=path.parse(absolute).root;
  for(const component of absolute.slice(current.length).split(path.sep).filter(Boolean)) {
   current=path.join(current,component);
-  if(create) await mkdir(current,{mode}).catch(error=>{if(error.code!=='EEXIST')throw error;});
+  let created=false;
+  if(create) await mkdir(current,{mode}).then(()=>{created=true;}).catch(error=>{if(error.code!=='EEXIST')throw error;});
   const info=await lstat(current);
   if(!info.isDirectory()||info.isSymbolicLink())throw new Error('Store directory must be a real directory.');
+  if(created){const directory=await open(current,constants.O_RDONLY|constants.O_NOFOLLOW);try{if(!(await directory.stat()).isDirectory())throw new Error('Created store directory changed');await directory.chmod(mode);}finally{await directory.close();}}
  }
  return absolute;
 }
@@ -33,7 +35,7 @@ export async function readJSON(file,maxBytes=16*1024*1024) {
 export async function writeFileDurable(file,bytes,mode=0o600) {
  await assertDirectory(path.dirname(file),{create:true,mode:mode===0o644?0o755:0o700});
  const handle=await open(file,constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,mode);
- try {await handle.writeFile(bytes);await handle.sync();} finally {await handle.close();}
+ try {await handle.chmod(mode);await handle.writeFile(bytes);await handle.sync();} finally {await handle.close();}
  await flushDirectory(path.dirname(file));
 }
 export async function atomicJSON(file,value,{mode=0o600}={}) {

@@ -1,0 +1,25 @@
+# Template only. Retain the existing authoring root/secret; no bootstrap/migration.
+[Unit]
+Description=Independent Payload CMS with one lifetime writer owner
+After=network.target
+
+[Service]
+Type=exec
+User=portfolio-cms
+Group=portfolio-cms
+EnvironmentFile=/etc/art-des-separated/cms.env
+ExecStart=/usr/bin/node /opt/art-des-separated/launchers/cms/active-start.mjs
+Restart=no
+KillMode=control-group
+TimeoutStopSec=30
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadOnlyPaths=/var/lib/art-des-separated /opt/art-des-separated
+ReadWritePaths=/var/lib/art-des-payload /var/lib/art-des-separated/public
+
+[Install]
+WantedBy=multi-user.target

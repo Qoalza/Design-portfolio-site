@@ -1,0 +1,25 @@
+# Template only. Install after exact G7 service/user/path/resource approval.
+[Unit]
+Description=Independent public Portfolio
+After=network.target
+
+[Service]
+Type=exec
+User=portfolio-public
+Group=portfolio-public
+EnvironmentFile=/etc/art-des-separated/portfolio.env
+ExecStart=/usr/bin/node /opt/art-des-separated/launchers/portfolio/active-start.mjs
+Restart=no
+KillMode=control-group
+TimeoutStopSec=30
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadOnlyPaths=/var/lib/art-des-separated /opt/art-des-separated
+InaccessiblePaths=/var/lib/art-des-payload
+
+[Install]
+WantedBy=multi-user.target
