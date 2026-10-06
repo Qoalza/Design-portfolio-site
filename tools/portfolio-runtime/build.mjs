@@ -52,7 +52,7 @@ export async function buildPortfolio({output=path.join(repoRoot,'.portfolio-rele
  }
  const {stdout:head}=await exec('git',['rev-parse','HEAD'],{cwd:repoRoot}),sha=head.trim();
  const {stdout:dirty}=await exec('git',['status','--porcelain','--untracked-files=normal','--','.',':!USERSPACE'],{cwd:repoRoot});
- const {stdout:names}=await exec('git',['ls-files','--','tools/concept-v2/app/src','tools/concept-v2/app/index.html','tools/concept-v2/app/package-lock.json','src/lib/project-image-source.mjs','tools/portfolio-runtime/build.mjs'],{cwd:repoRoot});
+ const {stdout:names}=await exec('git',['ls-files','--','tools/concept-v2/app/src','tools/concept-v2/app/vendor','tools/concept-v2/app/index.html','tools/concept-v2/app/package-lock.json','src/lib/project-image-source.mjs','tools/portfolio-runtime/build.mjs'],{cwd:repoRoot});
  const inputs=names.trim().split('\n').filter(Boolean);
  if(!inputs.includes('tools/portfolio-runtime/build.mjs'))inputs.push('tools/portfolio-runtime/build.mjs');
  const rendererInputs=[];for(const name of inputs.sort()){rendererInputs.push([name,contentHash(await readFile(path.join(repoRoot,name)))]);}

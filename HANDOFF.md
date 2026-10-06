@@ -39,8 +39,9 @@ or full G6 browser/failure acceptance. Temporary fixture processes are stopped.
 G6: legacy smoke/release-proof adapted to extracted separated artifacts; both entry
 points/builds/lints PASS and two reviews closed. Public-only actual source compiler
 update/new+retained private preview proof PASS; original CMS process/build/draft unchanged.
-Next include vendored Lenis JS/CSS in renderer input identity, prove Admin-only source
-build without public rebuild/restart, and complete final-candidate
+Vendored Lenis input identity gap fixed; actual vendor-only recompilation changes rendererId.
+Both builds, lint, artifact test and final extended separation proof PASS; two reviews closed.
+Next prove Admin-only source build without public rebuild/restart, and complete final-candidate
 browser matrix. G5 Linux native/service/resource proof still pending.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.

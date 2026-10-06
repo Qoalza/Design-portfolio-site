@@ -19,6 +19,8 @@ export async function buildPublicSourceFixture({repo,parent}) {
  const env={PATH:process.env.PATH,TMPDIR:process.env.TMPDIR,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'};
  await exec('git',['archive','--format=tar','--output='+archive,'HEAD',...paths],{cwd:repo,env});
  await exec('tar',['-xf',archive,'-C',root],{env});await rm(archive);
+ // Exercise the current builder, including uncommitted implementation fixes.
+ await writeFile(path.join(root,'tools/portfolio-runtime/build.mjs'),await readFile(path.join(repo,'tools/portfolio-runtime/build.mjs')));
  for(const directory of ['node_modules','tools/concept-v2/app/node_modules'])await symlink(path.join(repo,directory),path.join(root,directory),'dir');
  const entry=path.join(root,'tools/concept-v2/app/src/main-release.jsx');
  await writeFile(entry,(await readFile(entry,'utf8'))+`\ndocument.documentElement.dataset.separationFixtureBuild=${JSON.stringify(sourceBuildMarker)};\n`);
@@ -28,8 +30,15 @@ export async function buildPublicSourceFixture({repo,parent}) {
  await exec('git',['-c','user.name=Separation fixture','-c','user.email=fixture@example.test','-c','commit.gpgsign=false','commit','--quiet','-m','Synthetic public source build fixture'],{cwd:root,env});
  const output=path.join(root,'.portfolio-release/portfolio');
  await exec(process.execPath,['--experimental-strip-types','tools/portfolio-runtime/build.mjs'],{cwd:root,env,maxBuffer:4*1024*1024});
- const manifest=await verifyPortfolioArtifact(output);
+ let manifest=await verifyPortfolioArtifact(output);
  assert.equal(manifest.sourceDirty,false);
+ const beforeVendor=manifest.renderer.rendererId,vendor=path.join(root,'tools/concept-v2/app/vendor/lenis/lenis.css');
+ await writeFile(vendor,(await readFile(vendor,'utf8'))+'\n/* synthetic vendor identity change */\n');
+ await exec('git',['add','--','tools/concept-v2/app/vendor/lenis/lenis.css'],{cwd:root,env});
+ await exec('git',['-c','user.name=Separation fixture','-c','user.email=fixture@example.test','-c','commit.gpgsign=false','commit','--quiet','-m','Synthetic vendor-only source identity change'],{cwd:root,env});
+ await exec(process.execPath,['--experimental-strip-types','tools/portfolio-runtime/build.mjs'],{cwd:root,env,maxBuffer:4*1024*1024});
+ manifest=await verifyPortfolioArtifact(output);assert.equal(manifest.sourceDirty,false);
+ assert.notEqual(manifest.renderer.rendererId,beforeVendor,'vendor-only source edit changes renderer identity');
  assert.equal(await cmsSourceHash(),cmsHash,'public source build did not change CMS build inputs');
  assert.equal(await readFile(path.join(repo,'tools/payload-admin/.cms-builds/candidate.json'),'utf8'),cmsCandidate,'public source build did not select a new CMS build');
  const scripts=manifest.files.filter(file=>/^site\/assets\/.*\.js$/.test(file.path));
