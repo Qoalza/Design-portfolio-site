@@ -21,7 +21,8 @@ extracted two processes. Next duplicate route/RSC guard authority fixed with ser
 process-global request-identity registry. G6 distinct synthetic host-code updates/rollback/startup-failure explicit abort proof
 passes for both processes; bounded disposable browser fixture and exact owner/build readiness before authenticated test writes
 are verified. Public 404 and published Sarafan private preview preliminarily checked;
-actual independent source-build/renderer browser parity, exact
+actual public-only source compiler update/new preview/retained old JS proof now passes;
+CMS-only source compiler build and full renderer browser parity, exact
 clean candidate and Linux proof remain. Gated G7 is not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native
@@ -36,8 +37,10 @@ or full G6 browser/failure acceptance. Temporary fixture processes are stopped.
 ## Next
 
 G6: legacy smoke/release-proof adapted to extracted separated artifacts; both entry
-points/builds/lints PASS and two reviews closed. Next prove actual independent
-source builds/new renderer without neighbor rebuild/restart; complete final-candidate
+points/builds/lints PASS and two reviews closed. Public-only actual source compiler
+update/new+retained private preview proof PASS; original CMS process/build/draft unchanged.
+Next include vendored Lenis JS/CSS in renderer input identity, prove Admin-only source
+build without public rebuild/restart, and complete final-candidate
 browser matrix. G5 Linux native/service/resource proof still pending.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.

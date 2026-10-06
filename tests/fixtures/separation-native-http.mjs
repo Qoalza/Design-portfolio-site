@@ -35,5 +35,5 @@ export async function exerciseNativeHTTP({origin,publicOrigin,token,publicRoot,r
  for(const url of ['/404','/projects/'+source.projects[0].slug,'/projects/'+source.projects[1].slug]){const response=await fetch(publicOrigin+url,{headers:{Connection:'close'}});assert.equal(response.status,404);assert.match(response.headers.get('x-robots-tag')??'',/noindex/);await response.arrayBuffer();}
  const sitemap=await fetch(publicOrigin+'/sitemap.xml',{headers:{Connection:'close'}});assert.equal(sitemap.status,200);assert.doesNotMatch(await sitemap.text(),/fixture-one|fixture-two/);
  console.log('PASS: native HTTP target-only Publish/private saved draft/preview/auth/raw guards/retry/Unpublish/Delete/empty/scoped resource hash retention');
- return {oldAssets};
+ return {oldAssets,previewTarget:docs[0].id};
 }
