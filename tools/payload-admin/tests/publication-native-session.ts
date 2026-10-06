@@ -151,6 +151,25 @@ try {
  assert.equal((await payload.findVersions({collection:'projects',user,overrideAccess:false,where:{parent:{equals:projects[0].id}}})).totalDocs,beforeCount)
  native.commit=normalBeforeCheckpoint
  assert.equal((await coordinator.execute(checkpointIntent)).status,'delivered')
+ // Drizzle catches a failed session commit and resolves its public helper.
+ // Inject there so the real adapter rolls back SQLite; fresh DB confirmation
+ // must prevent a false delivered receipt despite the swallowed rejection.
+ const failedCommitIntent=await intent(projects[0].id),beforeFailedCommit=(await native.inspect(String(projects[0].id)))!,beforeFailedActive=(await coordinator.active()).descriptor,beforeFailedVersions=(await payload.findVersions({collection:'projects',user,overrideAccess:false,where:{parent:{equals:projects[0].id}}})).totalDocs
+ const adapterCommit=payload.db.commitTransaction;let injectedCommit=false,commitHelperResolved=false
+ payload.db.commitTransaction=async incomingID=>{
+  const id=await incomingID,session=payload.db.sessions?.[String(id)];assert.ok(session,'Expected a real SQLite transaction session')
+  const resolve=session.resolve;session.resolve=async()=>{injectedCommit=true;throw new Error('Injected SQLite session commit failure')}
+  try{await adapterCommit.call(payload.db,incomingID);commitHelperResolved=true}finally{session.resolve=resolve}
+ }
+ try{assert.equal((await coordinator.execute(failedCommitIntent)).status,'committing')}finally{payload.db.commitTransaction=adapterCommit}
+ assert.equal(injectedCommit,true);assert.equal(commitHelperResolved,true)
+ assert.deepEqual((await native.inspect(String(projects[0].id)))!.state,beforeFailedCommit.state)
+ assert.equal((await payload.findVersions({collection:'projects',user,overrideAccess:false,where:{parent:{equals:projects[0].id}}})).totalDocs,beforeFailedVersions)
+ assert.deepEqual((await coordinator.active()).descriptor,beforeFailedActive)
+ assert.equal((await coordinator.execute(failedCommitIntent)).status,'delivered')
+ assert.equal((await payload.findVersions({collection:'projects',user,overrideAccess:false,where:{parent:{equals:projects[0].id}}})).totalDocs,beforeFailedVersions+1)
+ assert.equal((await coordinator.active()).descriptor.activationSeq,beforeFailedActive.activationSeq+1)
+ console.log('PASS: real SQLite session commit rejection is swallowed by Drizzle but detected by native durability confirmation; explicit retry commits once')
  // Native commit response loss: durable precommit result is reconciled against
  // actual DB version rather than performing another native save.
  const normalCommit=native.commit

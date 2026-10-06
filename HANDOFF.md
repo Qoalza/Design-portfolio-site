@@ -74,7 +74,13 @@ socket closes before completion. Immediate and later media counts unchanged, pub
 pointer/resource hashes intact; subsequent valid API/lifecycle flows succeed. Both
 independent builds at 8d83c5a9, root lint and full extended separation:test PASS; wrapper
 exited 0, own fixture cleaned; two sequential reviews closed without findings.
-Next: actual failed SQLite commit guard, external-request privacy evidence,
+Actual failed SQLite commit guard PASS in native fixture: real session.resolve rejects,
+installed Drizzle calls real rollback then resolves its helper. Native fresh DB
+confirmation prevents a false delivered receipt: state/versions/public descriptor
+remain unchanged. Same explicit intent retry creates exactly one version/activation.
+Final test-publication wrapper exit 0 and cleanup confirmed; root/CMS lint and strict
+CMS types PASS; two sequential reviews closed. No application code changed.
+Next: external-request privacy evidence, complete fault/concurrency coverage audit,
 remaining final-candidate browser matrix and Linux proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral
