@@ -11,6 +11,23 @@
 
 ## Execution checkpoint — 2026-10-06
 
+### Final local automated candidate checkpoint
+
+Чистый code candidate `7d6767607d12dd3e0b4d42f9a02ee54fc00ec66f`: обе независимые
+сборки, полный separated harness/CMS suite, 231 renderer, 43 contract/code lifecycle,
+17 host/artifact/writer, native transaction failure/retry и actual dev writer SIGKILL
+PASS. Nested Statistics preview network/positive cookie control, hover contact,
+fixed preloader и описанный focused browser маршрут подтверждены. Собственные
+fixtures завершены/очищены; code-only archives сохранены локально. Два bounded
+последовательных final evidence review без confirmed findings.
+
+G1–G6 полная приёмка остаётся INCOMPLETE: actual Linux native/service/resource proof
+и physical mouse/trackpad Experience отсутствуют. Linux builder/наблюдение пользователя
+запрошены, но не получены. G7/A12 не выполнялся и требует отдельного exact gate.
+Последующие documentation commits не меняют проверенную identity candidate.
+Подробные границы evidence и artifact hashes: [локальный отчёт](../../design-reference/portfolio-payload-separation-local-7d67676/REPORT.md).
+
+
 - Пользователь явно разрешил реализацию в `payload-admin`; запись проверкой разрешений допущена.
 - G0: чистая `codex/cms-integration`, exact исходный HEAD `ce3e80fd4c45d1f16c808f80c1f3e1686702e99c`; другой active writer не обнаружен. Свежий server preflight ещё не выполнен; он не блокирует isolated G1–G6.
 - G1: добавлены public-delivery-v1, typed public DTO/reader boundary, детерминированный digest, scoped URLs/renditions, empty/no-detail collection, manifest/byte MIME/closure validation, строгий readiness и last-good reader. Existing snapshot v1 сохраняет прежние ограничения.
