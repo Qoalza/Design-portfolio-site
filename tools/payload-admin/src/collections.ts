@@ -2,6 +2,9 @@ import type { Access, Block, CollectionConfig } from 'payload'
 import { protectMediaDelete, validateMediaOperation } from './media-safety'
 import { releaseFields, validateReleaseProject, protectReleaseFileDelete, validateReleaseFileOperation } from './release-content'
 
+import {guardProjectPublication,guardProjectDelete} from './publication/guard'
+import {captureSavedDraft} from './publication/draft-capture'
+
 const authenticated: Access = ({ req }) => Boolean(req.user)
 const privateAccess = {
   read: authenticated, create: authenticated, update: authenticated, delete: authenticated,
@@ -64,12 +67,16 @@ export const Projects: CollectionConfig = {
   labels: { singular: 'Проект', plural: 'Проекты' },
   access: { ...privateAccess, readVersions: authenticated },
   admin: {
+    components: {
+      beforeListTable: ['/components/PublicationControls#PublicationOperations'],
+      edit: {PublishButton:'/components/PublicationControls#PublicationPublishButton',UnpublishButton:'/components/PublicationControls#PublicationUnpublishButton',Status:'/components/PublicationControls#DeliveryStatus'},
+    },
     useAsTitle: 'title', defaultColumns: ['title', '_status', 'updatedAt'],
     preview: (doc) => doc.id ? `/preview/projects/${encodeURIComponent(String(doc.id))}?mode=draft` : null,
     description: 'Сохраняйте черновик для проверки. Публикация применяет изменения проекта на сайте.',
   },
   versions: { drafts: true, maxPerDoc: 20 },
-  hooks: { beforeChange: [validateReleaseProject] },
+  hooks: { beforeOperation:[guardProjectPublication],beforeDelete:[guardProjectDelete],afterOperation:[captureSavedDraft],beforeChange: [validateReleaseProject] },
   fields: [
     { name: 'title', label: 'Название проекта', type: 'text', required: true },
     {

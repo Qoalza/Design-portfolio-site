@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto'
 import { getPayload } from 'payload'
 import config from '../src/payload.config'
 import sharp from 'sharp'
+import {nativeSchemaFixture} from './native-schema-fixture'
 import { readPreviewProject } from '../src/preview'
 
 const payload = await getPayload({ config })
@@ -23,8 +24,8 @@ try {
   const draft = await payload.create({ collection: 'projects', ...access, draft: true, data: { title: 'Неполный черновик' } })
   assert.equal(draft._status, 'draft')
   await assert.rejects(payload.update({ collection: 'projects', id: draft.id, ...access, data: { _status: 'published' } }))
-  const project = await payload.update({
-    collection: 'projects', id: draft.id, ...access,
+  const project = await nativeSchemaFixture(payload,user,draft.id,'publish',req=>payload.update({
+    collection: 'projects', id: draft.id, ...access,req,
     data: {
       title: 'Опубликованная версия', slug: 'sample-case', hero: { image: media.id }, header: { heading: 'Заголовок кейса' },
       blocks: [
@@ -33,7 +34,7 @@ try {
       ],
       _status: 'published',
     },
-  })
+  }))
   assert.equal(project._status, 'published')
   await payload.update({ collection: 'projects', id: project.id, ...access, draft: true, data: { title: 'Новая версия', blocks: [...(project.blocks ?? [])].reverse(), _status: 'draft' } })
   const published = await payload.findByID({ collection: 'projects', id: project.id, ...access, draft: false })

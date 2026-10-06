@@ -3,6 +3,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { getPayload } from 'payload'
 import config from '../src/payload.config'
+import {nativeSchemaFixture} from './native-schema-fixture'
 import sharp from 'sharp'
 
 const payload = await getPayload({ config })
@@ -43,7 +44,7 @@ try {
   const draft = await payload.create({ collection: 'projects', ...access, draft: true, data: { title: 'History guard', blocks: [{ blockType: 'gallery', images: [{ image: historical.id }] }] } })
   await payload.update({ collection: 'projects', id: draft.id, ...access, draft: true, data: { blocks: [] } })
   await assert.rejects(payload.delete({ collection: 'media', id: historical.id, ...access }), /используется/)
-  await payload.delete({ collection: 'projects', id: draft.id, ...access })
+  await nativeSchemaFixture(payload,user,draft.id,'delete',req=>payload.delete({ collection: 'projects', id: draft.id, ...access,req }))
   await payload.delete({ collection: 'media', id: historical.id, ...access })
   assert.equal((await payload.findByID({ collection: 'projects', id: project.id, ...access, depth: 0 })).hero?.image, image.id)
   console.log('PASS: ссылки текущих/исторических версий защищены, замена/подмена запрещены, плохая загрузка не оставляет файлов, неиспользуемое удаляется')

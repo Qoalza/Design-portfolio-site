@@ -15,7 +15,7 @@ export function authorDigest(record:Project) {
  return digest(values)
 }
 export function createNativePublicationAdapter({payload,user,dataRoot}:{payload:Payload;user:User;dataRoot:string}):NativePublicationAdapter & {
- inspect(target:string):Promise<{record:Project;state:NativeState;versionId:string}|null>;
+ inspect(target:string,req?:PayloadRequest):Promise<{record:Project;state:NativeState;versionId:string}|null>;
  selectVersion(id:string,target:string):Promise<Project>;
 } {
  async function request() {return createLocalReq({user},payload)}
@@ -32,7 +32,7 @@ export function createNativePublicationAdapter({payload,user,dataRoot}:{payload:
   req??=await request()
   const selected=await payload.findVersionByID({collection:'projects',id,req,overrideAccess:false,depth:0})
   const parent=selected.parent
-  if(String(parent)!==target||selected.version._status!=='published')throw new PublicationError('invalid-selected-version')
+  if(String(parent)!==target||!['published','draft'].includes(String(selected.version._status)))throw new PublicationError('invalid-selected-version')
   return {...selected.version,id:Number(target)} as Project
  }
  async function selected(intent:PublicationIntent,req?:PayloadRequest) {
@@ -55,14 +55,14 @@ export function createNativePublicationAdapter({payload,user,dataRoot}:{payload:
   // Its fingerprint is checked before expensive bytes are prepared again.
   const source=journal.committed.source as Project|undefined
   if(!source||!now||authorDigest(source)!==now.state.digest)throw new PublicationError('invalid-committed-source')
-  return delivery(source)
+  return journal.intent.operation==='restore'&&source._status==='draft'?{effect:'remove' as const}:delivery(source)
  }
  return {
   inspect,selectVersion,
   current:async intent=>(await inspect(intent.target))?.state??null,
   prepare:async intent=>{
    const value=await selected(intent)
-   return {...(['publish','restore'].includes(intent.operation)?await delivery(value.record):{}),sourceDigest:intent.sourceDigest,selectedRevision:value.selectedRevision}
+   return {...(intent.operation==='restore'&&value.record._status==='draft'?{effect:'remove' as const}:['publish','restore'].includes(intent.operation)?await delivery(value.record):{}),sourceDigest:intent.sourceDigest,selectedRevision:value.selectedRevision}
   },
   commit:async(intent,source,checkpoint)=>{
    const req=await request()
@@ -82,7 +82,7 @@ export function createNativePublicationAdapter({payload,user,dataRoot}:{payload:
     else record=await payload.update({collection:'projects',id:Number(intent.target),req,overrideAccess:false,overrideLock:false,depth:0,unpublishAllLocales:intent.operation==='unpublish',data:{_status:intent.operation==='publish'?'published':'draft'}})
     const committed=await inspect(intent.target,req)
     const result:NativeCommit={current:committed?.state??null,revision:committed?.versionId??'deleted',...(record?{source:committed?.record??record}:{})}
-    if(['publish','restore'].includes(intent.operation)&&(!committed||canonicalJSON(releaseProjectDocument(committed.record))!==canonicalJSON(releaseProjectDocument(value.record))))throw new PublicationError('commit-source-differs')
+    if((intent.operation==='publish'||(intent.operation==='restore'&&value.record._status==='published'))&&(!committed||canonicalJSON(releaseProjectDocument(committed.record))!==canonicalJSON(releaseProjectDocument(value.record))))throw new PublicationError('commit-source-differs')
     await checkpoint?.(result)
     await commitTransaction(req)
     // The installed Drizzle commit helper can swallow a commit rejection. Never

@@ -22,6 +22,11 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { DeliveryCell as DeliveryCell_35ff2c2a4d5420346daee7ea0e93ef18 } from '../../../components/PublicationControls'
+import { PublicationOperations as PublicationOperations_35ff2c2a4d5420346daee7ea0e93ef18 } from '../../../components/PublicationControls'
+import { PublicationPublishButton as PublicationPublishButton_35ff2c2a4d5420346daee7ea0e93ef18 } from '../../../components/PublicationControls'
+import { DeliveryStatus as DeliveryStatus_35ff2c2a4d5420346daee7ea0e93ef18 } from '../../../components/PublicationControls'
+import { PublicationUnpublishButton as PublicationUnpublishButton_35ff2c2a4d5420346daee7ea0e93ef18 } from '../../../components/PublicationControls'
 import { LocalNotice as LocalNotice_a47ffccf4f32009285d6eb623935f714 } from '../../../components/LocalNotice'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -51,6 +56,11 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/components/PublicationControls#DeliveryCell": DeliveryCell_35ff2c2a4d5420346daee7ea0e93ef18,
+  "/components/PublicationControls#PublicationOperations": PublicationOperations_35ff2c2a4d5420346daee7ea0e93ef18,
+  "/components/PublicationControls#PublicationPublishButton": PublicationPublishButton_35ff2c2a4d5420346daee7ea0e93ef18,
+  "/components/PublicationControls#DeliveryStatus": DeliveryStatus_35ff2c2a4d5420346daee7ea0e93ef18,
+  "/components/PublicationControls#PublicationUnpublishButton": PublicationUnpublishButton_35ff2c2a4d5420346daee7ea0e93ef18,
   "/components/LocalNotice#LocalNotice": LocalNotice_a47ffccf4f32009285d6eb623935f714,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

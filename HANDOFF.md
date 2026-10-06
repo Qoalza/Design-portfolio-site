@@ -61,3 +61,12 @@ G7 требует exact artifacts, service/proxy delta, fresh parity/backup и �
 - docs/requirements/portfolio-payload-separation.md
 - docs/ops/PAYLOAD.md
 - tools/portfolio-delivery/
+
+G3c checkpoint: native controls/API/REST bridges и collection guards подключены.
+Exact draft capture протестирован с authentication/Origin/двумя сохранениями; новые native
+replay/owner checks и historical draft restore PASS. 31 delivery/runtime regressions, full
+CMS suite, typecheck, root/CMS lint и public build PASS. Два review с исправлениями retry
+и uncertain commit wording закрыты. Actual CMS two-process/browser acceptance ещё не выполнена.
+Next: G4 independent CMS build/runtime + active public generation/renderer preview; перед
+API runtime требуется lifecycle PAYLOAD_WRITER_TOKEN, не создавать lock из HTTP handler.
+G5 artifacts/code release, G6 full acceptance и gated G7 остаются.

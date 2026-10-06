@@ -193,7 +193,8 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
      if(delta.sourceDigest!==intent.sourceDigest)throw new PublicationError('source-conflict');
     }
     if(!['publish','restore'].includes(intent.operation)&&delta.project)throw new PublicationError('invalid-removal-delta');
-    if(['publish','restore'].includes(intent.operation)&&!delta.project)throw new PublicationError('missing-publication-delta');
+    if(delta.effect==='remove'&&delta.project)throw new PublicationError('invalid-removal-delta');
+    if((intent.operation==='publish'||(intent.operation==='restore'&&delta.effect!=='remove'))&&!delta.project)throw new PublicationError('missing-publication-delta');
     const built=await build(base,delta,intent);
     await fault('staging',journal);staging=await stage(built.candidate,built.assets);
     if(!journal.committed) {
@@ -274,5 +275,35 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
    });
   });
  }
- return {execute,status,initialize,active};
+ async function retry(operationId,actor) {
+  if(typeof operationId!=='string'||!/^[a-zA-Z0-9_-]{16,128}$/.test(operationId))throw new PublicationError('invalid-intent');
+  let journal;
+  try {journal=await readJSON(path.join(journalRoot,operationId+'.json'));}
+  catch(error){if(error.code==='ENOENT')throw new PublicationError('operation-not-found');throw error;}
+  const intent=validateIntent(journal.intent);
+  if(intent.actor!==actor)throw new PublicationError('operation-owner-conflict');
+  return execute(intent);
+ }
+ async function nativeReplay({actor,operation,target,selectedVersionId}) {
+  if(typeof actor!=='string'||!/^\d{1,16}$/.test(actor)||!operationKinds.has(operation)||(!target&&!selectedVersionId))throw new PublicationError('invalid-intent');
+  await roots();const candidates=[];
+  for(const name of await listJSON(journalRoot)) {
+   if(!/^[a-zA-Z0-9_-]{16,128}\.json$/.test(name))throw new PublicationError('invalid-journal');
+   const journal=await readJSON(path.join(journalRoot,name)),intent=validateIntent(journal.intent);
+   if(intent.actor!==actor||intent.operation!==operation||(target&&intent.target!==target)||intent.selectedVersionId!==selectedVersionId||!['delivered','pending','committing','activating'].includes(journal.phase)||(!journal.committed&&!journal.nativePrepared))continue;
+   candidates.push(journal);
+  }
+  for(const journal of candidates.sort((a,b)=>b.sequence-a.sequence)) {
+   const expected=(journal.committed??journal.nativePrepared).current;
+   if(canonicalJSON(await native.current(journal.intent))===canonicalJSON(expected))return journal.intent;
+  }
+  return null;
+ }
+ async function nativeResult(operationId,actor) {
+  if(typeof operationId!=='string'||!/^[a-zA-Z0-9_-]{16,128}$/.test(operationId))throw new PublicationError('invalid-intent');
+  const journal=await readJSON(path.join(journalRoot,operationId+'.json'));
+  if(journal.intent.actor!==actor||journal.phase!=='delivered'||!journal.committed)throw new PublicationError('operation-owner-conflict');
+  return journal.committed.source;
+ }
+ return {execute,retry,status,initialize,active,nativeReplay,nativeResult};
 }

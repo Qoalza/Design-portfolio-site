@@ -9,6 +9,7 @@ export interface NativeState {revision:string; digest:string}
 export interface NativeCommit {current:NativeState|null; revision:string; source?:unknown}
 export interface NativeSource {sourceDigest:string; selectedRevision:string}
 export interface TargetDelta {
+ effect?:'publish'|'remove';
  project?:ProjectDocument; assets?:Array<{publicPath:string;sha256:string;bytes:Buffer;mime?:string}>;
  externalDependencies?:string[];
 }
@@ -40,6 +41,9 @@ export function createPublicationCoordinator(options:{
  probe:(request:ProbeRequest)=>Promise<void>;fault?:(point:string,journal:PublicationJournal)=>Promise<void>;
 }):{
  execute(input:PublicationIntent):Promise<PublicationStatus>;
+ retry(operationId:string,actor:string):Promise<PublicationStatus>;
+ nativeReplay(options:{actor:string;operation:PublicationKind;target?:string;selectedVersionId?:string}):Promise<PublicationIntent|null>;
+ nativeResult(operationId:string,actor:string):Promise<unknown>;
  status(options?:{actor?:string;target?:string}):Promise<Array<PublicationStatus & {sequence:number}>>;
  active():Promise<{descriptor:ActiveDescriptor;generation:DeliveryGeneration;state:PrivateActiveMap;readAsset:(publicPath:string)=>Promise<Buffer|null>}>;
  initialize(options:{prepared:{projects:ProjectDocument[];assets:Array<DeliveryAsset & {bytes:Buffer}> | Array<{publicPath:string;sha256:string;bytes:Buffer;mime?:string}>;externalDependencies?:string[]};mapping:PrivateProjectMapping[]}):Promise<ActiveDescriptor>;

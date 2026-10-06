@@ -51,4 +51,10 @@ export default buildConfig({
   // Store originals and verified candidates byte-for-byte; image ingest owns preparation.
   upload: { limits: { fileSize: 20 * 1024 * 1024 } },
   typescript: { outputFile: path.join(directory, 'payload-types.ts') },
+}).then(config=>{
+  // Payload owns the persistent native draft status field. Change only its UI.
+  const projects=config.collections.find(collection=>collection.slug==='projects')
+  const status=projects?.fields.find(field=>'name' in field&&field.name==='_status')
+  if(status?.type==='select')status.admin={...status.admin,components:{...status.admin?.components,Cell:'/components/PublicationControls#DeliveryCell'}}
+  return config
 })

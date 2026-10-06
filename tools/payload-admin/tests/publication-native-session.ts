@@ -4,17 +4,20 @@ import sharp from 'sharp'
 import {createHash} from 'node:crypto'
 import {getPayload,createLocalReq,restoreVersionOperation} from 'payload'
 import config from '../src/payload.config'
-import {guardProjectPublication,guardProjectDelete} from '../src/publication/guard'
+import {registerDraftCapture} from '../src/publication/draft-capture'
+import {nativeSelection} from '../src/publication/selection'
+import {captureDraftResponse} from '../src/publication/rest-save'
+import {boundedPublicationJSON} from '../src/publication/http'
 import {createNativePublicationAdapter,authorDigest} from '../src/publication/native'
-import {createPublicationCoordinator,type PublicationIntent} from '../../portfolio-delivery/coordinator.mjs'
+import {createPublicationCoordinator,PublicationError,type PublicationIntent} from '../../portfolio-delivery/coordinator.mjs'
 import {DELIVERY_CAPABILITIES} from '../../portfolio-delivery/contract.mjs'
 import {fixture} from '../../../tests/fixtures/portfolio-delivery.mjs'
 import type {Project} from '../src/payload-types'
 const root=path.resolve(process.env.PAYLOAD_LOCAL_ROOT!)
 assert.match(path.basename(root),/^des-art-payload-test-/)
 const configuration=await config,collection=configuration.collections.find(item=>item.slug==='projects')!
-collection.hooks.beforeOperation.push(guardProjectPublication)
-collection.hooks.beforeDelete.push(guardProjectDelete)
+assert.ok(collection.hooks.beforeOperation.length)
+assert.ok(collection.hooks.afterOperation.length)
 const payload=await getPayload({config:configuration})
 try {
  const user=await payload.create({collection:'users',data:{email:'publication@example.test',password:'Disposable-fixture-long-passphrase'}})
@@ -62,6 +65,44 @@ try {
  await assert.rejects(()=>payload.update({collection:'projects',id:projects[0].id,user,overrideAccess:false,draft:true,data:{_status:'published'},context:{publication:true}}),/подтверждённую/)
  await assert.rejects(()=>payload.create({collection:'projects',user,overrideAccess:false,draft:true,data:{title:'Bypass',slug:'bypass',_status:'published'}}),/подтверждённую/)
  await assert.rejects(()=>payload.delete({collection:'projects',id:projects[0].id,user,overrideAccess:false}),/подтверждённую/)
+ const selection=nativeSelection(new URLSearchParams('where[and][0][id][in][0]=1&where[and][0][id][in][1]=2&where[and][1][_status][equals]=draft'))
+ assert.deepEqual(selection.ids,['1','2'])
+ assert.deepEqual(JSON.parse(JSON.stringify(selection.where)),{and:[{id:{in:['1','2']}},{_status:{equals:'draft'}}]})
+ for(const query of ['where[id][in]=0','where[or][0][id][in]=1','where[__proto__][id][in]=1','where[id][in][101]=1','where[id][in]=1&where[id][in]=2','where[_status][equals]=draft'])assert.throws(()=>nativeSelection(new URLSearchParams(query)))
+ const capture=registerDraftCapture(String(user.id),async(req,id)=>{const selected=(await native.inspect(id,req))!;return {id,state:selected.state}})
+ try {
+  const req=await createLocalReq({user,req:{headers:capture.headers(new Headers())}},payload)
+  await payload.update({collection:'projects',id:projects[0].id,draft:true,overrideAccess:false,req,data:{title:projects[0].title,_status:'draft'}})
+  assert.deepEqual(capture.result(),{id:String(projects[0].id),state:(await native.inspect(String(projects[0].id)))!.state})
+ }finally{capture.close()}
+ const login=await payload.login({collection:'users',data:{email:user.email,password:'Disposable-fixture-long-passphrase'}})
+ const origin='http://127.0.0.1:41741',url=origin+'/api/projects/'+projects[0].id+'?draft=true&depth=0'
+ const headers={host:'127.0.0.1:41741',origin,cookie:configuration.cookiePrefix+'-token='+login.token,'content-type':'application/json'}
+ const draftRequest=()=>new Request(url,{method:'PATCH',headers,body:JSON.stringify({_status:'draft',title:projects[0].title})})
+ const handler=async(request:Request)=>{
+  const req=await createLocalReq({user,req:{headers:request.headers}},payload)
+  const data=await request.json()
+  const doc=await payload.update({collection:'projects',id:projects[0].id,overrideAccess:false,draft:true,req,data})
+  return Response.json({doc})
+ }
+ const savedResponse=await captureDraftResponse(draftRequest(),['projects',String(projects[0].id)],handler)
+ assert.equal(savedResponse.status,200,await savedResponse.clone().text())
+ assert.equal(savedResponse.headers.get('X-Payload-Saved-Revision'),(await native.inspect(String(projects[0].id)))!.state.revision)
+ const racing=await captureDraftResponse(draftRequest(),['projects',String(projects[0].id)],async request=>{
+  const response=await handler(request)
+  await payload.update({collection:'projects',id:projects[0].id,user,overrideAccess:false,draft:true,data:{title:projects[0].title+' later',_status:'draft'}})
+  return response
+ })
+ assert.equal(racing.status,409)
+ assert.equal((await racing.json()).error,'saved-revision-changed')
+ assert.equal(racing.headers.get('X-Payload-Saved-Revision'),null)
+ const wrongOrigin=new Request(url,{method:'PATCH',headers:{...headers,origin:'https://outside.test'},body:'{}'})
+ assert.equal((await captureDraftResponse(wrongOrigin,['projects',String(projects[0].id)],()=>{throw new Error('Must not mutate')})).status,403)
+ const unauthenticated=new Request(url,{method:'PATCH',headers:{...headers,cookie:''},body:'{}'})
+ assert.equal((await captureDraftResponse(unauthenticated,['projects',String(projects[0].id)],()=>{throw new Error('Must not mutate')})).status,401)
+ await assert.rejects(()=>boundedPublicationJSON(new Request(origin,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({data:'x'.repeat(17000)})})))
+ await payload.update({collection:'projects',id:projects[0].id,user,overrideAccess:false,draft:true,data:{title:projects[0].title,_status:'draft'}})
+ const historicalDraft=(await native.inspect(String(projects[0].id)))!.versionId
  const first=await intent(projects[0].id)
  await native.prepare(first)
  const delivered=await coordinator.execute(first);assert.equal(delivered.status,'delivered',JSON.stringify(delivered))
@@ -73,6 +114,9 @@ try {
  await payload.update({collection:'projects',id:projects[0].id,user,overrideAccess:false,draft:true,data:{title:'Updated title',_status:'draft'}})
  const chosen=await intent(projects[0].id);fail=true
  const pending=await coordinator.execute(chosen);assert.equal(pending.status,'pending',JSON.stringify(pending))
+ assert.deepEqual(await coordinator.nativeReplay({actor:String(user.id),target:chosen.target,operation:'publish'}),chosen)
+ await assert.rejects(()=>coordinator.retry(chosen.operationId,'999'),error=>error instanceof PublicationError&&error.code==='operation-owner-conflict')
+ await assert.rejects(()=>coordinator.retry('missing_operation_123456',String(user.id)),error=>error instanceof PublicationError&&error.code==='operation-not-found')
  const count=(await payload.findVersions({collection:'projects',user,overrideAccess:false,where:{parent:{equals:projects[0].id}}})).totalDocs
  // Publish different target. Its delivery does not include failed target delta.
  fail=false;assert.equal((await coordinator.execute(await intent(projects[1].id))).status,'delivered')
@@ -110,6 +154,12 @@ try {
  await restoreVersionOperation({collection:payload.collections.projects,id:versionId,draft:true,req:await createLocalReq({user},payload),overrideAccess:false})
  assert.deepEqual((await coordinator.active()).descriptor,beforeDraft)
  assert.notEqual((await native.inspect(String(projects[0].id)))!.state.revision,afterRestore.state.revision)
+ // Native normal restore of a selected historical draft has an unpublish
+ // effect; preserve that exact historical selection without exporting assets.
+ assert.equal((await coordinator.execute(await intent(projects[0].id,'restore',historicalDraft))).status,'delivered')
+ assert.equal((await coordinator.active()).generation.projects.some(project=>project.slug===projects[0].slug),false)
+ assert.equal((await native.inspect(String(projects[0].id)))!.record._status,'draft')
+ assert.equal((await coordinator.execute(await intent(projects[0].id))).status,'delivered')
  // Incomplete draft does not need ready assets to unpublish/delete.
  await payload.update({collection:'projects',id:projects[0].id,user,overrideAccess:false,draft:true,data:{releaseContent:null,releaseAssets:[],_status:'draft'}})
  assert.equal((await coordinator.execute(await intent(projects[0].id,'unpublish'))).status,'delivered')

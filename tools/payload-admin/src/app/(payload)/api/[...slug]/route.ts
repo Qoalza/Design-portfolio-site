@@ -4,6 +4,9 @@ import { REST_GET, REST_POST, REST_DELETE, REST_PATCH, REST_PUT, REST_OPTIONS } 
 import {serverWriteDenial} from '../../../../server-request'
 import { protectProjectFileResponse } from '../../../../materials/file-response'
 
+import {bridgeNativeMutation} from '../../../../publication/rest-mutations'
+import {captureDraftResponse} from '../../../../publication/rest-save'
+
 const read = REST_GET(config)
 export const GET: typeof read = async (request, args) => {
   const slug = (await args.params).slug
@@ -16,7 +19,12 @@ export const GET: typeof read = async (request, args) => {
 }
 export const HEAD = GET
 function protectWrite(handler:ReturnType<typeof REST_POST>):typeof handler{
- return async(request,args)=>serverWriteDenial(request,(await args.params).slug)??handler(request,args)
+ return async(request,args)=>{
+  const slug=(await args.params).slug,denied=serverWriteDenial(request,slug)
+  if(denied)return denied
+  const mutation=await bridgeNativeMutation(request,slug)
+  return mutation??captureDraftResponse(request,slug,request=>handler(request,args))
+ }
 }
 export const POST = protectWrite(REST_POST(config))
 export const DELETE = protectWrite(REST_DELETE(config))
