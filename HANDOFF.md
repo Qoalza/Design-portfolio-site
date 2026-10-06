@@ -23,7 +23,7 @@ private preview key или CMS referrer. Hover contact и fixed preloader про
 Два последовательных bounded final evidence review закрыты без findings.
 
 Все собственные fixture процессы завершились exit 0, временные credential/helper
-файлы и вкладки удалены. Нет активного браузерного стенда. Code-only archives
+файлы и вкладки удалены. Prior browser fixtures stopped; the new Docker fixture is described below. Code-only archives
 сохранены в /private/tmp/des-art-payload-test-final-code-artifacts-r4fDSB;
 CMS productionEligible false/macOS arm64. OS-temp retention не гарантируется.
 Documentation checkpoint не является новой проверенной runtime identity:
@@ -31,10 +31,17 @@ Documentation checkpoint не является новой проверенной
 
 ## Next / blockers
 
-- Нужен явно указанный Linux builder/SSH alias для native/service/resource proof;
-  вопрос уже отправлен, ответа нет. Не использовать production как test builder.
+- Docker discovered at /Applications/Docker.app/Contents/Resources/bin/docker.
+  Local desktop-linux engine: Linux aarch64. Both Linux source builds and extracted
+  native CMS startup PASS on source 16f3e39c8445705c22ebba1d3c15b0d848d52273.
+  Container des-art-payload-separation-local runs synthetic fixtures for two hours.
+  Admin http://127.0.0.1:41741/admin; Portfolio http://127.0.0.1:41742/.
+  Fixture login: /fixture-login; random credential stays only in worker memory.
+  Safe launcher metadata: /private/tmp/separation-docker-launch.json.
+  Target architecture/libc compatibility and systemd/service/resource proof remain
+  unverified. Docker startup does not close full G5. Do not use production as builder.
 - Нужен результат physical mouse/trackpad Experience. Вопрос уже отправлен;
-  старый loopback стенд истёк. Новый bounded fixture открыть при готовности пользователя.
+  старый loopback стенд истёк; новый bounded Docker fixture доступен по адресу выше.
 - Не повторять зелёные local suites без новых изменений/concerns. После выбора
   Linux среды сверить exact candidate/source и выполнить необходимые target proofs.
 - Не считать локальные PASS доказательством полной G6/G7 готовности.
