@@ -104,11 +104,10 @@ test('responsive Hero uses the current Library V2 tab contracts',async()=>{
  assert.match(heroCss,/\.heroTopbar\s*\{[\s\S]*?height:\s*52px/);
  assert.match(heroCss,/\.adaptiveRuler\s*\{[\s\S]*?height:\s*64px/);
  assert.match(heroCss,/\.heroTopbarInner::after\s*\{[^}]*background:\s*#1f2224/s);
- assert.match(component,/topbar-hatch\.svg/);
- assert.match(component,/className=\{styles\.topbarHatch\}/);
- assert.match(heroCss,/\.topbarHatch\s*\{[^}]*width:\s*79px[^}]*height:\s*52px/s);
- assert.match(heroCss,/\.topbarSideLeft::after\s*\{[^}]*right:\s*80px/s);
- assert.match(heroCss,/\.topbarSideRight::after\s*\{[^}]*left:\s*80px/s);
+ assert.doesNotMatch(component,/topbar-hatch\.svg/);
+ assert.doesNotMatch(component,/className=\{styles\.topbarHatch\}/);
+ assert.match(heroCss,/\.topbarSideLeft::after\s*\{[^}]*right:\s*1px/s);
+ assert.match(heroCss,/\.topbarSideRight::after\s*\{[^}]*left:\s*1px/s);
  assert.match(heroCss,/\.adaptiveTrack\s*\{[^}]*border-top:\s*1px solid #272b2e/s);
  assert.match(topbarSeparation,/stroke="#1F2224"/);
  assert.match(topbarHatch,/<svg width="79" height="52" viewBox="0 0 79 52"/);
@@ -234,4 +233,15 @@ test('outward motion at hard boundaries is suppressed without a recoil',async()=
  assert.equal(motion.isOutwardBoundaryMotion(width.MIN_DISPLAY_WIDTH,160),false);
  assert.equal(motion.isOutwardBoundaryMotion(width.MAX_DISPLAY_WIDTH,-160),false);
  assert.equal(motion.isOutwardBoundaryMotion(800,-160),false);
+});
+
+
+test('topbar uses one hatch layer with the same parameters as the Corvo case sections',async()=>{
+ const [css,component,caseCss]=await Promise.all([read('src/project-hero/ProjectResponsiveHero.module.css'),read('src/project-hero/ProjectResponsiveHero.jsx'),read('src/project-page/CorvoProjectPage.module.css')]);
+ const field=css.match(/\.topbarSide\s*\{([^}]+)\}/)?.[1];
+ assert.match(field,/repeating-linear-gradient\(126\.87deg, transparent 0 10px, var\(--cv2-decoration-hatch\) 10px 11px, transparent 11px 15px\)/);
+ assert.match(caseCss,/repeating-linear-gradient\(126\.87deg, transparent 0 10px, #1f2224 10px 11px, transparent 11px 15px\)/);
+ assert.doesNotMatch(component,/topbar-hatch\.svg|styles\.topbarHatch/);
+ assert.match(css,/\.topbarSideLeft::after\s*\{[^}]*right:\s*1px/s);
+ assert.match(css,/\.topbarSideRight::after\s*\{[^}]*left:\s*1px/s);
 });

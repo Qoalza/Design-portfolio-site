@@ -12,11 +12,11 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
   assert.match(source,/createWheelHandlingProfile\(\)/);
   assert.match(source,/publishWheelActivity\(true\)/);
   assert.match(source,/wheelIdleTimer=setTimeout\(\(\)=>\{\s*publishWheelActivity\(false\);\s*if\(wheelHandling==='native'\)publishScrollActivity\(false\);\s*\},WHEEL_GESTURE_IDLE_MS\)/);
-  assert.match(source,/virtualScroll:\(\{event\}\)=>/);
+  assert.match(source,/virtualScroll:\(\{event,deltaY\}\)=>/);
   assert.doesNotMatch(source,/lenis\.options\.smoothWheel=/);
   assert.match(source,/document\.querySelector\('\.experience'\)/);
   assert.match(source,/experienceObserver=new ResizeObserver\(measureExperience\)/);
-  assert.match(source,/isProtectedWheelRegion\(\{scrollY:window\.scrollY,deltaY:event\.deltaY,\.\.\.experienceBounds,viewportHeight:window\.innerHeight\}\)/);
+  assert.match(source,/isProtectedWheelRegion\(\{scrollY:window\.scrollY,deltaY,\.\.\.experienceBounds,viewportHeight:window\.innerHeight\}\)/);
   assert.match(source,/wheelHandlingProfile\.observe\(\{event,input,protectedRegionVisible\}\)/);
   assert.match(source,/experienceObserver\?\.disconnect\(\)/);
   assert.doesNotMatch(source,/new IntersectionObserver/);
@@ -87,4 +87,21 @@ test('header pins only after its original area leaves the viewport and uses the 
  assert.match(css,/@keyframes header-exit\{from\{transform:translateY\(0\)\}to\{transform:translateY\(-100%\)\}\}/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{/);
  assert.match(css,/\.site-header\.is-pinned,\.process-caption-content\{animation:none\}/);
+});
+
+
+test('native ordinary scrolling retains an entry owner and reduced-motion anchors stay immediate',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/SmoothScroll.jsx'),'utf8');
+  assert.match(source,/if\(!finePointer.matches\)return/);
+  assert.doesNotMatch(source,/if\(!desktop.matches\|\|reduced.matches\)return/);
+  assert.match(source,/\(!desktop.matches\|\|reduced.matches\)&&!protectedRegionVisible\?'native':handling/);
+  assert.match(source,/immediate:reduced.matches,onComplete:focusTarget/);
+});
+
+
+test('Experience smoothing remains fixed independently from ordinary native scrolling',async()=>{
+  const source=await readFile(path.resolve(import.meta.dirname,'../src/SmoothScroll.jsx'),'utf8');
+  assert.match(source,/autoRaf:false,smoothWheel:true,syncTouch:false/);
+  assert.match(source,/lerp:\.1,wheelMultiplier:1/);
+  assert.match(source,/const nextHandling=lenis.isStopped\?'smooth':/);
 });

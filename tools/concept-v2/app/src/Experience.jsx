@@ -94,13 +94,13 @@ export function Experience({cv}){
         if(shouldCaptureExperienceEntry({state:entryGate.state,scrollY:window.scrollY,deltaY:event.deltaY,sectionTop})){
           boundaryCapturePending=true;
           if(completed)resetVisualProgress();
-          entryGate.capture();
+          entryGate.capture({...event,input:document.documentElement.dataset.scrollInput||'mouse'});
           lenis.scrollTo(sectionTop,{immediate:true,force:true});
           lenis.stop();
           schedulePaint({});
           return;
         }
-        if(entryGate.onVirtualScroll(event))lenis.start();
+        if(entryGate.onVirtualScroll({...event,input:document.documentElement.dataset.scrollInput||'mouse'}))lenis.start();
       });
     });
     function applyLayout(){
@@ -156,7 +156,7 @@ export function Experience({cv}){
       const enteredFromAbove=previousScrollY<sectionTop&&currentScrollY>=sectionTop;
       const captureEntry=enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth';
       if(captureEntry){
-        entryGate.capture();
+        entryGate.capture({input:document.documentElement.dataset.scrollInput||'mouse'});
         lenis.scrollTo(sectionTop,{immediate:true,force:true});
         lenis.stop();
         currentScrollY=sectionTop;

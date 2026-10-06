@@ -22,6 +22,7 @@ export function createExperienceEntryGate({
   let previousDeltaMagnitude=Infinity;
   let previousInputTime;
   let risingEvents=0;
+  let capturedInput='trackpad';
   const setState=next=>{
     state=next;
     onStateChange(state);
@@ -36,13 +37,18 @@ export function createExperienceEntryGate({
   };
   return{
     get state(){return state;},
-    capture(){
+    capture({event,input='trackpad'}={}){
+      // The boundary event returns before onVirtualScroll; it is still the
+      // latest input. Do not measure the next pause from a pre-boundary event.
+      const eventTime=Number(event?.timeStamp);
+      previousInputTime=Number.isFinite(eventTime)?eventTime:now();
+      capturedInput=input;
       previousDeltaMagnitude=Infinity;
       risingEvents=0;
       setState('holding');
       scheduleArm();
     },
-    onVirtualScroll({deltaY=0,event}={}){
+    onVirtualScroll({deltaY=0,event,input=capturedInput}={}){
       const eventTime=Number(event?.timeStamp);
       const inputTime=Number.isFinite(eventTime)?eventTime:now();
       const gap=previousInputTime===undefined?0:inputTime-previousInputTime;
@@ -54,13 +60,13 @@ export function createExperienceEntryGate({
           setState('idle');
           return true;
         }
-        if(deltaY>0&&gap>=ENTRY_GESTURE_GAP_MS){
+        if(input==='trackpad'&&deltaY>0&&gap>=ENTRY_GESTURE_GAP_MS){
           cancel(timer);
           setState('released');
           return true;
         }
         const magnitude=Math.abs(deltaY);
-        if(magnitude>0){
+        if(input==='trackpad'&&magnitude>0){
           const renewed=magnitude>=previousDeltaMagnitude*ENTRY_GESTURE_RESTART_RATIO&&magnitude-previousDeltaMagnitude>=ENTRY_GESTURE_RESTART_STEP;
           risingEvents=renewed?risingEvents+1:0;
           previousDeltaMagnitude=magnitude;

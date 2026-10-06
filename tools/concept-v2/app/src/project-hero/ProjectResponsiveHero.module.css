@@ -51,7 +51,7 @@
 }
 
 .topbarSideRight::after {
-  left: 80px;
+  left: 1px;
   background-position-x: -4px;
 }
 
@@ -63,14 +63,7 @@
   height: 52px;
   overflow: hidden;
   background-color: #141617;
-  background-image: repeating-linear-gradient(126.87deg, #1f2224 0 1px, transparent 1px 12px);
-}
-
-.topbarHatch {
-  display: block;
-  width: 79px;
-  height: 52px;
-  flex: 0 0 79px;
+  background-image: repeating-linear-gradient(126.87deg, transparent 0 10px, var(--cv2-decoration-hatch) 10px 11px, transparent 11px 15px);
 }
 
 .topbarSeparation {
@@ -86,7 +79,7 @@
 }
 
 .topbarSideLeft::after {
-  right: 80px;
+  right: 1px;
   background-position-x: calc(100% + 12px);
 }
 

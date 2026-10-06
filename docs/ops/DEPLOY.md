@@ -234,3 +234,7 @@ systemctl reload nginx
 - временные branch/PR URLs.
 
 Эти данные получать fresh read-only preflight и при необходимости кратко указывать в `HANDOFF.md` или конкретном ExecPlan.
+
+## Ручные изменения кода online Portfolio (2026-10-06)
+
+Native Payload Publish меняет только контент. CSS/React/scroll/code fixes выпускаются общей Next/Payload сборкой. Актуальный источник — exact public data-build-sha плюс systemd WorkingDirectory, не static /var/www/art-des/current. В отдельном согласованном worktree интегрировать exact опубликованный code baseline; не перезаписывать CMS/shared/schema/content. Новая clean exact Linux build использует disposable fixture, не actual CMS data/secret. Сохранить previous unit и release, менять только WorkingDirectory art-des-payload.service, затем restart/readiness3001 и exact publicSHA/admin-login/private API/public DTO+assets parity. Failure: восстановить предыдущий unit, daemon-reload/restart; data не восстанавливать. Nginx proxy3001, permanent data root, secret, access и migrations не менять. Старый deploy-v2/static status — standby, применять его для online site нельзя. Full runtime split и redesign Admin остаются отдельными работами.
