@@ -89,8 +89,17 @@ raw CDP nested auto-attach unsupported, so complete nested-viewer trace remains 
 Cookie removed through viewer cleanup; both fixture wrappers exited 0, own tab closed,
 private temp credentials/status removed. Both builds and extended headless proof PASS.
 User explicitly authorized all future browser checks; do not ask again for those.
-Next: complete nested-frame network evidence, fault/concurrency coverage audit,
-remaining final-candidate browser matrix and Linux proof.
+A7 actual native HTTP rename/catalog order/home placement/no-detail slice PASS:
+saved draft leaves pointer unchanged; same target publishes new slug with old route
+404/new 200, sitemap replaces slug, served home DTO order/secondary placement updated.
+Other target remains exactly identical. No-detail removes route/sitemap but keeps home
+DTO; original fixture baseline restored before later lifecycle checks. Both builds
+at 52251146, root/focused lint and full extended separation:test PASS; wrapper exit 0
+and cleanup confirmed; two sequential reviews closed.
+Coverage audit: actual CMS restart preserves session/draft/content, but completed
+publication retry after that real restart still needs an explicit HTTP/version check.
+Next: A6 completed-receipt replay after real CMS restart, complete nested-frame network
+evidence, remaining final-candidate browser matrix and Linux proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral
 environment, no value in Git/commands/logs. Previous credential deleted.
