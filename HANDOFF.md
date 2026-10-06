@@ -15,7 +15,7 @@ Old Des-art Admin и redesign-admin-integration не являются актуа
 
 ## Текущий запрос и границы
 
-Пользователь запросил фиксацию требований к разделению сайта и Admin, без планирования и реализации. Draft: docs/requirements/portfolio-payload-separation.md. Код не переделывать и не выпускать на прод по этому запросу.
+Пользователь запросил фиксацию требований к разделению сайта и Admin, без планирования и реализации. Требования зафиксированы: docs/requirements/portfolio-payload-separation.md. Код не переделывать и не выпускать на прод по этому запросу.
 Схемы, DB, drafts/versions/accounts, материалы, secret и доступы не менять. Повторный bootstrap запрещён; USERSPACE и sandbox не читать/переносить.
 Операции: docs/ops/PAYLOAD.md и DEPLOY.md. Production evidence c735 находится в линии Portfolio, design-reference/payload-portfolio-fixes-2026-10-06/REPORT.md.
 Постоянный SSH alias art-des-ops сохранён; private key/credentials не читать. Реальный DB restore не выполнялся; fixture restore ранее PASS. Future Admin redesign и разделение — ещё не реализованы.

@@ -1,7 +1,7 @@
 # Проект
 
 - Сайт-портфолио Product Designer на русском языке.
-- Один upstream Git-репозиторий содержит публичный Portfolio, локальный Des-art Admin, общий контракт проектного контента и production tooling.
+- Один upstream Git-репозиторий содержит публичный Portfolio, текущую Payload Admin, общий контракт проектного контента и production tooling. Старую Des-art Admin не использовать как актуальную Admin.
 - Не придумывать и не менять визуальные решения без прямого запроса.
 - Основной продуктовый контекст: сложные B2B, B2E, SaaS и внутренние системы.
 
@@ -19,6 +19,7 @@
 До первой записи определить по содержанию задачи целевую линию и проверить
 `cwd`, branch, HEAD, status и свободен ли worktree от другого writer.
 
+- Единственная актуальная Admin — Payload в tools/payload-admin. Её worktree: /Users/designer/.codex/worktrees/payload-admin/Design-portfolio-site (переименован из payload-1939), ветка codex/cms-integration. Прежний redesign-admin-integration не использовать и не трогать. Перед реализацией сверять базу с текущим production; разные worktree пока не означают разделённых runtime/build. Требования к разделению: docs/requirements/portfolio-payload-separation.md.
 - Concept V2 / Redesign portfolio: новая главная и её разделы, прелоадер,
   404, изолированный Hero проекта и его сцены Corvo — линия
   `codex/redesign-portfolio`, текущий worktree
@@ -44,7 +45,7 @@
 - structured implementation planning → `docs/agent/PLAN_RULES.md`, когда включён Plan Mode, пользователь явно просит implementation plan, создаётся/обновляется durable ExecPlan, план используется для Goal либо передаётся другому исполнителю или контексту; не читать для приватной последовательности шагов, короткого checklist или локальной диагностики;
 - visual/component change → точный Figma source и релевантный раздел `DESIGN_SYSTEM.md`;
 - visual defect → только соответствующую запись `DESIGN_QA.md`;
-- Admin → `tools/des-art-admin/SPEC.md` и ближайшие code/tests;
+- Admin → `docs/ops/PAYLOAD.md`, `tools/payload-admin` и ближайшие code/tests; требования к разделению → `docs/requirements/portfolio-payload-separation.md`;
 - Shared project data → `docs/shared/PROJECT_CONTENT.md`, `src/lib/project-contract.ts` и ближайшие tests;
 - Portfolio scroll/navigation/runtime → `docs/portfolio/RUNTIME.md` и ближайшие code/tests;
 - deploy/production → `docs/ops/DEPLOY.md` и свежий read-only preflight;
@@ -124,12 +125,12 @@ Production, VPS, DNS, SSL, firewall, secrets/access, real data, migrations и п
 # Фактическая архитектура
 
 - Portfolio: Next.js App Router, TypeScript, React, npm; без Tailwind.
-- Опубликованные проекты: schema-v3 JSON в `content/projects/*.json`.
+- Текущие опубликованные проекты принадлежат Payload CMS и её published revisions; Git JSON/fixtures не являются текущим редактируемым источником.
 - Исполняемый Shared contract: `src/lib/project-contract.ts`.
-- Admin: отдельный local bundle/server в `tools/des-art-admin`, React + Radix Themes; Radix не импортируется публичным App Router.
+- Admin: онлайн Payload в `tools/payload-admin`; сейчас Portfolio и CMS обслуживаются одним Next/Payload runtime. Независимый выпуск пока только описан требованиями. Старые Des-art Admin bundle/publisher не применять.
 - Новые зависимости требуют явной необходимости и конкретной стабильной версии.
 - Публичный runtime не получает стороннюю UI-библиотеку, CMS, БД или авторизацию без отдельного согласования.
-- Admin может использовать уже утверждённые Radix dependencies внутри существующей bundle boundary; расширение этой boundary требует отдельного решения.
+- Зависимости интерфейса Admin остаются в границе CMS; новые зависимости публичного Portfolio требуют отдельного решения.
 - Сохранять строгую типизацию; не использовать `any` без доказанной необходимости.
 
 # Shared contract и escalation
