@@ -191,10 +191,27 @@ public generation, registers a fixture account, saves a draft and restarts CMS. 
 checks stable reload token/parent/actual writer exit/epoch and session/data/secret/content preservation and stops only its own processes.
 It also exercises actual saved-revision HTTP headers and native target-only Publish, private draft/preview and raw-file/API
 guards, completed retry, Unpublish/Delete empty delivery and old asset hashes while CMS
-is stopped. Distinct sourceDirty synthetic host-byte artifacts prove code-only update/rollback
-and explicit abort after failed public/CMS startup using real processes. They do not
-prove independent source builds or renderer fidelity. Full browser/failure matrix on
-the exact final clean candidate and Linux native/systemd proof are still pending.
+is stopped, including a public cold restart with nonempty embedded project data and exact
+HTML/resource hashes. Overlapping HTTP requests verify different targets, duplicate
+operations and competing operations on the same saved revision against actual native
+version/activation counts. Isolated temporary source repositories compile real public
+and CMS changes independently; old issued preview bytes remain available after the public
+update. Distinct synthetic failed-start artifacts additionally exercise code-only rollback
+and explicit abort using real processes. Full browser/failure matrix on the exact final
+clean candidate and Linux native/systemd proof are still pending.
+
+For browser authoring acceptance, provision `PAYLOAD_FIXTURE_REVIEW_PASSWORD` through
+an ephemeral private environment mechanism without placing its value in source, command
+history or logs, then run `npm run separation:test -- --browser-review`. Missing password
+fails before disposable roots are created. After the complete headless proof, the harness
+restarts and verifies its own CMS and public processes and emits the path of a temporary
+`browser-status.json` containing editor/preview/public URLs and identities, no credentials.
+The synthetic account email is `artifact@example.test`; enter its injected password
+through the browser login form. Only this disposable fixture is eligible for authoring
+checks. The hold ends after 15 minutes, an owned `browser-stop` file, SIGTERM/SIGINT,
+or owned process failure; existing cleanup removes fixture roots and stops owned
+processes. Caller-provisioned credential files remain the caller's cleanup responsibility.
+Normal `separation:test` does not hold or inherit this extra environment value.
 
 Observed final Mac arm64/Node 22.16.0 CMS build: 10.91 s wall, maximum resident set size
 3,530,178,560 bytes with 11 Next workers; no swaps. Fixture archive approximately 34 MB.

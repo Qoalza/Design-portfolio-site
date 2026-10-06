@@ -1,13 +1,14 @@
-import assert from 'node:assert/strict';import {createHash} from 'node:crypto';import {mkdtemp,rm,readFile,cp,writeFile} from 'node:fs/promises';import path from 'node:path';import os from 'node:os';import {fileURLToPath,pathToFileURL} from 'node:url';import {spawn} from 'node:child_process';import {createServer} from 'node:net';
+import assert from 'node:assert/strict';import {createHash} from 'node:crypto';import {mkdtemp,rm,readFile,cp,writeFile,access} from 'node:fs/promises';import path from 'node:path';import os from 'node:os';import {fileURLToPath,pathToFileURL} from 'node:url';import {spawn} from 'node:child_process';import {createServer} from 'node:net';
 const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 if(!process.argv.includes('--session')){
  const {realpath}=await import('node:fs/promises');
- const child=spawn(process.execPath,['--experimental-strip-types',fileURLToPath(import.meta.url),'--session'],{env:{PATH:process.env.PATH,TMPDIR:await realpath(os.tmpdir())},stdio:'inherit'});
+ const child=spawn(process.execPath,['--experimental-strip-types',fileURLToPath(import.meta.url),'--session',...(process.argv.includes('--browser-review')?['--browser-review']:[])],{env:{PATH:process.env.PATH,TMPDIR:await realpath(os.tmpdir()),...(process.argv.includes('--browser-review')?{PAYLOAD_FIXTURE_REVIEW_PASSWORD:process.env.PAYLOAD_FIXTURE_REVIEW_PASSWORD}:{})},stdio:'inherit'});
  const stop=()=>child.kill('SIGTERM');process.once('SIGINT',stop);process.once('SIGTERM',stop);
  process.exitCode=await new Promise((resolve,reject)=>{child.once('exit',code=>resolve(code??1));child.once('error',reject);});
  process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);
 }else{
 const temporary=os.tmpdir();
+if(process.argv.includes('--browser-review')&&!process.env.PAYLOAD_FIXTURE_REVIEW_PASSWORD)throw new Error('Browser review requires an injected ephemeral fixture password');
 const {packageCMS}=await import(repo+'/tools/payload-admin/scripts/package.mjs');const {prepare}=await import(repo+'/tools/payload-admin/scripts/database.mjs');const {locations,acquire}=await import(repo+'/tools/payload-admin/scripts/state.mjs');
 const {createPublicationCoordinator}=await import(repo+'/tools/portfolio-delivery/coordinator.mjs');const {createLoopbackProbe}=await import(repo+'/tools/portfolio-delivery/probe.mjs');
 const parent=await mkdtemp(path.join(temporary,'des-art-payload-test-package-proof-')),data=await mkdtemp(path.join(temporary,'des-art-payload-test-cms-package-')),state=locations(data);
@@ -39,7 +40,7 @@ try{
  await coordinator.initialize({prepared:{projects:[],assets:[],externalDependencies:[]},mapping:[]});
  let contentBefore=await readFile(path.join(publicRoot,'active.json'),'utf8');const launched=start();await(await ready(state.origin,'/admin/login',cms,launched.logs)).arrayBuffer();
  const health=await ready(state.origin,'/api/internal/cms-health',cms,launched.logs);const initialHealth=await health.json();assert.equal(initialHealth.supervisorPID,cms.pid);assert.deepEqual(initialHealth.cmsBuildId,cmsRelease.cmsBuildId);assert.equal(initialHealth.writerConfirmed,true);assert.equal(initialHealth.codeActivationSeq,0);
- const account={email:'artifact@example.test',password:'Fixture-password-'+Date.now()};let response=await fetch(state.origin+'/api/users/first-register',{method:'POST',headers:{'Content-Type':'application/json',Origin:state.origin},body:JSON.stringify(account)});assert.equal(response.status,200,await response.text());
+ const account={email:'artifact@example.test',password:process.env.PAYLOAD_FIXTURE_REVIEW_PASSWORD??('Fixture-password-'+Date.now())};let response=await fetch(state.origin+'/api/users/first-register',{method:'POST',headers:{'Content-Type':'application/json',Origin:state.origin},body:JSON.stringify(account)});assert.equal(response.status,200,await response.text());
  response=await fetch(state.origin+'/api/users/login',{method:'POST',headers:{'Content-Type':'application/json',Origin:state.origin},body:JSON.stringify(account)});assert.equal(response.status,200);const {token}=await response.json();
  response=await fetch(state.origin+'/api/projects?draft=true',{method:'POST',headers:{Authorization:'JWT '+token,'Content-Type':'application/json',Origin:state.origin},body:JSON.stringify({title:'Artifact independent saved draft'})});assert.equal(response.status,201,await response.clone().text());const saved=await response.json();
  const {exerciseNativeHTTP}=await import('./fixtures/separation-native-http.mjs');const {oldAssets,activeAssets,previewTarget}=await exerciseNativeHTTP({origin:state.origin,publicOrigin,token,publicRoot,renderer:publicManifest.renderer});contentBefore=await readFile(path.join(publicRoot,'active.json'),'utf8');
@@ -91,6 +92,13 @@ try{
  console.log('PASS: public cold restart while CMS is stopped preserves nonempty published HTML, all active/retained asset hashes, sitemap/robots and authored 404');
  const maintenanceCommand=child(maintenanceEntry,maintenanceEnv,['recover-activation']);assert.equal(await maintenanceCommand.end,0,maintenanceCommand.logs());assert.match(maintenanceCommand.logs(),/"recovered":true/);assert.ok(await readFile(path.join(data,'secret'),'utf8')===secret,'Fixture secret unchanged');assert.equal(await readFile(path.join(publicRoot,'active.json'),'utf8'),contentBefore);
  console.log('PASS: standalone packaged two processes with no Git/source tooling, schema/writer health, authenticated saved draft, journaled independent public/CMS reload ownership/epochs and restart/session/data/content preservation');
+ if(process.argv.includes('--browser-review')){
+  const reviewCMS=start(),reviewHealth=await(await ready(state.origin,'/api/internal/cms-health',cms,reviewCMS.logs)).json();assert.equal(reviewHealth.supervisorPID,cms.pid);assert.deepEqual(reviewHealth.cmsBuildId,cmsRelease.cmsBuildId);assert.equal(reviewHealth.writerConfirmed,true);assert.equal(reviewHealth.codeActivationSeq,10);
+  const reviewPublic=await(await ready(publicOrigin,'/__internal/health',site,independentRestart.logs)).json();assert.equal(reviewPublic.processId,site.pid);assert.deepEqual(reviewPublic.portfolioBuildId,publicRelease.portfolioBuildId);
+  const stopFile=path.join(parent,'browser-stop'),statusFile=path.join(parent,'browser-status.json');await writeFile(statusFile,JSON.stringify({fixture:true,publicOrigin,cmsOrigin:state.origin,publicPath:publishedRoutes[0],editorURL:state.origin+'/admin/collections/projects/'+previewTarget,previewURL:state.origin+'/preview/projects/'+previewTarget+'?mode=draft',portfolioBuildId:reviewPublic.portfolioBuildId,cmsBuildId:reviewHealth.cmsBuildId,rendererId:reviewPublic.rendererId,publicPID:site.pid,cmsPID:cms.pid,stopFile}));console.log('Authoring browser fixture ready: '+statusFile);
+  const deadline=Date.now()+15*60*1000;while(Date.now()<deadline){checkStop();if(site.exitCode!==null||cms.exitCode!==null)throw new Error('Owned browser review process exited');try{await access(stopFile);break;}catch(error){if(error.code!=='ENOENT')throw error;}await new Promise(resolve=>setTimeout(resolve,200));}
+ }
+
 }finally{
  await stopCMS();if(site&&site.exitCode===null){site.kill('SIGTERM');await siteEnd;}
  process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);
