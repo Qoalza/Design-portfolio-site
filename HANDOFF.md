@@ -54,6 +54,10 @@ authoring UI remain unverified; no full G6 acceptance claim. A3 cold public rest
 nonempty embedded published data, unchanged pointer and all HTML/resource hashes.
 Final extended separation:test, both current builds and root lint PASS; two reviews closed.
 Test fixture stopped/cleaned. G5 Linux native/service/resource proof still pending.
+Actual overlapping native HTTP A6 cases now PASS: different targets preserve both updates,
+identical operation commits once, competing IDs on one revision allow one commit.
+Exact native version and public activation counts checked. Both builds/root lint/full
+extended separation:test PASS; two reviews closed; owned fixture stopped/cleaned.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.
 Historical deployed c735f3151a297eccb2885e69c0a215143c2dfe2f is not fresh evidence.
