@@ -59,3 +59,6 @@ dist/Des-art Admin.app/Contents/_CodeSignature/
 
 /tools/payload-admin/.cms-builds/
 /tools/payload-admin/.cms-build-*.tsconfig.json
+
+# Independent generated CMS code artifacts
+tools/payload-admin/.cms-release/

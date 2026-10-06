@@ -13,7 +13,7 @@ export async function publicationRuntime(payload:Payload,user:User) {
  if(settings.server&&(publicRoot===settings.root||publicRoot.startsWith(settings.root+path.sep)))throw new PublicationError('public-root-is-private')
  await assertDirectory(publicRoot)
  const owner=await readJSON(settings.root+'-lock/owner.json',4096) as {pid?:number;childPID?:number;token?:string}
- if(!process.env.PAYLOAD_WRITER_TOKEN||owner.token!==process.env.PAYLOAD_WRITER_TOKEN||!owner.pid||!owner.childPID)throw new PublicationError('writer-lock-not-confirmed')
+ if(!process.env.PAYLOAD_WRITER_TOKEN||owner.token!==process.env.PAYLOAD_WRITER_TOKEN||owner.pid!==process.ppid||owner.childPID!==process.pid)throw new PublicationError('writer-lock-not-confirmed')
  try{process.kill(owner.pid,0);process.kill(owner.childPID,0)}catch{throw new PublicationError('writer-lock-not-confirmed')}
  const release=await readPortfolioRelease(releaseFile,{requireClean:settings.server})
  const native=createNativePublicationAdapter({payload,user,dataRoot:settings.root})

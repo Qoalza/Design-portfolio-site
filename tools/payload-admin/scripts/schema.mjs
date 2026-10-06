@@ -28,7 +28,7 @@ function namedTableDefinition(tokens) {
   parts.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
   return [...tokens.slice(0, start + 1), ...parts.flatMap((part, i) => i ? [',', ...part] : part), ...tokens.slice(end)]
 }
-export async function schemaHash(root, { legacy = false } = {}) {
+export async function schemaHash(root, { legacy = false, contractRoot = appRoot } = {}) {
   const file = path.join(root, 'cms.db')
   await regular(root, 'directory')
   await regular(file)
@@ -46,7 +46,7 @@ export async function schemaHash(root, { legacy = false } = {}) {
       .map(row => ({ ...row, sql: normalizeSQL(row.sql) }))
     const previous = createHash('sha256').update(JSON.stringify({ result, definitions })).digest('hex')
     if (legacy) return previous
-    const contract = await schemaContract()
+    const contract = await schemaContract(contractRoot)
     if (contract.history.some(item => !item.algorithm && item.hash === previous)) return previous
     // Payload accesses columns by name. ALTER ADD and fresh CREATE differ only in
     // physical column order; retain defaults, keys, indices, constraints and triggers.
@@ -55,10 +55,10 @@ export async function schemaHash(root, { legacy = false } = {}) {
     return createHash('sha256').update(JSON.stringify({ result: named, definitions: normalized })).digest('hex')
   } finally { db.close() }
 }
-export async function schemaContract() {
-  return JSON.parse(await readFile(path.join(appRoot, 'scripts/schema-history.json'), 'utf8'))
+export async function schemaContract(contractRoot = appRoot) {
+  return JSON.parse(await readFile(path.join(contractRoot, 'scripts/schema-history.json'), 'utf8'))
 }
-export async function requireCurrentSchema(root) {
-  const contract = await schemaContract()
-  if (await schemaHash(root) !== contract.current) throw new Error('Структура базы не соответствует этой версии админки. Остановите её и выполните npm run db:prepare; данные не изменены.')
+export async function requireCurrentSchema(root, {contractRoot = appRoot} = {}) {
+  const contract = await schemaContract(contractRoot)
+  if (await schemaHash(root, {contractRoot}) !== contract.current) throw new Error('Структура базы не соответствует этой версии админки. Остановите её и выполните npm run db:prepare; данные не изменены.')
 }

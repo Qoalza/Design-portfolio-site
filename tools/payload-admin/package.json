@@ -17,7 +17,8 @@
     "storage": "node scripts/storage.mjs",
     "db:prepare": "node scripts/database.mjs",
     "test:smoke": "node scripts/smoke.mjs",
-    "account:recover": "node scripts/account.mjs"
+    "account:recover": "node scripts/account.mjs",
+    "package": "node scripts/package.mjs"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "3.89.0",

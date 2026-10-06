@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { launchWriter } from './writer-process.mjs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { acquire, locations, appRoot } from './state.mjs'
@@ -17,15 +17,9 @@ async function main() {
     const confirmation = await prompt('Повторите пароль (ввод скрыт): ', { hidden: true })
     if (password !== confirmation || password.length < 12 || password.length > 128) throw new Error('Пароли должны совпадать и содержать от 12 до 128 символов. Ничего не изменено.')
     const id = await backup(state)
-    const child = spawn(process.execPath, ['--import', 'tsx', 'scripts/account-worker.ts'], {
-      cwd: appRoot, stdio: ['pipe', 'ignore', 'ignore'],
-      env: { ...process.env, ...(state.server?{PAYLOAD_DATA_ROOT:state.root,PAYLOAD_LOCAL_ROOT:''}:{PAYLOAD_LOCAL_ROOT:state.root}), PAYLOAD_SECRET: await readFile(path.join(state.root, 'secret'), 'utf8'), PAYLOAD_TEST_PUSH: '', NODE_ENV: 'production' },
+    const code = await launchWriter({lock,cwd:appRoot,execArgv:['--import','tsx'],entry:'scripts/account-worker.ts',stdio:['pipe','ignore','ignore'],input:JSON.stringify({email,password}),
+      env:{...process.env,...(state.server?{PAYLOAD_DATA_ROOT:state.root,PAYLOAD_LOCAL_ROOT:''}:{PAYLOAD_LOCAL_ROOT:state.root}),PAYLOAD_SECRET:await readFile(path.join(state.root,'secret'),'utf8'),PAYLOAD_TEST_PUSH:'',NODE_ENV:'production'},
     })
-    const completion = new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', code => resolve(code ?? 1)) })
-    await lock.child(child.pid)
-    child.stdin.end(JSON.stringify({ email, password }))
-    const code = await completion
-    await lock.child(null)
     if (code !== 0) throw new Error('Восстановление не завершено. Проверьте email учётной записи; резервная копия сохранена.')
     console.log(`Пароль изменён, прежние сеансы завершены. Резервная копия: ${id}`)
   } finally { await lock.release() }

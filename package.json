@@ -11,7 +11,11 @@
     "release:package": "node tools/portfolio-release/package-runtime.mjs",
     "portfolio:build": "node --experimental-strip-types tools/portfolio-runtime/build.mjs",
     "portfolio:start": "node .portfolio-release/portfolio/server.mjs",
-    "portfolio:package": "node --experimental-strip-types tools/portfolio-runtime/package.mjs"
+    "portfolio:package": "node --experimental-strip-types tools/portfolio-runtime/package.mjs",
+    "cms:build": "node tools/payload-admin/scripts/run.mjs build",
+    "cms:package": "node tools/payload-admin/scripts/package.mjs",
+    "cms:verify": "node tools/portfolio-runtime/verify-cms.mjs",
+    "separation:test": "node --experimental-strip-types tests/payload-packaged-runtime.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-icons": "1.3.2",
