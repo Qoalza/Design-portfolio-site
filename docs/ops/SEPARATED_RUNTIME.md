@@ -189,10 +189,12 @@ The harness uses a fresh whitelist child environment and disposable roots. It pa
 extracts/verifies CMS, starts two artifact processes, initializes a synthetic empty
 public generation, registers a fixture account, saves a draft and restarts CMS. It
 checks stable reload token/parent/actual writer exit/epoch and session/data/secret/content preservation and stops only its own processes.
-It also exercises native HTTP target-only Publish, private draft/preview and raw-file/API
+It also exercises actual saved-revision HTTP headers and native target-only Publish, private draft/preview and raw-file/API
 guards, completed retry, Unpublish/Delete empty delivery and old asset hashes while CMS
-is stopped. This remains a bounded proof: full browser/distinct-artifact/failure matrix
-on the exact final clean candidate and Linux native/systemd proof are still pending.
+is stopped. Distinct sourceDirty synthetic host-byte artifacts prove code-only update/rollback
+and explicit abort after failed public/CMS startup using real processes. They do not
+prove independent source builds or renderer fidelity. Full browser/failure matrix on
+the exact final clean candidate and Linux native/systemd proof are still pending.
 
 Observed final Mac arm64/Node 22.16.0 CMS build: 10.91 s wall, maximum resident set size
 3,530,178,560 bytes with 11 Next workers; no swaps. Fixture archive approximately 34 MB.
