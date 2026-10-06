@@ -5,7 +5,8 @@ import {createReleaseHandler} from '../portfolio-release/release-host.mjs';
 import {createGenerationReader} from '../portfolio-delivery/reader.mjs';
 import {renderedProjects,canonicalAssetPath} from '../portfolio-delivery/asset-resolution.mjs';
 
-export function createPortfolioHandler({siteRoot,contentRoot,renderer,portfolioBuildId}) {
+export function createPortfolioHandler({siteRoot,contentRoot,renderer,portfolioBuildId,codeActivationSeq=0}) {
+ if(!Number.isSafeInteger(codeActivationSeq)||codeActivationSeq<0)throw new Error('Invalid serving code activation sequence');
  const reader = createGenerationReader({root:contentRoot,renderer});
  const release = createReleaseHandler({root:siteRoot,readState:async () => {
   const active = await reader.readActive(),generation = active.generation;
@@ -39,8 +40,8 @@ export function createPortfolioHandler({siteRoot,contentRoot,renderer,portfolioB
     if (url.pathname === '/__internal/health') {const active=await reader.readActive({allowLastGood:false});contentId=active.generation.contentId;activationSeq=active.descriptor.activationSeq;contentRendererId=active.descriptor.rendererId;}
     else if (url.pathname === '/__internal/candidate') {const candidate=await reader.readGeneration(url.searchParams.get('contentId'));contentId=candidate.generation.contentId;}
     else return new Response(null,{status:404});
-    return new Response(request.method==='HEAD'?null:JSON.stringify({portfolioBuildId,rendererId:renderer.rendererId,contractVersion:renderer.contractVersion,contentId,activationSeq,contentRendererId}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
-   } catch {return Response.json({portfolioBuildId,rendererId:renderer.rendererId,error:'generation-unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
+    return new Response(request.method==='HEAD'?null:JSON.stringify({portfolioBuildId,codeActivationSeq,rendererId:renderer.rendererId,contractVersion:renderer.contractVersion,contentId,activationSeq,contentRendererId}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+   } catch {return Response.json({portfolioBuildId,codeActivationSeq,rendererId:renderer.rendererId,error:'generation-unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
   }
   try {return await release(request);} catch {return new Response(null,{status:503,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});}
  };

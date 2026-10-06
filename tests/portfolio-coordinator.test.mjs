@@ -199,11 +199,12 @@ test('code switch after native commit leaves content/map unchanged until explici
 test('health separates historical content renderer from current serving renderer/build; wrong code is never a content rollback signal',async()=>{
  const env=await environment(),servingRenderer={...renderer,rendererId:'c'.repeat(64)},portfolioBuildId={sourceSha:'d'.repeat(40),artifactSha256:'e'.repeat(64)};
  const {createPortfolioServer}=await import('../tools/portfolio-runtime/server.mjs'),{createLoopbackProbe}=await import('../tools/portfolio-delivery/probe.mjs');
- const server=createPortfolioServer({siteRoot:env.root,contentRoot:path.join(env.root,'public'),renderer:servingRenderer,portfolioBuildId});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ const server=createPortfolioServer({siteRoot:env.root,contentRoot:path.join(env.root,'public'),renderer:servingRenderer,portfolioBuildId,codeActivationSeq:7});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  try {
   const descriptor=(await env.coordinator.active()).descriptor,origin='http://127.0.0.1:'+server.address().port;
-  const current=createLoopbackProbe(origin,{portfolioBuildId});await current({kind:'active',descriptor,rendererId:servingRenderer.rendererId});
-  const health=await(await fetch(origin+'/__internal/health')).json();assert.equal(health.contentRendererId,renderer.rendererId);assert.equal(health.rendererId,servingRenderer.rendererId);
+  const current=createLoopbackProbe(origin,{portfolioBuildId,codeActivationSeq:7});await current({kind:'active',descriptor,rendererId:servingRenderer.rendererId});
+  const health=await(await fetch(origin+'/__internal/health')).json();assert.equal(health.contentRendererId,renderer.rendererId);assert.equal(health.rendererId,servingRenderer.rendererId);assert.equal(health.codeActivationSeq,7);
+  const stale=createLoopbackProbe(origin,{portfolioBuildId,codeActivationSeq:5});await assert.rejects(()=>stale({kind:'active',descriptor,rendererId:servingRenderer.rendererId}),error=>error.code==='code-conflict');await assert.rejects(()=>stale({kind:'candidate',contentId:descriptor.contentId,rendererId:servingRenderer.rendererId}),error=>error.code==='code-conflict');
   await assert.rejects(()=>current({kind:'active',descriptor,rendererId:renderer.rendererId}),error=>error.code==='code-conflict');
   const wrong=createLoopbackProbe(origin,{portfolioBuildId:{...portfolioBuildId,sourceSha:'f'.repeat(40)}});await assert.rejects(()=>wrong({kind:'active',descriptor,rendererId:servingRenderer.rendererId}),error=>error.code==='code-conflict');
  }finally{await new Promise(resolve=>server.close(resolve));await env.cleanup();}

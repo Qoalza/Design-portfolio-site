@@ -1,7 +1,8 @@
 import {open,constants,lstat} from 'node:fs/promises';import path from 'node:path';import {fileURLToPath} from 'node:url';
 import {readPortfolioRelease} from '../../portfolio-runtime/active-release.mjs';import {createGenerationReader} from '../../portfolio-delivery/reader.mjs';
 import {verifyCMSArtifact,canonical} from './artifact.mjs';import {locations,acquire,appRoot} from './state.mjs';import {requireCurrentSchema,schemaContract} from './schema.mjs';import {launchWriter} from './writer-process.mjs';
-export async function startCMSArtifact(){
+export async function startCMSArtifact({codeActivationSeq=0}={}){
+ if(!Number.isSafeInteger(codeActivationSeq)||codeActivationSeq<0)throw new Error('Invalid CMS code activation sequence');
  const state=locations();if(!state.server&&!state.fixture)throw new Error('Packaged CMS requires explicit server or disposable fixture mode');
  const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
  const manifest=await verifyCMSArtifact(root,{fixture:state.fixture});
@@ -23,7 +24,7 @@ export async function startCMSArtifact(){
   if(!/^[a-f0-9]{96}$/.test(secret))throw new Error('Invalid CMS secret');
   const env={NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',PAYLOAD_TELEMETRY_DISABLED:'1',HOSTNAME:'127.0.0.1',PORT:String(state.port),PAYLOAD_PORT:state.server?String(state.port):undefined,
    ...(state.fixture?{TMPDIR:path.dirname(state.root)}:{}),PAYLOAD_RUNTIME_MODE:state.mode,...(state.server?{PAYLOAD_DATA_ROOT:state.root,PAYLOAD_PUBLIC_URL:state.origin}:{PAYLOAD_LOCAL_ROOT:state.root}),PAYLOAD_SECRET:secret,
-   PAYLOAD_CODE_BUILD_DIR:manifest.buildDir,PAYLOAD_CMS_BUILD_ID:canonical(manifest.cmsBuildId),PAYLOAD_CMS_SCHEMA_HASH:manifest.schemaHash,
+   PAYLOAD_CODE_BUILD_DIR:manifest.buildDir,PAYLOAD_CMS_BUILD_ID:canonical(manifest.cmsBuildId),PAYLOAD_CMS_SCHEMA_HASH:manifest.schemaHash,PAYLOAD_CODE_ACTIVATION_SEQ:String(codeActivationSeq),
    PORTFOLIO_CONTENT_ROOT:process.env.PORTFOLIO_CONTENT_ROOT,PORTFOLIO_ACTIVE_RELEASE:process.env.PORTFOLIO_ACTIVE_RELEASE,PORTFOLIO_INTERNAL_ORIGIN:internal.origin};
   const code=await launchWriter({lock,cwd:appRoot,entry:path.join(appRoot,'server.js'),env});if(code!==0)process.exitCode=code;
  }finally{await lock.release();}
