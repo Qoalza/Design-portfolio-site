@@ -16,7 +16,10 @@ actual process epochs are implemented and verified;
 stable launchers and continuous CMS lifetime reload ownership are implemented;
 journaled controller/explicit abort/code-only rollback core are implemented;
 fixed service adapters/CLI and retained-artifact OPS templates are implemented locally.
-G6 full acceptance and gated G7 are not complete.
+G6 native HTTP publication/auth/preview/empty/retained-assets proof now passes on
+extracted two processes. Next duplicate route/RSC guard authority fixed with server
+process-global request-identity registry. Full G6 browser/distinct-code/failure acceptance
+and gated G7 are not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native
 publication fixture, full CMS suite including interactive account recovery, strict

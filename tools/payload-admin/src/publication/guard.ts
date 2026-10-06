@@ -2,8 +2,13 @@ import {APIError,type PayloadRequest,type CollectionBeforeOperationHook,type Col
 import type {PublicationIntent,NativeSource} from '../../../portfolio-delivery/coordinator.mjs'
 // The authority is request object identity. req.context and browser JSON cannot
 // manufacture it. Local API operations preserve this same request object.
-const trusted=new WeakMap<PayloadRequest,{intent:PublicationIntent;source:NativeSource}>()
-const drafts=new WeakSet<PayloadRequest>()
+type GuardState={trusted:WeakMap<PayloadRequest,{intent:PublicationIntent;source:NativeSource}>;drafts:WeakSet<PayloadRequest>}
+// Next may evaluate route and RSC/config copies of this server module separately.
+// Payload caches collection hooks process-wide, so authority must share that scope.
+// WeakMap keys remain exact server request identities; JSON cannot mint authority.
+const runtime=globalThis as typeof globalThis & {__payloadPublicationGuard?:GuardState}
+const state=runtime.__payloadPublicationGuard??= {trusted:new WeakMap(),drafts:new WeakSet()}
+const {trusted,drafts}=state
 export function authorizePublication(req:PayloadRequest,intent:PublicationIntent,source:NativeSource) {
  if(!req.user||String(req.user.id)!==intent.actor||req.payloadAPI!=='local')throw new APIError('Необходимо войти в админку.',401)
  trusted.set(req,{intent,source})
