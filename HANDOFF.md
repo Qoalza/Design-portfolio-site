@@ -102,8 +102,14 @@ with different owned supervisor PID/epoch10/writer confirmation. Original JWT re
 returns identical receipt; entire native DTO, version count and public pointer unchanged.
 Both builds at 6821d1b5, root/focused lint and complete extended separation:test PASS;
 wrapper exited 0/cleanup confirmed, two sequential reviews closed.
-Next: lost actual HTTP response/retry coverage audit, complete nested-frame network
-evidence, remaining final-candidate browser matrix and Linux proof.
+A6 discarded actual HTTP response body/retry guard PASS: full request sent, 200
+headers received, response/socket destroyed without reading publication body. Exactly
+one native version/activation observed; same intent replay matches actual receipt
+identity/content/seq, preserves version count/pointer. This tests body loss after
+headers, not an earlier server crash. Both builds at 58b9525e, root lint and complete
+extended separation:test PASS; wrapper exit 0/cleanup confirmed; two reviews closed.
+Next: complete nested-frame network evidence and full focused browser matrix,
+then final clean candidate matrix and Linux native/service/resource proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral
 environment, no value in Git/commands/logs. Previous credential deleted.

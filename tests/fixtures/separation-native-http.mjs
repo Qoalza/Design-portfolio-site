@@ -69,6 +69,22 @@ export async function exerciseNativeHTTP({origin,publicOrigin,token,publicRoot,r
  // The identical operation may arrive twice, but native save/activation occurs once.
  await saveTitle(docs[0],'Concurrent HTTP duplicate');const duplicateIntent=await intentFor(docs[0]),duplicateCount=await versionCount(docs[0]),beforeDuplicate=(await active()).descriptor;
  const duplicateResults=await Promise.all([json('/api/publications','POST',duplicateIntent),json('/api/publications','POST',duplicateIntent)]);assert.ok(duplicateResults.every(result=>result.status==='delivered'));assert.deepEqual(duplicateResults[0].receipt,duplicateResults[1].receipt);assert.equal(await versionCount(docs[0]),duplicateCount+1);assert.equal((await active()).descriptor.activationSeq,beforeDuplicate.activationSeq+1);
+ // Discard the actual HTTP response body after successful headers, then replay.
+ await saveTitle(docs[0],'Lost HTTP response');const lostHTTPIntent=await intentFor(docs[0]),beforeLostCount=await versionCount(docs[0]),beforeLostActive=(await active()).descriptor,lostBody=JSON.stringify(lostHTTPIntent);
+ await new Promise((resolve,reject)=>{
+  let discarded=false;
+  const publication=request(origin+'/api/publications',{method:'POST',headers:{...headers,'Content-Length':Buffer.byteLength(lostBody)}},response=>{
+   if(response.statusCode!==200){response.destroy();publication.destroy();reject(new Error('Publication did not succeed before response-body interruption'));return;}
+   discarded=true;response.destroy();publication.destroy();
+  });
+  const deadline=setTimeout(()=>{publication.destroy();reject(new Error('Lost-response publication exceeded its deadline'));},10000);
+  publication.on('error',()=>{if(!discarded)reject(new Error('Transport failed before publication response headers'));});
+  publication.on('close',()=>{clearTimeout(deadline);if(discarded)resolve();else reject(new Error('Publication closed before response-body interruption'));});
+  publication.end(lostBody);
+ });
+ const afterLostActive=(await active()).descriptor;assert.equal(await versionCount(docs[0]),beforeLostCount+1);assert.equal(afterLostActive.activationSeq,beforeLostActive.activationSeq+1);
+ const recoveredHTTP=await json('/api/publications','POST',lostHTTPIntent);assert.equal(recoveredHTTP.status,'delivered');assert.equal(recoveredHTTP.receipt.operationId,lostHTTPIntent.operationId);assert.equal(recoveredHTTP.receipt.contentId,afterLostActive.contentId);assert.equal(recoveredHTTP.receipt.activationSeq,afterLostActive.activationSeq);assert.equal(await versionCount(docs[0]),beforeLostCount+1);assert.deepEqual((await active()).descriptor,afterLostActive);
+ console.log('PASS: discarded actual HTTP publication response body replays without a duplicate native version or public activation');
  // Different operations captured from one saved revision cannot both commit.
  await saveTitle(docs[0],'Concurrent HTTP fenced');const competingIntent=await intentFor(docs[0]),competingOther={...competingIntent,operationId:'http_separation_'+String(++counter).padStart(16,'0')},competingCount=await versionCount(docs[0]),beforeCompeting=(await active()).descriptor;
  const competingResults=await Promise.all([competingIntent,competingOther].map(async intent=>{const response=await fetch(origin+'/api/publications',{method:'POST',headers,body:JSON.stringify(intent)});return {status:response.status,body:await response.json()};}));assert.deepEqual(competingResults.map(result=>result.status).sort(),[200,409]);assert.equal(competingResults.find(result=>result.status===200).body.status,'delivered');assert.equal(competingResults.find(result=>result.status===409).body.error,'stale-revision');assert.equal(await versionCount(docs[0]),competingCount+1);assert.equal((await active()).descriptor.activationSeq,beforeCompeting.activationSeq+1);assert.equal((await active()).generation.projects.find(project=>project.slug===source.projects[0].slug).title,'Concurrent HTTP fenced');
