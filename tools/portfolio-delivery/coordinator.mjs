@@ -168,6 +168,13 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
     }
     if((base.state.latest[intent.target]??0)>journal.sequence)throw new PublicationError('superseded');
     if(journal.phase==='committing') {
+     // A later native public mutation of the same stable target makes commit
+     // attribution ambiguous (particularly two deletes). Never resurrect it.
+     for(const name of await listJSON(journalRoot)) {
+      if(!/^[a-zA-Z0-9_-]{16,128}\.json$/.test(name))throw new PublicationError('invalid-journal');
+      const later=await readJSON(path.join(journalRoot,name));
+      if(later.sequence>journal.sequence&&later.intent.target===intent.target&&(later.committed||later.phase==='committing'))throw new PublicationError('superseded');
+     }
      const recovery=await native.recover(journal);
      if(recovery.state==='committed') {journal.committed=recovery.result;journal.phase='committed';}
      else if(recovery.state==='uncommitted') {journal.phase='intent';}
@@ -194,7 +201,7 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
      await fault('before-native',journal);
      // Adapter owns short native transaction, exact source recheck and access.
      // A thrown commit is ambiguous; only recovery may establish what happened.
-     journal.committed=await native.commit(intent,journal.source);journal.phase='committed';await save(journal);
+     journal.committed=await native.commit(intent,journal.source,async prepared=>{journal.nativePrepared=prepared;await save(journal);});journal.phase='committed';await save(journal);
      await fault('after-native',journal);
     }
     await promote(staging,built.candidate);await fault('candidate',journal);

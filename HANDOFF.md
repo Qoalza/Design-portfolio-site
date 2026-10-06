@@ -37,7 +37,14 @@ loopback reader probes, shared lock/CAS, rollback с монотонной sequen
 29 core/HTTP checks + 11 coordinator/probe checks (overlap), lint/type declarations/public build PASS.
 Fresh doubt review: receipt recovery, dead-owner race, retry rollback и lock release исправлены;
 последний проход без новых substantive findings. Dead recovery claim требует lifecycle maintenance G4.
-Следующее действие — G3b: native adapter, transaction/revision proof, API/UI guards и bridges.
+G3b: actual native adapter, revision/digest/historical selection, immediate short SQLite transaction,
+precommit durable checkpoint + postcommit fresh exact DB proof. Guards пока подключены только в fixture.
+Native fixture PASS с настоящими generated PNG/AVIF, checkpoint disk rollback, lost native commit response,
+no duplicate versions, target-only retry, restore/draft restore, bypass/bulk и incomplete Unpublish/Delete.
+30 shared/public checks, CMS/root lint/typecheck/declarations/public build PASS.
+Two native reviews: draft=true published bypass исправлен, финальный checkpoint/risk без findings.
+Следующее действие — G3c: API/UI/native affordance bridges и включение guards в действующую CMS.
+G2 временный browser fixture процесс корректно завершён; дальнейший browser proof создать заново.
 Полный план/acceptance/checkpoint: docs/exec-plans/portfolio-payload-separation.md.
 G3 целиком и G4–G7 пока не выполнены; текущий сайт/Admin ещё работают по прежней combined схеме.
 Свежий production preflight не выполнялся. Исторический deployed SHA c735f3151a297eccb2885e69c0a215143c2dfe2f не считать свежим подтверждением.

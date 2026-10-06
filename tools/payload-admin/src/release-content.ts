@@ -7,6 +7,7 @@ import { packageRecords, usesPackageFile } from './authoring/packages'
 import { materialRecords, usesMaterialFile } from './authoring/materials'
 import { withoutEditorState, withEditorState } from './authoring/hero'
 import {prepareRecordAssets} from './release-export'
+import {nativeDraftOperation,prevalidatedPublication} from './publication/guard'
 
 // Native Payload fields and versions remain the single content store.
 // The custom field edits this JSON boundary without a SQL schema change.
@@ -39,13 +40,14 @@ export const validateReleaseProject: CollectionBeforeChangeHook = async ({ data,
   if(records.length||packages.length) data.releaseAssets=[...assets.values()]
   if(packages.length) data.releaseExternalDependencies=[...new Set([...(effective.releaseExternalDependencies??[]).map((item:{url:string})=>item.url),...packages.flatMap(item=>item.externalDependencies)])].map(url=>({url}))
  }
- if (effective._status !== 'published' || !effective.releaseContent) return data
+ if (nativeDraftOperation(req) || effective._status !== 'published' || !effective.releaseContent) return data
  try {
   const input = withoutEditorState(effective.releaseContent)
   const normalized = validateProjectDocument({ ...withPublicAssetAliases(effective.slug,input) as Record<string,unknown>, title: effective.title, slug: effective.slug, visibility: 'published' })
   if(normalized.redesign?.hero.kind==='raster' && normalized.redesign.hero.slides.length>9) throw new Error('Too many screens')
   data.releaseContent = withEditorState(normalized, effective.releaseContent)
  } catch { throw new APIError('Данные проекта не готовы к публикации. Исправьте поля и входные данные Hero.', 400) }
+ if(prevalidatedPublication(req))return data
  try {
   const record={...originalDoc,...data} as Project
   const dataRoot=runtimeSettings().root

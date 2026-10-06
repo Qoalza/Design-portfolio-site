@@ -15,7 +15,7 @@ export interface TargetDelta {
 export interface PreparedDelta extends TargetDelta, NativeSource {}
 export interface PublicationJournal {
  version:1; intent:PublicationIntent; sequence:number; phase:string;
- source?:NativeSource; committed?:NativeCommit; activation?:ActiveDescriptor; base?:ActiveDescriptor;
+ source?:NativeSource; committed?:NativeCommit;nativePrepared?:NativeCommit; activation?:ActiveDescriptor; base?:ActiveDescriptor;
  receipt?:PublicationReceipt; error?:string;
 }
 export interface PublicationReceipt extends ActiveDescriptor {operationId:string;operationSeq:number}
@@ -28,7 +28,7 @@ export type ProbeRequest = {kind:'candidate';contentId:string;rendererId:string}
 export interface NativePublicationAdapter {
  current(intent:PublicationIntent):Promise<NativeState|null>;
  prepare(intent:PublicationIntent):Promise<PreparedDelta>;
- commit(intent:PublicationIntent,source:NativeSource):Promise<NativeCommit>;
+ commit(intent:PublicationIntent,source:NativeSource,checkpoint?:(prepared:NativeCommit)=>Promise<void>):Promise<NativeCommit>;
  delivery(journal:PublicationJournal):Promise<TargetDelta>;
  recover(journal:PublicationJournal):Promise<{state:'committed';result:NativeCommit}|{state:'uncommitted'|'ambiguous'}>;
 }

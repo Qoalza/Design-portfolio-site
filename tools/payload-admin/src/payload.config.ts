@@ -43,6 +43,7 @@ export default buildConfig({
   editor: lexicalEditor(),
   collections: [{...Users,auth:{cookies:{secure:settings.server,sameSite:'Lax'}}}, { ...Media, upload: { staticDir: path.join(dataRoot, 'media'), mimeTypes: ['image/png', 'image/jpeg', 'image/webp'], } }, { ...ProjectFiles, upload: { staticDir: path.join(dataRoot, 'project-files'), mimeTypes: ['text/html', 'text/css', 'text/javascript', 'application/javascript', 'application/json', 'image/svg+xml', 'image/avif', 'font/woff', 'font/woff2', 'font/ttf', 'font/otf', 'application/wasm'] } }, Projects],
   db: sqliteAdapter({
+    transactionOptions: { behavior: 'immediate' },
     client: { url: `file:${path.join(dataRoot, 'cms.db')}` },
     push: testRoot && process.env.PAYLOAD_TEST_PUSH === '1',
     migrationDir: path.join(directory, 'migrations'),
