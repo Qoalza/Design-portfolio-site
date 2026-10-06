@@ -96,9 +96,13 @@ Other target remains exactly identical. No-detail removes route/sitemap but keep
 DTO; original fixture baseline restored before later lifecycle checks. Both builds
 at 52251146, root/focused lint and full extended separation:test PASS; wrapper exit 0
 and cleanup confirmed; two sequential reviews closed.
-Coverage audit: actual CMS restart preserves session/draft/content, but completed
-publication retry after that real restart still needs an explicit HTTP/version check.
-Next: A6 completed-receipt replay after real CMS restart, complete nested-frame network
+A6 completed HTTP replay after real CMS restart now PASS: final delivered receipt
+bound to actual pointer, newer private draft saved, wrapper fully stopped/restarted
+with different owned supervisor PID/epoch10/writer confirmation. Original JWT retry
+returns identical receipt; entire native DTO, version count and public pointer unchanged.
+Both builds at 6821d1b5, root/focused lint and complete extended separation:test PASS;
+wrapper exited 0/cleanup confirmed, two sequential reviews closed.
+Next: lost actual HTTP response/retry coverage audit, complete nested-frame network
 evidence, remaining final-candidate browser matrix and Linux proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral

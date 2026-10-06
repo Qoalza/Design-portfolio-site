@@ -93,8 +93,8 @@ export async function exerciseNativeHTTP({origin,publicOrigin,token,publicRoot,r
  const sitemap=await fetch(publicOrigin+'/sitemap.xml',{headers:{Connection:'close'}});assert.equal(sitemap.status,200);assert.doesNotMatch(await sitemap.text(),/fixture-one|fixture-two/);
  console.log('PASS: native HTTP target-only Publish/private saved draft/preview/auth/raw guards/retry/Unpublish/Delete/empty/scoped resource hash retention');
  // Leave a real delivered project active for independent code-update acceptance.
- assert.equal((await publish(docs[0])).status,'delivered');
- const codeBaseline=await active();assert.equal(codeBaseline.generation.projects.length,1);assert.equal((await json('/api/media?limit=1')).totalDocs,mediaBefore);
+ const completedPublication=await publish(docs[0]);assert.equal(completedPublication.status,'delivered');
+ const codeBaseline=await active();assert.ok(completedPublication.receipt);assert.equal(completedPublication.receipt.operationId,completedPublication.operationId);assert.equal(completedPublication.receipt.contentId,codeBaseline.descriptor.contentId);assert.equal(completedPublication.receipt.activationSeq,codeBaseline.descriptor.activationSeq);assert.equal(codeBaseline.generation.projects.length,1);assert.equal((await json('/api/media?limit=1')).totalDocs,mediaBefore);
  const activeAssets=codeBaseline.generation.assets.map(asset=>({url:'/__content/'+codeBaseline.descriptor.contentId+asset.publicPath,hash:asset.sha256}));
- return {oldAssets,activeAssets,previewTarget:docs[0].id};
+ return {oldAssets,activeAssets,previewTarget:docs[0].id,completedPublication};
 }
