@@ -197,8 +197,13 @@ operations and competing operations on the same saved revision against actual na
 version/activation counts. Isolated temporary source repositories compile real public
 and CMS changes independently; old issued preview bytes remain available after the public
 update. Distinct synthetic failed-start artifacts additionally exercise code-only rollback
-and explicit abort using real processes. Full browser/failure matrix on the exact final
-clean candidate and Linux native/systemd proof are still pending.
+and explicit abort using real processes. The full automated failure/two-process matrix
+and the recorded browser routes passed on code candidate `7d67676`; physical Experience
+mouse/trackpad acceptance remains deferred by the user. Linux x64 builds, native
+publication and the full two-process matrix passed on clean source `bc0883f`
+(application code unchanged). Actual systemd-managed lifecycle remains unverified.
+See the [Linux evidence report](../../design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md)
+and [current checkpoint](../../HANDOFF.md) for exact identities and limits.
 
 For browser authoring acceptance, provision `PAYLOAD_FIXTURE_REVIEW_PASSWORD` through
 an ephemeral private environment mechanism without placing its value in source, command
@@ -215,15 +220,21 @@ Normal `separation:test` does not hold or inherit this extra environment value.
 
 Observed final Mac arm64/Node 22.16.0 CMS build: 10.91 s wall, maximum resident set size
 3,530,178,560 bytes with 11 Next workers; no swaps. Fixture archive approximately 34 MB.
-These measurements do not establish Linux resource requirements. Linux builder resource
-preflight and native startup proof are outstanding; do not add swap/change production
-limits or build on an active service host without the concrete plan gate.
+These Mac measurements do not establish Linux resource requirements. Subsequent Linux
+x64 builds and exact-archive native startup passed under emulation: public build peak
+518196 KiB, CMS build peak 3023316 KiB; warm idle process-tree RSS was respectively
+96904 KiB and 344180 KiB. These are bounded fixture measurements, not VPS capacity
+or load guarantees; details are in the Linux evidence report above. Do not add swap,
+change production limits or build on an active service host without the concrete plan gate.
 
 ## Remaining release gate
 
-G5 still needs actual Linux native/service/resource proof. Code controller and fixed service adapters are implemented;
-actual distinct-artifact rollback/failure acceptance remains part of G6.
-G6 needs the full two-process and browser acceptance matrix on the final exact candidate.
+G5 still needs actual systemd-managed lifecycle/UID/cgroup/closed-port proof; Linux
+x64 builds, eligible packaging, native startup, resource measurements and separate
+syntax checks passed. Code controller and fixed service adapters are implemented.
+G6 automated two-process update/rollback/failure and recorded browser routes passed;
+physical mouse/trackpad Experience acceptance is deferred, not PASS. The user declined
+further local launches on 2026-10-07; do not start new local test stands until resumed.
 G7 needs fresh deployed SHA, resource/backup/parity evidence, exact service/proxy/OS
 permissions delta and separately approved concrete transition. No sandbox data enters
 canonical content, Git or production. See the durable separation plan for stop-lines.
