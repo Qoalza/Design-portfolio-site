@@ -44,13 +44,16 @@ Vendored Lenis input identity gap fixed; actual vendor-only recompilation change
 Both builds, lint, artifact test and final extended separation proof PASS; two reviews closed.
 Actual Admin-only source build/update now verified without public rebuild/restart;
 release build typechecking decoupled from Portfolio test/OPS sources, full types still PASS.
-Next complete remaining final-candidate browser matrix and audit A3/A5/A6/A9 coverage.
+Next complete remaining final-candidate browser matrix and audit A5/A6/A9 coverage.
 Clean 5044aa6: both builds, full CMS suite, 46 delivery/lifecycle, 7 public/preview,
 230 renderer cases, root lint and extended two-process source-build proof PASS.
 Corvo/Sarafan public vs preview geometry matches at 1280×610; scene/screen controls
 checked, no loaded broken images or console warnings/errors. Browser fixture stopped
 (exit 0), own tabs removed and viewport reset. Physical wheel/trackpad and full
-authoring UI remain unverified; no full G6 acceptance claim. G5 Linux native/service/resource proof still pending.
+authoring UI remain unverified; no full G6 acceptance claim. A3 cold public restart with CMS supervisor/writer stopped now PASS: exact owned PID,
+nonempty embedded published data, unchanged pointer and all HTML/resource hashes.
+Final extended separation:test, both current builds and root lint PASS; two reviews closed.
+Test fixture stopped/cleaned. G5 Linux native/service/resource proof still pending.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.
 Historical deployed c735f3151a297eccb2885e69c0a215143c2dfe2f is not fresh evidence.
