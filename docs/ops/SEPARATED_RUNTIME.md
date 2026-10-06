@@ -220,5 +220,15 @@ the combined app, publish directly through native REST, or export snapshots from
 an inherited authoring root. They accept no arguments (`--keep` is rejected).
 The harness uses generated artifacts, fresh temporary fixture data and approved
 synthetic media, verifies owned process/build health before authenticated writes,
-and stops only its own processes. These commands do not build either application,
-access production settings, or prove Linux eligibility/final browser parity.
+and stops only its own processes. It also compiles committed synthetic source edits
+in disposable copies to prove public-only and Admin-only updates. Existing dependency
+versions are reused; the CMS copy requires about 1.4 GB for dependencies plus temporary
+build/package output. Git/build tools are used only in the fixture builder, never
+in the isolated serving processes. Baseline working-checkout artifacts must already
+exist. No production settings are read; Linux eligibility and final browser parity
+remain separate acceptance gates.
+
+CMS release build checks its source/runtime import graph with a generated TypeScript
+config. Run `npm --prefix tools/payload-admin run typecheck` separately for the full
+source/tests/OPS graph. The release build itself does not require Portfolio test or
+exporter sources.

@@ -22,7 +22,8 @@ process-global request-identity registry. G6 distinct synthetic host-code update
 passes for both processes; bounded disposable browser fixture and exact owner/build readiness before authenticated test writes
 are verified. Public 404 and published Sarafan private preview preliminarily checked;
 actual public-only source compiler update/new preview/retained old JS proof now passes;
-CMS-only source compiler build and full renderer browser parity, exact
+actual CMS-only source build/update now passes on nonempty delivery;
+full renderer browser parity, exact
 clean candidate and Linux proof remain. Gated G7 is not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native
@@ -41,7 +42,9 @@ points/builds/lints PASS and two reviews closed. Public-only actual source compi
 update/new+retained private preview proof PASS; original CMS process/build/draft unchanged.
 Vendored Lenis input identity gap fixed; actual vendor-only recompilation changes rendererId.
 Both builds, lint, artifact test and final extended separation proof PASS; two reviews closed.
-Next prove Admin-only source build without public rebuild/restart, and complete final-candidate
+Actual Admin-only source build/update now verified without public rebuild/restart;
+release build typechecking decoupled from Portfolio test/OPS sources, full types still PASS.
+Next complete final-candidate
 browser matrix. G5 Linux native/service/resource proof still pending.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.

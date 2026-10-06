@@ -15,7 +15,9 @@ export async function buildCMS({mode='build'}={}) {
  const buildId=randomUUID(),buildDir='.cms-builds/'+buildId,tsconfigFile='.cms-build-'+buildId+'.tsconfig.json'
  await mkdir(path.join(appRoot,buildDir),{recursive:true})
  const tsconfig=JSON.parse(await readFile(path.join(appRoot,'tsconfig.json'),'utf8'));
- tsconfig.include=[...tsconfig.include.filter(name=>!name.startsWith('.next/')),buildDir+'/types/**/*.ts',buildDir+'/dev/types/**/*.ts'];
+ // Release type checking follows the CMS runtime graph; full tests/OPS checking
+ // remains the separate typecheck command and cannot require Portfolio sources here.
+ tsconfig.include=['next-env.d.ts','src/**/*.ts','src/**/*.tsx',buildDir+'/types/**/*.ts',buildDir+'/dev/types/**/*.ts'];
  await writeFile(path.join(appRoot,tsconfigFile),JSON.stringify(tsconfig),{flag:'wx'});
  const git=promisify(execFile),repoRoot=path.resolve(appRoot,'../..');
  const {stdout:sourceSha}=await git('git',['rev-parse','HEAD'],{cwd:repoRoot});
