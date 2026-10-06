@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,cp,mkdir,writeFile,readFile,rm,readdir} from 'node:fs/promises';
+import {mkdtemp,cp,mkdir,writeFile,readFile,rm,readdir,realpath} from 'node:fs/promises';
 import {createServer} from 'node:net';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
+import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {createDeliveryGeneration} from '../tools/portfolio-delivery/contract.mjs';
 import {verifyPortfolioArtifact} from '../tools/portfolio-runtime/artifact.mjs';
@@ -19,12 +20,13 @@ async function publish(root,source,renderer,seq){
  await writeFile(path.join(root,'active.json'),JSON.stringify(descriptor));return gen;
 }
 test('unpacked artifact starts with plain Node, without checkout/CMS/compiler, and accepts content changes without rebuild',async()=>{
- const root=await mkdtemp('/private/tmp/portfolio-artifact-proof-'),unpacked=path.join(root,'release'),contentRoot=path.join(root,'content');let child,exited;
+ const root=await mkdtemp(path.join(await realpath(os.tmpdir()),'des-art-payload-test-public-artifact-')),unpacked=path.join(root,'release'),contentRoot=path.join(root,'content');let child,exited;
  try{
   await cp(sourceRoot,unpacked,{recursive:true});await mkdir(contentRoot);
   const manifest=await verifyPortfolioArtifact(unpacked),source=fixture(),a=await publish(contentRoot,source,manifest.renderer,1);
-  const files=await readdir(unpacked);assert.deepEqual(files.sort(),['preview','release-manifest.json','server.mjs','site']);
-  const serverBefore=await readFile(path.join(unpacked,'server.mjs'));assert.equal(serverBefore.includes('/Users/designer/'),false);
+  const files=await readdir(unpacked);assert.deepEqual(files.sort(),['ops','preview','release-manifest.json','server.mjs','site']);
+  assert.deepEqual((await readdir(path.join(unpacked,'ops'))).sort(),['active-start.mjs','code-cli.mjs']);
+  const serverBefore=await readFile(path.join(unpacked,'server.mjs'));assert.equal(serverBefore.includes('/Users/designer/'),false);assert.equal(serverBefore.includes('node:sqlite'),false);
   const port=await freePort(),url='http://127.0.0.1:'+port;
   child=spawn(process.execPath,['server.mjs'],{cwd:unpacked,env:{PORTFOLIO_CONTENT_ROOT:contentRoot,PORTFOLIO_PORT:String(port),NODE_ENV:'production'},stdio:['ignore','pipe','pipe']});
   let output='';child.stdout.on('data',data=>output+=data);child.stderr.on('data',data=>output+=data);

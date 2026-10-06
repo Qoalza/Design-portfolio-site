@@ -19,7 +19,9 @@ fixed service adapters/CLI and retained-artifact OPS templates are implemented l
 G6 native HTTP publication/auth/preview/empty/retained-assets proof now passes on
 extracted two processes. Next duplicate route/RSC guard authority fixed with server
 process-global request-identity registry. G6 distinct synthetic host-code updates/rollback/startup-failure explicit abort proof
-passes for both processes; actual independent source-build/renderer browser parity, exact
+passes for both processes; bounded disposable browser fixture and exact owner/build readiness before authenticated test writes
+are verified. Public 404 and published Sarafan private preview preliminarily checked;
+actual independent source-build/renderer browser parity, exact
 clean candidate and Linux proof remain. Gated G7 is not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native
@@ -33,8 +35,9 @@ or full G6 browser/failure acceptance. Temporary fixture processes are stopped.
 
 ## Next
 
-G5 maintenance: packaged exclusive-root unlock/recovery command implemented locally.
-Then Linux native/service/resource proof and exact final-candidate G6 harness/browser matrix.
+G6: adapt legacy smoke/release-proof to separated artifacts; prove actual independent
+source builds/new renderer without neighbor rebuild/restart; complete final-candidate
+browser matrix. G5 Linux native/service/resource proof still pending.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.
 Historical deployed c735f3151a297eccb2885e69c0a215143c2dfe2f is not fresh evidence.
