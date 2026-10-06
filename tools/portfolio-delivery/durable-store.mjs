@@ -2,7 +2,7 @@ import { constants, open, lstat, mkdir, rename, readdir, rm } from 'node:fs/prom
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { hostname } from 'node:os';
-import { canonicalJSON } from './contract.mjs';
+import { canonicalJSON, exactObject } from './contract.mjs';
 
 export async function assertDirectory(directory, {create=false, mode=0o700}={}) {
  const absolute=path.resolve(directory);
@@ -61,6 +61,9 @@ export async function withActivationLock(privateRoot,task) {
    await flushDirectory(prepared);
    // The destination is always nonempty once visible. POSIX rename cannot
    // replace another nonempty lock directory; ownership is installed atomically.
+   // Refuse even an empty unknown visible lock; rename would replace it.
+   let occupied=true;try{await lstat(destination);}catch(error){if(error.code!=='ENOENT')throw error;occupied=false;}
+   if(occupied){const error=new Error('Activation lock already exists');error.code='ENOTEMPTY';throw error;}
    await rename(prepared,destination);await flushDirectory(privateRoot);
   } finally {await rm(prepared,{recursive:true,force:true});}
  }
@@ -75,7 +78,9 @@ export async function withActivationLock(privateRoot,task) {
   await preparedLock(recovery,owner).catch(()=>{throw new Error('Activation lock recovery is busy.');});
   try {
    await assertDirectory(directory);
+   if(JSON.stringify((await readdir(directory)).sort())!==JSON.stringify(['owner.json']))throw new Error('Activation lock has unknown contents.');
    const dead=await readJSON(path.join(directory,'owner.json'),4096);
+   exactObject(dead,['pid','host','token'],'Activation owner');
    if(dead.host!==hostname()||!Number.isSafeInteger(dead.pid)||dead.pid<1||typeof dead.token!=='string'||!/^[a-f0-9-]{36}$/.test(dead.token))throw new Error('Activation lock has an unknown owner.');
    try {process.kill(dead.pid,0);throw new Error('Activation is busy.');}
    catch(error) {if(error.code!=='ESRCH')throw error;}

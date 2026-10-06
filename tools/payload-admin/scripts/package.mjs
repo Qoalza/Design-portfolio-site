@@ -22,6 +22,7 @@ export async function packageCMS({fixture=false,root,archive}={}){
   await bundle({entryPoints:[path.join(appRoot,'scripts/artifact-start.mjs')],outfile:path.join(targetScripts,'artifact-start.mjs'),bundle:true,platform:'node',format:'esm',target:'node22',packages:'bundle',sourcemap:false});
   await bundle({entryPoints:[path.join(appRoot,'scripts/active-start.mjs')],outfile:path.join(targetScripts,'active-start.mjs'),bundle:true,platform:'node',format:'esm',target:'node22',packages:'bundle',sourcemap:false});
   await bundle({entryPoints:[path.join(repoRoot,'tools/portfolio-runtime/code-cli.mjs')],outfile:path.join(targetScripts,'code-cli.mjs'),bundle:true,platform:'node',format:'esm',target:'node22',packages:'bundle',sourcemap:false});
+  await bundle({entryPoints:[path.join(appRoot,'scripts/artifact-maintenance.mjs')],outfile:path.join(targetScripts,'artifact-maintenance.mjs'),bundle:true,platform:'node',format:'esm',target:'node22',packages:'bundle',sourcemap:false});
   // Next standalone server.js is CommonJS even when the source app uses ESM.
   await writeFile(path.join(root,'package.json'),JSON.stringify({private:true,type:'commonjs'}));
   const schema=JSON.parse(await readFile(path.join(targetScripts,'schema-history.json'),'utf8'));

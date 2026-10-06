@@ -1,7 +1,7 @@
 # Independent runtime artifacts
 
 Local implementation checkpoint, 2026-10-06. Production has not switched. Fixed code activation/rollback commands and service templates are implemented locally.
-Linux CMS proof, maintenance command and complete G6 acceptance remain pending;
+Linux CMS proof and complete G6 acceptance remain pending;
 this file is not permission to change services, proxy, accounts or real data.
 
 ## Build and verify
@@ -151,6 +151,30 @@ fonts) and private preview to CMS, public pages to Portfolio, and deny both inte
 health namespaces. Installing users/units/proxy, assigning filesystem ownership and
 choosing actual ports is the concrete G7 delta; templates are not fresh production proof.
 
+## Packaged lock maintenance
+
+The CMS package includes `tools/payload-admin/scripts/artifact-maintenance.mjs`.
+Use the verified immutable package, explicit server runtime/data root/port environment,
+and a stopped CMS. It verifies package eligibility before lock changes:
+
+```sh
+node /absolute/cms-release/tools/payload-admin/scripts/artifact-maintenance.mjs unlock
+node /absolute/cms-release/tools/payload-admin/scripts/artifact-maintenance.mjs recover-activation
+```
+
+`unlock` retires an existing CMS root lock only when its local parent and child are
+proven dead and the configured loopback port is closed. `recover-activation` first
+acquires exclusive CMS root ownership. It can retire only a regular recovery-claim
+directory containing exactly a valid `owner.json` for a proven dead local PID; live,
+foreign, unknown or malformed claims remain. It then takes/releases the ordinary
+activation lock, safely recovering a dead activation owner or refusing a concurrent
+live controller. A competing code controller can cause a safe failure; retry only after
+checking its actual status. The command never reads the secret/authoring database,
+changes content pointers or performs schema/bootstrap/data restore. Existing restore
+journals block maintenance rather than being interpreted as authorization to restore.
+If CMS root ownership itself is stale, explicitly run `unlock` first. These operational
+commands do not authorize production mutations before the G7 gate.
+
 ## Disposable proof
 
 With current independent public and CMS builds:
@@ -175,8 +199,7 @@ limits or build on an active service host without the concrete plan gate.
 
 ## Remaining release gate
 
-G5 still needs the packaged exclusive-root maintenance command and actual Linux
-native/service/resource proof. Code controller and fixed service adapters are implemented;
+G5 still needs actual Linux native/service/resource proof. Code controller and fixed service adapters are implemented;
 actual distinct-artifact rollback/failure acceptance remains part of G6.
 G6 needs the full two-process and browser acceptance matrix on the final exact candidate.
 G7 needs fresh deployed SHA, resource/backup/parity evidence, exact service/proxy/OS

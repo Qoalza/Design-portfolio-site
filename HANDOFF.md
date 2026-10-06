@@ -29,8 +29,8 @@ or full G6 browser/failure acceptance. Temporary fixture processes are stopped.
 
 ## Next
 
-G5 maintenance: packaged exclusive-root unlock/recovery command. Then Linux
-native/service/resource proof and exact final-candidate G6 harness/browser matrix.
+G5 maintenance: packaged exclusive-root unlock/recovery command implemented locally.
+Then Linux native/service/resource proof and exact final-candidate G6 harness/browser matrix.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
 isolated work while awaiting it. No production preflight or transition performed.
 Historical deployed c735f3151a297eccb2885e69c0a215143c2dfe2f is not fresh evidence.

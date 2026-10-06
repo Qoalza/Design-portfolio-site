@@ -27,7 +27,7 @@ test('supervisor death terminates only its child and retains dead-owner lock for
  const supervisor=path.join(root,'parent.mjs');await writeFile(supervisor,`import {acquire} from ${JSON.stringify(stateURL)};import {launchWriter} from ${JSON.stringify(launchURL)};const lock=await acquire(${JSON.stringify(state)});try{await launchWriter({lock,cwd:${JSON.stringify(root)},entry:${JSON.stringify(entry)},env:{MARKER:${JSON.stringify(marker)}}});}finally{await lock.release();}`);
  const parent=spawn(process.execPath,[supervisor],{env:{},stdio:['ignore','ignore','pipe']});let stderr='';parent.stderr.on('data',chunk=>{stderr+=chunk;});t.after(()=>parent.kill('SIGKILL'));
  const completion=new Promise(resolve=>parent.once('exit',resolve));
- let pid;for(let i=0;i<200;i++){try{pid=Number(await readFile(marker,'utf8'));break;}catch{await new Promise(resolve=>setTimeout(resolve,10));}}
+ let pid;for(let i=0;i<200;i++){try{const candidate=Number(await readFile(marker,'utf8'));if(Number.isSafeInteger(candidate)&&candidate>0){pid=candidate;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,10));}
  assert.ok(pid,stderr);parent.kill('SIGKILL');await completion;
  let stopped=false;for(let i=0;i<200;i++){try{process.kill(pid,0);}catch(e){if(e.code==='ESRCH'){stopped=true;break;}throw e;}await new Promise(resolve=>setTimeout(resolve,10));}
  assert.ok(stopped,'orphan child exits after losing supervisor');await access(state.lock);await unlock(state);await absent(state.lock);

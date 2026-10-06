@@ -54,6 +54,9 @@ try{
  await stopCMS();const restarted=start();assert.equal((await(await ready(state.origin,'/api/internal/cms-health',cms,restarted.logs)).json()).codeActivationSeq,1);
  response=await fetch(state.origin+'/api/projects/'+saved.doc.id+'?draft=true',{headers:{Authorization:'JWT '+token}});assert.equal(response.status,200);assert.equal((await response.json()).title,'Artifact independent saved draft');
  assert.equal(await readFile(path.join(data,'secret'),'utf8'),secret);assert.equal(await readFile(path.join(publicRoot,'active.json'),'utf8'),contentBefore);
+ const maintenanceEntry=path.join(root,'tools/payload-admin/scripts/artifact-maintenance.mjs');const maintenanceEnv={TMPDIR:temporary,PAYLOAD_RUNTIME_MODE:'fixture',PAYLOAD_LOCAL_ROOT:data};
+ const busyMaintenance=child(maintenanceEntry,maintenanceEnv,['recover-activation']);assert.equal(await busyMaintenance.end,1,busyMaintenance.logs());
+ await stopCMS();const maintenanceCommand=child(maintenanceEntry,maintenanceEnv,['recover-activation']);assert.equal(await maintenanceCommand.end,0,maintenanceCommand.logs());assert.match(maintenanceCommand.logs(),/"recovered":true/);assert.equal(await readFile(path.join(data,'secret'),'utf8'),secret);assert.equal(await readFile(path.join(publicRoot,'active.json'),'utf8'),contentBefore);
  console.log('PASS: standalone packaged two processes with no Git/source tooling, schema/writer health, authenticated saved draft, journaled independent public/CMS reload ownership/epochs and restart/session/data/content preservation');
 }finally{
  await stopCMS();if(site&&site.exitCode===null){site.kill('SIGTERM');await siteEnd;}
