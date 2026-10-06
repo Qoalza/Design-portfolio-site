@@ -10,12 +10,12 @@ import styles from './CorvoProjectPage.module.css';
 
 function SiteHeader({project}){
  return <ProjectSiteHeader>
-  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={<img src={project.logo.src} width="16" height="16" alt="" aria-hidden="true"/>} className={styles.crumbProject} aria-current="page">{project.title}</ControlButton></nav></div>
+  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={project.logo&&<img src={project.logo.src} width="16" height="16" alt="" aria-hidden="true"/>} className={styles.crumbProject} aria-current="page">{project.title}</ControlButton></nav></div>
  </ProjectSiteHeader>;
 }
 
 function ProjectIntro({project}){
- return <ProjectTitleBlock name={project.title} logo={<img src={project.logo.src} width="44" height="44" alt=""/>} status={project.materials.projectState==='in_progress'?'В процессе подготовки':'Завершён'} tags={project.detailTags} description={project.subtitle} figmaHref={project.materials.fileState==='available'?project.materials.figmaUrl:undefined}/>;
+ return <ProjectTitleBlock name={project.title} logo={project.logo&&<img src={project.logo.src} width="44" height="44" alt=""/>} status={project.materials.projectState==='in_progress'?'В процессе подготовки':'Завершён'} tags={project.detailTags} description={project.subtitle} figmaHref={project.materials.fileState==='available'?project.materials.figmaUrl:undefined}/>;
 }
 
 function Notice({children,icon}){

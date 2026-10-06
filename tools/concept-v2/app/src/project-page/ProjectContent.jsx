@@ -26,6 +26,7 @@ export function CopyBlocks({blocks,sectionId,styles,Notice}){
  });
 }
 export function RadioProjectSymbol({logo,size}){
+ if(logo===undefined)return null;
  if(logo.type==='image')return <img src={logo.src} width={size??28} height={size??28} alt=""/>;
  return <span className="radio-symbol" {...(size?{style:{width:size,height:size,flexBasis:size}}:{})} aria-hidden="true">{logo.layers.map(({src,slot})=><span key={slot} className={`radio-logo-${slot}`}><img src={src} alt=""/>{slot!=='d'?<img src={`${src.slice(0,src.lastIndexOf('/'))}/radio-logo-mask-${slot}.svg`} alt=""/>:null}</span>)}</span>;
 }

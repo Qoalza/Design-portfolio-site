@@ -44,14 +44,17 @@ Vendored Lenis input identity gap fixed; actual vendor-only recompilation change
 Both builds, lint, artifact test and final extended separation proof PASS; two reviews closed.
 Actual Admin-only source build/update now verified without public rebuild/restart;
 release build typechecking decoupled from Portfolio test/OPS sources, full types still PASS.
-Next fix confirmed renderer optional-logo crash before resuming UI acceptance:
-ProjectDocument.logo is optional; RadioProjectSymbol unconditionally reads logo.type.
-Actual browser editor Save + reload preserves a changed fixture title, public title stays
-old and preview shell has draft title; both rendered synthetic pages crash without logo.
-Publish button not executed. Add focused regression/optional-logo handling and repeat UI.
-Bounded --browser-review fixture is implemented, two reviews closed; builds/lint/headless
-proof PASS, owned hold stopped with exit 0 and cleanup, one-time credential deleted.
-Then complete remaining final-candidate browser matrix and audit A5/A6/A9 coverage.
+Optional-logo renderer crash fixed across Radio/Corvo detail+breadcrumbs/catalog.
+Actual SSR regression reproduced both absent-logo failures, now passes and preserves
+present image/layered markup. 231 renderer cases, public+preview build and both lints PASS;
+two reviews closed. Built public synthetic page now displays without console errors;
+renderer e4ceea6c47ad3ea86db69bc125cd2a1506236d5497371a4f0361d510356f31b6.
+Owned diagnostic fixtures stopped (exit 0), roots/script/tabs cleaned.
+Next repeat private preview and Publish-button UI with this renderer, then remaining
+final-candidate browser matrix and A5/A6/A9 coverage audit. Earlier UI Save/reload passed;
+Publish was stopped before execution due to the now-fixed renderer error.
+Bounded --browser-review fixture available; provision password through private ephemeral
+environment, no value in Git/commands/logs. Previous credential deleted.
 Clean 5044aa6: both builds, full CMS suite, 46 delivery/lifecycle, 7 public/preview,
 230 renderer cases, root lint and extended two-process source-build proof PASS.
 Corvo/Sarafan public vs preview geometry matches at 1280×610; scene/screen controls

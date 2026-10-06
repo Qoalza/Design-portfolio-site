@@ -71,7 +71,7 @@ test('Corvo breadcrumbs use true SVG system icons and preserve the color logo',a
   readFile(path.join(root,'public/figma/imgProjectCorvo.svg'),'utf8'),
  ]);
  assert.match(page,/<ControlButton variant="ghost" iconLeft="imgColor" iconOnly/);
- assert.match(page,/iconLeftNode=\{<img src=\{project\.logo\.src\}/);
+ assert.match(page,/iconLeftNode=\{(?:project\.logo&&)?<img src=\{project\.logo\.src\}/);
  assert.match(controls,/dangerouslySetInnerHTML:svg/);
  assert.doesNotMatch(page,/V2Button|v2\/Controls/);
  assert.match(corvoLogo,/fill="#2A6E52"/);
