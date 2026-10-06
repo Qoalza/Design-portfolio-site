@@ -11,6 +11,20 @@
 
 ## Execution checkpoint — 2026-10-06
 
+### Linux x64 candidate checkpoint
+
+Clean source `bc0883f5d84812b36463e0427f3aa144c60a892a` (application code unchanged
+from `7d67676`): actual Docker x64/glibc/Node22 builds, clean eligible code packaging,
+19 lifecycle/adapter cases, native publication, full two-process independent update/
+rollback/cold restart harness PASS. Saved exact code archives startup and warm idle RSS,
+separate build wall/RSS/disk measurements, Linux UID DAC probe and systemd252/Nginx
+syntax checks PASS. Read-only VPS preflight establishes x86_64/glibc2.39/Node22.23.2/
+systemd255/cgroupv2. Full actual systemd lifecycle/UID/cgroup/closed-port proof is
+still missing; no production mutations. G7/A12 remains separately gated.
+User trackpad observation reports excessive speed; mouse not available. Loaded
+scroll parameters/travel match baseline; physical acceptance remains open pending
+runtime diagnosis. [Linux report](../../design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md).
+
 ### Final local automated candidate checkpoint
 
 Чистый code candidate `7d6767607d12dd3e0b4d42f9a02ee54fc00ec66f`: обе независимые

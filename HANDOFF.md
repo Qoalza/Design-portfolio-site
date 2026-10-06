@@ -8,11 +8,11 @@ Branch: codex/cms-integration. Baseline ce3e80fd4c45d1f16c808f80c1f3e1686702e99c
 ## Checkpoint
 
 G0–G4 реализованы локально. G5 code packaging/lifetime/health, monotonic activation,
-fixed service adapters, independent controller/rollback реализованы; actual Linux
-native/service/resource proof отсутствует. G6 автоматическая matrix и перечисленный
+fixed service adapters, independent controller/rollback реализованы; Linux x64 native/build/package/resource proof now PASS; actual systemd lifecycle
+proof remains absent. G6 автоматическая matrix и перечисленный
 в отчёте browser маршрут PASS на чистом code candidate
 7d6767607d12dd3e0b4d42f9a02ee54fc00ec66f. Полная G1–G6 приёмка НЕ завершена:
-остаётся physical mouse/trackpad Experience и Linux proof. G7 не выполнялся.
+остаётся physical mouse/trackpad Experience и actual systemd lifecycle proof. G7 не выполнялся.
 
 Обе сборки, full separated harness, 231 renderer tests, 43 contract/lifecycle cases,
 17 host/artifact/writer cases, full CMS suite, strict CMS types, root/CMS lint,
@@ -31,19 +31,26 @@ Documentation checkpoint не является новой проверенной
 
 ## Next / blockers
 
-- Docker discovered at /Applications/Docker.app/Contents/Resources/bin/docker.
-  Local desktop-linux engine: Linux aarch64. Both Linux source builds and extracted
-  native CMS startup PASS on source 16f3e39c8445705c22ebba1d3c15b0d848d52273.
-  Container des-art-payload-separation-local runs synthetic fixtures for two hours.
-  Admin http://127.0.0.1:41741/admin; Portfolio http://127.0.0.1:41742/.
-  Fixture login: /fixture-login; random credential stays only in worker memory.
-  Safe launcher metadata: /private/tmp/separation-docker-launch.json.
-  Target architecture/libc compatibility and systemd/service/resource proof remain
-  unverified. Docker startup does not close full G5. Do not use production as builder.
-- Нужен результат physical mouse/trackpad Experience. Вопрос уже отправлен;
-  старый loopback стенд истёк; новый bounded Docker fixture доступен по адресу выше.
-- Не повторять зелёные local suites без новых изменений/concerns. После выбора
-  Linux среды сверить exact candidate/source и выполнить необходимые target proofs.
+- Docker local desktop-linux is available. Clean source bc0883f5d84812b36463e0427f3aa144c60a892a:
+  x64 Linux builds, eligible code packages, 19 lifecycle/adapter cases, actual native
+  publication, full separated two-process integration, syntax systemd/Nginx checks,
+  DAC isolation, build resources and exact-archive warm idle RSS PASS.
+  Evidence: design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md.
+  Read-only VPS: x86_64/glibc2.39/Node22.23.2/systemd255/cgroupv2. No mutation.
+  Actual managed systemd lifecycle/cgroup/UID/closed-port proof remains unverified;
+  separate isolated systemd environment is needed. G7 installation stays gated.
+- ARM browser fixture des-art-payload-separation-local remains available for its
+  bounded two-hour lifetime: Admin http://127.0.0.1:41741/admin;
+  Portfolio http://127.0.0.1:41742/. Safe launch metadata /private/tmp/separation-docker-launch.json.
+  Random credential remains worker-memory-only; /fixture-login performs normal sign-in.
+  All separate x64 proof fixtures completed exit 0; code-only archives are retained
+  at /private/tmp/des-art-payload-test-linux-amd64-qylb49c2, temporary retention only.
+- User reports trackpad Experience feels too fast; mouse unavailable. Loaded JS
+  retains smoothWheel:true/lerp0.1/wheelMultiplier1 and unchanged travel; Lenis enabled.
+  Root cause is unconfirmed. Browser used for physical observation requested;
+  awaiting answer. Do not tune parameters speculatively or mark physical checks PASS.
+- Не повторять зелёные local suites без новых изменений/concerns. For further Linux
+  proofs preserve exact source/artifact identity and isolate from the live server.
 - Не считать локальные PASS доказательством полной G6/G7 готовности.
 
 ## Stop-lines
@@ -62,4 +69,5 @@ Code rollback сохраняет authoring DB/secret/history и active content.
 - docs/requirements/portfolio-payload-separation.md
 - docs/ops/SEPARATED_RUNTIME.md
 - design-reference/portfolio-payload-separation-local-7d67676/REPORT.md
+- design-reference/portfolio-payload-separation-linux-bc0883f/REPORT.md
 - tools/portfolio-delivery, tools/portfolio-runtime, tools/payload-admin/scripts
