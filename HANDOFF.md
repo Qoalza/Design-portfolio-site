@@ -59,8 +59,12 @@ This evidence uses only the disposable synthetic project; no production publicat
 Actual HTTP rejection slice PASS: truncated PNG returns 400 with media count unchanged;
 separate unsupported-block draft Publish returns 409 delivery-failed, draft/version count
 and public HTML digest unchanged. This does not prove interrupted multipart or full A5.
-Next: durable rejection regression coverage, remaining final-candidate browser matrix
-and A5/A6/A9 coverage audit.
+Durable HTTP rejection slice added to existing separated artifact harness: exact 400/409
+errors, unchanged media/native versions/active pointer, intact delivered asset hashes.
+Both independent builds at source 1de27358, root lint and extended separation:test PASS;
+wrapper exited 0, own fixture cleaned. Two sequential reviews closed without findings.
+Next: preview expiry/isolation evidence, interrupted-upload/fault coverage audit,
+remaining final-candidate browser matrix and Linux proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral
 environment, no value in Git/commands/logs. Previous credential deleted.
@@ -68,8 +72,8 @@ Clean 5044aa6: both builds, full CMS suite, 46 delivery/lifecycle, 7 public/prev
 230 renderer cases, root lint and extended two-process source-build proof PASS.
 Corvo/Sarafan public vs preview geometry matches at 1280×610; scene/screen controls
 checked, no loaded broken images or console warnings/errors. Browser fixture stopped
-(exit 0), own tabs removed and viewport reset. Physical wheel/trackpad and full
-authoring UI remain unverified; no full G6 acceptance claim. A3 cold public restart with CMS supervisor/writer stopped now PASS: exact owned PID,
+(exit 0), own tabs removed and viewport reset. Physical wheel/trackpad and remaining
+authoring flows remain unverified; no full G6 acceptance claim. A3 cold public restart with CMS supervisor/writer stopped now PASS: exact owned PID,
 nonempty embedded published data, unchanged pointer and all HTML/resource hashes.
 Final extended separation:test, both current builds and root lint PASS; two reviews closed.
 Test fixture stopped/cleaned. G5 Linux native/service/resource proof still pending.
