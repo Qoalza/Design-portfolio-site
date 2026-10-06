@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
+import {mkdir,writeFile} from 'node:fs/promises'
+import {preparePreviewRelease} from '../src/preview'
+import {artifactFiles} from '../../portfolio-runtime/artifact.mjs'
 import sharp from 'sharp'
 import {createHash} from 'node:crypto'
 import {getPayload,createLocalReq,restoreVersionOperation} from 'payload'
@@ -10,7 +13,7 @@ import {captureDraftResponse} from '../src/publication/rest-save'
 import {boundedPublicationJSON} from '../src/publication/http'
 import {createNativePublicationAdapter,authorDigest} from '../src/publication/native'
 import {createPublicationCoordinator,PublicationError,type PublicationIntent} from '../../portfolio-delivery/coordinator.mjs'
-import {DELIVERY_CAPABILITIES} from '../../portfolio-delivery/contract.mjs'
+import {DELIVERY_CAPABILITIES,canonicalJSON,contentHash} from '../../portfolio-delivery/contract.mjs'
 import {fixture} from '../../../tests/fixtures/portfolio-delivery.mjs'
 import type {Project} from '../src/payload-types'
 const root=path.resolve(process.env.PAYLOAD_LOCAL_ROOT!)
@@ -44,7 +47,7 @@ try {
  for(const project of source.projects)projects.push(await payload.create({collection:'projects',user,overrideAccess:false,draft:true,data:{title:project.title,slug:project.slug,releaseContent:project as unknown as Record<string,unknown>,releaseAssets:source.assets.filter(asset=>asset.publicPath.startsWith(`/assets/projects/${project.slug}/`)).map(asset=>({publicPath:asset.publicPath,file:files.get(asset.sha256)!})),_status:'draft'}}))
  const native=createNativePublicationAdapter({payload,user,dataRoot:root})
  const renderer={rendererId:'a'.repeat(64),contractVersion:'public-delivery-v1' as const,capabilities:DELIVERY_CAPABILITIES}
- const publicRoot=path.join(root,'public-delivery'),privateRoot=path.join(root,'private-delivery')
+ const publicRoot=path.join(root,'public-delivery'),privateRoot=path.join(root,'delivery')
  const {createGenerationReader}=await import('../../portfolio-delivery/reader.mjs')
  const reader=createGenerationReader({root:publicRoot,renderer})
  let fail=false
@@ -53,6 +56,16 @@ try {
   if(request.kind==='candidate')await reader.readGeneration(request.contentId);else assert.deepEqual((await reader.readActive({allowLastGood:false})).descriptor,request.descriptor)
  }})
  await coordinator.initialize({prepared:{projects:[],assets:[],externalDependencies:[]},mapping:[]})
+ const artifactRoot=path.join(root,'code-artifact')
+ for(const file of ['server.mjs','site/index.html','preview/index.html']){await mkdir(path.dirname(path.join(artifactRoot,file)),{recursive:true});await writeFile(path.join(artifactRoot,file),'Synthetic renderer fixture')}
+ const codeFiles=await artifactFiles(artifactRoot),portfolioBuildId={sourceSha:'b'.repeat(40),artifactSha256:contentHash(canonicalJSON({files:codeFiles,renderer}))}
+ await writeFile(path.join(artifactRoot,'release-manifest.json'),JSON.stringify({version:1,portfolioBuildId,renderer,sourceDirty:true,files:codeFiles}))
+ const releaseFile=path.join(root,'active-code.json')
+ await writeFile(releaseFile,JSON.stringify({version:1,artifactRoot,portfolioBuildId,renderer}))
+ await mkdir(root+'-lock');const token='owned-fixture-writer-token'
+ await writeFile(path.join(root+'-lock','owner.json'),JSON.stringify({pid:process.ppid,childPID:process.pid,token}))
+ process.env.PAYLOAD_WRITER_TOKEN=token;process.env.PORTFOLIO_CONTENT_ROOT=publicRoot;process.env.PORTFOLIO_ACTIVE_RELEASE=releaseFile;process.env.PORTFOLIO_INTERNAL_ORIGIN='http://127.0.0.1:41742/'
+
  let counter=0
  async function intent(target:number,operation:PublicationIntent['operation']='publish',selectedVersionId?:string) {
   const current=(await native.inspect(String(target)))!
@@ -114,6 +127,11 @@ try {
  await payload.update({collection:'projects',id:projects[0].id,user,overrideAccess:false,draft:true,data:{title:'Updated title',_status:'draft'}})
  const chosen=await intent(projects[0].id);fail=true
  const pending=await coordinator.execute(chosen);assert.equal(pending.status,'pending',JSON.stringify(pending))
+ const publishedPreview=(await preparePreviewRelease({payload,user,id:chosen.target,mode:'published',dataRoot:root}))!
+ assert.equal(publishedPreview.projects.find(project=>project.slug===projects[0].slug)!.title,projects[0].title)
+ const selectedPreview=(await preparePreviewRelease({payload,user,id:String(projects[1].id),mode:'draft',dataRoot:root}))!
+ assert.equal(selectedPreview.projects.find(project=>project.slug===projects[0].slug)!.title,projects[0].title)
+
  assert.deepEqual(await coordinator.nativeReplay({actor:String(user.id),target:chosen.target,operation:'publish'}),chosen)
  await assert.rejects(()=>coordinator.retry(chosen.operationId,'999'),error=>error instanceof PublicationError&&error.code==='operation-owner-conflict')
  await assert.rejects(()=>coordinator.retry('missing_operation_123456',String(user.id)),error=>error instanceof PublicationError&&error.code==='operation-not-found')
@@ -162,8 +180,16 @@ try {
  assert.equal((await coordinator.execute(await intent(projects[0].id))).status,'delivered')
  // Incomplete draft does not need ready assets to unpublish/delete.
  await payload.update({collection:'projects',id:projects[0].id,user,overrideAccess:false,draft:true,data:{releaseContent:null,releaseAssets:[],_status:'draft'}})
+ const incompletePublished=(await preparePreviewRelease({payload,user,id:String(projects[0].id),mode:'published',dataRoot:root}))!
+ assert.equal(incompletePublished.projects.find(project=>project.slug===projects[0].slug)!.title,projects[0].title)
  assert.equal((await coordinator.execute(await intent(projects[0].id,'unpublish'))).status,'delivered')
- assert.equal((await coordinator.execute(await intent(projects[1].id,'delete'))).status,'delivered')
+ const deleteIntent=await intent(projects[1].id,'delete');fail=true
+ assert.equal((await coordinator.execute(deleteIntent)).status,'pending')
+ assert.equal(await native.inspect(deleteIntent.target),null)
+ const deletedPublished=(await preparePreviewRelease({payload,user,id:deleteIntent.target,mode:'published',dataRoot:root}))!
+ assert.equal(deletedPublished.projects.find(project=>project.slug===projects[1].slug)!.title,projects[1].title)
+ assert.equal(await preparePreviewRelease({payload,user,id:deleteIntent.target,mode:'draft',dataRoot:root}),null)
+ fail=false;assert.equal((await coordinator.execute(deleteIntent)).status,'delivered')
  assert.equal((await coordinator.active()).generation.projects.length,0)
  assert.equal((await coordinator.status({actor:String(user.id),target:String(projects[1].id)}))[0].operation,'delete')
  console.log('PASS: native revision/transaction, target-only pending retry, guard/bulk, normalization, historical/draft restore, incomplete unpublish/delete and empty delivery')

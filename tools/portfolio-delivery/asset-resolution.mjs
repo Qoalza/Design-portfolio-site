@@ -17,11 +17,15 @@ export function canonicalAssetPath(generation, scoped) {
 }
 // Map only manifest-owned exact URL values, including package bases. No string rewriting
 // of text, external URLs, immutable package bytes or authoring documents occurs.
-export function renderedProjects(generation) {
- const urls = new Map(generation.assets.map(asset => [asset.publicPath,prefix(generation) + asset.publicPath]));
- for (const project of generation.projects) if (project.redesign.hero.kind === 'layout') for (const scene of project.redesign.hero.scenes) if (scene.source.kind === 'package') urls.set(scene.source.assetBase,prefix(generation) + scene.source.assetBase);
+export function renderedProjects(generation,base=prefix(generation)) {
+ if(!/^\/(?:__content|api\/preview-artifacts)\/[a-f0-9]{64}$/.test(base))throw new Error('Invalid resource presentation namespace.');
+ const urls = new Map(generation.assets.map(asset => [asset.publicPath,base + asset.publicPath]));
+ for (const project of generation.projects) if (project.redesign.hero.kind === 'layout') for (const scene of project.redesign.hero.scenes) if (scene.source.kind === 'package') urls.set(scene.source.assetBase,base + scene.source.assetBase);
  function map(value,key) {
-  if (typeof value === 'string') return ['src','href','assetBase'].includes(key) ? urls.get(value) ?? value : value;
+  if (typeof value === 'string') {
+   if(base.startsWith('/api/preview-artifacts/')&&key==='href'&&/^\/projects(?:\/|$)/.test(value))return base+value;
+   return ['src','href','assetBase'].includes(key) ? urls.get(value) ?? value : value;
+  }
   if (Array.isArray(value)) return value.map(child => map(child,key));
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key,child]) => [key,map(child,key)]));
   return value;

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict'
 import {mkdtemp,readFile,writeFile,rm} from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import {compilePreview,scopeValue} from '../scripts/preview/compiler.mjs'
-import {exportApprovedRedesign} from '../../concept-v2/export-approved-content.mjs'
-const repoRoot=path.resolve(import.meta.dirname,'../../..')
+import {compilePreview,scopeValue} from '../tools/portfolio-runtime/preview-compiler.mjs'
+import {exportApprovedRedesign} from '../tools/concept-v2/export-approved-content.mjs'
+const repoRoot=path.resolve(import.meta.dirname,'..')
 const base='/api/preview-artifacts/'+ 'a'.repeat(64)+'/'
 test('private path mapping preserves external links and geometry',()=>{
  const source={src:'/assets/project.png',href:'https://example.test',anchor:'#x',width:4096,hero:{adaptives:['desktop']}}

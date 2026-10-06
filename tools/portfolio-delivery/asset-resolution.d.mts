@@ -5,5 +5,5 @@ declare const presentationOnly: unique symbol;
 export type RenderedProjectDTO = ProjectDocument & { readonly [presentationOnly]: true };
 export function scopedAssetPath(generation: DeliveryGeneration,canonical: string): string;
 export function canonicalAssetPath(generation: DeliveryGeneration,scoped: string): string;
-export function renderedProjects(generation: DeliveryGeneration): RenderedProjectDTO[];
+export function renderedProjects(generation: DeliveryGeneration,base?:string): RenderedProjectDTO[];
 export function scopedProjectImageSource(generation: DeliveryGeneration,image: ProjectImage): { fallback: string; sources: Array<{type: string; srcSet: string}> };

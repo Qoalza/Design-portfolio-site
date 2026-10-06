@@ -55,7 +55,7 @@ export async function acquire(state, { allowJournal = false } = {}) {
     if (!allowJournal && await exists(state.journal)) throw new Error('Восстановление было прервано. Выполните npm run storage -- recover.')
   } catch (error) { await release(); throw error }
   return {
-    release,
+    token,release,
     async child(pid) {
       childPID = pid
       await writeFile(ownerFile, JSON.stringify({ pid: process.pid, token, childPID }), { mode: 0o600 })

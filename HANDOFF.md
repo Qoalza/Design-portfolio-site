@@ -70,3 +70,14 @@ CMS suite, typecheck, root/CMS lint и public build PASS. Два review с ис�
 Next: G4 independent CMS build/runtime + active public generation/renderer preview; перед
 API runtime требуется lifecycle PAYLOAD_WRITER_TOKEN, не создавать lock из HTTP handler.
 G5 artifacts/code release, G6 full acceptance и gated G7 остаются.
+
+G4 checkpoint: независимый CMS build в unique `.cms-builds/UUID`, separate transient
+TypeScript config, whitelist fixture environment; local start captures concrete build, child
+получает lifetime writer token. Public routes исключены, fonts byte-identical в payload-assets.
+Preview: active projection + stable-ID target overlay, captured active renderer без compiler
+fallback; published preview сохраняется при incomplete draft/pending native delete.
+Standalone CMS build/source hash/route+trace audit PASS; actual native preview fixture,
+3 private preview tests, 2 renderer compiler tests, 28 public regressions, full CMS suite,
+typecheck, root/CMS lint и public build PASS. Source tsconfig не менялся.
+Next: G5 independent artifacts/package/verify/code activation+rollback and lock protocol;
+G6 actual two-process/browser/failure lifecycle acceptance pending. G7 exact production gate.

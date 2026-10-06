@@ -56,3 +56,6 @@ dist/Des-art Admin.app/Contents/_CodeSignature/
 # Licensed Corvo reference fonts stay local and must never enter Git history.
 /tools/corvo-responsive-scenes/site/assets/fonts/*
 /tools/corvo-responsive-scenes/archive/tt-norms/local-fonts/*
+
+/tools/payload-admin/.cms-builds/
+/tools/payload-admin/.cms-build-*.tsconfig.json

@@ -1,7 +1,7 @@
 /* Typography and section styles reused from Portfolio at 8a6d214; preview-only layout adaptations. */
 @font-face {
   font-family: "Google Sans";
-  src: url("/fonts/google-sans-cyrillic.woff2") format("woff2");
+  src: url("/payload-assets/fonts/google-sans-cyrillic.woff2") format("woff2");
   font-style: normal;
   font-weight: 400 500;
   font-display: swap;
@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: "Google Sans";
-  src: url("/fonts/google-sans-latin.woff2") format("woff2");
+  src: url("/payload-assets/fonts/google-sans-latin.woff2") format("woff2");
   font-style: normal;
   font-weight: 400 500;
   font-display: swap;
@@ -19,7 +19,7 @@
 
 @font-face {
   font-family: "Onest";
-  src: url("/fonts/onest-variable.woff2") format("woff2");
+  src: url("/payload-assets/fonts/onest-variable.woff2") format("woff2");
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
@@ -27,7 +27,7 @@
 
 @font-face {
   font-family: "Source Code Pro";
-  src: url("/fonts/source-code-pro-variable.woff2") format("woff2");
+  src: url("/payload-assets/fonts/source-code-pro-variable.woff2") format("woff2");
   font-style: normal;
   font-weight: 200 900;
   font-display: swap;
