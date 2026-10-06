@@ -50,9 +50,18 @@ present image/layered markup. 231 renderer cases, public+preview build and both 
 two reviews closed. Built public synthetic page now displays without console errors;
 renderer e4ceea6c47ad3ea86db69bc125cd2a1506236d5497371a4f0361d510356f31b6.
 Owned diagnostic fixtures stopped (exit 0), roots/script/tabs cleaned.
-Next repeat private preview and Publish-button UI with this renderer, then remaining
-final-candidate browser matrix and A5/A6/A9 coverage audit. Earlier UI Save/reload passed;
-Publish was stopped before execution due to the now-fixed renderer error.
+Clean 2797d210 public/CMS artifacts and full extended two-process headless proof PASS.
+Actual UI Save/reload/private preview/Publish now PASS with fixed renderer: saved
+`UI saved draft` survives reload, preview renders it without console errors, while
+public remains `Private changed draft`. Direct Publish of unsaved title
+`UI published directly` updates the independent public page without console errors.
+This evidence uses only the disposable synthetic project; no production publication.
+Actual HTTP rejection slice PASS: truncated PNG returns 400 with media count unchanged;
+separate unsupported-block draft Publish returns 409 delivery-failed, draft/version count
+and public HTML digest unchanged. This does not prove interrupted multipart or full A5.
+Next: durable rejection regression coverage, remaining final-candidate browser matrix
+and A5/A6/A9 coverage audit.
+Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral
 environment, no value in Git/commands/logs. Previous credential deleted.
 Clean 5044aa6: both builds, full CMS suite, 46 delivery/lifecycle, 7 public/preview,
