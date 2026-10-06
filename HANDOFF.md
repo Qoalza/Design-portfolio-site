@@ -32,9 +32,14 @@ Browser preliminary proof: главная, Corvo, Sarafan и 404 на approved-G
 source 258e95b2a7720499c7a74ec7602c8608b8c58200, не production data baseline.
 Обнаруженный JPEG под avatar.png сохраняется без перекодирования; delivery MIME actual.
 Финальный G2 build PASS; 26/26 focused/regression checks + 1/1 artifact proof PASS.
-Следующая группа — G3 native delivery coordinator.
+G3a реализован отдельно: target-only coordinator core + durable journal/state/history, idempotency,
+loopback reader probes, shared lock/CAS, rollback с монотонной sequence. Native/UI ещё не подключены.
+29 core/HTTP checks + 11 coordinator/probe checks (overlap), lint/type declarations/public build PASS.
+Fresh doubt review: receipt recovery, dead-owner race, retry rollback и lock release исправлены;
+последний проход без новых substantive findings. Dead recovery claim требует lifecycle maintenance G4.
+Следующее действие — G3b: native adapter, transaction/revision proof, API/UI guards и bridges.
 Полный план/acceptance/checkpoint: docs/exec-plans/portfolio-payload-separation.md.
-G3–G7 пока не выполнены; текущий сайт/Admin ещё работают по прежней combined схеме.
+G3 целиком и G4–G7 пока не выполнены; текущий сайт/Admin ещё работают по прежней combined схеме.
 Свежий production preflight не выполнялся. Исторический deployed SHA c735f3151a297eccb2885e69c0a215143c2dfe2f не считать свежим подтверждением.
 
 ## Stop-lines
