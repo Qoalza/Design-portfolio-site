@@ -11,6 +11,19 @@
 
 ## Execution checkpoint — 2026-10-06
 
+### Actual systemd discovery — 2026-10-07
+
+The real systemd252 guest started both applications and proved public/private unit
+filesystem isolation, but adapter readiness rejected missing Exec hook fields.
+A diagnostic comparison confirms that even `systemctl show --all` omits empty Exec
+arrays, matching the official v252 serializer. The adapter now confirms all six
+hook arrays directly through fixed `busctl get-property` typed empty results before
+accepting omitted names; unknown, mistyped and nonempty values still fail closed.
+New regression/adjacent lifecycle 20/20, root lint and public build PASS. Two
+sequential bounded reviews have no confirmed findings. Actual lifecycle proof is
+running with the updated source helper and prior bc0883f application archives;
+final fixed-source Linux package identities and actual lifecycle remain pending.
+
 ### Linux x64 candidate checkpoint
 
 Clean source `bc0883f5d84812b36463e0427f3aa144c60a892a` (application code unchanged

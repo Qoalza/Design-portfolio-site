@@ -137,8 +137,10 @@ service settings, actual process UID and PID-correlated health before mutations.
 Public releases restart only the public unit; CMS releases signal only its stable
 supervisor with SIGUSR2. A stopped service must have no remaining cgroup processes and
 an explicitly refused loopback connection. Unknown ownership/profile fails closed.
-Linux target requires systemd 252 or newer, cgroup v2 and compatible Node 22; confirm
-these in the actual preflight. Systemd property/command references:
+Linux target requires systemd 252 or newer, `/usr/bin/busctl`, cgroup v2 and compatible
+Node 22; confirm these in the actual preflight. Empty Exec hook arrays are omitted by
+`systemctl show` even with `--all`; the adapter directly queries their typed D-Bus
+values using fixed `busctl get-property` arguments and requires every array to be empty. Systemd property/command references:
 [systemctl documentation](https://www.freedesktop.org/software/systemd/man/latest/systemctl.html)
 and [v252 show serializer](https://github.com/systemd/systemd/blob/v252/src/systemctl/systemctl-show.c).
 

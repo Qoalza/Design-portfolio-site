@@ -31,6 +31,13 @@ Documentation checkpoint не является новой проверенной
 
 ## Next / blockers
 
+- Actual systemd252 proof found that `systemctl show` omits empty Exec hook arrays
+  even with --all. Adapter now directly requires six typed empty D-Bus arrays via
+  fixed /usr/bin/busctl before accepting omitted fields. New regression and adjacent
+  lifecycle suite 20/20, root lint and public build PASS; two sequential reviews have
+  no confirmed findings. Current VM verifies this source helper against previous
+  bc0883f app archives; final fixed-source Linux code archives still need rebuilding.
+
 - Docker local desktop-linux is available. Clean source bc0883f5d84812b36463e0427f3aa144c60a892a:
   x64 Linux builds, eligible code packages, 19 lifecycle/adapter cases, actual native
   publication, full separated two-process integration, syntax systemd/Nginx checks,

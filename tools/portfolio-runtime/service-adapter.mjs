@@ -10,13 +10,19 @@ export function validateServiceConfig(value,app){
  const origin=new URL(value.origin);if(origin.protocol!=='http:'||origin.hostname!=='127.0.0.1'||!origin.port||origin.pathname!=='/'||origin.username||origin.password||origin.search||origin.hash)throw new Error('Fixed loopback service origin required');
  return structuredClone(value);
 }
-export function createServiceAdapter({app,config,run=async args=>(await execute('/usr/bin/systemctl',args,{timeout:45000,maxBuffer:65536,env:{PATH:'/usr/bin:/bin',LC_ALL:'C'}})).stdout,fetchHealth=fetch,readCgroup=file=>readFile(file,'utf8'),resolveUID=async user=>Number((await execute('/usr/bin/id',['-u',user],{timeout:2000,maxBuffer:4096,env:{PATH:'/usr/bin:/bin',LC_ALL:'C'}})).stdout.trim()),readUIDs=async pid=>{const status=await readFile('/proc/'+pid+'/status','utf8'),match=status.match(/^Uid:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/m);if(!match)throw new Error('Managed process credentials unavailable');return match.slice(1).map(Number);},timeoutMs=45000}){
+export function createServiceAdapter({app,config,run=async args=>(await execute('/usr/bin/systemctl',args,{timeout:45000,maxBuffer:65536,env:{PATH:'/usr/bin:/bin',LC_ALL:'C'}})).stdout,runBus=async args=>(await execute('/usr/bin/busctl',args,{timeout:45000,maxBuffer:65536,env:{PATH:'/usr/bin:/bin',LC_ALL:'C'}})).stdout,fetchHealth=fetch,readCgroup=file=>readFile(file,'utf8'),resolveUID=async user=>Number((await execute('/usr/bin/id',['-u',user],{timeout:2000,maxBuffer:4096,env:{PATH:'/usr/bin:/bin',LC_ALL:'C'}})).stdout.trim()),readUIDs=async pid=>{const status=await readFile('/proc/'+pid+'/status','utf8'),match=status.match(/^Uid:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/m);if(!match)throw new Error('Managed process credentials unavailable');return match.slice(1).map(Number);},timeoutMs=45000}){
  const fixed=validateServiceConfig(config,app);let uid;
- const hooks=['ExecCondition','ExecStartPre','ExecStartPost','ExecReload','ExecStop','ExecStopPost','OnFailure','OnSuccess'];
+ const execHooks=['ExecCondition','ExecStartPre','ExecStartPost','ExecReload','ExecStop','ExecStopPost'];const hooks=[...execHooks,'OnFailure','OnSuccess'];
  async function service(){
   const properties=['LoadState','ActiveState','SubState','MainPID','ControlPID','ExecMainStartTimestampMonotonic','ExecStart','FragmentPath','DropInPaths','User','KillMode','Type','Restart','EnvironmentFiles','ControlGroup','ExecStartEx','FailureAction','SuccessAction','Group','NoNewPrivileges','ProtectSystem','ProtectHome','PrivateTmp','CapabilityBoundingSet','AmbientCapabilities',...hooks];
   const output=await run(['show',fixed.unit,'--no-pager','--property='+properties.join(',')]);const value={};
   for(const line of output.trim().split('\n')){const i=line.indexOf('=');if(i<1||Object.hasOwn(value,line.slice(0,i)))throw new Error('Service identity is uncertain');value[line.slice(0,i)]=line.slice(i+1);}
+  // systemctl omits empty Exec arrays even with --all. Confirm their typed
+  // emptiness through D-Bus; never interpret a missing property as permission.
+  const hookOutput=await runBus(['--system','--no-pager','get-property','org.freedesktop.systemd1',`/org/freedesktop/systemd1/unit/art_2ddes_2d${app}_2eservice`,'org.freedesktop.systemd1.Service',...execHooks]);
+  const hookValues=typeof hookOutput==='string'?hookOutput.trim().split('\n'):[];
+  if(hookValues.length!==execHooks.length||hookValues.some(line=>line.trim()!=='a(sasbttttuii) 0'))throw new Error('Managed service lifecycle hooks are uncertain or nonempty');
+  for(const name of execHooks)if(!Object.hasOwn(value,name))value[name]='';
   if(properties.some(name=>!Object.hasOwn(value,name)))throw new Error('Incomplete service identity');
   const extended=[...value.ExecStartEx.matchAll(/\{\s*path=([^;]+);\s*argv\[\]=([^;]+);\s*flags=([^;]*);/g)];
   const starts=[...value.ExecStart.matchAll(/argv\[\]=([^;]+);/g)],executables=[...value.ExecStart.matchAll(/\{\s*path=([^;]+);/g)];
