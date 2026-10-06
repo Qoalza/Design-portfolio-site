@@ -35,12 +35,12 @@ export function createPortfolioHandler({siteRoot,contentRoot,renderer,portfolioB
   if (url.pathname.startsWith('/__internal/')) {
    if (!['GET','HEAD'].includes(request.method)) return new Response(null,{status:405,headers:{Allow:'GET, HEAD'}});
    try {
-    let contentId,activationSeq;
-    if (url.pathname === '/__internal/health') {const active=await reader.readActive({allowLastGood:false});contentId=active.generation.contentId;activationSeq=active.descriptor.activationSeq;}
+    let contentId,activationSeq,contentRendererId;
+    if (url.pathname === '/__internal/health') {const active=await reader.readActive({allowLastGood:false});contentId=active.generation.contentId;activationSeq=active.descriptor.activationSeq;contentRendererId=active.descriptor.rendererId;}
     else if (url.pathname === '/__internal/candidate') {const candidate=await reader.readGeneration(url.searchParams.get('contentId'));contentId=candidate.generation.contentId;}
     else return new Response(null,{status:404});
-    return new Response(request.method==='HEAD'?null:JSON.stringify({portfolioBuildId,rendererId:renderer.rendererId,contractVersion:renderer.contractVersion,contentId,activationSeq}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
-   } catch {return new Response(null,{status:503,headers:{'Cache-Control':'no-store'}});}
+    return new Response(request.method==='HEAD'?null:JSON.stringify({portfolioBuildId,rendererId:renderer.rendererId,contractVersion:renderer.contractVersion,contentId,activationSeq,contentRendererId}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+   } catch {return Response.json({portfolioBuildId,rendererId:renderer.rendererId,error:'generation-unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
   }
   try {return await release(request);} catch {return new Response(null,{status:503,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});}
  };

@@ -16,7 +16,7 @@ export interface TargetDelta {
 export interface PreparedDelta extends TargetDelta, NativeSource {}
 export interface PublicationJournal {
  version:1; intent:PublicationIntent; sequence:number; phase:string;
- source?:NativeSource; committed?:NativeCommit;nativePrepared?:NativeCommit; activation?:ActiveDescriptor; base?:ActiveDescriptor;
+ preparedCode?:unknown;source?:NativeSource; committed?:NativeCommit;nativePrepared?:NativeCommit; activation?:ActiveDescriptor; base?:ActiveDescriptor;
  receipt?:PublicationReceipt; error?:string;
 }
 export interface PublicationReceipt extends ActiveDescriptor {operationId:string;operationSeq:number}
@@ -25,7 +25,7 @@ export interface PublicationStatus {
 }
 export interface PrivateProjectMapping {target:string;slug:string;externalDependencies:string[]}
 export interface PrivateActiveMap {descriptor:ActiveDescriptor;projects:PrivateProjectMapping[];latest:Record<string,number>}
-export type ProbeRequest = {kind:'candidate';contentId:string;rendererId:string} | {kind:'active';descriptor:ActiveDescriptor};
+export type ProbeRequest = {kind:'candidate';contentId:string;rendererId:string} | {kind:'active';descriptor:ActiveDescriptor;rendererId?:string};
 export interface NativePublicationAdapter {
  current(intent:PublicationIntent):Promise<NativeState|null>;
  prepare(intent:PublicationIntent):Promise<PreparedDelta>;
@@ -38,6 +38,7 @@ export class ReadinessRejected extends Error {constructor()}
 export function validateIntent(value:unknown):PublicationIntent;
 export function createPublicationCoordinator(options:{
  publicRoot:string;privateRoot:string;renderer:RendererManifest;native:NativePublicationAdapter;
+ codeIdentity?:{expected:unknown;read:()=>Promise<unknown>};
  probe:(request:ProbeRequest)=>Promise<void>;fault?:(point:string,journal:PublicationJournal)=>Promise<void>;
 }):{
  execute(input:PublicationIntent):Promise<PublicationStatus>;

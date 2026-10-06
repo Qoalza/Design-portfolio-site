@@ -1,6 +1,6 @@
 # Implementation Plan: независимый выпуск Portfolio и Payload Admin
 
-**Статус:** In progress — реализация разрешена 2026-10-06; G0 подтверждён, G1 завершён; G2 завершён.
+**Статус:** In progress — реализация разрешена 2026-10-06; G0–G4 реализованы локально; G5 in progress; G6/G7 pending.
 **Версия:** 1.0 · 2026-10-06.  
 **Классификация:** PORTFOLIO + ADMIN + SHARED + OPS · LARGE · HIGH · FULL.  
 **Репозиторий:** Qoalza/Design-portfolio-site.  
@@ -40,6 +40,7 @@
 - CMS preview cache связан с renderer ID/root; защищённый renderer status и existing private toolbar показывают stale code без CMS restart. 30-minute capability TTL, cache bounds, no-store/no-referrer/noindex, sandbox/CSP и immutable package bytes сохранены. Preview compiler/tests перенесены к Portfolio owner.
 - G4 проверки: standalone CMS build PASS без dynamic-root tracing warning; CMS-only route manifest, 24 generated trace manifests without private-state paths, source hash и отсутствие source tsconfig mutation подтверждены. Actual Payload preview pending other publication/incomplete draft/native pending delete PASS. 3 preview runtime/projection tests, 2 moved renderer compiler tests, 28 relevant public regressions, full CMS suite, CMS typecheck/root+CMS lint и public build PASS. Public rendererId остался `5fc2d26110cf6b0eb24394c6a54f1edb285262afcc9b8478f7f80193a983607f`.
 - G4 два bounded reviews: исправлены native-record dependence published preview, overlapping running build output, internal preview links; third-cycle source discovery — separate build TypeScript config, final actual build/source-hash check PASS. G3/G4 full browser lifecycle acceptance ещё впереди G6.
+- G5a: serving code identity отделена от content activation provenance. Code-only update сохраняет active content descriptor/sequence/private map. Publication checks captured exact code before native commit and activation; code conflicts remain pending, never trigger content rollback. Active health reports both actual build/renderer and historical content renderer. 29 focused regressions, actual native fixture, typecheck/root+CMS lint/public build PASS; two read-only implementation reviews without findings. G5b packaging/lifecycle/code activation and Linux native proof remain pending.
 - Далее G5: exact code artifacts/package/verify/release-rollback, descriptor/lock protocol и OPS/resource proof. G6–G7 не выполнены. Production switch требует exact release/service/proxy gate из G7.
 
 ## 1. Результат и подтверждённая база

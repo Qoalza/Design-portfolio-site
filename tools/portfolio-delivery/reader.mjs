@@ -56,7 +56,9 @@ export function createGenerationReader({root,renderer}) {
  async function readActive({allowLastGood=true}={}) {
   try {
    const descriptor = validateActiveDescriptor(JSON.parse(await safeFile(root,'active.json',4096)));
-   if (descriptor.rendererId !== supported.rendererId) throw new Error('Active renderer identity mismatch.');
+   // Descriptor rendererId records content-activation provenance. A code-only
+   // release uses its own renderer identity and validates compatible generation
+   // capabilities without modifying the content pointer or private map.
    if (lastGood && descriptor.activationSeq < lastGood.descriptor.activationSeq) throw new Error('Stale activation sequence.');
    if (lastGood && descriptor.activationSeq === lastGood.descriptor.activationSeq && descriptor.contentId !== lastGood.descriptor.contentId) throw new Error('Conflicting activation sequence.');
    if (allowLastGood && lastGood && descriptor.activationSeq === lastGood.descriptor.activationSeq && descriptor.contentId === lastGood.descriptor.contentId) return lastGood;

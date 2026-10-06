@@ -11,7 +11,7 @@ const hash=value=>contentHash(canonicalJSON(value));
 async function environment({empty=false}={}) {
  const root=await mkdtemp('/private/tmp/publication-coordinator-'),publicRoot=path.join(root,'public'),privateRoot=path.join(root,'private');
  const source=fixture(),records=new Map(source.projects.map((project,index)=>[String(index+1),{project:structuredClone(project),status:'draft',version:1}])),commits=new Map();
- let writes=0,fail=null;
+ let writes=0,fail=null,liveCode={build:'code-a'};
  const current=intent=>{const row=records.get(intent.target);return row?{revision:hash({version:row.version,status:row.status,project:row.project}),digest:hash(row.project)}:null;};
  const delta=(row)=>({project:structuredClone(row.project),assets:source.assets.filter(asset=>asset.publicPath.startsWith(`/assets/projects/${row.project.slug}/`)),externalDependencies:[]});
  const native={
@@ -39,8 +39,8 @@ async function environment({empty=false}={}) {
   if(request.kind==='active'){assert.deepEqual(handle.descriptor,request.descriptor);if(fail==='active-rejected'&&request.descriptor.activationSeq>0)throw new ReadinessRejected();}
   else assert.equal(handle.generation.contentId,request.contentId);
  };
- const fault=async point=>{if(point===fail)throw new Error('Injected '+point);};
- const make=()=>createPublicationCoordinator({publicRoot,privateRoot,renderer,native,probe,fault});
+ const fault=async point=>{if(fail==='code-after-native'&&point==='after-native'){liveCode={build:'code-b'};return;}if(point===fail)throw new Error('Injected '+point);};
+ const make=({servingRenderer=renderer}={})=>createPublicationCoordinator({publicRoot,privateRoot,renderer:servingRenderer,native,probe,fault,codeIdentity:{expected:structuredClone(liveCode),read:async()=>liveCode}});
  const coordinator=make();
  const prepared=empty?{projects:[],assets:[],externalDependencies:[]}:source;
  await coordinator.initialize({prepared,mapping:empty?[]:source.projects.map((project,index)=>({target:String(index+1),slug:project.slug,externalDependencies:[]}))});
@@ -175,5 +175,36 @@ test('loopback probe checks actual standalone reader identities and rejects inva
   await assert.rejects(()=>probe({kind:'active',descriptor:{...descriptor,activationSeq:999}}),ReadinessRejected);
   await writeFile(path.join(env.root,'public/active.json'),'corrupt');await assert.rejects(()=>probe({kind:'active',descriptor}),ReadinessRejected);
   for(const origin of ['http://localhost:1234','https://127.0.0.1:1234','http://127.0.0.1:1234/path','http://secret@127.0.0.1:1234'])assert.throws(()=>createLoopbackProbe(origin),/fixed IPv4/);
+ }finally{await new Promise(resolve=>server.close(resolve));await env.cleanup();}
+});
+
+test('code switch after native commit leaves content/map unchanged until explicit retry on the current code',async()=>{
+ const env=await environment();try {
+  const before=await env.coordinator.active();env.records.get('1').project.title='Selected delivery';
+  // Capture the exact saved revision after editing, then simulate an independent
+  // code switch outside the short activation lock following native commit.
+  const selected=env.intent('1');env.fail='code-after-native';
+  const pending=await env.coordinator.execute(selected);assert.equal(pending.status,'pending');assert.equal(pending.error,'code-conflict');assert.equal(env.writes,1);
+  assert.deepEqual((await env.coordinator.active()).descriptor,before.descriptor);assert.deepEqual((await env.coordinator.active()).state,before.state);
+  env.fail=null;assert.equal((await env.coordinator.retry(selected.operationId,'1')).error,'code-conflict');assert.equal(env.writes,1);
+  const nextRenderer={...renderer,rendererId:'b'.repeat(64)},current=env.make({servingRenderer:nextRenderer});
+  // Code-only switch can read the prior producer's content and private map.
+  assert.deepEqual((await current.active()).descriptor,before.descriptor);
+  assert.equal((await current.retry(selected.operationId,'1')).status,'delivered');assert.equal(env.writes,1);
+  assert.equal((await current.active()).generation.projects[0].title,'Selected delivery');
+  assert.equal((await current.active()).descriptor.rendererId,nextRenderer.rendererId);
+ }finally{await env.cleanup();}
+});
+
+test('health separates historical content renderer from current serving renderer/build; wrong code is never a content rollback signal',async()=>{
+ const env=await environment(),servingRenderer={...renderer,rendererId:'c'.repeat(64)},portfolioBuildId={sourceSha:'d'.repeat(40),artifactSha256:'e'.repeat(64)};
+ const {createPortfolioServer}=await import('../tools/portfolio-runtime/server.mjs'),{createLoopbackProbe}=await import('../tools/portfolio-delivery/probe.mjs');
+ const server=createPortfolioServer({siteRoot:env.root,contentRoot:path.join(env.root,'public'),renderer:servingRenderer,portfolioBuildId});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ try {
+  const descriptor=(await env.coordinator.active()).descriptor,origin='http://127.0.0.1:'+server.address().port;
+  const current=createLoopbackProbe(origin,{portfolioBuildId});await current({kind:'active',descriptor,rendererId:servingRenderer.rendererId});
+  const health=await(await fetch(origin+'/__internal/health')).json();assert.equal(health.contentRendererId,renderer.rendererId);assert.equal(health.rendererId,servingRenderer.rendererId);
+  await assert.rejects(()=>current({kind:'active',descriptor,rendererId:renderer.rendererId}),error=>error.code==='code-conflict');
+  const wrong=createLoopbackProbe(origin,{portfolioBuildId:{...portfolioBuildId,sourceSha:'f'.repeat(40)}});await assert.rejects(()=>wrong({kind:'active',descriptor,rendererId:servingRenderer.rendererId}),error=>error.code==='code-conflict');
  }finally{await new Promise(resolve=>server.close(resolve));await env.cleanup();}
 });

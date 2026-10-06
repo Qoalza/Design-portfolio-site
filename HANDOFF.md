@@ -81,3 +81,8 @@ Standalone CMS build/source hash/route+trace audit PASS; actual native preview f
 typecheck, root/CMS lint и public build PASS. Source tsconfig не менялся.
 Next: G5 independent artifacts/package/verify/code activation+rollback and lock protocol;
 G6 actual two-process/browser/failure lifecycle acceptance pending. G7 exact production gate.
+
+G5a checkpoint: code/content renderer provenance decoupled; captured build checks and
+strict actual-code probe prevent stale publication activation/content rollback. 29 focused
+regressions, actual native fixture, typecheck/root+CMS lint/public build PASS; two reviews
+closed. Next G5b artifacts/lifecycle/code activation; Linux CMS native proof and G6 pending.

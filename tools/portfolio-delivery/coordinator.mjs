@@ -43,12 +43,13 @@ function validateMap(state,descriptor,generation) {
 }
 // Lifecycle owner supplies an already-locked native adapter and a loopback probe.
 // No Payload import, authoring store path, credential or raw upload crosses here.
-export function createPublicationCoordinator({publicRoot,privateRoot,renderer,native,probe,fault=async()=>{}}) {
+export function createPublicationCoordinator({publicRoot,privateRoot,renderer,native,probe,codeIdentity,fault=async()=>{}}) {
  publicRoot=path.resolve(publicRoot);privateRoot=path.resolve(privateRoot);
  if(publicRoot===privateRoot||publicRoot.startsWith(privateRoot+path.sep)||privateRoot.startsWith(publicRoot+path.sep))throw new Error('Public and private delivery roots must be separate.');
  validateRenderer(renderer);
  const reader=createGenerationReader({root:publicRoot,renderer});
  const journalRoot=path.join(privateRoot,'operations'),states=path.join(privateRoot,'states'),history=path.join(privateRoot,'activations');
+ async function checkCode() {if(codeIdentity&&canonicalJSON(await codeIdentity.read())!==canonicalJSON(codeIdentity.expected))throw new PublicationError('code-conflict');}
  async function roots() {await assertDirectory(publicRoot);await assertDirectory(privateRoot,{create:true});await assertDirectory(journalRoot,{create:true});await assertDirectory(states,{create:true});await assertDirectory(history,{create:true});}
  async function active() {
   const handle=await reader.readActive({allowLastGood:false});
@@ -157,9 +158,10 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
     // Receipt loss after CAS is resolved before any source check or native write.
     if(journal.activation&&sameDescriptor(base.descriptor,journal.activation)) {
      return await withActivationLock(privateRoot,async()=>{
+      await checkCode();
       const observed=validateActiveDescriptor(await readJSON(path.join(publicRoot,'active.json'),4096));
       if(!sameDescriptor(observed,journal.activation))throw new PublicationError('base-conflict');
-      try {await probe({kind:'active',descriptor:journal.activation});}
+      try {await probe({kind:'active',rendererId:renderer.rendererId,descriptor:journal.activation});}
       catch(error) {if(error instanceof ReadinessRejected)await rejectActivation(journal);throw error;}
       await atomicJSON(path.join(history,stateName(journal.activation)),journal.activation);
       await atomicJSON(path.join(publicRoot,'activated',journal.activation.contentId+'.json'),journal.activation,{mode:0o644});
@@ -197,6 +199,8 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
     if((intent.operation==='publish'||(intent.operation==='restore'&&delta.effect!=='remove'))&&!delta.project)throw new PublicationError('missing-publication-delta');
     const built=await build(base,delta,intent);
     await fault('staging',journal);staging=await stage(built.candidate,built.assets);
+    await checkCode();
+    if(codeIdentity)journal.preparedCode=codeIdentity.expected;
     if(!journal.committed) {
      journal.phase='committing';journal.source={sourceDigest:delta.sourceDigest,selectedRevision:delta.selectedRevision};await save(journal);
      await fault('before-native',journal);
@@ -205,11 +209,13 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
      journal.committed=await native.commit(intent,journal.source,async prepared=>{journal.nativePrepared=prepared;await save(journal);});journal.phase='committed';await save(journal);
      await fault('after-native',journal);
     }
+    await checkCode();
     await promote(staging,built.candidate);await fault('candidate',journal);
     await probe({kind:'candidate',contentId:built.candidate.contentId,rendererId:renderer.rendererId});
     // Code releases take the same lock. Native queue remains serialized while
     // activation lock protects only the pointer/probe window.
     return await withActivationLock(privateRoot,async()=>{
+     await checkCode();
      const now=await active();
      if(!sameDescriptor(now.descriptor,base.descriptor))throw new PublicationError('base-conflict');
      if((now.state.latest[intent.target]??0)>journal.sequence)throw new PublicationError('superseded');
@@ -217,14 +223,14 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
      const state={descriptor,projects:built.map,latest:{...now.state.latest,[intent.target]:journal.sequence}};
      journal.base=base.descriptor;journal.activation=descriptor;journal.phase='activating';await save(journal);
      await atomicJSON(path.join(states,stateName(descriptor)),state);
-     await probe({kind:'active',descriptor:base.descriptor});
+     await probe({kind:'active',rendererId:renderer.rendererId,descriptor:base.descriptor});
      await atomicJSON(path.join(history,stateName(base.descriptor)),base.descriptor);
      // Mark A before switching, so requests captured on A survive a switch to B.
      await atomicJSON(path.join(publicRoot,'activated',base.descriptor.contentId+'.json'),base.descriptor,{mode:0o644});
      await fault('before-activation',journal);
      await atomicJSON(path.join(publicRoot,'active.json'),descriptor,{mode:0o644});
      await fault('after-activation',journal);
-     try {await probe({kind:'active',descriptor});}
+     try {await probe({kind:'active',rendererId:renderer.rendererId,descriptor});}
      catch(error) {
       if(error instanceof ReadinessRejected)await rejectActivation(journal);
       throw error;
@@ -271,7 +277,7 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
     await atomicJSON(path.join(states,stateName(descriptor)),state);
     await atomicJSON(path.join(publicRoot,'activated',candidate.contentId+'.json'),descriptor,{mode:0o644});
     await atomicJSON(path.join(publicRoot,'active.json'),descriptor,{mode:0o644});
-    await probe({kind:'active',descriptor});await atomicJSON(path.join(history,stateName(descriptor)),descriptor);return descriptor;
+    await probe({kind:'active',rendererId:renderer.rendererId,descriptor});await atomicJSON(path.join(history,stateName(descriptor)),descriptor);return descriptor;
    });
   });
  }
