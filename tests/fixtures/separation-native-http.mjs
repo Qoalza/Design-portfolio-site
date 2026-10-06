@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
+import {request} from 'node:http';
 import {fixture} from './portfolio-delivery.mjs';
 import {createGenerationReader} from '../../tools/portfolio-delivery/reader.mjs';
 const sharp=createRequire(new URL('../../tools/payload-admin/package.json',import.meta.url))('sharp');
@@ -35,6 +36,18 @@ export async function exerciseNativeHTTP({origin,publicOrigin,token,publicRoot,r
  const beforeRejected=(await active()).descriptor,mediaBefore=(await json('/api/media?limit=1')).totalDocs;
  const brokenForm=new FormData();brokenForm.set('_payload',JSON.stringify({alt:'Rejected truncated fixture'}));brokenForm.set('file',new Blob([Buffer.from([137,80,78,71,13,10,26,10])],{type:'image/png'}),'truncated.png');
  const brokenUpload=await fetch(origin+'/api/media',{method:'POST',headers:{Authorization:headers.Authorization,Origin:origin,Connection:'close'},body:brokenForm});assert.equal(brokenUpload.status,400,await brokenUpload.text());assert.equal((await json('/api/media?limit=1')).totalDocs,mediaBefore);assert.deepEqual((await active()).descriptor,beforeRejected);
+ // Send an unfinished multipart body to the real CMS, then abort that socket.
+ const boundary='des-art-separation-partial-upload',prefix=Buffer.from('--'+boundary+'\r\nContent-Disposition: form-data; name="_payload"\r\n\r\n'+JSON.stringify({alt:'Interrupted synthetic fixture'})+'\r\n--'+boundary+'\r\nContent-Disposition: form-data; name="file"; filename="interrupted.png"\r\nContent-Type: image/png\r\n\r\n'),suffix=Buffer.from('\r\n--'+boundary+'--\r\n'),partial=Buffer.concat([prefix,png.subarray(0,Math.floor(png.length/2))]),fullLength=prefix.length+png.length+suffix.length;
+ assert.ok(partial.length<fullLength);
+ await new Promise((resolve,reject)=>{
+  let written=false,aborting=false,abortTimer;
+  const upload=request(origin+'/api/media',{method:'POST',headers:{Authorization:headers.Authorization,Origin:origin,Connection:'close','Content-Type':'multipart/form-data; boundary='+boundary,'Content-Length':fullLength}},response=>{response.resume();reject(new Error('CMS responded before the intentional upload abort'));});
+  const deadline=setTimeout(()=>{upload.destroy();reject(new Error('Interrupted upload did not close within its deadline'));},5000);
+  upload.on('error',()=>{if(!aborting)reject(new Error('Upload transport failed before the intentional abort'));});
+  upload.on('close',()=>{clearTimeout(deadline);clearTimeout(abortTimer);if(written&&aborting)resolve();else reject(new Error('Upload closed before partial bytes were written'));});
+  upload.write(partial,error=>{if(error){upload.destroy();reject(new Error('Partial upload bytes were not written'));return;}written=true;abortTimer=setTimeout(()=>{aborting=true;upload.destroy();},100);});
+ });
+ assert.equal((await json('/api/media?limit=1')).totalDocs,mediaBefore);assert.deepEqual((await active()).descriptor,beforeRejected);
  const invalidSlug='fixture-invalid-publish';
  function invalidPaths(value){if(typeof value==='string')return value.replaceAll('/assets/projects/'+source.projects[0].slug+'/', '/assets/projects/'+invalidSlug+'/');if(Array.isArray(value))return value.map(invalidPaths);if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([key,child])=>[key,invalidPaths(child)]));return value;}
  const invalidContent=invalidPaths(source.projects[0]);invalidContent.slug=invalidSlug;invalidContent.redesign.page.summary=[[{type:'future-invalid-block',text:'Rejected fixture'}]];
@@ -43,7 +56,7 @@ export async function exerciseNativeHTTP({origin,publicOrigin,token,publicRoot,r
  const rejected=await fetch(origin+'/api/publications',{method:'POST',headers,body:JSON.stringify(await intentFor(invalidDoc))});assert.equal(rejected.status,409);assert.equal((await rejected.json()).error,'delivery-failed');assert.equal((await json(invalidVersions)).totalDocs,invalidCount);assert.equal((await json('/api/projects/'+invalidDoc.id+'?draft=true'))._status,'draft');assert.deepEqual((await active()).descriptor,beforeRejected);
  // Re-read delivered bytes as well as the pointer: refusal must not damage resources.
  for(const asset of savedGeneration.assets){const response=await fetch(publicOrigin+'/__content/'+beforeRejected.contentId+asset.publicPath,{headers:{Connection:'close'}});assert.equal(response.status,200);assert.equal(digest(Buffer.from(await response.arrayBuffer())),asset.sha256);}
- console.log('PASS: truncated-image upload and unsupported-block Publish are rejected without media/version/public activation changes; delivered asset bytes remain intact');
+ console.log('PASS: interrupted multipart/truncated-image upload and unsupported-block Publish are rejected without media/version/public activation changes; delivered asset bytes remain intact');
  // Real overlapping HTTP requests exercise the native coordinator and version store.
  async function versionCount(doc){return (await json('/api/projects/versions?'+new URLSearchParams({'where[parent][equals]':String(doc.id),limit:'1'}))).totalDocs;}
  async function saveTitle(doc,title){await json('/api/projects/'+doc.id+'?draft=true','PATCH',{title,_status:'draft'});}
@@ -69,7 +82,7 @@ export async function exerciseNativeHTTP({origin,publicOrigin,token,publicRoot,r
  console.log('PASS: native HTTP target-only Publish/private saved draft/preview/auth/raw guards/retry/Unpublish/Delete/empty/scoped resource hash retention');
  // Leave a real delivered project active for independent code-update acceptance.
  assert.equal((await publish(docs[0])).status,'delivered');
- const codeBaseline=await active();assert.equal(codeBaseline.generation.projects.length,1);
+ const codeBaseline=await active();assert.equal(codeBaseline.generation.projects.length,1);assert.equal((await json('/api/media?limit=1')).totalDocs,mediaBefore);
  const activeAssets=codeBaseline.generation.assets.map(asset=>({url:'/__content/'+codeBaseline.descriptor.contentId+asset.publicPath,hash:asset.sha256}));
  return {oldAssets,activeAssets,previewTarget:docs[0].id};
 }

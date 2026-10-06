@@ -68,7 +68,13 @@ bytes, cache reuse does not extend lifetime, another owner remains independently
 renewal uses a new capability. no-store/no-referrer/noindex and sandbox/connect/form
 restrictions checked. Focused runtime test, root/CMS lint and strict CMS types PASS;
 two sequential reviews closed. This is unit/header evidence, not external-network proof.
-Next: actual external-request privacy evidence, interrupted-upload/fault coverage audit,
+Actual interrupted multipart upload guard PASS: native CMS receives an intentionally
+unfinished HTTP body (half a valid PNG; declared full Content-Length), owned client
+socket closes before completion. Immediate and later media counts unchanged, public
+pointer/resource hashes intact; subsequent valid API/lifecycle flows succeed. Both
+independent builds at 8d83c5a9, root lint and full extended separation:test PASS; wrapper
+exited 0, own fixture cleaned; two sequential reviews closed without findings.
+Next: actual failed SQLite commit guard, external-request privacy evidence,
 remaining final-candidate browser matrix and Linux proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral
