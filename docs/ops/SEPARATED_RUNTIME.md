@@ -210,3 +210,15 @@ G6 needs the full two-process and browser acceptance matrix on the final exact c
 G7 needs fresh deployed SHA, resource/backup/parity evidence, exact service/proxy/OS
 permissions delta and separately approved concrete transition. No sandbox data enters
 canonical content, Git or production. See the durable separation plan for stop-lines.
+
+## Existing verification entry points
+
+After building both artifacts, `npm --prefix tools/payload-admin run test:smoke`
+and `node tools/payload-admin/scripts/release-proof.mjs` run the same disposable
+two-process acceptance harness as `npm run separation:test`. They no longer start
+the combined app, publish directly through native REST, or export snapshots from
+an inherited authoring root. They accept no arguments (`--keep` is rejected).
+The harness uses generated artifacts, fresh temporary fixture data and approved
+synthetic media, verifies owned process/build health before authenticated writes,
+and stops only its own processes. These commands do not build either application,
+access production settings, or prove Linux eligibility/final browser parity.

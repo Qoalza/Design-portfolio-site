@@ -35,7 +35,8 @@ or full G6 browser/failure acceptance. Temporary fixture processes are stopped.
 
 ## Next
 
-G6: adapt legacy smoke/release-proof to separated artifacts; prove actual independent
+G6: legacy smoke/release-proof adapted to extracted separated artifacts; both entry
+points/builds/lints PASS and two reviews closed. Next prove actual independent
 source builds/new renderer without neighbor rebuild/restart; complete final-candidate
 browser matrix. G5 Linux native/service/resource proof still pending.
 Linux builder/SSH alias requested asynchronously; none identified yet. Continue useful
