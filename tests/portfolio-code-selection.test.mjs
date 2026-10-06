@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {mkdtemp,writeFile,rm} from 'node:fs/promises';import path from 'node:path';
+import {readCodeSelection} from '../tools/portfolio-runtime/code-selection.mjs';import {validatePortfolioRelease} from '../tools/portfolio-runtime/active-release.mjs';import {initialCodeState} from '../tools/portfolio-runtime/code-state.mjs';import {DELIVERY_CAPABILITIES} from '../tools/portfolio-delivery/contract.mjs';
+const release=id=>({version:1,artifactRoot:'/fixture/'+id,portfolioBuildId:{sourceSha:id.repeat(40),artifactSha256:id.repeat(64)},renderer:{rendererId:id.repeat(64),contractVersion:'public-delivery-v1',capabilities:DELIVERY_CAPABILITIES}});
+test('launcher verifies selected code while preview authority remains confirmed; known crash pointer combinations reconcile',async t=>{
+ const root=await mkdtemp('/private/tmp/portfolio-selection-');t.after(()=>rm(root,{recursive:true,force:true}));const file=path.join(root,'active.json'),a=release('a'),b=release('b'),state=initialCodeState('portfolio',a,validatePortfolioRelease);let verified;
+ await writeFile(file,JSON.stringify(a));assert.equal((await readCodeSelection(file,'portfolio',validatePortfolioRelease,async value=>{verified=value;})).activationSeq,0);assert.deepEqual(verified,a);
+ state.selected={activationSeq:1,operationId:'code_selection_0001',release:b};await writeFile(file+'.state.json',JSON.stringify(state));
+ for(const active of [a,b]){await writeFile(file,JSON.stringify(active));const selected=await readCodeSelection(file,'portfolio',validatePortfolioRelease,async value=>{verified=value;});assert.equal(selected.activationSeq,1);assert.deepEqual(verified,b);}
+ await writeFile(file,JSON.stringify(release('c')));await assert.rejects(readCodeSelection(file,'portfolio',validatePortfolioRelease,async()=>{}),/outside/);
+ await writeFile(file,JSON.stringify(b));state.confirmed=state.selected;await writeFile(file+'.state.json',JSON.stringify(state));await readCodeSelection(file,'portfolio',validatePortfolioRelease,async()=>{});await writeFile(file,JSON.stringify(a));await assert.rejects(readCodeSelection(file,'portfolio',validatePortfolioRelease,async()=>{}),/outside/);
+});

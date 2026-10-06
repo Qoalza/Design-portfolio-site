@@ -50,3 +50,22 @@ test('shutdown is recorded even when a writer exits with Next restart code',asyn
 test('finished maintenance exits naturally without an IPC channel keeping its lock alive',async t=>{
  const {root,state}=await fixture(t),marker=path.join(root,'done');await writeFile(path.join(root,'entry.mjs'),`import {writeFile} from 'node:fs/promises';await writeFile(process.env.MARKER,'complete');`);const lock=await acquire(state);assert.equal(await launchWriter({lock,cwd:root,entry:'entry.mjs',env:{MARKER:marker}}),0);assert.equal(await readFile(marker,'utf8'),'complete');await lock.release();
 });
+
+test('CMS reload keeps the same lifetime owner while old writer exits and new writer registers',async t=>{
+ const {superviseCMS}=await import('../tools/payload-admin/scripts/supervisor.mjs');const {root,state}=await fixture(t),marker=path.join(root,'ready'),closing=path.join(root,'closing');
+ const entry=path.join(root,'reload.mjs');await writeFile(entry,`import {writeFile} from 'node:fs/promises';process.once('SIGTERM',async()=>{await writeFile(process.env.CLOSING,'closing');setTimeout(()=>process.exit(0),250);});await writeFile(process.env.MARKER,JSON.stringify({pid:process.pid,target:process.env.TARGET}));setInterval(()=>{},1000);`);
+ let target=1;const running=superviseCMS({state,load:async()=>target,start:(selected,{providedLock,signal})=>launchWriter({lock:providedLock,signal,cwd:root,entry,env:{MARKER:marker,CLOSING:closing,TARGET:String(selected)}})});
+ t.after(async()=>{process.emit('SIGTERM');await running.catch(()=>{});});
+ async function wait(check){for(let i=0;i<300;i++){try{if(await check())return;}catch{}await new Promise(resolve=>setTimeout(resolve,10));}throw new Error('Owned reload timeout');}
+ await wait(async()=>JSON.parse(await readFile(marker,'utf8')).target==='1');const first=JSON.parse(await readFile(path.join(state.lock,'owner.json'),'utf8'));target=2;process.emit('SIGUSR2');
+ await wait(async()=>{await access(closing);return true;});await assert.rejects(acquire(state),/занято/);const stopping=JSON.parse(await readFile(path.join(state.lock,'owner.json'),'utf8'));assert.equal(stopping.token,first.token);assert.equal(stopping.childPID,first.childPID);
+ await wait(async()=>JSON.parse(await readFile(marker,'utf8')).target==='2');const next=JSON.parse(await readFile(path.join(state.lock,'owner.json'),'utf8'));assert.equal(next.token,first.token);assert.equal(next.pid,first.pid);assert.notEqual(next.childPID,first.childPID);assert.throws(()=>process.kill(first.childPID,0),{code:'ESRCH'});
+ process.emit('SIGTERM');assert.equal(await running,0);await absent(state.lock);
+});
+test('explicit stop during CMS selection suppresses a queued reload before any writer starts',async t=>{
+ const {superviseCMS}=await import('../tools/payload-admin/scripts/supervisor.mjs');const {state}=await fixture(t);let complete,started=0;const pending=new Promise(resolve=>{complete=resolve;});
+ const running=superviseCMS({state,load:()=>pending,start:async()=>{started++;return 0;}});for(let i=0;i<100;i++){try{await access(state.lock);break;}catch{await new Promise(resolve=>setTimeout(resolve,10));}}
+ // Wait for the supervisor's selection and signal handlers, not merely lock install.
+ for(let i=0;i<100&&!process.listeners('SIGUSR2').length;i++)await new Promise(resolve=>setTimeout(resolve,10));
+ process.emit('SIGUSR2');process.emit('SIGTERM');complete(1);assert.equal(await running,0);assert.equal(started,0);await absent(state.lock);
+});

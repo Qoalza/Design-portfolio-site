@@ -10,7 +10,7 @@ export async function artifactFiles(root,directory=root) {
   else if(entry.isFile()){
    const relative=path.relative(root,name).split(path.sep).join('/');
    if(relative==='release-manifest.json')continue;
-   if(!/^(?:server\.mjs|site\/|preview\/)/.test(relative)||/\.(?:map|node|dylib|so)$/.test(relative)||relative.split('/').some(p=>p.startsWith('.')))throw new Error('Portfolio artifact allowlist rejection');
+   if(!/^(?:server\.mjs$|ops\/active-start\.mjs$|site\/|preview\/)/.test(relative)||/\.(?:map|node|dylib|so)$/.test(relative)||relative.split('/').some(p=>p.startsWith('.')))throw new Error('Portfolio artifact allowlist rejection');
    const bytes=await readFile(name);result.push({path:relative,size:bytes.length,sha256:contentHash(bytes)});
   }else throw new Error('Invalid Portfolio artifact entry');
  }

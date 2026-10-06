@@ -13,7 +13,8 @@ projection/renderer preview. G5a code identity/provenance split is committed d16
 G5b CMS packaging/lifetime/health proof implemented; Linux native proof still pending.
 G5c1 selected/confirmed state and monotonic codeActivationSeq fence are implemented;
 actual process epochs are implemented and verified;
-stable launchers/controller/rollback remain pending.
+stable launchers and continuous CMS lifetime reload ownership are implemented;
+activation controller/rollback remain pending.
 G6 full acceptance and gated G7 are not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native

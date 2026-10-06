@@ -62,10 +62,34 @@ refuses live/unknown owners or a listening server and retires a verified dead lo
 
 `/api/internal/cms-health` is loopback only, with exact transport Host/proxy checks.
 It reports actual CMS build ID, actual read-only schema hash, producer capabilities
-and confirmed lifetime writer identity. Next normalizes Request.url; URL origin is
+and confirmed lifetime writer identity, plus the captured code activation sequence. Next normalizes Request.url; URL origin is
 not used in place of the transport Host. Proxy denial remains part of the G7 gate.
 Public health reports actual serving build/renderer separately from the renderer that
 validated the active content. A code conflict never causes content rollback.
+
+## Selected code launchers
+
+Each artifact includes a source-independent launcher: public `ops/active-start.mjs`
+and CMS `tools/payload-admin/scripts/active-start.mjs`. They read an explicit absolute
+`PORTFOLIO_ACTIVE_RELEASE` / `PAYLOAD_ACTIVE_RELEASE` descriptor. Optional adjacent
+`<descriptor>.state.json` contains confirmed and selected releases with monotonic
+activation sequences and operation IDs. Launchers verify selected immutable code;
+preview/publication accept only fully confirmed matching Portfolio state. Malformed
+metadata and unrelated crash-state pointers fail closed. Legacy absent metadata is
+initial epoch zero only.
+
+The CMS launcher retains its lifetime root owner across SIGUSR2 reload. It stops only
+its owned writer, waits for actual exit, checks the selected artifact/schema/public
+compatibility and existing secret under the retained lock, then registers the new
+writer before importing Payload. Supervisor PID and lock token remain unchanged;
+writer PID and code epoch change. SIGINT/SIGTERM suppress pending reload. This signal
+is a mechanism, not an activation command: the journaled controller still needs to
+select, verify actual health and confirm a release under the shared activation lock.
+
+CMS restart/reload invalidates existing in-memory private preview capabilities;
+reload the preview to issue a new capability. Portfolio-only releases keep CMS PID
+and its issued snapshot capabilities; retained old renderer artifacts remain required.
+No capability persistence format or preview TTL behavior has changed.
 
 ## Disposable proof
 
@@ -80,7 +104,7 @@ node tools/payload-admin/scripts/test-writer-dev.mjs
 The harness uses a fresh whitelist child environment and disposable roots. It packs,
 extracts/verifies CMS, starts two artifact processes, initializes a synthetic empty
 public generation, registers a fixture account, saves a draft and restarts CMS. It
-checks session/data/secret/content preservation and stops only its own processes.
+checks stable reload token/parent/actual writer exit/epoch and session/data/secret/content preservation and stops only its own processes.
 This is a bounded artifact proof, not the full publication/browser/failure matrix G6.
 
 Observed final Mac arm64/Node 22.16.0 CMS build: 10.91 s wall, maximum resident set size

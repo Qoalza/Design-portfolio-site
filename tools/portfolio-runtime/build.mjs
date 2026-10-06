@@ -48,7 +48,7 @@ export async function buildPortfolio({output=path.join(repoRoot,'.portfolio-rele
  const existing=await lstat(output).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
  if(existing){
   if(!existing.isDirectory()||existing.isSymbolicLink())throw new Error('Build output must be a real directory');
-  if((await readdir(output)).some(name=>!['site','preview','server.mjs','release-manifest.json'].includes(name)))throw new Error('Build output contains unrelated files');
+  if((await readdir(output)).some(name=>!['site','preview','ops','server.mjs','release-manifest.json'].includes(name)))throw new Error('Build output contains unrelated files');
  }
  const {stdout:head}=await exec('git',['rev-parse','HEAD'],{cwd:repoRoot}),sha=head.trim();
  const {stdout:dirty}=await exec('git',['status','--porcelain','--untracked-files=normal','--','.',':!USERSPACE'],{cwd:repoRoot});
@@ -70,6 +70,7 @@ export async function buildPortfolio({output=path.join(repoRoot,'.portfolio-rele
   else await writeFile(path.join(target,'preview-manifest.json'),JSON.stringify({version:1,rendererId,base:previewPlaceholder,contentAssets:[],files}));
  }
  await bundle({entryPoints:[path.join(repoRoot,'tools/portfolio-runtime/start.mjs')],bundle:true,platform:'node',target:'node22',format:'esm',outfile:path.join(output,'server.mjs'),sourcemap:false});
+ await bundle({entryPoints:[path.join(repoRoot,'tools/portfolio-runtime/active-start.mjs')],bundle:true,platform:'node',target:'node22',format:'esm',outfile:path.join(output,'ops/active-start.mjs'),sourcemap:false});
  await rm(path.join(output,'release-manifest.json'),{force:true});
  const files=await artifactFiles(output),portfolioBuildId={sourceSha:sha,artifactSha256:contentHash(canonicalJSON({files,renderer}))};
  const manifest={version:1,portfolioBuildId,renderer,sourceDirty:Boolean(dirty.trim()),files};
