@@ -30,6 +30,21 @@ export function assetMime(publicPath) {
 }
 // Signature checks verify the transport MIME against bytes. Full image decoding,
 // dimensions and HTML/SVG sanitization remain in the existing CMS ingest pipeline.
+const rasterMimes = new Set(['image/png','image/jpeg','image/webp','image/avif','image/gif']);
+const compatibleMime = (declared,actual) => declared === actual || (rasterMimes.has(declared) && rasterMimes.has(actual)) || (['text/javascript','application/javascript'].includes(declared) && ['text/javascript','application/javascript'].includes(actual));
+function transportMime(publicPath,bytes,declared) {
+ const expected = assetMime(publicPath);
+ if (declared !== undefined && !compatibleMime(expected,declared)) throw new Error('Delivery declared MIME differs from asset kind.');
+ if (!rasterMimes.has(expected)) return declared ?? expected;
+ // Existing immutable packages may contain JPEG bytes under a .png filename.
+ // Preserve their authoring manifest and bytes; serve the verified actual type.
+ if (bytes.length >= 8 && bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) return 'image/png';
+ if (bytes.length >= 3 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return 'image/jpeg';
+ if (['GIF87a','GIF89a'].includes(bytes.toString('ascii',0,6))) return 'image/gif';
+ if (bytes.toString('ascii',0,4) === 'RIFF' && bytes.toString('ascii',8,12) === 'WEBP') return 'image/webp';
+ if (bytes.toString('ascii',4,8) === 'ftyp') return 'image/avif';
+ throw new Error('Delivery raster MIME does not match bytes.');
+}
 export function validateAssetBytes(asset, bytes) {
  if (!Buffer.isBuffer(bytes) || bytes.length !== asset.size || contentHash(bytes) !== asset.sha256) throw new Error('Delivery asset checksum or size mismatch.');
  const mime = asset.mime;
@@ -88,7 +103,7 @@ function normalize(value) {
   validateAssetPath(asset.publicPath, slugs);
   if (!digestPattern.test(asset.sha256) || !Number.isSafeInteger(asset.size) || asset.size < 1 || asset.size > 20*1024*1024) throw new Error('Invalid delivery asset checksum or size.');
   const expected = assetMime(asset.publicPath);
-  if (asset.mime !== expected && !(expected === 'text/javascript' && asset.mime === 'application/javascript')) throw new Error('Delivery asset MIME differs from path.');
+  if (!compatibleMime(expected,asset.mime)) throw new Error('Delivery asset MIME differs from path.');
   return {...asset};
  }).sort((a,b) => compare(a.publicPath,b.publicPath));
  const byPath = new Map(assets.map(asset => [asset.publicPath,asset]));
@@ -105,7 +120,7 @@ function normalize(value) {
    const asset = byPath.get(file.publicPath);
    if (asset.sha256 !== file.sha256 || asset.size !== file.size) throw new Error('Layout manifest differs from delivery manifest.');
   }
-  if (project.redesign.hero.kind === 'layout') for (const scene of project.redesign.hero.scenes) if (scene.source.kind === 'package') for (const file of scene.source.files) if (byPath.get(scene.source.assetBase + file.path).mime !== file.mime) throw new Error('Package MIME differs from delivery manifest.');
+  if (project.redesign.hero.kind === 'layout') for (const scene of project.redesign.hero.scenes) if (scene.source.kind === 'package') for (const file of scene.source.files) if (!compatibleMime(file.mime,byPath.get(scene.source.assetBase + file.path).mime)) throw new Error('Package MIME differs from delivery manifest.');
  }
  if (assets.some(asset => !required.has(asset.publicPath))) throw new Error('Unreferenced asset cannot enter public delivery.');
  return {contractVersion:DELIVERY_VERSION,capabilities,projects,assets,externalDependencies:externalDependencies(value.externalDependencies)};
@@ -122,7 +137,7 @@ export function createDeliveryGeneration({projects,assets,externalDependencies=[
  const capabilities = ['project-v3','redesign-v1','scoped-assets-v1', ...(projects.length ? [...new Set(projects.map(p => 'hero-' + p.redesign?.hero.kind))] : ['empty-collection'])].sort(compare);
  const manifest = assets.map(asset => {
   if (!Buffer.isBuffer(asset.bytes) || contentHash(asset.bytes) !== asset.sha256) throw new Error('Delivery asset checksum mismatch.');
-  return {publicPath:asset.publicPath,sha256:asset.sha256,size:asset.bytes.length,mime:asset.mime ?? assetMime(asset.publicPath)};
+  return {publicPath:asset.publicPath,sha256:asset.sha256,size:asset.bytes.length,mime:transportMime(asset.publicPath,asset.bytes,asset.mime)};
  });
  const core = normalize({contractVersion:DELIVERY_VERSION,capabilities,projects,assets:manifest,externalDependencies});
  const byPath = new Map(assets.map(asset => [asset.publicPath,asset.bytes]));

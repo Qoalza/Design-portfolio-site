@@ -21,7 +21,18 @@ Fixture bytes синтетические: transport MIME proof не заменя
 
 ## Следующее действие
 
-G2: Node public host, builds public/preview без CMS/data и Git fallback.
+G2 завершён: отдельный Node public host, builds public/preview без CMS/data и Git fallback.
+Root build/start/package направлены на tools/portfolio-runtime. Public artifact содержит
+site/, preview/, server.mjs и release-manifest.json; CMS build пока остаётся combined до G4.
+HTTP capture одного descriptor/generation, resource history требует public activation receipts,
+private candidate probe доступен только loopback (proxy deny вводится на G7).
+Распакованный artifact стартовал отдельным plain Node process без checkout/CMS/compiler.
+230 renderer tests PASS, renderer/root lint и CMS typecheck без incremental writes PASS.
+Browser preliminary proof: главная, Corvo, Sarafan и 404 на approved-Git fixture;
+source 258e95b2a7720499c7a74ec7602c8608b8c58200, не production data baseline.
+Обнаруженный JPEG под avatar.png сохраняется без перекодирования; delivery MIME actual.
+Финальный G2 build PASS; 26/26 focused/regression checks + 1/1 artifact proof PASS.
+Следующая группа — G3 native delivery coordinator.
 Полный план/acceptance/checkpoint: docs/exec-plans/portfolio-payload-separation.md.
 G3–G7 пока не выполнены; текущий сайт/Admin ещё работают по прежней combined схеме.
 Свежий production preflight не выполнялся. Исторический deployed SHA c735f3151a297eccb2885e69c0a215143c2dfe2f не считать свежим подтверждением.

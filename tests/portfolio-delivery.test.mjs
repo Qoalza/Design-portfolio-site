@@ -131,3 +131,12 @@ test('readiness is strict and does not report last-good as successful delivery',
   assert.equal(await (await reader.readActive()).readAsset('/private/db'),null);
  }finally{await rm(root,{recursive:true,force:true});}
 });
+
+test('JPEG bytes under an immutable PNG path keep authoring bytes and get actual transport MIME',()=>{
+ const source=fixture(),asset=source.assets[0];
+ asset.bytes=Buffer.from([255,216,255,224,0,16]);asset.sha256=contentHash(asset.bytes);
+ const generation=createDeliveryGeneration(source,renderer);
+ assert.equal(generation.assets.find(a=>a.publicPath===asset.publicPath).mime,'image/jpeg');
+ assert.equal(generation.projects[0].redesign.card.preview.front.src,source.projects[0].redesign.card.preview.front.src);
+ assert.deepEqual(validateDeliveryGeneration(generation,renderer),generation);
+});

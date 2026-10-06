@@ -1,4 +1,4 @@
-import { lstat, open, constants } from 'node:fs/promises';
+import { lstat, open, constants, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { validateAssetBytes, digestPattern, validateRenderer, validateDeliveryGeneration, createDeliveryGeneration, validateActiveDescriptor } from './contract.mjs';
 
@@ -30,6 +30,7 @@ export function createGenerationReader({root,renderer}) {
  validateRenderer(renderer);
  const supported = freeze(structuredClone(renderer));
  let lastGood;
+ const activatedCache = new Map();
  async function readGeneration(contentId) {
   if (!digestPattern.test(contentId)) throw new Error('Invalid content identity.');
   const base = `generations/${contentId}/`;
@@ -70,7 +71,33 @@ export function createGenerationReader({root,renderer}) {
    return Object.freeze({...lastGood,degraded:true});
   }
  }
+ async function readActivated(contentId) {
+  if (!digestPattern.test(contentId)) throw new Error('Invalid retained content identity.');
+  const receipt = validateActiveDescriptor(JSON.parse(await safeFile(root,`activated/${contentId}.json`,4096)));
+  if (receipt.contentId !== contentId) throw new Error('Retained activation receipt mismatch.');
+  if (!activatedCache.has(contentId)) {
+   if (activatedCache.size >= 64) activatedCache.delete(activatedCache.keys().next().value);
+   const promise = readGeneration(contentId);
+   activatedCache.set(contentId,promise);
+   promise.catch(() => {if (activatedCache.get(contentId) === promise) activatedCache.delete(contentId);});
+  }
+  return activatedCache.get(contentId);
+ }
+ async function immutableAlias(publicPath) {
+  if (!/^\/assets\/projects\/[a-z0-9]+(?:-[a-z0-9]+)*\/hero-layout\/[a-f0-9]{64}\//.test(publicPath)) return null;
+  const directory = path.join(root,'activated');
+  if ((await lstat(directory)).isSymbolicLink()) throw new Error('Activation receipts contain symlink.');
+  let match;
+  for (const entry of await readdir(directory)) {
+   if (!/^[a-f0-9]{64}\.json$/.test(entry)) throw new Error('Invalid activation receipt name.');
+   const handle = await readActivated(entry.slice(0,-5)),asset = handle.generation.assets.find(asset => asset.publicPath === publicPath);
+   if (!asset) continue;
+   if (match && (match.asset.sha256 !== asset.sha256 || match.asset.mime !== asset.mime)) throw new Error('Conflicting immutable package alias.');
+   match = {handle,asset};
+  }
+  return match;
+ }
  // readGeneration is for internal readiness probes. HTTP allowlisting of activated
  // generations is a separate host responsibility; staging must never be exposed.
- return {readActive,readGeneration};
+ return {readActive,readGeneration,readActivated,immutableAlias};
 }

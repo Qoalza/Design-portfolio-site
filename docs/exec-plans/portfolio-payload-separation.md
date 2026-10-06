@@ -1,6 +1,6 @@
 # Implementation Plan: независимый выпуск Portfolio и Payload Admin
 
-**Статус:** In progress — реализация разрешена 2026-10-06; G0 подтверждён, G1 в работе.  
+**Статус:** In progress — реализация разрешена 2026-10-06; G0 подтверждён, G1 завершён; G2 завершён.
 **Версия:** 1.0 · 2026-10-06.  
 **Классификация:** PORTFOLIO + ADMIN + SHARED + OPS · LARGE · HIGH · FULL.  
 **Репозиторий:** Qoalza/Design-portfolio-site.  
@@ -18,7 +18,11 @@
 - Review 1 fidelity/completeness: исправлены mapping текстовых значений, byte MIME proof, package reference tests и strict readiness.
 - Review 2 regression/scope/risk: ограничено повторное чтение ресурсов; медленный старый request не заменяет новый last-good. Private roots/secret/DB и текущие routes/build/publish ещё не изменены.
 - Проверки G1: 21/21 focused + existing snapshot/public-host tests; root `npm run lint` PASS; declarations strict TypeScript PASS (`--ignoreConfig --types node` для установленного compiler); standalone reader esbuild + import PASS. Root legacy build не запускался по запрету плана.
-- Далее: G2 — Node host и content-independent public/preview builds; G3–G7 не выполнены. Production switch требует exact release/service/proxy gate из G7.
+- G2: Node host, generation-bound HTTP state, activated-history allowlist, candidate/readiness loopback probes, content-independent public + preview shells и start/package commands. Root build переключён на новый public pipeline; CMS pipeline будет отделён в G4.
+- G2 fidelity review: ordinary public/preview entry требует injected JSON; MIME определяется по actual bytes. В approved source `258e95b` обнаружен JPEG `hero-layout/.../avatar.png`; его bytes и authoring manifest сохраняются, transport MIME — `image/jpeg`. Это адаптация transport metadata, не schema/data migration.
+- G2 regression review: public history требует activation receipt, private preview bundle не входит в site allowlist, output build ограничен generated/disposable directory, artifact start не требует Git/Next/Vite/CMS.
+- G2 проверки: 26/26 source HTTP/contract checks + 1/1 plain-Node artifact test, 230/230 renderer tests, renderer lint, CMS typecheck без incremental writes, root lint, public build и отдельный распакованный artifact process. Browser preliminary proof: главная/Corvo/Sarafan/404 на approved-Git fixture, без ошибок console; Bg-main rgb(23,25,26), prepared AVIF scope сохранён. Это не production parity.
+- Далее: G3 — native delivery coordinator, revision/idempotency/journal/CAS. G3–G7 не выполнены. Production switch требует exact release/service/proxy gate из G7.
 
 ## 1. Результат и подтверждённая база
 
