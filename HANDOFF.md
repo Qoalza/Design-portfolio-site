@@ -11,7 +11,9 @@ G0–G4 implemented locally: delivery-v1/reader, independent public host+rendere
 target-only native coordinator/API/controls, independent CMS build and active public
 projection/renderer preview. G5a code identity/provenance split is committed d16c35a.
 G5b CMS packaging/lifetime/health proof implemented; Linux native proof still pending.
-G5 code activation/rollback, G6 full acceptance and gated G7 are not complete.
+G5c1 selected/confirmed state and monotonic codeActivationSeq fence are implemented;
+actual process epochs, stable launchers/controller/rollback remain pending.
+G6 full acceptance and gated G7 are not complete.
 
 G5b evidence: 11 artifact/lifetime tests, actual dev writer SIGKILL proof, native
 publication fixture, full CMS suite including interactive account recovery, strict

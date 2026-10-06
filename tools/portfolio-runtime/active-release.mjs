@@ -1,6 +1,7 @@
 import path from 'node:path';
 import {readJSON,assertDirectory} from '../portfolio-delivery/durable-store.mjs';
 import {canonicalJSON,digestPattern,exactObject,validateRenderer} from '../portfolio-delivery/contract.mjs';
+import {validateCodeState,isConfirmedCode} from './code-state.mjs';
 import {verifyPortfolioArtifact} from './artifact.mjs';
 const verified=new Map();
 export function validatePortfolioRelease(value) {
@@ -22,7 +23,14 @@ export async function readPortfolioRelease(file,{requireClean=true}={}) {
  }
  const manifest=await verified.get(key);
  if((requireClean&&manifest.sourceDirty)||canonicalJSON(manifest.renderer)!==canonicalJSON(release.renderer)||canonicalJSON(manifest.portfolioBuildId)!==canonicalJSON(release.portfolioBuildId))throw new Error('Active Portfolio artifact identity differs from descriptor.');
+ let codeActivationSeq=0;
+ try {
+  const state=validateCodeState(await readJSON(file+'.state.json',65536),'portfolio',validatePortfolioRelease);
+  if(!isConfirmedCode(state))throw new Error('Portfolio code transition is not confirmed.');
+  if(canonicalJSON(state.confirmed.release)!==canonicalJSON(release))throw new Error('Portfolio code descriptor differs from confirmed activation.');
+  codeActivationSeq=state.confirmed.activationSeq;
+ }catch(error){if(error.code!=='ENOENT')throw error;}
  // No source path or compiler lookup. The immutable artifact's preview is the
  // exact counterpart of the active public renderer, even after CMS code release.
- return {...release,previewRoot:path.join(release.artifactRoot,'preview')};
+ return {...release,codeActivationSeq,previewRoot:path.join(release.artifactRoot,'preview')};
 }

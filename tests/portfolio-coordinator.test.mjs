@@ -208,3 +208,7 @@ test('health separates historical content renderer from current serving renderer
   const wrong=createLoopbackProbe(origin,{portfolioBuildId:{...portfolioBuildId,sourceSha:'f'.repeat(40)}});await assert.rejects(()=>wrong({kind:'active',descriptor,rendererId:servingRenderer.rendererId}),error=>error.code==='code-conflict');
  }finally{await new Promise(resolve=>server.close(resolve));await env.cleanup();}
 });
+
+test('explicit initial projection checks captured code activation before staging or pointer creation',async()=>{
+ const root=await mkdtemp('/private/tmp/publication-initialize-code-');let probes=0;try{const coordinator=createPublicationCoordinator({publicRoot:path.join(root,'public'),privateRoot:path.join(root,'private'),renderer,native:{},probe:async()=>{probes++;},codeIdentity:{expected:{build:'same',activationSeq:0},read:async()=>({build:'same',activationSeq:2})}});await assert.rejects(coordinator.initialize({prepared:{projects:[],assets:[],externalDependencies:[]},mapping:[]}),error=>error.code==='code-conflict');assert.equal(probes,0);await assert.rejects(readFile(path.join(root,'public/active.json')),{code:'ENOENT'});}finally{await rm(root,{recursive:true,force:true});}
+});

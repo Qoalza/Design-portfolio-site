@@ -17,7 +17,7 @@ export async function publicationRuntime(payload:Payload,user:User) {
  try{process.kill(owner.pid,0);process.kill(owner.childPID,0)}catch{throw new PublicationError('writer-lock-not-confirmed')}
  const release=await readPortfolioRelease(releaseFile,{requireClean:settings.server})
  const native=createNativePublicationAdapter({payload,user,dataRoot:settings.root})
- const identity=(value:typeof release)=>({portfolioBuildId:value.portfolioBuildId,renderer:value.renderer})
+ const identity=(value:typeof release)=>({portfolioBuildId:value.portfolioBuildId,renderer:value.renderer,codeActivationSeq:value.codeActivationSeq})
  const codeIdentity={expected:identity(release),read:async()=>identity(await readPortfolioRelease(releaseFile,{requireClean:settings.server}))}
  const coordinator=createPublicationCoordinator({codeIdentity,publicRoot,privateRoot:path.join(settings.root,'delivery'),renderer:release.renderer,native,probe:createLoopbackProbe(origin,{portfolioBuildId:release.portfolioBuildId})})
  return {coordinator,native,release}

@@ -266,6 +266,7 @@ export function createPublicationCoordinator({publicRoot,privateRoot,renderer,na
   return serial(privateRoot,async()=>{
    await assertDirectory(publicRoot,{create:true,mode:0o755});await roots();
    return withActivationLock(privateRoot,async()=>{
+    await checkCode();
     try {await readJSON(path.join(publicRoot,'active.json'));throw new PublicationError('already-initialized');}
     catch(error) {if(error.code!=='ENOENT')throw error;}
     const candidate=createDeliveryGeneration(prepared,renderer);
