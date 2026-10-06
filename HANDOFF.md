@@ -80,7 +80,16 @@ confirmation prevents a false delivered receipt: state/versions/public descripto
 remain unchanged. Same explicit intent retry creates exactly one version/activation.
 Final test-publication wrapper exit 0 and cleanup confirmed; root/CMS lint and strict
 CMS types PASS; two sequential reviews closed. No application code changed.
-Next: external-request privacy evidence, complete fault/concurrency coverage audit,
+Actual browser network package slice PASS at clean source c41ade5d: real CMS-prepared
+synthetic HTML package loads Google Manrope CSS/font with observed wire headers and
+HTTP 200. Positive control: loopback document carries synthetic HttpOnly canary cookie;
+external requests carry no cookie/Authorization/CMS referrer/capability path. Font
+request refers only to public Google stylesheet. Actual nested renderer loads package;
+raw CDP nested auto-attach unsupported, so complete nested-viewer trace remains pending.
+Cookie removed through viewer cleanup; both fixture wrappers exited 0, own tab closed,
+private temp credentials/status removed. Both builds and extended headless proof PASS.
+User explicitly authorized all future browser checks; do not ask again for those.
+Next: complete nested-frame network evidence, fault/concurrency coverage audit,
 remaining final-candidate browser matrix and Linux proof.
 Corrected-renderer UI fixture closed after acceptance; credential file removed.
 Bounded --browser-review fixture available; provision password through private ephemeral
