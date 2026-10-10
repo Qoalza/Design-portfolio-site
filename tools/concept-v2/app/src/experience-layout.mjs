@@ -51,9 +51,9 @@ export function scrollProgress({scrollY,sectionTop,verticalTravel}){
   return Math.max(0,Math.min(1,(scrollY-sectionTop)/verticalTravel));
 }
 
-export function experienceCompletionTransition({completed,scrollY,sectionTop,viewportHeight,allowRearm=true,reenteringFromAbove=false,verticalTravel}){
+export function experienceCompletionTransition({completed,scrollY,sectionTop,viewportHeight,allowRearm=true,reenteringFromAbove=false,rearmRequested=false,verticalTravel}){
   if(completed){
-    if(reenteringFromAbove)return {completed:false};
+    if(reenteringFromAbove&&rearmRequested)return {completed:false};
     return {completed:allowRearm&&scrollY+viewportHeight<sectionTop?false:true};
   }
   if(scrollY>sectionTop+verticalTravel){

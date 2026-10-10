@@ -23,6 +23,7 @@ test('same renderer compiles approved templates into a private scoped artifact',
   assert.equal(manifest.source.mode,'draft')
   const html=await readFile(path.join(output,'index.html'),'utf8')
   assert.ok(html.includes(base+'assets/'))
+  assert.ok(html.includes('id="early-preloader"'))
   const js=manifest.files.find(file=>/^assets\/index.*\.js$/.test(file.path))!
   const bundle=await readFile(path.join(output,js.path),'utf8')
   assert.ok(bundle.includes(base+'figma/'))

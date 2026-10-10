@@ -57,6 +57,7 @@ export function Experience({cv}){
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     let progress=0;
     let completed=false;
+    let rearmRequested=false;
     let previousX=0;
     let previousTime=performance.now();
     let previousScrollY=window.scrollY;
@@ -91,9 +92,8 @@ export function Experience({cv}){
       entryGate.reset();
       lenis=instance;
       if(lenis)removeVirtualScroll=lenis.on('virtual-scroll',event=>{
-        if(shouldCaptureExperienceEntry({state:entryGate.state,scrollY:window.scrollY,deltaY:event.deltaY,sectionTop})){
+        if((!completed||rearmRequested)&&shouldCaptureExperienceEntry({state:entryGate.state,scrollY:window.scrollY,deltaY:event.deltaY,sectionTop})){
           boundaryCapturePending=true;
-          if(completed)resetVisualProgress();
           entryGate.capture({...event,input:document.documentElement.dataset.scrollInput||'mouse'});
           lenis.scrollTo(sectionTop,{immediate:true,force:true});
           lenis.stop();
@@ -154,7 +154,7 @@ export function Experience({cv}){
       const boundaryCapture=boundaryCapturePending&&currentScrollY>=sectionTop;
       if(boundaryCapture)boundaryCapturePending=false;
       const enteredFromAbove=previousScrollY<sectionTop&&currentScrollY>=sectionTop;
-      const captureEntry=enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth';
+      const captureEntry=(!completed||rearmRequested)&&enteredFromAbove&&entryGate.state==='idle'&&lenis?.isScrolling==='smooth';
       if(captureEntry){
         entryGate.capture({input:document.documentElement.dataset.scrollInput||'mouse'});
         lenis.scrollTo(sectionTop,{immediate:true,force:true});
@@ -164,13 +164,17 @@ export function Experience({cv}){
       const reenteringFromAbove=completed&&(captureEntry||boundaryCapture);
       const rearmPending=completed&&currentScrollY+window.innerHeight<sectionTop;
       if(rearmPending){
+        // Latch only an observed fully-offscreen exit. A visible reversal must
+        // neither clear the final scene nor capture another entry gesture.
+        rearmRequested=true;
         resetVisualProgress();
         allowRearm=!wheelActive&&!scrollActive;
       }
       else if(allowRearm)clearRearm();
-      const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,allowRearm,reenteringFromAbove,verticalTravel:VERTICAL_TRAVEL});
+      const transition=experienceCompletionTransition({completed,scrollY:currentScrollY,sectionTop,viewportHeight:window.innerHeight,allowRearm,reenteringFromAbove,rearmRequested,verticalTravel:VERTICAL_TRAVEL});
       if(transition.completed!==completed){
         completed=transition.completed;
+        rearmRequested=false;
         clearRearm();
         const height=window.innerHeight+(completed?0:VERTICAL_TRAVEL);
         layoutStates.height=`${height}px`;

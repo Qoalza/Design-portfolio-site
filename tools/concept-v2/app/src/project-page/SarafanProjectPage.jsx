@@ -1,4 +1,4 @@
-import {ControlButton,Icon} from '../Controls';
+import {ControlButton,TextButton,Icon} from '../Controls';
 import {GridPattern} from '../GridPattern';
 import {ProjectDocumentHero} from '../project-hero/ProjectDocumentHero';
 import {ProjectParagraphs,RadioProjectSymbol} from './ProjectContent';
@@ -14,7 +14,7 @@ export function SarafanProjectPage({project}){
  const page=project.redesign.page;
  return <div className={styles.page}>
   <ProjectSiteHeader>
-  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={<RadioProjectSymbol logo={project.logo} size={16}/>} className={styles.crumbProject} aria-current="page">{project.title}</ControlButton></nav></div>
+  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><TextButton iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} aria-label="На главную"/><span>/</span><TextButton iconLeftNode={<RadioProjectSymbol logo={project.logo} size={16}/>} aria-current="page">{project.title}</TextButton></nav></div>
   </ProjectSiteHeader><main>
    <ProjectTitleBlock name={project.title} logo={<RadioProjectSymbol logo={project.logo} size={44}/>} status={<Icon name="sarafan-flag" className={styles.flag}/>} tags={project.detailTags} description={project.subtitle} figmaHref={project.materials.fileState==='available'?project.materials.figmaUrl:undefined}/>
    <div className={styles.hero} data-first-view><ProjectDocumentHero project={project}/></div>

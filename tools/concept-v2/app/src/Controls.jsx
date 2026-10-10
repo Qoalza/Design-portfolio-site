@@ -27,6 +27,13 @@ export function ControlButton({children,variant='neutral',iconLeft,iconRight,ico
   const Button=motionLayout?MotionButton:'button';
   return <Button type="button" className={cls} disabled={disabled} onClick={onClick} {...layoutProps} {...props}>{content}</Button>;
 }
+// Library64:4534, Medium / Neutral: content-sized text control without a surface.
+export function TextButton({children,iconLeft,iconRight,iconLeftNode,iconRightNode,iconOnly=false,href,onClick,disabled=false,className='',...props}){
+  const content=<>{iconLeftNode??(iconLeft&&<Icon name={iconLeft}/>)}{!iconOnly&&<span className="text-button-label">{children}</span>}{iconRightNode??(iconRight&&<Icon name={iconRight}/>)}</>;
+  const cls=`text-button ${className}`;
+  if(href&&!disabled)return <a className={cls} href={href} onClick={onClick} {...props}>{content}</a>;
+  return <button type="button" className={cls} disabled={disabled} onClick={onClick} {...props}>{content}</button>;
+}
 export function NavigationTab({children,icon,active=false,disabled=false}){
   const content=<><Icon name={icon}/><span className="control-label">{children}</span></>;
   return disabled?<button className="nav-tab" disabled>{content}</button>:<a href="#top" aria-current={active?'page':undefined} className={`nav-tab ${active?'selected':''}`}>{content}</a>;

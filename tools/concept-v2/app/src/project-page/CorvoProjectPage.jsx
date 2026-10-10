@@ -1,21 +1,21 @@
 import {ProjectDocumentHero} from '../project-hero/ProjectDocumentHero';
-import {ControlButton,Icon} from '../Controls';
+import {ControlButton,TextButton,Icon} from '../Controls';
 import {GridPattern} from '../GridPattern';
 import {HoverMorphAction} from '../morph-icon/HoverMorphAction';
 import {componentIcon,figmaIcon,metricIcon,stackIcon} from '../morph-icon/icons.mjs';
-import {ProjectText,ProjectParagraphs,MetricCopy,CopyBlocks} from './ProjectContent';
+import {ProjectText,ProjectParagraphs,MetricCopy,CopyBlocks,RadioProjectSymbol} from './ProjectContent';
 import {ProjectSiteHeader} from './ProjectSiteHeader';
 import {ProjectTitleBlock} from './ProjectTitleBlock';
 import styles from './CorvoProjectPage.module.css';
 
 function SiteHeader({project}){
  return <ProjectSiteHeader>
-  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><ControlButton variant="ghost" iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} className={styles.crumbHome} aria-label="На главную"/><span>/</span><ControlButton variant="ghost" iconLeftNode={project.logo&&<img src={project.logo.src} width="16" height="16" alt="" aria-hidden="true"/>} className={styles.crumbProject} aria-current="page">{project.title}</ControlButton></nav></div>
+  <div className={styles.crumbRow}><nav className={styles.crumb} aria-label="Хлебные крошки"><TextButton iconLeft="imgColor" iconOnly href={import.meta.env.BASE_URL} aria-label="На главную"/><span>/</span><TextButton iconLeftNode={project.logo?<RadioProjectSymbol logo={project.logo} size={16}/>:undefined} aria-current="page">{project.title}</TextButton></nav></div>
  </ProjectSiteHeader>;
 }
 
 function ProjectIntro({project}){
- return <ProjectTitleBlock name={project.title} logo={project.logo&&<img src={project.logo.src} width="44" height="44" alt=""/>} status={project.materials.projectState==='in_progress'?'В процессе подготовки':'Завершён'} tags={project.detailTags} description={project.subtitle} figmaHref={project.materials.fileState==='available'?project.materials.figmaUrl:undefined}/>;
+ return <ProjectTitleBlock name={project.title} logo={project.logo?<RadioProjectSymbol logo={project.logo} size={44}/>:undefined} status={project.materials.projectState==='in_progress'?'В процессе подготовки':'Завершён'} tags={project.detailTags} description={project.subtitle} figmaHref={project.materials.fileState==='available'?project.materials.figmaUrl:undefined}/>;
 }
 
 function Notice({children,icon}){
@@ -45,7 +45,7 @@ function ScenarioShowcase({showcase}){
 function Content({project}){
  const page=project.redesign.page;
  return <main className={styles.content}>
-  <section className={styles.summary}><div className={styles.summaryInner}><div className={styles.summaryContent}><p>{project.description}</p><ProjectParagraphs paragraphs={page.summary}/><Notice icon="/figma/project-corvo/notice-summary.svg"><p>{page.notice.title}</p><small>{page.notice.body}</small></Notice></div></div></section>
+  <section className={styles.summary}><div className={styles.summaryInner}><div className={styles.summaryContent}><ProjectParagraphs paragraphs={page.summary}/><Notice icon="/figma/project-corvo/notice-summary.svg"><p>{page.notice.title}</p><small>{page.notice.body}</small></Notice></div></div></section>
   <Metrics page={page}/>
   <div className={styles.longForm}>
    <Section title={page.sections[0].heading} className={styles.contextSection}><CopyBlocks blocks={page.sections[0].blocks} sectionId={page.sections[0].id} styles={styles} Notice={Notice}/></Section>

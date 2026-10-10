@@ -16,36 +16,18 @@
 }
 
 .crumbRow {
-  height: 65px;
+  height: 49px;
   border-bottom: 1px solid #1f2224;
 }
 
 .crumb {
   height: 48px;
-  padding: 16px 24px;
+  padding: 16px 40px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  color: #99a1a6;
+  gap: 12px;
+  color: var(--cv2-text-neutral-thin);
   font: 400 14px/16px Onest, sans-serif;
-}
-
-.crumb .crumbProject {
-  width: 67px;
-  min-width: 67px;
-  height: 16px;
-  padding: 0;
-  color: #bbc2c7;
-  border-radius: 4px;
-}
-
-.crumb .crumbHome {
-  width: 16px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0;
-  color: #bbc2c7;
-  border-radius: 4px;
 }
 
 .action {
@@ -62,7 +44,7 @@
 }
 
 .summary {
-  height: 440px;
+  height: 400px;
   border-top: 1px solid #1f2224;
   border-bottom: 1px solid #1f2224;
   background: #141617;
@@ -89,13 +71,13 @@
 
 .summaryContent {
   width: 1000px;
-  margin-left: 52px;
-  padding-top: 48px;
+  margin-left: 32px;
+  padding-top: 32px;
 }
 
 .summaryContent > p {
-  width: 992px;
-  margin: 0 0 24px 4px;
+  width: 960px;
+  margin: 0 0 24px 8px;
   color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
@@ -141,7 +123,7 @@
 
 .metricsHeading {
   height: 188px;
-  padding: 80px 40px 40px 64px;
+  padding: 80px 40px 40px;
 }
 
 .metricsHeading h2,
@@ -162,7 +144,7 @@
 }
 
 .metricsContent {
-  padding: 0 52px;
+  padding: 0 32px;
 }
 
 .metric {
@@ -180,8 +162,8 @@
   height: 226px;
   padding: 0;
   display: grid;
-  width: 1176px;
-  grid-template-columns: 843px 331px;
+  width: 1216px;
+  grid-template-columns: 883px 331px;
   gap: 0;
   overflow: hidden;
   border: 1px solid #1f2224;
@@ -196,7 +178,7 @@
 }
 
 .metricWideMain > p {
-  width: 791px;
+  width: 830px;
   margin: auto 0 0;
   color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
@@ -225,7 +207,7 @@
   height: 294px;
   margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(3, 384px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -285,12 +267,12 @@
 }
 
 .contentSection {
-  padding: 64px;
+  padding: 64px 40px;
   border-bottom: 1px solid #1f2224;
 }
 
 .copyColumn {
-  width: 936px;
+  width: 960px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -327,11 +309,11 @@
   width: 1280px;
   height: 204px;
   margin: 0 auto;
-  padding: 8px 64px 0;
+  padding: 8px 40px 0;
 }
 
 .scenarioShowcaseHeader > div {
-  width: 936px;
+  width: 960px;
 }
 
 .scenarioEyebrow {
@@ -349,7 +331,7 @@
 }
 
 .scenarioShowcaseHeader p:last-child {
-  width: 936px;
+  width: 944px;
   color: #99a1a6;
   font: 350 16px/24px Onest, sans-serif;
 }
@@ -357,7 +339,7 @@
 .scenarioMedia {
   height: 1016px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 1176px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 1216px minmax(0, 1fr);
   background: #141617;
 }
 
@@ -382,7 +364,8 @@
   position: absolute;
   z-index: 1;
   top: 50px;
-  left: 79.5px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 1015px;
   height: 902px;
 }
@@ -400,7 +383,7 @@
 .designSection .notice {
   width: 1000px;
   margin-top: 16px;
-  margin-left: -4px;
+  margin-left: -8px;
 }
 
 .copyColumn .notice p {
@@ -445,14 +428,14 @@
 }
 
 .resultWrap {
-  height: 525px;
+  height: 485px;
   border-top: 1px solid var(--cv2-border-neutral-thin);
   background: #141617;
 }
 
 .result {
-  height: 484px;
-  padding: 64px;
+  height: 444px;
+  padding: 64px 40px 24px;
   border-bottom: 0;
 }
 
@@ -479,7 +462,7 @@
 
 .footerText {
   height: 60px;
-  padding: 20px 48px 24px;
+  padding: 20px 40px 24px;
   display: flex;
   justify-content: space-between;
   color: #788087;
@@ -500,3 +483,5 @@
   color: #788087;
   flex: 0 0 16px;
 }
+
+.metricWideMain .metricHeading { padding: 0; }

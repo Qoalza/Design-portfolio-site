@@ -4,12 +4,15 @@ import {createPreloaderGate} from './preloader-gate.mjs';
 import {prepareFirstView} from './first-view-readiness.mjs';
 
 const initial={visible:true,mode:'normal',reason:null,retryNumber:0,showReadyMessage:false,leaving:false};
+const early=window.__CONCEPT_EARLY_PRELOADER__;
 
 export function FirstVisit({children}){
   const page=useRef(null);
   const gate=useRef(null);
-  const [state,setState]=useState(initial);
+  const [state,setState]=useState(()=>early?.snapshot()??initial);
   useEffect(()=>{
+    // The first HTML owns the same session and SVG until readiness, including retries.
+    if(early)return early.connect((signal,retryNumber)=>prepareFirstView(page.current,signal,retryNumber),setState);
     const session=createPreloaderGate({onState:setState});
     gate.current=session;
     session.start({prepare:(signal,{retryNumber})=>prepareFirstView(page.current,signal,retryNumber)},{immediate:true});
@@ -25,6 +28,6 @@ export function FirstVisit({children}){
     :INITIAL_MESSAGES;
   return <>
     <div ref={page} inert={state.visible} aria-hidden={state.visible}>{children}</div>
-    {state.visible&&<Preloader state={state.mode} captionSet={captions} onRetry={()=>gate.current?.retry()} showReadyMessage={state.showReadyMessage} overlay leaving={state.leaving}/>}
+    {!early&&state.visible&&<Preloader state={state.mode} captionSet={captions} onRetry={()=>gate.current?.retry()} showReadyMessage={state.showReadyMessage} overlay leaving={state.leaving}/>}
   </>;
 }

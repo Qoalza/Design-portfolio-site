@@ -57,7 +57,7 @@ test('every editable page text, notice, metric and action has a runtime consumer
    parent[key]=token;assert.ok(render(p).includes(token),`${p.slug}: ${trail.join('.')}`);count++;
   }
  }
- assert.equal(count,83,'Approved page inventory contains 83 editable text/link values');
+ assert.equal(count,84,'Approved page inventory contains 84 editable text/link values');
 });
 
 test('actual Sarafan page displays the document raster slides and initial screen',()=>{
@@ -79,4 +79,8 @@ test('one/two/three enabled layout adaptives control actual ruler buttons and sl
 test('both project templates choose layout/raster from the document independently',()=>{
  const corvo=structuredClone(projects[0]);corvo.redesign.hero=structuredClone(projects[1].redesign.hero);assert.ok(render(corvo).includes('aria-label="Экраны проекта"'));
  const radio=structuredClone(projects[1]);radio.redesign.hero=structuredClone(projects[0].redesign.hero);assert.ok(render(radio).includes('aria-label="Адаптивный экран проекта"'));
+});
+
+test('home card and complete page introduction remain independent in both renderers',()=>{
+ for(const baseline of projects){const p=structuredClone(baseline);p.description='CARD_ONLY_TOKEN';p.redesign.page.summary=[[{type:'text',text:'PAGE_ONLY_TOKEN'}]];const html=render(p);assert.ok(html.includes('PAGE_ONLY_TOKEN'));assert.ok(!html.includes('CARD_ONLY_TOKEN'));assert.equal(projectCardView(p).description,'CARD_ONLY_TOKEN');}
 });

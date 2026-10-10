@@ -1,5 +1,5 @@
 // Motion copied from USERSPACE/Logo/logo-preloader-final.html. Geometry and relative phase timing stay intact.
-export function mountPreloaderLogo(svg,speedMultiplier){
+export function mountPreloaderLogo(svg,speedMultiplier,initialPhase){
   if(!svg)return ()=>{};
   const CYCLE=1800;
   const ORBIT_END=1700;
@@ -13,7 +13,8 @@ export function mountPreloaderLogo(svg,speedMultiplier){
   const tipMotionBlur=svg.querySelector('#preloader-tip-motion-blur');
   const ballClearance=svg.querySelector('#preloader-ball-clearance');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let elapsed=0,last=performance.now(),frame=0;
+  let elapsed=initialPhase?.elapsed??0,last=performance.now(),frame=0;
+  if(initialPhase)elapsed+=Math.max(0,last-initialPhase.sampledAt)*SPEED*(speedMultiplier?.current??1);
 
   const clamp01=value=>Math.max(0,Math.min(1,value));
   const point=angle=>[cx+radius*Math.cos(angle),cy+radius*Math.sin(angle)];
@@ -127,13 +128,15 @@ export function mountPreloaderLogo(svg,speedMultiplier){
     last=performance.now();
     frame=requestAnimationFrame(tick);
   }
-  render(0);
+  render(elapsed);
   sync();
   reduced.addEventListener('change',sync);
   document.addEventListener('visibilitychange',sync);
-  return ()=>{
+  const dispose=()=>{
     cancelAnimationFrame(frame);
     reduced.removeEventListener('change',sync);
     document.removeEventListener('visibilitychange',sync);
   };
+  dispose.phase=()=>({elapsed,sampledAt:last});
+  return dispose;
 }

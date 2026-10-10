@@ -6,6 +6,7 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {build} from '../concept-v2/app/node_modules/vite/dist/node/index.js';
 import react from '../concept-v2/app/node_modules/@vitejs/plugin-react/dist/index.js';
+import {earlyPreloaderPlugin} from '../concept-v2/app/early-preloader-vite.mjs';
 import {requiredAssets} from '../portfolio-release/project-snapshot.mjs';
 import {validateProjectDocument} from '../../src/lib/project-contract.ts';
 import {exportApprovedRedesign} from '../concept-v2/export-approved-content.mjs';
@@ -51,7 +52,7 @@ export async function compilePreview({inputFile,output,base}){
   },
   generateBundle(){for(const asset of assets)this.emitFile({type:'asset',fileName:asset.publicPath.slice(1),source:asset.bytes});}
  };
- await build({root:appRoot,configFile:false,base,publicDir:false,plugins:[react(),plugin],build:{outDir:output,emptyOutDir:true},logLevel:'error'});
+ await build({root:appRoot,configFile:false,base,publicDir:false,plugins:[react(),plugin,earlyPreloaderPlugin()],build:{outDir:output,emptyOutDir:true},logLevel:'error'});
  // Only approved immutable shell resources, never the entire local public directory.
  const approved=await exportApprovedRedesign({repoRoot});
  const sha=approved.provenance.sourceSha,prefix='tools/concept-v2/app/public/';

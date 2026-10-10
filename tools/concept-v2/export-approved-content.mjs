@@ -127,7 +127,9 @@ export async function exportApprovedRedesign({repoRoot}){
  const projects=[['corvo',corvoCard,corvoPage,layoutHero],['sarafan-radio',sarafanCard,sarafanPage,rasterHero]].map(([slug,data,page,hero],i)=>{
   const baseline=JSON.parse(read(`content/projects/${slug}.json`).toString('utf8'));
   if (i===0 && context.projectDescription!==data.description) throw new Error('Approved Corvo card and first summary descriptions diverge.');
-  return validateProjectDocument({...baseline,logo:i===0?corvoLogo:sarafanLogo,title:data.title,description:data.description,tags:data.tags,detailTags:intros[i].tags,subtitle:intros[i].description,materials:i===0?{...baseline.materials,projectState:'in_progress',fileState:'available',figmaUrl:links.corvoFigma}:{projectState:'completed',fileState:'available',figmaUrl:links.sarafanFigma},redesign:{version:1,card:data.card,page,hero}});
+  const document=validateProjectDocument({...baseline,logo:i===0?corvoLogo:sarafanLogo,title:data.title,description:data.description,tags:data.tags,detailTags:intros[i].tags,subtitle:intros[i].description,materials:i===0?{...baseline.materials,projectState:'in_progress',fileState:'available',figmaUrl:links.corvoFigma}:{projectState:'completed',fileState:'available',figmaUrl:links.sarafanFigma},redesign:{version:1,card:data.card,page,hero}});
+  // Current Figma4392:303694 changes only the home card. The legacy introduction above is preserved once.
+  return i===0?validateProjectDocument({...document,description:'B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта.'}):document;
  });
  const externalDependencies=[...new Set(files.filter(f=>f.mime==='text/css').flatMap(f=>[...read(packagePrefix+f.path).toString('utf8').matchAll(/url\(['"]?(https:\/\/[^'")]+)['"]?\)/g)].map(m=>m[1])))];
  return {projects,assets:[...assets.values()].sort((a,b)=>a.publicPath.localeCompare(b.publicPath)),provenance:{origin:'approved-git-code',sourceSha:SOURCE_SHA,files:[...sourceFiles.entries()].map(([relative,file])=>({path:relative,sha256:file.sha256})).sort((a,b)=>a.path.localeCompare(b.path)),externalDependencies}};

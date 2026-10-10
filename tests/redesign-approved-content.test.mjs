@@ -17,7 +17,7 @@ test('approved code export returns two complete validated v3 documents with sour
 });
 test('Corvo preserves every paragraph/list/heading, both notices, metrics split and distinct material links',async()=>{
  const p=(await get()).projects[0];const page=p.redesign.page;
- assert.equal(p.materials.updatedAt,'13.05.2026');assert.equal(page.summary.length,1);assert.equal(page.metrics.items[0].copy.length,2);
+ assert.equal(p.materials.updatedAt,'13.05.2026');assert.equal(page.summary.length,2);assert.notEqual(page.summary[0][0].text,p.description);assert.equal(p.description,'B2B SaaS-платформа для управления партнёрской программой и рекламным трафиком. Она объединяет работу аффилиатов, компаний и команды продукта.');assert.ok(page.summary[0][0].text.startsWith(p.description.slice(0,-1)+':')); assert.equal(page.metrics.items[0].copy.length,2);
  assert.equal(page.metrics.items[2].value,'1 056');assert.equal(page.metrics.items[3].value,'129');assert.equal(page.metrics.items[3].secondaryValue,'/ 262');
  assert.equal(new Set(page.metrics.items.map(m=>m.action.href)).size,4);
  assert.deepEqual(page.sections.map(s=>s.id),['context','scenarios','system','result']);

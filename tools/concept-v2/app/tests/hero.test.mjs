@@ -3,7 +3,7 @@ import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
-import {captionForPoint,clientPointToSvg,getHeroVariant} from '../src/hero-layout.mjs';
+import {captionForPoint,clientPointToSvg,getHeroMapViewport,getHeroVariant,svgPointToClient} from '../src/hero-layout.mjs';
 import {createCaptionController,DEFAULT_CAPTION,resolveCaptionCandidate} from '../src/hero-caption.mjs';
 import {dotFieldMaskRect,paintDotField} from '../src/hero-dot-field.mjs';
 import {schedulePulses} from '../src/pulse.mjs';
@@ -21,9 +21,9 @@ test('Hero selects the large composition only when its authored width and height
 test('Hero preserves the two authored component structures and the accepted map interaction',async()=>{
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
- assert.match(app,/<SvgLens\/>/);
- assert.match(css,/\.hero\[data-layout="small"\] \.hero-copy\{[^}]*flex:0 0 488px;[^}]*height:412px/);
- assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1280px;[^}]*height:492px;[^}]*padding-inline:24px/);
+ assert.match(app,/<SvgLens layout=\{layout\}\/>/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-copy\{[^}]*flex:0 0 456px;[^}]*height:376px/);
+ assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1280px;[^}]*height:492px;[^}]*padding-inline:40px/);
  assert.match(css,/\.hero\[data-layout="small"\] \.name\{display:none\}/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:1014px;[^}]*padding-inline:24px/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-main\{[^}]*height:100%;[^}]*flex:1 1 auto;[^}]*padding-bottom:56px/);
@@ -408,4 +408,18 @@ test('terminal highlight uses 60ms reveal and 240ms fade',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/svg-lens.css'),'utf8');
   assert.match(css,/\.terminal-arrival\{[^}]*animation:terminal-arrival 300ms linear both/);
   assert.match(css,/@keyframes terminal-arrival\{0%\{opacity:0\}20%\{opacity:1\}100%\{opacity:0\}\}/);
+});
+
+
+test('Small map display and pointer coordinates stay aligned at every node; Large preserves full field',()=>{
+ const rect={left:699,top:439.5,width:720,height:452};
+ const viewport=getHeroMapViewport('small');
+ for(const point of [{x:135,y:163.333},{x:495,y:314.667},{x:867,y:284.667},{x:791,y:490.667}]){
+  const screen=svgPointToClient({...point,rect,...viewport});
+  const restored=clientPointToSvg({clientX:rect.left+screen.x,clientY:rect.top+screen.y,rect,...viewport});
+  assert.ok(Math.abs(restored.x-point.x)<1e-9);
+  assert.ok(Math.abs(restored.y-point.y)<1e-9);
+ }
+ assert.deepEqual(getHeroMapViewport('large'),{viewX:0,viewY:0,viewWidth:1000,viewHeight:2000/3});
+ assert.deepEqual(clientPointToSvg({clientX:0,clientY:0,rect,...viewport}),{x:viewport.viewX,y:viewport.viewY});
 });

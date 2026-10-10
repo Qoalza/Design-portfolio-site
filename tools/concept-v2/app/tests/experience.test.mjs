@@ -153,7 +153,8 @@ test('a completed Experience keeps its final scene on reverse scroll and rearms 
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2100}),{completed:true});
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099,allowRearm:false}),{completed:true});
  assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:2099,allowRearm:true}),{completed:false});
- assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:3000,reenteringFromAbove:true}),{completed:false});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:3000,reenteringFromAbove:true}),{completed:true});
+ assert.deepEqual(experienceCompletionTransition({...input,completed:true,scrollY:3000,reenteringFromAbove:true,rearmRequested:true}),{completed:false});
 });
 
 test('Experience defers its offscreen re-expansion until the active wheel stream is idle',async()=>{
@@ -161,11 +162,13 @@ test('Experience defers its offscreen re-expansion until the active wheel stream
  assert.match(source,/subscribeWheelActivity/);
  assert.match(source,/subscribeScrollActivity/);
  assert.match(source,/allowRearm=!wheelActive&&!scrollActive/);
- assert.match(source,/if\(rearmPending\)\{\s*resetVisualProgress\(\);\s*allowRearm=!wheelActive&&!scrollActive;/);
+ assert.match(source,/rearmRequested=true;\s*resetVisualProgress\(\);\s*allowRearm=!wheelActive&&!scrollActive;/);
  assert.match(source,/const reenteringFromAbove=completed&&\(captureEntry\|\|boundaryCapture\)/);
  assert.match(source,/shouldCaptureExperienceEntry\(\{state:entryGate\.state,scrollY:window\.scrollY,deltaY:event\.deltaY,sectionTop\}\)/);
- assert.match(source,/if\(completed\)resetVisualProgress\(\)/);
- assert.match(source,/allowRearm,reenteringFromAbove,verticalTravel:VERTICAL_TRAVEL/);
+ assert.doesNotMatch(source,/if\(completed\)resetVisualProgress\(\)/);
+ assert.match(source,/if\(\(!completed\|\|rearmRequested\)&&shouldCaptureExperienceEntry/);
+ assert.match(source,/const captureEntry=\(!completed\|\|rearmRequested\)&&enteredFromAbove/);
+ assert.match(source,/allowRearm,reenteringFromAbove,rearmRequested,verticalTravel:VERTICAL_TRAVEL/);
  assert.match(source,/function resetVisualProgress\(\)/);
  assert.match(source,/if\(!completed\)\{[^}]*resetVisualProgress\(\);\}/);
  assert.match(source,/unsubscribeWheelActivity\(\)/);
@@ -324,7 +327,7 @@ test('desktop Experience owns the full-width separator before About',async()=>{
 test('Experience heading keeps scroll orchestration while Resume remains its full Figma control',async()=>{
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const source=await readFile(path.resolve(import.meta.dirname,'../src/Experience.jsx'),'utf8');
- assert.match(css,/\.experience-heading\{[^}]*padding-inline:8px/);
+ assert.match(css,/\.experience-heading\{[^}]*padding-inline:40px/);
  assert.match(css,/\.experience-heading>div>p:last-child\{[^}]*color:var\(--cv2-text-neutral-secondary\)/);
  assert.match(source,/export function Experience\(\{cv\}\)/);
  assert.match(source,/className="experience-resume" variant="light" href=\{cv\} external iconRight="file05">Резюме<\/ControlButton>/);
@@ -370,4 +373,14 @@ test('continuous mouse notches cannot release the entry stopper as a renewed tra
   }
   [...timers.values()][0]();
   assert.equal(gate.onVirtualScroll({deltaY:120,event:{timeStamp:400},input:'mouse'}),true);
+});
+
+
+test('completed Experience does not restart during visible reversal or after scrolling below',()=>{
+ const input={completed:true,sectionTop:3000,viewportHeight:900,verticalTravel:1000};
+ for(const scrollY of [3600,3300,3000,2900,2500,2100]){
+  assert.deepEqual(experienceCompletionTransition({...input,scrollY,reenteringFromAbove:true}),{completed:true});
+ }
+ assert.deepEqual(experienceCompletionTransition({...input,scrollY:2099,allowRearm:false}),{completed:true});
+ assert.deepEqual(experienceCompletionTransition({...input,scrollY:2099}),{completed:false});
 });

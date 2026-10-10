@@ -18,6 +18,8 @@ const corvo=project?.designProfile==='corvo-v1'&&project;
 const sarafan=project?.designProfile==='sarafan-v1'&&project;
 history.scrollRestoration='manual';
 window.scrollTo({top:0,left:0,behavior:'instant'});
+if(!corvo&&!sarafan&&pathname!=='/')window.__CONCEPT_EARLY_PRELOADER__?.dispose();
+
 createRoot(document.getElementById('root')).render(<React.StrictMode>
   <SmoothScroll/>
   {corvo?<FirstVisit><CustomCursor/><CorvoProjectPage project={corvo}/></FirstVisit>

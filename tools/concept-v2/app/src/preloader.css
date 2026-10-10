@@ -175,3 +175,6 @@
   .preloader-caption-content { animation: none; }
   .preloader-caption-content.is-outgoing { display: none; }
 }
+
+@keyframes caption-enter{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes caption-exit{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-6px) scale(.985)}}

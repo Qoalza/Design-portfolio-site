@@ -3,13 +3,16 @@ import './lens.css';
 import './svg-lens.css';
 import {SvgNetwork} from './SvgNetwork';
 import {HEIGHT,WIDTH} from './network-data.mjs';
-import {clientPointToSvg,svgPointToClient} from './hero-layout.mjs';
+import {clientPointToSvg,getHeroMapViewport,svgPointToClient} from './hero-layout.mjs';
 import {createCaptionController,DEFAULT_CAPTION} from './hero-caption.mjs';
 import {Icon} from './Controls';
 import {createFrameTask} from './runtime/frame-task.mjs';
 import {subscribeScrollActivity} from './smooth-scroll-runtime.mjs';
 
-export function SvgLens(){
+export function SvgLens({layout}){
+  const viewport=getHeroMapViewport(layout);
+  const viewportRef=useRef(viewport);
+  viewportRef.current=viewport;
   const area=useRef(null);
   const [point,setPoint]=useState({x:WIDTH*.495,y:HEIGHT*.472});
   const [lensPosition,setLensPosition]=useState({x:0,y:0});
@@ -23,6 +26,10 @@ export function SvgLens(){
   const pointerTaskRef=useRef(null);
   const scrollActiveRef=useRef(false);
   const closingUntil=useRef(0);
+  useEffect(()=>{
+    const rect=area.current?.getBoundingClientRect();
+    if(rect)setLensPosition(svgPointToClient({...pointRef.current,rect,...viewportRef.current}));
+  },[layout]);
   useEffect(()=>{
     captionController.current=createCaptionController({onChange:next=>{
       const previous=captionCurrent.current;
@@ -40,7 +47,7 @@ export function SvgLens(){
   },[]);
   useEffect(()=>captionController.current?.update(active?point:null),[active,point.x,point.y]);
   const setLensActive=next=>{activeRef.current=next;setActive(current=>current===next?current:next);};
-  const setMapPoint=(svgPoint,rect)=>{pointRef.current=svgPoint;setPoint(svgPoint);setLensPosition(svgPointToClient({...svgPoint,rect,viewWidth:WIDTH,viewHeight:HEIGHT}));};
+  const setMapPoint=(svgPoint,rect)=>{pointRef.current=svgPoint;setPoint(svgPoint);setLensPosition(svgPointToClient({...svgPoint,rect,...viewportRef.current}));};
   useEffect(()=>{
     const task=createFrameTask({
       read:payload=>{
@@ -48,7 +55,7 @@ export function SvgLens(){
         if(!rect)return null;
         const inside=payload.clientX>=rect.left&&payload.clientX<=rect.right&&payload.clientY>=rect.top&&payload.clientY<=rect.bottom;
         if(payload.kind==='move'&&!inside)return {kind:payload.kind,inside:false};
-        const svgPoint=clientPointToSvg({clientX:payload.clientX,clientY:payload.clientY,rect,viewWidth:WIDTH,viewHeight:HEIGHT});
+        const svgPoint=clientPointToSvg({clientX:payload.clientX,clientY:payload.clientY,rect,...viewportRef.current});
         return {kind:payload.kind,inside,svgPoint,rect};
       },
       write:result=>{
@@ -104,17 +111,18 @@ export function SvgLens(){
     setLensActive(true);
     const [x,y]=steps[event.key];
     const previous=pointRef.current;
-    const next={x:Math.max(0,Math.min(WIDTH,previous.x+x*WIDTH/100)),y:Math.max(0,Math.min(HEIGHT,previous.y+y*HEIGHT/100))};
+    const {viewX,viewY,viewWidth,viewHeight}=viewportRef.current;
+    const next={x:Math.max(viewX,Math.min(viewX+viewWidth,previous.x+x*viewWidth/100)),y:Math.max(viewY,Math.min(viewY+viewHeight,previous.y+y*viewHeight/100))};
     const rect=area.current.getBoundingClientRect();
     setMapPoint(next,rect);
   }
   return <div className="process-demo vector-mode">
     <div ref={area} className={`process-map ${active?'lens-active':''}`} tabIndex={0} role="group" aria-label="Исследуйте процесс. Перемещайте лупу указателем или стрелками клавиатуры." onKeyDown={key} onFocus={()=>setLensActive(true)} onBlur={()=>{pointerTaskRef.current?.cancel();setLensActive(false)}} onPointerEnter={move} onPointerLeave={leave} onPointerCancel={()=>{closingUntil.current=0;pointerTaskRef.current?.cancel();setLensActive(false)}} onPointerMove={move} onPointerDown={move} style={{'--lx':`${lensPosition.x}px`,'--ly':`${lensPosition.y}px`}}>
-      <SvgNetwork idle={!active}/>
+      <SvgNetwork idle={!active} viewport={viewport}/>
       <div className="lens-window" aria-hidden="true">
         <div className="lens-backing"/>
         <div className="magnified-map">
-          <SvgNetwork revealed viewTransform={{...point,scale:1.55}}/>
+          <SvgNetwork revealed viewport={viewport} viewTransform={{...point,scale:1.55}}/>
         </div>
       </div>
       <div className="lens-rim" aria-hidden="true"/>

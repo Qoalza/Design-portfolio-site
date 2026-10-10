@@ -54,7 +54,7 @@ test('AI desktop panel matches the current 4150:804109 two-column composition',a
  assert.match(app,/className="ai-static-code"/);
  assert.doesNotMatch(app,/ai-code-action|className="ai-copy"|className="ai-view"/);
  assert.match(css,/\.ai-section\{[^}]*height:355px[^}]*padding-top:80px/);
- assert.match(css,/\.ai-desktop-panel\{[^}]*width:1280px[^}]*height:275px[^}]*grid-template-columns:640px 640px/);
+ assert.match(css,/\.ai-desktop-panel\{[^}]*width:1216px[^}]*height:275px[^}]*grid-template-columns:640px 576px/);
  assert.match(css,/\.ai-desktop-copy\{[^}]*height:275px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
  assert.match(css,/\.ai-copy-content\{[^}]*padding:32px 40px/);
  assert.match(css,/\.ai-copy-banner\{[^}]*height:89px[^}]*padding:24px 36px 24px 40px[^}]*border-top:1px solid var\(--cv2-border-neutral-thin\)[^}]*gap:24px[^}]*background:var\(--page\)/);
@@ -95,5 +95,5 @@ test('footer retains the current Figma spacing and muted role',async()=>{
  const css=await readFile(path.join(appRoot,'src/style.css'),'utf8');
  assert.match(app,/<footer className="site-footer"><div className="site-footer-inner">/);
  assert.match(css,/\.site-footer\{[^}]*height:61px[^}]*background:var\(--cv2-container-neutral-faint\)[^}]*border-top:1px solid var\(--cv2-border-neutral-surface\)/);
- assert.match(css,/\.site-footer-inner\{[^}]*padding:20px 48px 24px[^}]*font:400 12px\/14px "Source Code Pro"[^}]*color:#788087/);
+ assert.match(css,/\.site-footer-inner\{[^}]*padding:20px 40px 24px[^}]*font:400 12px\/14px "Source Code Pro"[^}]*color:#788087/);
 });

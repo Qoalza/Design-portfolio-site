@@ -79,7 +79,7 @@ function Header(){
  },[]);
  return <div id="top" ref={shell} className={`site-header-shell${pinned?' is-pinned':''}`}><header className={`site-header${pinned?' is-pinned':''}${leaving?' is-unpinning':''}`}><div className="header-row">
   <a className="brand" href="#top" aria-label="Артур — на главную"><img src="/figma/imgSymbol.svg" width="44" height="44" alt=""/><span><strong>ARTUR</strong><small>Product Designer</small></span></a>
-  <nav aria-label="Основная навигация"><NavigationTab icon="imgColor" active>Главная</NavigationTab><NavigationTooltip section="blog"><NavigationTab icon="imgColor1" disabled>Блог</NavigationTab></NavigationTooltip><NavigationTooltip section="lab"><NavigationTab icon="imgColor1" disabled>Лаборатория</NavigationTab></NavigationTooltip></nav>
+  <nav aria-label="Основная навигация"><NavigationTab icon="imgColor" active>Главная</NavigationTab><NavigationTooltip section="blog"><NavigationTab icon="corvo-lock" disabled>Блог</NavigationTab></NavigationTooltip><NavigationTooltip section="lab"><NavigationTab icon="corvo-lock" disabled>Лаборатория</NavigationTab></NavigationTooltip></nav>
   <div className="header-actions"><span className="availability"><img src="/figma/imgIndicator.svg" width="6" height="8" alt=""/>Открыт к предложениям</span><ControlButton contactMotion variant="accent" href="https://t.me/Coco_soul" external iconRight="imgColor2">Связаться</ControlButton></div>
  </div></header></div>;
 }
@@ -125,8 +125,8 @@ function Hero(){
  useEffect(()=>{const update=()=>setLayout(getHeroVariant({width:window.innerWidth,height:window.innerHeight}));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
  return <section className="hero" data-layout={layout} aria-labelledby="hero-title">
   <div className="hero-main"><div className="hero-layout">
-   <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
-   <div className="hero-graph"><SvgLens/></div>
+   <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">{layout==='small'?<>Разбираюсь в сложных бизнес-процессах,<br/>превращаю их в понятные интерфейсы<br/>и довожу решения до реализации.</>:<>Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</>}</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
+   <div className="hero-graph"><SvgLens layout={layout}/></div>
   </div></div>
   <div className="hero-bottom"><HeroDotField layout={layout}/><div className="hero-bottom-inner"><p className="hero-fact-chip"><span>29 лет</span><i aria-hidden="true"/><span>Екатеринбург</span><i aria-hidden="true"/><span className="hero-fact-chip-desktop">Middle+ / Senior</span></p></div></div>
  </section>;

@@ -150,3 +150,25 @@ test('a new navigation starts with fresh contextual retry copy',async()=>{
   assert.deepEqual([states.at(-1).reason,states.at(-1).retryNumber],['connection',1]);
   gate.dispose();
 });
+
+
+test('HTML loading time belongs to the first visit, without another minimum revolution',async()=>{
+ const timer=clock(),states=[],work=deferred();
+ await timer.advance(5000);
+ const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+ gate.start({prepare:()=>work.promise},{immediate:true,shownAt:0});
+ work.resolve();await timer.advance(0);
+ assert.equal(states.at(-1).showReadyMessage,true);
+ await timer.advance(450+180);
+ assert.equal(states.at(-1).visible,false);
+});
+
+test('ten seconds starts at the early HTML shell and carries through React handoff',async()=>{
+ const timer=clock(),states=[],work=deferred();
+ await timer.advance(9500);
+ const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+ gate.start({prepare:()=>work.promise},{immediate:true,shownAt:0});
+ await timer.advance(499);assert.equal(states.at(-1).mode,'normal');
+ await timer.advance(1);assert.equal(states.at(-1).mode,'slow');
+ gate.dispose();
+});

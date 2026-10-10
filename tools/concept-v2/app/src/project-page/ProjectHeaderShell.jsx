@@ -7,7 +7,7 @@ export function ProjectHeaderShell({children}){
  const shell=useRef(null),pinnedRef=useRef(false),leavingRef=useRef(false);
  const [pinned,setPinned]=useState(false),[leaving,setLeaving]=useState(false);
  useEffect(()=>{
-  let threshold=145,exitTimer=0;
+  let threshold=129,exitTimer=0;
   const paint=next=>{
    if(next){clearTimeout(exitTimer);leavingRef.current=false;setLeaving(false);if(!pinnedRef.current){pinnedRef.current=true;setPinned(true)}return;}
    if(!pinnedRef.current||leavingRef.current)return;
@@ -15,7 +15,7 @@ export function ProjectHeaderShell({children}){
    exitTimer=setTimeout(()=>{pinnedRef.current=false;leavingRef.current=false;setPinned(false);setLeaving(false)},150);
   };
   const paintTask=createFrameTask({read:()=>window.scrollY>threshold,write:paint});
-  const thresholdTask=createFrameTask({read:()=>shell.current?.offsetHeight??145,write:next=>{threshold=next;paintTask.schedule();}});
+  const thresholdTask=createFrameTask({read:()=>shell.current?.offsetHeight??129,write:next=>{threshold=next;paintTask.schedule();}});
   const schedule=()=>paintTask.schedule();
   const invalidate=()=>thresholdTask.schedule();
   const observer=new ResizeObserver(invalidate);

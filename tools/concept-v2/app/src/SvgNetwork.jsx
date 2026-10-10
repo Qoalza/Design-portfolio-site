@@ -2,11 +2,11 @@ import {memo,useId} from 'react';
 import {RoutePulse} from './RoutePulse';
 import {nodes,WIDTH,HEIGHT,STROKE,position,glyph,routes} from './network-data.mjs';
 
-export const SvgNetwork=memo(function SvgNetwork({revealed=false,idle=false,viewTransform=null}){
+export const SvgNetwork=memo(function SvgNetwork({revealed=false,idle=false,viewTransform=null,viewport=null}){
   const id=useId();
   const edge=`${id}-edge`;
   const transform=viewTransform?`translate(${viewTransform.x} ${viewTransform.y}) scale(${viewTransform.scale}) translate(${-viewTransform.x} ${-viewTransform.y})`:undefined;
-  return <svg className={`network vector-network ${revealed?'is-revealed':''}`} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+  return <svg className={`network vector-network ${revealed?'is-revealed':''}`} viewBox={viewport?`${viewport.viewX} ${viewport.viewY} ${viewport.viewWidth} ${viewport.viewHeight}`:`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
     <defs><radialGradient id={edge} cx="50%" cy="48%" r="64%"><stop offset="48%" stopColor="white"/><stop offset="100%" stopColor="black"/></radialGradient><mask id={`${id}-grid`}><rect width={WIDTH} height={HEIGHT} fill={`url(#${edge})`}/></mask></defs>
     <g transform={transform}><g className="construction" mask={`url(#${id}-grid)`} fill="none" strokeWidth=".7" strokeDasharray="5 5">
       {Array.from({length:14},(_,i)=>{const x=48+i*69;return <path key={`v${i}`} d={`M${x} ${[16,43,7,64,26][i%5]} V${HEIGHT-[37,9,62,18][i%4]}`}/>;})}

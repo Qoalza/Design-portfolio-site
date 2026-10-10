@@ -52,8 +52,8 @@ test('both project title blocks reuse library controls and right-anchored copy r
  assert.match(page,/stiffness:420,damping:38,mass:\.8/);
  assert.match(page,/\{layout:\{duration:0\}\}/);
  assert.match(controls,/layout:\s*motionLayout/);
- assert.match(css,/\.heading\{[^}]*gap:16px;padding:0 40px 0 36px/);
- assert.match(css,/\.actions\{[^}]*height:52px[^}]*margin-left:auto[^}]*padding:8px[^}]*gap:8px[^}]*border:0[^}]*background:#1b1d1f/);
+ assert.match(css,/\.heading\{[^}]*gap:16px;padding:0 32px/);
+ assert.match(css,/\.actions\{[^}]*height:36px[^}]*margin-left:auto[^}]*padding:0[^}]*gap:8px[^}]*border:0[^}]*background:transparent/);
  assert.match(css,/\.actions \.button\{[^}]*border:0;box-shadow:inset 0 0 0 1px var\(--control-border,transparent\)/);
  assert.match(css,/\.actions \.copyButton\{width:auto;justify-content:flex-end\}/);
  assert.match(css,/\.actions \.figmaButton\{width:91px;box-shadow:none\}/);
@@ -70,14 +70,14 @@ test('Corvo breadcrumbs use true SVG system icons and preserve the color logo',a
   readFile(path.join(root,'src/Controls.jsx'),'utf8'),
   readFile(path.join(root,'public/figma/imgProjectCorvo.svg'),'utf8'),
  ]);
- assert.match(page,/<ControlButton variant="ghost" iconLeft="imgColor" iconOnly/);
- assert.match(page,/iconLeftNode=\{(?:project\.logo&&)?<img src=\{project\.logo\.src\}/);
+ assert.match(page,/<TextButton iconLeft="imgColor" iconOnly/);
+ assert.match(page,/iconLeftNode=\{project\.logo\?<RadioProjectSymbol logo=\{project\.logo\} size=\{16\}/);
  assert.match(controls,/dangerouslySetInnerHTML:svg/);
  assert.doesNotMatch(page,/V2Button|v2\/Controls/);
  assert.match(corvoLogo,/fill="#2A6E52"/);
  assert.match(corvoLogo,/fill="#43A27A"/);
- assert.match(css,/\.crumb \.crumbHome\s*\{[^}]*width:\s*16px[^}]*height:\s*16px[^}]*padding:\s*0/s);
- assert.match(css,/\.crumb \.crumbProject\s*\{[^}]*width:\s*67px[^}]*height:\s*16px[^}]*padding:\s*0/s);
+ assert.match(css,/\.crumb\s*\{[^}]*gap:\s*12px/s);
+ assert.doesNotMatch(css,/\.crumb \.crumb(?:Home|Project)/);
 });
 
 test('Sarafan project content mirrors the current non-Hero Figma sequence',async()=>{
@@ -94,10 +94,10 @@ test('Sarafan project content mirrors the current non-Hero Figma sequence',async
  assert.doesNotMatch(page,/HoverMorphAction variant="light" icon=\{figmaIcon\} href=\{projectLinks\.sarafanFlow\}/);
  assert.match(page,/src=\{page\.flow\.image\.src\} width="1047" height="860"/);
  assert.match(page,/<GridPattern\/>/);
- assert.match(css,/\.flowInner\{[^}]*width:1280px[^}]*padding:8px 52px 40px 64px/s);
+ assert.match(css,/\.flowInner\{[^}]*width:1280px[^}]*padding:8px 32px 40px 40px/s);
  assert.match(css,/\.flowCopy\{[^}]*width:936px[^}]*padding-right:40px/s);
- assert.match(css,/\.scenarioMedia\{[^}]*height:1016px[^}]*grid-template-columns:minmax\(0,1fr\) 1176px minmax\(0,1fr\)/s);
- assert.match(css,/\.scenarioCanvas>img\{[^}]*top:70px[^}]*left:62px[^}]*width:1047px[^}]*height:860px/s);
+ assert.match(css,/\.scenarioMedia\{[^}]*height:1016px[^}]*grid-template-columns:minmax\(0,1fr\) 1216px minmax\(0,1fr\)/s);
+ assert.match(css,/\.scenarioCanvas>img\{[^}]*top:70px[^}]*left:calc\(50% - 1\.5px\)[^}]*width:1047px[^}]*height:860px/s);
  assert.equal(image.readUInt32BE(16),2014);
  assert.equal(image.readUInt32BE(20),1656);
 });
@@ -175,38 +175,38 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(page,/className=\{styles\.resultWrap\}/);
  assert.doesNotMatch(page,/CorvoProjectPageFidelity/);
 
- assert.match(css,/\.summary\s*\{[^}]*height:\s*440px/s);
+ assert.match(css,/\.summary\s*\{[^}]*height:\s*400px/s);
  assert.match(css,/\.summary\s*\{[^}]*background:\s*#141617/s);
  assert.match(css,/\.summaryInner\s*\{[^}]*width:\s*1280px/s);
  assert.match(css,/\.summaryInner\s*\{[^}]*height:\s*100%/s);
- assert.match(css,/\.summaryContent\s*\{[^}]*width:\s*1000px[^}]*margin-left:\s*52px/s);
- assert.match(css,/\.summaryContent > p\s*\{[^}]*width:\s*992px/s);
+ assert.match(css,/\.summaryContent\s*\{[^}]*width:\s*1000px[^}]*margin-left:\s*32px/s);
+ assert.match(css,/\.summaryContent > p\s*\{[^}]*width:\s*960px/s);
  assert.match(css,/\.summaryContent > p:last-of-type\s*\{[^}]*margin-bottom:\s*40px/s);
  assert.match(css,/\.metrics\s*\{[^}]*height:\s*801px/s);
- assert.match(css,/\.metricsContent\s*\{[^}]*padding:\s*0 52px/s);
- assert.match(css,/\.metricWide\s*\{[^}]*grid-template-columns:\s*843px 331px/s);
+ assert.match(css,/\.metricsContent\s*\{[^}]*padding:\s*0 32px/s);
+ assert.match(css,/\.metricWide\s*\{[^}]*grid-template-columns:\s*883px 331px/s);
  assert.match(css,/\.metricWide\s*\{[^}]*border:\s*1px solid #1f2224/s);
  assert.match(css,/\.metricWideMain\s*\{[^}]*border-right:\s*1px solid #1f2224/s);
  assert.match(css,/\.metricWideAside\s*\{[^}]*background:\s*#141617 url\('\/figma\/dot-tile\.svg'\) repeat/s);
- assert.match(css,/\.metricRow\s*\{[^}]*grid-template-columns:\s*repeat\(3, 384px\)/s);
+ assert.match(css,/\.metricRow\s*\{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/s);
  assert.match(css,/\.metricRow\s*\{[^}]*margin-top:\s*12px/s);
  assert.match(css,/\.metricRow \.metric\s*\{[^}]*height:\s*294px[^}]*gap:\s*0/s);
  assert.match(css,/\.metricRow \.metric > p\s*\{[^}]*height:\s*72px[^}]*margin:\s*20px 0 0 4px[^}]*overflow:\s*hidden/s);
  assert.match(css,/\.metricRow \.metric > \.action\s*\{[^}]*margin-top:\s*32px/s);
- assert.match(css,/\.copyColumn\s*\{[^}]*width:\s*936px/s);
+ assert.match(css,/\.copyColumn\s*\{[^}]*width:\s*960px/s);
  assert.match(css,/\.contextSection\s*\{[^}]*height:\s*432px/s);
  assert.match(css,/\.longForm\s*\{[^}]*height:\s*1010px/s);
  assert.match(css,/\.scenarioTextSection\s*\{[^}]*height:\s*464px/s);
  assert.match(css,/\.scenarioShowcase\s*\{[^}]*height:\s*1220px/s);
  assert.doesNotMatch(css,/\.scenarioShowcase\s*\{[^}]*border-bottom:/s);
- assert.match(css,/\.scenarioShowcaseHeader\s*\{[^}]*padding:\s*8px 64px 0/s);
+ assert.match(css,/\.scenarioShowcaseHeader\s*\{[^}]*padding:\s*8px 40px 0/s);
  assert.match(css,/\.scenarioShowcaseHeader h2\s*\{[^}]*margin:\s*0 0 24px/s);
  assert.match(css,/\.scenarioEyebrow\s*\{[^}]*font:\s*500 14px\/16px Onest/s);
  assert.match(css,/\.scenarioEyebrow\s*\{[^}]*letter-spacing:\s*-\.1px/s);
- assert.match(css,/\.scenarioMedia\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 1176px minmax\(0, 1fr\)/s);
+ assert.match(css,/\.scenarioMedia\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 1216px minmax\(0, 1fr\)/s);
  assert.match(css,/\.scenarioHatch\s*\{[^}]*border-top:\s*1px solid #1f2224[^}]*border-bottom:\s*1px solid #1f2224[^}]*border-left:\s*0[^}]*border-right:\s*0/s);
  assert.match(css,/\.scenarioCanvas\s*\{[^}]*border:\s*1px solid #1f2224/s);
- assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*top:\s*50px[^}]*left:\s*79\.5px[^}]*width:\s*1015px[^}]*height:\s*902px/s);
+ assert.match(css,/\.scenarioCanvas > img\s*\{[^}]*top:\s*50px[^}]*left:\s*50%[^}]*width:\s*1015px[^}]*height:\s*902px/s);
  assert.match(page,/import \{GridPattern\} from '\.\.\/GridPattern'/);
  assert.match(page,/<GridPattern\/>/);
  assert.doesNotMatch(css,/\.scenarioCanvas::before/);
@@ -219,8 +219,8 @@ test('Corvo project layout preserves the measured 1280px Figma structure',async(
  assert.match(css,/\.copyColumn h3\s*\{[^}]*margin:\s*0/s);
  assert.match(css,/\.copyColumn h3 \+ p\s*\{[^}]*margin-top:\s*-12px/s);
  assert.match(css,/\.designSection \.notice\s*\{[^}]*margin-top:\s*16px/s);
- assert.match(css,/\.result\s*\{[^}]*height:\s*484px/s);
- assert.match(css,/\.resultWrap\s*\{[^}]*height:\s*525px/s);
+ assert.match(css,/\.result\s*\{[^}]*height:\s*444px/s);
+ assert.match(css,/\.resultWrap\s*\{[^}]*height:\s*485px/s);
  assert.match(css,/\.resultWrap\s*\{[^}]*background:\s*#141617/s);
  assert.match(css,/\.footerText\s*\{[^}]*line-height:\s*14px/s);
 });

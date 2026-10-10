@@ -50,6 +50,8 @@ document.title=isCorvoProject?`${projectBySlug('corvo').title} — Product Desig
       :isNavigationLab?'Переходы · Concept V.2'
         :'Артур — Product Designer · Concept V.2';
 
+if(!isCorvoProject&&!isSarafanProject&&normalizedPath!=='')window.__CONCEPT_EARLY_PRELOADER__?.dispose();
+
 createRoot(document.getElementById('root')).render(<React.StrictMode>
   <SmoothScroll/>
   {isCorvoProject?<FirstVisit><CustomCursor/><CorvoProjectPage project={projectBySlug('corvo')}/></FirstVisit>

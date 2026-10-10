@@ -78,7 +78,7 @@ test('desktop Process matches the current 4150:804103 card geometry and preserve
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const fade=await readFile(path.resolve(import.meta.dirname,'../public/figma/process-grid-fade.svg'),'utf8');
  assert.match(css,/:root\{--cv2-decoration-hatch:var\(--cv2-border-neutral-thin\)\}/);
- assert.match(css,/\.steps\{[^}]*grid-template-columns:minmax\(0,401fr\) minmax\(0,446fr\) minmax\(0,401fr\)[^}]*gap:16px[^}]*background:transparent[^}]*border:0/);
+ assert.match(css,/\.steps\{[^}]*grid-template-columns:minmax\(0,383fr\) minmax\(0,441fr\) minmax\(0,360fr\)[^}]*gap:16px[^}]*background:transparent[^}]*border:0/);
  assert.match(css,/\.step\{[^}]*height:297px[^}]*padding:0[^}]*border:1px solid var\(--cv2-border-neutral-thin\)[^}]*border-radius:12px[^}]*background:var\(--surface\)/);
  assert.match(css,/\.step-body\{[^}]*position:absolute[^}]*left:-1px[^}]*right:-1px[^}]*top:0[^}]*height:296px[^}]*display:flex[^}]*gap:48px[^}]*padding:36px/);
  assert.match(css,/\.step-grid\{[^}]*width:214px[^}]*height:194px[^}]*overflow:hidden[^}]*border-radius:12px 0 0 0/);
