@@ -1,0 +1,19 @@
+{
+  "finalNativeAudit": "PASS",
+  "contentId": "b158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c",
+  "changedTables": [
+    "_projects_v",
+    "_projects_v_rels",
+    "_projects_v_version_release_assets",
+    "_projects_v_version_release_external_dependencies",
+    "projects"
+  ],
+  "projectCount": 2,
+  "assetCount": 163,
+  "backupVerified": true,
+  "authAndSecretUnchanged": true,
+  "nativeSchemaUnchanged": true,
+  "otherProjectAndPriorVersionsUnchanged": true,
+  "nativePublishedAndDraftMatch": true,
+  "priorGenerationRetained": true
+}

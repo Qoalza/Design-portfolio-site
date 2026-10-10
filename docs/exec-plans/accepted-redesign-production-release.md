@@ -1,6 +1,6 @@
 # Принятые правки Concept V2: production code release
 
-Status: Ready for execution. 2026-10-11. OPS / PORTFOLIO / ADMIN / SHARED; FULL, HIGH.
+Status: Complete. 2026-10-11. OPS / PORTFOLIO / ADMIN / SHARED; FULL, HIGH.
 
 ## Результат и baseline
 
@@ -12,7 +12,7 @@ Fresh production read-only preflight: source e804c00ae4e8b59750a1311f95c0f6b7dce
 
 Approved home/project layout, text-button breadcrumbs, title colors, About alignment/NBSP, Experience exit, project/header/scenario sizing, native first-HTML preloader with original minimum/retry/copy/morph. Shared compatibility separates card description from page.summary; Payload editor gets independent fields with existing one-time legacy-copy adapter. Integrate actual independent public+preview compiler, preserving its content-independent source, required DTO injection, scoped AVIF mapping, capabilities and code controller. No new dependencies.
 
-No main merge/push, Figma write, OS/proxy/ports/ownership changes, account/session/secret configuration, schema migration, initial projection/bootstrap, draft publication, native DB changes or copying sandbox/canonical content into production. Live content stays the source of truth; local exporter copy is not permission to replace live data. Previously accepted browser evidence limitation remains explicit: tools refused local browser selection; no alternate surface/raw CDP workaround.
+No main merge/push, Figma write, OS/proxy/ports/ownership changes, account/session/secret configuration, schema migration, initial projection/bootstrap, unapproved draft publication, unapproved native DB changes or copying sandbox/canonical content into production. Live content stays the source of truth; local exporter copy is not permission to replace live data. Previously accepted browser evidence limitation remains explicit: tools refused local browser selection; no alternate surface/raw CDP workaround.
 
 ## Stages
 
@@ -29,4 +29,10 @@ Stop before live mutation on changed production baseline, dirty/unknown release 
 
 ## Acceptance
 
-Exact candidate clean Git HEAD and verified Portfolio and separate Payload artifacts. Both Shared readers preserve legacy intro once without changing immutable generation identity; updated Payload editor edits card/page fields independently. Early preloader exists in initial public+preview HTML before external application modules. Active production process build IDs match released packages. Public active generation bytes/contentId/asset bytes and CMS schema remains unchanged; CMS supervisor PID/lock remain, owned writer reloads into exact CMS package. A failed controller response is reconciled using the original intent, never blind restart/selection. Missing actual browser coverage is reported rather than labeled PASS.
+Exact candidate clean Git HEAD and verified Portfolio and separate Payload artifacts. Both Shared readers preserve legacy intro once without changing immutable generation identity; updated Payload editor edits card/page fields independently. Early preloader exists in initial public+preview HTML before external application modules. Active production process build IDs match released packages. During both code-only activations public generation bytes/contentId/assets and native tables/schema remain unchanged, and CMS supervisor retains ownership during writer reload. The separately approved Corvo card text publication afterward may create a new generation through native hooks/coordinator; all unrelated projects/assets/auth/schema must remain unchanged. A failed controller response is reconciled using the original intent, never blind restart/selection. Missing actual browser coverage is reported rather than labeled PASS.
+
+## Completed outcome — 2026-10-11
+
+All stages complete. Code sources Portfolio856b1f3615bc74366745bfe19c5a982303872265 and CMS3c72c0a642359295d0a602080b4e3b99640c2ddd are independently live and identity-verified. User also approved shorter Corvo home description/full independent project intro and autonomous execution of the full release. This scoped content step used the existing native coordinator, refused unrelated drafts, retained protected backup/journal and delivered operation1d2a510d-0159-4c10-8366-b5ed99eef87a. New active content b158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c; all163 assets, other project, auth and schema preserved. No sandbox source or auth changes.
+
+Final HTTPS routes/private guards/initial HTML/DTO PASS; 451 post-code resources and163 new-generation assets byte-perfect; published+draft native previews PASS; final native/schema/backup audit PASS. Both services healthy. Exact evidence, rollback compatibility limits, auxiliary source-hash gap and explicit browser/Docker limitations: design-reference/accepted-redesign-production-20261011/REPORT.md. No runtime changes after exact packaged SHAs; closing documentation commits do not claim another deployed build.

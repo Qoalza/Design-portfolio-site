@@ -1,0 +1,57 @@
+{
+  "finalHTTPS": "PASS",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "buildIdentity": true,
+      "earlyHTMLLoader": true,
+      "currentContentScope": true,
+      "independentCardAndPageCopyDTO": true,
+      "fullIntroOnce": true
+    },
+    {
+      "path": "/projects/corvo",
+      "status": 200,
+      "buildIdentity": true,
+      "earlyHTMLLoader": true,
+      "currentContentScope": true,
+      "independentCardAndPageCopyDTO": true,
+      "fullIntroOnce": true
+    },
+    {
+      "path": "/projects/sarafan-radio",
+      "status": 200,
+      "buildIdentity": true,
+      "earlyHTMLLoader": true,
+      "currentContentScope": true,
+      "independentCardAndPageCopyDTO": true,
+      "fullIntroOnce": true
+    },
+    {
+      "path": "/projects",
+      "status": 307
+    },
+    {
+      "path": "/__missing_release_check__",
+      "status": 404
+    },
+    {
+      "path": "/admin/login",
+      "status": 200
+    },
+    {
+      "path": "/api/internal/cms-health",
+      "status": 404
+    },
+    {
+      "path": "/__internal/health",
+      "status": 404
+    },
+    {
+      "path": "/api/users/me",
+      "status": 200,
+      "unauthenticated": true
+    }
+  ]
+}
