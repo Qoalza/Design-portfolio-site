@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import path from 'node:path';
-import { createDeliveryGeneration, validateDeliveryGeneration, DELIVERY_CAPABILITIES, contentHash } from '../tools/portfolio-delivery/contract.mjs';
+import { createDeliveryGeneration, validateDeliveryGeneration, DELIVERY_CAPABILITIES, contentHash, canonicalJSON } from '../tools/portfolio-delivery/contract.mjs';
 import { scopedAssetPath, canonicalAssetPath, renderedProjects, scopedProjectImageSource } from '../tools/portfolio-delivery/asset-resolution.mjs';
 import { createGenerationReader } from '../tools/portfolio-delivery/reader.mjs';
 import { fixture, layoutFixture } from './fixtures/portfolio-delivery.mjs';
@@ -139,4 +139,20 @@ test('JPEG bytes under an immutable PNG path keep authoring bytes and get actual
  assert.equal(generation.assets.find(a=>a.publicPath===asset.publicPath).mime,'image/jpeg');
  assert.equal(generation.projects[0].redesign.card.preview.front.src,source.projects[0].redesign.card.preview.front.src);
  assert.deepEqual(validateDeliveryGeneration(generation,renderer),generation);
+});
+
+test('retained pre-copyVersion generation keeps its original digest and normalizes only presentation',()=>{
+ const generation=make();
+ for(const project of generation.projects)delete project.redesign.page.copyVersion;
+ const core={...generation};delete core.contentId;
+ generation.contentId=contentHash(canonicalJSON(core));
+ const original=structuredClone(generation);
+ const validated=validateDeliveryGeneration(generation,renderer);
+ assert.deepEqual(validated,original);
+ const presented=renderedProjects(validated);
+ assert.equal(presented[0].redesign.page.copyVersion,1);
+ assert.deepEqual(presented[0].redesign.page.summary,original.projects[0].redesign.page.summary);
+ assert.deepEqual(generation,original);
+ const tampered=structuredClone(generation);tampered.projects[0].description='Changed without new digest';
+ assert.throws(()=>validateDeliveryGeneration(tampered,renderer),/digest/);
 });

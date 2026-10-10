@@ -1,4 +1,5 @@
 import { projectImageSource } from '../../src/lib/project-image-source.mjs';
+import { independentProjectCopy } from '../../src/lib/project-copy.ts';
 import { digestPattern } from './contract.mjs';
 function prefix(generation) {
  if (!digestPattern.test(generation.contentId)) throw new Error('Invalid content identity.');
@@ -30,7 +31,7 @@ export function renderedProjects(generation,base=prefix(generation)) {
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key,child]) => [key,map(child,key)]));
   return value;
  }
- return generation.projects.map(project => map(project));
+ return generation.projects.map(project => map(independentProjectCopy(project)));
 }
 export function scopedProjectImageSource(generation,image) {
  const canonical = image.src.startsWith('/__content/') ? canonicalAssetPath(generation,image.src) : image.src;

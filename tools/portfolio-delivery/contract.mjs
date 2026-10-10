@@ -90,7 +90,16 @@ export function validateRenderer(renderer) {
 function normalize(value) {
  exactObject(value, ['contractVersion', 'contentId', 'capabilities', 'projects', 'assets', 'externalDependencies'], 'Delivery generation');
  if (value.contractVersion !== DELIVERY_VERSION || !Array.isArray(value.projects) || !Array.isArray(value.assets)) throw new Error('Unsupported delivery contract.');
- const projects = value.projects.map(validateProjectDocument).sort((a,b) => a.catalogOrder - b.catalogOrder || compare(a.slug,b.slug));
+ // Validation may prepare legacy authoring copy. Immutable delivery identity must
+ // keep the validated original representation; presentation adapts it separately.
+ const projects = value.projects.map(value => {
+  const project = validateProjectDocument(value);
+  if (value.redesign?.page?.copyVersion === undefined && project.redesign?.page?.copyVersion === 1) {
+   delete project.redesign.page.copyVersion;
+   if (project.redesign.page.templateId === 'corvo-redesign-v1') project.redesign.page.summary.shift();
+  }
+  return project;
+ }).sort((a,b) => a.catalogOrder - b.catalogOrder || compare(a.slug,b.slug));
  const slugs = projects.map(project => project.slug);
  if (new Set(slugs).size !== slugs.length) throw new Error('Duplicate project slug.');
  const placements = projects.flatMap(project => project.homePlacement ? [project.homePlacement] : []);

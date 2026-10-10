@@ -1,5 +1,6 @@
 import { validateProjectRedesign, type ProjectRedesign } from "./project-redesign-contract.ts";
 import path from "node:path";
+import { independentProjectCopy } from "./project-copy.ts";
 import {
   PROJECT_VISUAL_TEMPLATES,
   validateTemplateAssets,
@@ -425,7 +426,7 @@ function optionalProperty<T>(key: string, value: T | undefined): Record<string, 
 }
 
 export function validateProjectDocument(value: unknown): ProjectDocument {
-  const input = record(value, "Project document");
+  const input = record(independentProjectCopy(value), "Project document");
   exactKeys(input, PROJECT_KEYS, "Project document");
   if (input.schemaVersion !== PROJECT_DOCUMENT_VERSION) throw new Error(`Project document schemaVersion must be ${PROJECT_DOCUMENT_VERSION}.`);
   const profile = string(input.designProfile, "Project document.designProfile") as ProjectDesignProfile;

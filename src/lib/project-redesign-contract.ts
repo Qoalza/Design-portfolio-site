@@ -14,11 +14,11 @@ export type RedesignMetric = {
   secondaryValue?: string; copy: RedesignParagraph[]; action: RedesignAction;
 };
 export type RedesignPage =
-  | { templateId: "corvo-redesign-v1"; summary: RedesignParagraph[]; notice: RedesignNotice;
+  | { templateId: "corvo-redesign-v1"; copyVersion: 1; summary: RedesignParagraph[]; notice: RedesignNotice;
       metrics: { heading: string; description: string; aside: string; items: RedesignMetric[] };
       sections: Array<{ id: "context" | "scenarios" | "system" | "result"; heading: string; blocks: RedesignCopyBlock[] }>;
       showcase: { eyebrow: string; title: string; description: RedesignParagraph; image: ProjectImage } }
-  | { templateId: "sarafan-redesign-v1"; summary: RedesignParagraph[]; notice: RedesignNotice;
+  | { templateId: "sarafan-redesign-v1"; copyVersion: 1; summary: RedesignParagraph[]; notice: RedesignNotice;
       flow: { title: string; paragraphs: RedesignParagraph[]; action: RedesignAction; image: ProjectImage };
       sections: Array<{ id: "receiving" | "states"; heading: string; paragraphs: RedesignParagraph[] }>;
       result: { heading: string; paragraphs: RedesignParagraph[] } };
@@ -126,12 +126,13 @@ function copyBlock(value: unknown, location: string, context: RedesignValidation
   throw new Error(`${location}.type is not supported.`);
 }
 function page(value: unknown, location: string, context: RedesignValidationContext): RedesignPage {
-  const header = object(value, ["templateId", "summary", "notice", "metrics", "sections", "showcase", "flow", "result"], location);
+  const header = object(value, ["templateId", "copyVersion", "summary", "notice", "metrics", "sections", "showcase", "flow", "result"], location);
   const templateId = choice(header.templateId, ["corvo-redesign-v1", "sarafan-redesign-v1"], `${location}.templateId`);
   if ((templateId === "corvo-redesign-v1" && context.profile !== "corvo-v1") || (templateId === "sarafan-redesign-v1" && context.profile !== "sarafan-v1")) throw new Error(`${location}.templateId does not match designProfile.`);
-  const common = { summary: paragraphs(header.summary, `${location}.summary`, context, templateId === "corvo-redesign-v1" ? 0 : 1), notice: notice(header.notice, `${location}.notice`) };
+  if (header.copyVersion !== 1) throw new Error(`${location}.copyVersion must be 1.`);
+  const common = { copyVersion: 1 as const, summary: paragraphs(header.summary, `${location}.summary`, context, templateId === "corvo-redesign-v1" ? 0 : 1), notice: notice(header.notice, `${location}.notice`) };
   if (templateId === "corvo-redesign-v1") {
-    const input = object(value, ["templateId", "summary", "notice", "metrics", "sections", "showcase"], location);
+    const input = object(value, ["templateId", "copyVersion", "summary", "notice", "metrics", "sections", "showcase"], location);
     const metric = object(input.metrics, ["heading", "description", "aside", "items"], `${location}.metrics`);
     const items = list(metric.items, `${location}.metrics.items`, (value, at): RedesignMetric => {
       const item = object(value, ["id", "label", "value", "secondaryValue", "copy", "action"], at);
@@ -148,7 +149,7 @@ function page(value: unknown, location: string, context: RedesignValidationConte
     const showcase = object(input.showcase, ["eyebrow", "title", "description", "image"], `${location}.showcase`);
     return { templateId, ...common, metrics: { heading: text(metric.heading, `${location}.metrics.heading`), description: text(metric.description, `${location}.metrics.description`), aside: text(metric.aside, `${location}.metrics.aside`), items }, sections, showcase: { eyebrow: text(showcase.eyebrow, `${location}.showcase.eyebrow`), title: text(showcase.title, `${location}.showcase.title`), description: context.paragraph(showcase.description, `${location}.showcase.description`), image: context.image(showcase.image, `${location}.showcase.image`) } };
   }
-  const input = object(value, ["templateId", "summary", "notice", "flow", "sections", "result"], location);
+  const input = object(value, ["templateId", "copyVersion", "summary", "notice", "flow", "sections", "result"], location);
   const flow = object(input.flow, ["title", "paragraphs", "action", "image"], `${location}.flow`);
   const sections = list(input.sections, `${location}.sections`, (value, at) => {
     const section = object(value, ["id", "heading", "paragraphs"], at);
