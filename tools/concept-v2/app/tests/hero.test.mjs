@@ -24,7 +24,8 @@ test('Hero preserves the two authored component structures and the accepted map 
  assert.match(app,/<SvgLens layout=\{layout\}\/>/);
  assert.match(css,/\.hero\[data-layout="small"\] \.hero-copy\{[^}]*flex:0 0 456px;[^}]*height:376px/);
  assert.match(css,/\.hero\[data-layout="small"\] \.hero-layout\{[^}]*width:1280px;[^}]*height:492px;[^}]*padding-inline:40px/);
- assert.match(css,/\.hero\[data-layout="small"\] \.name\{display:none\}/);
+ assert.doesNotMatch(app,/<p className="name">Артур<\/p>/);
+ assert.match(app,/layout==='large'&&<span className="hero-name-space" aria-hidden="true"\/>/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-layout\{[^}]*width:1200px;[^}]*height:1014px;[^}]*padding-inline:24px/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-main\{[^}]*height:100%;[^}]*flex:1 1 auto;[^}]*padding-bottom:56px/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-copy\{[^}]*width:751px;[^}]*height:316px/);
@@ -36,7 +37,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
  const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
  const waveMask=await readFile(path.resolve(import.meta.dirname,'../public/figma/hero-bottom-wave-mask.svg'),'utf8');
- assert.match(app,/className="hero-fact-chip"><span>29 лет<\/span><i aria-hidden="true"\/><span>Екатеринбург<\/span><i aria-hidden="true"\/><span className="hero-fact-chip-desktop">Middle\+ \/ Senior<\/span>/);
+ assert.match(app,/<HeroFacts\/>/);
  assert.doesNotMatch(app,/hero-fact-chip-mobile/);
  assert.doesNotMatch(app,/\['ВОЗРАСТ','29 лет'\]/);
  assert.doesNotMatch(app,/className="disciplines"/);
@@ -53,8 +54,7 @@ test('Hero lower field uses a native dot treatment over the exact Bg-main surfac
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots\{[^}]*background-image:radial-gradient\(circle at 1\.5px 1\.5px,#232526 0 1\.5px,transparent 1\.6px\)[^}]*mask-image:none/);
  assert.match(css,/\.hero\[data-layout="large"\] \.hero-bottom-dots::after\{[^}]*radial-gradient\(ellipse 48% 100% at 50% 0,color-mix\(in srgb,var\(--cv2-container-neutral-bg-main\) 98%,transparent\)[^}]*linear-gradient\(to bottom,var\(--cv2-container-neutral-bg-main\) 0%[^}]*44%[^}]*52%/);
  assert.doesNotMatch(css,/hero-bottom-wave-mask-large/);
- assert.match(css,/\.hero-fact-chip\{[^}]*gap:12px[^}]*width:auto[^}]*height:42px[^}]*padding:0 20px[^}]*border:1px solid var\(--cv2-border-neutral-thin\)/);
- assert.match(css,/\.hero-fact-chip i\{[^}]*width:4px[^}]*height:4px[^}]*background:var\(--cv2-element-neutral-thin\)/);
+
 });
 
 test('desktop Hero wave preserves the source map without a mobile layout',async()=>{

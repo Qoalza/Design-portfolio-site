@@ -1,3 +1,4 @@
+import {HeroFacts} from './HeroFacts';
 import {NavigationTooltip} from './NavigationTooltip';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {ControlButton,NavigationTab,Icon} from './Controls';
@@ -125,10 +126,10 @@ function Hero(){
  useEffect(()=>{const update=()=>setLayout(getHeroVariant({width:window.innerWidth,height:window.innerHeight}));update();window.addEventListener('resize',update);return()=>window.removeEventListener('resize',update)},[]);
  return <section className="hero" data-layout={layout} aria-labelledby="hero-title">
   <div className="hero-main"><div className="hero-layout">
-   <div className="hero-copy"><div className="hero-text"><div className="hero-title"><p className="name">Артур</p><h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">{layout==='small'?<>Разбираюсь в сложных бизнес-процессах,<br/>превращаю их в понятные интерфейсы<br/>и довожу решения до реализации.</>:<>Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</>}</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
+   <div className="hero-copy"><div className="hero-text"><div className="hero-title">{layout==='large'&&<span className="hero-name-space" aria-hidden="true"/>}<h1 id="hero-title">Продуктовый дизайнер</h1></div><p className="intro">{layout==='small'?<>Разбираюсь в сложных бизнес-процессах,<br/>превращаю их в понятные интерфейсы<br/>и довожу решения до реализации.</>:<>Разбираюсь в сложных бизнес-процессах, превращаю их в понятные интерфейсы и довожу решения до реализации.</>}</p></div><div className="hero-actions"><ControlButton href="#projects" className="works-button">Мои работы</ControlButton><ControlButton variant="ghost" href={cv} external iconRight="file05">CV</ControlButton></div></div>
    <div className="hero-graph"><SvgLens layout={layout}/></div>
   </div></div>
-  <div className="hero-bottom"><HeroDotField layout={layout}/><div className="hero-bottom-inner"><p className="hero-fact-chip"><span>29 лет</span><i aria-hidden="true"/><span>Екатеринбург</span><i aria-hidden="true"/><span className="hero-fact-chip-desktop">Middle+ / Senior</span></p></div></div>
+  <div className="hero-bottom"><HeroDotField layout={layout}/></div><HeroFacts/>
  </section>;
 }
 function SectionTitle({eyebrow,title,children,className='',id}){

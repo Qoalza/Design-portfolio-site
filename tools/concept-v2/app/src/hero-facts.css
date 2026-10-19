@@ -1,0 +1,30 @@
+/* Source4442:731645/731960: one475×40 row above the decorative field.
+   Small's Hero ends1px before the shell; bottom43 yields the authored44px. */
+.hero-bottom-inner{position:absolute;inset:auto 0 43px;z-index:2;display:flex;align-items:center;justify-content:center;width:100%;height:40px;pointer-events:none}
+.hero[data-layout="large"] .hero-bottom-inner{bottom:45px}
+/* Small's odd-width group is pixel-snapped to x483 in its1440px source. */
+.hero[data-layout="small"] .hero-facts-row{transform:translateX(.5px)}
+.hero-facts-row{display:flex;align-items:flex-start;gap:16px;width:475px;height:40px;pointer-events:auto}
+.hero-fact-chip{box-sizing:border-box;display:flex;align-items:center;gap:12px;flex:0 0 342px;width:342px;height:40px;margin:0;padding:11px 20px;overflow:hidden;border:1px solid var(--cv2-border-neutral-thin);border-radius:8px;background:var(--cv2-container-neutral-thin);color:var(--cv2-text-neutral-muted);font:400 14px/16px Onest,sans-serif;letter-spacing:-.1px;white-space:nowrap}
+.hero-fact-chip>span:first-child{flex:0 0 43px}
+.hero-fact-chip>span:nth-child(3){flex:0 0 93px}
+.hero-fact-chip>span:last-child{flex:0 0 106px}
+.hero-fact-dot{box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:0 0 5px;width:5px;height:14px;padding-top:2px}
+.hero-fact-dot img{flex:none}
+
+/* Keep the enable layer in place. A single colored layer grows from a random
+   edge point and shrinks back to that same point on leave; no gray repaint overlay. */
+.hero-dribbble{box-sizing:border-box;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:0 0 117px;width:117px;height:40px;padding:0 16px;overflow:hidden;border:0;border-radius:8px;background:var(--cv2-container-neutral-soft);color:var(--cv2-text-neutral-primary);text-decoration:none;font:400 14px/16px Onest,sans-serif;letter-spacing:-.1px;white-space:nowrap}
+.hero-dribbble-icon{position:relative;display:block;flex:0 0 16px;width:16px;height:16px;color:#e6568f}
+.hero-dribbble-icon::before,.hero-dribbble-icon::after{content:"";position:absolute;inset:0;background:currentColor;-webkit-mask:url('/figma/hero-dribbble-icon.svg') center/16px 16px no-repeat;mask:url('/figma/hero-dribbble-icon.svg') center/16px 16px no-repeat}
+.hero-dribbble-icon::before{filter:blur(15.65px)}
+.hero-dribbble-label{box-sizing:border-box;display:block;flex:0 0 63px;width:63px;padding:0 4px}
+@property --dribbble-fill-radius{syntax:"<length>";inherits:false;initial-value:0px}
+.hero-dribbble-fill{--dribbble-fill-radius:0px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 16px;border-radius:inherit;background:#bf396e;box-shadow:inset 0 0 0 1px #ee5f98;clip-path:circle(var(--dribbble-fill-radius) at var(--dribbble-fill-x,0%) var(--dribbble-fill-y,50%));transition:--dribbble-fill-radius 200ms ease-in;pointer-events:none}
+.hero-dribbble-fill .hero-dribbble-icon{color:#fff}
+.hero-dribbble-fill .hero-dribbble-icon::before{opacity:.9;filter:blur(20px);-webkit-mask-image:url('/figma/hero-dribbble-glow-hover.svg');mask-image:url('/figma/hero-dribbble-glow-hover.svg')}
+@media(hover:hover){.hero-dribbble:hover .hero-dribbble-fill{--dribbble-fill-radius:125px}}
+.hero-dribbble:focus-visible .hero-dribbble-fill,.hero-dribbble:active .hero-dribbble-fill{--dribbble-fill-radius:125px}
+.hero-dribbble:active .hero-dribbble-fill{background:#9c2d58;box-shadow:inset 0 0 0 1px #d73a78}
+.hero-dribbble:focus-visible{outline:2px solid var(--cv2-border-accent-muted);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.hero-dribbble-fill{transition:none}}

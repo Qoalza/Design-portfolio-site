@@ -98,7 +98,7 @@ test('experience keeps the Figma track geometry visible to the sticky viewport',
   assert.match(source,/<GridPattern\/>/);
   assert.doesNotMatch(source,/pattern-bottom/);
   assert.match(css,/\.experience-pattern\{[^}]*overflow:hidden/);
-  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1280px,100%\);[^}]*height:100%;[^}]*transform:translateX\(-50%\)/);
+  assert.match(css,/\.experience-pattern-grid\{[^}]*width:min\(1216px,100%\);[^}]*height:100%;[^}]*transform:translateX\(-50%\)/);
   assert.match(css,/\.experience-pattern-grid\{border-inline:0\}/);
   assert.match(css,/\.experience-pattern-grid::before,\.experience-pattern-grid::after\{[^}]*width:1px;[^}]*background:repeating-linear-gradient\(to bottom,var\(--cv2-border-neutral-surface\) 0 16px,transparent 16px 32px\)/);
   assert.match(css,/\.experience-pattern-grid::before\{left:0\}/);

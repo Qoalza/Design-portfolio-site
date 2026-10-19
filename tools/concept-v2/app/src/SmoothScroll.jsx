@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
 import {publishScrollActivity,publishSmoothScroll,publishWheelActivity} from './smooth-scroll-runtime.mjs';
-import {createWheelHandlingProfile,createWheelInputProfile,isProtectedWheelRegion,shouldResetSmoothScroll,WHEEL_GESTURE_IDLE_MS} from './wheel-input-profile.mjs';
+import {createWheelHandlingProfile,createWheelInputProfile,isProtectedWheelRegion,resolveWheelEligibility,shouldResetSmoothScroll,WHEEL_GESTURE_IDLE_MS} from './wheel-input-profile.mjs';
 import '../vendor/lenis/lenis.css';
 import './smooth-scroll.css';
 
@@ -43,10 +43,12 @@ export function SmoothScroll(){
       delete document.documentElement.dataset.lenisEnabled;
       delete document.documentElement.dataset.scrollInput;
       delete document.documentElement.dataset.scrollHandling;
+      delete document.documentElement.dataset.scrollPolicy;
     }
     function update(){
       destroy();
       if(!finePointer.matches)return;
+      if(import.meta.env.DEV)document.documentElement.dataset.scrollPolicy='pixel-wheel-v3';
       lenis=new Lenis({
         // Experience keeps its approved wheel curve even when ordinary areas
         // use native input. The virtualScroll policy owns that separation.
@@ -66,7 +68,7 @@ export function SmoothScroll(){
           const handling=wheelHandlingProfile.observe({event,input,protectedRegionVisible});
           // Native ordinary scrolling still needs a wheel owner at the entry
           // boundary; width/reduced-motion must never remove the stopper.
-          const nextHandling=lenis.isStopped?'smooth':(!desktop.matches||reduced.matches)&&!protectedRegionVisible?'native':handling;
+          const nextHandling=resolveWheelEligibility({handling,input,desktop:desktop.matches,reduced:reduced.matches,protectedRegionVisible,stopped:lenis.isStopped});
           document.documentElement.dataset.scrollHandling=nextHandling;
           if(nextHandling!==wheelHandling){
             const reset=shouldResetSmoothScroll({previousHandling:wheelHandling,nextHandling,isScrolling:lenis.isScrolling});

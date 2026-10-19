@@ -94,7 +94,7 @@ test('native ordinary scrolling retains an entry owner and reduced-motion anchor
   const source=await readFile(path.resolve(import.meta.dirname,'../src/SmoothScroll.jsx'),'utf8');
   assert.match(source,/if\(!finePointer.matches\)return/);
   assert.doesNotMatch(source,/if\(!desktop.matches\|\|reduced.matches\)return/);
-  assert.match(source,/\(!desktop.matches\|\|reduced.matches\)&&!protectedRegionVisible\?'native':handling/);
+  assert.match(source,/resolveWheelEligibility\(\{handling,input,desktop:desktop.matches,reduced:reduced.matches,protectedRegionVisible,stopped:lenis.isStopped\}\)/);
   assert.match(source,/immediate:reduced.matches,onComplete:focusTarget/);
 });
 
@@ -103,5 +103,5 @@ test('Experience smoothing remains fixed independently from ordinary native scro
   const source=await readFile(path.resolve(import.meta.dirname,'../src/SmoothScroll.jsx'),'utf8');
   assert.match(source,/autoRaf:false,smoothWheel:true,syncTouch:false/);
   assert.match(source,/lerp:\.1,wheelMultiplier:1/);
-  assert.match(source,/const nextHandling=lenis.isStopped\?'smooth':/);
+  assert.match(source,/const nextHandling=resolveWheelEligibility/);
 });

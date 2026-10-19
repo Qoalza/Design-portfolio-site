@@ -4,6 +4,12 @@ export function resolveWheelHandling({input,protectedRegionVisible=false}={}){
   return input==='trackpad'&&!protectedRegionVisible?'native':'smooth';
 }
 
+export function resolveWheelEligibility({handling='smooth',input='mouse',desktop=true,reduced=false,protectedRegionVisible=false,stopped=false}={}){
+  if(stopped)return 'smooth';
+  if((reduced||(!desktop&&input!=='mouse'))&&!protectedRegionVisible)return 'native';
+  return handling;
+}
+
 export function shouldResetSmoothScroll({previousHandling,nextHandling,isScrolling}={}){
   return previousHandling==='smooth'&&nextHandling==='native'&&isScrolling==='smooth';
 }
@@ -35,6 +41,10 @@ export function createWheelHandlingProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}
       if(newGesture){
         protectedAtStart=protectedRegionVisible;
         handling=resolveWheelHandling({input,protectedRegionVisible});
+      }else if(input==='mouse'){
+        // The input classifier has confirmed a device switch. Native handling
+        // belongs to trackpad gestures and must not latch onto mouse notches.
+        handling='smooth';
       }else if(handling==='native'&&protectedRegionVisible&&deltaY>0){
         protectedAtStart=true;
         handling='smooth';
@@ -52,6 +62,8 @@ export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}
   let input='mouse';
   let previousTime;
   let pendingLegacyMouse=false;
+  let quantizedMouse=false;
+  let pixelSteps=[];
   return{
     get current(){return input;},
     observe(event={}){
@@ -65,6 +77,27 @@ export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}
       const deltaX=Number(event.deltaX) || 0;
       const deltaY=Number(event.deltaY) || 0;
       const wheelDeltaY=Math.abs(Number(event.wheelDeltaY));
+      // Some pixel-mode wheels expose no legacy120-unit notch. Recognize a
+      // repeated quantum and its multiples, allowing integer browser rounding.
+      // A single large impulse or a smooth acceleration/deceleration is not proof.
+      if(newGesture)pixelSteps=[];
+      const precisionEvidence=deltaMode===0&&(deltaX!==0||!Number.isInteger(deltaY)||(Math.abs(deltaY)>0&&Math.abs(deltaY)<10));
+      if(precisionEvidence){quantizedMouse=false;pixelSteps=[];}
+      else if(deltaMode===0&&deltaX===0&&Number.isInteger(deltaY)&&Math.abs(deltaY)>=40){
+        pixelSteps.push(Math.abs(deltaY));
+        pixelSteps=pixelSteps.slice(-6);
+        // A non-accelerating wheel can repeat one rounded notch instead of
+        // multiples. Require six consistent samples, not a brief velocity peak.
+        if(pixelSteps.length===6&&Math.max(...pixelSteps)-Math.min(...pixelSteps)<=1)quantizedMouse=true;
+        if(pixelSteps.length>=3&&Math.max(...pixelSteps)>=2*Math.min(...pixelSteps)){
+          quantizedMouse=quantizedMouse||pixelSteps.some(base=>{
+            const multiples=pixelSteps.map(value=>Math.round(value/base));
+            if(multiples.some(value=>value<1||value>64))return false;
+            const quantum=pixelSteps.reduce((sum,value,index)=>sum+value/multiples[index],0)/pixelSteps.length;
+            return pixelSteps.every((value,index)=>Math.abs(value-quantum*multiples[index])<=2);
+          });
+        }
+      }
       const discreteUnits=deltaMode!==0;
       const legacyWheelNotch=wheelDeltaY>0&&wheelDeltaY%120===0;
       const continuingTrackpad=sameGesture&&input==='trackpad'&&deltaMode===0;
@@ -77,6 +110,9 @@ export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}
       );
 
       if(discreteUnits){
+        input='mouse';
+        pendingLegacyMouse=false;
+      }else if(quantizedMouse){
         input='mouse';
         pendingLegacyMouse=false;
       }else if(legacyWheelNotch&&input==='trackpad'&&newGesture){
@@ -99,6 +135,6 @@ export function createWheelInputProfile({gestureIdleMs=WHEEL_GESTURE_IDLE_MS}={}
       previousTime=inputTime;
       return input;
     },
-    reset(){input='mouse';previousTime=undefined;pendingLegacyMouse=false;},
+    reset(){input='mouse';previousTime=undefined;pendingLegacyMouse=false;quantizedMouse=false;pixelSteps=[];},
   };
 }
