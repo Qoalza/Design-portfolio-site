@@ -172,3 +172,21 @@ test('ten seconds starts at the early HTML shell and carries through React hando
  await timer.advance(1);assert.equal(states.at(-1).mode,'slow');
  gate.dispose();
 });
+
+test('retry IDs keep increasing beyond capped copy and rapid duplicate clicks do not start work',async()=>{
+ const timer=clock(),states=[],ids=[];
+ const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+ gate.start({prepare:(_signal,context)=>{ids.push(context.attemptId);return new Promise(()=>{});}},{immediate:true});
+ for(let i=0;i<4;i++){await timer.advance(10000);gate.retry();gate.retry();await timer.advance(0);}
+ assert.deepEqual(ids,[0,1,2,3,4]);assert.equal(states.at(-1).retryNumber,2);gate.dispose();
+});
+test('retry preserves completed minimum while restarting its own ten-second deadline',async()=>{
+ const timer=clock(),states=[],attempts=[];
+ const gate=createPreloaderGate({...timer,onState:state=>states.push(state)});
+ gate.start({prepare:()=>{const work=deferred();attempts.push(work);return work.promise;}},{immediate:true});
+ await timer.advance(10000);gate.retry();await timer.advance(0);attempts[1].resolve();await timer.advance(450+180);
+ assert.equal(states.at(-1).visible,false,'no additional compulsory revolution after Retry');gate.dispose();
+ const second=createPreloaderGate({...timer,onState:state=>states.push(state)});
+ second.start({prepare:()=>new Promise(()=>{})},{immediate:true});await timer.advance(10000);second.retry();
+ await timer.advance(9999);assert.equal(states.at(-1).mode,'normal');await timer.advance(1);assert.equal(states.at(-1).mode,'slow');second.dispose();
+});

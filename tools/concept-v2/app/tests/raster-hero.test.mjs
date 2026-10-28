@@ -25,14 +25,31 @@ test('chosen stacked carousel renders whole cards and caps visible cards at five
   }
 });
 
-test('three and five images show exactly one dot per image', () => {
-  for (const count of [3, 5]) {
+test('three images keep a fixed dot for each image', () => {
+  for (const count of [3]) {
     const slides = Array.from({length: count}, (_, index) => ({id: String(index)}));
     const dots = carouselDotItems(slides, 1);
     assert.deepEqual(dots.map(dot => dot.index), Array.from({length: count}, (_, index) => index));
     assert.equal(dots.filter(dot => dot.visible).length, count);
     assert.deepEqual(visibleDotIndexes(1, count), Array.from({length: count}, (_, index) => index));
   }
+});
+
+test('five and larger galleries keep the active dot centered across repeated wraps',()=>{
+ for(const count of [5,6,7]){
+  const slides=Array.from({length:count},(_,index)=>({id:String(index)}));
+  for(const step of [-count-1,-1,0,1,count-1,count,count+1]){
+   const dots=carouselDotItems(slides,step),visible=dots.filter(dot=>dot.visible);
+   assert.equal(visible.length,5);
+   assert.equal(new Set(visible.map(dot=>dot.index)).size,5);
+   assert.equal(visible.find(dot=>dot.index===wrapSlideIndex(step,count)).slot,0);
+   assert.deepEqual(visible.map(dot=>dot.index),visibleDotIndexes(wrapSlideIndex(step,count),count));
+   for(const direction of [-1,1]){
+    const next=carouselDotItems(slides,step+direction);
+    assert.equal(next.find(dot=>dot.key===step).slot,-direction);
+   }
+  }
+ }
 });
 
 test('seven images cycle through a five-dot window with smaller outer dots', () => {

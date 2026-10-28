@@ -1,0 +1,22 @@
+.projects-controls{display:flex;gap:12px;margin-left:auto;flex-shrink:0}
+.projects-controls .control{width:36px;height:36px;padding:0;border-radius:8px}
+.projects-heading .section-title{min-width:0}
+/* A small symmetric bleed keeps the cut outside the fixed grid when space allows. */
+.projects-carousel-shell{--carousel-fade-width:80px;--carousel-fade-opacity:1;--carousel-fade-stops:var(--page) 0%,rgba(23,25,26,.962) 12.5%,rgba(23,25,26,.854) 25%,rgba(23,25,26,.691) 37.5%,rgba(23,25,26,.5) 50%,rgba(23,25,26,.309) 62.5%,rgba(23,25,26,.146) 75%,rgba(23,25,26,.038) 87.5%,rgba(23,25,26,0) 100%;--carousel-bleed:clamp(0px,calc((100vw - 1280px)/2),48px);position:relative;width:min(100vw,calc(100% + 2 * var(--carousel-bleed)));margin-left:calc(-1 * var(--carousel-bleed));min-width:0}
+.projects-grid.projects-carousel{position:relative;display:flex;gap:16px;height:800px;padding:240px calc(32px + var(--carousel-bleed)) 0;align-items:flex-end;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-snap-type:x mandatory;scroll-padding-inline:calc(32px + var(--carousel-bleed));overscroll-behavior-x:contain;background:transparent}
+.projects-carousel::-webkit-scrollbar{display:none}
+.projects-carousel>.project{flex:0 0 600px;scroll-snap-align:start}
+.projects-carousel-shell::before,.projects-carousel-shell::after{content:"";position:absolute;z-index:3;top:0;bottom:0;width:var(--carousel-fade-width);pointer-events:none;opacity:0;transition:opacity 180ms ease-out;background:linear-gradient(var(--fade-direction),var(--carousel-fade-stops))}
+.projects-carousel-shell::before{left:0;--fade-direction:to right}
+.projects-carousel-shell::after{right:0;--fade-direction:to left}
+.projects-carousel-shell[data-has-previous="true"]::before,.projects-carousel-shell[data-has-next="true"]::after{opacity:var(--carousel-fade-opacity)}
+@media(max-width:1280px){.projects-carousel-shell{--carousel-fade-width:32px;--carousel-fade-opacity:.25;--carousel-fade-stops:var(--page) 0%,rgba(23,25,26,.98) 12%,rgba(23,25,26,.9) 28%,rgba(23,25,26,.68) 46%,rgba(23,25,26,.32) 66%,rgba(23,25,26,.08) 84%,rgba(23,25,26,0) 100%}}
+@media(prefers-reduced-motion:reduce){.projects-carousel{scroll-behavior:auto}.projects-carousel-shell::before,.projects-carousel-shell::after{transition:none}}
+
+/* Reserve paint space above the scrollport without moving the cards or section. */
+@media(min-width:1280px){
+ .projects-carousel-shell{margin-top:-80px}
+ .projects-grid.projects-carousel{height:880px;padding-top:320px}
+ /* B.Off uses the full Figma image fill, not the shared cover crop. */
+ .project-boff .project-front,.project-boff .project-back{object-fit:fill}
+}

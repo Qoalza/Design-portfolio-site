@@ -10,11 +10,12 @@ export function rasterVariantDefinition(base, variantId) {
   const sourceSlides = sourceContext.slides;
   const initialIndex = Math.min(variant.count - 1,
     Math.max(0, sourceSlides.findIndex(slide => slide.id === sourceContext.initialSlideId)));
+  // Keep the outer-left comparison frame identical in the 5 and 5+ previews.
+  const sourceIndexFor = index => variant.count > 5 && index === variant.count - 1
+    ? initialIndex
+    : index % sourceSlides.length;
   const slides = Array.from({length: variant.count}, (_, index) => {
-    // Keep the outer-left comparison frame identical in the 5 and 5+ previews.
-    const sourceIndex = variant.count > 5 && index === variant.count - 1
-      ? initialIndex
-      : index % sourceSlides.length;
+    const sourceIndex = sourceIndexFor(index);
     const source = sourceSlides[sourceIndex];
     return {
       ...source,
@@ -25,6 +26,7 @@ export function rasterVariantDefinition(base, variantId) {
 
   return {
     ...base,
+    ...(base.desktopCaptions?{desktopCaptions:Object.fromEntries(slides.map((slide,index)=>[slide.id,base.desktopCaptions[sourceSlides[sourceIndexFor(index)].id]]))}:{}),
     contexts: base.contexts.map(context => context.id === sourceContext.id ? {
       ...context,
       slides,

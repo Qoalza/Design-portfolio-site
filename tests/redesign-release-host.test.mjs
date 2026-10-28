@@ -30,3 +30,24 @@ test('actual release boundary: pages, temporary redirect, new 404, assets, HEAD 
   await writeFile(path.join(root,'assets/app.js'),'damaged');await assert.rejects(createReleaseHandler({root})(new Request('https://art-des.ru/')),/checksum|manifest/i);
  }finally{await rm(root,{recursive:true,force:true});}
 });
+
+
+test('code-owned B.Off route survives live content injection without adding a DTO project',async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),'code-owned-boff-'));
+ try{
+  const html='<!doctype html><html lang="ru"><head><title>placeholder</title></head><body><div id="root"></div></body></html>';
+  await writeFile(path.join(root,'index.html'),html);
+  const manifest={version:1,buildSha:sha,pages:{'/':{title:'Portfolio',description:'Home'},'/projects/boff':{title:'B.Off — Product Designer',description:'B.Off approved description'},'/projects/corvo':{title:'Stale static Corvo',description:'Previously published'}},files:[{path:'index.html',bytes:Buffer.byteLength(html),sha256:createHash('sha256').update(html).digest('hex')}]};
+  await writeFile(path.join(root,'site-manifest.json'),JSON.stringify(manifest));
+  const content={version:1,revision:'c'.repeat(64),projects:[]};
+  const serve=createReleaseHandler({root,readContent:async()=>content});
+  const request=(url,method='GET')=>serve(new Request('https://art-des.ru'+url,{method}));
+  const response=await request('/projects/boff');assert.equal(response.status,200);
+  const body=await response.text();assert.match(body,/<title>B.Off — Product Designer<\/title>/);assert.match(body,/rel="canonical" href="https:\/\/art-des.ru\/projects\/boff"/);assert.match(body,/"projects":\[\]/);
+  assert.equal((await request('/projects/boff','HEAD')).status,200);
+  assert.match(await(await request('/sitemap.xml')).text(),/projects\/boff/);
+  assert.equal((await request('/projects/boff-other')).status,404);
+  assert.equal((await request('/projects/corvo')).status,404,'An unpublished content-owned page must not return from a stale static manifest');
+  assert.equal(content.projects.length,0);
+ }finally{await rm(root,{recursive:true,force:true});}
+});

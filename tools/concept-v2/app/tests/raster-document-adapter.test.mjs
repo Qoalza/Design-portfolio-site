@@ -8,7 +8,7 @@ test('document preserves initial/order/titles/sources with unavailable Tablet/Mo
  for(const count of [3,5,7,9]){const p=project(count),d=rasterHeroDefinition(p);assert.equal(d.projectName,p.title);assert.equal(d.initialContextId,'desktop');assert.equal(d.contexts[0].initialSlideId,p.redesign.hero.initialSlideId);assert.deepEqual(d.contexts[0].slides,p.redesign.hero.slides.map(s=>({id:s.id,title:s.title,src:s.image.src})));assert.deepEqual(d.contexts.slice(1),sarafanRasterHero.contexts.slice(1));}
 });
 test('accepted Sarafan document produces the exact existing shell inputs',()=>{
- const old=sarafanRasterHero,p={title:old.projectName,redesign:{hero:{kind:'raster',initialSlideId:old.contexts[0].initialSlideId,slides:old.contexts[0].slides.map(({id,title,src})=>({id,title,image:{src}}))}}};assert.deepEqual(rasterHeroDefinition(p),old);
+ const old=sarafanRasterHero,p={slug:'sarafan-radio',title:old.projectName,redesign:{hero:{kind:'raster',initialSlideId:old.contexts[0].initialSlideId,slides:old.contexts[0].slides.map(({id,title,src})=>({id,title,image:{src}}))}}};assert.deepEqual(rasterHeroDefinition(p),old);
 });
 test('replacement, reorder, title, initial and removal invalidate mounted carousel state',()=>{
  const baseline=project(5),revision=rasterHeroRevision(baseline);

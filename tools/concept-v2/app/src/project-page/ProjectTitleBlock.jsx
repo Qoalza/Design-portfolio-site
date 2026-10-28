@@ -10,7 +10,7 @@ import styles from './ProjectTitleBlock.module.css';
 const actionLayout={layout:{type:'spring',stiffness:420,damping:38,mass:.8}};
 
 // Both exact Figma instances share this layout; only project content changes.
-export function ProjectTitleBlock({name,logo,status,tags,description,figmaHref}){
+export function ProjectTitleBlock({name,logo,status,tags,description,figmaHref,year=2026}){
  const [copied,setCopied]=useState(false);
  const timer=useRef(null);
  const reducedMotion=useReducedMotion();
@@ -30,12 +30,12 @@ export function ProjectTitleBlock({name,logo,status,tags,description,figmaHref})
    setCopied(false);
   }
  }
- return <section className={styles.intro} data-first-view>
+ return <section className={`${styles.intro} ${!logo?styles.withoutLogo:''}`} data-first-view>
   <div className={styles.workArea}>
-   <div className={styles.tags}>{tags.map((tag,index)=><span className={styles.tag} key={tag}>{index>0&&<i aria-hidden="true"/>}<span>{tag}</span></span>)}<b aria-hidden="true"/><span className={styles.year}>2026</span></div>
+   <div className={styles.tags}>{tags.map((tag,index)=><span className={styles.tag} key={tag}>{index>0&&<i aria-hidden="true"/>}<span>{tag}</span></span>)}<b aria-hidden="true"/><span className={styles.year}>{year}</span></div>
    <div className={styles.heading}>
     <div className={styles.identity}>
-     <div className={styles.name}>{logo}<div className={styles.nameLabel}><h1>{name}</h1><span className={styles.status}>{status}</span></div></div>
+     <div className={styles.name}>{logo}<div className={styles.nameLabel}><h1>{name}</h1>{status&&<span className={styles.status}>{status}</span>}</div></div>
      <p>{description}</p>
     </div>
     <motion.div layout layoutDependency={copied} transition={transition} className={styles.actions}>

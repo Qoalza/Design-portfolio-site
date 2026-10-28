@@ -15,7 +15,7 @@ export function FirstVisit({children}){
     if(early)return early.connect((signal,retryNumber)=>prepareFirstView(page.current,signal,retryNumber),setState);
     const session=createPreloaderGate({onState:setState});
     gate.current=session;
-    session.start({prepare:(signal,{retryNumber})=>prepareFirstView(page.current,signal,retryNumber)},{immediate:true});
+    session.start({prepare:(signal,{attemptId})=>prepareFirstView(page.current,signal,attemptId)},{immediate:true});
     return()=>{session.dispose();if(gate.current===session)gate.current=null;};
   },[]);
   useEffect(()=>{

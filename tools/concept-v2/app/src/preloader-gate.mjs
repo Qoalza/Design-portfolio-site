@@ -7,7 +7,7 @@ export const REVEAL_MS=180;
 const hidden={visible:false,mode:'normal',reason:null,retryNumber:0,showReadyMessage:false,leaving:false};
 
 export function createPreloaderGate({onState,now=()=>performance.now(),setTimer=setTimeout,clearTimer=clearTimeout}){
-  let active=null;
+  let active=null,sequence=0;
   const retries={slow:0,connection:0};
   const emit=attempt=>onState({
     visible:attempt.visible,
@@ -89,19 +89,19 @@ export function createPreloaderGate({onState,now=()=>performance.now(),setTimer=
   const start=(config,{immediate=false,reason=null,retryNumber=0,shownAt}={})=>{
     cancel();
     if(!reason){retries.slow=0;retries.connection=0;}
-    const attempt={config,controller:new AbortController(),timers:new Set(),visible:false,shownAt:null,initialShownAt:shownAt,mode:'normal',reason,retryNumber,showReadyMessage:false,leaving:false};
+    const attempt={id:sequence++,startedAt:reason?now():shownAt??now(),config,controller:new AbortController(),timers:new Set(),visible:false,shownAt:null,initialShownAt:shownAt,mode:'normal',reason,retryNumber,showReadyMessage:false,leaving:false};
     active=attempt;
     if(immediate){
-      if(shownAt!==undefined&&now()-shownAt>=LONG_LOADING_MS)attempt.mode='slow';
+      if(!reason&&shownAt!==undefined&&now()-shownAt>=LONG_LOADING_MS)attempt.mode='slow';
       show(attempt);
     }
     else schedule(attempt,QUICK_NAVIGATION_MS,()=>show(attempt));
-    schedule(attempt,LONG_LOADING_MS-(shownAt===undefined?0:now()-shownAt),()=>{
+    schedule(attempt,LONG_LOADING_MS-(now()-attempt.startedAt),()=>{
       show(attempt);
       attempt.mode='slow';
       emit(attempt);
     });
-    Promise.resolve().then(()=>active===attempt?config.prepare(attempt.controller.signal,{reason,retryNumber}):undefined).then(
+    Promise.resolve().then(()=>active===attempt?config.prepare(attempt.controller.signal,{reason,retryNumber,attemptId:attempt.id}):undefined).then(
       value=>ready(attempt,value),
       error=>fail(attempt,error),
     );
@@ -111,7 +111,7 @@ export function createPreloaderGate({onState,now=()=>performance.now(),setTimer=
     if(!active||!['slow','connection'].includes(active.mode))return;
     const reason=active.mode;
     retries[reason]+=1;
-    start(active.config,{immediate:true,reason,retryNumber:Math.min(retries[reason],2)});
+    start(active.config,{immediate:true,reason,retryNumber:Math.min(retries[reason],2),shownAt:active.shownAt});
   };
   return {start,retry,dispose:cancel};
 }

@@ -1,3 +1,5 @@
+import {sarafanDesktopCaptions} from './raster-desktop-presentation.mjs';
+
 // Producer validates the document before rendering. Shell geometry/motion remain code-owned.
 export function rasterHeroDefinition(project){
  const hero=project.redesign.hero;
@@ -5,6 +7,7 @@ export function rasterHeroDefinition(project){
  return {
   projectName:project.title,
   initialContextId:'desktop',
+  ...(project.slug==='sarafan-radio'?{desktopCaptions:sarafanDesktopCaptions}:{}),
   contexts:[
    {id:'desktop',label:'Desktop',icon:'size-desktop',initialSlideId:hero.initialSlideId,slides:hero.slides.map(({id,title,image})=>({id,title,src:image.src}))},
    {id:'tablet',label:'Tablet',icon:'size-tablet',slides:[]},

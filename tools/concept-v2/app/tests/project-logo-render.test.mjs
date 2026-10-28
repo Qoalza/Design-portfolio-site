@@ -20,7 +20,7 @@ export function renderLogo(logo){return renderToStaticMarkup(createElement(Radio
 export function renderCorvo(logo){const project={title:'Corvo without required logo',subtitle:'Fixture',detailTags:[],materials:{projectState:'completed',fileState:'absent'},logo};return renderToStaticMarkup(createElement(ProjectIntro,{project}))+renderToStaticMarkup(createElement(SiteHeader,{project}));}
 export function renderCard(logoData){const project={id:'test',title:'Catalog without required logo',description:'Fixture',categories:[],logo:'corvo',logoData,preview:{ariaLabel:'Fixture',back:{src:'/back.png',sources:[]},front:{src:'/front.png',sources:[]},frontAlt:'Fixture'},actions:{details:{},figma:{}}};return renderToStaticMarkup(createElement(ProjectCard,{project}));}`,
    resolveDir:root,loader:'jsx'},outfile,bundle:true,platform:'node',format:'cjs',jsx:'automatic',
-   loader:{'.css':'empty'},define:{'import.meta.env.BASE_URL':'"/"'},
+   loader:{'.css':'empty','.svg':'dataurl'},define:{'import.meta.env.BASE_URL':'"/"'},
    plugins:[{name:'test-private-consumers',setup(builder){
     builder.onLoad({filter:/\.css$/},()=>({contents:'export default {};',loader:'js'}));
     builder.onLoad({filter:/\/(?:App|CorvoProjectPage)\.jsx$/},async args=>({contents:await readFile(args.path,'utf8')+(args.path.endsWith('/App.jsx')?'\nexport {ProjectCard};':'\nexport {SiteHeader,ProjectIntro};'),loader:'jsx'}));

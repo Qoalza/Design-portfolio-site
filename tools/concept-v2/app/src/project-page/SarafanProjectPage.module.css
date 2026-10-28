@@ -3,7 +3,7 @@
 .crumbRow{height:49px;border-bottom:1px solid var(--cv2-border-neutral-thin)}
 .crumb{height:48px;padding:16px 40px;display:flex;align-items:center;gap:12px;color:var(--cv2-text-neutral-thin);font:400 14px/16px Onest;letter-spacing:-.1px}
 .flag{color:#fac942}
-.hero{height:928px;overflow:hidden}
+.hero{height:auto;overflow:hidden}
 .summary{background:var(--cv2-container-neutral-faint);border-block:1px solid var(--cv2-border-neutral-thin)}
 .summary>div{width:1280px;margin:auto;padding:32px 31px 40px;position:relative;border-inline:1px solid transparent;display:flex;flex-direction:column;gap:40px}
 .summaryCopy{width:968px;padding:0 0 0 8px}

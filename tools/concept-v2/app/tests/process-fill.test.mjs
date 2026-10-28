@@ -17,16 +17,13 @@ test('edge origin stays inside the full 64px icon frame',()=>{
   assert.deepEqual(point,{x:32,y:64});
 });
 
-test('process icon, line, and dots use the user-approved 300ms duration',async()=>{
+test('process icon coloring keeps the approved 300ms duration',async()=>{
   const css=await readFile(path.resolve(import.meta.dirname,'../src/style.css'),'utf8');
   const app=await readFile(path.resolve(import.meta.dirname,'../src/App.jsx'),'utf8');
-  assert.match(css,/\.step-icon-hover\{[^}]*clip-path:circle\(var\(--fill-radius\) at var\(--fill-x\) var\(--fill-y\)\)[^}]*300ms ease-in/);
-  assert.match(css,/\.step\.is-fill-active \.step-icon-hover\{--fill-radius:96px\}/);
-  assert.match(css,/\.step-icon-background,\.step-icon-fill\{[^}]*transition:--fill-radius 300ms ease-in/);
-  assert.match(css,/\.step\.is-fill-active \.step-icon-background,\.step\.is-fill-active \.step-icon-fill\{--fill-radius:96px\}/);
-  assert.match(app,/className="step-icon-hover" src=\{`\/figma\/\$\{step\.image\}-hover\.svg`\}/);
-  assert.match(app,/process-background-mask-\$\{index\+1\}\.svg/);
-  assert.match(app,/exitTimer\.current=setTimeout\(\(\)=>\{settledOutside\.current=true\},200\)/);
+  assert.match(css,/\.process-motion-color\{[^}]*clip-path:circle\(var\(--fill-radius\) at var\(--fill-x\) var\(--fill-y\)\)[^}]*300ms ease-in/);
+  assert.match(css,/\.step\.is-fill-active \.process-motion-color\{--fill-radius:144px\}/);
+  assert.match(app,/<ProcessIcon index=\{index\} active=\{active\} origin=\{origin\}/);
+  assert.match(app,/exitTimer\.current=setTimeout\(\(\)=>\{settledOutside\.current=true\},300\)/);
 });
 
 test('process card hover and focus share the exact Figma visual state',async()=>{
@@ -95,7 +92,4 @@ test('desktop Process matches the current 4150:804103 card geometry and preserve
  assert.match(css,/\.step-divider\{position:absolute;z-index:2;left:11px;right:11px;top:0;width:auto;height:1px;margin:0[^}]*background:transparent/);
  assert.match(css,/\.step-text h3\{[^}]*font:400 20px\/28px "Google Sans"[^}]*color:var\(--cv2-text-neutral-tertiary\)/);
  assert.match(css,/\.step-dots\{color:var\(--cv2-text-neutral-muted\)/);
- assert.match(css,/\.step-icon-base,\.step-icon-background,\.step-icon-fill\{display:none\}/);
- assert.match(css,/\.step-icon-desktop-base,\.step-icon-hover\{display:block/);
- assert.match(app,/className="step-icon-desktop-base" src=\{`\/figma\/\$\{step\.image\}-desktop\.svg`\}/);
 });

@@ -80,7 +80,7 @@ export function createReleaseHandler({root=path.join(process.cwd(),'.portfolio-r
   }
   const content=state?state.content:(readContent?await readContent():undefined);
   if(content&&(content.version!==1||!Array.isArray(content.projects)||!/^[a-f0-9]{64}$/.test(content.revision)))throw new Error('Invalid published site content');
-  const site=content?{...built,manifest:{...built.manifest,snapshotSha256:content.revision,pages:{'/':built.manifest.pages['/'],...Object.fromEntries(content.projects.filter(project=>projectDetailForPath([project],'/projects/'+project.slug)).map(project=>['/projects/'+project.slug,{title:project.title+' — Product Designer',description:project.description}]))}}}:built;
+  const site=content?{...built,manifest:{...built.manifest,snapshotSha256:content.revision,pages:{'/':built.manifest.pages['/'],...(built.manifest.pages['/projects/boff']?{'/projects/boff':built.manifest.pages['/projects/boff']}:{}),...Object.fromEntries(content.projects.filter(project=>projectDetailForPath([project],'/projects/'+project.slug)).map(project=>['/projects/'+project.slug,{title:project.title+' — Product Designer',description:project.description}]))}}}:built;
   if(state&&pathname==='/api/site-content')return respond(JSON.stringify(content),200,{'Content-Type':'application/json; charset=utf-8'});
   if(state&&(pathname==='/api'||pathname.startsWith('/api/')))return respond(null,404);
   if(pathname==='/projects')return respond(null,307,{Location:'/#projects'});

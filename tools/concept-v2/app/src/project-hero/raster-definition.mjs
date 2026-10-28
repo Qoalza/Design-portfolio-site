@@ -1,8 +1,11 @@
+import {sarafanDesktopCaptions} from './raster-desktop-presentation.mjs';
+
 const assetRoot = '/assets/projects/sarafan-radio/raster-hero';
 
 export const sarafanRasterHero = {
   projectName: 'Сараффан.Радио',
   initialContextId: 'desktop',
+  desktopCaptions: sarafanDesktopCaptions,
   contexts: [
     {
       id: 'desktop',

@@ -19,3 +19,7 @@
 .actions .copyButton{width:auto;justify-content:flex-end}
 .actions .copyButton:active{--control-bg:#1b1d1f}
 .actions .figmaButton{width:91px;box-shadow:none}
+
+.withoutLogo .identity>p{padding-left:0}
+.withoutLogo .tags{padding-left:40px}
+.withoutLogo .heading{padding-inline:40px}

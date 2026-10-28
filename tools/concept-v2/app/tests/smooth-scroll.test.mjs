@@ -37,7 +37,7 @@ test('the single root Lenis loop owns wheel input without a duplicate native lis
 test('the mouse-versus-trackpad policy is mounted once above every Concept V2 route',async()=>{
   const main=await readFile(path.resolve(import.meta.dirname,'../src/main.jsx'),'utf8');
   assert.equal(main.match(/<SmoothScroll\/>/g)?.length,1);
-  assert.match(main,/createRoot\(document\.getElementById\('root'\)\)\.render\(<React\.StrictMode>\s*<SmoothScroll\/>/);
+  assert.match(main,/root\.render\(<React\.StrictMode>\s*<SmoothScroll\/>/);
   assert.doesNotMatch(main,/<FirstVisit><SmoothScroll\/>/);
 });
 

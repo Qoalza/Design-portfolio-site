@@ -1,3 +1,6 @@
+import {featuredProjectCards} from './featured-project-cards.mjs';
+import {ProcessIcon} from './ProcessIcon';
+import {ProjectsCarousel} from './ProjectsCarousel';
 import {HeroFacts} from './HeroFacts';
 import {NavigationTooltip} from './NavigationTooltip';
 import {useCallback,useEffect,useRef,useState} from 'react';
@@ -152,7 +155,8 @@ function ProjectCard({project,imageRef,onImageLoad}){
  </article>;
 }
 function Projects({projects}){
- const projectCards=projects.filter(project=>project.redesign&&project.visibility==='published'&&project.homePlacement).sort((a,b)=>(a.homePlacement==='primary'?0:1)-(b.homePlacement==='primary'?0:1)).map(project=>projectCardView(project,import.meta.env.BASE_URL));
+ const sourceCards=projects.filter(project=>project.redesign&&project.visibility==='published'&&project.homePlacement).sort((a,b)=>(a.homePlacement==='primary'?0:1)-(b.homePlacement==='primary'?0:1)).map(project=>projectCardView(project,import.meta.env.BASE_URL));
+ const projectCards=featuredProjectCards(sourceCards,import.meta.env.BASE_URL);
  const sectionRef=useRef(null),imageNodes=useRef(new Set()),imagePreparer=useRef(null);
  const collectImage=useCallback(image=>{if(image)imageNodes.current.add(image)},[]);
  const prepareLoadedImage=useCallback(event=>imagePreparer.current?.prepare(event.currentTarget,'high'),[]);
@@ -167,7 +171,7 @@ function Projects({projects}){
   if(sectionRef.current)observer.observe(sectionRef.current);
   return()=>{observer.disconnect();preparer.dispose();if(imagePreparer.current===preparer)imagePreparer.current=null};
  },[]);
- return <section ref={sectionRef} className="projects-section" id="projects" aria-labelledby="projects-title"><div className="projects-heading"><SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle><p className="projects-status">// остальные проекты в процессе публикации</p></div><div className="projects-grid">{projectCards.map(project=><ProjectCard key={project.id} project={project} imageRef={collectImage} onImageLoad={prepareLoadedImage}/>)}</div></section>;
+ return <section ref={sectionRef} className="projects-section" id="projects" aria-labelledby="projects-title"><ProjectsCarousel heading={<SectionTitle id="projects-title" eyebrow="ПРОЕКТЫ" title="Избранное"><p>Здесь собрал рабочие проекты, тестовые задания.<br/>Где можно увидеть мой подход к задаче и результат.</p></SectionTitle>}>{projectCards.map(project=><ProjectCard key={project.id} project={project} imageRef={collectImage} onImageLoad={prepareLoadedImage}/>)}</ProjectsCarousel></section>;
 }
 function ProcessStep({step,index}){
  const [active,setActive]=useState(false);
@@ -185,12 +189,12 @@ function ProcessStep({step,index}){
   if(pointer.current||focus.current)return;
   setActive(false);
   clearTimeout(exitTimer.current);
-  exitTimer.current=setTimeout(()=>{settledOutside.current=true},200);
+  exitTimer.current=setTimeout(()=>{settledOutside.current=true},300);
  }
  return <article className={`step step-${index+1} ${active?'is-fill-active':''}`} tabIndex={0} aria-label={step.title} onPointerEnter={()=>begin('pointer')} onPointerLeave={()=>end('pointer')} onFocus={()=>begin('focus')} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))end('focus')}}>
   <div className="step-grid" aria-hidden="true"/>
   <div className="step-divider" aria-hidden="true"/>
-  <div className="step-body"><div className="step-top"><span className="step-icon" aria-hidden="true" style={{'--fill-x':`${origin.x}px`,'--fill-y':`${origin.y}px`,'--icon-mask':`url('/figma/process-mask-${index+1}.svg')`,'--background-mask':`url('/figma/process-background-mask-${index+1}.svg')`}}><img className="step-icon-base" src={`/figma/${step.image}.svg`} width="64" height="64" alt=""/><i className="step-icon-background"/><i className="step-icon-fill"/><img className="step-icon-desktop-base" src={`/figma/${step.image}-desktop.svg`} width="64" height="64" alt=""/><img className="step-icon-hover" src={`/figma/${step.image}-hover.svg`} width="64" height="64" alt=""/></span>
+  <div className="step-body"><div className="step-top"><ProcessIcon index={index} active={active} origin={origin}/>
    <div className="step-number"><span>0{index+1}</span><i className="step-dots" aria-hidden="true" style={{width:step.width,'--dots-mask':`url('/figma/${step.dots}.svg')`}}/></div></div>
   <div className="step-text"><h3>{step.title}</h3><p>{step.description}</p></div></div>
  </article>;

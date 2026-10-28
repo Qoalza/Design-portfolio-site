@@ -32,7 +32,7 @@ function harness({stylesheetPending=false,reducedMotion=false}={}){
  const link=Object.assign(node(),{href:'http://localhost/app.css',tagName:'LINK'});if(!stylesheetPending)link.sheet={};
  const entry=Object.assign(node(),{src:'http://localhost/app.js',tagName:'SCRIPT',type:'module',alreadyStarted:true,attributes:{type:'module',src:'http://localhost/app.js',nonce:'test-nonce',crossorigin:'anonymous'}});
  const document=node();document.hidden=false;document.documentElement=node();
- document.getElementById=()=>shell;document.querySelectorAll=()=>[link];document.createElement=tag=>Object.assign(node(),{tagName:tag.toUpperCase(),alreadyStarted:false});
+ document.getElementById=()=>shell;document.querySelector=()=>null;document.querySelectorAll=()=>[link];document.createElement=tag=>Object.assign(node(),{tagName:tag.toUpperCase(),alreadyStarted:false});
  const window=node(),reduced=Object.assign(node(),{matches:reducedMotion});
  const timer=(fn,delay=0,interval=0)=>{const id=++nextId;tasks.set(id,{fn,at:time+delay,interval});return id;};
  runInNewContext(script,{window,document,AbortController,DOMException,URL,performance:{now:()=>time},matchMedia:()=>reduced,location:{href:'http://localhost/',reload(){reloads++;}},setTimeout:(fn,delay)=>timer(fn,delay),clearTimeout:id=>tasks.delete(id),setInterval:(fn,delay)=>timer(fn,delay,delay),clearInterval:id=>tasks.delete(id),requestAnimationFrame:fn=>timer(()=>fn(time),16),cancelAnimationFrame:id=>tasks.delete(id)});
@@ -48,7 +48,8 @@ function harness({stylesheetPending=false,reducedMotion=false}={}){
 
 test('first HTML is self-contained before app, with non-blocking CSS and approved retry control',()=>{
  assert.ok(html.indexOf('id="early-preloader"')<html.indexOf('id="root"'));
- assert.ok(html.indexOf('<script>')<html.indexOf('src="/app.js"'));
+ assert.match(html,/name="portfolio-app-entry" content="\/app.js"/);
+ assert.doesNotMatch(html,/<script type="module" src="\/app.js"/);
  assert.match(html,/data-app-style media="print"/);assert.match(html,/id="preloader-marker"/);
  assert.match(html,/class="control accent"/);assert.match(html,/data-icon="preloader-refresh"/);
  assert.match(html,/@keyframes caption-enter/);assert.match(html,/@keyframes caption-exit/);
@@ -120,10 +121,10 @@ test('caption crossfade retains incoming and outgoing spans for the approved 300
  h.api.dispose();
 });
 
-test('module recovery connects to existing loader and initial ready cannot bypass a revolution',async()=>{
+test('module recovery retains completed minimum; initial ready cannot bypass a revolution',async()=>{
  const h=harness();await h.advance(0);h.failModule();await h.advance(1800);h.retry();await h.advance(400);
  h.api.connect(()=>Promise.resolve(),()=>{});await h.advance(0);assert.equal(h.api.snapshot().visible,true);
- await h.advance(LOGO_REVOLUTION_MS-401);assert.equal(h.api.snapshot().visible,true);
+ await h.advance(449);assert.equal(h.api.snapshot().visible,true);
  await h.advance(181);assert.equal(h.api.snapshot().visible,false);assert.equal(h.reloads,0);
  const first=harness();first.api.connect(()=>Promise.resolve(),()=>{});await first.advance(LOGO_REVOLUTION_MS-1);assert.equal(first.api.snapshot().visible,true);
  await first.advance(181);assert.equal(first.api.snapshot().visible,false);
@@ -146,4 +147,11 @@ test('slow-to-connection replaces status frame like React key while retaining it
  assert.ok(replacement.next.children.includes(h.button),'moving the existing button preserves its event listener');
  assert.match(replacement.next.className,/connection/);
  h.retry();assert.equal(h.captionText,'Пробую достучаться снова');h.api.dispose();
+});
+
+test('a stalled stylesheet is replaced on slow Retry and no stale listeners survive',async()=>{
+ const h=harness({stylesheetPending:true});h.api.connect(()=>Promise.resolve(),()=>{});await h.advance(10000);
+ assert.equal(h.api.snapshot().mode,'slow');h.retry();await h.advance(0);
+ const replacement=h.replacements.find(value=>value.previous===h.link)?.next;assert.ok(replacement);assert.match(replacement.href,/preloader-retry=1/);assert.equal(h.link.listeners.size,0);
+ replacement.listeners.get('load')();await h.advance(630);assert.equal(h.api.snapshot().visible,false);assert.equal(h.reloads,0);
 });

@@ -6,6 +6,8 @@ import {promisify} from 'node:util';
 import {build as viteBuild} from '../concept-v2/app/node_modules/vite/dist/node/index.js';
 import react from '../concept-v2/app/node_modules/@vitejs/plugin-react/dist/index.js';
 import {earlyPreloaderPlugin} from '../concept-v2/app/early-preloader-vite.mjs';
+import {startupModulePlugin} from '../concept-v2/app/startup-module-vite.mjs';
+import {boffProject} from '../concept-v2/app/src/project-page/boff-content.mjs';
 import {build as bundle} from 'esbuild';
 import {heroShellAssets} from '../portfolio-release/release-host.mjs';
 import {DELIVERY_CAPABILITIES,DELIVERY_VERSION,contentHash,canonicalJSON} from '../portfolio-delivery/contract.mjs';
@@ -53,7 +55,7 @@ export async function buildPortfolio({output=path.join(repoRoot,'.portfolio-rele
  }
  const {stdout:head}=await exec('git',['rev-parse','HEAD'],{cwd:repoRoot}),sha=head.trim();
  const {stdout:dirty}=await exec('git',['status','--porcelain','--untracked-files=normal','--','.',':!USERSPACE'],{cwd:repoRoot});
- const {stdout:names}=await exec('git',['ls-files','--','tools/concept-v2/app/src','tools/concept-v2/app/vendor','tools/concept-v2/app/index.html','tools/concept-v2/app/early-preloader-vite.mjs','tools/concept-v2/app/package-lock.json','src/lib/project-image-source.mjs','tools/portfolio-runtime/build.mjs'],{cwd:repoRoot});
+ const {stdout:names}=await exec('git',['ls-files','--','tools/concept-v2/app/src','tools/concept-v2/app/vendor','tools/concept-v2/app/index.html','tools/concept-v2/app/early-preloader-vite.mjs','tools/concept-v2/app/startup-module-vite.mjs','tools/concept-v2/process-icons','tools/concept-v2/app/package-lock.json','src/lib/project-image-source.mjs','tools/portfolio-runtime/build.mjs'],{cwd:repoRoot});
  const inputs=names.trim().split('\n').filter(Boolean);
  if(!inputs.includes('tools/portfolio-runtime/build.mjs'))inputs.push('tools/portfolio-runtime/build.mjs');
  const rendererInputs=[];for(const name of inputs.sort()){rendererInputs.push([name,contentHash(await readFile(path.join(repoRoot,name)))]);}
@@ -64,10 +66,10 @@ export async function buildPortfolio({output=path.join(repoRoot,'.portfolio-rele
  await mkdir(output,{recursive:true});
  for(const name of ['site','preview']){
   const target=path.join(output,name),base=name==='preview'?previewPlaceholder:undefined;
-  await viteBuild({root:appRoot,configFile:false,mode:'production-runtime',base:base||'/',publicDir:false,plugins:[shellPlugin(base),react(),earlyPreloaderPlugin()],build:{outDir:target,emptyOutDir:true},logLevel:'warn'});
+  await viteBuild({root:appRoot,configFile:false,mode:'production-runtime',base:base||'/',publicDir:false,plugins:[shellPlugin(base),react(),startupModulePlugin({release:true}),earlyPreloaderPlugin()],build:{outDir:target,emptyOutDir:true},logLevel:'warn'});
   for(const resource of resources){const file=path.join(target,resource.name);await mkdir(path.dirname(file),{recursive:true});await writeFile(file,resource.bytes);}
   const files=await inventory(target);
-  if(name==='site')await writeFile(path.join(target,'site-manifest.json'),JSON.stringify({version:1,buildSha:sha,pages:{'/':{title:'Артур — Product Designer',description:'Портфолио продуктового дизайнера: B2B, B2E, SaaS и сложные внутренние системы.'}},contentAssets:[],files:files.map(f=>({path:f.path,bytes:f.size,sha256:f.sha256}))}));
+  if(name==='site')await writeFile(path.join(target,'site-manifest.json'),JSON.stringify({version:1,buildSha:sha,pages:{'/':{title:'Артур — Product Designer',description:'Портфолио продуктового дизайнера: B2B, B2E, SaaS и сложные внутренние системы.'},'/projects/boff':{title:boffProject.title+' — Product Designer',description:boffProject.description}},contentAssets:[],files:files.map(f=>({path:f.path,bytes:f.size,sha256:f.sha256}))}));
   else await writeFile(path.join(target,'preview-manifest.json'),JSON.stringify({version:1,rendererId,base:previewPlaceholder,contentAssets:[],files}));
  }
  await bundle({entryPoints:[path.join(repoRoot,'tools/portfolio-runtime/start.mjs')],bundle:true,platform:'node',target:'node22',format:'esm',outfile:path.join(output,'server.mjs'),sourcemap:false});

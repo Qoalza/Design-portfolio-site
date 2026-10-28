@@ -69,10 +69,11 @@ test('Projects render distinct Corvo and Sarafan.Radio Figma content with their 
  assert.match(css,/\.project-actions\{[^}]*display:flex/);
 });
 
-test('Projects publication note follows the user-approved homepage copy',async()=>{
+test('Projects carousel replaces the publication note while preserving nearby copy styles',async()=>{
  const app=await readFile(path.join(root,'src/App.jsx'),'utf8');
  const css=await readFile(path.join(root,'src/style.css'),'utf8');
- assert.match(app,/<p className="projects-status">\/\/ остальные проекты в процессе публикации<\/p>/);
+ assert.doesNotMatch(app,/className="projects-status"/);
+ assert.match(app,/<ProjectsCarousel heading=/);
  assert.doesNotMatch(app,/className="projects-all-action"/);
  assert.match(css,/\.projects-status\{[^}]*"Source Code Pro"/);
  assert.match(css,/@media all\{[\s\S]*?\.projects-heading>\.projects-status\{[^}]*color:var\(--cv2-text-neutral-thin\)/);

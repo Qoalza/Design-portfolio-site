@@ -1,6 +1,7 @@
 import {useRef,useState} from 'react';
 import {randomEdgePoint} from './process-fill.mjs';
 import './hero-facts.css';
+import factDot from './figma/hero-fact-dot.svg';
 
 function DribbbleContent(){
  return <><span className="hero-dribbble-icon" aria-hidden="true"/><span className="hero-dribbble-label">Dribbble</span></>;
@@ -28,7 +29,7 @@ export function HeroDribbbleButton(){
 }
 
 function FactDot(){
- return <span className="hero-fact-dot" aria-hidden="true"><img src="/figma/hero-fact-dot.svg" width="4" height="4" alt=""/></span>;
+ return <span className="hero-fact-dot" aria-hidden="true"><img src={factDot} width="4" height="4" alt=""/></span>;
 }
 
 export function HeroFacts(){

@@ -15,3 +15,7 @@ test('retry renews only failed critical font sources, preserving CSS descriptors
 test('successful font set stays unchanged on retry',()=>{
  const {document,rules}=fixture();document.fonts.forEach=callback=>callback({family:'Onest',status:'loaded'});const sources=rules.map(rule=>rule.style.getPropertyValue('src'));assert.equal(refreshFailedFontSources(document,'https://art-des.ru/'),0);assert.deepEqual(rules.map(rule=>rule.style.getPropertyValue('src')),sources);
 });
+test('retry also renews stalled critical font loads',()=>{
+ const {document,rules}=fixture();document.fonts.forEach=callback=>callback({family:'Onest',status:'loading'});
+ assert.equal(refreshFailedFontSources(document,'https://art-des.ru/'),1);assert.match(rules[0].style.getPropertyValue('src'),/preloader-retry=/);
+});

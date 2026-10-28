@@ -6,7 +6,7 @@ export function refreshFailedFontSources(document,baseUrl){
   const failed=new Set();
   document.fonts.forEach(face=>{
     const family=familyName(face.family);
-    if(face.status==='error'&&criticalFamilies.has(family))failed.add(family);
+    if(['error','loading'].includes(face.status)&&criticalFamilies.has(family))failed.add(family);
   });
   if(!failed.size)return 0;
   const sequence=++retrySequence;

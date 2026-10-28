@@ -1,3 +1,4 @@
+import {isHorizontalCarouselWheel} from './projects-carousel.mjs';
 import {useEffect} from 'react';
 import Lenis from '../vendor/lenis/lenis.mjs';
 import {publishScrollActivity,publishSmoothScroll,publishWheelActivity} from './smooth-scroll-runtime.mjs';
@@ -56,6 +57,7 @@ export function SmoothScroll(){
         lerp:.1,wheelMultiplier:1,stopInertiaOnNavigate:true,
         virtualScroll:({event,deltaY})=>{
           if(!event.type.includes('wheel'))return;
+          if(isHorizontalCarouselWheel(event))return false;
           publishWheelActivity(true);
           clearTimeout(wheelIdleTimer);
           wheelIdleTimer=setTimeout(()=>{

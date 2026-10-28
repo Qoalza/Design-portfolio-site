@@ -10,7 +10,7 @@ export function startEarlyPreloader(){
  let state,disposed=false;
  const dispose=()=>{
   if(disposed)return;
-  disposed=true;gate.dispose();resources.dispose();presenter.dispose();
+  disposed=true;gate.dispose();resources.dispose({keepApplication:true});presenter.dispose();
   button.removeEventListener('click',retry);element.remove();document.documentElement.removeAttribute('data-early-loading');
   listeners.clear();
  };
@@ -27,5 +27,5 @@ export function startEarlyPreloader(){
   listeners.add(onState);const detach=resources.attach(prepare);
   return()=>{listeners.delete(onState);detach();};
  }};
- gate.start({prepare:(signal,{retryNumber})=>resources.prepare(signal,retryNumber)},{immediate:true,shownAt});
+ gate.start({prepare:(signal,{retryNumber,attemptId})=>resources.prepare(signal,retryNumber,attemptId)},{immediate:true,shownAt});
 }

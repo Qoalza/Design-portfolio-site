@@ -5,19 +5,19 @@ export function wrapSlideIndex(index, count) {
 
 export function visibleDotIndexes(activeIndex, count) {
   if (count <= 0) return [];
-  if (count <= 5) return Array.from({length: count}, (_, index) => index);
+  if (count < 5) return Array.from({length: count}, (_, index) => index);
   return Array.from({length: 5}, (_, index) => wrapSlideIndex(activeIndex + index - 2, count));
 }
 
 export function carouselDotItems(slides, step) {
   const count = slides.length;
-  if (count <= 5) {
+  if (count < 5) {
     return slides.map((_, index) => ({
       key: `slide-${index}`,
       index,
       slot: index - (count - 1) / 2,
       visible: true,
-      compact: count === 5 && (index === 0 || index === 4),
+      compact: false,
     }));
   }
 

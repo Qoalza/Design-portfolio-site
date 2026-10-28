@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {createElement} from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {transformWithEsbuild} from 'vite';
+import {featuredProjectCards} from '../src/featured-project-cards.mjs';
+const source=await readFile(new URL('../src/App.jsx',import.meta.url),'utf8');
+const card=source.slice(source.indexOf('function ProjectCard('),source.indexOf('function Projects('));
+const {code}=await transformWithEsbuild('export '+card,'ProjectCard.jsx',{loader:'jsx',jsx:'automatic',format:'cjs'});
+const module={exports:{}};
+new Function('module','exports','require','ResponsivePicture','RadioProjectSymbol','Icon','ProjectActions',code)(module,module.exports,createRequire(import.meta.url),props=>createElement('img',{src:props.source.fallback,alt:props.alt}),({logo})=>{assert.ok(logo,'A project without a logo must not invoke a logo renderer');return createElement('span',null,'logo');},()=>null,()=>null);
+test('B.Off card renders its real title and images without requiring a logo',()=>{
+ const project=featuredProjectCards([])[0];
+ const html=renderToStaticMarkup(createElement(module.exports.ProjectCard,{project}));
+ assert.match(html,/<h3>B\.Off<\/h3>/);
+ assert.match(html,/project-boff\/account\.png/);
+ assert.match(html,/project-boff\/transactions\.png/);
+});
