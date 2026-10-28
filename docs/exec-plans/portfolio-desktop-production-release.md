@@ -1,0 +1,49 @@
+# Публикация десктопного обновления портфеля — 2026-10-28
+
+Статус: IN_PROGRESS. OPS+PORTFOLIO / LARGE / HIGH / FULL. Goal создан по прямому запросу пользователя; бюджет не задан. Пользователь утвердил весь план, включая main и production. Единственный writer — текущий чат в portfolio-production-release, веткаcodex/portfolio-desktop-release-v1.
+
+## Результат и границы
+
+Выпустить наart-des.ru согласованный набор: карусель Corvo → B.Off → Сарафан.Радио; новый статичный Hero3/5+; B.Off с4Lottie, новым примечанием, ссылкой и утверждёнными подписями; регистр тегов; рабочий прелоадер; анимации«Как я работаю» с прежней раскраской300ms и согласованными скоростями/полосами.
+
+Админка остаётся как сейчас: не отключать/обновлять/пересобирать и не запускать её публикацию. Нет новых мобильных/планшетных адаптивов, canonical/DB/draft/schema/data изменений, Figma writes, proxy/OS изменений или CI-миграции. Сохранить production-only исправления и штатный откат.
+
+Source integrationf536e2a. Свежий public+remote mainbaselinecee57561cd9c0dd34897d9f2b18d5fa6333780ae. Public content revisionb158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c;2проектаCorvo/Sarafan. Публичный DTO сохранён только как read-only verification input внеGit.
+
+## 1. Подготовить отдельную ветку выпуска
+
+- [x] Создатьcodex/portfolio-desktop-release-v1 от свежейorigin/main в отдельном release-дереве.
+- [ ] Перенести только согласованную дельту интеграции, не заменяя prod-дерево целиком. Сохранить production image-source mapping, optional-logo guards и ранее выпущенный runtime.
+- [ ] Проверить отсутствие изменений Admin/Shared schemas/content/assets/drafts/USERSPACE и новых adaptive files.
+
+## 2. Подключить к настоящей сборке
+
+- [ ] B.Off включить в public package с изображениями/4Lottie/примечанием/URL/подписями. Зарегистрировать/projects/boff в существующей manifest.pages:HTTP200, title/description/canonical/sitemap. При runtime merge страниц сохранить code-owned B.Off вместе с liveCorvo/Sarafan. Ничего не создавать в Admin.
+- [ ] Подключить startupModulePlugin({release:true}) к независимому public+preview builder и включить новые исходники/анимации в build identity. Проверятьportfolio:build, не толькоVite.
+- [ ] Отобразить liveSAAS/PARTNER PLATFORM/EVENT какSaaS/Partner Platform/Event в карточках и открытых проектах через public display adapter. DTO и его revision сохраняются; неизвестные значения не преобразуются.
+- [ ] Не менять public/shared schemas и Admin API. Новое public дополнение —/projects/boff.
+
+## 3. Проверить кандидат
+
+- [ ] Focused RED/GREEN для новых runtime стыковок; app tests/lint и focused public/server/artifact/controller/preview checks.
+- [ ] Clean exact commit →portfolio:build/package→самостоятельный проверенный public artifact. Без CMS build/Docker/private build inputs.
+- [ ] Изолированный запуск с копией текущих публичных данных; hidden browser1280/1440/1920: home/Corvo/Sarafan/Boff, finite carousel/fades/glow/images, Hero450ms/shades/blur/captions,4BoffLottie, process hover/timing/stripes.
+- [ ] Preloader: fast/minimum1orbit, slow, download/evaluation/React startup errors, real retry without shell reset, stale attempt isolation and approved slow/error copy variants. Fault injection только локально.
+- [ ] Два последовательных review: полнота/fidelity, затем regression/scope/risk, исправления между ними; повторить затронутые проверки.
+
+## 4. Выпустить main+production
+
+- [ ] Fresh main/controller/content check; сохранить previous compatible artifact/descriptor/state и контрольные признаки CMS. При изменении baseline/collision/unknown pending state не активировать.
+- [ ] Fast-forward exact проверенногоSHA вmain, безforce. Upload immutable verified package.
+- [ ] Existing code-controller: unique persistent intent app=portfolio с exact expected confirmed slot; после неизвестного ответа повторять те же bytes/ID. Активировать и перезапустить только Portfolio. Не менять CMS/proxy/settings.
+
+## 5. Проверить и закрыть
+
+- [ ] Public exactSHA; home+3projects/sitemap/resources; hidden smoke и отсутствие unexpected errors.
+- [ ] Неизменность content revision/Corvo/Sarafan DTO/assets и CMS identity/PID/schema. B.Off остаётсяcode-owned.
+- [ ] При failed health/существенной регрессии штатный abort/new rollback intent на retained compatible previous artifact. Не откатывать data/DB/content.
+- [ ] Сохранить результаты, identity, rollback pointer и обновитьHANDOFF/историю. Goal complete только после подтверждения прода.
+
+## Критерий завершения
+
+Выбранные обновления работают наart-des.ru; B.Off доступен напрямую; админка в прежнем состоянии; новые адаптивы не опубликованы. Runtime identity относится к проверенному exact source; последующие docs commits не означают новый runtime release.
