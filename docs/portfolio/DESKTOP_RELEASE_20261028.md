@@ -12,4 +12,4 @@ Local fault proxy4198 injected one startup JS download503, evaluation throw, mou
 
 Sequential fresh-context doubt reviews: release_fidelity_review completed first, no actionable findings; release_regression_review completed second, no actionable findings. Second reviewer verified Portfolio-only lifecycle adapter and compatible rollback against current content. Known stale combined-service DEPLOY instructions explicitly excluded.
 
-Production activation and post-check identities will be recorded after release.
+Production released source108820d23f9c27c9c771e4823fdf4d7020e9c5c0; artifact9fbb2ff0617c74a4c3de18fae3ee628fcd293e7117cd72b44ee6c95c52a39f53; code activation4. Operation5c45bf4a-b1f0-48c1-991c-cf065fb5b3ec confirmed by controller. All four routes200, sitemap and11resources passed. Production hidden browser confirmed Boff and real three-card homepage, no broken images/unexpected console errors. CMS descriptor/complete health/PIDs/schema unchanged. Published projects and content revision unchanged; rendererId changes as expected. Immutable evidence: design-reference/releases/108820d-desktop/.

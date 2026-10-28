@@ -117,3 +117,9 @@ Shared map: `docs/shared/PROJECT_CONTENT.md`.
 - Canonical Boff, Corvo и Sarafan migrated на v3; Corvo сохраняет baseline, Sarafan использует code-owned collage/hero и три dotted canvas templates.
 - Главная получила named `primary/secondary` placement, каталог — template compatibility preflight, текстовый flow — semantic `hardBreak`.
 - Реальный локальный Sarafan draft обратимо мигрирован с SHA-256 backup и оставлен неопубликованным; acceptance выполнялась workspace Admin в sandbox mode.
+
+## 2026-10-28 — десктопный Portfolio выпущен отдельно от Admin
+
+- Опубликованы карусель трёх проектов, статичный Hero3/5+, B.Off с4Lottie, рабочее восстановление прелоадера, регистр тегов и процессные анимации.
+- Независимый публичный пакет108820d активирован штатным split code controller; CMS, схема и опубликованные Corvo/Sarafan данные сохранены. Новые адаптивы не включены.
+- Проверки и rollback identity: docs/portfolio/DESKTOP_RELEASE_20261028.md; immutable evidence design-reference/releases/108820d-desktop/.

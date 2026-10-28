@@ -1,0 +1,97 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "status": 200,
+      "title": "Артур — Product Designer"
+    },
+    {
+      "route": "/projects/corvo",
+      "status": 200,
+      "title": "Corvo — Product Designer"
+    },
+    {
+      "route": "/projects/sarafan-radio",
+      "status": 200,
+      "title": "Сараффан.Радио — Product Designer"
+    },
+    {
+      "route": "/projects/boff",
+      "status": 200,
+      "title": "B.Off — Product Designer"
+    }
+  ],
+  "resources": [
+    {
+      "path": "/assets/main-release-C5Ku0LvF.js",
+      "status": 200,
+      "bytes": 628969
+    },
+    {
+      "path": "/assets/main-release-CW6nfzY4.css",
+      "status": 200,
+      "bytes": 128708
+    },
+    {
+      "path": "/figma/project-boff/account.png",
+      "status": 200,
+      "bytes": 200499
+    },
+    {
+      "path": "/figma/project-boff/far-left.png",
+      "status": 200,
+      "bytes": 166841
+    },
+    {
+      "path": "/figma/project-boff/far-right.png",
+      "status": 200,
+      "bytes": 116782
+    },
+    {
+      "path": "/figma/project-boff/lottie/api-setup.json",
+      "status": 200,
+      "bytes": 34581
+    },
+    {
+      "path": "/figma/project-boff/lottie/payout-history.json",
+      "status": 200,
+      "bytes": 28414
+    },
+    {
+      "path": "/figma/project-boff/lottie/side-panels.json",
+      "status": 200,
+      "bytes": 330050
+    },
+    {
+      "path": "/figma/project-boff/lottie/technical-panel-details.json",
+      "status": 200,
+      "bytes": 141234
+    },
+    {
+      "path": "/figma/project-boff/near-right.png",
+      "status": 200,
+      "bytes": 407362
+    },
+    {
+      "path": "/figma/project-boff/transactions.png",
+      "status": 200,
+      "bytes": 372984
+    }
+  ],
+  "cmsUnchanged": true,
+  "publishedProjectsUnchanged": true,
+  "contentRevision": "b158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c",
+  "portfolio": {
+    "portfolioBuildId": {
+      "sourceSha": "108820d23f9c27c9c771e4823fdf4d7020e9c5c0",
+      "artifactSha256": "9fbb2ff0617c74a4c3de18fae3ee628fcd293e7117cd72b44ee6c95c52a39f53"
+    },
+    "codeActivationSeq": 4,
+    "processId": 213708,
+    "rendererId": "60f2ea1effbd72e1290a531a5a9922f7a724f998bce8f6b419a9ec25bbf95c35",
+    "contractVersion": "public-delivery-v1",
+    "contentId": "b158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c",
+    "activationSeq": 1,
+    "contentRendererId": "279a8764447d46287171ff557151eb1aff5263a08daee38c7ea400f8ddf92416"
+  }
+}
