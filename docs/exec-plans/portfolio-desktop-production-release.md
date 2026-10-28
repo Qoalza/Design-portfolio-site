@@ -13,23 +13,23 @@ Source integrationf536e2a. Свежий public+remote mainbaselinecee57561cd9c0d
 ## 1. Подготовить отдельную ветку выпуска
 
 - [x] Создатьcodex/portfolio-desktop-release-v1 от свежейorigin/main в отдельном release-дереве.
-- [ ] Перенести только согласованную дельту интеграции, не заменяя prod-дерево целиком. Сохранить production image-source mapping, optional-logo guards и ранее выпущенный runtime.
-- [ ] Проверить отсутствие изменений Admin/Shared schemas/content/assets/drafts/USERSPACE и новых adaptive files.
+- [x] Перенести только согласованную дельту интеграции, не заменяя prod-дерево целиком. Сохранить production image-source mapping, optional-logo guards и ранее выпущенный runtime.
+- [x] Проверить отсутствие изменений Admin/Shared schemas/content/assets/drafts/USERSPACE и новых adaptive files.
 
 ## 2. Подключить к настоящей сборке
 
-- [ ] B.Off включить в public package с изображениями/4Lottie/примечанием/URL/подписями. Зарегистрировать/projects/boff в существующей manifest.pages:HTTP200, title/description/canonical/sitemap. При runtime merge страниц сохранить code-owned B.Off вместе с liveCorvo/Sarafan. Ничего не создавать в Admin.
-- [ ] Подключить startupModulePlugin({release:true}) к независимому public+preview builder и включить новые исходники/анимации в build identity. Проверятьportfolio:build, не толькоVite.
-- [ ] Отобразить liveSAAS/PARTNER PLATFORM/EVENT какSaaS/Partner Platform/Event в карточках и открытых проектах через public display adapter. DTO и его revision сохраняются; неизвестные значения не преобразуются.
-- [ ] Не менять public/shared schemas и Admin API. Новое public дополнение —/projects/boff.
+- [x] B.Off включить в public package с изображениями/4Lottie/примечанием/URL/подписями. Зарегистрировать/projects/boff в существующей manifest.pages:HTTP200, title/description/canonical/sitemap. При runtime merge страниц сохранить code-owned B.Off вместе с liveCorvo/Sarafan. Ничего не создавать в Admin.
+- [x] Подключить startupModulePlugin({release:true}) к независимому public+preview builder и включить новые исходники/анимации в build identity. Проверятьportfolio:build, не толькоVite.
+- [x] Отобразить liveSAAS/PARTNER PLATFORM/EVENT какSaaS/Partner Platform/Event в карточках и открытых проектах через public display adapter. DTO и его revision сохраняются; неизвестные значения не преобразуются.
+- [x] Не менять public/shared schemas и Admin API. Новое public дополнение —/projects/boff.
 
 ## 3. Проверить кандидат
 
-- [ ] Focused RED/GREEN для новых runtime стыковок; app tests/lint и focused public/server/artifact/controller/preview checks.
-- [ ] Clean exact commit →portfolio:build/package→самостоятельный проверенный public artifact. Без CMS build/Docker/private build inputs.
-- [ ] Изолированный запуск с копией текущих публичных данных; hidden browser1280/1440/1920: home/Corvo/Sarafan/Boff, finite carousel/fades/glow/images, Hero450ms/shades/blur/captions,4BoffLottie, process hover/timing/stripes.
-- [ ] Preloader: fast/minimum1orbit, slow, download/evaluation/React startup errors, real retry without shell reset, stale attempt isolation and approved slow/error copy variants. Fault injection только локально.
-- [ ] Два последовательных review: полнота/fidelity, затем regression/scope/risk, исправления между ними; повторить затронутые проверки.
+- [x] Focused RED/GREEN для новых runtime стыковок; app tests/lint и focused public/server/artifact/controller/preview checks.
+- [x] Clean exact commit →portfolio:build/package→самостоятельный проверенный public artifact. Без CMS build/Docker/private build inputs.
+- [x] Изолированный запуск с копией текущих публичных данных; hidden browser1280/1440/1920: home/Corvo/Sarafan/Boff, finite carousel/fades/glow/images, Hero450ms/shades/blur/captions,4BoffLottie, process hover/timing/stripes.
+- [x] Preloader: fast/minimum1orbit, slow, download/evaluation/React startup errors, real retry without shell reset, stale attempt isolation and approved slow/error copy variants. Fault injection только локально.
+- [x] Два последовательных review: полнота/fidelity, затем regression/scope/risk, исправления между ними; повторить затронутые проверки.
 
 ## 4. Выпустить main+production
 

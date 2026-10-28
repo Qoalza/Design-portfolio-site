@@ -40,7 +40,13 @@ test('unpacked artifact starts with plain Node, without checkout/CMS/compiler, a
   assert.equal(ready,true,output);
   const health=await (await fetch(url+'/__internal/health')).json();assert.equal(health.contentId,a.contentId);assert.deepEqual(health.portfolioBuildId,manifest.portfolioBuildId);
   const html=await (await fetch(url+'/')).text();assert.equal(html.includes('/__content/'+a.contentId),true);
-  const codeAssets=[...html.matchAll(/(?:src|href)="(\/assets\/[^"?]+\.(?:js|css))"/g)].map(m=>m[1]);assert.ok(codeAssets.length>=2);
+  const codeAssets=[...html.matchAll(/(?:src|href)="(\/assets\/[^"?]+\.(?:js|css))"/g)].map(m=>m[1]);assert.ok(codeAssets.length>=1);
+  const entry=html.match(/<meta name="portfolio-app-entry" content="([^"<>]+)"/);assert.ok(entry,'Persistent shell must declare a real startup entry');
+  assert.match(entry[1],/^\/assets\/[^/?]+\.js$/);
+  const startup=await fetch(url+entry[1]+'?preloader-attempt=1');assert.equal(startup.status,200);assert.match(await startup.text(),/mountApplication/);
+  assert.match(html,/id="early-preloader"/);
+  const boff=await fetch(url+'/projects/boff');assert.equal(boff.status,200);assert.match(await boff.text(),/B\.Off/);
+  const sitemap=await (await fetch(url+'/sitemap.xml')).text();assert.match(sitemap,/projects\/boff/);
   for(const file of [...codeAssets,'/fonts/onest-variable.woff2','/figma/dot-tile.svg'])assert.equal((await fetch(url+file)).status,200,file);
   for(const asset of a.assets)assert.equal((await fetch(url+'/__content/'+a.contentId+asset.publicPath)).status,200,asset.publicPath);
   const b=fixture();b.projects[0].title='Updated fixture';const next=await publish(contentRoot,b,manifest.renderer,2);
