@@ -1,8 +1,6 @@
 # HANDOFF
-2026-10-28. Desktop Portfolio production release completed in portfolio-production-release, branch codex/portfolio-desktop-release-v1. User-approved main+production completed; Goal ready to close.
+2026-10-28. Worktree portfolio-production-release; branch codex/social-link-previews from main4312fd5. User authorized publishing their two supplied social cover PNGs to main and art-des.ru.
 
-Deployed source108820d23f9c27c9c771e4823fdf4d7020e9c5c0; artifact9fbb2ff0617c74a4c3de18fae3ee628fcd293e7117cd72b44ee6c95c52a39f53; Portfolio code activation4. Closing docs commit is not a runtime rebuild. Main includes selected desktop carousel/Hero/Boff/preloader/process/tag updates. Production checks passed; CMS processes/build/schema and published content unchanged. No adaptive/Admin/schema/canonical transfer.
+PORTFOLIO+OPS / SMALL implementation / production HIGH / FULL. One Git group: original PNGs unchanged, ordered Open Graph wide2400x1260 then square1280, Twitter wide, dimensions/type/alt, public artifact inclusion and focused checks. No Admin/shared/data/UI/adaptive/dependency change. Consumers choose their own preview presentation; no promised square auto-selection.
 
-Plan: docs/exec-plans/portfolio-desktop-production-release.md (COMPLETE). Evidence: docs/portfolio/DESKTOP_RELEASE_20261028.md and design-reference/releases/108820d-desktop/.
-
-No blocker or pending implementation. Previous compatible artifact99ff91a265c8ca3a80cb06d1b3a28fa66e15ff816b5bf00f670d5bd4709a8190 retained; rollback only via split controller new intent against current confirmed state. Do not use obsolete combined Payload deployment procedure. Future changes require a fresh exact target/preflight; Admin/adaptives remain separate.
+Host RED/GREEN2 tests passed; completeness review passed, risk review pending. Next: commit, exact clean independent build/artifact checks, package, freshmain/controller/content/CMSpreflight, Portfolio-only activation and publicmetadata/imagebyte verification. Baseline deployed108820d, controlleractivation4; CMS/PIDs/content stayfixed. Previous artifact9fbb2ff0617c74a4c3de18fae3ee628fcd293e7117cd72b44ee6c95c52a39f53 retained for rollback via newcontrollerintent. Do not use obsolete combinedPayload deployment instructions.

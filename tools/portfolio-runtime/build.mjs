@@ -10,6 +10,7 @@ import {startupModulePlugin} from '../concept-v2/app/startup-module-vite.mjs';
 import {boffProject} from '../concept-v2/app/src/project-page/boff-content.mjs';
 import {build as bundle} from 'esbuild';
 import {heroShellAssets} from '../portfolio-release/release-host.mjs';
+import {socialPreviewPublicFiles} from '../portfolio-release/social-preview.mjs';
 import {DELIVERY_CAPABILITIES,DELIVERY_VERSION,contentHash,canonicalJSON} from '../portfolio-delivery/contract.mjs';
 import {artifactFiles,verifyPortfolioArtifact} from './artifact.mjs';
 const exec=promisify(execFile),repoRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
@@ -19,7 +20,7 @@ async function shellAssets(sha) {
  const prefix='tools/concept-v2/app/public/';
  const {stdout}=await exec('git',['ls-tree','-r','--name-only',sha,'--',prefix+'figma',prefix+'fonts',prefix+'cursors',prefix+'assets'],{cwd:repoRoot});
  const names=stdout.trim().split('\n').filter(file=>file&&(!file.startsWith(prefix+'assets/')||/^assets\/[^/]+\.svg$/.test(file.slice(prefix.length))||heroShellAssets.has('/'+file.slice(prefix.length))));
- names.push('public/artur-designer-favicon.svg','public/artur-designer-social-preview.png');
+ names.push('public/artur-designer-favicon.svg','public/artur-designer-social-preview.png',...socialPreviewPublicFiles);
  const assets=[];
  for(const file of names){const {stdout:bytes}=await exec('git',['show',sha+':'+file],{cwd:repoRoot,encoding:'buffer',maxBuffer:32*1024*1024});assets.push({name:file.startsWith(prefix)?file.slice(prefix.length):file.slice(7),bytes});}
  return assets;

@@ -5,6 +5,7 @@ import path from 'node:path';import {fileURLToPath} from 'node:url';
 import {build} from '../concept-v2/app/node_modules/vite/dist/node/index.js';
 import {exportApprovedRedesign} from '../concept-v2/export-approved-content.mjs';
 import {selectReleaseContent} from './content-source.mjs';
+import {socialPreviewPublicFiles} from './social-preview.mjs';
 import {createPortfolioViteConfig} from '../concept-v2/app/vite.config.js';
 const exec=promisify(execFile);
 const repoRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
@@ -19,9 +20,9 @@ const sourceDirty=Boolean(status.trim());
 await build({...createPortfolioViteConfig({mode:'production-release',preparedInput:prepared}),root:path.join(repoRoot,'tools/concept-v2/app'),configFile:false,mode:'production-release',publicDir:false,build:{outDir:siteRoot,emptyOutDir:true}});
 const sourcePrefix='tools/concept-v2/app/public/';
 const {stdout:names}=await exec('git',['ls-tree','-r','--name-only',approvedSourceSha,'--',sourcePrefix+'figma',sourcePrefix+'fonts',sourcePrefix+'cursors',sourcePrefix+'assets'],{cwd:repoRoot});
-const extras=[...names.trim().split('\n').filter(file=>file&&(!file.startsWith(sourcePrefix+'assets/')||/^assets\/[^/]+\.svg$/.test(file.slice(sourcePrefix.length))||file.startsWith(sourcePrefix+'assets/projects/corvo/responsive-hero/'))),'public/artur-designer-favicon.svg','public/artur-designer-social-preview.png'];
+const extras=[...names.trim().split('\n').filter(file=>file&&(!file.startsWith(sourcePrefix+'assets/')||/^assets\/[^/]+\.svg$/.test(file.slice(sourcePrefix.length))||file.startsWith(sourcePrefix+'assets/projects/corvo/responsive-hero/'))),'public/artur-designer-favicon.svg','public/artur-designer-social-preview.png',...socialPreviewPublicFiles];
 for(const file of extras){
- const {stdout:bytes}=await exec('git',['show',`${approvedSourceSha}:${file}`],{cwd:repoRoot,encoding:'buffer',maxBuffer:32*1024*1024});
+ const {stdout:bytes}=await exec('git',['show',`${file.startsWith('public/')?buildSha:approvedSourceSha}:${file}`],{cwd:repoRoot,encoding:'buffer',maxBuffer:32*1024*1024});
  const output=file.startsWith(sourcePrefix)?file.slice(sourcePrefix.length):file.slice('public/'.length);
  await mkdir(path.dirname(path.join(siteRoot,output)),{recursive:true});await writeFile(path.join(siteRoot,output),bytes);
 }
