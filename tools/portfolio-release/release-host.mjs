@@ -1,3 +1,4 @@
+import {previewProbePath,previewProbeHTML} from './preview-probe.mjs';
 import {readFile,lstat} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
@@ -62,8 +63,9 @@ export function createReleaseHandler({root=path.join(process.cwd(),'.portfolio-r
  let loading;
  return async request=>{
   if(request.method!=='GET'&&request.method!=='HEAD')return new Response(null,{status:405,headers:{Allow:'GET, HEAD'}});
-  const built=await (loading??=loadSite(root));
   const pathname=new URL(request.url).pathname;
+  if(pathname===previewProbePath)return new Response(request.method==='HEAD'?null:previewProbeHTML,{status:200,headers:{'Content-Type':'text/html; charset=utf-8','Content-Length':String(Buffer.byteLength(previewProbeHTML)),'Cache-Control':'no-cache'}});
+  const built=await (loading??=loadSite(root));
   const state=readState?await readState():undefined;
   const requestReadAsset=state?.readAsset??readAsset;
   const head=request.method==='HEAD';
