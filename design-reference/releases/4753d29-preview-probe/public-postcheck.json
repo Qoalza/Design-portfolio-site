@@ -1,0 +1,72 @@
+{
+  "probe": {
+    "status": 200,
+    "bytes": 712,
+    "url": "https://art-des.ru/preview-test-20261029"
+  },
+  "routes": [
+    {
+      "route": "/",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/corvo",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/sarafan-radio",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/boff",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "url": "https://art-des.ru/artur-designer-social-preview-v3.png",
+      "bytes": 130728,
+      "width": 1200,
+      "height": 630,
+      "sha256": "8d23347753e97b0ada1143e60823ad284dfaace27b4d2a2407fe01b881aa8b96"
+    },
+    {
+      "url": "https://art-des.ru/artur-designer-social-preview-square-v3.png",
+      "bytes": 84421,
+      "width": 640,
+      "height": 640,
+      "sha256": "4f19a72ce5eb190dd4e7178e864f77c1e5c23548cd74c2e67a5e43952cc10b8e"
+    }
+  ],
+  "cmsUnchanged": true,
+  "publishedProjectsUnchanged": true,
+  "portfolioHealth": {
+    "portfolioBuildId": {
+      "sourceSha": "4753d298a903aaaabcf7b40db10ba6143c4a178b",
+      "artifactSha256": "19b6b8976609c83988e333badd498234b7d3fd1f7fcc9021ac2708cd52353d91"
+    },
+    "codeActivationSeq": 8,
+    "processId": 220692,
+    "rendererId": "2d603478b33bda5333b94614081cd83264c81194a3ba7efcabe92b4611710805",
+    "contractVersion": "public-delivery-v1",
+    "contentId": "b158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c",
+    "activationSeq": 1,
+    "contentRendererId": "279a8764447d46287171ff557151eb1aff5263a08daee38c7ea400f8ddf92416"
+  }
+}

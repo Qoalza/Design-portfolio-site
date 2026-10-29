@@ -1,8 +1,8 @@
 # HANDOFF
-2026-10-29. Worktree portfolio-production-release; branch codex/social-link-previews. User supplied Width.png and Square.png and authorized replacement on production. Runtime/main release65e0c6bce2f2f01bdd3375e58a7e4011ff39feb6; activation7; operationd4b629ce-84ad-4a10-ab46-dac2ca63547d. Closing documentation commit is not runtime release.
+2026-10-29. Worktree portfolio-production-release; branch codex/social-link-previews. User authorized minimal public diagnostic page. Deployed4753d298a903aaaabcf7b40db10ba6143c4a178b, activation8, operation6d105fd4-f87a-427d-8d2a-9c60c760827f. Closing docs commit is not runtime release.
 
-Original PNGs now wide1200x630/130728bytes and square640x640/84421bytes at v3 URLs, exact original bytes. Wide primaryOG/Twitter; square secondaryOG. v2 URLs retained. Three focused host/artifact tests, exact clean build/package, four public routes and both image hashes/dimensions passed. Content and complete CMS health unchanged.
+https://art-des.ru/preview-test-20261029 returns712-byte literal HTML, one original1200x630 widev3PNG, OGmetadata; bypasses app template and CMS read. No scripts/preloader/styles; not in sitemap/navigation. Four tests, lint/build/package and public checks passed; existing fourroutes, image hashes, content and CMS unchanged.
 
-Telegram preview failure remains unproven; this release tests image size hypothesis only. Await actual Telegram client check; bot success message alone is not evidence. No DNS/TLS/nginx/Admin/adaptive/UI changes.
+Pending user Telegram check. Original1x covers did not solve failure. Root cause still unknown; no support referral, DNS/TLS/config changes or claims Telegram works. Probe isolates HTML/template but shares server/domain/image. Remove temporary probe after investigation.
 
-Evidence: design-reference/releases/65e0c6b-social-previews-1x/public-postcheck.json. History: docs/portfolio/SOCIAL_PREVIEW_RELEASE_20261029.md. Previous compatible artifact24a7c2ae6f874dc44ead8620ff60e11a11d53f67fde9055947dbddb530d98d4e retained; rollback only via new explicit Portfolio controller intent. Do not use obsolete combinedPayload runbook.
+Evidence design-reference/releases/4753d29-preview-probe/public-postcheck.json; history docs/portfolio/SOCIAL_PREVIEW_RELEASE_20261029.md. Previous compatible artifact5a7fb3ac0c643dd35377197b3dab4e0bbfbe17b6cb7d4136e663c0519c3ac5e8 retained; rollback via explicit new Portfolio controller intent only. Admin/content/UI/adaptives untouched.
