@@ -15,3 +15,11 @@ Deployed source06325d78114896a41fb10b8e3616be7532703d89; artifact24a7c2ae6f874dc
 Previous compatible artifactb0d7190db9cda7a803a100833ac2b6e2e1cbdd56e68deed76c6292318bf71fbf retained. Rollback requires newPortfolio-onlyintent against currentconfirmedslot; no datarestore. No rollback needed.
 
 Telegram-specific cause is not proven by HTTP success or headorder. Recent boundednginxlog contained noactualfreshTelegramfetch exceptourmanualUAprobe. User asked to test https://art-des.ru/?preview=20261029 before sending; awaitingresult. NoTelegrammessages sent by agent. Does not claim preview support for Codex/chat UI. Evidence design-reference/releases/06325d7-social-previews/.
+
+## Original 1x covers, user-authorized experiment
+
+2026-10-29: user supplied Width.png1200x630 and Square.png640x640 and asked to replace published covers. Exact original bytes copied to v3 URLs; prior v2 URLs retained. No changes to metadata structure/order, PNG format, networking or page behavior. Wide130728bytes SHA2568d23347753e97b0ada1143e60823ad284dfaace27b4d2a2407fe01b881aa8b96; square84421bytes SHA2564f19a72ce5eb190dd4e7178e864f77c1e5c23548cd74c2e67a5e43952cc10b8e.
+
+Runtime65e0c6bce2f2f01bdd3375e58a7e4011ff39feb6, artifact5a7fb3ac0c643dd35377197b3dab4e0bbfbe17b6cb7d4136e663c0519c3ac5e8, activation7, operationd4b629ce-84ad-4a10-ab46-dac2ca63547d. Three host/artifact tests, exact build/package, original-byte checks in public+preview packages and public four-route/two-image checks passed. Two sequential self-review passes covered completeness and scope/rollback: no actionable findings. CMS descriptor/full health and published content remained unchanged. Evidence: design-reference/releases/65e0c6b-social-previews-1x/public-postcheck.json. Telegram success not yet observed; image size remains a hypothesis.
+
+Correction to preceding historical entry: activation6 operation was6f25e234-5999-42b4-be07-d0ae23c9c9f7; d9c130c3-01e5-4f3f-b5e2-f5ca6efcfc08 belonged to activation5.

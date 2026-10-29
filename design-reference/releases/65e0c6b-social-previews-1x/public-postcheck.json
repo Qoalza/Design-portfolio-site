@@ -1,0 +1,67 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/corvo",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/sarafan-radio",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/boff",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png",
+        "https://art-des.ru/artur-designer-social-preview-square-v3.png"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "url": "https://art-des.ru/artur-designer-social-preview-v3.png",
+      "bytes": 130728,
+      "width": 1200,
+      "height": 630,
+      "sha256": "8d23347753e97b0ada1143e60823ad284dfaace27b4d2a2407fe01b881aa8b96"
+    },
+    {
+      "url": "https://art-des.ru/artur-designer-social-preview-square-v3.png",
+      "bytes": 84421,
+      "width": 640,
+      "height": 640,
+      "sha256": "4f19a72ce5eb190dd4e7178e864f77c1e5c23548cd74c2e67a5e43952cc10b8e"
+    }
+  ],
+  "cmsUnchanged": true,
+  "publishedProjectsUnchanged": true,
+  "portfolioHealth": {
+    "portfolioBuildId": {
+      "sourceSha": "65e0c6bce2f2f01bdd3375e58a7e4011ff39feb6",
+      "artifactSha256": "5a7fb3ac0c643dd35377197b3dab4e0bbfbe17b6cb7d4136e663c0519c3ac5e8"
+    },
+    "codeActivationSeq": 7,
+    "processId": 220277,
+    "rendererId": "2d603478b33bda5333b94614081cd83264c81194a3ba7efcabe92b4611710805",
+    "contractVersion": "public-delivery-v1",
+    "contentId": "b158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c",
+    "activationSeq": 1,
+    "contentRendererId": "279a8764447d46287171ff557151eb1aff5263a08daee38c7ea400f8ddf92416"
+  }
+}
