@@ -48,12 +48,15 @@ test('unpacked artifact starts with plain Node, without checkout/CMS/compiler, a
   const boff=await fetch(url+'/projects/boff');assert.equal(boff.status,200);assert.match(await boff.text(),/B\.Off/);
   const sitemap=await (await fetch(url+'/sitemap.xml')).text();assert.match(sitemap,/projects\/boff/);
   for(const file of [...codeAssets,'/fonts/onest-variable.woff2','/figma/dot-tile.svg'])assert.equal((await fetch(url+file)).status,200,file);
-  for(const [file,width,height] of [['/artur-designer-social-preview-v2.png',2400,1260],['/artur-designer-social-preview-square-v2.png',1280,1280]]){
+  for(const [file,width,height] of [['/artur-designer-social-preview-v3.png',1200,630]]){
    const response=await fetch(url+file);assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/png');
    const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.readUInt32BE(16),width);assert.equal(bytes.readUInt32BE(20),height);
    assert.deepEqual(bytes,await readFile(new URL('../public'+file,import.meta.url)),'Artifact must preserve original exported artwork bytes');
    assert.equal((await fetch(url+file,{method:'HEAD'})).status,200);
   }
+  assert.equal((html.match(/property="og:image"/g)||[]).length,1);
+  assert.doesNotMatch(html,/social-preview-square/);
+  for(const suffix of ['v2','v3'])assert.equal((await fetch(url+'/artur-designer-social-preview-square-'+suffix+'.png')).status,404);
   for(const asset of a.assets)assert.equal((await fetch(url+'/__content/'+a.contentId+asset.publicPath)).status,200,asset.publicPath);
   const b=fixture();b.projects[0].title='Updated fixture';const next=await publish(contentRoot,b,manifest.renderer,2);
   assert.equal((await (await fetch(url+'/api/site-content')).json()).revision,next.contentId);
