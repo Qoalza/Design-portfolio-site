@@ -1,8 +1,8 @@
 # HANDOFF
-2026-10-29. Worktree portfolio-production-release; branch codex/social-link-previews. User authorized minimal public diagnostic page. Deployed4753d298a903aaaabcf7b40db10ba6143c4a178b, activation8, operation6d105fd4-f87a-427d-8d2a-9c60c760827f. Closing docs commit is not runtime release.
+2026-10-29. Worktree portfolio-production-release; branch codex/social-link-previews. Deployed80a3e8e7e4e5fb70a09cd21d1f79eee17d4602d0, activation9, operation1642df38-7401-4064-8233-75d6a42e4bdd. Docs commit is not runtime release.
 
-https://art-des.ru/preview-test-20261029 returns712-byte literal HTML, one original1200x630 widev3PNG, OGmetadata; bypasses app template and CMS read. No scripts/preloader/styles; not in sitemap/navigation. Four tests, lint/build/package and public checks passed; existing fourroutes, image hashes, content and CMS unchanged.
+User requested wide-only preview. Active metadata now exactly one original1200x630 widev3PNG. Deleted squarev2/v3 source/public/preview assets and packaging references; old square URLs404 verified. Historical evidence and user originals retained. No switch logic existed. Four focused tests, lint/build/package and public checks passed. CMS/content/site UI unchanged.
 
-Pending user Telegram check. Original1x covers did not solve failure. Root cause still unknown; no support referral, DNS/TLS/config changes or claims Telegram works. Probe isolates HTML/template but shares server/domain/image. Remove temporary probe after investigation.
+Telegram still unresolved: original1x and minimal /preview-test-20261029 both failed per user. Probe remains712-byte independentHTML with same widePNG. User reports VK produces small preview of wide artwork; not independently inspected. Do not claim removing second image fixes either service. No DNS/TLS changes authorized.
 
-Evidence design-reference/releases/4753d29-preview-probe/public-postcheck.json; history docs/portfolio/SOCIAL_PREVIEW_RELEASE_20261029.md. Previous compatible artifact5a7fb3ac0c643dd35377197b3dab4e0bbfbe17b6cb7d4136e663c0519c3ac5e8 retained; rollback via explicit new Portfolio controller intent only. Admin/content/UI/adaptives untouched.
+Evidence design-reference/releases/80a3e8e-wide-only-preview/public-postcheck.json; history docs/portfolio/SOCIAL_PREVIEW_RELEASE_20261029.md. Previous artifact19b6b8976609c83988e333badd498234b7d3fd1f7fcc9021ac2708cd52353d91 retained; rollback only with new explicit Portfolio controller intent. Remove temporary probe when diagnosis complete.

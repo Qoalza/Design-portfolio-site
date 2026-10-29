@@ -1,0 +1,61 @@
+{
+  "probe": {
+    "status": 200,
+    "bytes": 712,
+    "url": "https://art-des.ru/preview-test-20261029"
+  },
+  "routes": [
+    {
+      "route": "/",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/corvo",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/sarafan-radio",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png"
+      ]
+    },
+    {
+      "route": "/projects/boff",
+      "status": 200,
+      "ogImages": [
+        "https://art-des.ru/artur-designer-social-preview-v3.png"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "url": "https://art-des.ru/artur-designer-social-preview-v3.png",
+      "bytes": 130728,
+      "width": 1200,
+      "height": 630,
+      "sha256": "8d23347753e97b0ada1143e60823ad284dfaace27b4d2a2407fe01b881aa8b96"
+    }
+  ],
+  "cmsUnchanged": true,
+  "publishedProjectsUnchanged": true,
+  "portfolioHealth": {
+    "portfolioBuildId": {
+      "sourceSha": "80a3e8e7e4e5fb70a09cd21d1f79eee17d4602d0",
+      "artifactSha256": "f6ef2abad5871d5b276bcd2b38da65fc2993156f739f5c44406a42e5b2b2fa0d"
+    },
+    "codeActivationSeq": 9,
+    "processId": 221290,
+    "rendererId": "f6d6887681b107c5b37993cd0f8dc37d0ba94c19a6aa3537c0cf944f14f07bc7",
+    "contractVersion": "public-delivery-v1",
+    "contentId": "b158f7017c45d2c9e67f0d905c725e0138c2cff2782c37f09bbed45cdea6fb4c",
+    "activationSeq": 1,
+    "contentRendererId": "279a8764447d46287171ff557151eb1aff5263a08daee38c7ea400f8ddf92416"
+  }
+}
