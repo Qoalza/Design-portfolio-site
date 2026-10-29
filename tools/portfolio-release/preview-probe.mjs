@@ -1,5 +1,5 @@
 // Temporary diagnostic: deliberately independent of app HTML and content loading.
-export const previewProbePath='/preview-test-20261029';
+export const previewProbePath='/preview-text-20261029';
 export const previewProbeHTML=`<!doctype html>
 <html lang="ru">
 <head>
@@ -8,10 +8,7 @@ export const previewProbeHTML=`<!doctype html>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Артур — Product Designer">
 <meta property="og:description" content="Портфолио продуктового дизайнера">
-<meta property="og:url" content="https://art-des.ru/preview-test-20261029">
-<meta property="og:image" content="https://art-des.ru/artur-designer-social-preview-v3.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://art-des.ru/preview-text-20261029">
 </head>
 <body><h1>Проверка превью ссылки</h1><p>Артур — Product Designer</p></body>
 </html>`;
